@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=DUIApplet
+Name=System Rush
+Icon=W-Icon-system-rush
+Exec=duiappletrunner
+Categories=Game;ArcadeGame;
+
+[DUI]
+X-DUIApplet-Applet=libimageapplet.so
+X-DUIApplet-ImageLandscape=Widget_landscape_contacts
+X-DUIApplet-ImagePortrait=Widget_portrait_contacts
+

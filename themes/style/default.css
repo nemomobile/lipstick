@@ -1,0 +1,499 @@
+@const FONT_XLARGE:  "Nokia Sans" 3.11mm; /* 32px */
+@const FONT_LARGE:   "Nokia Sans" 2.72mm; /* 28px */
+@const FONT_DEFAULT: "Nokia Sans" 2.34mm; /* 24px */
+@const FONT_SMALL:   "Nokia Sans" 1.95mm; /* 20px */
+@const FONT_XSMALL:  "Nokia Sans" 1.56mm; /* 16px */
+@const COLOR_ACTIVE_FOREGROUND: #ffffff; /* activated item title */
+@const COLOR_ACTIVE_BACKGROUND: #CCFF33; /* activated item background */
+
+DuiSceneWindowStyle#Home {
+    minimum-size: 100% 100%;
+    preferred-size: 100% 100%;
+    maximum-size: 100% 100%;
+}
+
+DuiPannableWidgetStyle {
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+DuiSceneWindowStyle#LauncherWindow {
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    minimum-size: 100% -1;
+    preferred-size: 100% -1;
+    maximum-size: 100% -1;
+}
+
+DesktopStyle {
+    /* The image to draw the desktop background with */
+    desktop-background-image: starfield -1 -1;
+    /* The image to be drawn above the desktop */
+    desktop-background-top: Home-top-bounce -1 -1;
+    /* The image to be drawn below the desktop */
+    desktop-background-bottom: Home-bottom-bounce -1 -1;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    minimum-size: 100% 100%;
+    preferred-size: 100% -1;
+    maximum-size: 100% -1;
+}
+
+DuiSceneWindowStyle#AppletSpaceWindow {
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    minimum-size: 100% -1;
+    preferred-size: 100% -1;
+    maximum-size: 100% -1;
+}
+
+AppletSpaceStyle {
+    extend-direction: "bottom";
+    background-image: "duibutton-background-pressed" 10px 10px 10px 10px;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 16;
+    padding-right: 16;
+    padding-top: 16;
+    padding-bottom: 16;
+    minimum-size: 100% 100%;
+    preferred-size: 100% -1;
+    maximum-size: 100% -1;
+}
+
+DuiButtonStyle#AppletSpaceCloseButton {
+    icon-size: 40 40;
+    preferred-size: 64 64;
+    minimum-size: 64 64;
+    maximum-size: 64 64;
+}
+
+DuiOverlayStyle#AppletSpaceCloseButtonOverlay {
+    minimum-size: 64 64;
+    preferred-size: 64 64;
+    maximum-size: 64 64;
+    offset: 0 0;
+}
+
+StatusAreaStyle {
+    background-image:;
+    background-color: #000000;
+    minimum-size: 100% 28;
+    preferred-size: 100% 28;
+    maximum-size: 100% 28;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+StatusAreaStyle:pressed {
+    background-image: button-status-area-pressed 0 0 0 0;
+    background-color: $COLOR_ACTIVE_BACKGROUND;
+    background-opacity: 1.0;
+    text-color: $COLOR_ACTIVE_FOREGROUND;
+}
+
+StatusAreaStyle:selected {
+    background-image: button-status-area-pressed;
+    background-color: $COLOR_ACTIVE_BACKGROUND;
+    background-opacity: 1.0;
+    text-color: $COLOR_ACTIVE_FOREGROUND;
+}
+
+NotificationAreaStyle {
+    margin-top: 24px;
+    margin-bottom: 24px;
+    minimum-size: 100% 80;
+}
+
+#NotificationAreaViewport {
+    background-image: notification-area-background;
+}
+DuiOverlayStyle#NotificationAreaViewportOverlay {
+    vertical-align: top;
+    horizontal-align: left;
+    offset: 0 0;
+}
+
+DuiAbstractLayoutPolicyStyle#NotificationAreaFlowLayoutPolicy {
+    horizontal-spacing: 12;
+    vertical-spacing: 12;
+}
+
+
+DuiButtonStyle#Notifier {
+    background-image: icon-s-status-notifier 9 9 9 9;
+    font: $FONT_XSMALL;
+    text-color: #FFFFFF;
+    text-margin-left: 0;
+    text-margin-top: 0;
+    text-margin-right: 0;
+    text-margin-bottom: 0;
+    preferred-size: 36 18;
+    minimum-size: 36 18;
+    maximum-size: 36 18;
+}
+
+NotificationAreaStyle.Landscape {
+/*    margin-left: 43px; */
+}
+
+NotificationAreaStyle.Portrait {
+/*    margin-left: 49px; */
+}
+
+DuiSceneWindowAnimatorStyle:event_notification {
+    transition-in-type: "move.right";
+    transition-out-type: "move.to";
+    transition-out-destination: 0 78;
+    transition-out-fade: false;
+}
+
+DuiSceneWindowAnimatorStyle {
+    transition-in-duration: 500;
+    transition-in-type: "move.down";
+    transition-in-fade: true;
+    transition-out-duration: 500;
+    transition-out-type: "move.up";
+    transition-out-fade: true;
+}
+
+DuiButtonIconStyle {
+    glow-color: #ffffff;
+    horizontal-text-align: center;
+}
+
+ClockStyle {
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    time-format: "HH:mm";
+    preferred-size: 84 28;
+    minimum-size: 84 28;
+    maximum-size: 84 28;
+}
+DuiLabelStyle#ClockLabel {
+    font: $FONT_SMALL;
+    color: #FFFFFF;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 1.6mm;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+DuiButtonStyle#ShowLauncherButton {
+    icon-size: 48 48;
+}
+DuiButtonStyle#ShowLauncherButton.Landscape {
+    preferred-size: 72 72;
+    maximum-size: 72 72;
+    minimum-size: 72 72;
+}
+DuiButtonStyle#ShowLauncherButton.Portrait {
+    preferred-size: 88 88;
+    maximum-size: 88 88;
+    minimum-size: 88 88;
+}
+DuiOverlayStyle#ShowLauncherButtonOverlay {
+    vertical-align: top;
+    horizontal-align: left;
+    offset: 0 0;
+}
+DuiOverlayStyle#ShowLauncherButtonOverlay.Landscape {
+    preferred-size: 72 72;
+    maximum-size: 72 72;
+    minimum-size: 72 72;
+}
+DuiOverlayStyle#ShowLauncherButtonOverlay.Portrait {
+    preferred-size: 88 88;
+    maximum-size: 88 88;
+    minimum-size: 88 88;
+}
+
+DuiButtonStyle#SearchButton {
+    icon-size: 48 48;
+}
+DuiButtonStyle#SearchButton.Landscape {
+    preferred-size: 72 72;
+    maximum-size: 72 72;
+    minimum-size: 72 72;
+}
+DuiButtonStyle#SearchButton.Portrait {
+    preferred-size: 88 88;
+    maximum-size: 88 88;
+    minimum-size: 88 88;
+}
+
+LauncherStyle {
+    background-image: "main-menu-background" 0 0 0 15;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 12;
+    minimum-size: 100% -1;
+    preferred-size: 100% -1;
+    maximum-size: 100% -1;
+}
+
+DuiAbstractLayoutPolicyStyle#LauncherFlowLayoutPolicy {
+    margin-left: 18;
+    margin-right: 18;
+    margin-top: 0;
+    margin-bottom: 6;
+    vertical-spacing: 0;
+    horizontal-spacing: 0;
+}
+
+DuiButtonStyle#LauncherBackButton {
+    icon-size: 40 40;
+    preferred-size: 64 64;
+    minimum-size: 64 64;
+    maximum-size: 64 64;
+}
+
+DuiOverlayStyle#LauncherBackButtonOverlay {
+    minimum-size: 64 64;
+    preferred-size: 64 64;
+    maximum-size: 64 64;
+    offset: 0 0;
+}
+
+DuiButtonIconStyle#LauncherButton {
+    font: $FONT_SMALL;
+    text-color: #ffffff;
+    /* The position of title relative to top-left corner of the button */
+    text-position: 0 78;
+    /* The image to be used as the container (background) of the button if the button represents a shortcut */
+    shortcut-container-image: Bookmark-thumbnail 12 12 36 12;
+    /* The image to be used as the container (background) of the button if the button represents an invalid shortcut */
+    invalid-shortcut-container-image: thumbnail-dummy-bookmark 12 12 36 12;
+    /* The image to be used as the mask for a shortcut thumbnail */
+    shortcut-thumbnail-mask-image: Bookmark-mask 12 12 36 12;
+    margin-left: 6;
+    margin-right: 6;
+    margin-top: 6;
+    margin-bottom: 6;
+    preferred-size: 126 126;
+    minimum-size: 126 126;
+    maximum-size: 126 126;
+
+    press-feedback: press;
+    release-feedback: release;
+}
+DuiButtonIconStyle#LauncherButton.Landscape {
+    /* The image to be used as the background of the button if the button represents a category */
+    category-image: C2-container-category-indicator-bg-123px;
+    /* The position of the shortcut thumbnail relative to top-left corner of the button */
+    shortcut-thumbnail-position: 1 1;
+    /* The size of the shortcut thumbnail */
+    shortcut-thumbnail-size: 124 124;
+    /* The position of title relative to top-left corner of the button if the button represents a shortcut */
+    shortcut-text-position: 9 3;
+    /* The size of the title if the button represents a shortcut */
+    shortcut-text-size: 108 30;
+    /* The position of the icon relative to top-left corner of the button if the button represents a shortcut */
+    shortcut-icon-position: 47 43;
+    /* The size of the icon if the button represents a shortcut */
+    shortcut-icon-size: 94 68;
+}
+DuiButtonIconStyle#LauncherButton.Portrait {
+    /* The image to be used as the background of the button if the button represents a category */
+    category-image: C2-container-category-indicator-bg-94px;
+    /* The position of the shortcut thumbnail relative to top-left corner of the button */
+    shortcut-thumbnail-position: 1 1;
+    /* The size of the shortcut thumbnail */
+    shortcut-thumbnail-size: 92 121;
+    /* The position of title relative to top-left corner of the button if the button represents a shortcut */
+    shortcut-text-position: 9 3;
+    /* The size of the title if the button represents a shortcut */
+    shortcut-text-size: 76 30;
+    /* The position of the icon relative to top-left corner of the button if the button represents a shortcut */
+    shortcut-icon-position: 0 43;
+    /* The size of the icon if the button represents a shortcut */
+    shortcut-icon-size: 94 88;
+}
+
+SwitcherStyle {
+    margin-left: 24;
+    margin-right: 24;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+DuiAbstractLayoutPolicyStyle#SwitcherFlowLayoutPolicy {
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 18;
+    margin-bottom: 18;
+    vertical-spacing: 12;
+    horizontal-spacing: 12;
+}
+
+DuiSeparatorStyle#SwitcherSeparator {
+    background-image:;
+}
+
+SwitcherButtonStyle {
+    preferred-size: 195 108;
+    minimum-size: 195 108;
+    maximum-size: 195 108;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    font: $FONT_SMALL;
+    text-color: #000000;
+    /* The position of the title relative to the top-left corner of the button */
+    text-position: 0 0;
+    /* The size of the title */
+    text-size: 195 108;
+    /* The opacity of the title */
+    text-opacity: 0;
+    /* The position of the icon relative to the top-left corner of the button */
+    icon-position: 0 0;
+    icon-size: 195 108;
+    /* The image to be used for masking the window thumbnail */
+    mask-image:;
+    /* The image to be drawn as the container for the button */
+    container-image:;
+    /* The image to be drawn as the container for the button in selected state */
+    close-image: Icon-close-task;
+}
+SwitcherButtonStyle.Portrait {
+    preferred-size: 108 195;
+    minimum-size: 108 195;
+    maximum-size: 108 195;
+    text-size: 108 195;
+    icon-size: 108 195;
+}
+SwitcherButtonStyle.Landscape {
+    preferred-size: 195 108;
+    minimum-size: 195 108;
+    maximum-size: 195 108;
+    text-size: 195 108;
+    icon-size: 195 108;
+}
+
+StatusIndicatorImageStyle {
+    margin-top: 4;
+    margin-bottom: 0;
+    /* The number of milliseconds in which the images in imageList are animated */
+    animation-duration: 3000;
+}
+
+StatusIndicatorLabelStyle {
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+DuiLabelStyle#StatusIndicatorLabel {
+    font: $FONT_SMALL;
+    color: #FFFFFF;
+    margin-left: 66;
+}
+
+StatusIndicatorImageStyle#PhoneNetworkSignalStrengthStatusIndicator {
+    /* The list of IDs of the images to be shown in the status indicator separated by spaces */
+    image-list: "icon-s-status-network0 icon-s-status-network1 icon-s-status-network2 icon-s-status-network3 icon-s-status-network4 icon-s-status-network5";
+    preferred-size: 14 18;
+    minimum-size: 14 18;
+    maximum-size: 14 18;
+}
+
+StatusIndicatorImageStyle#BatteryStatusIndicatorLevel {
+    /* The list of IDs of the images to be shown in the status indicator separated by spaces */
+    image-list: "icon-s-status-battery0 icon-s-status-battery13 icon-s-status-battery25 icon-s-status-battery38 icon-s-status-battery50 icon-s-status-battery62 icon-s-status-battery75 icon-s-status-battery88 icon-s-status-battery100";
+    preferred-size: 29 18;
+    minimum-size: 29 18;
+    maximum-size: 29 18;
+}
+
+StatusIndicatorImageStyle#BatteryStatusIndicatorCharging {
+    /* The list of IDs of the images to be shown in the status indicator separated by spaces */
+    image-list: "icon-s-status-battery0 icon-s-status-battery13 icon-s-status-battery25 icon-s-status-battery38 icon-s-status-battery50 icon-s-status-battery62 icon-s-status-battery75 icon-s-status-battery88 icon-s-status-battery100";
+    preferred-size: 29 18;
+    minimum-size: 29 18;
+    maximum-size: 29 18;
+}
+
+StatusIndicatorImageStyle#ClockAlarmStatusIndicator {
+    /* The list of IDs of the images to be shown in the status indicator separated by spaces */
+    image-list: "icon-s-status-alarm icon-s-status-alarm";
+    preferred-size: 10 11;
+    minimum-size: 10 11;
+    maximum-size: 10 11;
+    margin-top: 0;
+}
+
+StatusIndicatorImageStyle#BluetoothStatusIndicator {
+    /* The list of IDs of the images to be shown in the status indicator separated by spaces */
+    image-list: "icon-s-status-bluetooth icon-s-status-bluetooth-active";
+    preferred-size: 10 18;
+    minimum-size: 10 18;
+    maximum-size: 10 18;
+}
+
+StatusIndicatorImageStyle#InternetConnectionStatusIndicator {
+    /* The list of IDs of the images to be shown in the status indicator separated by spaces */
+    image-list: "icon-s-status-wlan";
+    preferred-size: 24 18;
+    minimum-size: 24 18;
+    maximum-size: 24 18;
+}

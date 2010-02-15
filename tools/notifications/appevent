@@ -1,0 +1,41 @@
+
+
+case $1 in
+addnotif_old)
+dbus-send --print-reply --dest=org.maemo.dui.NotificationManager / org.maemo.dui.NotificationManager.addNotification string:'Icon-messages' string:"$2" string:'Icon-close' string:'link' uint32:$3
+;;
+updatenotif)
+dbus-send --print-reply --dest=org.maemo.dui.NotificationManager / org.maemo.dui.NotificationManager.updateNotification uint32:$2 string:'Icon-messages' string:"$3" string:'Icon-close' string:'link'
+;;
+removenotif)
+dbus-send --print-reply --dest=org.maemo.dui.NotificationManager / org.maemo.dui.NotificationManager.removeNotification uint32:$2
+;;
+addgroup)
+dbus-send --print-reply --dest=org.maemo.dui.NotificationManager / org.maemo.dui.NotificationManager.addGroup string:'Icon-messages' string:"$2" string:'Icon-close' string:'link'
+;;
+updategroup)
+dbus-send --print-reply --dest=org.maemo.dui.NotificationManager / org.maemo.dui.NotificationManager.updateGroup uint32:$2 string:'Icon-messages' string:"$3" string:'Icon-close' string:'link'
+;;
+removegroup)
+dbus-send --print-reply --dest=org.maemo.dui.NotificationManager / org.maemo.dui.NotificationManager.removeGroup uint32:$2
+;;
+addnotif)
+dbus-send --print-reply --dest=org.maemo.dui.NotificationManager / org.maemo.dui.NotificationManager.addNotification uint32:$2 string:$3 string:$4 string:$5 string:'link' string:'Icon-close'
+;;
+addnotif2)
+dbus-send --print-reply --dest=org.maemo.dui.NotificationManager / org.maemo.dui.NotificationManager.addNotification uint32:$2 string:'' string:$3 string:$4 string:'link' string:'Icon-close'
+;;
+*)
+cat << EOF
+Usage: $0 addnotif     [group id] [event type] [summary] [body]
+       $0 addnotif2    [group id] [summary] [body]
+       $0 addnotif_old [message] [group]
+       $0 updatenotif  [notification id] [message]
+       $0 removenotif  [notification id]
+       $0 addgroup     [message]
+       $0 updategroup  [group id] [message]
+       $0 removegroup  [group id]
+EOF
+;;
+esac
+

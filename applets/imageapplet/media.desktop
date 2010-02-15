@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=DUIApplet
+Name=Media Player
+Icon=W-Icon-mediaplayer
+Exec=duiappletrunner
+Categories=AudioVideo;Player;
+
+[DUI]
+X-DUIApplet-Applet=libimageapplet.so
+X-DUIApplet-ImageLandscape=Widget_landscape_media_player
+X-DUIApplet-ImagePortrait=Widget_portrait_media_player
+

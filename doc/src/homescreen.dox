@@ -1,0 +1,53 @@
+/*! \page homescreen Duihomescreen
+
+This page documents various aspects about the Duihomescreen desktop environment.
+
+\section mainmenu Main menu
+
+The main menu is a central place where the user can launch for example applications and shortcuts.
+
+\subsection mainmenuapplications Applications in main menu
+
+Applications are defined in freedesktop.org desktop entry files with the <tt>.desktop</tt> extension. The desktop entry files of applications must be installed to <tt>/usr/share/applications</tt>. Not all features of the desktop entry specification are supported. The supported features are listed here.
+
+Each desktop entry file must define the \e Name, \e Type, \e Exec and \e Icon keys.
+
+The \e Type must be set to \e Application.
+
+The \e Icon must specify an icon id that is used to represent the application in the main menu.
+
+The \e Name must be set to the unlocalized application name. You can however also provide localized application names. See \c DuiDesktopEntry documentation how to define localized names.
+
+The \e Exec key defines an application binary to be launched. However there is a more preferred way to specify what will be launched in Duihomescreen: the \e X-Maemo-Service key. This key defines the service to be launched.
+
+Note that even though the \e X-Maemo-Service key is specified, the \e Exec key needs to be specified as well. If both an \e X-Maemo-Service and \e Exec key are specified, the \e Exec key is ignored.
+
+The purpose of the \e X-Maemo-Service key is to ensure that there be only a single instance of any application. Successive launch attempts will result in the first instance becoming visible. Note that, for an application to be launched using the \e X-Maemo-Service key, the application should also define a .service file. See \c DuiApplicationService documentation for more information.
+
+To be able to launch multiple instances of an application, the application needs to specify their own class that derives from \c DuiApplicationService and implements custom behaviour. See \c DuiApplicationService documentation for more information. This is also true if the \e Exec key is specified.
+
+Duihomescreen main menu respects the \e OnlyShowIn and \e NotShowIn keys of desktop entry files. The correct value is \e X-DUI. So in order to have the application \b only visible in Duihomescreen main menu (and not e.g. KDE or GNOME) one can specify \e OnlyShowIn=X-DUI;. And if the application should \b not be visible in Duihomescreen main menu one can specify \e NotShowIn=X-DUI;.
+
+Each application can define the directories (submenus) in which the application should be displayed in by defining a value for the \e Categories key in its desktop entry file. If no value has been defined for \e Categories the application will be displayed in the top level menu. Currently duihome shows the following submenus in it's main menu:
+
+- Bookmarks
+- Demos
+- Messages
+
+Example desktop entry file might look like this:
+
+\verbatim
+[Desktop Entry]
+Type=Application
+Name=My application
+Exec=/usr/bin/my-app
+Icon=my_app_icon_id
+Categories=Games;
+OnlyShowIn=X-DUI;
+\endverbatim
+
+\see
+
+- The <a href="http://standards.freedesktop.org/desktop-entry-spec/latest/">freedesktop.org desktop entry standard</a>
+
+*/

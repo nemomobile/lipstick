@@ -1,0 +1,43 @@
+/*! \page news What's New in DirectUI Homescreen
+
+\section v0190 0.19.0
+
+\subsection New
+- Status bar visible in all applications
+- New status bar layout
+- Operator name shown in home view
+- Means to close windows from the new switcher
+- Immediate feedback of launching application from the main menu
+- Ability to specify absolute path to image in notifications
+
+\subsection bugs Bugs fixed
+- X applications icons are not shown after minimization
+- duihome does not provide feedback for application startup
+- "App Matrix" maintains landscape layout unless rotated intentionally
+- Having dui applications running before duihome crashes duihome on startup
+
+\section v0182 0.18.2
+
+\subsection bugs Bugs fixed
+- Command line option parsing robustness fixed
+
+\section v0181 0.18.1
+
+\subsection bugs Bugs fixed
+- Unit tests fixed
+- Plugin packaging fixed
+
+\section v0180 0.18.0
+
+\subsection New
+- Possibility to spawn a system notifications
+- Switcher is on the home screen instead of in the main menu
+- During video recording notification system does not play any sounds or visual notifications
+- Home sends a DESKTOP_READY signal after it is ready for operation
+
+\subsection bugs Bugs fixed
+- homescreen doesnt get required x events passed to it when running on with software and wm is present
+- Icon geometry does not get updated when windows are initially minimized and when homescreen is rotated
+- Desktop load ready signal is missing
+
+*/

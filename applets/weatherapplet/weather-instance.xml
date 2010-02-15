@@ -1,0 +1,13 @@
+<settings>
+  <group>
+    <text key="city1" title="xx_city1"/>
+    <text key="city2" title="xx_city2"/>
+    <text key="city3" title="xx_city3"/>
+    <text key="city4" title="xx_city4"/>
+    <text key="city5" title="xx_city5"/>
+  </group>
+  <group>
+    <boolean key="togglelocal" title="xx_showlocalweather"/> 
+    <integer key="localtemperature" title="xx_changelocaltemperature" type="integer" min="-30" max="30" />
+  </group>
+</settings>

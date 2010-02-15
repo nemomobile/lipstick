@@ -1,0 +1,116 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+# Sample debian/rules that uses debhelper.
+# This file was originally written by Joey Hess and Craig Small.
+# As a special exception, when this file is copied by dh-make into a
+# dh-make output file, you may use that output file without restriction.
+# This special exception was added by Craig Small in version 0.37 of dh-make.
+
+# Uncomment this to turn on verbose mode.
+export DH_VERBOSE=1
+
+
+DEBDIR=..
+CFLAGS = -Wall -Werror -g
+
+ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
+        CFLAGS += -O0
+else
+        CFLAGS += -O2
+endif
+
+ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
+    INSTALL_PROGRAM += -s
+endif
+
+# When doing official releases, set TESTABILITY to off. Defaults to on now
+# because integration cannot pass DEB_BUILD_OPTIONS.
+ifeq (,$(findstring notestability,$(DEB_BUILD_OPTIONS)))
+   QMAKE_OPTIONS += TESTABILITY=on
+endif
+
+# shared library versions, option 1
+version=0.1.0
+major=0
+
+
+configure: configure-stamp
+configure-stamp:
+	dh_testdir
+	qmake  -recursive $(QMAKE_OPTIONS) 
+	touch configure-stamp
+
+
+build: build-stamp
+
+build-stamp: configure-stamp 
+	dh_testdir
+
+	make all
+
+	#docbook-to-man debian/home.sgml > home.1
+
+	touch $@
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp configure-stamp
+	qmake -recursive
+	make clean
+
+	dh_clean 
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k 
+	dh_installdirs
+
+	# install
+	INSTALL_ROOT=$(CURDIR)/debian/tmp $(MAKE) install
+
+	# libduihome0-doc package
+	make  $(PARALLEL_MAKEFLAGS) doc
+	mkdir -p ${CURDIR}/debian/tmp/usr/share/doc/libduihome/api
+	cp -r doc/html/*  ${CURDIR}/debian/tmp/usr/share/doc/libduihome/api/
+
+	install -m 644 -D -p translations/duihome.ts $(CURDIR)/debian/tmp/usr/share/doc/duihomescreen-l10n-engineering-english/duihome.ts
+	install -m 644 -D -p applets/weatherapplet/translations/weatherappletres.ts $(CURDIR)/debian/tmp/usr/share/doc/duihomescreen-plugins-weatherapplet-l10n-engineering-english/weatherappletres.ts
+
+# Build architecture-independent files here.
+binary-indep: build install
+# We have nothing to do by default.
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+	dh_installchangelogs 
+	dh_installdocs
+	dh_install --sourcedir=$(CURDIR)/debian/tmp -v
+#	dh_installmenu
+#	dh_installdebconf	
+#	dh_installlogrotate
+#	dh_installemacsen
+#	dh_installpam
+#	dh_installmime
+#	dh_python
+#	dh_installinit
+#	dh_installcron
+#	dh_installinfo
+#	dh_installman
+	dh_link
+	dh_strip --dbg-package=duihomescreen-plugins-dbg --dbg-package=duihomescreen --dbg-package=libduihome0
+	dh_compress
+	dh_fixperms
+#	dh_perl
+	dh_makeshlibs
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb --destdir=$(DEBDIR)
+
+binary:binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install configure

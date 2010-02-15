@@ -1,0 +1,14 @@
+*.substvars
+*.debhelper
+duihomescreen-dbg/
+duihomescreen-l10n-engineering-english/
+duihomescreen-plugins-dbg/
+duihomescreen-plugins/
+duihomescreen-tests/
+duihomescreen/
+files
+libduihome-dev/
+libduihome-doc/
+libduihome0-dbg/
+libduihome0/
+tmp/

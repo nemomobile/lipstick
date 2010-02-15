@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=DUIApplet
+Name=Converter
+Icon=W-Icon-converter
+Exec=duiappletrunner
+Categories=Utility;
+
+[DUI]
+X-DUIApplet-Applet=libimageapplet.so
+X-DUIApplet-ImageLandscape=Widget_landscape_contacts
+X-DUIApplet-ImagePortrait=Widget_portrait_contacts
+

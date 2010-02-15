@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=DUIApplet
+Name=Weather
+Icon=W-Icon-weather
+Exec=duiappletrunner
+
+[DUI]
+X-DUIApplet-Applet=libweatherapplet.so
+X-DUIApplet-Identifier=weatherappletres

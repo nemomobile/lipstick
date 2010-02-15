@@ -1,0 +1,26 @@
+#! /bin/sh
+
+# First email arrives
+GROUPID=`./appevent addgroup "You have 1 new email" | tail -n 1 | awk '{ print $2 }'`
+NOTIFICATION_1=`./appevent addnotif "New email from David" $GROUPID | tail -n 1 | awk '{ print $2 }'`
+sleep 10
+
+# Three new emails arrive
+./appevent updategroup $GROUPID "You have 4 new emails"
+NOTIFICATION_2=`./appevent addnotif "3 new emails" $GROUPID | tail -n 1 | awk '{ print $2 }'`
+sleep 10
+
+# Fifth email arrives
+./appevent updategroup $GROUPID "You have 5 new emails"
+NOTIFICATION_3=`./appevent addnotif "New email from Hasselhoff" $GROUPID | tail -n 1 | awk '{ print $2 }'`
+sleep 10
+
+# User reads the latest email
+./appevent updategroup $GROUPID "You have 4 new emails"
+./appevent removenotif $NOTIFICATION_3
+sleep 10
+
+# User reads rest of the emails
+./appevent removenotif $NOTIFICATION_1
+./appevent removenotif $NOTIFICATION_2
+./appevent removegroup $GROUPID

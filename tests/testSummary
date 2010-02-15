@@ -1,0 +1,308 @@
+#! /usr/bin/perl
+
+use Term::ANSIColor;
+
+my $startTime = time();
+
+my %opts = (
+    "a" => 0, # all directories, irrespective of if they're in tests.pro
+    "r" => 0, # don't reverse sort
+    "s" => "D", # by default, sort by directory name
+    "j" => 1, # one make job at a time by default
+);
+
+for ( my $argNo=0; $argNo<@ARGV; $argNo++ ) {
+    my $arg = $ARGV[ $argNo ];
+    if ( $arg eq "-h" ) {
+        print "usage: $0 [-a] [-s letter] [-r] [-j number] [-h]\n";
+        print "       -a            include all ut_*/ directories - default is just the ones in tests.pro\n";
+        print "       -s [DTPFS]    sort by column (Dirs, Tests, P(ass), F(ail), S(kipped)\n";
+        print "       -r            reverse sort\n";
+        print "       -j <number>   use <number> make jobs. Default is 1\n";
+        print "       -h            this help\n";
+        exit;
+    } elsif ( $arg eq "-r" ) {
+        $opts{ "r" } = 1;
+    } elsif ( $arg eq "-a" ) {
+        $opts{ "a" } = 1;
+    } elsif ( $arg eq "-s" ) {
+        $opts{ "s" } = $ARGV[ ++$argNo ];
+        if ( $opts{ "s" } !~ /[DTPFS]/ ) {
+            print "Unrecognised column identifier\n";
+            print "Must be one of [DTPFS] :\n";
+            print "  D = Dirs\n";
+            print "  T = Tests\n";
+            print "  P = Pass\n";
+            print "  F = Fail\n";
+            print "  S = Skipped\n";
+            exit(-1);
+        }
+    } elsif ( $arg eq "-j" ) {
+        my $jobs = $ARGV[ ++$argNo ];
+        # Test that the argument is a positive integer number
+        if ( $jobs * 1 eq $jobs && $jobs > 0 ) {
+            $opts{ "j" } = $jobs;
+        }
+    }
+}
+
+# some globals to help sort be faster
+$sortCol = $opts{ "s" };
+$sortIsNumeric = ( $sortCol =~ /[PFS]/ );
+$reverseSort = $opts{ "r" };
+# helper variable for the number of jobs
+$numJobs = $opts{ "j" };
+
+%maxLen = ();
+%segFault = ();
+
+my @rowHeaders = (
+    "D", # Dirs
+    "T", # Tests
+);
+my @rowData = (
+    "P", # Passed
+    "F", # Failed
+    "S", # Skipped
+);
+
+my @keys = ( @rowHeaders, @rowData );
+
+my %title = (
+    "D"=>"Dirs",
+    "T"=>"Tests",
+    "P"=>"P",
+    "F"=>"F",
+    "S"=>"S",
+);
+
+my $headerLabelFormat = "%-*s";
+my $headerDataFormat = "%*s";
+
+my $labelFormat = "%s%-*s%s%*s";
+my $dataFormat   = "%*s%s%*s%s";
+
+my %format = (
+  "D" => $labelFormat,
+  "T" => $labelFormat,
+  "P" => $dataFormat,
+  "F" => $dataFormat,
+  "S" => $dataFormat,
+);
+
+my %separator = (
+  "D" => " ",
+  "T" => " : ",
+  "P" => " ",
+  "F" => " ",
+  "S" => " ",
+);
+
+my %data = (
+);
+
+foreach $key ( @keys ) {
+    $maxLen{ $key } = length( $title{ key } );
+}
+
+# set the maximum length of the directories
+if ( $opts{ "a" } ) {
+    push @allDirs, <ut_*>;
+    push @allDirs, <ft_*>;
+    foreach ( @allDirs ) {
+        setMaxLen( "D", length( $_ ) );
+        $tested{ $_ } = 0;
+    }
+}
+
+# Compile first with possibly multiple jobs
+print "Compiling...";
+`make -j$numJobs -k > /dev/null 2>&1`;
+print "done.\nNow checking...\n";
+
+# then check with only one job so that the parsing succeeds
+open( MAKE, "make -k check 2>&1|" ) || die( "Could not run make:$!" );
+
+#$|=1;
+
+my $thisDir = "";
+while (<MAKE>) {
+    chomp;
+
+    if ( /Entering directory \`.*tests\/(\w+)\'/ ) {
+        $thisDir = $1;
+        print STDERR "Tests: $thisDir", ' 'x( $maxLen{ "D" }-length( $thisDir )+length("Tests: ") ), "\r";
+        $tested{ $thisDir } = 1;
+        push @allDirs, $thisDir if ( !grep( /$thisDir/, @allDirs ) );
+        setMaxLen( "D", length( $thisDir ) );
+    } elsif ( /Segmentation fault/ ) {
+        $segFault{ $thisDir } = $_;
+    } elsif ( /Start testing of (\w+)/ ) {
+        $thisTest = $1;
+        $data{ "T" }{ $thisDir } = $thisTest;
+        setMaxLen( "T", length( $data{ "T" }{ $thisDir } ) );
+    } elsif ( /^Totals: (\d+) passed, (\d+) failed, (\d+) skipped/ ) {
+        $data{ "P" }{ $thisDir } = "$1";
+        $data{ "F" }{ $thisDir } = "$2";
+        $data{ "S" }{ $thisDir } = "$3";
+        setMaxLen( "P", length( $data{ "P" }{ $thisDir } ) );
+        setMaxLen( "F", length( $data{ "F" }{ $thisDir } ) );
+        setMaxLen( "S", length( $data{ "S" }{ $thisDir } ) );
+    }
+}
+
+close( MAKE );
+
+print STDERR ' 'x( $maxLen{ "D" } + length( "Tests: " ) ), "\r";
+
+foreach $thisDir ( @allDirs ) {
+    if ( !defined( $data{ "P" }{ $thisDir } ) || $data{ "P" }{ $thisDir } eq "" ) {
+        $data{ "P" }{ $thisDir } = "0";
+        setMaxLen( "P", length( $data{ "P" }{ $thisDir } ) );
+    }
+    if ( !defined( $data{ "F" }{ $thisDir } ) ) {
+        $data{ "F" }{ $thisDir } = "0";
+        setMaxLen( "F", length( $data{ "F" }{ $thisDir } ) );
+    }
+    if ( !defined( $data{ "S" }{ $thisDir } ) ) {
+        $data{ "S" }{ $thisDir } = "0";
+        setMaxLen( "S", length( $data{ "S" }{ $thisDir } ) );
+    }
+
+    $data{ "D" }{ $thisDir } = $thisDir;
+}
+
+my ( $testsPassed, $testsNeedWork ) = ( 0, 0 );
+my $noTests = scalar( @allDirs );
+my $noDigits = ($noTests>0)?int( log( $noTests )/log( 10 ) )+1:1;
+
+my $header = sprintf( "%*s ", $noDigits, "" );
+
+foreach ( @rowHeaders ) {
+    $header .= sprintf( $headerLabelFormat.$separator{ $_ }, $maxLen{ $_ }, $title{ $_ } );
+}
+
+foreach ( @rowData ) {
+    $header .= sprintf( $headerDataFormat.$separator{ $_ }, $maxLen{ $_ }, $title{ $_ } );
+}
+
+my $headerLen = length( $header );
+
+my $headerColor = color( 'reset' );
+
+print "P = Pass, F = Fail, S = Skip\n";
+print $headerColor, "$header\n";
+print '-'x$headerLen, "\n";
+
+my $testNo = 1;
+
+foreach $thisDir ( sort byCol @allDirs ) {
+    my %colors = ();
+
+    foreach $key ( @keys ) {
+        $colors{ $key } = color( 'reset' );
+    }
+
+    if (
+        ( defined( $data{ "P" }{ $thisDir } ) && $data{ "P" }{ $thisDir } ne "0" ) &&
+        ( defined( $data{ "F" }{ $thisDir } ) && $data{ "F" }{ $thisDir } eq "0" ) &&
+        ( defined( $data{ "S" }{ $thisDir } ) && $data{ "S" }{ $thisDir } eq "0" ) &&
+        ( defined( $data{ "T" }{ $thisDir } ) && $data{ "T" }{ $thisDir } ne "" )
+    ) {
+        $testsPassed++;
+    } else {
+        $testsNeedWork++;
+    }
+
+    if ( defined( $data{ "P" }{ $thisDir } ) && $data{ "P" }{ $thisDir } eq "0" ) {
+        $colors{ "D" } .= color( 'reverse green' );
+        $colors{ "T" } .= color( 'reverse green' );
+        $colors{ "P" } .= color( 'reverse green' );
+    } else {
+        $colors{ "D" } .= color( 'green' );
+        $colors{ "T" } .= color( 'green' );
+        $colors{ "P" } .= color( 'green' );
+    }
+
+    if ( defined( $data{ "F" }{ $thisDir} ) && $data{ "F" }{ $thisDir } eq "0" ) {
+        $colors{ "F" } .= color( 'red' );
+    } else {
+        $colors{ "F" } .= color( 'reverse red' );
+    }
+
+    if ( defined( $data{ "S" }{ $thisDir } ) && $data{ "S" }{ $thisDir } eq "0" ) {
+        $colors{ "S" } .= color( 'blue' );
+    } else {
+        $colors{ "S" } .= color( 'reverse blue' );
+    }
+
+    if ( !defined( $data{ "T" }{ $thisDir } ) || $data{ "T" }{ $thisDir } eq "" || $segFault{ $thisDir } ) {
+        $colors{ "T" } .= color( 'reverse red' );
+    }
+
+    printf( "%*s ", $noDigits, $testNo );
+
+    foreach ( @rowHeaders ) {
+        my $thisData = $data{ $_ }{ $thisDir };
+        my $dataLength = length( $thisData );
+        my $spaceLength = $maxLen{ $_ }-$dataLength;
+
+        printf(
+            $format{ $_ }.$separator{ $_ },
+            $colors{ $_ }, $dataLength, $thisData,
+            color( 'reset' ), $spaceLength, "" );
+    }
+
+    foreach ( @rowData ) {
+        my $thisData = $data{ $_ }{ $thisDir };
+        my $dataLength = length( $thisData );
+        my $spaceLength = $maxLen{ $_ }-$dataLength;
+
+        printf(
+            $format{ $_ }.$separator{ $_ },
+            $spaceLength, "",
+            $colors{ $_ }, $dataLength, $thisData,
+            color( 'reset' ) );
+    }
+
+    printf( $headerColor."\n" );
+
+    $testNo++;
+}
+
+print '-'x$headerLen, "\n";
+print( "Tests with zero fails/skips : $testsPassed\n" );
+print( "Tests needing further work  : $testsNeedWork\n" );
+
+printf( "Elapsed time : %d seconds\n", time() - $startTime );
+
+sub setMaxLen
+{
+    my ( $test, $length ) = @_;
+
+    $maxLen{ $test } = $length if ( defined( $maxLen{ $test} ) && $length > $maxLen{ $test } );
+}
+
+sub byCol
+{
+    my $retVal = 0;
+
+    my $localA = $a;
+    my $localB = $b;
+
+    if ( $reverseSort ) {
+        my $tmp = $localA;
+        $localA = $localB;
+        $localB = $tmp;
+    }
+
+    if ( $sortIsNumeric ) {
+        # numeric comparison
+        $retVal = $data{ $sortCol }{ $localA } <=> $data{ $sortCol }{ $localB };
+    } else {
+        # string comparison
+        $retVal = $data{ $sortCol }{ $localA } cmp $data{ $sortCol }{ $localB };
+    }
+
+    return $retVal;
+}

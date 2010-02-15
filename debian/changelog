@@ -1,0 +1,51 @@
+duihome (0.19.0~2) unstable; urgency=low
+
+  * New version [UNRELEASED]
+  * Implemented: Applet Space for applets
+
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Fri, 12 Feb 2010 16:50:19 +0200
+
+duihome (0.19.0~1) unstable; urgency=low
+
+  * New version
+  * Implemented: SWP#DUI-1946 Status bar for applications
+  * Implemented: SWP#DUI-1947 Implement status bar layout
+  * Implemented: SWP#DUI-1972 Show operator name in home view
+  * Implemented: SWP#DUI-1988 Means to close windows from switcher
+  * Implemented: SWP#DUI-2006 Immediate feedback of launching application from launcher
+  * Implemented: SWP#DUI-1867 Ability to specify absolute path to image in notification
+  * Fixes: NB#153329 - X applications icons are not shown after minimization
+  * Fixes: NB#153350 - duihome does not provide feedback for application startup
+  * Fixes: NB#155106 - "App Matrix" maintains landscape layout unless rotated intentionally
+  * Fixes: NB#155176 - Having dui applications running before duihome crashes duihome on startup
+
+ -- Aki Koskinen <aki.koskinen@nokia.com>  Wed, 27 Jan 2010 10:24:55 +0200
+
+duihome (0.18.2-1) unstable; urgency=low
+
+  * New version
+  * Fixes problems with command line argument parsing
+
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Wed, 27 Jan 2010 17:39:36 +0200
+
+duihome (0.18.1-2) unstable; urgency=low
+
+  * New version
+  * Unit test fixes
+  * Command line option parsing robustness fixes
+  * Plugin packaging fixes
+
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Thu, 21 Jan 2010 18:37:24 +0200
+
+duihome (0.18.0-3) unstable; urgency=low
+
+  * New version
+  * Implemented: SWP#DUI-1883 Possibility to spawn a system notification
+  * Implemented: SWP#DUI-1989 Move switcher from launcher to home
+  * Implemented: SWP#DUI-1445 During video recording notification system should not play any sound nor visual notification
+  * Implemented: SWP#DUI-1895 Sending DESKTOP_READY signal from Homescreen
+  * Fixes: NB#152158 homescreen doesnt get required x events passed to it when running on with software and wm is present
+  * Fixes: NB#148689 Icon geometry does not get updated when windows are initially minimized and when homescreen is rotated
+  * Fixes: NB#147480 Desktop load ready signal is missing
+
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Mon, 18 Jan 2010 12:12:54 +0200

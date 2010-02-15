@@ -1,0 +1,61 @@
+/*! \mainpage DirectUI Homescreen Reference Documentation
+
+<table class="mainIndex">
+  <tr>
+    <th>Getting Started</th>
+    <th>General</th>
+    <th>Developer Resources</th>
+  </tr>
+  <tr>
+    <td>
+      <ul>
+      <li><strong><a href="news.html">What's New in DirectUI Homescreen</a></strong></li>
+      <li>Installation</li>
+      </ul>
+    </td>
+    <td>
+      <ul>
+      <li><a href="homescreen.html">About DirectUI Homescreen</a></li>
+      </ul>
+    </td>
+    <td>
+      <ul>
+      <li><a href="https://cwiki.nokia.com/DirectUIFramework">DirectUI Wiki</a></li>
+      <li><a href="bugreporting.html">How to Report a Bug</a></li>
+      </ul>
+    </td>
+  </tr>
+
+  <tr>
+    <th>API Reference</th>
+    <th>Core Features</th>
+    <th>Licenses & Credits</th>
+  </tr>
+  <tr>
+    <td>
+      <ul>
+      <li><a href="classes.html">All Classes</a></li>
+      <li><a href="mainclasses.html">Main Classes</a></li>
+      <li><a href="annotated.html">Annotated Classes</a></li>
+      <li><a href="namespaces.html">All Namespaces</a></li>
+      <li><a href="hierarchy.html">Inheritance Hierarchy</a></li>
+      <li><a href="inherits.html">Class Chart</a></li>
+      </ul>
+    </td>
+    <td>
+      <ul>
+      <li><a href="notifications.html">Notifications</a></li>
+      </ul>
+    </td>
+    <td>
+      <ul>
+      <li><a href="license.html">License</a></li>
+      <li><a href="credits.html">Credits</a></li>
+      </ul>
+    </td>
+  </tr>
+
+
+</table>
+
+*/

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=DUIApplet
+Name=Calendar
+Icon=W-Icon-calendar
+Exec=duiappletrunner
+Categories=Office;Calendar;
+
+[DUI]
+X-DUIApplet-Applet=libimageapplet.so
+X-DUIApplet-ImageLandscape=Widget_landscape_calendar
+X-DUIApplet-ImagePortrait=Widget_portrait_calendar

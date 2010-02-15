@@ -1,0 +1,9 @@
+/*! \page bugreporting How to Report a Bug
+
+Bugs can be entered in the <a href="https://projects.maemo.org/bugzilla/enter_bug.cgi?product=H-Application-Framework">Maemo Bugzilla</a>, Harmattan program, Application Framework product.
+
+Please check Bugzilla for existing bugs that might cover your problem before filing a new one.
+
+If possible, try to include a small test case or program that demonstrates the problem.
+
+*/

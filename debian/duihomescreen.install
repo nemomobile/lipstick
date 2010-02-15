@@ -1,0 +1,8 @@
+usr/bin/duihome*
+usr/share/desktop-directories/*.directory
+usr/share/applications/*.desktop
+usr/share/themes/base/dui/duihome/*.conf
+usr/share/themes/base/dui/duihome/images/*.png
+usr/share/themes/base/dui/duihome/style/*.css
+usr/share/themes/base/dui/duihome/svg/*.svg
+usr/share/dui/notifications/eventtypes/*.conf

@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=DUIApplet
+Name=Filemanager
+Icon=W-Icon-filemanager
+Exec=duiappletrunner
+Categories=System;FileTools;FileManager;
+
+[DUI]
+X-DUIApplet-Applet=libimageapplet.so
+X-DUIApplet-ImageLandscape=Widget_landscape_contacts
+X-DUIApplet-ImagePortrait=Widget_portrait_contacts
+

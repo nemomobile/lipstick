@@ -1,0 +1,122 @@
+#! /usr/bin/perl
+
+my @files = ();
+
+my $VALID=90.0;
+
+push @files, <*.cpp>;
+#push @files, <*.h>;
+
+my %total = ();
+my %percentages = ();
+my %lines = ();
+my %maxLen = ();
+
+$maxLen{ "files" } = length( "File" );
+$maxLen{ "%" } = length( "%" );
+$maxLen{ "lines" } = length( "Lines" );
+
+$numArgs = $#ARGV + 1;
+$xml = 0;
+
+if ($numArgs == 2 && $ARGV[0] == "-xml" ) {
+    $xml = 1;
+    $filename = $ARGV[1];
+    open(OUT,">$filename") or die("Cant open $filename for writing!");
+    printf("Create coverage log $filename ... \n");
+} elsif ($numArgs == 0) {
+    $xml = 0;
+} else {
+    die("Danger danger will robinson!")
+}
+
+
+
+
+foreach $file ( @files ) {
+    my $filterNextLine = 0;
+    foreach ( `gcov --object-directory . $file` ) {
+        chomp;
+        if  ( ( $filterNextLine ) && ( /Lines executed:(\S+) of (\S+)/ ) ) {
+            $percentages{ $file } = $1;
+            $lines{ $file } = $2;
+            $total{"%"}+=$1;
+            $total{"lines"}+=$2;
+            $total{"files"}++;
+            setMaxLen( "%", length( $1 ) );
+            setMaxLen( "lines", length( $2 ) );
+            setMaxLen( "files", length( $file ) );
+        }
+        $filterNextLine = ( /File \'$file\'/ );
+    }
+}
+
+# print out table
+#
+
+
+
+    
+
+
+if ($xml) {
+    print OUT sprintf("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n");
+    print OUT sprintf("<TestCase name=\"Coverage\">\n");
+    print OUT sprintf("<Environment>\n");
+    print OUT sprintf("<QtVersion>4.5.0</QtVersion>\n");
+    print OUT sprintf("    <QTestVersion>4.5.0</QTestVersion>\n");
+    print OUT sprintf("</Environment>\n");
+
+    printTestFunction("initTestCase","",100);    
+
+} else {
+    printf( "    %-*s %*s %*s\n", $maxLen{ "files" }, "File", $maxLen{ "%" }, "%", $maxLen{ "lines" }, "Lines" );
+}
+my $counter = 1;
+foreach $file ( @files ) {
+    if ($xml ) {
+        printTestFunction("Line Coverage of $file",$file,$percentages{$file});
+    } else {
+        printf( "%3d ", $counter );
+        printf( "%-*s ", $maxLen{ "files" }, $file );
+        printf( "%*s ", $maxLen{ "%" }, $percentages{ $file } );
+        printf( "%*s", $maxLen{ "lines" }, $lines{ $file } );
+        printf( "\n" );
+    }
+    $counter++;
+}
+    
+# print out totals
+{
+    if ($xml) {
+        printTestFunction("Total Coverage","",$total{ "%" }/$total{ "files" });    
+        printTestFunction("cleanupTestCase","",100);    
+        print OUT sprintf("</TestCase>\n");
+    } else {
+        print "Total lines=", $total{ "lines" }, "\n";
+        print "Mean percentage=", $total{ "%" }/$total{ "files" }, "\n";
+    }
+}
+
+close(OUT);
+
+sub printTestFunction
+{
+    my ( $testname, $filename, $percentage ) = @_;
+    local $pass = $percentage>=$VALID;
+
+    print OUT sprintf("<TestFunction name=\"%s\">\n",$testname);
+    print OUT sprintf("<Incident type=\"%s\" file=\"%s\" line=\"0\" %s>\n", $pass?"pass":"fail",$filename, $pass?"/":"");
+    if (not $pass) {
+        print OUT sprintf("<Description><![CDATA[%s]]></Description>\n","Coverage ($percentage) below set $VALID%");
+        print OUT sprintf("</Incident>\n");
+    }
+    print OUT sprintf("</TestFunction>\n");
+
+}
+sub setMaxLen
+{
+    my ( $field, $length ) = @_;
+
+    $maxLen{ $field } = $length if ( defined( $maxLen{ $field } ) && $length > $maxLen{ $field } );
+}

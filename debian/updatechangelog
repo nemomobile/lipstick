@@ -1,0 +1,21 @@
+#!/bin/sh
+
+if [ -d debian ]; then
+ if [ -e BUILD_ID ]; then
+     export BUILD_ID=`cat BUILD_ID`
+     echo "Using found build_id $BUILD_ID"
+ else 
+     echo "No build_id found, defaulting to 1"
+     export BUILD_ID=1
+ fi
+
+ if [ "${BUILD_ID}x" == "x" ]; then
+    echo "Defined buld_id is empty, defaulting to 1"
+    BUILD_ID=1
+ fi
+
+ cp debian/changelog debian/.changelog
+ cat debian/.changelog | sed '1 s/-[0-9]\{1,\})/-'$BUILD_ID')/' > debian/changelog
+else 
+  echo "You must run this on top level of the repository folder"
+fi

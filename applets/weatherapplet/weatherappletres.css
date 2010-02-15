@@ -1,0 +1,35 @@
+WeatherButtonStyle {
+    background-image: C1-container-background 20 20 20 20;
+    temperature-font: "Nokia Sans" 25;
+    temperature-color: #00FF00;
+    temperature-position: 10 8;
+    temperature-size: 95 34;
+    city-font: "Nokia Sans" 19;
+    city-color: #FF0000;
+    city-position: 10 148;
+    city-size: 95 34;
+    icon-position: 8 49;
+    preferred-size: 113 188;
+    minimum-size: 113 188;
+    maximum-size: 113 188;
+}
+
+WeatherButtonStyle.Portrait {
+    temperature-size: 55 34;
+    city-font: "Nokia Sans" 16.5;
+    city-size: 55 34;
+}
+
+DuiLabelStyle#WeatherTitle {
+    font: "Nokia Sans" 25;
+}
+
+DuiButtonStyle#ActionButton {
+    preferred-size: 30mm 15mm;
+    minimum-size: 10mm 10mm;
+    maximum-size: 100% 15mm;
+}
+
+DuiLabelStyle#Timer {
+    color: #FF0000;
+}
