@@ -22,6 +22,7 @@
 #include "ut_switcherview.h"
 #include "switcherview.h"
 #include "switcher_stub.h"
+#include "switcherbutton.h"
 
 // DuiWidgetView stubs
 SwitcherModel switcherModel;
@@ -39,6 +40,46 @@ const DuiWidgetModel *DuiWidgetView::model() const
 QRectF DuiWidgetView::boundingRect() const
 {
     return QRectF(0, 0, 0, 0);
+}
+
+void SwitcherButton::switchToWindow()
+{
+
+}
+
+void SwitcherButton::close()
+{
+
+}
+
+void SwitcherButton::updateIconGeometry()
+{
+
+}
+
+void SwitcherButton::prepareGeometryChange()
+{
+
+}
+
+void SwitcherButton::setGeometry(const QRectF &rect)
+{
+
+}
+
+
+void SwitcherButton::setEmphasis()
+{
+
+}
+
+void SwitcherButton::unsetEmphasis()
+{
+
+}
+
+SwitcherButton::~SwitcherButton() {
+
 }
 
 void Ut_SwitcherView::initTestCase()

@@ -357,72 +357,107 @@ DuiButtonIconStyle#LauncherButton.Portrait {
 }
 
 SwitcherStyle {
-    margin-left: 24;
-    margin-right: 24;
+    margin-left: 0;
+    margin-right: 0;
     margin-top: 0;
     margin-bottom: 0;
     padding-left: 0;
     padding-right: 0;
     padding-top: 0;
     padding-bottom: 0;
+
+    
+    /* how much to down scale the non emphasizzed items */
+    scale-factor: 0.8;
+    /* The amount the focused item will "fast-forward" during the transition */ 
+    fast-forward: 40;
+    /* The angle that the item will rotate during the transition */
+    item-rotation: 15;
+    /* The amoun the items will overlap when stationary */
+    item-over-lap: 3mm;
 }
 
-DuiAbstractLayoutPolicyStyle#SwitcherFlowLayoutPolicy {
-    margin-left: 0;
-    margin-right: 0;
-    margin-top: 18;
-    margin-bottom: 18;
-    vertical-spacing: 12;
-    horizontal-spacing: 12;
+SwitcherStyle.Landscape {
+    /* 
+       The size values are defined for now, most likely they can be removed when
+       the applet library button is removed from the desktop.
+     */
+    minimum-size: 100% 400px;
+    preferred-size: 100% 400px;
+    maximum-size: 100% 400px;
 }
 
-DuiSeparatorStyle#SwitcherSeparator {
-    background-image:;
+SwitcherStyle.Portrait {
+    /* 
+       The size values are defined for now, most likely they can be removed when
+       the applet library button is removed from the desktop.
+     */
+    minimum-size: 100% 780px;
+    preferred-size: 100% 780px;
+    maximum-size: 100% 780px;
+}
+
+
+DuiPannableWidgetStyle#SwitcherDetailsViewport {
+    pan-threshold: 15.0;
+    pan-click-threshold: 0.2;
+    pointer-spring-k: 0.6;
+    friction-c: 0.9;
+    sliding-friction-c: 0.9;
+    border-spring-k: 0.9;
+    border-friction-c: 0.9;
 }
 
 SwitcherButtonStyle {
-    preferred-size: 195 108;
-    minimum-size: 195 108;
-    maximum-size: 195 108;
     margin-left: 0;
     margin-right: 0;
-    margin-top: 0;
-    margin-bottom: 0;
+
     padding-left: 0;
     padding-right: 0;
     padding-top: 0;
     padding-bottom: 0;
-    font: $FONT_SMALL;
-    text-color: #000000;
-    /* The position of the title relative to the top-left corner of the button */
-    text-position: 0 0;
-    /* The size of the title */
-    text-size: 195 108;
+
+    font: $FONT_DEFAULT;
+    text-color: #FFFFFF;
+
     /* The opacity of the title */
     text-opacity: 0;
     /* The position of the icon relative to the top-left corner of the button */
     icon-position: 0 0;
-    icon-size: 195 108;
     /* The image to be used for masking the window thumbnail */
     mask-image:;
     /* The image to be drawn as the container for the button */
     container-image:;
     /* The image to be drawn as the container for the button in selected state */
-    close-image: Icon-close-task;
+    close-image:;
 }
+
+SwitcherButtonStyle:emphasized {
+    text-opacity: 1.0;
+    close-image: icon-m-framework-close;
+
+    /* The amount of space around the label */
+    text-margin-bottom: 5;
+    text-margin-left: 6;
+    text-margin-right: 6;
+}
+
 SwitcherButtonStyle.Portrait {
-    preferred-size: 108 195;
-    minimum-size: 108 195;
-    maximum-size: 108 195;
-    text-size: 108 195;
-    icon-size: 108 195;
+
+    preferred-size: 28.77mm 51.8mm;
+    minimum-size: 28.77mm 51.8mm;
+    maximum-size: 28.77mm 51.8mm;
+
+    icon-size: 28.77mm 51.8mm;
 }
+
 SwitcherButtonStyle.Landscape {
-    preferred-size: 195 108;
-    minimum-size: 195 108;
-    maximum-size: 195 108;
-    text-size: 195 108;
-    icon-size: 195 108;
+
+    preferred-size: 51.8mm 28.77mm;
+    minimum-size: 51.8mm 28.77mm;
+    maximum-size: 51.8mm 28.77mm;
+
+    icon-size: 51.8mm 28.77mm;
 }
 
 StatusIndicatorImageStyle {

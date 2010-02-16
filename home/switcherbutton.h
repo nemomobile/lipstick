@@ -72,6 +72,18 @@ public:
     virtual void setGeometry(const QRectF &rect);
     //! \reimp_end
 
+    /*! 
+     * Sets the emphasis for this switcher button, currently this sets the 
+     * correct style mode.
+     */
+    void setEmphasis();
+      
+    /*! 
+     * Unsets the emphasis for this switcher button, currently this reset the 
+     * button style to default.
+     */
+    void unsetEmphasis();
+
 signals:
     /*!
      * \brief A signal for notifying that a window should be brought to front
@@ -100,6 +112,7 @@ public slots:
     void updateIconGeometry();
 
 private:
+
     //! X11 Atom for the icon geometry
     static Atom iconGeometryAtom;
 

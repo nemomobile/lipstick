@@ -41,6 +41,8 @@ private:
     DUI_MODEL_PROPERTY(Window, xWindow, XWindow, true, 0)
     //! The UI element that the mouse was pressed on
     DUI_MODEL_PROPERTY(SwitcherButtonModel::PressedType, pressed, Pressed, true, NonePressed)
+    //! Repsesents the if this switcher button is emphasized or not
+    DUI_MODEL_PROPERTY(bool, emphasized, Emphasized, true, false)
 
 };
 

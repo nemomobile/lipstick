@@ -19,6 +19,7 @@
 
 #include <QX11Info>
 #include <DuiApplication>
+#include "homeapplication.h"
 #include "mainwindow.h"
 #include "switcherbutton.h"
 #include "x11wrapper.h"
@@ -102,4 +103,14 @@ void SwitcherButton::updateIconGeometry()
     iconGeometry[2] = iconPosition.width();
     iconGeometry[3] = iconPosition.height();
     X11Wrapper::XChangeProperty(QX11Info::display(), xWindow(), iconGeometryAtom, XA_CARDINAL, sizeof(unsigned int) * 8, PropModeReplace, (unsigned char *)&iconGeometry, 4);
+}
+
+void SwitcherButton::setEmphasis()
+{
+    model()->setEmphasized(true);
+}
+
+void SwitcherButton::unsetEmphasis()
+{
+    model()->setEmphasized(false);
 }

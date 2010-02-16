@@ -17,6 +17,7 @@ SUBDIRS = \
     ut_switcherview \
     ut_switcherbutton \
     ut_switcherbuttonview \
+    ut_switcherphysicsintegrationstrategy \
     ut_notificationparameter \
     ut_notificationparameters \
     ut_notification \

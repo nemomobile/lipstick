@@ -28,6 +28,26 @@ class SwitcherStyle : public DuiWidgetStyle
 {
     Q_OBJECT
     DUI_STYLE(SwitcherStyle)
+
+    /*! Defines how much the focused switcher button will be scaled */
+    DUI_STYLE_ATTRIBUTE(qreal, scaleFactor, ScaleFactor)
+
+    /*!
+     * Defines how much extra the focused switcher button will move 
+     * horizontally "out of the way".
+     */
+    DUI_STYLE_ATTRIBUTE(qreal, fastForward, FastForward)
+
+    /*!
+     * Defines how much the focused switcher button will rotate at maximum 
+     * during horizontal movement
+     */
+    DUI_STYLE_ATTRIBUTE(qreal, itemRotation, ItemRotation)
+    /*!
+     * Defines how mush the items will over lap when they are stationary
+     */
+    DUI_STYLE_ATTRIBUTE(qreal, itemOverLap, ItemOverLap)
+      
 };
 
 class SwitcherStyleContainer : public DuiWidgetStyleContainer

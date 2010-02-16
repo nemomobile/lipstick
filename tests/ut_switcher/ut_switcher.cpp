@@ -18,6 +18,7 @@
 ****************************************************************************/
 #include <QtTest/QtTest>
 #include <DuiApplication>
+#include <QFocusEvent>
 #include "ut_switcher.h"
 #include "switcher.h"
 #include "switcherbutton.h"
@@ -43,9 +44,14 @@ SwitcherButton::~SwitcherButton()
     g_windowButtonMap.remove(this);
 }
 
-Window SwitcherButton::xWindow()
+void SwitcherButton::setEmphasis()
 {
-    return g_windowButtonMap[this];
+
+}
+
+void SwitcherButton::unsetEmphasis()
+{
+
 }
 
 void SwitcherButton::switchToWindow()
@@ -82,6 +88,11 @@ void SwitcherButton::setWindowPriority(WindowInfo::WindowPriority windowPriority
 }
 
 QList<SwitcherButton *> Ut_Switcher::iconGeometryUpdated;
+
+Window SwitcherButton::xWindow()
+{
+    return 0;
+}
 
 void Ut_Switcher::init()
 {

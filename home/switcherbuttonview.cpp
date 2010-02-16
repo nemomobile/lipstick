@@ -16,7 +16,6 @@
 ** of this file.
 **
 ****************************************************************************/
-
 #include <cmath>
 #include <QTimer>
 #include <QGraphicsSceneMouseEvent>
@@ -97,16 +96,14 @@ void SwitcherButtonView::drawContents(QPainter *painter, const QStyleOptionGraph
         painter->setFont(font);
         painter->setPen(style()->textColor());
         painter->setOpacity(style()->textOpacity());
-        painter->drawText(titleRect(), Qt::AlignCenter, text);
+        painter->drawText(titleRect(), Qt::AlignLeft | Qt::ElideRight, text);
     }
 
     // Draw a close image at top right corner
-    const QPixmap *closeImage = style()->closeImage();
-    if (closeImage != NULL) {
-        painter->setOpacity(1.0f);
-        QPointF p = buttonRect().topRight() - QPointF(closeImage->width() * 0.5f,
-                    closeImage->height() * 0.5f);
-        painter->drawPixmap(p, *closeImage);
+    if (style()->closeImage()) {
+	painter->setOpacity(1.0f);
+	QRectF rect = closeRect();
+	style()->closeImage()->draw(rect.x(), rect.y(), rect.width(), rect.height(), painter);
     }
 
     // Restore the painter state
@@ -122,22 +119,24 @@ QRectF SwitcherButtonView::buttonRect() const
 
 QRectF SwitcherButtonView::titleRect() const
 {
-    QRectF rect(style()->textPosition(), style()->textSize());
+    QRectF rect = buttonRect();
+    QRectF close = closeRect();
+    QFontMetrics fm(style()->font());
 
-    rect.translate(buttonRect().topLeft());
-
+    rect.setTopLeft(rect.topLeft() - QPointF(0, fm.height()));
+    rect.setBottomRight(rect.topRight() + QPointF(-(close.width() + 2 * style()->textMarginLeft()), fm.height()));
+    rect.translate(style()->textMarginLeft(), -style()->textMarginBottom());
     return rect;
 }
 
 QRectF SwitcherButtonView::closeRect() const
 {
     QRectF rect = buttonRect();
-
-    const QPixmap *closeImage = style()->closeImage();
-    if (closeImage != NULL) {
-        // calculate the rect for the close button alone
-        rect.setTopRight(rect.topRight() + QPointF(closeImage->width() * 0.5f, -closeImage->height() * 0.5f));
-        rect.setBottomLeft(rect.topRight() - QPointF(closeImage->width(), -closeImage->height()));
+    if (style()->closeImage()) {
+        const QPixmap* closeImage = style()->closeImage()->pixmap();
+	// calculate the rect for the close button alone
+	rect.setBottomLeft(rect.topRight() - QPointF(closeImage->width(), 0));
+	rect.setTopRight(rect.topRight() - QPointF(0, closeImage->height()));
     } else {
         // HACK: specify a fake 1x1 rectagle at the top-right corner of the button
         rect.setBottomLeft(rect.topRight() - QPointF(1, -1));
@@ -177,6 +176,13 @@ void SwitcherButtonView::updateData(const QList<const char *>& modifications)
             updateXWindowPixmap();
             updateThumbnail();
         }
+        if(member == SwitcherButtonModel::Emphasized) {
+            if (model()->emphasized()) {
+                style().setModeEmphasized();                
+            } else {
+                style().setModeDefault();
+            }
+        }
     }
 }
 
@@ -189,6 +195,7 @@ void SwitcherButtonView::resetState()
 void SwitcherButtonView::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     if (!model()->down()) {
+
         model()->setDown(true);
 
         if (closeRect().contains(event->pos())) {
@@ -198,7 +205,6 @@ void SwitcherButtonView::mousePressEvent(QGraphicsSceneMouseEvent *event)
         } else {
             model()->setPressed(SwitcherButtonModel::NonePressed);
         }
-
         event->accept();
     }
 }

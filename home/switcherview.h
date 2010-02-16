@@ -23,6 +23,7 @@
 #include <DuiWidgetView>
 #include "switchermodel.h"
 #include "switcherstyle.h"
+#include "switcherphysicsintegrationstrategy.h"
 
 class Switcher;
 class QPixmap;
@@ -31,6 +32,7 @@ class QGraphicsLinearLayout;
 class DuiLayout;
 class DuiFlowLayoutPolicy;
 class DuiSeparator;
+class DuiLinearLayoutPolicy;
 
 /*!
  * The switcher view draws a background for the switcher.
@@ -53,23 +55,51 @@ public:
      */
     virtual ~SwitcherView();
 
+    /*! \reimp
+     *
+     * Reimplemented here to react to the switcher orientation change
+     */ 
+    virtual void setGeometry(const QRectF &rect);
+    //! reimp_end
+
 protected slots:
     //! \cond
     virtual void updateData(const QList<const char *>& modifications);
     //! \endcond
 
+private slots:
+    /*! Monitors the movement of the pannable viewport */
+    void sizePosChanged(const QSizeF &viewportSize, const QRectF &pannedRange, const QPointF &pannedPos);
+
+    /*! Listens for changes in the physics integrator */
+    void snapIndexChanged(int newPosition);
+
+    /*! Listens when the pannig has stopped in the viewport */
+    void panningStopped();
+
 private:
+    /*! Convenience function to update the panning parameters */
+    void updatePanMarginsAndSnapInterval();
+
     /*! The switcher controller */
     Switcher *controller;
 
+    DuiWidget* layoutWidget;
+
     /*! Layouts */
     QGraphicsLinearLayout *mainLayout;
-    DuiLayout *layout;
-    DuiFlowLayoutPolicy *policy;
 
-    /*! Top and bottom separators */
-    DuiSeparator *topSeparator;
-    DuiSeparator *bottomSeparator;
+    /*! The widget that will contain all of the switcher buttons */
+    DuiWidget* pannedWidget;
+
+    /*! Layout for the panned widget */
+    QGraphicsLinearLayout* pannedLayout;    
+
+    /*! The integrator for the pannable viewport, controls how the switcher buttons move */
+    SwitcherPhysicsIntegrationStrategy* integrator;
+
+    /*! The current focused switcher button */
+    int focusedSwitcherButton;
 };
 
 #endif // SWITCHERVIEW_H

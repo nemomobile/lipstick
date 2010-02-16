@@ -34,12 +34,6 @@ class SwitcherButtonStyle : public DuiButtonStyle
     Q_OBJECT
     DUI_STYLE(SwitcherButtonStyle)
 
-    //! The position of the title relative to the top-left corner of the button
-    DUI_STYLE_ATTRIBUTE(QPointF, textPosition, TextPosition)
-
-    //! The size of the title
-    DUI_STYLE_ATTRIBUTE(QSize, textSize, TextSize)
-
     //! The opacity of the title
     DUI_STYLE_ATTRIBUTE(qreal, textOpacity, TextOpacity)
 
@@ -53,12 +47,13 @@ class SwitcherButtonStyle : public DuiButtonStyle
     DUI_STYLE_PTR_ATTRIBUTE(DuiScalableImage *, containerImage, ContainerImage)
 
     //! The image to be drawn on top of the button when the button is dragged over the close area
-    DUI_STYLE_PTR_ATTRIBUTE(QPixmap *, closeImage, CloseImage)
+    DUI_STYLE_PTR_ATTRIBUTE(DuiScalableImage*, closeImage, CloseImage)
 };
 
 class SwitcherButtonStyleContainer : public DuiButtonStyleContainer
 {
     DUI_STYLE_CONTAINER(SwitcherButtonStyle)
+    DUI_STYLE_MODE(Emphasized)
 };
 
 #endif /* SWITCHERBUTTONSTYLE_H_ */

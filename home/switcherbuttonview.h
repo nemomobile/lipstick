@@ -98,7 +98,6 @@ protected:
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
     virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
     virtual void cancelEvent(DuiCancelEvent *event);
-
     virtual void setupModel();
     //! \reimp_end
 
