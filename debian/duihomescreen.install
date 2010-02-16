@@ -6,3 +6,4 @@ usr/share/themes/base/dui/duihome/images/*.png
 usr/share/themes/base/dui/duihome/style/*.css
 usr/share/themes/base/dui/duihome/svg/*.svg
 usr/share/dui/notifications/eventtypes/*.conf
+usr/share/duihome/shaders/*

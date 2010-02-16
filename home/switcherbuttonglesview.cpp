@@ -21,46 +21,19 @@
 #include "mainwindow.h"
 #include <DuiApplication>
 #include <DuiScalableImage>
-#include <DuiGLShaderUniform>
 #include <DuiSceneManager>
+
+static const QString MASK_FRAGMENT_SHADER(SHADERS_DIR "/mask.frag");
+
+#define WARN_IF(x) \
+    { if(x) qWarning( "%s:%d: WARNING: %s", __FILE__, __LINE__, #x ); }
 
 SwitcherButtonGLESView::SwitcherButtonGLESView(SwitcherButton *button) :
     SwitcherButtonView(button),
-    windowTextureID(0),
-    maskTextureID(0)
+    windowTextureID(0)
 {
-    if (DuiGLRenderer::instance()->getProgram("SwitcherButtonViewMaskedShader") == NULL) {
-        // Create a fragment shader which multiplies two textures with each other for switcher button masking
-        static const char *fragmentShader = "\n\
-                                            varying lowp vec2 fragTexCoord;\n\
-                                            uniform sampler2D texture0;\n\
-                                            uniform sampler2D texture1;\n\
-                                            uniform lowp float opacity;\n\
-                                            void main(void)\n\
-                                            {\n\
-                                             gl_FragColor = texture2D(texture0, fragTexCoord) * texture2D(texture1, fragTexCoord) * opacity;\n\
-                                            }\n";
-
-
-        DuiGLRenderer::instance()->createShader("SwitcherButtonViewMaskedFragmentShader", fragmentShader, DuiGLRenderer::DuiShaderFragment);
-        DuiGLRenderer::instance()->createProgram("SwitcherButtonViewMaskedShader", "DefaultVert", "SwitcherButtonViewMaskedFragmentShader");
-    }
-
-    if (DuiGLRenderer::instance()->getProgram("SwitcherButtonViewShader") == NULL) {
-        // Create a fragment shader which uses only one texture
-        static const char *fragmentShader = "\n\
-                                            varying lowp vec2 fragTexCoord;\n\
-                                            uniform sampler2D texture0;\n\
-                                            uniform lowp float opacity;\n\
-                                            void main(void)\n\
-                                            {\n\
-                                             gl_FragColor = texture2D(texture0, fragTexCoord) * opacity;\n\
-                                            }\n";
-
-
-        DuiGLRenderer::instance()->createShader("SwitcherButtonViewFragmentShader", fragmentShader, DuiGLRenderer::DuiShaderFragment);
-        DuiGLRenderer::instance()->createProgram("SwitcherButtonViewShader", "DefaultVert", "SwitcherButtonViewFragmentShader");
-    }
+    DuiGLES2Renderer* renderer = DuiGLES2Renderer::instance();
+    WARN_IF(renderer == NULL);
 
     // Show interest in X pixmap change signals
     connect(qApp, SIGNAL(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)), this, SLOT(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)));
@@ -69,19 +42,12 @@ SwitcherButtonGLESView::SwitcherButtonGLESView(SwitcherButton *button) :
 SwitcherButtonGLESView::~SwitcherButtonGLESView()
 {
     if (windowTextureID != 0 && xWindowPixmap != 0) {
-        // Unbind the texture of the X window
-        DuiGLRenderer::instance()->unbindX11Pixmap(xWindowPixmap);
-    }
+        DuiGLES2Renderer* renderer = DuiGLES2Renderer::instance();
+        WARN_IF(renderer == NULL);
 
-    if (maskTextureID != 0) {
-        if (!DuiApplication::softwareRendering()) {
-            // Get the OpenGL context
-            QGLContext *context = MainWindow::glContext();
-
-            if (context != NULL) {
-                // Delete old mask texture if there is one
-                context->deleteTexture(maskTextureID);
-            }
+        if (renderer) {
+            // Unbind the texture of the X window
+            renderer->unbindX11Pixmap(xWindowPixmap);
         }
     }
 }
@@ -91,87 +57,76 @@ void SwitcherButtonGLESView::backendSpecificDrawBackground(QPainter *painter, co
     Q_UNUSED(option);
 
     if (windowTextureID != 0) {
-        if (!DuiApplication::softwareRendering()) {
-            // Get the OpenGL context
-            QGLContext *context = MainWindow::glContext();
 
-            if (context != NULL) {
-                quint32 oldMaskTextureID = maskTextureID;
+        DuiGLES2Renderer* renderer = DuiGLES2Renderer::instance();
+        WARN_IF(renderer == NULL);
 
-                // Get the mask from the style
-                const DuiScalableImage *mask = style()->maskImage();
-                if (mask != NULL && mask->pixmap() != NULL) {
-                    // Bind it into a texture
-                    maskTextureID = context->bindTexture(*mask->pixmap());
-                }
+        if (renderer) {
+            const QPixmap* maskPixmap = NULL;
 
-                if (oldMaskTextureID != maskTextureID && oldMaskTextureID != 0) {
-                    // Delete old mask texture if there is one
-                    context->deleteTexture(oldMaskTextureID);
-                }
+            const DuiScalableImage *mask = style()->maskImage();
+            if (mask != NULL) {
+                maskPixmap = mask->pixmap();
             }
+
+            if (maskPixmap != NULL) {
+                QGLShaderProgram* program = renderer->getShaderProgram(MASK_FRAGMENT_SHADER);
+                renderer->begin(painter, program);
+                renderer->bindTexture(*maskPixmap, 1);
+            } else {
+                QGLShaderProgram* program = renderer->getShaderProgram();
+                renderer->begin(painter, program);
+            }
+
+            renderer->bindTexture(windowTextureID);
+            renderer->setInvertTexture(true);
+
+            // Rotate the thumbnails and adjust their size if the screen
+            // has been rotated
+
+            DuiSceneManager *manager = MainWindow::instance()->sceneManager();
+            QPoint pos = style()->iconPosition().toPoint();
+            QSize size = style()->iconSize();
+
+            if (manager->orientation() == Dui::Portrait) {
+                size.transpose();
+            }
+
+            switch (manager->orientationAngle()) {
+                case Dui::Angle90:
+                    pos -= QPoint(size.width(), 0);
+                    break;
+                case Dui::Angle180:
+                    pos -= QPoint(size.width(), size.height());
+                    break;
+                case Dui::Angle270:
+                    pos -= QPoint(0, size.height());
+                    break;
+                default:
+                    break;
+            }
+
+            painter->rotate(-manager->orientationAngle());
+
+            QRect target(pos, size);
+            renderer->draw(target);
+            renderer->end();
         }
-
-        painter->beginNativePainting();
-
-        // Set thumbnail location, size and opacity. Zoom when dragging.
-        qreal opacity = 1.0f;
-        QTransform transform = painter->combinedTransform().translate(style()->iconPosition().x(), style()->iconPosition().y());
-        QSizeF size = style()->iconSize();
-
-        // Rotate the thumbnail
-        transform = transform.rotate(-MainWindow::instance()->sceneManager()->orientationAngle());
-
-        // If the screen has been rotated adjust the thumbnail size accordingly
-        if (MainWindow::instance()->sceneManager()->orientation() == Dui::Portrait) {
-            size.transpose();
-        }
-
-        switch (MainWindow::instance()->sceneManager()->orientationAngle()) {
-        case Dui::Angle90:
-            transform = transform.translate(-size.width(), 0);
-            break;
-        case Dui::Angle180:
-            transform = transform.translate(-size.width(), -size.height());
-            break;
-        case Dui::Angle270:
-            transform = transform.translate(0, -size.height());
-            break;
-        default:
-            break;
-        }
-
-        // Set the uniforms provider
-        SwitcherButtonViewUniformProvider uniforms(opacity);
-
-        if (maskTextureID != 0) {
-            // There's a mask for the thumbnail: Setup texturing for it in texturing unit 1
-#ifdef DUI_USE_OPENGL
-            glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, maskTextureID);
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-#endif
-
-            // Draw window (texture 0) and mask (texture 1)
-            DuiGLRenderer::instance()->drawTexture("SwitcherButtonViewMaskedShader", transform, windowTextureID, size, &uniforms, true);
-        } else {
-            // No mask: draw window only (texture 0)
-            DuiGLRenderer::instance()->drawTexture("SwitcherButtonViewShader", transform, windowTextureID, size, &uniforms, true);
-        }
-
-        painter->endNativePainting();
     }
 }
 
 void SwitcherButtonGLESView::updateThumbnail()
 {
     if (xWindowPixmap != 0) {
-        windowTextureID = DuiGLRenderer::instance()->bindX11Pixmap(xWindowPixmap);
-        if (windowTextureID != 0) {
-            DuiGLRenderer::instance()->updateX11Pixmap(xWindowPixmap);
+        DuiGLES2Renderer* renderer = DuiGLES2Renderer::instance();
+        WARN_IF(renderer == NULL);
+
+        if (renderer) {
+            windowTextureID = renderer->bindX11Pixmap(xWindowPixmap);
+            if (windowTextureID != 0) {
+                renderer->updateX11Pixmap(xWindowPixmap);
+                update();
+            }
         }
     }
 }
@@ -193,8 +148,13 @@ void SwitcherButtonGLESView::windowVisibilityChanged(Window window)
         // The compositing is enabled when minimizing which changes the window pixmap ID
         if (windowTextureID != 0) {
             // Unbind the texture of the X window
-            DuiGLRenderer::instance()->unbindX11Pixmap(xWindowPixmap);
-            windowTextureID = 0;
+            DuiGLES2Renderer* renderer = DuiGLES2Renderer::instance();
+            WARN_IF(renderer == NULL);
+
+            if (renderer) {
+                renderer->unbindX11Pixmap(xWindowPixmap);
+                windowTextureID = 0;
+            }
         }
 
         if (xWindowPixmap != 0) {
@@ -208,30 +168,6 @@ void SwitcherButtonGLESView::windowVisibilityChanged(Window window)
         // Update the thumbnail
         updateThumbnail();
     }
-}
-
-SwitcherButtonViewUniformProvider::SwitcherButtonViewUniformProvider(float opacity) :
-    opacity(opacity)
-{
-}
-
-SwitcherButtonViewUniformProvider::~SwitcherButtonViewUniformProvider()
-{
-}
-
-bool SwitcherButtonViewUniformProvider::setUniformValue(const QString &name, const DuiGLShaderUniform &uniform)
-{
-    if (name == "texture1") {
-        // Set the texture1 uniform to 1 (refers to texture unit 1)
-        uniform = (quint32)1;
-        return true;
-    } else if (name == "opacity") {
-        // Set the opacity uniform to the given opacity
-        uniform = opacity;
-        return true;
-    }
-
-    return false;
 }
 
 DUI_REGISTER_VIEW_NEW(SwitcherButtonGLESView, SwitcherButton)

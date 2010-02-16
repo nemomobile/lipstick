@@ -19,7 +19,7 @@
 #ifndef SWITCHERBUTTONGLESVIEW_H
 #define SWITCHERBUTTONGLESVIEW_H
 
-#include <DuiGLRenderer>
+#include <DuiGLES2Renderer>
 #include "switcherbuttonview.h"
 
 /*!
@@ -64,39 +64,7 @@ private:
     //! Window texture ID
     quint32 windowTextureID;
 
-    //! Mask texture ID
-    mutable quint32 maskTextureID;
-
     Q_DISABLE_COPY(SwitcherButtonGLESView);
-};
-
-/*!
- * Provides the uniforms required by SwitcherButtonGLESView.
- *
- * Currently this provides the following uniforms:
- * - texture1 (set to the integer value 1 to point to the texture unit 1)
- * - opacity (set to a float value between 0 and 1)
- */
-class SwitcherButtonViewUniformProvider : public IDuiGLUniformProvider
-{
-public:
-    /*!
-     * \brief Constructs a new SwitcherButtonViewUniformProvider.
-     */
-    SwitcherButtonViewUniformProvider(float opacity);
-
-    /*!
-     * \brief Destroys the SwitcherButtonViewUniformProvider.
-     */
-    virtual ~SwitcherButtonViewUniformProvider();
-
-    //! \reimp
-    virtual bool setUniformValue(const QString &name, const DuiGLShaderUniform &uniform);
-    //! \reimp_end
-
-private:
-    //! The current opacity
-    float opacity;
 };
 
 #endif

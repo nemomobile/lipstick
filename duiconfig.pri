@@ -4,6 +4,7 @@ load(dui_defines)
 unix {
      DUIHOME_DIR = $$DUI_INSTALL_DATA/duihome
      DUIHOME_THEMES_DIR = /usr/share/themes/base/dui/duihome
+     DUIHOME_SHADERS_DIR = $$DUIHOME_DIR/shaders
 
      TEST_SUITE_INSTALL_LOCATION=/usr/share/duifw-home-tests
      TEST_APP_INSTALL_LOCATION=/usr/lib/duifw-home-tests
