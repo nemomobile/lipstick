@@ -22,6 +22,7 @@
 Notification::Notification() :
     notificationId_(0),
     groupId_(0),
+    userId_(0),
     parameters_(),
     type_(NotificationManagerInterface::ApplicationEvent),
     timeout_(0)

@@ -44,17 +44,19 @@ QVector<Atom> X11Helper::getNetWmState(Display *display, Window window)
         // Fetch all data
         if (X11Wrapper::XGetWindowProperty(display, window, netWmState, 0, returnValue.size(),
                                            False, XA_ATOM, &actualType, &actualFormat,
-                                           &propertyLength, &bytesLeft, &propertyData) != Success) {
-            returnValue.clear();
-        } else if (propertyLength != (ulong)returnValue.size()) {
-            returnValue.resize(propertyLength);
-        }
+                                           &propertyLength, &bytesLeft, &propertyData) == Success) {
+            if (propertyLength != (ulong)returnValue.size()) {
+                returnValue.resize(propertyLength);
+            }
 
-        // Put it into the return value
-        if (!returnValue.isEmpty()) {
-            memcpy(returnValue.data(), propertyData, returnValue.size() * sizeof(Atom));
+            // Put it into the return value
+            if (!returnValue.isEmpty()) {
+                memcpy(returnValue.data(), propertyData, returnValue.size() * sizeof(Atom));
+            }
+            X11Wrapper::XFree(propertyData);
+        } else {
+            returnValue.clear();
         }
-        X11Wrapper::XFree(propertyData);
     }
 
     return returnValue;
