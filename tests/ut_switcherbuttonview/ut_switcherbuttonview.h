@@ -31,9 +31,22 @@ class DuiScalableImage;
 class MainWindow;
 class HomeApplication;
 
+class Ut_SwitcherButtonStyle : public SwitcherButtonStyle
+{
+};
+
+class Ut_SwitcherButtonStyleContainer : public SwitcherButtonStyleContainer
+{
+public:
+    QString currentMode()
+    {
+	return DuiButtonStyleContainer::currentMode();
+    }
+};
+
 class TestSwitcherButtonView : public SwitcherButtonView
 {
-    DUI_VIEW(SwitcherButtonModel, SwitcherButtonStyle)
+    DUI_VIEW(SwitcherButtonModel, Ut_SwitcherButtonStyle)
 
 public:
     TestSwitcherButtonView(SwitcherButton &button);
@@ -58,6 +71,9 @@ public:
         const SwitcherButtonStyle *const_s = sc.operator ->();
         SwitcherButtonStyle *s = const_cast<SwitcherButtonStyle *>(const_s);
         return s;
+    }
+    Ut_SwitcherButtonStyleContainer& styleContainer() {
+	return style();
     }
 };
 
@@ -133,6 +149,7 @@ private slots:
     void testXWindow();
     void testXWindowWithXError();
     void testTextOpacity();
+    void testEmphasis();
 };
 
 #endif //_UT_SWITCHERBUTTONVIEW_

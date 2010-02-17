@@ -82,6 +82,8 @@ private slots:
     void testSetGeometry();
     // Verify that the icon position for the window is set properly when requested
     void testUpdateIconGeometry();
+    // verify that emphasis setting/unsetting works
+    void testEmphasis();
 };
 
 #endif //_UT_APPLETBUTTON_
