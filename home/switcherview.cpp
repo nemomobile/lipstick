@@ -197,6 +197,7 @@ void SwitcherView::updateData(const QList<const char*>& modifications)
     foreach(member, modifications) {
         if (member == SwitcherModel::Buttons) {
 	    focusedSwitcherButton = std::min(focusedSwitcherButton, model()->buttons().size() - 1);
+	    focusedSwitcherButton = std::max(focusedSwitcherButton, 0);
             // Remove all widgets from the layout (do not destroy them)
             while (pannedLayout->count() > 0) {
                 pannedLayout->removeAt(0);
