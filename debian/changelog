@@ -1,4 +1,11 @@
-duihome (0.19.0-1) unstable; urgency=low
+duihome (0.19.0~2) unstable; urgency=low
+
+  * New version [UNRELEASED]
+  * Implemented: Applet Space for applets
+
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Fri, 12 Feb 2010 16:50:19 +0200
+
+duihome (0.19.0~1) unstable; urgency=low
 
   * New version
   * Implemented: SWP#DUI-1946 Status bar for applications
@@ -12,7 +19,7 @@ duihome (0.19.0-1) unstable; urgency=low
   * Fixes: NB#155106 - "App Matrix" maintains landscape layout unless rotated intentionally
   * Fixes: NB#155176 - Having dui applications running before duihome crashes duihome on startup
 
- -- Vesa Halttunen <vesa.halttunen@nokia.com>  Thu, 18 Feb 2010 11:25:18 +0200
+ -- Aki Koskinen <aki.koskinen@nokia.com>  Wed, 27 Jan 2010 10:24:55 +0200
 
 duihome (0.18.2-1) unstable; urgency=low
 
