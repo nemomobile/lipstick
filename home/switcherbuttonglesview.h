@@ -46,12 +46,8 @@ public:
     virtual ~SwitcherButtonGLESView();
 
 private slots:
-    /*!
-     * \brief A slot for receiving information about pixmap changes
-     */
-    void damageEvent(Qt::HANDLE &damage, short &x, short &y, unsigned short &width, unsigned short &height);
-
     //! \reimp
+    virtual void damageEvent(Qt::HANDLE &damage, short &x, short &y, unsigned short &width, unsigned short &height);
     virtual void windowVisibilityChanged(Window window);
     //! \reimp_end
 

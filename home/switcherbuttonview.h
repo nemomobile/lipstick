@@ -89,6 +89,11 @@ protected slots:
     void resetState();
 
     /*!
+     * \brief A slot for receiving information about pixmap changes
+     */
+    virtual void damageEvent(Qt::HANDLE &damage, short &x, short &y, unsigned short &width, unsigned short &height);
+
+    /*!
      * \brief Slot for getting information about window visibility changes
      */
     virtual void windowVisibilityChanged(Window window);

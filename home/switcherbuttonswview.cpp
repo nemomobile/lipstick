@@ -53,6 +53,8 @@ void SwitcherButtonSWView::updateThumbnail()
 
         // The mask needs to be reapplied
         thumbnailMaskApplied = false;
+        // Redraw
+        update();
     }
 }
 

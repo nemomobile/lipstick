@@ -45,6 +45,9 @@ SwitcherButtonView::SwitcherButtonView(SwitcherButton *button) :
 
     // Connect to the windowVisibilityChanged signal of the HomeApplication to get information about window visiblity changes
     connect(qApp, SIGNAL(windowVisibilityChanged(Window)), this, SLOT(windowVisibilityChanged(Window)));
+
+    // Show interest in X pixmap change signals
+    connect(qApp, SIGNAL(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)), this, SLOT(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)));
 }
 
 SwitcherButtonView::~SwitcherButtonView()
@@ -307,6 +310,19 @@ int SwitcherButtonView::handleXError(Display *, XErrorEvent *event)
 
 void SwitcherButtonView::windowVisibilityChanged(Window)
 {
+    updateXWindowPixmap();
+    updateThumbnail();
+}
+
+void SwitcherButtonView::damageEvent(Qt::HANDLE &damage, short &x, short &y, unsigned short &width, unsigned short &height)
+{
+    Q_UNUSED(x);
+    Q_UNUSED(y);
+    Q_UNUSED(width);
+    Q_UNUSED(height);
+    if (xWindowPixmapDamage == damage) {
+        update();
+    }
 }
 
 DUI_REGISTER_VIEW_NEW(SwitcherButtonView, SwitcherButton)
