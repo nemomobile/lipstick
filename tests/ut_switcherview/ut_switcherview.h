@@ -43,6 +43,7 @@ private slots:
     void cleanup();
     // Test cases
     void testAutoPanning();
+    void testSnapIndexChanged();
     void testPanningStopped();
 signals:
     void snapIndexChanged(int newPosition);

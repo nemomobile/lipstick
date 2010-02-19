@@ -181,8 +181,25 @@ void Ut_SwitcherView::testAutoPanning()
     QCOMPARE(g_panRequested, true);
 }
 
+void Ut_SwitcherView::testSnapIndexChanged()
+{
+    // test that snap index changes only when the new
+    // snap index is within the button range
+    connect(this, SIGNAL(snapIndexChanged(int)),
+            m_subject, SLOT(snapIndexChanged(int)));
+    emit snapIndexChanged(3);
+    QCOMPARE(m_subject->focusedSwitcherButton, 3);
+    emit snapIndexChanged(0);
+    QCOMPARE(m_subject->focusedSwitcherButton, 0);
+    emit snapIndexChanged(-1);
+    QCOMPARE(m_subject->focusedSwitcherButton, 0);
+    emit snapIndexChanged(9999);
+    QCOMPARE(m_subject->focusedSwitcherButton, 0);
+}
+
 void Ut_SwitcherView::testPanningStopped()
 {
+    // test that correct button is emphasized when panning stops
     connect(this, SIGNAL(snapIndexChanged(int)),
             m_subject, SLOT(snapIndexChanged(int)));
     connect(this, SIGNAL(panningStopped()),
