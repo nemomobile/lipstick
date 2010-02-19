@@ -484,14 +484,4 @@ void Ut_SwitcherButtonView::testTextOpacity()
     QCOMPARE(painterTextOpacity, view->modifiableStyle()->textOpacity());
 }
 
-void Ut_SwitcherButtonView::testEmphasis()
-{
-    for (int i = 0; i < 2; ++i) {
-	button->setEmphasis();
-	QCOMPARE(QString("emphasized"), view->styleContainer().currentMode());
-	button->unsetEmphasis();
-	QCOMPARE(QString("default"), view->styleContainer().currentMode());
-    }
- }
-
 QTEST_APPLESS_MAIN(Ut_SwitcherButtonView)

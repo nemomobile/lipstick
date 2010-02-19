@@ -70,32 +70,8 @@ void SwitcherButtonView::drawBackground(QPainter *painter, const QStyleOptionGra
     // Store the painter state
     painter->save();
 
-    // Rotate the thumbnails and adjust their size if the screen
-    // has been rotated
-
-    DuiSceneManager *manager = MainWindow::instance()->sceneManager();
     QPoint pos = style()->iconPosition().toPoint();
     QSize size = style()->iconSize();
-
-    if (manager->orientation() == Dui::Portrait) {
-        size.transpose();
-    }
-
-    switch (manager->orientationAngle()) {
-        case Dui::Angle90:
-            pos -= QPoint(size.width(), 0);
-            break;
-        case Dui::Angle180:
-            pos -= QPoint(size.width(), size.height());
-            break;
-        case Dui::Angle270:
-            pos -= QPoint(0, size.height());
-            break;
-        default:
-            break;
-    }
-
-    painter->rotate(-manager->orientationAngle());
 
     QRect target(pos, size);
 
@@ -134,10 +110,17 @@ void SwitcherButtonView::drawContents(QPainter *painter, const QStyleOptionGraph
         painter->drawText(titleRect(), Qt::AlignLeft | Qt::ElideRight, text);
     }
 
-    // Draw a close image at top right corner
+    // Draw a close image at top right corner, at the moment it is assumed that 
+    // the close button is square!!
     if (style()->closeImage()) {
 	painter->setOpacity(1.0f);
-	QRectF rect = closeRect();
+	QRectF title = titleRect();
+
+
+	QRectF rect = buttonRect();
+	rect.setTopLeft(QPointF(rect.right() - title.height(), title.y()));
+	rect.setWidth(title.height());
+	rect.setHeight(title.height());       
 	style()->closeImage()->draw(rect.x(), rect.y(), rect.width(), rect.height(), painter);
     }
 
@@ -170,8 +153,10 @@ QRectF SwitcherButtonView::closeRect() const
     if (style()->closeImage()) {
         const QPixmap* closeImage = style()->closeImage()->pixmap();
 	// calculate the rect for the close button alone
-	rect.setBottomLeft(rect.topRight() - QPointF(closeImage->width(), 0));
-	rect.setTopRight(rect.topRight() - QPointF(0, closeImage->height()));
+	rect.setBottomLeft(rect.topRight() - QPointF(closeImage->width() * 0.5f, 0));
+	rect.setTopRight(rect.topRight() - QPointF(0, closeImage->height() * 0.5f));
+	rect.setWidth(closeImage->width());
+	rect.setHeight(closeImage->height());
     } else {
         // HACK: specify a fake 1x1 rectagle at the top-right corner of the button
         rect.setBottomLeft(rect.topRight() - QPointF(1, -1));
@@ -188,7 +173,6 @@ QRectF SwitcherButtonView::boundingRect() const
 void SwitcherButtonView::applyStyle()
 {
     DuiWidgetView::applyStyle();
-
     updateThumbnail();
 }
 
@@ -200,6 +184,27 @@ void SwitcherButtonView::setupModel()
         updateXWindowPixmap();
         updateThumbnail();
     }
+    updateViewMode();
+}
+
+void SwitcherButtonView::updateViewMode()
+{
+    switch (model()->viewMode()) {
+    case SwitcherButtonModel::Small:
+	style().setModeSmall();
+	break;
+    case SwitcherButtonModel::Medium:
+	style().setModeMedium();
+	break;
+    case SwitcherButtonModel::Large:
+	style().setModeLarge();
+	break;
+    case SwitcherButtonModel::UnSpecified:
+	break;
+    }
+    
+    // When the style mode changes, the style is not automatically applied -> call it explicitly
+    applyStyle();    
 }
 
 void SwitcherButtonView::updateData(const QList<const char *>& modifications)
@@ -211,13 +216,10 @@ void SwitcherButtonView::updateData(const QList<const char *>& modifications)
             updateXWindowPixmap();
             updateThumbnail();
         }
-        if(member == SwitcherButtonModel::Emphasized) {
-            if (model()->emphasized()) {
-                style().setModeEmphasized();                
-            } else {
-                style().setModeDefault();
-            }
-        }
+
+	if (member == SwitcherButtonModel::ViewMode) {
+	    updateViewMode();
+	}
     }
 }
 

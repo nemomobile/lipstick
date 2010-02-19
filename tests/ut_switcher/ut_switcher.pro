@@ -16,6 +16,7 @@ SOURCES += \
 SOURCES += \
     $$SRCDIR/switcherview.cpp \
     $$SRCDIR/windowinfo.cpp \
+    $$SRCDIR/mainwindow.cpp \
        ../stubs/stubbase.cpp
 
 # unit test and unit classes
@@ -32,6 +33,7 @@ HEADERS += \
     $$SRCDIR/switcherbuttonstyle.h \
     $$SRCDIR/switcherbuttonmodel.h \
     $$SRCDIR/switcherphysicsintegrationstrategy.h \
-    $$SRCDIR/windowinfo.h
+    $$SRCDIR/windowinfo.h \
+    $$SRCDIR/mainwindow.h
 
 include(../common_bot.pri)

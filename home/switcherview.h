@@ -27,12 +27,11 @@
 
 class Switcher;
 class QPixmap;
-class QTimeLine;
-class QGraphicsLinearLayout;
 class DuiLayout;
-class DuiFlowLayoutPolicy;
-class DuiSeparator;
 class DuiLinearLayoutPolicy;
+class DuiGridLayoutPolicy;
+class QGraphicsLinearLayout;
+class DuiPannableViewport;
 
 /*!
  * The switcher view draws a background for the switcher.
@@ -62,6 +61,13 @@ public:
     virtual void setGeometry(const QRectF &rect);
     //! reimp_end
 
+protected:
+    /*! \reimp
+     * Re-implemented here to get an update when the model is set
+     */
+    virtual void setupModel();
+    //! \reimp_end
+
 protected slots:
     //! \cond
     virtual void updateData(const QList<const char *>& modifications);
@@ -77,9 +83,23 @@ private slots:
     /*! Listens when the pannig has stopped in the viewport */
     void panningStopped();
 
+    /*! Update all buttons in layout policy */
+    void updateButtons(Dui::Orientation orientation);
+
 private:
+
     /*! Convenience function to update the panning parameters */
     void updatePanMarginsAndSnapInterval();
+
+    /*! Updates a button in the overview layoutpolicy.
+     * If button is not found in switcher, than a new button is added.
+     * This calculates the correct position and will set the correct style mode to the button.
+     */
+    void updateButtonInOverviewPolicy(QSharedPointer<SwitcherButton> button, const QSizeF& size);
+
+    qreal calculateOverviewContentsMargins(const QSizeF& size);
+
+    void toggleSwitcherMode();
 
     /*! The switcher controller */
     Switcher *controller;
@@ -93,7 +113,11 @@ private:
     DuiWidget* pannedWidget;
 
     /*! Layout for the panned widget */
-    QGraphicsLinearLayout* pannedLayout;    
+    DuiLayout* pannedLayout;    
+
+    /*! Layout policies for the different switcher modes */
+    DuiGridLayoutPolicy* overviewPolicy;
+    DuiLinearLayoutPolicy* detailPolicy;
 
     /*! The integrator for the pannable viewport, controls how the switcher buttons move */
     SwitcherPhysicsIntegrationStrategy* integrator;
@@ -103,11 +127,14 @@ private:
 
     /*! Keep track of the first button's priority */
     WindowInfo::WindowPriority firstButtonPriority;
+
 #ifdef UNIT_TEST
     // to test snapIndexChanged effects
     friend class Ut_SwitcherView;
 #endif
 
+    /*! The viewport that shows the switcher buttons */
+    DuiPannableViewport *viewport;
 };
 
 #endif // SWITCHERVIEW_H

@@ -36,6 +36,12 @@ public:
         ClosePressed
     };
 
+    enum ViewModeType {
+        UnSpecified,
+	Small,
+	Medium,
+	Large      
+    };
 private:
     //! The X Window represented by the switcher buttom
     DUI_MODEL_PROPERTY(Window, xWindow, XWindow, true, 0)
@@ -43,7 +49,8 @@ private:
     DUI_MODEL_PROPERTY(SwitcherButtonModel::PressedType, pressed, Pressed, true, NonePressed)
     //! Repsesents the if this switcher button is emphasized or not
     DUI_MODEL_PROPERTY(bool, emphasized, Emphasized, true, false)
-
+    //! The current view mode of this button
+    DUI_MODEL_PROPERTY(SwitcherButtonModel::ViewModeType, viewMode, ViewMode, true, UnSpecified)
 };
 
 

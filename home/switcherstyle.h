@@ -47,7 +47,26 @@ class SwitcherStyle : public DuiWidgetStyle
      * Defines how mush the items will over lap when they are stationary
      */
     DUI_STYLE_ATTRIBUTE(qreal, itemOverLap, ItemOverLap)
-      
+
+     /*!
+     * Defines horizontal spacing between switcher buttons.
+     */
+    DUI_STYLE_ATTRIBUTE(qreal, buttonHorizontalSpacing, ButtonHorizontalSpacing)
+
+    /*!
+     * Defines vertical spacing between switcher buttons.
+     */
+    DUI_STYLE_ATTRIBUTE(qreal, buttonVerticalSpacing, ButtonVerticalSpacing)
+
+     /*!
+     * Defines amount of rows in switcher view.
+     */
+    DUI_STYLE_ATTRIBUTE(int, rowsPerPage, RowsPerPage)
+
+    /*!
+     * Defines amount of columns in switcher view.
+     */
+    DUI_STYLE_ATTRIBUTE(int, columnsPerPage, ColumnsPerPage)
 };
 
 class SwitcherStyleContainer : public DuiWidgetStyleContainer
