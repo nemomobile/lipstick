@@ -3,6 +3,7 @@ TARGET = ut_switcherview
 
 STYLE_HEADERS += $$SRCDIR/switcherstyle.h
 MODEL_HEADERS += $$SRCDIR/switchermodel.h
+MODEL_HEADERS += $$SRCDIR/switcherbuttonmodel.h
 
 # unit test and unit
 SOURCES += \
@@ -17,6 +18,7 @@ HEADERS += \
     $$SRCDIR/switcher.h \
     $$SRCDIR/switcherstyle.h \
     $$SRCDIR/switcherbutton.h \
+    $$SRCDIR/switcherbuttonmodel.h \
     $$SRCDIR/switcherphysicsintegrationstrategy.h \
     $$SRCDIR/switchermodel.h
 

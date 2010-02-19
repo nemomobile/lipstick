@@ -42,8 +42,11 @@ private slots:
     // Called after every testfunction
     void cleanup();
     // Test cases
-
     void testAutoPanning();
+    void testPanningStopped();
+signals:
+    void snapIndexChanged(int newPosition);
+    void panningStopped();
 
 private:
     DuiApplication *app;

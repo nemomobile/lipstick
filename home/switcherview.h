@@ -103,6 +103,11 @@ private:
 
     /*! Keep track of the first button's priority */
     WindowInfo::WindowPriority firstButtonPriority;
+#ifdef UNIT_TEST
+    // to test snapIndexChanged effects
+    friend class Ut_SwitcherView;
+#endif
+
 };
 
 #endif // SWITCHERVIEW_H

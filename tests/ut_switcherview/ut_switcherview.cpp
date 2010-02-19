@@ -26,6 +26,7 @@
 
 SwitcherModel* g_switcherModel;
 QMap<SwitcherButton *, Window> g_windowButtonMap;
+QMap<SwitcherButton *, bool> g_buttonEmphasisMap;
 
 // SwitcherButton stubs
 SwitcherButton::SwitcherButton(const QString &title, DuiWidget *parent, Window window, WindowInfo::WindowPriority windowPriority) :
@@ -46,10 +47,12 @@ SwitcherButton::~SwitcherButton()
 
 void SwitcherButton::setEmphasis()
 {
+    g_buttonEmphasisMap[this] = true;
 }
 
 void SwitcherButton::unsetEmphasis()
 {
+    g_buttonEmphasisMap[this] = false;
 }
 
 void SwitcherButton::switchToWindow()
@@ -124,7 +127,6 @@ void Ut_SwitcherView::initTestCase()
     static char *app_name = (char *)"./ut_switcherview";
     app = new DuiApplication(argc, &app_name);
     window = new DuiWindow;
-    g_switcherModel = new SwitcherModel;
 }
 
 void Ut_SwitcherView::cleanupTestCase()
@@ -141,16 +143,15 @@ QList< QSharedPointer<SwitcherButton> > createButtonList()
     buttonList.append(QSharedPointer<SwitcherButton>(new SwitcherButton("Title 2", NULL, 2)));
     buttonList.append(QSharedPointer<SwitcherButton>(new SwitcherButton("Title 3", NULL, 3)));
     buttonList.append(QSharedPointer<SwitcherButton>(new SwitcherButton("Title 4", NULL, 4)));
-
     return buttonList;
 }
 
 void Ut_SwitcherView::init()
 {
     g_panRequested = false;
-
     // Create test switcher
     switcher = new Switcher();
+    g_switcherModel = new SwitcherModel;
     switcher->setModel(g_switcherModel);
     m_subject = new SwitcherView(switcher);
     switcher->setView(m_subject);
@@ -178,6 +179,40 @@ void Ut_SwitcherView::testAutoPanning()
 
     // SwitcherView should have called the physics integrator's pan method
     QCOMPARE(g_panRequested, true);
+}
+
+void Ut_SwitcherView::testPanningStopped()
+{
+    connect(this, SIGNAL(snapIndexChanged(int)),
+            m_subject, SLOT(snapIndexChanged(int)));
+    connect(this, SIGNAL(panningStopped()),
+            m_subject, SLOT(panningStopped()));
+    emit snapIndexChanged(3);
+    emit snapIndexChanged(2);
+    emit panningStopped();
+    QCOMPARE(m_subject->focusedSwitcherButton, 2);
+    QCOMPARE(g_buttonEmphasisMap[g_switcherModel->buttons().at(0).data()],
+             false);
+    QCOMPARE(g_buttonEmphasisMap[g_switcherModel->buttons().at(1).data()],
+             false);
+    QCOMPARE(g_buttonEmphasisMap[g_switcherModel->buttons().at(2).data()],
+             true);
+    QCOMPARE(g_buttonEmphasisMap[g_switcherModel->buttons().at(3).data()],
+             false);
+    emit snapIndexChanged(1);
+    emit snapIndexChanged(2);
+    emit snapIndexChanged(3);
+    emit panningStopped();
+    QCOMPARE(m_subject->focusedSwitcherButton, 3);
+    QCOMPARE(g_buttonEmphasisMap[g_switcherModel->buttons().at(0).data()],
+             false);
+    QCOMPARE(g_buttonEmphasisMap[g_switcherModel->buttons().at(1).data()],
+             false);
+    QCOMPARE(g_buttonEmphasisMap[g_switcherModel->buttons().at(2).data()],
+             false);
+    QCOMPARE(g_buttonEmphasisMap[g_switcherModel->buttons().at(3).data()],
+             true);
+
 }
 
 QTEST_APPLESS_MAIN(Ut_SwitcherView)
