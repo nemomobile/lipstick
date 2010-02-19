@@ -20,6 +20,7 @@ SwitcherPhysicsIntegrationStrategy::SwitcherPhysicsIntegrationStrategy()
 {
     currentIndex = 0;
     snapInterval_ = 0;
+    autoPanMode = false;
 }
 
 SwitcherPhysicsIntegrationStrategy::~SwitcherPhysicsIntegrationStrategy(){}
@@ -32,7 +33,31 @@ void SwitcherPhysicsIntegrationStrategy::integrate(qreal &position,
                            qreal rangeEnd,
                            IntegrationData& data)
 {
+    if(autoPanMode) {
+        autoPanIntegrate(position,
+                         velocity,
+                         pointerSpring,
+                         acceleration,
+                         data);
+    } else {
+        snapIntegrate(position,
+                      velocity,
+                      pointerSpring,
+                      acceleration,
+                      rangeStart,
+                      rangeEnd,
+                      data);
+    }
+}
 
+void SwitcherPhysicsIntegrationStrategy::snapIntegrate(qreal &position,
+                           qreal &velocity,
+                           qreal &pointerSpring,
+                           qreal &acceleration,
+                           qreal rangeStart,
+                           qreal rangeEnd,
+                           IntegrationData& data)
+{
     qreal force;
     // Damping
     if (position >= rangeStart && position <= rangeEnd) {
@@ -87,6 +112,35 @@ void SwitcherPhysicsIntegrationStrategy::integrate(qreal &position,
     pointerSpring += velocity;
 }
 
+void SwitcherPhysicsIntegrationStrategy::autoPanIntegrate(qreal &position,
+                           qreal &velocity,
+                           qreal &pointerSpring,
+                           qreal &acceleration,
+                           IntegrationData &data)
+{
+    qreal force = 0.0;
+    qreal autoPanTargetPosition = autoPanTargetIndex*snapInterval_;
+
+    if ( qAbs(autoPanTargetPosition - position) > 0.5 ) {
+        force = data.borderSpringK * (autoPanTargetPosition - position);
+        force -= data.borderFrictionC * velocity;
+
+        acceleration   = force;
+        velocity      += force;
+        position      += velocity;
+        pointerSpring += velocity;
+    } else {
+        acceleration  = 0;
+        velocity      = 0;
+        position      = autoPanTargetPosition;
+        pointerSpring = 0;
+        autoPanMode = false;
+
+        currentIndex = autoPanTargetIndex;
+        emit snapIndexChanged(autoPanTargetIndex);
+    }
+}
+
 void SwitcherPhysicsIntegrationStrategy::setSnapInterval(uint newSnapInterval)
 {
     snapInterval_ = newSnapInterval;
@@ -95,4 +149,10 @@ void SwitcherPhysicsIntegrationStrategy::setSnapInterval(uint newSnapInterval)
 uint SwitcherPhysicsIntegrationStrategy::snapInterval() const
 {
     return snapInterval_;
+}
+
+void SwitcherPhysicsIntegrationStrategy::panToItem(uint itemIndex)
+{
+    autoPanTargetIndex = itemIndex;
+    autoPanMode = true;
 }

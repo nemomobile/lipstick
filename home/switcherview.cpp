@@ -81,6 +81,8 @@ SwitcherView::SwitcherView(Switcher *switcher) :
 
     viewport->physics()->setIntegrationStrategy(integrator);
     focusedSwitcherButton = 0;
+
+    firstButtonPriority = WindowInfo::Normal;
 }
 
 SwitcherView::~SwitcherView()
@@ -206,6 +208,24 @@ void SwitcherView::updateData(const QList<const char*>& modifications)
             foreach (QSharedPointer<SwitcherButton> button, model()->buttons()) {
 		pannedLayout->addItem(button.data());
             }
+
+            if (model()->buttons().isEmpty()) {
+                // Reset the priority if the model is empty
+                firstButtonPriority = WindowInfo::Normal;
+            } else {
+                SwitcherButton *firstButton = model()->buttons().first().data();
+
+                // If the first button's priority has risen pan the view to show it
+                if (firstButton->windowPriority() < firstButtonPriority) {
+                    // The integrator will be started
+                    // by updatePanMarginsAndSnapInterval,
+                    // so no need to start it here
+                    integrator->panToItem(0);
+                }
+
+                firstButtonPriority = firstButton->windowPriority();
+            }
+
             updatePanMarginsAndSnapInterval();	    
         }
     }

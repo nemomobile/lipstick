@@ -91,7 +91,7 @@ QList<SwitcherButton *> Ut_Switcher::iconGeometryUpdated;
 
 Window SwitcherButton::xWindow()
 {
-    return 0;
+    return g_windowButtonMap[this];
 }
 
 void Ut_Switcher::init()

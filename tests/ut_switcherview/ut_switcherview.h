@@ -43,6 +43,8 @@ private slots:
     void cleanup();
     // Test cases
 
+    void testAutoPanning();
+
 private:
     DuiApplication *app;
     DuiWindow *window;

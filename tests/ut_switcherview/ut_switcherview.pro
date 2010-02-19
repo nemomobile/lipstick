@@ -8,8 +8,7 @@ MODEL_HEADERS += $$SRCDIR/switchermodel.h
 SOURCES += \
     ut_switcherview.cpp \
     $$SRCDIR/switcherview.cpp \
-#    $$SRCDIR/switcherbutton.cpp \
-    $$SRCDIR/switcherphysicsintegrationstrategy.cpp
+#    $$SRCDIR/switcherbutton.cpp
 
 # unit test and unit
 HEADERS += \

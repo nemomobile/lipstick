@@ -81,6 +81,12 @@ private slots:
      */
     void testMovementExcatlySnapInterval();
 
+    /*!
+     * Tests movent that is exctly the threshold and it should advance to the next
+     * snap position
+     */
+    void testAutoPanning();
+
 private:
     // DuiApplication
     DuiApplication *app;

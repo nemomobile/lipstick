@@ -57,6 +57,11 @@ public:
      */
     uint snapInterval() const;
 
+    /*!
+     * Pans the view automatically to the given item index
+     */
+    void panToItem(uint itemIndex);
+
 signals:
     /*!
      * Indecates that the snap index has changed. 
@@ -66,8 +71,27 @@ signals:
 private:
     /*! The interval at which the snapping occurs. */
     uint snapInterval_;
+
     /*! The current index */
     int currentIndex;
+
+    void snapIntegrate(qreal &position,
+                       qreal &velocity,
+                       qreal &pointerSpring,
+                       qreal &acceleration,
+                       qreal rangeStart,
+                       qreal rangeEnd,
+                       IntegrationData& data);
+
+    bool autoPanMode;
+
+    int autoPanTargetIndex;
+
+    void autoPanIntegrate(qreal &position,
+                          qreal &velocity,
+                          qreal &pointerSpring,
+                          qreal &acceleration,
+                          IntegrationData& data);
 };
 
 #endif

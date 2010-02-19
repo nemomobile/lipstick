@@ -51,7 +51,7 @@ static void fillIntegrationData(DuiPhysics2DIntegrationStrategy::IntegrationData
                                 qreal slideFrictionC,
                                 qreal borderSpringK,
                                 qreal borderFrictionC);
-                                
+
 void Ut_SwitcherPhysicsIntegrationStrategy::initTestCase()
 {
     int argc = 1;
@@ -87,7 +87,7 @@ void Ut_SwitcherPhysicsIntegrationStrategy::testMovementSmallerThenSnapIntervalR
                  100,              // Snap interval
                  currentPosition,  // The position where the movement starts
                  10.0,             // Move amount
-                 500.0,            // Where the current position should end up after movement 
+                 500.0,            // Where the current position should end up after movement
                  false,            // Left to right
                  5);               // Target snap index after move
 }
@@ -99,7 +99,7 @@ void Ut_SwitcherPhysicsIntegrationStrategy::testMovementGreaterThenSnapIntervalR
                  100,              // Snap interval
                  currentPosition,  // The position where the movement starts
                  120.0,            // Move amount
-                 600.0,            // Where the current position should end up after movement 
+                 600.0,            // Where the current position should end up after movement
                  false,            // Left to right
                  6);               // Target snap index after move
 }
@@ -113,7 +113,7 @@ void Ut_SwitcherPhysicsIntegrationStrategy::testMovementSmallerThenSnapIntervalL
                  100,              // Snap interval
                  currentPosition,  // The position where the movement starts
                  10.0,             // Move amount
-                 200.0,            // Where the current position should end up after movement 
+                 200.0,            // Where the current position should end up after movement
                  true,             // Left to right
                  2);               // Target snap index after move
 }
@@ -125,7 +125,7 @@ void Ut_SwitcherPhysicsIntegrationStrategy::testMovementGreaterThenSnapIntervalL
                  100,              // Snap interval
                  currentPosition,  // The position where the movement starts
                  120.0,             // Move amount
-                 100.0,            // Where the current position should end up after movement 
+                 100.0,            // Where the current position should end up after movement
                  true,             // Left to right
                  1);               // Target snap index after move
 }
@@ -147,7 +147,7 @@ void Ut_SwitcherPhysicsIntegrationStrategy::testHugeMovementLeftToRight()
       To fully test this movement direction, specifically the signal emission
       We need to first go to the other direction, to get the internal signal
       position somewhere else then zero
-    */    
+    */
     performMovement(m_subject,
                     120, // amount to move
                     false, // left-to-right
@@ -167,7 +167,7 @@ void Ut_SwitcherPhysicsIntegrationStrategy::testHugeMovementLeftToRight()
                     true, // left-to-right
                     position, velocity, pointerSpring,
                     acceleration, rangeStart, rangeEnd, integrationData);
-    
+
     QCOMPARE(position, 0.0);
     QCOMPARE(spy.count(), 1); // make sure the signal was emitted exactly one time
     QList<QVariant> arguments = spy.takeFirst(); // take the first signal
@@ -181,7 +181,7 @@ void Ut_SwitcherPhysicsIntegrationStrategy::testHugeMovementRightToLeft()
                  100,              // Snap interval
                  currentPosition,  // The position where the movement starts
                  1000.0,           // Move amount
-                 1000.0,           // Where the current position should end up after movement 
+                 1000.0,           // Where the current position should end up after movement
                  false,            // Left to right
                  10);              // Target snap index after move
 }
@@ -194,10 +194,46 @@ void Ut_SwitcherPhysicsIntegrationStrategy::testMovementExcatlySnapInterval()
                  100,              // Snap interval
                  currentPosition,  // The position where the movement starts
                  100.0,            // Move amount
-                 100.0 ,           // Where the current position should end up after movement 
+                 100.0 ,           // Where the current position should end up after movement
                  true,             // Left to right
                  1);               // Target snap index after move
 
+}
+
+void Ut_SwitcherPhysicsIntegrationStrategy::testAutoPanning()
+{
+    qreal currentPosition = 300.0;
+
+    m_subject->panToItem(0);
+    testMovement(m_subject,
+                 100,              // Snap interval
+                 currentPosition,  // The position where the movement starts
+                 0.0,              // Move amount
+                 0.0 ,             // Where the current position should end up after movement
+                 true,             // Left to right
+                 0);               // Target snap index after move
+
+    currentPosition = 0.0;
+
+    m_subject->panToItem(5);
+    testMovement(m_subject,
+                 100,              // Snap interval
+                 currentPosition,  // The position where the movement starts
+                 0.0,              // Move amount
+                 500.0,            // Where the current position should end up after movement
+                 true,             // Left to right
+                 5);               // Target snap index after move
+
+    currentPosition = 500.0;
+
+    // Test that the snapping still works after an automatic pan
+    testMovement(m_subject,
+                 100,              // Snap interval
+                 currentPosition,  // The position where the movement starts
+                 120.0,            // Move amount
+                 600.0,            // Where the current position should end up after movement
+                 false,            // Left to right
+                 6);               // Target snap index after move
 }
 
 static void testMovement(SwitcherPhysicsIntegrationStrategy* integrator,
@@ -224,10 +260,10 @@ static void testMovement(SwitcherPhysicsIntegrationStrategy* integrator,
                     leftToRight, // left-to-right
                     currentPosition, velocity, pointerSpring,
                     acceleration, rangeStart, rangeEnd, integrationData);
-    
+
     QCOMPARE(currentPosition, targetPosition);
     QCOMPARE(spy.count(), 1); // make sure the signal was emitted exactly one time
-    QList<QVariant> arguments = spy.takeFirst(); // take the first signal  
+    QList<QVariant> arguments = spy.takeFirst(); // take the first signal
     QVERIFY(arguments.at(0).toInt() == targetSnapIndex);
 }
 
@@ -246,7 +282,7 @@ static void performMovement(SwitcherPhysicsIntegrationStrategy* integrator,
 {
     int i = 0;
     while (integrationData.pointer || velocity != 0.0) {
-        if ( i++ < moveAmount) {            
+        if ( i++ < moveAmount) {
             pointerSpring += leftToRight ? 1 : -1;
             integrationData.pointer = true;
         } else {
