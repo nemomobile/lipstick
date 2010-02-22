@@ -119,7 +119,7 @@ protected:
     /*!
      * \brief Draws the backend specific parts of the background
      */
-    virtual void backendSpecificDrawBackground(QPainter *painter, const QStyleOptionGraphicsItem *option) const;
+    virtual void backendSpecificDrawBackground(QPainter *painter, const QStyleOptionGraphicsItem *option, const QRect& target) const;
 
     /*!
      * \brief Does the backend specific parts of updating the X Window pixmap

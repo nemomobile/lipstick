@@ -48,7 +48,7 @@ public:
 private:
     //! \reimp
     virtual void updateXWindowPixmap();
-    virtual void backendSpecificDrawBackground(QPainter *painter, const QStyleOptionGraphicsItem *option) const;
+    virtual void backendSpecificDrawBackground(QPainter *painter, const QStyleOptionGraphicsItem *option, const QRect& target) const;
     virtual void backendSpecificUpdateXWindowPixmap();
     //! \reimp_end
 

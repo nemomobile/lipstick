@@ -33,14 +33,12 @@ SwitcherButtonSWView::~SwitcherButtonSWView()
 {
 }
 
-void SwitcherButtonSWView::backendSpecificDrawBackground(QPainter *painter, const QStyleOptionGraphicsItem *option) const
+void SwitcherButtonSWView::backendSpecificDrawBackground(QPainter *painter, const QStyleOptionGraphicsItem *option, const QRect& target) const
 {
     Q_UNUSED(option);
 
     // Draw window thumbnail
-    painter->drawPixmap(QRect(style()->iconPosition().toPoint(),
-                              style()->iconSize()),
-                        qWindowPixmap);
+    painter->drawPixmap(target, qWindowPixmap);
 }
 
 void SwitcherButtonSWView::backendSpecificUpdateXWindowPixmap()

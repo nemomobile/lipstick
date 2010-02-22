@@ -52,7 +52,7 @@ SwitcherButtonGLESView::~SwitcherButtonGLESView()
     }
 }
 
-void SwitcherButtonGLESView::backendSpecificDrawBackground(QPainter *painter, const QStyleOptionGraphicsItem *option) const
+void SwitcherButtonGLESView::backendSpecificDrawBackground(QPainter *painter, const QStyleOptionGraphicsItem *option, const QRect& target) const
 {
     Q_UNUSED(option);
 
@@ -83,34 +83,6 @@ void SwitcherButtonGLESView::backendSpecificDrawBackground(QPainter *painter, co
             renderer->bindTexture(windowTextureID);
             renderer->setInvertTexture(true);
 
-            // Rotate the thumbnails and adjust their size if the screen
-            // has been rotated
-
-            DuiSceneManager *manager = MainWindow::instance()->sceneManager();
-            QPoint pos = style()->iconPosition().toPoint();
-            QSize size = style()->iconSize();
-
-            if (manager->orientation() == Dui::Portrait) {
-                size.transpose();
-            }
-
-            switch (manager->orientationAngle()) {
-                case Dui::Angle90:
-                    pos -= QPoint(size.width(), 0);
-                    break;
-                case Dui::Angle180:
-                    pos -= QPoint(size.width(), size.height());
-                    break;
-                case Dui::Angle270:
-                    pos -= QPoint(0, size.height());
-                    break;
-                default:
-                    break;
-            }
-
-            painter->rotate(-manager->orientationAngle());
-
-            QRect target(pos, size);
             renderer->draw(target);
             renderer->end();
         }

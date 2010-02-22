@@ -70,15 +70,47 @@ void SwitcherButtonView::drawBackground(QPainter *painter, const QStyleOptionGra
     // Store the painter state
     painter->save();
 
+    // Rotate the thumbnails and adjust their size if the screen
+    // has been rotated
+
+    DuiSceneManager *manager = MainWindow::instance()->sceneManager();
+    QPoint pos = style()->iconPosition().toPoint();
+    QSize size = style()->iconSize();
+
+    if (manager->orientation() == Dui::Portrait) {
+        size.transpose();
+    }
+
+    switch (manager->orientationAngle()) {
+        case Dui::Angle90:
+            pos -= QPoint(size.width(), 0);
+            break;
+        case Dui::Angle180:
+            pos -= QPoint(size.width(), size.height());
+            break;
+        case Dui::Angle270:
+            pos -= QPoint(0, size.height());
+            break;
+        default:
+            break;
+    }
+
+    painter->rotate(-manager->orientationAngle());
+
+    QRect target(pos, size);
+
     // Do the actual drawing
-    backendSpecificDrawBackground(painter, option);
+    backendSpecificDrawBackground(painter, option, target);
 
     // Restore the painter state
     painter->restore();
 }
 
-void SwitcherButtonView::backendSpecificDrawBackground(QPainter *, const QStyleOptionGraphicsItem *) const
+void SwitcherButtonView::backendSpecificDrawBackground(QPainter *painter, const QStyleOptionGraphicsItem *option, const QRect& target) const
 {
+    Q_UNUSED(painter);
+    Q_UNUSED(option);
+    Q_UNUSED(target);
 }
 
 void SwitcherButtonView::drawContents(QPainter *painter, const QStyleOptionGraphicsItem *) const
