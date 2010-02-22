@@ -17,25 +17,24 @@
 **
 ****************************************************************************/
 
-#ifndef UT_HOME_H
-#define UT_HOME_H
+#ifndef UT_QUICKLAUNCHBAR_H
+#define UT_QUICKLAUNCHBAR_H
 
 #include <QtTest/QtTest>
 #include <QObject>
 
-class DuiApplication;
-class MainWindow;
-class StatusArea;
-class Home;
-class NotificationArea;
-class DuiSceneWindow;
+class QuickLaunchBar;
 
-class Ut_Home : public QObject
+class Ut_QuickLaunchBar : public QObject
 {
     Q_OBJECT
 
 public:
-    static MainWindow *mainWin;
+    static bool mkpathCalled;
+
+signals:
+    void applicationLaunched(const QString &application);
+    void duiApplicationLaunched(const QString &serviceName);
 
 private slots:
     // Called before the first testfunction is executed
@@ -47,24 +46,15 @@ private slots:
     // Called after every testfunction
     void cleanup();
 
-    // Test bounding rectangle
-    void testBoundingRect();
-    // Test notification area visibility
-    void testNotificationAreaVisibility();
-    // Test notification area panning
-    void testNotificationAreaPanning();
-    // Test notification area transition
-    void testNotificationAreaTransition();
+    // Test cases
+    void testInitialization();
+    void testUpdateWidgetList();
+    void testLaunchApplication();
+    void testLaunchDuiApplication();
 
 private:
-    // DuiApplication
-    DuiApplication *app;
     // The object being tested
-    Home *home;
-    // NotificationArea
-    NotificationArea *notificationAreaWidget;
-    // StatusArea
-    StatusArea *statusArea;
+    QuickLaunchBar *m_subject;
 };
 
 #endif

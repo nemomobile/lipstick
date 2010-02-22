@@ -25,12 +25,16 @@
 #include <DuiSceneManager>
 #include <DuiScene>
 #include <DuiDeviceProfile>
+#include <DuiPannableViewport>
+#include <DuiModalSceneWindow>
 
 #include "ut_desktopview.h"
 #include "desktopview.h"
 #include "desktop.h"
 #include "notificationarea_stub.h"
 #include "switcher_stub.h"
+#include "quicklaunchbar_stub.h"
+#include "launcher_stub.h"
 #include "windowinfo_stub.h"
 #include "homeapplication_stub.h"
 #include "notificationmanager.h"
@@ -110,6 +114,22 @@ int MockPaintDevice::metric(PaintDeviceMetric metric) const
     return 0;
 }
 
+// DuiSceneManager stubs
+void DuiSceneManager::showWindow(DuiSceneWindow *window, DuiSceneWindow::DeletionPolicy)
+{
+    window->show();
+}
+
+void DuiSceneManager::hideWindow(DuiSceneWindow *window)
+{
+    window->hide();
+}
+
+// QGraphicsItem stubs
+void QGraphicsItem::setZValue(qreal)
+{
+}
+
 // QDBusConnection stubs
 bool QDBusConnection::registerObject(QString const &, QObject *, QFlags<QDBusConnection::RegisterOption>)
 {
@@ -175,11 +195,22 @@ void Ut_DesktopView::init()
     desktopView->modifiableStyle()->setDesktopBackgroundTop(backgroundTopImage);
     desktopView->modifiableStyle()->setDesktopBackgroundBottom(backgroundBottomImage);
     paintArea = QRectF();
+    connect(this, SIGNAL(launcherButtonClicked()), desktopView, SLOT(toggleLauncher()));
 }
 
 void Ut_DesktopView::cleanup()
 {
     delete desktop;
+}
+
+void Ut_DesktopView::testSetGeometry()
+{
+    QRectF rect(0, 0, 200, 100);
+    desktopView->setGeometry(rect);
+
+    // Test that the launcher viewport size is adjusted to be the same as the desktop's geometry
+    QCOMPARE(desktopView->launcherViewport->minimumSize(), rect.size());
+    QCOMPARE(desktopView->launcherViewport->maximumSize(), rect.size());
 }
 
 void Ut_DesktopView::testBoundingRectAndDrawBackground()
@@ -193,6 +224,21 @@ void Ut_DesktopView::testBoundingRectAndDrawBackground()
     // Check that the view doesn't draw outside the bounding rectangle
     desktopView->drawBackground(painter, NULL);
     QVERIFY(br == paintArea || br.contains(paintArea) || paintArea.isEmpty());
+}
+
+void Ut_DesktopView::testShowingHidingLauncher()
+{
+    QCOMPARE(desktopView->launcherWindow->isVisible(), false);
+
+    // Show launcher
+    emit launcherButtonClicked();
+    QCOMPARE(desktopView->launcherWindow->isVisible(), true);
+    QCOMPARE(gLauncherStub->stubLastCallTo("setEnabled").parameter<bool>(0), true);
+
+    // Hide launcher
+    emit launcherButtonClicked();
+    QCOMPARE(desktopView->launcherWindow->isVisible(), false);
+    QCOMPARE(gLauncherStub->stubLastCallTo("setEnabled").parameter<bool>(0), false);
 }
 
 QTEST_APPLESS_MAIN(Ut_DesktopView)

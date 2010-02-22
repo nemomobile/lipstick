@@ -28,7 +28,6 @@ SOURCES += ../stubs/stubbase.cpp
 HEADERS += \
     $$SRCDIR/desktop.h \
     $$SRCDIR/desktopmodel.h \
-    $$SRCDIR/launcher.h \
     $$SRCDIR/statusarea.h \
     $$SRCDIR/statusareawindow.h \
     $$SRCDIR/notificationarea.h \

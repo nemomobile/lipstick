@@ -30,6 +30,10 @@ HEADERS += homeapplication.h \
     launcherbuttonview.h \
     launcherbuttonstyle.h \
     notifier.h \
+    quicklaunchbar.h \
+    quicklaunchbarmodel.h \
+    quicklaunchbarview.h \
+    quicklaunchbarstyle.h \
     switcher.h \
     switchermodel.h \
     switcherview.h \
@@ -72,6 +76,8 @@ SOURCES += homeapplication.cpp \
     launcherbutton.cpp \
     launcherbuttonview.cpp \
     notifier.cpp \
+    quicklaunchbar.cpp \
+    quicklaunchbarview.cpp \
     switcher.cpp \
     switcherview.cpp \
     switcherbutton.cpp \
@@ -93,6 +99,7 @@ MODEL_HEADERS += \
     launcherbuttonmodel.h \
     launchermodel.h \
     notificationareamodel.h \
+    quicklaunchbarmodel.h \
     statusareamodel.h \
     switcherbuttonmodel.h \
     switchermodel.h \
@@ -104,6 +111,7 @@ STYLE_HEADERS += \
     launcherstyle.h \
     launcherbuttonstyle.h \
     notificationareastyle.h \
+    quicklaunchbarstyle.h \
     statusareastyle.h \
     switcherbuttonstyle.h \
     switcherstyle.h \

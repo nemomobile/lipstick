@@ -233,8 +233,11 @@ void Ut_Launcher::init()
 {
     // Create a launcher and connect the directory changed signal
     launcher = new Launcher;
-    connect(this, SIGNAL(directoryChanged(const QString)), launcher, SLOT(directoryChanged(const QString)));
-    connect(this, SIGNAL(directoryLaunched(QString, QString, QString)), launcher, SLOT(directoryLaunched(QString, QString, QString)));
+    connect(this, SIGNAL(applicationLaunched(const QString)), launcher, SLOT(launchApplication(const QString)));
+    connect(this, SIGNAL(duiApplicationLaunched(const QString)), launcher, SLOT(launchDuiApplication(const QString)));
+    connect(this, SIGNAL(linkLaunched(const QString)), launcher, SLOT(launchLink(const QString)));
+    connect(this, SIGNAL(directoryChanged(const QString)), launcher, SLOT(readDirectory(const QString)));
+    connect(this, SIGNAL(directoryLaunched(QString, QString, QString)), launcher, SLOT(launchDirectory(QString, QString, QString)));
 
     // No files by default
     desktopFileInfoList.clear();
@@ -281,7 +284,7 @@ void Ut_Launcher::testInitialization()
             QCOMPARE(b->targetType(), QString("Application"));
             break;
         case 1: {
-            QCOMPARE(b->targetType(), QString("Application"));
+            QCOMPARE(b->targetType(), QString("Service"));
             QCOMPARE(b->target(), QString("com.nokia.test1"));
         }
         break;
@@ -573,8 +576,6 @@ void Ut_Launcher::testDesktopEntryRemove()
 
 void Ut_Launcher::testApplicationLaunched()
 {
-    connect(this, SIGNAL(applicationLaunched(const QString)), launcher, SLOT(applicationLaunched(const QString)));
-
     desktopFileInfoList.append(QFileInfo(QString(APPLICATIONS_DIRECTORY) + "regularApplication.desktop"));
 
     launcher->openRootCategory();
@@ -582,29 +583,21 @@ void Ut_Launcher::testApplicationLaunched()
     emit applicationLaunched("test0");
 
     QCOMPARE(applicationStarted, QString("test0"));
-
-    disconnect(this, SIGNAL(applicationLaunched(const QString)), launcher, SLOT(applicationLaunched(const QString)));
 }
 
 void Ut_Launcher::testDuiApplicationLaunched()
 {
-    connect(this, SIGNAL(applicationLaunched(const QString)), launcher, SLOT(duiApplicationLaunched(const QString)));
-
     desktopFileInfoList.append(QFileInfo(QString(APPLICATIONS_DIRECTORY) + "xMaemoApplication.desktop"));
 
     launcher->openRootCategory();
 
-    emit applicationLaunched("com.nokia.test1");
+    emit duiApplicationLaunched("com.nokia.test1");
 
     QCOMPARE(duiApplicationIfProxyLaunchCalled, true);
-
-    disconnect(this, SIGNAL(applicationLaunched(const QString)), launcher, SLOT(duiApplicationLaunched(const QString)));
 }
 
 void Ut_Launcher::testLaunchingApplicationFromCategory()
 {
-    connect(this, SIGNAL(applicationLaunched(const QString)), launcher, SLOT(applicationLaunched(const QString)));
-
     desktopFileInfoList.append(QFileInfo(QString(APPLICATIONS_DIRECTORY) + "regularApplication.desktop"));
 
     launcher->openRootCategory();
@@ -623,8 +616,6 @@ void Ut_Launcher::testLaunchingApplicationFromCategory()
 
 void Ut_Launcher::testLaunchingDuiApplicationFromCategory()
 {
-    connect(this, SIGNAL(duiApplicationLaunched(const QString)), launcher, SLOT(duiApplicationLaunched(const QString)));
-
     desktopFileInfoList.append(QFileInfo(QString(APPLICATIONS_DIRECTORY) + "xMaemoApplication.desktop"));
 
     launcher->openRootCategory();
@@ -643,8 +634,6 @@ void Ut_Launcher::testLaunchingDuiApplicationFromCategory()
 
 void Ut_Launcher::testLaunchingLinkFromCategory()
 {
-    connect(this, SIGNAL(linkLaunched(const QString)), launcher, SLOT(linkLaunched(const QString)));
-
     launcher->openRootCategory();
 
     // Launch link

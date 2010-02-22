@@ -62,14 +62,21 @@ private slots:
     // Called after every testfunction
     void cleanup();
 
+    // Test geometry setting
+    void testSetGeometry();
     // Test bounding rectangle and background drawing
     void testBoundingRectAndDrawBackground();
+    // Test showing and hiding launcher
+    void testShowingHidingLauncher();
 
 public:
     static QRectF paintArea;
 
     // The main window
     static MainWindow *mainWindow;
+
+signals:
+    void launcherButtonClicked();
 
 private:
     // The duiapp

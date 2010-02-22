@@ -21,7 +21,8 @@
 #include <QDir>
 #include <DuiActionProvider>
 #include <DuiApplicationIfProxy>
-#include <duiwidgetcontroller.h>
+#include <DuiWidgetController>
+#include <DuiDesktopEntry>
 
 #ifdef ENABLE_QTTRACKER
 #include <QtTracker/ontologies/nfo.h>
@@ -58,10 +59,10 @@ void Launcher::initializeIfNecessary()
 {
     if (!initialized) {
         // Read the contents of the applications directory
-        directoryChanged(APPLICATIONS_DIRECTORY, false);
-        directoryChanged(CATEGORIES_DIRECTORY, false);
+        readDirectory(APPLICATIONS_DIRECTORY, false);
+        readDirectory(CATEGORIES_DIRECTORY, false);
 #ifdef TESTABILITY_ON
-        directoryChanged(QDir::tempPath(), false);
+        readDirectory(QDir::tempPath(), false);
 #endif
 #ifdef ENABLE_QTTRACKER
         // Query tracker for bookmarks (shortcuts)
@@ -74,7 +75,7 @@ void Launcher::initializeIfNecessary()
         updateWidgetList();
 
         // Start watching the applications directory for changes
-        connect(&watcher, SIGNAL(directoryChanged(const QString)), this, SLOT(directoryChanged(const QString)));
+        connect(&watcher, SIGNAL(readDirectory(const QString)), this, SLOT(readDirectory(const QString)));
         watcher.addPath(APPLICATIONS_DIRECTORY);
         watcher.addPath(CATEGORIES_DIRECTORY);
 #ifdef TESTABILITY_ON
@@ -141,7 +142,7 @@ void Launcher::updateWidgetList()
     }
 }
 
-void Launcher::directoryChanged(const QString &path, bool updateWidgetList)
+void Launcher::readDirectory(const QString &path, bool updateWidgetList)
 {
     if (path == APPLICATIONS_DIRECTORY) {
         updateDesktopEntryList(applicationDesktopEntries, path, "*.desktop", QStringList() << "Application" << "Link");
@@ -185,39 +186,13 @@ void Launcher::updateDesktopEntryList(DesktopEntryContainer &desktopEntryContain
 
 DuiWidget *Launcher::createLauncherButton(const DuiDesktopEntry &entry)
 {
-    LauncherButton *ret = new LauncherButton(NULL);
-    ret->setObjectName("LauncherButton");
-    ret->setTargetType(entry.type());
-    ret->setText(entry.name());
-    if (!entry.icon().isEmpty()) {
-        ret->setIconID(entry.icon());
-    } else {
-        // FIXME: change to use correct default icon id when available
-        // as incorrect id icon-Application-Default will load default icon
-        // (at the moment default icon seems to be icon-l-video)
-        ret->setIconID("icon-Application-Default");
-    }
-
-    // Set target based on type
-    if (entry.type() == "Application") {
-        QString thisXMaemoService = entry.xMaemoService();
-
-        if (thisXMaemoService.isEmpty()) {
-            ret->setTarget(entry.exec());
-            connect(ret, SIGNAL(applicationLaunched(const QString &)), this, SLOT(applicationLaunched(const QString &)), Qt::QueuedConnection);
-        } else {
-            ret->setTarget(thisXMaemoService);
-            connect(ret, SIGNAL(applicationLaunched(const QString &)), this, SLOT(duiApplicationLaunched(const QString &)), Qt::QueuedConnection);
-        }
-    } else if (entry.type() == "Link") {
-        ret->setTarget(entry.url());
-        connect(ret, SIGNAL(linkLaunched(const QString &)), this, SLOT(linkLaunched(const QString &)), Qt::QueuedConnection);
-    } else if (entry.type() == "Directory") {
-        ret->setTarget(entry.nameUnlocalized());
-        connect(ret, SIGNAL(directoryLaunched(const QString &, const QString &, const QString &)), this, SLOT(directoryLaunched(const QString &, const QString &, const QString &)), Qt::QueuedConnection);
-    }
-
-    return ret;
+    LauncherButton *launcherButton = new LauncherButton(entry);
+    launcherButton->setObjectName("LauncherButton");
+    connect(launcherButton, SIGNAL(applicationLaunched(const QString &)), this, SLOT(launchApplication(const QString &)), Qt::QueuedConnection);
+    connect(launcherButton, SIGNAL(duiApplicationLaunched(const QString &)), this, SLOT(launchDuiApplication(const QString &)), Qt::QueuedConnection);
+    connect(launcherButton, SIGNAL(linkLaunched(const QString &)), this, SLOT(launchLink(const QString &)), Qt::QueuedConnection);
+    connect(launcherButton, SIGNAL(directoryLaunched(const QString &, const QString &, const QString &)), this, SLOT(launchDirectory(const QString &, const QString &, const QString &)), Qt::QueuedConnection);
+    return launcherButton;
 }
 
 #ifdef ENABLE_QTTRACKER
@@ -256,42 +231,27 @@ DuiWidget *Launcher::createShortcutLauncherButton(SopranoLive::LiveNode shortcut
 }
 #endif
 
-void Launcher::applicationLaunched(const QString &application)
+void Launcher::launchApplication(const QString &application)
 {
-    if (!QProcess::startDetached(application)) {
-        qWarning() << "Failed to start application:" << application;
-    } else {
-        qDebug() << "Started application succesfully:" << application;
-    }
+    startApplication(application);
 
     openRootCategory();
 }
 
-void Launcher::duiApplicationLaunched(const QString &serviceName)
+void Launcher::launchDuiApplication(const QString &serviceName)
 {
-    qDebug() << "Attempting to launch " << serviceName;
-
-    DuiApplicationIfProxy duiApplicationIfProxy(serviceName, this);
-
-    if (duiApplicationIfProxy.connection().isConnected()) {
-        qDebug() << "Launching " << serviceName;
-        duiApplicationIfProxy.launch();
-    } else {
-        qWarning() << "Could not launch" << serviceName;
-        qWarning() << "DBus not connected?";
-    }
+    startDuiApplication(serviceName);
 
     openRootCategory();
 }
 
-void Launcher::linkLaunched(const QString &link)
+void Launcher::launchLink(const QString &)
 {
-    Q_UNUSED(link);
-
+    // TODO not supported yet
     openRootCategory();
 }
 
-void Launcher::directoryLaunched(const QString &directory, const QString &title, const QString &iconId)
+void Launcher::launchDirectory(const QString &directory, const QString &title, const QString &iconId)
 {
     setCategory(directory, title, iconId);
 }
@@ -304,4 +264,32 @@ void Launcher::openRootCategory()
 void Launcher::setEnabled(bool enabled)
 {
     QGraphicsItem::setEnabled(enabled);
+}
+
+bool Launcher::startApplication(const QString &application)
+{
+    if (!QProcess::startDetached(application)) {
+        qWarning() << "Failed to start application:" << application;
+        return false;
+    } else {
+        qDebug() << "Started application succesfully:" << application;
+        return true;
+    }
+}
+
+bool Launcher::startDuiApplication(const QString &serviceName)
+{
+    qDebug() << "Attempting to launch " << serviceName;
+
+    DuiApplicationIfProxy duiApplicationIfProxy(serviceName, NULL);
+
+    if (duiApplicationIfProxy.connection().isConnected()) {
+        qDebug() << "Launching " << serviceName;
+        duiApplicationIfProxy.launch();
+        return true;
+    } else {
+        qWarning() << "Could not launch" << serviceName;
+        qWarning() << "DBus not connected?";
+        return false;
+    }
 }

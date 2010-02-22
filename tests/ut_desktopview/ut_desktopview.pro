@@ -37,6 +37,8 @@ HEADERS += \
     $$SRCDIR/homeapplication.h \
     $$SRCDIR/mainwindow.h \
     $$SRCDIR/switcher.h \
+    $$SRCDIR/quicklaunchbar.h \
+    $$SRCDIR/launcher.h \
     $$SRCDIR/statusindicator.h \
     $$SRCDIR/appletspace.h
 

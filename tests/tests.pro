@@ -18,6 +18,8 @@ SUBDIRS = \
     ut_switcherbutton \
     ut_switcherbuttonview \
     ut_switcherphysicsintegrationstrategy \
+    ut_quicklaunchbar \
+    ut_quicklaunchbarview \
     ut_notificationparameter \
     ut_notificationparameters \
     ut_notification \

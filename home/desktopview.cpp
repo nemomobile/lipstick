@@ -17,6 +17,7 @@
 **
 ****************************************************************************/
 
+#include "launcher.h"
 #include "desktopview.h"
 #include "desktop.h"
 #include "notificationarea.h"
@@ -25,6 +26,7 @@
 #include "statusindicator.h"
 #include "contextframeworkcontext.h"
 #include "appletspace.h"
+#include "quicklaunchbar.h"
 
 #include <DuiViewCreator>
 #include <DuiDeviceProfile>
@@ -32,11 +34,17 @@
 #include <DuiModalSceneWindow>
 #include <DuiPannableViewport>
 #include <DuiApplication>
+#include <DuiOverlay>
 #include <QGraphicsLinearLayout>
 
 DesktopView::DesktopView(Desktop *desktop) :
     DuiWidgetView(desktop),
     switcher(new Switcher),
+    quickLaunchBar(new QuickLaunchBar),
+    quickLaunchBarWindow(new DuiOverlay),
+    launcher(new Launcher),
+    launcherWindow(new DuiModalSceneWindow),
+    launcherViewport(new DuiPannableViewport(launcherWindow)),
     appletSpace(new AppletSpace),
     appletSpaceWindow(new DuiModalSceneWindow),
     appletSpaceViewport(new DuiPannableViewport(appletSpaceWindow))
@@ -47,22 +55,42 @@ DesktopView::DesktopView(Desktop *desktop) :
     mainLayout->setSpacing(0);
     desktop->setLayout(mainLayout);
 
-    // Create phone network indicator menu
+    // Create phone network status indicator
     phoneNetworkIndicator = new PhoneNetworkStatusIndicator(contextFrameworkContext, desktop);
-    mainLayout->addItem(phoneNetworkIndicator);
 
     // Create switcher
     mainLayout->addItem(switcher);
     connect(desktop, SIGNAL(viewportSizePosChanged(const QSizeF &, const QRectF &, const QPointF &)),
             switcher, SLOT(viewportSizePosChanged(const QSizeF &, const QRectF &, const QPointF &)));
 
-    // Stretch desktop before the quick launch bar
+    // Fill the rest with empty space
     mainLayout->addStretch();
 
     // Create a quick launch bar
-    DuiButton *quickLaunchBar = new DuiButton("Applet Space");
-    connect(quickLaunchBar, SIGNAL(clicked()), this, SLOT(toggleAppletSpace()));
-    mainLayout->addItem(quickLaunchBar);
+    quickLaunchBar = new QuickLaunchBar;
+    connect(quickLaunchBar, SIGNAL(launcherButtonClicked()), this, SLOT(toggleLauncher()));
+    connect(quickLaunchBar, SIGNAL(appletSpaceButtonClicked()), this, SLOT(toggleAppletSpace()));
+
+    // Create a layout for the quick launch bar window
+    QGraphicsLinearLayout *windowLayout = new QGraphicsLinearLayout();
+    windowLayout->setContentsMargins(0, 0, 0, 0);
+    windowLayout->addItem(quickLaunchBar);
+    quickLaunchBarWindow->setLayout(windowLayout);
+    quickLaunchBarWindow->setObjectName("QuickLaunchBarOverlay");
+    MainWindow::instance()->sceneManager()->showWindowNow(quickLaunchBarWindow);
+
+    // Put the launcher inside a pannable viewport
+    launcherViewport->setWidget(launcher);
+    launcherViewport->setMinimumSize(DuiApplication::activeWindow()->visibleSceneSize());
+    launcherViewport->setMaximumSize(DuiApplication::activeWindow()->visibleSceneSize());
+
+    // Create a layout for the launcher window
+    windowLayout = new QGraphicsLinearLayout();
+    windowLayout->setContentsMargins(0, 0, 0, 0);
+    windowLayout->addItem(launcherViewport);
+    launcherWindow->setLayout(windowLayout);
+    launcherWindow->setObjectName("LauncherWindow");
+    MainWindow::instance()->sceneManager()->hideWindowNow(launcherWindow);
 
     // Put the applet space inside a pannable viewport
     connect(appletSpace, SIGNAL(closed()), this, SLOT(toggleAppletSpace()));
@@ -70,17 +98,18 @@ DesktopView::DesktopView(Desktop *desktop) :
     appletSpaceViewport->setMinimumSize(DuiApplication::activeWindow()->visibleSceneSize());
     appletSpaceViewport->setMaximumSize(DuiApplication::activeWindow()->visibleSceneSize());
 
-    // Create a layout for the mashup canvas window
-    QGraphicsLinearLayout *dialogLayout = new QGraphicsLinearLayout();
-    dialogLayout->setContentsMargins(0, 0, 0, 0);
-    dialogLayout->addItem(appletSpaceViewport);
-    appletSpaceWindow->setLayout(dialogLayout);
+    // Create a layout for the applet space window
+    windowLayout = new QGraphicsLinearLayout();
+    windowLayout->setContentsMargins(0, 0, 0, 0);
+    windowLayout->addItem(appletSpaceViewport);
+    appletSpaceWindow->setLayout(windowLayout);
     appletSpaceWindow->setObjectName("AppletSpaceWindow");
     MainWindow::instance()->sceneManager()->hideWindowNow(appletSpaceWindow);
 }
 
 DesktopView::~DesktopView()
 {
+    delete launcherWindow;
 }
 
 void DesktopView::drawBackground(QPainter *painter, const QStyleOptionGraphicsItem *) const
@@ -135,6 +164,37 @@ QRectF DesktopView::boundingRect() const
     return rect.united(QRectF(0, 0, DuiDeviceProfile::instance()->resolution().width(), DuiDeviceProfile::instance()->resolution().height()));
 }
 
+
+void DesktopView::toggleLauncher()
+{
+    if (launcherWindow->isVisible()) {
+        hideLauncher();
+    } else {
+        showLauncher();
+    }
+}
+
+void DesktopView::showLauncher()
+{
+    launcher->setEnabled(true);
+    launcher->openRootCategory();
+    MainWindow::instance()->sceneManager()->showWindow(launcherWindow);
+
+    // Set the launcher window below other modal scene windows
+    // @todo TODO get rid of the hardcoded value when DuiSceneManager enables dynamic allocation of Z values
+    launcherWindow->parentItem()->setZValue(300);
+}
+
+void DesktopView::hideLauncher()
+{
+    // Disable the launcher so that during the disappear animation of
+    // the dialog it's not possible to launch another application
+    launcher->setEnabled(false);
+
+    // Scroll the launcher above the screen
+    MainWindow::instance()->sceneManager()->hideWindow(launcherWindow);
+}
+
 void DesktopView::toggleAppletSpace()
 {
     if (appletSpaceWindow->isVisible()) {
@@ -144,6 +204,15 @@ void DesktopView::toggleAppletSpace()
         appletSpaceWindow->appear();
         appletSpace->setEnabled(true);
     }
+}
+
+void DesktopView::setGeometry(const QRectF &rect)
+{
+    DuiWidgetView::setGeometry(rect);
+
+    // Set the launcher viewport to the size of the desktop
+    launcherViewport->setMinimumSize(rect.size());
+    launcherViewport->setMaximumSize(rect.size());
 }
 
 DUI_REGISTER_VIEW_NEW(DesktopView, Desktop)

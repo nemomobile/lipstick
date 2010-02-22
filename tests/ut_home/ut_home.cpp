@@ -30,7 +30,6 @@
 #include "statusarea_stub.h"
 #include "statusareawindow_stub.h"
 #include "desktop.h"
-#include "launcher_stub.h"
 #include "mainwindow_stub.h"
 #include "x11wrapper_stub.h"
 #include "homenotificationsink_stub.h"
@@ -41,23 +40,6 @@
 // X stubs to avoid crashes
 void XSetWMProperties(Display *, Window, XTextProperty *, XTextProperty *, char **, int, XSizeHints *, XWMHints *, XClassHint *)
 {
-}
-
-// DuiSceneManager stubs
-void DuiSceneManager::showWindow(DuiSceneWindow *window, DuiSceneWindow::DeletionPolicy)
-{
-    window->show();
-}
-
-void DuiSceneManager::hideWindow(DuiSceneWindow *window)
-{
-    window->hide();
-}
-
-// QGraphicsItem stubs (used by DuiSceneManager)
-void QGraphicsItem::setZValue(qreal z)
-{
-    Q_UNUSED(z);
 }
 
 // QTimeLine stubs
@@ -87,24 +69,7 @@ void Desktop::setNotificationAreaOpen(bool open, const QString &launcherIconID)
     desktopLauncherIconID = launcherIconID;
 }
 
-// DuiButton stubs
-void DuiButton::setIconID(const QString &iconID)
-{
-    if (objectName() == "ShowLauncherButton") {
-        Ut_Home::launcherButtonWindow = dynamic_cast<DuiSceneWindow *>(parentItem());
-        Ut_Home::launcherButtonIconID = iconID;
-    }
-}
-
-QString DuiButton::iconID() const
-{
-    return Ut_Home::launcherButtonIconID;
-}
-
-
 // Tests
-DuiSceneWindow *Ut_Home::launcherButtonWindow = NULL;
-QString Ut_Home::launcherButtonIconID;
 MainWindow *Ut_Home::mainWin = NULL;
 
 void Ut_Home::initTestCase()
@@ -124,8 +89,6 @@ void Ut_Home::cleanupTestCase()
 
 void Ut_Home::init()
 {
-    launcherButtonWindow = NULL;
-    launcherButtonIconID = QString();
     timeLineStarted = false;
     desktopLauncherIconID = "";
 
@@ -135,8 +98,6 @@ void Ut_Home::init()
 
     home = new Home();
     home->setGeometry(QRectF(0, 0, 864, 480));
-    connect(this, SIGNAL(launcherButtonClicked()), home, SLOT(launcherButtonClicked()));
-    connect(this, SIGNAL(hideLauncherButton(bool)), home, SLOT(hideLauncherButton(bool)));
 
     notificationAreaWidget = gNotificationAreaStub->stubLastCallTo("notificationAreaConstructor").parameter<NotificationArea *>(0);
 }
@@ -147,38 +108,9 @@ void Ut_Home::cleanup()
     delete statusArea;
 }
 
-void Ut_Home::testSetGeometry()
-{
-    home->launcherViewport->minimumSize();
-
-    QRectF rect(0, 0, 200, 100);
-    home->setGeometry(rect);
-
-    // Test that the launcher viewport size is adjusted to be the same as home's geometry
-    QCOMPARE(home->launcherViewport->minimumSize(), rect.size());
-    QCOMPARE(home->launcherViewport->maximumSize(), rect.size());
-}
-
 void Ut_Home::testBoundingRect()
 {
     QCOMPARE(home->boundingRect(), home->desktop->boundingRect());
-}
-
-void Ut_Home::testShowingHidingLauncher()
-{
-    QCOMPARE(home->launcherWindow->isVisible(), false);
-
-    // Show launcher
-    emit launcherButtonClicked();
-    QCOMPARE(home->launcherWindow->isVisible(), true);
-    QCOMPARE(gLauncherStub->stubLastCallTo("setEnabled").parameter<bool>(0), true);
-    QCOMPARE(home->launcherButton->iconID(), QString("Icon-home"));
-
-    // Hide launcher
-    emit launcherButtonClicked();
-    QCOMPARE(home->launcherWindow->isVisible(), false);
-    QCOMPARE(gLauncherStub->stubLastCallTo("setEnabled").parameter<bool>(0), false);
-    QCOMPARE(home->launcherButton->iconID(), QString("Icon-menu"));
 }
 
 void Ut_Home::testNotificationAreaVisibility()
@@ -191,15 +123,10 @@ void Ut_Home::testNotificationAreaVisibility()
     QVERIFY(!home->notificationAreaVisible);
 
     // when notification area is visible, notification previews should be disabled
-    // and the launcher button window should be invisible
-    launcherButtonIconID = "foo";
-    QVERIFY(launcherButtonWindow->isVisible());
     home->setNotificationAreaVisible(true);
     QVERIFY(home->notificationAreaVisible);
     QCOMPARE(gHomeNotificationSinkStub->stubCallCount("setNotificationAreaVisible"), 1);
     QCOMPARE(gHomeNotificationSinkStub->stubLastCallTo("setNotificationAreaVisible").parameter<bool>(0), true);
-    QVERIFY(!launcherButtonWindow->isVisible());
-    QCOMPARE(desktopLauncherIconID, launcherButtonIconID);
 
     // the situation should be reversed
     home->setNotificationAreaVisible(false);
@@ -242,16 +169,6 @@ void Ut_Home::testNotificationAreaPanning()
     QCOMPARE(home->notificationAreaViewport->size().height(), home->size().height() - statusArea->boundingRect().height());
 }
 
-void Ut_Home::testHideLauncherButton()
-{
-    // Check that the launcher button hiding slot hides and shows the launcher button
-    QVERIFY(launcherButtonWindow != NULL);
-    emit hideLauncherButton(true);
-    QVERIFY(!launcherButtonWindow->isVisible());
-    emit hideLauncherButton(false);
-    QVERIFY(launcherButtonWindow->isVisible());
-}
-
 void Ut_Home::testNotificationAreaTransition()
 {
     notificationAreaWidget->setPreferredHeight(100);
@@ -289,7 +206,6 @@ void Ut_Home::testNotificationAreaTransition()
 
     // Test that the notification area will slide up when closed
     timeLineStarted = false;
-    QVERIFY(!launcherButtonWindow->isVisible());
     home->setNotificationAreaVisible(false);
     QVERIFY(timeLineStarted);
     home->notificationAreaTimeLineValueChanged(0);
@@ -307,7 +223,6 @@ void Ut_Home::testNotificationAreaTransition()
     QVERIFY(!home->notificationAreaViewport->isVisible());
     QVERIFY(!desktopWidget->model()->notificationAreaOpen());
     home->notificationAreaTimeLineFinished();
-    QVERIFY(launcherButtonWindow->isVisible());
 }
 
 QTEST_APPLESS_MAIN(Ut_Home)

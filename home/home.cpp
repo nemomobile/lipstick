@@ -19,7 +19,6 @@
 
 #include "home.h"
 #include "desktop.h"
-#include "launcher.h"
 #include "notificationarea.h"
 #include "mainwindow.h"
 #include "statusareawindow.h"
@@ -44,11 +43,6 @@ Home::Home(QGraphicsItem *parent) :
     notificationAreaState(Closed),
     desktop(new Desktop(this)),
     statusAreaWindow(new StatusAreaWindow),
-    launcherButtonOverlay(new DuiOverlay),
-    launcherButton(new DuiButton(launcherButtonOverlay)),
-    launcher(new Launcher),
-    launcherWindow(new DuiModalSceneWindow),
-    launcherViewport(new DuiPannableViewport(launcherWindow)),
     notificationAreaViewportOverlay(new DuiOverlay),
     notificationAreaViewport(new DuiPannableViewport(notificationAreaViewportOverlay)),
     notificationAreaVisible(false),
@@ -76,30 +70,6 @@ Home::Home(QGraphicsItem *parent) :
     notificationAreaViewportOverlay->setObjectName("NotificationAreaViewportOverlay");
     MainWindow::instance()->sceneManager()->hideWindowNow(notificationAreaViewportOverlay);
 
-    // Create launcher button and lower it below modal scene windows
-    launcherButton->setViewType("icon");
-    launcherButton->setObjectName("ShowLauncherButton");
-    launcherButton->setIconID("Icon-menu");
-    connect(launcherButton, SIGNAL(clicked()), this, SLOT(launcherButtonClicked()));
-    launcherButtonOverlay->setObjectName("ShowLauncherButtonOverlay");
-    MainWindow::instance()->sceneManager()->showWindowNow(launcherButtonOverlay);
-    // Set the launcher button below modal scene windows (such as applet library)
-    // @todo TODO get rid of the hardcoded value when DuiSceneManager enables dynamic allocation of Z values
-    launcherButtonOverlay->setZValue(600);
-
-    // Put the launcher inside a pannable viewport
-    launcherViewport->setWidget(launcher);
-    launcherViewport->setMinimumSize(DuiApplication::activeWindow()->visibleSceneSize());
-    launcherViewport->setMaximumSize(DuiApplication::activeWindow()->visibleSceneSize());
-
-    // Create a layout for the launcher window and lower it below other modalscenewindows
-    QGraphicsLinearLayout *dialogLayout = new QGraphicsLinearLayout();
-    dialogLayout->setContentsMargins(0, 0, 0, 0);
-    dialogLayout->addItem(launcherViewport);
-    launcherWindow->setLayout(dialogLayout);
-    launcherWindow->setObjectName("LauncherWindow");
-    MainWindow::instance()->sceneManager()->hideWindowNow(launcherWindow);
-
     // Configure the notification area timeline
     notificationAreaTimeLine.setDuration(NOTIFICATIONAREA_TRANSITION_DURATION);
     connect(&notificationAreaTimeLine, SIGNAL(valueChanged(qreal)), this, SLOT(notificationAreaTimeLineValueChanged(qreal)));
@@ -109,8 +79,6 @@ Home::Home(QGraphicsItem *parent) :
 Home::~Home()
 {
     delete statusAreaWindow;
-    delete launcherWindow;
-    delete launcherButtonOverlay;
     delete notificationAreaViewportOverlay;
     delete eventCaptureWidget;
 }
@@ -163,7 +131,6 @@ void Home::notificationAreaTimeLineFinished()
         notificationAreaState = Closed;
         notificationAreaViewport->setVisible(false);
         desktop->setNotificationAreaOpen(false);
-        hideLauncherButton(false);
         MainWindow::instance()->sceneManager()->hideWindowNow(notificationAreaViewportOverlay);
         break;
     default:
@@ -184,11 +151,10 @@ void Home::setNotificationAreaVisible(bool visible)
     }
 
     if (visible) {
-        desktop->setNotificationAreaOpen(true, launcherButton->iconID());
+        desktop->setNotificationAreaOpen(true, "");
         eventCaptureWidget = new MouseEventCaptureWidget(desktop);
         connect(eventCaptureWidget, SIGNAL(eventReceived(QGraphicsSceneMouseEvent *)), this, SLOT(mouseEventReceived()));
         notificationAreaState = Opening;
-        hideLauncherButton(true);
         MainWindow::instance()->sceneManager()->showWindowNow(notificationAreaViewportOverlay);
     } else {
         delete eventCaptureWidget;
@@ -256,51 +222,6 @@ void Home::panNotificationAreaToBottom()
     notificationAreaViewport->setPosition(QPointF(0, notificationArea->preferredHeight() - notificationAreaViewport->size().height()));
 }
 
-void Home::launcherButtonClicked()
-{
-    if (launcherWindow->isVisible()) {
-        hideLauncher();
-    } else {
-        showLauncher();
-    }
-}
-
-void Home::showLauncher()
-{
-    launcher->setEnabled(true);
-    launcher->openRootCategory();
-    launcherButton->setIconID("Icon-home");
-    MainWindow::instance()->sceneManager()->showWindow(launcherWindow);
-
-    // Set the launcher window below other modal scene windows
-    // @todo TODO get rid of the hardcoded value when DuiSceneManager enables dynamic allocation of Z values
-    launcherWindow->parentItem()->setZValue(300);
-}
-
-void Home::hideLauncher()
-{
-    // Disable the launcher so that during the disappear animation of
-    // the dialog it's not possible to launch another application
-    launcher->setEnabled(false);
-
-    // Scroll the launcher above the screen
-    MainWindow::instance()->sceneManager()->hideWindow(launcherWindow);
-
-    launcherButton->setIconID("Icon-menu");
-}
-
-void Home::hideLauncherButton(bool hide)
-{
-    if (hide) {
-        MainWindow::instance()->sceneManager()->hideWindow(launcherButtonOverlay);
-    } else {
-        MainWindow::instance()->sceneManager()->showWindow(launcherButtonOverlay);
-        // Ensure that the launcher button is below modal scene windows (such as applet library)
-        // @todo TODO get rid of the hardcoded value when DuiSceneManager enables dynamic allocation of Z values
-        launcherButtonOverlay->setZValue(600);
-    }
-}
-
 void Home::setGeometry(const QRectF &rect)
 {
     DuiSceneWindow::setGeometry(rect);
@@ -313,10 +234,6 @@ void Home::setGeometry(const QRectF &rect)
             // Close the notification area if it was open
             setNotificationAreaVisible(false);
         }
-
-        // Set the launcher viewport to the size of the home
-        launcherViewport->setMinimumSize(rect.size());
-        launcherViewport->setMaximumSize(rect.size());
     }
 }
 

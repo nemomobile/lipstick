@@ -72,8 +72,8 @@ signals:
 };
 
 /*!
- * The main widget of the Home application. Acts as container for the desktop,
- * launcher and applet inventory.
+ * The main widget of the Home application. Acts as container for the desktop
+ * and the notification area.
  */
 class Home : public DuiSceneWindow
 {
@@ -109,19 +109,9 @@ public slots:
 
 private slots:
     /*!
-     * \brief A slot for notifying that the launcher button has been clicked
-     */
-    void launcherButtonClicked();
-
-    /*!
      * \brief A slot for receiving mouse events when notification area is open
      */
     void mouseEventReceived();
-
-    /*!
-     * \brief A slot for hiding or showing the launcher button.
-     */
-    void hideLauncherButton(bool hide);
 
     /*!
      * \brief A slot for animating the opening/closing of the notification area
@@ -134,16 +124,6 @@ private slots:
     void notificationAreaTimeLineFinished();
 
 private:
-    /*!
-     * \brief Shows the application launcher
-     */
-    void showLauncher();
-
-    /*!
-     * \brief Hides the application launcher
-     */
-    void hideLauncher();
-
     //! The states in which the notification area can be
     enum NotificationAreaState { Opening, Closing, Open, Closed };
 
@@ -161,21 +141,6 @@ private:
 
     //! The status area window
     StatusAreaWindow *statusAreaWindow;
-
-    //! An overlay to contain the application launcher button
-    DuiOverlay *launcherButtonOverlay;
-
-    //! Application launcher button
-    DuiButton *launcherButton;
-
-    //! Application launcher
-    Launcher *launcher;
-
-    //! scene window for the launcher
-    DuiModalSceneWindow *launcherWindow;
-
-    //! Pannable viewport in which the launcher is displayed
-    DuiPannableViewport *launcherViewport;
 
     //! An overlay to contain the notification area viewport
     DuiOverlay *notificationAreaViewportOverlay;

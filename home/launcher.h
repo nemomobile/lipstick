@@ -23,13 +23,14 @@
 #include <QObject>
 #include <QList>
 #include <QFileSystemWatcher>
-#include <DuiDesktopEntry>
 #include <DuiWidgetController>
 #include "launchermodel.h"
 
 #ifdef ENABLE_QTTRACKER
 #include <QtTracker/Tracker>
 #endif
+
+class DuiDesktopEntry;
 
 /*!
  * Widget for launching and browsing installed applications.
@@ -61,6 +62,22 @@ public:
      */
     void setEnabled(bool enabled);
 
+    /*!
+     * Starts an application.
+     *
+     * \param application the application to be started
+     * \return \c true if starting succeeded, \c false otherwise
+     */
+    static bool startApplication(const QString &application);
+
+    /*!
+     * Starts a DUI application.
+     *
+     * \param serviceName the service name of the application to be started
+     * \return \c true if starting succeeded, \c false otherwise
+     */
+    static bool startDuiApplication(const QString &serviceName);
+
 public slots:
     /*!
      * Opens root category of launcher. Launcher can have subcategories under root category
@@ -70,29 +87,29 @@ public slots:
 
 private slots:
     /*!
-     * \brief Slot for notifying that the contents of the desktop entry file directory have changed.
+     * \brief Reads the contents of a .desktop or .directory file directory
      */
-    void directoryChanged(const QString &path, bool updateWidgetList = true);
+    void readDirectory(const QString &path, bool updateWidgetList = true);
 
     /*!
-     * \brief Slot for notifying that an application has been launched
+     * \brief Launches an application and returns to the root category
      */
-    void applicationLaunched(const QString &application);
+    void launchApplication(const QString &application);
 
     /*!
-     * \brief Slot for notifying that an duiapplication has been launched
+     * \brief Launches a DUI application and returns to the root category
      */
-    void duiApplicationLaunched(const QString &service);
+    void launchDuiApplication(const QString &service);
 
     /*!
-     * \brief Slot for notifying that a link has been launched
+     * \brief Launches a link
      */
-    void linkLaunched(const QString &link);
+    void launchLink(const QString &link);
 
     /*!
-     * \brief Slot for notifying that a directory has been launched
+     * \brief Launches a directory and moves into that category
      */
-    void directoryLaunched(const QString &directory, const QString &title, const QString &iconId);
+    void launchDirectory(const QString &directory, const QString &title, const QString &iconId);
 
 private:
     //! A file system watcher for the desktop entry file directory

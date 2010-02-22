@@ -24,6 +24,7 @@
 #include "launcherbuttonmodel.h"
 
 class LauncherButtonPrivate;
+class DuiDesktopEntry;
 
 /*!
  * Button widget that can launch an application when its being clicked.
@@ -46,6 +47,14 @@ public:
      * \param parent the parent widget, defaults to NULL
      */
     LauncherButton(DuiWidget *parent = 0);
+
+    /*!
+     * Creates a launcher button instance from a DuiDesktopEntry.
+     *
+     * \param entry the DuiDesktopEntry to create a launcher button from
+     * \param parent the parent widget, defaults to NULL
+     */
+    LauncherButton(const DuiDesktopEntry &entry, DuiWidget *parent = 0);
 
     /*!
      * Destroys the Launcher.

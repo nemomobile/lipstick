@@ -3,8 +3,7 @@ TARGET = ut_launcher
 
 PKGCONFIG += ContentManagerSearchIf
 
-STYLE_HEADERS += $$SRCDIR/launcherbuttonstyle.h \
-    $$SRCDIR/launcherstyle.h \
+STYLE_HEADERS += $$SRCDIR/launcherbuttonstyle.h
 
 MODEL_HEADERS += $$SRCDIR/launcherbuttonmodel.h \
     $$SRCDIR/launchermodel.h \
@@ -23,7 +22,6 @@ HEADERS += \
     ut_launcher.h \
     $$SRCDIR/launcher.h \
     $$SRCDIR/launchermodel.h \
-    $$SRCDIR/launcherstyle.h \
     $$SRCDIR/launcherbuttonmodel.h \
     $$SRCDIR/launcherbuttonstyle.h
 
