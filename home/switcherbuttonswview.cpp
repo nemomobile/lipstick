@@ -25,8 +25,7 @@
 #include <DuiScalableImage>
 
 SwitcherButtonSWView::SwitcherButtonSWView(SwitcherButton *button) :
-    SwitcherButtonView(button),
-    thumbnailMaskApplied(false)
+    SwitcherButtonView(button)
 {
 }
 
@@ -34,56 +33,14 @@ SwitcherButtonSWView::~SwitcherButtonSWView()
 {
 }
 
-void SwitcherButtonSWView::applyStyle()
-{
-    DuiWidgetView::applyStyle();
-
-    thumbnailPixmap = QPixmap(style()->iconSize());
-    thumbnailMask = QPixmap();
-
-    updateThumbnail();
-}
-
-void SwitcherButtonSWView::updateThumbnail()
-{
-    if (!thumbnailPixmap.isNull() && !qWindowPixmap.isNull()) {
-        QPainter painter(&thumbnailPixmap);
-        painter.drawPixmap(QRectF(QPointF(0, 0), style()->iconSize()), qWindowPixmap,
-                           QRectF(QPointF(0, 0), QSizeF(-1, -1)));
-
-        // The mask needs to be reapplied
-        thumbnailMaskApplied = false;
-        // Redraw
-        update();
-    }
-}
-
 void SwitcherButtonSWView::backendSpecificDrawBackground(QPainter *painter, const QStyleOptionGraphicsItem *option) const
 {
     Q_UNUSED(option);
 
-    if (thumbnailMask.isNull()) {
-        // Create a thumbnail mask
-        // TODO: the mask isn't scaled properly when the button size is increased
-        // when it's being dragged.
-        const DuiScalableImage *mask = style()->maskImage();
-        if (mask != NULL && !mask->pixmap()->isNull() &&
-                mask->pixmap()->width() > 1 &&
-                mask->pixmap()->height() > 1) {
-            thumbnailMask = mask->pixmap()->createMaskFromColor(QColor(255, 255, 255, 255), Qt::MaskOutColor);
-            thumbnailMaskApplied = false;
-        }
-    }
-
-    // Set thumbnail mask
-    if (!thumbnailMaskApplied && !thumbnailMask.isNull()) {
-        thumbnailPixmap.setMask(thumbnailMask);
-        thumbnailMaskApplied = true;
-    }
-
     // Draw window thumbnail
-    painter->drawPixmap(QRectF(style()->iconPosition(), style()->iconSize()),
-                        thumbnailPixmap, QRectF(QPointF(0, 0), QSizeF(-1, -1)));
+    painter->drawPixmap(QRect(style()->iconPosition().toPoint(),
+                              style()->iconSize()),
+                        qWindowPixmap);
 }
 
 void SwitcherButtonSWView::backendSpecificUpdateXWindowPixmap()

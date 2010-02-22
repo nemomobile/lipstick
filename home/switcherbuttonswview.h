@@ -45,28 +45,14 @@ public:
      */
     virtual ~SwitcherButtonSWView();
 
-    //! \reimp
-    virtual void applyStyle();
-    //! \reimp_end
-
 private:
     //! \reimp
-    virtual void updateThumbnail();
     virtual void backendSpecificDrawBackground(QPainter *painter, const QStyleOptionGraphicsItem *option) const;
     virtual void backendSpecificUpdateXWindowPixmap();
     //! \reimp_end
 
     //! The X window's pixmap as a shared QPixmap
     QPixmap qWindowPixmap;
-
-    //! Thumbnail pixmap
-    mutable QPixmap thumbnailPixmap;
-
-    //! Thumbnail mask
-    mutable QBitmap thumbnailMask;
-
-    //! Whether the mask has been applied to the pixmap
-    mutable bool thumbnailMaskApplied;
 
     Q_DISABLE_COPY(SwitcherButtonSWView);
 };

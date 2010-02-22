@@ -296,6 +296,8 @@ void SwitcherButtonView::backendSpecificUpdateXWindowPixmap()
 
 void SwitcherButtonView::updateThumbnail()
 {
+    // Redraw
+    update();
 }
 
 #ifdef Q_WS_X11
