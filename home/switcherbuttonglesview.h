@@ -45,16 +45,11 @@ public:
      */
     virtual ~SwitcherButtonGLESView();
 
-private slots:
-    //! \reimp
-    virtual void damageEvent(Qt::HANDLE &damage, short &x, short &y, unsigned short &width, unsigned short &height);
-    virtual void windowVisibilityChanged(Window window);
-    //! \reimp_end
-
 private:
     //! \reimp
-    virtual void updateThumbnail();
+    virtual void updateXWindowPixmap();
     virtual void backendSpecificDrawBackground(QPainter *painter, const QStyleOptionGraphicsItem *option) const;
+    virtual void backendSpecificUpdateXWindowPixmap();
     //! \reimp_end
 
     //! Window texture ID

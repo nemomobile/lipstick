@@ -109,7 +109,7 @@ protected:
     /*!
      * \brief Updates the X window pixmap.
      */
-    void updateXWindowPixmap();
+    virtual void updateXWindowPixmap();
 
     /*!
      * \brief Updates the thumbnail pixmap.

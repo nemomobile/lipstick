@@ -62,6 +62,8 @@ void SwitcherButtonGLESView::backendSpecificDrawBackground(QPainter *painter, co
         WARN_IF(renderer == NULL);
 
         if (renderer) {
+            renderer->updateX11Pixmap(xWindowPixmap);
+
             const QPixmap* maskPixmap = NULL;
 
             const DuiScalableImage *mask = style()->maskImage();
@@ -115,7 +117,23 @@ void SwitcherButtonGLESView::backendSpecificDrawBackground(QPainter *painter, co
     }
 }
 
-void SwitcherButtonGLESView::updateThumbnail()
+void SwitcherButtonGLESView::updateXWindowPixmap()
+{
+    if (windowTextureID != 0) {
+        // Unbind the texture of the X window
+        DuiGLES2Renderer* renderer = DuiGLES2Renderer::instance();
+        WARN_IF(renderer == NULL);
+
+        if (renderer) {
+            renderer->unbindX11Pixmap(xWindowPixmap);
+            windowTextureID = 0;
+        }
+    }
+
+    SwitcherButtonView::updateXWindowPixmap();
+}
+
+void SwitcherButtonGLESView::backendSpecificUpdateXWindowPixmap()
 {
     if (xWindowPixmap != 0) {
         DuiGLES2Renderer* renderer = DuiGLES2Renderer::instance();
@@ -125,48 +143,8 @@ void SwitcherButtonGLESView::updateThumbnail()
             windowTextureID = renderer->bindX11Pixmap(xWindowPixmap);
             if (windowTextureID != 0) {
                 renderer->updateX11Pixmap(xWindowPixmap);
-                update();
             }
         }
-    }
-}
-
-void SwitcherButtonGLESView::damageEvent(Qt::HANDLE &damage, short &x, short &y, unsigned short &width, unsigned short &height)
-{
-    Q_UNUSED(x);
-    Q_UNUSED(y);
-    Q_UNUSED(width);
-    Q_UNUSED(height);
-    if (xWindowPixmapDamage == damage) {
-        update();
-    }
-}
-
-void SwitcherButtonGLESView::windowVisibilityChanged(Window window)
-{
-    if (window == model()->xWindow()) {
-        // The compositing is enabled when minimizing which changes the window pixmap ID
-        if (windowTextureID != 0) {
-            // Unbind the texture of the X window
-            DuiGLES2Renderer* renderer = DuiGLES2Renderer::instance();
-            WARN_IF(renderer == NULL);
-
-            if (renderer) {
-                renderer->unbindX11Pixmap(xWindowPixmap);
-                windowTextureID = 0;
-            }
-        }
-
-        if (xWindowPixmap != 0) {
-            // Dereference the old pixmap ID
-            X11Wrapper::XFreePixmap(QX11Info::display(), xWindowPixmap);
-        }
-
-        // Get the current window pixmap ID
-        xWindowPixmap = X11Wrapper::XCompositeNameWindowPixmap(QX11Info::display(), model()->xWindow());
-
-        // Update the thumbnail
-        updateThumbnail();
     }
 }
 

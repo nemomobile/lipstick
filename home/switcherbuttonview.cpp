@@ -310,10 +310,12 @@ int SwitcherButtonView::handleXError(Display *, XErrorEvent *event)
 }
 #endif
 
-void SwitcherButtonView::windowVisibilityChanged(Window)
+void SwitcherButtonView::windowVisibilityChanged(Window window)
 {
-    updateXWindowPixmap();
-    updateThumbnail();
+    if (window == model()->xWindow()) {
+        updateXWindowPixmap();
+        updateThumbnail();
+    }
 }
 
 void SwitcherButtonView::damageEvent(Qt::HANDLE &damage, short &x, short &y, unsigned short &width, unsigned short &height)
