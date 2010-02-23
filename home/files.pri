@@ -38,7 +38,6 @@ HEADERS += homeapplication.h \
     switcherbuttonmodel.h \
     switcherbuttonview.h \
     switcherbuttonswview.h \
-    switcherbuttonglesview.h \
     switcherbuttonstyle.h \
     switcherphysicsintegrationstrategy.h \
     notificationarea.h \
@@ -78,7 +77,6 @@ SOURCES += homeapplication.cpp \
     switcherbutton.cpp \
     switcherbuttonview.cpp \
     switcherbuttonswview.cpp \
-    switcherbuttonglesview.cpp \
     switcherphysicsintegrationstrategy.cpp \
     notificationarea.cpp \
     notificationareaview.cpp \

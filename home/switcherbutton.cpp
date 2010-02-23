@@ -39,12 +39,6 @@ SwitcherButton::SwitcherButton(const QString &title, DuiWidget *parent, Window w
     // Update the window title and pixmap
     model()->setXWindow(window);
 
-#ifdef QT_OPENGL_ES_2
-    if (!DuiApplication::softwareRendering()) {
-        setViewType("gles");
-    }
-#endif
-
     connect(MainWindow::instance(), SIGNAL(orientationChangeFinished(const Dui::Orientation &)), this, SLOT(updateIconGeometry()));
 }
 

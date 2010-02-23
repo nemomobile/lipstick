@@ -57,15 +57,8 @@ QMAKE_CLEAN += *.gcov \
 target.path = /usr/bin
 INSTALLS += target
 
-install_shaders.path = $$DUIHOME_SHADERS_DIR
-install_shaders.files = \
-    mask.frag
-
-INSTALLS += install_shaders
-
 DEFINES += APPLET_DATA=\'$$quote(\"$$DUI_APPLET_DATA_DIR\")\'
 DEFINES += APPLET_SETTINGS=\'$$quote(\"$$DUI_APPLET_SETTINGS_DIR\")\'
 DEFINES += APPLICATIONS_DIRECTORY=\'$$quote(\"/usr/share/applications/\")\'
 DEFINES += CATEGORIES_DIRECTORY=\'$$quote(\"/usr/share/desktop-directories\")\'
 DEFINES += NOTIFICATIONS_EVENT_TYPES=\'$$quote(\"$$DUI_NOTIFICATIONS_EVENT_TYPES_DIR\")\'
-DEFINES += SHADERS_DIR=\'$$quote(\"$$DUIHOME_SHADERS_DIR\")\'
