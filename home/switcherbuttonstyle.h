@@ -40,9 +40,6 @@ class SwitcherButtonStyle : public DuiButtonStyle
     //! The position of the icon relative to the top-left corner of the button
     DUI_STYLE_ATTRIBUTE(QPointF, iconPosition, IconPosition)
 
-    //! The image to be used for masking the window thumbnail
-    DUI_STYLE_PTR_ATTRIBUTE(DuiScalableImage *, maskImage, MaskImage)
-
     //! The image to be drawn as the container for the button
     DUI_STYLE_PTR_ATTRIBUTE(DuiScalableImage *, containerImage, ContainerImage)
 
