@@ -68,13 +68,15 @@ void Ut_QuickLaunchBarView::testUpdateData()
 
     QGraphicsLinearLayout *layout = dynamic_cast<QGraphicsLinearLayout *>(controller->layout());
     QVERIFY(layout != NULL);
-    QVERIFY(layout->count() > 1);
-    QGraphicsLinearLayout *quickLaunchButtonLayout = dynamic_cast<QGraphicsLinearLayout *>(layout->itemAt(1));
+    QVERIFY(layout->count() > 0);
+    QGraphicsLinearLayout *quickLaunchButtonLayout = dynamic_cast<QGraphicsLinearLayout *>(layout->itemAt(0));
     QVERIFY(quickLaunchButtonLayout != NULL);
-    QCOMPARE(quickLaunchButtonLayout->count(), 3);
+    // The widgets plus a launcher button should be there
+    QCOMPARE(quickLaunchButtonLayout->count(), 4);
     QCOMPARE(quickLaunchButtonLayout->itemAt(0), widget1);
     QCOMPARE(quickLaunchButtonLayout->itemAt(1), widget2);
-    QCOMPARE(quickLaunchButtonLayout->itemAt(2), widget3);
+    // The launcher button is the third item so widget3 is fourth
+    QCOMPARE(quickLaunchButtonLayout->itemAt(3), widget3);
 }
 
 QTEST_APPLESS_MAIN(Ut_QuickLaunchBarView)

@@ -24,11 +24,17 @@
 #include <duifiledatastore.h>
 #include <QDir>
 
+const int QuickLaunchBar::NUMBER_OF_LAUNCHER_BUTTONS = 4;
+
 QuickLaunchBar::QuickLaunchBar(QGraphicsItem *parent) : DuiWidgetController(new QuickLaunchBarModel, parent),
     fileDataStore(NULL)
 {
     initializeDataStore();
     updateWidgetList();
+
+    // Start watching the applications directory for changes
+    connect(&desktopDirectoryWatcher, SIGNAL(directoryChanged(const QString &)), this, SLOT(updateWidgetList()));
+    desktopDirectoryWatcher.addPath(APPLICATIONS_DIRECTORY);
 }
 
 QuickLaunchBar::~QuickLaunchBar()
@@ -47,8 +53,12 @@ void QuickLaunchBar::initializeDataStore()
 
 void QuickLaunchBar::updateWidgetList()
 {
-    QList<DuiWidget *> widgets;
-    for (int i = 1; i <= 4; i++) {
+    // Get the old widgets so that they can be removed
+    QList<DuiWidget *> oldWidgets(model()->widgets());
+
+    // Construct a list of new widgets
+    QList<DuiWidget *> newWidgets;
+    for (int i = 1; i <= NUMBER_OF_LAUNCHER_BUTTONS; i++) {
         DuiWidget *widget = NULL;
 
         QString key;
@@ -65,13 +75,18 @@ void QuickLaunchBar::updateWidgetList()
         }
 
         if (widget == NULL) {
+            // Use an empty widget if the entry was not valid
             widget = new DuiWidget;
         }
 
-        widgets.append(widget);
+        newWidgets.append(widget);
     }
 
-    model()->setWidgets(widgets);
+    // Take the new widgets into use
+    model()->setWidgets(newWidgets);
+
+    // Delete the old widgets
+    qDeleteAll(oldWidgets);
 }
 
 void QuickLaunchBar::launchApplication(const QString &application)

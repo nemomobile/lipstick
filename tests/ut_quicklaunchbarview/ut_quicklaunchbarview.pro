@@ -26,4 +26,6 @@ HEADERS += \
     $$SRCDIR/launcher.h \
     $$SRCDIR/launcherbutton.h
 
+DEFINES += APPLICATIONS_DIRECTORY=\'$$quote(\"/tmp/ut_launcher/applications/\")\'
+
 include(../common_bot.pri)

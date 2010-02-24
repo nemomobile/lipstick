@@ -26,27 +26,28 @@
 #include <DuiButton>
 #include <DuiViewCreator>
 
-QuickLaunchBarView::QuickLaunchBarView(QuickLaunchBar *controller) : DuiWidgetView(controller)
+const int QuickLaunchBarView::TOGGLE_LAUNCHER_BUTTON_INDEX = 2;
+
+QuickLaunchBarView::QuickLaunchBarView(QuickLaunchBar *controller) : DuiWidgetView(controller),
+    launcherButtonLayout(new QGraphicsLinearLayout(Qt::Horizontal)),
+    toggleLauncherButton(new DuiButton)
 {
     QGraphicsLinearLayout *l = new QGraphicsLinearLayout(Qt::Horizontal);
     l->setContentsMargins(0, 0, 0, 0);
     controller->setLayout(l);
 
     // A layout for the launcher buttons
-    quickLaunchButtonLayout = new QGraphicsLinearLayout(Qt::Horizontal);
-    quickLaunchButtonLayout->setContentsMargins(0, 0, 0, 0);
+    launcherButtonLayout->setContentsMargins(0, 0, 0, 0);
 
     // Create launcher button
-    DuiButton *launcherButton = new DuiButton;
-    launcherButton->setViewType("icon");
-    launcherButton->setObjectName("ToggleLauncherButton");
-    launcherButton->setIconID("icon-m-launcher");
-    connect(launcherButton, SIGNAL(clicked()), controller, SIGNAL(launcherButtonClicked()));
+    toggleLauncherButton->setViewType("icon");
+    toggleLauncherButton->setObjectName("ToggleLauncherButton");
+    toggleLauncherButton->setIconID("icon-m-launcher");
+    connect(toggleLauncherButton, SIGNAL(clicked()), controller, SIGNAL(toggleLauncherButtonClicked()));
 
     // Put the stuff into a layout
     l->addStretch();
-    l->addItem(launcherButton);
-    l->addItem(quickLaunchButtonLayout);
+    l->addItem(launcherButtonLayout);
     l->addStretch();
     DuiButton *appletSpaceButton = new DuiButton("Applet Space");
     connect(appletSpaceButton, SIGNAL(clicked()), controller, SIGNAL(appletSpaceButtonClicked()));
@@ -59,6 +60,7 @@ QuickLaunchBarView::~QuickLaunchBarView()
 
 void QuickLaunchBarView::setupModel()
 {
+    DuiWidgetView::setupModel();
     QList<const char *> modifications;
     modifications << QuickLaunchBarModel::Widgets;
     updateData(modifications);
@@ -71,13 +73,18 @@ void QuickLaunchBarView::updateData(const QList<const char *>& modifications)
     foreach(member, modifications) {
         if (member == QuickLaunchBarModel::Widgets) {
             // Remove everything from the launcher button layout
-            while (quickLaunchButtonLayout->count() > 0) {
-                quickLaunchButtonLayout->removeAt(0);
+            while (launcherButtonLayout->count() > 0) {
+                launcherButtonLayout->removeAt(0);
             }
 
             // Add all launcher buttons to the launcher button layout
             foreach (DuiWidget *widget, model()->widgets()) {
-                quickLaunchButtonLayout->addItem(widget);
+                launcherButtonLayout->addItem(widget);
+
+                if (launcherButtonLayout->count() == TOGGLE_LAUNCHER_BUTTON_INDEX) {
+                    // Add a launcher button in the expected index
+                    launcherButtonLayout->addItem(toggleLauncherButton);
+                }
             }
         }
     }

@@ -25,6 +25,7 @@
 
 class QuickLaunchBar;
 class QGraphicsLinearLayout;
+class DuiButton;
 
 /*!
  * A view class for the QuickLaunchBar.
@@ -45,7 +46,7 @@ public:
      */
     virtual ~QuickLaunchBarView();
 
-private slots:
+protected slots:
     //! \reimp
     virtual void updateData(const QList<const char *>& modifications);
     //! \reimp_end
@@ -55,8 +56,14 @@ private:
     virtual void setupModel();
     //! \reimp_end
 
+    //! The index of the toggle launcher button in the launcher button layout
+    static const int TOGGLE_LAUNCHER_BUTTON_INDEX;
+
     //! Layout for the launcher buttons
-    QGraphicsLinearLayout *quickLaunchButtonLayout;
+    QGraphicsLinearLayout *launcherButtonLayout;
+
+    //! The button to open the launcher
+    DuiButton *toggleLauncherButton;
 };
 
 #endif

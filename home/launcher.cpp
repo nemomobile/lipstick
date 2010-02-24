@@ -75,7 +75,7 @@ void Launcher::initializeIfNecessary()
         updateWidgetList();
 
         // Start watching the applications directory for changes
-        connect(&watcher, SIGNAL(readDirectory(const QString)), this, SLOT(readDirectory(const QString)));
+        connect(&watcher, SIGNAL(directoryChanged(const QString)), this, SLOT(readDirectory(const QString)));
         watcher.addPath(APPLICATIONS_DIRECTORY);
         watcher.addPath(CATEGORIES_DIRECTORY);
 #ifdef TESTABILITY_ON

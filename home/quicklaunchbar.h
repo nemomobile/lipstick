@@ -21,6 +21,7 @@
 #define QUICKLAUNCHBAR_H
 
 #include <DuiWidgetController>
+#include <QFileSystemWatcher>
 #include "quicklaunchbarmodel.h"
 
 class DuiFileDataStore;
@@ -70,15 +71,21 @@ private slots:
      */
     void launchDuiApplication(const QString &service);
 
+    //! Updates the widget list based on the contents of the data store
+    void updateWidgetList();
+
 private:
     //! Initializes the configuration data store
     void initializeDataStore();
 
-    //! Updates the widget list based on the contents of the data store
-    void updateWidgetList();
+    //! The number of launcher buttons in the quick launch bar
+    static const int NUMBER_OF_LAUNCHER_BUTTONS;
 
     //! The data store for quick launch bar configuration
     DuiFileDataStore *fileDataStore;
+
+    //! A file system watcher for the desktop entry file directory
+    QFileSystemWatcher desktopDirectoryWatcher;
 };
 
 #endif
