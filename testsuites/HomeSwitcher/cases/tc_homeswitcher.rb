@@ -24,18 +24,20 @@ include MattiVerify
 #SetHardware::            true
 #SetScratchbox::          true
 #SetLogFiles::            /logs/testability/tc_homeswitcher.log
-#SetFeature::             DUI-1988 in ScrumWorks Pro
+#SetFeature::             DUI-1952 in ScrumWorks Pro
 #SetTimeout::             500
 
 # These tests verify duihome switcher functionality
 class TC_homeswitcher < Dui::TestCase
 
+    @@screen_width = 0
+
     def setup
-	@home  = @sut.application(:name => 'duihome')
+        @home  = @sut.application(:name => 'duihome')
     end
 
     def teardown
-	close_all_ta
+        close_all_ta
     end
 
     #Timeout::      100
@@ -54,14 +56,9 @@ class TC_homeswitcher < Dui::TestCase
     #* Post-conditions
     #  * None
     def test_01_switcher_is_shown
-	verify(0, "Switcher not found") {
-	    @home.Switcher
-	}
-
-	verify_equal(0, 0, "Switcher should contain no buttons") {
-	    count_switcher_buttons
-	}
-
+        @@screen_width = @home.MainWindow.attribute('width').to_i
+        verify(0, "Switcher not found") { @home.Switcher }
+        verify_equal(0, 0, "Switcher should contain no buttons") { count_switcher_buttons }
     end
 
     #Timeout::      100
@@ -70,97 +67,174 @@ class TC_homeswitcher < Dui::TestCase
     #Manual::       false
     #Level::        Feature
     #
-    # Check the switcher functionality
+    # Test switcher button launching and closing corresponding application
     #
     #* Pre-conditions
     #  * duihome is started
     #* Test steps
     #  * Check that the switcher buttons are added as applications are started
-    #  * Assert that only one button is added per one application/window
+    #  * Verify that only one button is added per one application/window
     #  * Check that tapping a switcher button brings the corresponding application to front
     #  * Check that tapping a close button within the switcher button closes the corresponding application
-    #  * Assert that only one button is removed when a window closes
-    #  * Assert that the correct switcher button is removed
+    #  * Verify that only one button is removed when a window closes
+    #  * Verify that the correct switcher button is removed
     #* Post-conditions
     #  * None
-    def test_02_switcher_window_opening_switching_and_closing
-	n = count_switcher_buttons
+    def test_02_open_and_close_applications_via_switcher_buttons
 
-	# Verify that when an application is started, an appropriate button
-	# (and only one such) is added to the switcher
-	5.times { |m|
-	    name = 'Ta_HomeSwitcher-' + m.to_s
+        # Verify that when an application is started, an appropriate button
+        # (and only one such) is added to the switcher
+        5.times { |m|
+            name = 'Ta_HomeSwitcher-' + m.to_s
 
-	    @sut.run(:name => '/usr/lib/duifw-home-tests/ta_homeswitcher',
-		     :arguments => '-software,-id,' + m.to_s)
+            @sut.run(:name => '/usr/lib/duifw-home-tests/ta_homeswitcher',
+                            :arguments => '-software,-id,' + m.to_s)
 
-	    verify(30, "Switcher button not found") {
-		@home.SwitcherButton(:text => name)
-	    }
+            verify(10, "Switcher button not found") { @home.SwitcherButton(:text => name) }
 
-	    verify_equal(n + m + 1, 0, "Buttons number mismatch") {
-		count_switcher_buttons
-	    }
-	}
+            verify_equal(m + 1, 0, "Buttons number mismatch") { count_switcher_buttons }
+        }
 
-	# Verify that if a switcher button is tapped, the correct application
-	# is brought to front
-	[2, 4, 3, 0, 1].each { |m|
-	    name = 'Ta_HomeSwitcher-' + m.to_s
+        # Verify that if a switcher button is tapped, the correct application
+        # is brought to front
+        tap_to_foreground_and_verify('Ta_HomeSwitcher-0')
 
-	    @home.SwitcherButton(:text => name).tap
-	    #@sut.application(:name => 'duihome').SwitcherButton(:text => name).tap
-	    verify_equal(name, 10) {
-		@sut.application.DuiApplicationWindow.attribute('windowTitle')
-	    }
-	}
+        # two right-to-left gestures to bring Ta_HomeSwitcher-2 to the middle
+        @home.SwitcherButton( :text => 'Ta_HomeSwitcher-0' ).gesture(:Left, 2, 400, :Left)
+        @home.SwitcherButton( :text => 'Ta_HomeSwitcher-1' ).gesture(:Left, 2, 400, :Left)
+        tap_to_foreground_and_verify('Ta_HomeSwitcher-2')
 
-	# Verify that if a close button on an appropriate switcher button
-	# is tapped, the application closes and the corrent switcher button
-	# is removed
-	n = count_switcher_buttons
+        # one right-to-left gesture to bring Ta_HomeSwitcher-3 to the middle
+        @home.SwitcherButton( :text => 'Ta_HomeSwitcher-2' ).gesture(:Left, 2, 400, :Left)
+        tap_to_foreground_and_verify('Ta_HomeSwitcher-3')
 
-	[0, 2, 3, 1, 4].each_with_index { |m, i|
-	    name = 'Ta_HomeSwitcher-' + m.to_s
+        # two left-to-right gestures to bring Ta_HomeSwitcher-1 to the middle
+        @home.SwitcherButton( :text => 'Ta_HomeSwitcher-3' ).gesture(:Right, 2, 400, :Left)
+        @home.SwitcherButton( :text => 'Ta_HomeSwitcher-2' ).gesture(:Right, 2, 400, :Left)
+        tap_to_foreground_and_verify('Ta_HomeSwitcher-1')
 
-	    # "duihome/themes/style/default.css" defines switcher button size
-	    # as 195x108 in landsape mode. Consider a close button of size
-	    # 24x24 in the top-right corner. The following tap will get it
-	    # right in the middle.
-	    @home.SwitcherButton(:text => name).tap_object(195-12, 0+12)
+        @home.SwitcherButton( :text => 'Ta_HomeSwitcher-1' ).gesture(:Left, 2, 400, :Left)
+        @home.SwitcherButton( :text => 'Ta_HomeSwitcher-2' ).gesture(:Left, 2, 400, :Left)
+        @home.SwitcherButton( :text => 'Ta_HomeSwitcher-3' ).gesture(:Left, 2, 400, :Left)
+        tap_to_foreground_and_verify('Ta_HomeSwitcher-4')
 
-	    verify_not(10, "Switcher button found") {
-		@home.SwitcherButton(:text => name)
-	    }
+        @home.SwitcherButton( :text => 'Ta_HomeSwitcher-4' ).gesture(:Right, 2, 400, :Left)
+        @home.SwitcherButton( :text => 'Ta_HomeSwitcher-3' ).gesture(:Right, 2, 400, :Left)
+        @home.SwitcherButton( :text => 'Ta_HomeSwitcher-2' ).gesture(:Right, 2, 400, :Left)
+        @home.SwitcherButton( :text => 'Ta_HomeSwitcher-1' ).gesture(:Right, 2, 400, :Left)
 
-	    verify_equal(n - i - 1, 0, "Buttons number mismatch") {
-		count_switcher_buttons
-	    }
-	}
+        # Verify that if a close button on an appropriate switcher button
+        # is tapped, the application closes and the corrent switcher button
+        # is removed
+        buttons_num = count_switcher_buttons
+        buttons_num.times { |m|
+            name = 'Ta_HomeSwitcher-' + m.to_s
+            # TODO
+            # In current implementation of switcher the title of focused button is not always drawn
+            # until switcher button is tapped once. This behaviour will propaply change and then
+            # this tap can be removed.
+            @home.SwitcherButton(:text => name).tap
+
+            # Tap the close button of the switcher button
+            button_width = @home.SwitcherButton(:text => name ).attribute('width')
+            # Button dimensions are acquired from Matti Visualizer. Style changes may affect this test.
+            @home.SwitcherButton(:text => name).tap_object(button_width.to_i-15, 0+15)
+
+            verify_not { @home.SwitcherButton(:text => name) }
+            verify_equal(buttons_num - 1 -m, 0, "Buttons number mismatch") { count_switcher_buttons }
+        }
+    end
+
+
+    #Timeout::      100
+    #Type::         Functional
+    #Requirement::  NONE
+    #Manual::       false
+    #Level::        Feature
+    #
+    # Test switcher button gestures
+    #
+    #* Pre-conditions
+    #  * duihome is started
+    #* Test steps
+    #  * Launch test applications
+    #  * Check that switcher button returns to it's original place when using gesture that's too short
+    #  * Move switcher buttons with gestures and check that the buttons move to right places
+    #* Post-conditions
+    #  * None
+    def test_03_panning_switcher_buttons_using_gestures
+
+        #create 5 switcher buttons
+        5.times { |m|
+            name = 'Ta_HomeSwitcher-' + m.to_s
+            @sut.run(:name => '/usr/lib/duifw-home-tests/ta_homeswitcher',
+                            :arguments => '-software,-id,' + m.to_s)
+        }
+
+        # gesture that's too short, switcher buttons should return to original position
+        @home.SwitcherButton( :text => 'Ta_HomeSwitcher-0' ).gesture(:Left, 2, 100, :Left)
+
+        # This is the starting position: (assuming the buttons returned to their original positions after the short gesture above)
+        # Ta_HomeSwitcher-0 in the middle, Ta_HomeSwitcher-1 on the right, others not visible.
+        middle_button_x = @home.SwitcherButton( :text => 'Ta_HomeSwitcher-0' ).attribute('x')
+        right_button_x = @home.SwitcherButton( :text => 'Ta_HomeSwitcher-1' ).attribute('x')
+
+        # Verify switcher buttons positions
+        # Buttons are assumed to be in certain position ranges regardles of possible changes in style
+        verify_true { ((0..@@screen_width/2) === middle_button_x.to_i) && right_button_x.to_i > @@screen_width/2 }
+
+        # 4 gestures brings us to the end of the list, 5th one shouldn't move buttons
+        5.times { |m|
+            button = 'Ta_HomeSwitcher-' + m.to_s
+            @home.SwitcherButton( :text => button ).gesture(:Left, 2, 400, :Left)
+        }
+
+        # after gestures Ta_HomeSwitcher-3 should be on the left and Ta_HomeSwitcher-4 in the middle in the screen
+        left_button_x = @home.SwitcherButton( :text => 'Ta_HomeSwitcher-3' ).attribute('x')
+        middle_button_x = @home.SwitcherButton( :text => 'Ta_HomeSwitcher-4' ).attribute('x')
+        verify_true{ left_button_x.to_i < 0 && (0..@@screen_width/2) === middle_button_x.to_i  }
+
+        # 4 gestures brings us to the beginning of the list, 5th one shouldn't move buttons
+        [4, 3, 2, 1, 0].each { |m|
+            button = 'Ta_HomeSwitcher-' + m.to_s
+            @home.SwitcherButton( :text => button ).gesture(:Right, 2, 400, :Left)
+        }
+
+        middle_button_x = @home.SwitcherButton( :text => 'Ta_HomeSwitcher-0' ).attribute('x')
+        right_button_x = @home.SwitcherButton( :text => 'Ta_HomeSwitcher-1' ).attribute('x')
+        verify_true { ((0..@@screen_width/2) === middle_button_x.to_i) && right_button_x.to_i > @@screen_width/2 }
+
     end
 
 private
+    # An auxiliary function that taps a switcher button and checks that
+    # the right application is brought to foreground
+    def tap_to_foreground_and_verify (name)
+        @home.SwitcherButton( :text => name ).tap
+        verify_equal(name, 10) { @sut.application.DuiApplicationWindow.attribute('windowTitle') }
+    end
+
     # An auxilary function that returns the current count of SwitcherButton
     # objects in the DuiHome object being tested
     def count_switcher_buttons
-	count = 0
-	begin
-	    button = @home.SwitcherButton(:__index => count)
-	    count = count + 1
-	rescue NoMethodError, MobyBase::TestObjectNotFoundError
-	    button = nil
-	end while button
+        count = 0
+        begin
+            button = @home.SwitcherButton(:__index => count)
+            count = count + 1
+        rescue NoMethodError, MobyBase::TestObjectNotFoundError
+            button = nil
+        end while button
 
-	return count
+        return count
     end
 
     # An auxilary function that closes all test helpers
     def close_all_ta
-	begin
-	    app = @sut.appication(:name => 'ta_homeswitcher', :__index => 0)
-	    app.close
-	rescue NoMethodError
-	    app = nil
-	end while app
+        begin
+            app = @sut.application( :name => 'ta_homeswitcher' )
+            app.close
+        rescue MobyBase::TestObjectNotFoundError
+            app = nil
+        end while app
     end
 end
