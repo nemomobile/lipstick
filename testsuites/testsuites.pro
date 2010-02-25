@@ -17,6 +17,7 @@ TEST_APPS = \
     fakesystemnotificationplugin
 
 SUBDIRS = \
+    lib \
     $$TEST_SUITES \
     $$TEST_APPS
 

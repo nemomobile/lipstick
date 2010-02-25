@@ -20,6 +20,7 @@ PATH=File.dirname(__FILE__)
 CASES=File.join(PATH,"cases")
 $LOAD_PATH << File.join(PATH,"..","lib")
 require "dui.rb"
+require "runFixup.rb"
 
 # Loads all the testcase files
 Dir.entries(CASES).each do |file|
