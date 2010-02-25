@@ -38,6 +38,8 @@ public:
     static QHash<const QGraphicsWidget *, QList<QAction *> > actions;
     static int actionTriggeredCount;
 
+    static QImage *testImage;
+
 signals:
     void click();
 

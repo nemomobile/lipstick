@@ -17,18 +17,14 @@
 **
 ****************************************************************************/
 
-#include <DuiInfoBanner>
-#include <DuiApplication>
 #include <DuiRemoteAction>
 #include "ut_widgetnotificationsink.h"
 #include "widgetnotificationsink.h"
-#include "notificationwidgetparameterfactory.h"
 #include "../stubs/testnotificationparameters.h"
 #include "homeapplication_stub.h"
 #include "eventtypestore.h"
 #include "notificationmanager_stub.h"
 #include <QImageReader>
-#include <QByteArray>
 
 // xlib.h defines Status, undef it so we can use QSettings::Status
 #ifdef Status
@@ -75,12 +71,6 @@ QString TestWidgetNotificationSink::determineIconId(const NotificationParameters
 void TestWidgetNotificationSink::updateActions(DuiInfoBanner *infoBanner, const Notification &notification)
 {
     WidgetNotificationSink::updateActions(infoBanner, notification.parameters());
-}
-
-// QCoreApplication stubs to avoid crashing in processEvents()
-QStringList QCoreApplication::arguments()
-{
-    return QStringList();
 }
 
 //EventTypeStore stubs
@@ -157,12 +147,10 @@ static const int ICON_TOO_BIG_SIZE = 101;
 
 // QImageReader stubs
 static bool imageReaderCanRead = false;
-static QSize imageReaderScaledSize = QSize();
-static QImage testImage = QImage();
 
 QSize QImageReader::size() const
 {
-    return testImage.size();
+    return Ut_WidgetNotificationSink::testImage->size();
 }
 
 bool QImageReader::canRead() const
@@ -172,12 +160,12 @@ bool QImageReader::canRead() const
 
 void QImageReader::setScaledSize(const QSize &size)
 {
-    testImage = testImage.scaled(size);
+    *Ut_WidgetNotificationSink::testImage = Ut_WidgetNotificationSink::testImage->scaled(size);
 }
 
 QImage QImageReader::read()
 {
-    return testImage;
+    return *Ut_WidgetNotificationSink::testImage;
 }
 
 // Test images as base64 strings
@@ -194,16 +182,16 @@ static const QString badImageStrBase64 = QString("iiVBORw0KGgoAAAANSUhEUgAAAFgAA
 void initImage(const QString &imageStr, int iconWidth, int iconHeight)
 {
     QByteArray imageBA = QByteArray::fromBase64(imageStr.toUtf8());
-    if (!testImage.loadFromData(imageBA)) {
+    if (!Ut_WidgetNotificationSink::testImage->loadFromData(imageBA)) {
         qWarning() << "Error creating image!";
     }
-    QSize size = testImage.size();
-    testImage = testImage.scaled(QSize(iconWidth, iconHeight));
+    *Ut_WidgetNotificationSink::testImage = Ut_WidgetNotificationSink::testImage->scaled(QSize(iconWidth, iconHeight));
 }
 
 QList<QString> Ut_WidgetNotificationSink::contents;
 QHash<const QGraphicsWidget *, QList<QAction *> > Ut_WidgetNotificationSink::actions;
 int Ut_WidgetNotificationSink::actionTriggeredCount;
+QImage *Ut_WidgetNotificationSink::testImage = NULL;
 
 void Ut_WidgetNotificationSink::initTestCase()
 {
@@ -211,10 +199,12 @@ void Ut_WidgetNotificationSink::initTestCase()
     static int argc = 1;
     static char *app_name = (char *)"./ut_widgetnotificationsink";
     app = new HomeApplication(argc, &app_name);
+    testImage = new QImage();
 }
 
 void Ut_WidgetNotificationSink::cleanupTestCase()
 {
+    delete testImage;
     // Destroy DuiApplication
     delete app;
 }
@@ -231,7 +221,7 @@ void Ut_WidgetNotificationSink::init()
 void Ut_WidgetNotificationSink::cleanup()
 {
     imageReaderCanRead = false;
-    testImage = QImage();
+    *testImage = QImage();
     delete m_subject;
     eventTypeFilesList.clear();
 }
@@ -439,7 +429,7 @@ void Ut_WidgetNotificationSink::testLoadIconScaleToFitBigHeight()
     imageReaderCanRead = true;
     initImage(imageStrBase64, ICON_DEFAULT_SIZE, ICON_BIG_SIZE);
 
-    QSize testSize = testImage.size();
+    QSize testSize = testImage->size();
     testSize.scale(ICON_DEFAULT_SIZE, ICON_DEFAULT_SIZE, Qt::KeepAspectRatio);
 
     TestNotificationParameters parameters("/path/image.png");
@@ -453,7 +443,7 @@ void Ut_WidgetNotificationSink::testLoadIconScaleToFitBigWidth()
     imageReaderCanRead = true;
     initImage(imageStrBase64, ICON_BIG_SIZE, ICON_DEFAULT_SIZE);
 
-    QSize testSize = testImage.size();
+    QSize testSize = testImage->size();
     testSize.scale(ICON_DEFAULT_SIZE, ICON_DEFAULT_SIZE, Qt::KeepAspectRatio);
 
     TestNotificationParameters parameters("/path/image.png");
