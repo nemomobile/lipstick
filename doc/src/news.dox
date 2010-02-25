@@ -1,5 +1,10 @@
 /*! \page news What's New in DirectUI Homescreen
 
+\section v0191 0.19.1
+
+\subsection bugs Bugs fixed
+- Installed applications were not shown in the Launcher when compiled with testability enabled
+
 \section v0190 0.19.0
 
 \subsection New

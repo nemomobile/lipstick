@@ -1,3 +1,10 @@
+duihome (0.19.1-1) unstable; urgency=low
+
+  * New version
+  * Fixes: Installed applications were not shown in the Launcher when compiled with testability enabled
+
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Thu, 25 Feb 2010 14:24:01 +0200
+
 duihome (0.19.0-1) unstable; urgency=low
 
   * New version
