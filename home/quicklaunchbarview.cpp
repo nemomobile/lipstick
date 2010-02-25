@@ -50,7 +50,7 @@ QuickLaunchBarView::QuickLaunchBarView(QuickLaunchBar *controller) : DuiWidgetVi
     l->addItem(launcherButtonLayout);
     l->addStretch();
     DuiButton *appletSpaceButton = new DuiButton("Applet Space");
-    connect(appletSpaceButton, SIGNAL(clicked()), controller, SIGNAL(appletSpaceButtonClicked()));
+    connect(appletSpaceButton, SIGNAL(clicked()), controller, SIGNAL(toggleAppletSpaceButtonClicked()));
     l->addItem(appletSpaceButton);
 }
 

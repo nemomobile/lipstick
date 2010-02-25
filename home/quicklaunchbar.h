@@ -49,12 +49,12 @@ signals:
     /*!
      * \brief A signal for notifying that the launcher button has been clicked
      */
-    void launcherButtonClicked();
+    void toggleLauncherButtonClicked();
 
     /*!
      * \brief A signal for notifying that the applet space button has been clicked
      */
-    void appletSpaceButtonClicked();
+    void toggleAppletSpaceButtonClicked();
 
 private slots:
     /*!

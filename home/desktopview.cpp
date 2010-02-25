@@ -68,8 +68,8 @@ DesktopView::DesktopView(Desktop *desktop) :
 
     // Create a quick launch bar
     quickLaunchBar = new QuickLaunchBar;
-    connect(quickLaunchBar, SIGNAL(launcherButtonClicked()), this, SLOT(toggleLauncher()));
-    connect(quickLaunchBar, SIGNAL(appletSpaceButtonClicked()), this, SLOT(toggleAppletSpace()));
+    connect(quickLaunchBar, SIGNAL(toggleLauncherButtonClicked()), this, SLOT(toggleLauncher()));
+    connect(quickLaunchBar, SIGNAL(toggleAppletSpaceButtonClicked()), this, SLOT(toggleAppletSpace()));
 
     // Create a layout for the quick launch bar window
     QGraphicsLinearLayout *windowLayout = new QGraphicsLinearLayout();
