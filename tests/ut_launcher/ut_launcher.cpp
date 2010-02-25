@@ -55,6 +55,11 @@ DuiDesktopEntry::DuiDesktopEntry(const QString &fileName) :
     desktopEntryFileName.insert(this, fileName);
 }
 
+QString DuiDesktopEntry::fileName() const
+{
+    return desktopEntryFileName[this];
+}
+
 QStringList DuiDesktopEntry::categories() const
 {
     return desktopEntryCategories.value(desktopEntryFileName.value(this));

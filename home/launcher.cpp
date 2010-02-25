@@ -164,11 +164,15 @@ void Launcher::readDirectory(const QString &path, bool updateWidgetList)
 
 void Launcher::updateDesktopEntryList(DesktopEntryContainer &desktopEntryContainer, const QString &path, const QString &nameFilter, const QStringList &acceptedTypes) const
 {
-    // Destroy the old desktop entries
-    foreach(DuiDesktopEntry * e, desktopEntryContainer) {
-        delete e;
+    // Destroy the old desktop entries that originated from this directory
+    QDir pathDir(path);
+    for (int i = desktopEntryContainer.count() - 1; i >= 0; --i) {
+        DuiDesktopEntry *e = desktopEntryContainer.at(i);
+        QFileInfo entryPath(e->fileName());
+        if (!entryPath.exists() || QDir(entryPath.absolutePath()) == pathDir) {
+                delete desktopEntryContainer.takeAt(i);
+        }
     }
-    desktopEntryContainer.clear();
 
     // Read in the new desktop entries
     foreach(QFileInfo fileInfo, QDir(path, nameFilter).entryInfoList(QDir::Files)) {
