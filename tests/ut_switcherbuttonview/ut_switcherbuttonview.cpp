@@ -484,4 +484,18 @@ void Ut_SwitcherButtonView::testTextOpacity()
     QCOMPARE(painterTextOpacity, view->modifiableStyle()->textOpacity());
 }
 
+void Ut_SwitcherButtonView::testViewModeChange()
+{
+    QCOMPARE(view->styleContainer().currentMode(), QString(""));
+    QCOMPARE(button->model()->viewMode(), SwitcherButtonModel::UnSpecified);
+    for (int i = 0; i < 2; ++i) { // test setting a couple of times
+        button->model()->setViewMode(SwitcherButtonModel::Small);
+        QCOMPARE(view->styleContainer().currentMode(), QString("small"));
+        button->model()->setViewMode(SwitcherButtonModel::Medium);
+        QCOMPARE(view->styleContainer().currentMode(), QString("medium"));
+        button->model()->setViewMode(SwitcherButtonModel::Large);
+        QCOMPARE(view->styleContainer().currentMode(), QString("large"));
+    }
+}
+
 QTEST_APPLESS_MAIN(Ut_SwitcherButtonView)

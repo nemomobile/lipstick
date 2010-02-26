@@ -149,6 +149,7 @@ private slots:
     void testXWindow();
     void testXWindowWithXError();
     void testTextOpacity();
+    void testViewModeChange();
 };
 
 #endif //_UT_SWITCHERBUTTONVIEW_
