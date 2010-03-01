@@ -17,13 +17,14 @@
 **
 ****************************************************************************/
 
-#include <QDir>
-#include <DuiDesktopEntry>
-#include <duifiledatastore.h>
 #include "ut_quicklaunchbar.h"
 #include "quicklaunchbar.h"
 #include "launcher_stub.h"
 #include "launcherbutton_stub.h"
+
+#include <QDir>
+#include <DuiDesktopEntry>
+#include <duifiledatastore.h>
 
 // QDir stubs
 bool QDir::exists(const QString &) const
@@ -53,9 +54,10 @@ QVariant DuiFileDataStore::value(const QString &key) const
 }
 
 // DuiDesktopEntry stubs
+QList<QString> gValidDesktopFiles;
 bool DuiDesktopEntry::isValid() const
 {
-    return fileName() == "/tmp/existing.desktop";
+    return gValidDesktopFiles.contains(fileName());
 }
 
 bool Ut_QuickLaunchBar::mkpathCalled;
@@ -71,7 +73,12 @@ void Ut_QuickLaunchBar::cleanupTestCase()
 void Ut_QuickLaunchBar::init()
 {
     mkpathCalled = false;
+
+    gValidDesktopFiles.clear();
+    gValidDesktopFiles << "/tmp/existing.desktop";
+
     m_subject = new QuickLaunchBar();
+    connect(this, SIGNAL(updateWidgetList()), m_subject, SLOT(updateWidgetList()));
     connect(this, SIGNAL(applicationLaunched(const QString &)), m_subject, SLOT(launchApplication(const QString &)));
     connect(this, SIGNAL(duiApplicationLaunched(const QString &)), m_subject, SLOT(launchDuiApplication(const QString &)));
 }
@@ -93,6 +100,18 @@ void Ut_QuickLaunchBar::testUpdateWidgetList()
     QCOMPARE(m_subject->model()->widgets().count(), 4);
     QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(0)) == NULL);
     QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(1)) != NULL);
+    QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(2)) == NULL);
+    QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(3)) == NULL);
+}
+
+void Ut_QuickLaunchBar::testRemoveOneApplicationFromFileSystem()
+{
+    // "Remove" one application from file system
+    gValidDesktopFiles.removeAll("/tmp/existing.desktop");
+    emit updateWidgetList();
+    QCOMPARE(m_subject->model()->widgets().count(), 4);
+    QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(0)) == NULL);
+    QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(1)) == NULL);
     QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(2)) == NULL);
     QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(3)) == NULL);
 }

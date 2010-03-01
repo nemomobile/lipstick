@@ -33,6 +33,7 @@ public:
     static bool mkpathCalled;
 
 signals:
+    void updateWidgetList();
     void applicationLaunched(const QString &application);
     void duiApplicationLaunched(const QString &serviceName);
 
@@ -49,6 +50,7 @@ private slots:
     // Test cases
     void testInitialization();
     void testUpdateWidgetList();
+    void testRemoveOneApplicationFromFileSystem();
     void testLaunchApplication();
     void testLaunchDuiApplication();
 
