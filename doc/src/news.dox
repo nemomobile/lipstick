@@ -1,5 +1,10 @@
 /*! \page news What's New in DirectUI Homescreen
 
+\section v019x 0.19.x
+
+\subsection New
+- Switcher now shows the applications in the overview mode
+
 \section v0191 0.19.1
 
 \subsection bugs Bugs fixed
