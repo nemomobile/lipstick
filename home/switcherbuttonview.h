@@ -126,6 +126,11 @@ protected:
      */
     virtual void backendSpecificUpdateXWindowPixmap();
 
+    /*! 
+     * Updates the button style to reflect the current view mode.
+     */
+    void updateViewMode();
+
     //! Returns the bounding rectangle of the button without the closing icon
     QRectF buttonRect() const;
 

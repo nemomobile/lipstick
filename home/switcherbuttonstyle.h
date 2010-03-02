@@ -50,7 +50,9 @@ class SwitcherButtonStyle : public DuiButtonStyle
 class SwitcherButtonStyleContainer : public DuiButtonStyleContainer
 {
     DUI_STYLE_CONTAINER(SwitcherButtonStyle)
-    DUI_STYLE_MODE(Emphasized)
+    DUI_STYLE_MODE(Small)
+    DUI_STYLE_MODE(Medium)
+    DUI_STYLE_MODE(Large)
 };
 
 #endif /* SWITCHERBUTTONSTYLE_H_ */

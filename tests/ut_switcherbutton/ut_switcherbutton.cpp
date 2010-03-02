@@ -209,19 +209,4 @@ void Ut_SwitcherButton::testUpdateIconGeometry()
     scene.removeItem(button);
 }
 
-void Ut_SwitcherButton::testEmphasis()
-{
-    QSharedPointer<SwitcherButton> newButton(
-	new SwitcherButton("EmphasisTest"));
-    // newly created button is not emphasized
-    QCOMPARE(newButton->model()->emphasized(), false);
-    // test emphasis changes back and forth
-    for (int i = 0; i < 2; ++i) {
-	newButton->setEmphasis();
-	QCOMPARE(newButton->model()->emphasized(), true);
-	newButton->unsetEmphasis();
-	QCOMPARE(newButton->model()->emphasized(), false);
-    }
-}
-
 QTEST_APPLESS_MAIN(Ut_SwitcherButton)

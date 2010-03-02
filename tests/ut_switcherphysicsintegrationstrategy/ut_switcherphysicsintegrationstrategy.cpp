@@ -159,7 +159,8 @@ void Ut_SwitcherPhysicsIntegrationStrategy::testHugeMovementLeftToRight()
     velocity = 0;
     pointerSpring = 0;
     acceleration = 0;
-
+    QCOMPARE(position, 500.0);
+    
     QSignalSpy spy(m_subject, SIGNAL(snapIndexChanged(int)));
 
     performMovement(m_subject,

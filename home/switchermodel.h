@@ -29,11 +29,17 @@ class SwitcherModel : public DuiWidgetModel
     Q_OBJECT
 
 public:
+    enum Mode {
+        Detailview = 1,
+        Overview
+    };
+
     typedef QList< QSharedPointer<SwitcherButton> > ButtonList;
 
 private:
     DUI_MODEL(SwitcherModel)
     DUI_MODEL_PROPERTY(SwitcherModel::ButtonList, buttons, Buttons, true, ButtonList())
+    DUI_MODEL_PROPERTY(SwitcherModel::Mode, switcherMode, SwitcherMode, true, Overview)
 };
 
 #endif /* SWITCHERMODEL_H_ */

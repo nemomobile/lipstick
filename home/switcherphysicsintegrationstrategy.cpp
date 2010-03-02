@@ -15,10 +15,10 @@
  */
 #include "switcherphysicsintegrationstrategy.h"
 #include <stdlib.h>
+#include <algorithm>
 
 SwitcherPhysicsIntegrationStrategy::SwitcherPhysicsIntegrationStrategy()
 {
-    currentIndex = 0;
     snapInterval_ = 0;
     autoPanMode = false;
 }
@@ -77,39 +77,48 @@ void SwitcherPhysicsIntegrationStrategy::snapIntegrate(qreal &position,
         force += -data.pointerSpringK * pointerSpring;
     }
 
-    // Border springs
-    if (position < rangeStart) {
-        force += data.borderSpringK * (rangeStart - position);
-    }
-
-    if (position > rangeEnd) {
-        force += -data.borderSpringK * (position - rangeEnd);
-    }
-
     /* 
        We need to make the position snap to the nearest multiple of 
        snapInterval when the finger is lifted from the screen 
        i.e. pointer == false
     */
-    if (position >= rangeStart && position <= rangeEnd) {
-        if (!data.pointer && snapInterval_ > 0) {
-            /*
-              The window that we should be snapping to, 
-              the 0.5 is simple integer rounding before casting to int
-            */
-            int snapTarget = (int)((position / (qreal)snapInterval_) + 0.5); 
-            force += data.borderSpringK * (snapTarget * (qreal)snapInterval_ - position);
-            if (snapTarget != currentIndex) {
-                currentIndex = snapTarget;
-                emit snapIndexChanged(currentIndex);
-            }
-        }
-    }
+    if (snapInterval_ > 0 && !data.pointer) {
+	/*
+	  The window that we should be snapping to, 
+	  the 0.5 is simple integer rounding before casting to int
+	*/	
+	int snapTarget = (int)((position / (qreal)snapInterval_) + 0.5);       
+	/* 
+	   The snap target must be inside the panning range, this is to make sure 
+	   that we do not snap out side the range
+	*/
+	int maxSnapTarget = (rangeEnd - rangeStart) / snapInterval_;
+	snapTarget = std::min(snapTarget, maxSnapTarget);
 
-    acceleration   = force;
-    velocity      += acceleration;
-    position      += velocity;
-    pointerSpring += velocity;
+	force += data.borderSpringK * (snapTarget * (qreal)snapInterval_ - position);
+
+	qreal closeEnough = position - (snapInterval_ * snapTarget);
+
+	if (abs(closeEnough) < 1 && abs(force) < 1) {
+	    // Setting these to zero should stop the integration process
+	    force = 0;
+	    velocity = 0;
+	    acceleration = 0;
+	    // Make the position exactly the snap position
+	    position = snapInterval_ * snapTarget;
+	    emit snapIndexChanged(snapTarget);    
+	} else {
+	    acceleration   = force;
+	    velocity      += acceleration;
+	    position      += velocity;
+	    pointerSpring += velocity;	    
+	}
+    } else {
+	acceleration   = force;
+	velocity      += acceleration;
+	position      += velocity;
+	pointerSpring += velocity;
+    }
 }
 
 void SwitcherPhysicsIntegrationStrategy::autoPanIntegrate(qreal &position,

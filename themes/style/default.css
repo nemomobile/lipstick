@@ -3,6 +3,7 @@
 @const FONT_DEFAULT: "Nokia Sans" 2.34mm; /* 24px */
 @const FONT_SMALL:   "Nokia Sans" 1.95mm; /* 20px */
 @const FONT_XSMALL:  "Nokia Sans" 1.56mm; /* 16px */
+@const FONT_XXSMALL: "Nokia Sans" 1.36mm; /* 14px */
 @const COLOR_ACTIVE_FOREGROUND: #ffffff; /* activated item title */
 @const COLOR_ACTIVE_BACKGROUND: #CCFF33; /* activated item background */
 
@@ -382,6 +383,7 @@ DuiButtonIconStyle#QuickLaunchBarButton {
 
 
 SwitcherStyle {
+
     margin-left: 0;
     margin-right: 0;
     margin-top: 0;
@@ -390,7 +392,7 @@ SwitcherStyle {
     padding-right: 0;
     padding-top: 0;
     padding-bottom: 0;
-    
+
     /* how much to down scale the non emphasizzed items */
     scale-factor: 0.8;
     /* The amount the focused item will "fast-forward" during the transition */ 
@@ -399,6 +401,24 @@ SwitcherStyle {
     item-rotation: 15;
     /* The amoun the items will overlap when stationary */
     item-over-lap: 3mm;
+}
+
+SwitcherStyle#OverviewSwitcher {
+    button-horizontal-spacing: 3mm;
+    button-vertical-spacing: 3mm;
+}
+
+SwitcherStyle#OverviewSwitcher.Portrait {
+    rows-per-page: 3;
+    columns-per-page: 2;
+}
+
+SwitcherStyle#OverviewSwitcher.Landscape {
+    rows-per-page: 2;
+    columns-per-page: 3;
+}
+
+SwitcherStyle#DetailviewSwitcher {
 }
 
 SwitcherStyle.Landscape {
@@ -412,7 +432,7 @@ SwitcherStyle.Landscape {
 }
 
 SwitcherStyle.Portrait {
-    /* 
+   /* 
        The size values are defined for now, most likely they can be removed when
        the applet library button is removed from the desktop.
      */
@@ -420,7 +440,6 @@ SwitcherStyle.Portrait {
     preferred-size: 100% 778px;
     maximum-size: 100% 778px;
 }
-
 
 DuiPannableWidgetStyle#SwitcherDetailsViewport {
     pan-threshold: 15.0;
@@ -454,33 +473,92 @@ SwitcherButtonStyle {
     close-image:;
 }
 
-SwitcherButtonStyle:emphasized {
+/* The default values for the switcher button in the overview mode */
+SwitcherButtonStyle#OverviewButton {
+    /* The amount of space around the label */
+    text-margin-bottom: 2;
+    text-margin-left: 1;
+    text-margin-right: 1;
+
     text-opacity: 1.0;
     close-image: icon-m-framework-close;
+}
 
+SwitcherButtonStyle#OverviewButton.Portrait:small {
+    font: $FONT_XXSMALL;
+    preferred-size: 12.1mm 21.4mm;
+    minimum-size: 12.1mm 21.4mm;
+    maximum-size: 12.1mm 21.4mm;
+    icon-size: 12.1mm 21.4mm;
+}
+
+SwitcherButtonStyle#OverviewButton.Portrait:medium {
+    font: $FONT_XXSMALL;
+    preferred-size: 13.4mm 24.2mm;
+    minimum-size: 13.4mm 24.2mm;
+    maximum-size: 13.4mm 24.2mm;
+    icon-size: 13.4mm 24.2mm;
+}
+
+SwitcherButtonStyle#OverviewButton.Portrait:large {
+    font: $FONT_XSMALL;
+    preferred-size: 21mm 37.8mm;
+    minimum-size: 21mm 37.8mm;
+    maximum-size: 21mm 37.8mm;
+    icon-size: 21mm 37.8mm;
+}
+
+SwitcherButtonStyle#OverviewButton.Landscape:medium {
+    font: $FONT_XXSMALL;
+    preferred-size: 24.2mm 13.4mm;
+    minimum-size: 24.2mm 13.4mm;
+    maximum-size: 24.2mm 13.4mm;
+    icon-size: 24.2mm 13.4mm;
+}
+
+SwitcherButtonStyle#OverviewButton.Landscape:large {
+    font: $FONT_XSMALL;
+    preferred-size: 37.8mm 21mm;
+    minimum-size: 37.8mm 21mm;
+    maximum-size: 37.8mm 21mm;
+    icon-size: 37.8mm 21mm;
+}
+
+/*
+  Switcher buttons in the detail viewmode
+*/
+SwitcherButtonStyle#DetailviewButton {
     /* The amount of space around the label */
     text-margin-bottom: 5;
     text-margin-left: 6;
     text-margin-right: 6;
 }
 
-SwitcherButtonStyle.Portrait {
-
+SwitcherButtonStyle#DetailviewButton.Portrait {
     preferred-size: 28.77mm 51.8mm;
     minimum-size: 28.77mm 51.8mm;
     maximum-size: 28.77mm 51.8mm;
-
     icon-size: 28.77mm 51.8mm;
 }
 
-SwitcherButtonStyle.Landscape {
+SwitcherButtonStyle#DetailviewButton.Portrait:large {
+    text-opacity: 1.0;
+    close-image: icon-m-framework-close;
+}
 
+SwitcherButtonStyle#DetailviewButton.Landscape {
     preferred-size: 51.8mm 28.77mm;
     minimum-size: 51.8mm 28.77mm;
     maximum-size: 51.8mm 28.77mm;
-
     icon-size: 51.8mm 28.77mm;
 }
+
+SwitcherButtonStyle#DetailviewButton.Landscape:large {
+    text-opacity: 1.0;
+    close-image: icon-m-framework-close;
+}
+/* switcher button detail view end */
+
 
 StatusIndicatorImageStyle {
     margin-top: 4;

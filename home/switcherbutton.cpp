@@ -98,13 +98,3 @@ void SwitcherButton::updateIconGeometry()
     iconGeometry[3] = iconPosition.height();
     X11Wrapper::XChangeProperty(QX11Info::display(), xWindow(), iconGeometryAtom, XA_CARDINAL, sizeof(unsigned int) * 8, PropModeReplace, (unsigned char *)&iconGeometry, 4);
 }
-
-void SwitcherButton::setEmphasis()
-{
-    model()->setEmphasized(true);
-}
-
-void SwitcherButton::unsetEmphasis()
-{
-    model()->setEmphasized(false);
-}

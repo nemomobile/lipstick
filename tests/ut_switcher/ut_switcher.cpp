@@ -18,14 +18,29 @@
 ****************************************************************************/
 #include <QtTest/QtTest>
 #include <DuiApplication>
+#include <DuiApplicationPage>
+
 #include <QFocusEvent>
 #include "ut_switcher.h"
 #include "switcher.h"
 #include "switcherbutton.h"
 #include "switcherview.h"
 #include "windowinfo.h"
+#include "x11wrapper_stub.h"
 
 QMap<SwitcherButton *, Window> g_windowButtonMap;
+
+// Home stubs
+class Home : public DuiApplicationPage
+{
+public:
+    Home(QGraphicsItem *parent = 0);
+};
+
+Home::Home(QGraphicsItem *parent) : DuiApplicationPage(parent)
+{
+}
+
 
 // SwitcherButton stubs (used by Switcher)
 SwitcherButton::SwitcherButton(const QString &title, DuiWidget *parent, Window window, WindowInfo::WindowPriority windowPriority) :
@@ -42,16 +57,6 @@ SwitcherButton::SwitcherButton(const QString &title, DuiWidget *parent, Window w
 SwitcherButton::~SwitcherButton()
 {
     g_windowButtonMap.remove(this);
-}
-
-void SwitcherButton::setEmphasis()
-{
-
-}
-
-void SwitcherButton::unsetEmphasis()
-{
-
 }
 
 void SwitcherButton::switchToWindow()
