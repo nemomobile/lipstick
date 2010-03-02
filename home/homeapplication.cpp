@@ -96,6 +96,7 @@ HomeApplication::HomeApplication(int &argc, char **argv) :
     clientListAtom = X11Wrapper::XInternAtom(dpy, "_NET_CLIENT_LIST", False);
     closeWindowAtom = X11Wrapper::XInternAtom(dpy, "_NET_CLOSE_WINDOW", False);
     skipTaskbarAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_STATE_SKIP_TASKBAR", False);
+    windowStateAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_STATE", False);
 
     // Connect the notification signals for the home notification sink
     connect(notificationManager_, SIGNAL(notificationUpdated(const Notification &)), homeNotificationSink_, SLOT(addNotification(const Notification &)));
@@ -201,7 +202,7 @@ bool HomeApplication::x11EventFilter(XEvent *event)
         updateWindowList();
         return true;
     } else if (event->type == PropertyNotify &&
-               event->xproperty.atom == windowTypeAtom) {
+               (event->xproperty.atom == windowTypeAtom || event->xproperty.atom == windowStateAtom)) {
         // Window types changed so update the window list
         updateWindowList();
         return true;

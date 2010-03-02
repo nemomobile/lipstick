@@ -51,8 +51,9 @@
 #define ATOM_CLIENT_LIST 0x00020000
 #define ATOM_CLOSE_WINDOW 0x00030000
 #define ATOM_WM_STATE_SKIP_TASKBAR 0x00040001
+#define NET_WM_STATE 0x00040002
 #define WINDOW_ATTRIBUTE_TEST_WINDOWS 16
-#define WINDOW_TYPE_TEST_WINDOWS 9
+#define WINDOW_TYPE_TEST_WINDOWS 10
 #define NET_WM_STATE_WINDOWS 1
 #define NUMBER_OF_WINDOWS (WINDOW_ATTRIBUTE_TEST_WINDOWS + WINDOW_TYPE_TEST_WINDOWS + NET_WM_STATE_WINDOWS)
 
@@ -87,7 +88,10 @@ Atom X11Wrapper::XInternAtom(Display *, const char *atom_name, Bool)
         return ATOM_CLOSE_WINDOW;
     } else if (strcmp(atom_name, "_NET_WM_STATE_SKIP_TASKBAR") == 0) {
         return ATOM_WM_STATE_SKIP_TASKBAR;
+    } else if (strcmp(atom_name, "_NET_WM_STATE") == 0) {
+        return NET_WM_STATE;
     }
+
 
     return 0;
 }
@@ -265,6 +269,12 @@ int X11Wrapper::XGetWindowProperty(Display *dpy, Window w, Atom property, long l
             atom = (Atom *) * prop_return;
             atom[0] = ATOM_TYPE_CALL;
             break;
+        case(WINDOW_ATTRIBUTE_TEST_WINDOWS + 10):
+            *nitems_return = 1;
+            *prop_return = new unsigned char[sizeof(Atom)];
+            atom = (Atom *) * prop_return;
+            atom[0] = NET_WM_STATE;
+            break;
         default:
             *nitems_return = 1;
             *prop_return = new unsigned char[1 * sizeof(Atom)];
@@ -328,13 +338,14 @@ XWMHints *X11Wrapper::XGetWMHints(Display *, Window w)
     return wmhints;
 }
 
+bool isSkipTaskbarWindow = false;
 QVector<Atom> X11Helper::getNetWmState(Display *display, Window window)
 {
     Q_UNUSED(display);
 
     QVector<Atom> returnValue;
 
-    if (window == WINDOW_ATTRIBUTE_TEST_WINDOWS + WINDOW_TYPE_TEST_WINDOWS + 1) {
+    if (window == WINDOW_ATTRIBUTE_TEST_WINDOWS + WINDOW_TYPE_TEST_WINDOWS + 1 || (isSkipTaskbarWindow && window == WINDOW_ATTRIBUTE_TEST_WINDOWS + 4)) {
         returnValue.append(ATOM_WM_STATE_SKIP_TASKBAR);
     }
 
@@ -619,6 +630,7 @@ void Ut_HomeApplication::init()
     asyncCallMethods.clear();
     asyncCallArguments.clear();
     clientListNumberOfWindows = NUMBER_OF_WINDOWS;
+    isSkipTaskbarWindow = false;
 
     static char *args[] = {(char *) "./ut_homeapplication"};
     static int argc = sizeof(args) / sizeof(char *);
@@ -693,6 +705,31 @@ void Ut_HomeApplication::testUseMode()
     QVERIFY(!sinkSetEnabled[homeNotificationSink]);
     QVERIFY(!sinkSetEnabled[duiCompositorNotificationSink]);
     QVERIFY(!sinkSetEnabled[duiFeedbackNotificationSink]);
+}
+
+void Ut_HomeApplication::testX11EventFilterWithWmStateChange()
+{
+    WindowListReceiver r;
+    connect(m_subject, SIGNAL(windowListUpdated(const QList<WindowInfo> &)), &r, SLOT(windowListUpdated(const QList<WindowInfo> &)));
+
+    XEvent event;
+    event.xproperty.atom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_CLIENT_LIST", False);
+    event.type = PropertyNotify;
+    event.xproperty.window = DefaultRootWindow(QX11Info::display());
+    QVERIFY(m_subject->testX11EventFilter(&event));
+
+    // Make sure the window list change signal was emitted
+    QCOMPARE(r.count, 1);
+    // There should be 4 windows in the window list
+    QCOMPARE(r.windowList.count(), 4);
+
+    event.type = PropertyNotify;
+    event.xproperty.window = WINDOW_ATTRIBUTE_TEST_WINDOWS + 4;
+    event.xproperty.atom = NET_WM_STATE;
+    isSkipTaskbarWindow = true;
+    QVERIFY(m_subject->testX11EventFilter(&event));
+    // There should be 3 windows in the window list
+    QCOMPARE(r.windowList.count(), 3);
 }
 
 void Ut_HomeApplication::testX11EventFilterWithPropertyNotify()
