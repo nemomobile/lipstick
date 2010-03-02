@@ -104,10 +104,10 @@ void SwitcherView::panningStopped()
         if (model()->buttons().empty()) {
             return;
         }
-        model()->buttons().at(focusedSwitcherButton)->model()->setViewMode(SwitcherButtonModel::Large);//setEmphasis();
+        model()->buttons().at(focusedSwitcherButton)->model()->setViewMode(SwitcherButtonModel::Large);
         for (int i = 0; i < model()->buttons().count(); i++) {
             if (i != focusedSwitcherButton) {
-                model()->buttons().at(i)->model()->setViewMode(SwitcherButtonModel::Medium); //unsetEmphasis();
+                model()->buttons().at(i)->model()->setViewMode(SwitcherButtonModel::Medium);
             }
         }
     }

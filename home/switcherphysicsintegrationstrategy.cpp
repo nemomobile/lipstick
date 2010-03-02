@@ -13,7 +13,6 @@
  * This material also contains confidential information which may not be
  * disclosed to others without the prior written consent of Nokia.
  */
-#include <QDebug>
 #include "switcherphysicsintegrationstrategy.h"
 #include <stdlib.h>
 #include <algorithm>
