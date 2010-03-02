@@ -22,11 +22,13 @@
 
 #include <QtTest/QtTest>
 #include <QObject>
+#include <DuiApplication>
 
-class DuiApplication;
 class DuiWindow;
-class SwitcherView;
+class TestSwitcherView;
 class Switcher;
+class SwitcherButton;
+class DuiSceneManager;
 
 class Ut_SwitcherView : public QObject
 {
@@ -41,20 +43,34 @@ private slots:
     void init();
     // Called after every testfunction
     void cleanup();
-    // Test cases
-    void testAutoPanning();
-    void testSnapIndexChanged();
-    void testPanningStopped();
+
+    // Test cases for detail view
+    void testAutoPanningInDetailView();
+    void testSnapIndexChangedInDetailView();
+    void testPanningStoppedInDetailView();
+
+    // Test cases for over view
+    void testAutoPanningInOverView();
+    void testButtonModesInOverviewMode();
+    void testPanningStoppedInOverView();
+
+private:
+    void verifyButtonModesInOverviewMode(Dui::Orientation orientation);
+    void verifyButtonModesInOverviewMode(QList< QSharedPointer<SwitcherButton> > &buttonList);
+
+    QList< QSharedPointer<SwitcherButton> > createButtonList(int buttons);
+    void appendMoreButtonsToList(int newButtons, QList< QSharedPointer<SwitcherButton> > &buttonList);
+
 signals:
     void snapIndexChanged(int newPosition);
     void panningStopped();
 
 private:
     DuiApplication *app;
-    DuiWindow *window;
+    DuiSceneManager *duiSceneManager;
     Switcher *switcher;
     // The object being tested
-    SwitcherView *m_subject;
+    TestSwitcherView *m_subject;
 };
 
 #endif

@@ -25,6 +25,7 @@
 class DuiApplication;
 class Switcher;
 class SwitcherButton;
+class DuiSceneManager;
 class QSizeF;
 class QRectF;
 class QPointF;
@@ -82,5 +83,8 @@ private slots:
 
     // Test call window priority
     void testCallWindowFromExisistingWindow();
+
+private:
+    DuiSceneManager *duiSceneManager;
 };
 #endif //_UT_SWITCHER_

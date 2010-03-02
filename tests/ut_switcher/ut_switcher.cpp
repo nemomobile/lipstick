@@ -27,6 +27,8 @@
 #include "switcherview.h"
 #include "windowinfo.h"
 #include "x11wrapper_stub.h"
+#include "duiscenemanager_stub.h"
+#include "duiwindow_stub.h"
 
 QMap<SwitcherButton *, Window> g_windowButtonMap;
 
@@ -124,10 +126,14 @@ void Ut_Switcher::initTestCase()
     static int argc = 1;
     static char *app_name = (char *)"./ut_switcher";
     app = new DuiApplication(argc, &app_name);
+
+    duiSceneManager = new DuiSceneManager(NULL, NULL);
+    gDuiWindowStub->stubSetReturnValue("sceneManager", duiSceneManager);
 }
 
 void Ut_Switcher::cleanupTestCase()
 {
+    delete duiSceneManager;
     // Destroy the DuiApplication
     delete app;
 }

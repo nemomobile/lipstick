@@ -34,6 +34,7 @@ HEADERS += \
     $$SRCDIR/switcherbuttonmodel.h \
     $$SRCDIR/switcherphysicsintegrationstrategy.h \
     $$SRCDIR/windowinfo.h \
-    $$SRCDIR/mainwindow.h
+    $$SRCDIR/mainwindow.h \
+    $$SRCDIR/duiscenemanager.h
 
 include(../common_bot.pri)
