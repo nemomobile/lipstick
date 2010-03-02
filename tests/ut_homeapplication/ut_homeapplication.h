@@ -87,6 +87,8 @@ private slots:
     void testNonUpstartStartup();
     // Test the Use.Mode context property
     void testUseMode();
+    // Test X11EventFilter with window state change
+    void testX11EventFilterWithWmStateChange();
     // Test X11EventFilter with PropertyNotify events
     void testX11EventFilterWithPropertyNotify();
     // Test X11EventFilter with VisibilityNotify events

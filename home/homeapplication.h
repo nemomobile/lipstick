@@ -114,6 +114,7 @@ private:
     Atom clientListAtom;
     Atom closeWindowAtom;
     Atom skipTaskbarAtom;
+    Atom windowStateAtom;
 
     //! Content search service interface. Used to launch the content search service.
     ContentSearchIf contentSearchIf;
