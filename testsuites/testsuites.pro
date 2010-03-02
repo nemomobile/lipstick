@@ -14,6 +14,7 @@ TEST_SUITES = \
 TEST_APPS = \
     ta_homeswitcher \
     ta_callui \
+    ta_activeapp \
     fakesystemnotificationplugin
 
 SUBDIRS = \
