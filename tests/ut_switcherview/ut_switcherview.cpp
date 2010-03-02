@@ -29,22 +29,6 @@
 #include "switcherbutton.h"
 #include "x11wrapper_stub.h"
 
-// Home stubs
-class Home : public DuiApplicationPage
-{
-public:
-    Home(QGraphicsItem *parent = 0);
-};
-
-Home::Home(QGraphicsItem *parent) : DuiApplicationPage(parent)
-{
-}
-
-SwitcherModel* g_switcherModel;
-QMap<SwitcherButton *, Window> g_windowButtonMap;
-
-#include "x11wrapper_stub.h"
-
 SwitcherModel* g_switcherModel;
 QMap<SwitcherButton *, Window> g_windowButtonMap;
 
@@ -336,12 +320,12 @@ void Ut_SwitcherView::testButtonModesInOverviewMode()
     m_subject->modifiableStyle()->setRowsPerPage(2);
     m_subject->modifiableStyle()->setColumnsPerPage(3);
     gDuiSceneManagerStub->stubSetReturnValue("orientation", Dui::Landscape);
-    testButtonModesInOverviewMode(Dui::Landscape);
+    verifyButtonModesInOverviewMode(Dui::Landscape);
 
     m_subject->modifiableStyle()->setRowsPerPage(3);
     m_subject->modifiableStyle()->setColumnsPerPage(2);
     gDuiSceneManagerStub->stubSetReturnValue("orientation", Dui::Portrait);
-    testButtonModesInOverviewMode(Dui::Portrait);
+    verifyButtonModesInOverviewMode(Dui::Portrait);
 }
 
 void Ut_SwitcherView::verifyButtonModesInOverviewMode(Dui::Orientation orientation)
