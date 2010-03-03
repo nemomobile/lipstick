@@ -1,4 +1,4 @@
-#!/usr/bin/ruby 
+#!/usr/bin/ruby
 
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 # All rights reserved.
@@ -33,5 +33,5 @@ suite = Dui::Runner.new
 # NOTICE: Dont pass -hardware or -software anymore unless you explicitly
 # require either of them, hw acceleration will be automatically probed
 # at runtime via dui.rb library
-suite.start('duiapplicationextensiontester','/usr/share/dui/applets/weather.desktop')
+suite.start('applicationextensiondemo', '')
 
