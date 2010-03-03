@@ -23,8 +23,6 @@
 #include <mtestpagefactory.h>
 #include <QObject>
 
-#include <mktaclassname.h>
-
 
 class Ta_MkTaClassName : public  MTestPageFactory
 {
@@ -36,9 +34,6 @@ public:
 
 public slots:
 private slots:
-
-private:
-    MkTaClassName *m_subject;
 
 };
 

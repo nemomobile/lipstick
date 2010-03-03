@@ -27,11 +27,12 @@ fi
 if [ -d ${APPFOLDER} ]; then
   echo "${APPFOLDER} already exists, too risky to override"
   exit
+fi
 
-mkdir -p ${APPFOLDER}
 echo Creating a new folder ${APPFOLDER}
+mkdir -p ${APPFOLDER}
 
-cd ${TEMPLATES}
+pushd ${TEMPLATES} >/dev/null
 for f in `find . -type f -print`; do
     DIRPART=`dirname $f`
     FILEPART=`basename $f`
@@ -45,4 +46,4 @@ for f in `find . -type f -print`; do
         -e 's/MkTaClassName/'${TESTAPP}'/' \
         -e 's/mktaclassname/'${TESTAPPL}'/'  < ${SRC} > ${DST}
 done
-cd ${CURDIR}
+popd >/dev/null
