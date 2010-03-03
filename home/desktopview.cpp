@@ -17,6 +17,15 @@
 **
 ****************************************************************************/
 
+#ifdef BENCHMARKS_ON
+#include <QTextStream>
+#include <QFile>
+#include <QTimer>
+#include <QTime>
+#include <QFileSystemWatcher>
+#include <QDir>
+#endif
+
 #include "launcher.h"
 #include "desktopview.h"
 #include "desktop.h"
@@ -36,6 +45,37 @@
 #include <DuiApplication>
 #include <DuiOverlay>
 #include <QGraphicsLinearLayout>
+
+
+#ifdef BENCHMARKS_ON
+static QTime lastUpdate;
+static int frameCount = 0;
+static int fps = 0;
+const int MillisecsInSec = 1000;
+const int FpsRefreshInterval = 1000;
+
+uint DesktopView::getFps()
+{
+    return fps;
+}
+
+void DesktopView::writeFps(QString str)
+{
+    Q_UNUSED(str);
+    QFile file("/tmp/duihome_benchmarks/benchmarkresult.txt");
+    file.open(QIODevice::WriteOnly | QIODevice::Append);
+    if(getFps() == 0) {
+        return;
+    }
+    QString fpsString = QString::number(getFps());
+    QTextStream ts(&file);
+    QDateTime now = QDateTime::currentDateTime();
+    QString nowString = now.toString("dd.MM.yy.hh:mm:ss");
+    ts << fpsString << "  "<< nowString << endl;
+    file.close();
+}
+
+#endif
 
 DesktopView::DesktopView(Desktop *desktop) :
     DuiWidgetView(desktop),
@@ -105,6 +145,16 @@ DesktopView::DesktopView(Desktop *desktop) :
     appletSpaceWindow->setLayout(windowLayout);
     appletSpaceWindow->setObjectName("AppletSpaceWindow");
     MainWindow::instance()->sceneManager()->hideWindowNow(appletSpaceWindow);
+
+#ifdef BENCHMARKS_ON
+    watcher = new QFileSystemWatcher;
+    QDir dir;
+    if(!dir.exists("/tmp/duihome_benchmarks")) {
+        dir.mkdir("/tmp/duihome_benchmarks");
+    }
+    watcher->addPath("/tmp/duihome_benchmarks");
+    connect(watcher,SIGNAL(directoryChanged(QString)),this,SLOT(writeFps(QString)));
+#endif
 }
 
 DesktopView::~DesktopView()
@@ -143,6 +193,18 @@ void DesktopView::drawBackground(QPainter *painter, const QStyleOptionGraphicsIt
     if (pixmap != NULL) {
         painter->drawTiledPixmap(QRectF(0, geometry().height(), geometry().width(), pixmap->height()), *pixmap);
     }
+
+#ifdef BENCHMARKS_ON
+    QTime now = QTime::currentTime();
+    ++frameCount;
+
+    if (lastUpdate.msecsTo(now) > FpsRefreshInterval) {
+        fps = (MillisecsInSec * frameCount) / (lastUpdate.msecsTo(now));
+        frameCount = 0;
+        lastUpdate = now;
+    }
+#endif
+
 }
 
 QRectF DesktopView::boundingRect() const
