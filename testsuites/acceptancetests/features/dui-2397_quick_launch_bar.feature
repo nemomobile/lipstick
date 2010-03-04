@@ -16,81 +16,80 @@ Feature: DUI-2397 Quick Launch Bar
 
 	Scenario: Showing Quick Launch Bar in Launcher
 		Given duihome is running
-		And launcher is opened
+		And I have opened the launcher
 		Then Quick Launch Bar is visible
 
 	Scenario: Closing Launcher from Quick Launch Bar
 		Given duihome is running
-		And launcher is opened
+		And I have opened the launcher
 		When I tap on the launcher open/close button
 		Then launcher is closed
 
 	Scenario: Having a full Quick Launch Bar
 		Given duihome is running
-		And application "application1" is configured to the "slot1" of Quick Launch Bar
-		And application "application2" is configured to the "slot2" of Quick Launch Bar
-		And application "application3" is configured to the "slot3" of Quick Launch Bar
-		And application "application4" is configured to the "slot4" of Quick Launch Bar
+		And I have configured application "1" to the slot "1" of Quick Launch Bar
+		And I have configured application "2" to the slot "2" of Quick Launch Bar
+		And I have configured application "3" to the slot "3" of Quick Launch Bar
+		And I have configured application "4" to the slot "4" of Quick Launch Bar
 		Then Quick Launch Bar is visible
-		And Quick Launch Bar "slot1" contains "application1" icon
-		And Quick Launch Bar "slot2" contains "application2" icon
-		And Quick Launch Bar "slot3" contains "application3" icon
-		And Quick Launch Bar "slot4" contains "application4" icon
+		And Quick Launch Bar slot "1" contains application "1" icon
+		And Quick Launch Bar slot "2" contains application "2" icon
+		And Quick Launch Bar slot "3" contains application "3" icon
+		And Quick Launch Bar slot "4" contains application "4" icon
 
 	Scenario: Having an empty Quick Launch Bar
 		Given duihome is running
-		And no application is configured to the "slot1" of Quick Launch Bar
-		And no application is configured to the "slot2" of Quick Launch Bar
-		And no application is configured to the "slot3" of Quick Launch Bar
-		And no application is configured to the "slot4" of Quick Launch Bar
+		And no application is configured to the slot "1" of Quick Launch Bar
+		And no application is configured to the slot "2" of Quick Launch Bar
+		And no application is configured to the slot "3" of Quick Launch Bar
+		And no application is configured to the slot "4" of Quick Launch Bar
 		Then Quick Launch Bar is visible
-		And Quick Launch Bar "slot1" contains no icon
-		And Quick Launch Bar "slot2" contains no icon
-		And Quick Launch Bar "slot3" contains no icon
-		And Quick Launch Bar "slot4" contains no icon
+		And Quick Launch Bar slot "1" contains no icon
+		And Quick Launch Bar slot "2" contains no icon
+		And Quick Launch Bar slot "3" contains no icon
+		And Quick Launch Bar slot "4" contains no icon
 
 	Scenario: Having empty slots in Quick Launch Bar
 		Given duihome is running
-		And application "application1" is configured to the "slot1" of Quick Launch Bar
-		And no application is configured to the "slot2" of Quick Launch Bar
-		And application "application2" is configured to the "slot3" of Quick Launch Bar
-		And no application is configured to the "slot4" of Quick Launch Bar
+		And I have configured application "1" to the slot "1" of Quick Launch Bar
+		And no application is configured to the slot "2" of Quick Launch Bar
+		And I have configured application "2" to the slot "3" of Quick Launch Bar
+		And no application is configured to the slot "4" of Quick Launch Bar
 		Then Quick Launch Bar is visible
-		And Quick Launch Bar "slot1" contains "application1" icon
-		And Quick Launch Bar "slot2" contains no icon
-		And Quick Launch Bar "slot3" contains "application2" icon
-		And Quick Launch Bar "slot4" contains no icon
+		And Quick Launch Bar slot "1" contains application "1" icon
+		And Quick Launch Bar slot "2" contains no icon
+		And Quick Launch Bar slot "3" contains application "2" icon
+		And Quick Launch Bar slot "4" contains no icon
 
 	Scenario: Uninstalling an application that is present in Quick Launch Bar
 		Given duihome is running
-		And application "application1" is configured to the "slot1" of Quick Launch Bar
-		And application "application2" is configured to the "slot2" of Quick Launch Bar
-		And no application is configured to the "slot3" of Quick Launch Bar
-		And application "application3" is configured to the "slot4" of Quick Launch Bar
-		When I uninstall "application2" from the system
+		And I have configured application "1" to the slot "1" of Quick Launch Bar
+		And I have configured application "2" to the slot "2" of Quick Launch Bar
+		And no application is configured to the slot "3" of Quick Launch Bar
+		And I have configured application "3" to the slot "4" of Quick Launch Bar
+		When I uninstall application "2" from the system
 		Then Quick Launch Bar is visible
-		And Quick Launch Bar "slot1" contains "application1" icon
-		And Quick Launch Bar "slot2" contains no icon
-		And Quick Launch Bar "slot3" contains no icon
-		And Quick Launch Bar "slot4" contains "application3" icon
+		And Quick Launch Bar slot "1" contains application "1" icon
+		And Quick Launch Bar slot "2" contains no icon
+		And Quick Launch Bar slot "3" contains no icon
+		And Quick Launch Bar slot "4" contains application "3" icon
 
 	Scenario: Installing an application that was present in Quick Launch Bar
 		Given duihome is running
-		And application "application1" is configured to the "slot1" of Quick Launch Bar
-		And application "application2" is configured to the "slot2" of Quick Launch Bar
-		And no application is configured to the "slot3" of Quick Launch Bar
-		And application "application3" is configured to the "slot4" of Quick Launch Bar
-		When I uninstall "application3" from the system
-		And I install "application3" to the system
+		And I have configured application "1" to the slot "1" of Quick Launch Bar
+		And I have configured application "2" to the slot "2" of Quick Launch Bar
+		And no application is configured to the slot "3" of Quick Launch Bar
+		And I have configured application "3" to the slot "4" of Quick Launch Bar
+		When I uninstall application "3" from the system
+		And I install application "3" to the system
 		Then Quick Launch Bar is visible
-		And Quick Launch Bar "slot1" contains "application1" icon
-		And Quick Launch Bar "slot2" contains "application2" icon
-		And Quick Launch Bar "slot3" contains no icon
-		And Quick Launch Bar "slot4" contains no icon
+		And Quick Launch Bar slot "1" contains application "1" icon
+		And Quick Launch Bar slot "2" contains application "2" icon
+		And Quick Launch Bar slot "3" contains no icon
+		And Quick Launch Bar slot "4" contains no icon
 
 	Scenario: Launching an application from Quick Launch Bar
 		Given duihome is running
-		And application "application1" is configured to the "slot1" of Quick Launch Bar
-		When I tap on the icon on "slot1" of Quick Launch Bar
-		Then "application1" is on the foreground
-
+		And I have configured application "1" to the slot "1" of Quick Launch Bar
+		When I tap on the icon on slot "1" of Quick Launch Bar
+		Then application "1" is on the foreground
