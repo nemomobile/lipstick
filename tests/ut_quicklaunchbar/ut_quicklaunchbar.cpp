@@ -152,6 +152,7 @@ void Ut_QuickLaunchBar::testRemoveOneApplicationFromFileSystem()
     QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(1)) == NULL);
     QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(2)) == NULL);
     QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(3)) == NULL);
+    QCOMPARE(m_configuration->contains("2/desktopFile"), false);
 }
 
 void Ut_QuickLaunchBar::testLaunchApplication()

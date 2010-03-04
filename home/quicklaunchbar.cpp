@@ -45,8 +45,11 @@ void QuickLaunchBar::init()
     updateWidgetList();
 
     // Start watching the applications directory for changes
-    connect(&desktopDirectoryWatcher, SIGNAL(directoryChanged(const QString &)), this, SLOT(updateWidgetList()));
+    connect(&desktopDirectoryWatcher, SIGNAL(directoryChanged(QString)), this, SLOT(updateWidgetList()));
     desktopDirectoryWatcher.addPath(APPLICATIONS_DIRECTORY);
+#ifdef TESTABILITY_ON
+    desktopDirectoryWatcher.addPath("/tmp");
+#endif
 }
 
 QuickLaunchBar::~QuickLaunchBar()
@@ -86,6 +89,12 @@ void QuickLaunchBar::updateWidgetList()
 
                 connect(widget, SIGNAL(applicationLaunched(const QString &)), this, SLOT(launchApplication(const QString &)), Qt::QueuedConnection);
                 connect(widget, SIGNAL(duiApplicationLaunched(const QString &)), this, SLOT(launchDuiApplication(const QString &)), Qt::QueuedConnection);
+            } else {
+                // The desktop file is no longer valid so we'll remove the configuration
+                // Temporarily disable the listening of the change signals from the configuration to prevent a recursive call to this method
+                disconnect(configurationDataStore, SIGNAL(valueChanged(QString, QVariant)), this, SLOT(updateWidgetList()));
+                configurationDataStore->remove(key);
+                connect(configurationDataStore, SIGNAL(valueChanged(QString, QVariant)), this, SLOT(updateWidgetList()));
             }
         }
 
