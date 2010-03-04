@@ -63,6 +63,8 @@ void QuickLaunchBar::initializeDataStore()
 
         configurationDataStore = new DuiFileDataStore(QDir::homePath() + "/.config/duihome/quicklaunchbar.data");
     }
+
+    connect(configurationDataStore, SIGNAL(valueChanged(QString, QVariant)), this, SLOT(updateWidgetList()));
 }
 
 void QuickLaunchBar::updateWidgetList()

@@ -28,6 +28,9 @@ class TestDataStore : public DuiDataStore
 {
     Q_OBJECT
 
+private:
+    QHash<QString, QVariant> values;
+
 public:
     virtual QVariant value(const QString&) const;
     virtual bool setValue(const QString&, const QVariant&);
@@ -68,10 +71,13 @@ private slots:
     void testRemoveOneApplicationFromFileSystem();
     void testLaunchApplication();
     void testLaunchDuiApplication();
+    void testExternalConfigurationChangeIsNoticed();
 
 private:
     // The object being tested
     QuickLaunchBar *m_subject;
+    // The configuration object used by the test subject
+    DuiDataStore *m_configuration;
 };
 
 #endif

@@ -47,15 +47,12 @@ bool DuiDesktopEntry::isValid() const
 
 QVariant TestDataStore::value(const QString &key) const
 {
-    if (key == "2/desktopFile") {
-        return QVariant("/tmp/existing.desktop");
-    } else {
-        return QVariant("/tmp/inexisting.desktop");
-    }
+    return values[key];
 }
 
-bool TestDataStore::setValue(const QString&, const QVariant&)
+bool TestDataStore::setValue(const QString &key, const QVariant &value)
 {
+    values[key] = value;
     return true;
 }
 
@@ -66,7 +63,7 @@ QStringList TestDataStore::allKeys() const
 
 bool TestDataStore::contains(const QString &key) const
 {
-    return key == "2/desktopFile" || key == "4/desktopFile";
+    return values.contains(key);
 }
 
 bool TestDataStore::createValue(const QString&, const QVariant&)
@@ -74,9 +71,12 @@ bool TestDataStore::createValue(const QString&, const QVariant&)
     return true;
 }
 
-void TestDataStore::remove(const QString&)
+void TestDataStore::remove(const QString &key)
 {
-
+    if (contains(key)) {
+        QVariant value = values.take(key);
+        emit valueChanged(key, value);
+    }
 }
 
 void TestDataStore::clear()
@@ -88,6 +88,7 @@ bool Ut_QuickLaunchBar::mkpathCalled = false;
 
 void Ut_QuickLaunchBar::initTestCase()
 {
+    m_configuration = NULL;
     m_subject = NULL;
 }
 
@@ -102,7 +103,10 @@ void Ut_QuickLaunchBar::init()
     gValidDesktopFiles.clear();
     gValidDesktopFiles << "/tmp/existing.desktop";
 
-    setupTestSubject(new TestDataStore);
+    DuiDataStore *configuration = new TestDataStore;
+    configuration->setValue("2/desktopFile", "/tmp/existing.desktop");
+    configuration->setValue("4/desktopFile", "/tmp/inexisting.desktop");
+    setupTestSubject(configuration);
 }
 
 void Ut_QuickLaunchBar::cleanup()
@@ -114,6 +118,7 @@ void Ut_QuickLaunchBar::cleanup()
 void Ut_QuickLaunchBar::setupTestSubject(DuiDataStore *configuration)
 {
     delete m_subject;
+    m_configuration = configuration;
     m_subject = new QuickLaunchBar(configuration);
     connect(this, SIGNAL(updateWidgetList()), m_subject, SLOT(updateWidgetList()));
     connect(this, SIGNAL(applicationLaunched(const QString &)), m_subject, SLOT(launchApplication(const QString &)));
@@ -161,6 +166,16 @@ void Ut_QuickLaunchBar::testLaunchDuiApplication()
     emit duiApplicationLaunched("testService");
     QCOMPARE(gLauncherStub->stubCallCount("startDuiApplication"), 1);
     QCOMPARE(gLauncherStub->stubLastCallTo("startDuiApplication").parameter<QString>(0), QString("testService"));
+}
+
+void Ut_QuickLaunchBar::testExternalConfigurationChangeIsNoticed()
+{
+    m_configuration->remove("2/desktopFile");
+    QCOMPARE(m_subject->model()->widgets().count(), 4);
+    QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(0)) == NULL);
+    QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(1)) == NULL);
+    QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(2)) == NULL);
+    QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(3)) == NULL);
 }
 
 QTEST_MAIN(Ut_QuickLaunchBar)
