@@ -36,6 +36,52 @@ class DuiDesktopEntry;
  * Widget for launching and browsing installed applications.
  * The widget monitors a desktop file entry directory and creates buttons
  * that represent the applications that can be launched.
+ *
+ * Each application .desktop file must define the Name, Type and Icon keys where type is Application. The Exec key must define the application binary to be launched when the icon is selected. Each application can define the directory (submenu) in which the application should be displayed in by defining a value for the Categories key in its .desktop file. If no value has been defined for Categories the application will be displayed in the top level menu.
+ *
+ * Shortcuts are stored in tracker in \c DesktopBookmarkFolder as \c nfo:bookmark objects. Bookmarks define title, bookmark content iri, and bookmark thumbnail graphics for each shortcut. All shortcuts are displayed in the Launcher top level menu. Each shortcut is bound to a !DuiServiceAction that is triggered when shortcut is clicked. This will commence default action associated with the content iri in the system.
+ *
+ * Convenience API for creating shortcuts on homescreen launcher menu is provided in the \c libduihome package through the \c DuiHomeShortcutManager class.
+ *
+ * Example my_application.desktop file:
+ * \code
+ * [Desktop Entry]
+ * Version=1.0
+ * Type=Application
+ * Name=my_localized_application_name
+ * Comment=my_localized_application_comment
+ * Exec=/usr/bin/my-app
+ * Icon=my_app_icon_id
+ * Categories=Games
+ * X-Icon-path=/usr/share/pixmaps/
+ * X-Window-Icon=my_app_icon_id
+ * X-Osso-Service=my_app_dbus_service
+ * X-Osso-Type=application/x-executable
+ * MimeType=image/png;image/svg
+ * Prestarted=yes
+ * \endcode
+ *
+ * Example my_category.directory file
+ * \code
+ * [Desktop Entry]
+ * Version=1.0
+ * Type=Directory
+ * Name=my_localized_category_name
+ * Icon=my_category_icon_id
+ * \endcode
+ *
+ * Example sparql query to list homescreen shortcut items and its output:
+ * \code
+ * tracker-sparql -q '
+ *    SELECT ?ref ?thumb ?title WHERE {
+ *        <maemo:DesktopBookmarkFolder> nfo:containsBookmark ?x.
+ *        ?x maemo:bookmarkThumbnail ?thumb ;
+ *           nfo:bookmarks ?ref ;
+ *           nie:title ?title .
+ *   }'
+ *   file:///home/user/image.jpeg, file:///home/user/.thumbnails/large/0912830981230.png, Lovely image
+ *   file:///home/user/image.jpeg, file:///home/user/.thumbnails/large/0912830981230.png, Lovely image
+ * \endcode
  */
 class Launcher : public DuiWidgetController
 {
