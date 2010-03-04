@@ -1,6 +1,6 @@
-duihome (0.19.2~1) unstable; urgency=low
+duihome (0.19.2-1) unstable; urgency=low
 
-  * New version [UNRELEASED]
+  * New version
   * Implemented: SWP#DUI-2011 Switcher overview
 
  -- Vesa Halttunen <vesa.halttunen@nokia.com>  Tue,  2 Mar 2010 13:01:35 +0200
