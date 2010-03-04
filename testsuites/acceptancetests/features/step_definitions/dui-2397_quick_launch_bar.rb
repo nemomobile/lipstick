@@ -11,6 +11,16 @@ After do
         @app.DuiButton(:name => 'ToggleLauncherButton').tap
     rescue
     end
+
+    # Reset the configuration of the quick launch bar
+    ('1'..'4').each do |slot|
+        removeSlotConfiguration(slot)
+    end
+
+    # Uninstall any applications
+    ('1'..'4').each do |application|
+        uninstallApplication(application)
+    end
 end
 
 Given /^duihome is running$/ do
@@ -47,6 +57,13 @@ When /^I tap on the launcher open\/close button$/ do
     @app.DuiButton(:name => 'ToggleLauncherButton').tap
 end
 
+When /^I uninstall application "([^\"]*)" from the system$/ do |application|
+    ensureConfigurationUpdated()
+
+    uninstallApplication(application)
+    # Give some time for the application to react on the change
+    sleep 2
+end
 
 Then /^Quick Launch Bar is visible$/ do
     @app.QuickLaunchBar(:visible => 'true')
@@ -102,7 +119,7 @@ def setSlotConfiguration(slot, application)
     $configuration[slot] = application
 
     # Copy the widgetsgallery desktop entry to a temporary file
-    File.copy('/usr/share/applications/widgetsgallery.desktop', '/tmp/' + application + '.desktop')
+    File.copy('/usr/share/applications/widgetsgallery.desktop', applicationDesktopEntryName(application))
 
     $configurationDirty = true
 end
@@ -111,4 +128,16 @@ def removeSlotConfiguration(slot)
     $configuration.delete(slot)
 
     $configurationDirty = true
+end
+
+def uninstallApplication(application)
+    # Remove the temporary desktop entry file
+    begin
+        File.delete(applicationDesktopEntryName(application))
+    rescue
+    end
+end
+
+def applicationDesktopEntryName(application)
+    return '/tmp/' + application + '.desktop'
 end
