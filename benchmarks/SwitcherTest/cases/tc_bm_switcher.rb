@@ -22,17 +22,25 @@ class TC_BM_Switcher < Dui::TestCase
 
     # method called before any test case
     def setup
-	@app = @sut.application(:name => 'duihome')
+        @app = @sut.application(:name => 'duihome')
         # Execute the switcherfps.sh script to load and check the programs loaded.
-	system("../programloader.sh ../programlist.txt")
-	@sut.application(:name => 'duicontrolpanel').DuiButton(:name=>'DuiHomeButton').tap
-	system("../toucher.sh &")
+        # While compositor only does compositing for windows when going back
+        # to homescreen (minimizing?), we need to manually start each
+        # application and click the "back" button to get the thumbnails
+        #
+        #system("../programloader.sh ../programlist.txt")
+
+        @sut.run(:name => '/usr/bin/widgetsgallery')
+        @sut.application(:name => 'widgetsgallery').DuiButton(:name=>'DuiHomeButton').tap
+        @sut.run(:name => '/usr/bin/duicontrolpanel')
+        @sut.application(:name => 'duicontrolpanel').DuiButton(:name=>'DuiHomeButton').tap
+        system("../toucher.sh &")
     end
 
     # method called after any test case for cleanup purposes
     def teardown
-	system("../killer.sh ../programlist.txt")
-	@sut.execute_shell_command("pkill toucher.sh")
+        system("../killer.sh ../programlist.txt")
+        @sut.execute_shell_command("pkill toucher.sh")
     end
 
 def test_fps_when_switcher_panned
