@@ -12,6 +12,14 @@ After do
     rescue
     end
 
+    # Close any started applications
+    begin
+        while true
+            @sut.application(:objectName => 'ta_homeswitcher', :__timeout => 2).close
+        end
+    rescue
+    end
+
     # Reset the configuration of the quick launch bar
     ('1'..'4').each do |slot|
         removeSlotConfiguration(slot)
@@ -22,6 +30,7 @@ After do
         uninstallApplication(application)
     end
 end
+
 
 Given /^duihome is running$/ do
     @app = @sut.application(:name => 'duihome')
@@ -73,6 +82,14 @@ When /^I install application "([^\"]*)" to the system$/ do |application|
     sleep 2
 end
 
+When /^I tap on the icon on slot "([^\"]*)" of Quick Launch Bar$/ do |slot|
+    ensureConfigurationUpdated()
+
+    index = slot.to_i - 1
+    @app.QuickLaunchBar.LauncherButton(:__index => index).tap
+end
+
+
 Then /^Quick Launch Bar is visible$/ do
     @app.QuickLaunchBar(:visible => 'true')
 end
@@ -96,6 +113,10 @@ Then /^Quick Launch Bar slot "([^\"]*)" contains no icon$/ do |slot|
     index = slot.to_i - 1
     qlbObject = @app.QuickLaunchBar.child(:name => 'QuickLaunchBarButton', :__index => index)
     verify_equal('DuiWidget') { qlbObject.type }
+end
+
+Then /^application "([^\"]*)" is on the foreground$/ do |application|
+    verify_equal("Ta_HomeSwitcher-#{application}", 30) { @sut.application.DuiApplicationWindow.attribute('windowTitle') }
 end
 
 
@@ -138,8 +159,17 @@ def removeSlotConfiguration(slot)
 end
 
 def installApplication(application)
-    # Copy the widgetsgallery desktop entry to a temporary file
-    File.copy('/usr/share/applications/widgetsgallery.desktop', applicationDesktopEntryName(application))
+    # Generate a desktop entry to a temporary file
+    output = "[Desktop Entry]\n"
+    output += "Type=Application\n"
+    output += "Name=TA Home Switcher #{application}\n"
+    output += "Icon=icon-l-video\n"
+    output += "Exec=/usr/lib/duifw-home-tests/ta_homeswitcher -id #{application}\n"
+
+    target = File.expand_path(applicationDesktopEntryName(application))
+    File.open(target, 'w') { |f|
+        f.write(output)
+    }
 end
 
 def uninstallApplication(application)
