@@ -23,7 +23,7 @@ require 'nokogiri'
 #SuiteType::              Functional
 #
 #SetHardware::            true
-#SetScratchbox::          true
+#SetScratchbox::          false
 #SetLogFiles::            /logs/testability/tc_switcherbuttonorder.log
 #SetFeature::             DUI-2005 in ScrumWorks Pro
 #SetTimeout::             500
