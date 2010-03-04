@@ -40,6 +40,8 @@ class LauncherButton : public DuiButton
     Q_OBJECT
     DUI_CONTROLLER(LauncherButton)
 
+    Q_PROPERTY(QString desktopEntry READ desktopEntry)
+
 public:
     /*!
      * Constructs a LauncherButton widget.
@@ -104,6 +106,12 @@ public:
      * \return Thumbnail
      */
     const QString &thumbnail() const;
+
+    /*!
+     * Returns the file name of the desktop entry where this launcher button was constructed from.
+     * \return the desktop entry file name.
+     */
+    QString desktopEntry() const;
 
 private slots:
     /*!

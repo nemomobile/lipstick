@@ -83,7 +83,6 @@ void QuickLaunchBar::updateWidgetList()
             DuiDesktopEntry desktopEntry(configurationDataStore->value(key).toString());
             if (desktopEntry.isValid()) {
                 widget = new LauncherButton(desktopEntry);
-                widget->setObjectName("QuickLaunchBarButton");
 
                 connect(widget, SIGNAL(applicationLaunched(const QString &)), this, SLOT(launchApplication(const QString &)), Qt::QueuedConnection);
                 connect(widget, SIGNAL(duiApplicationLaunched(const QString &)), this, SLOT(launchDuiApplication(const QString &)), Qt::QueuedConnection);
@@ -94,6 +93,8 @@ void QuickLaunchBar::updateWidgetList()
             // Use an empty widget if the entry was not valid
             widget = new DuiWidget;
         }
+
+        widget->setObjectName("QuickLaunchBarButton");
 
         newWidgets.append(widget);
     }

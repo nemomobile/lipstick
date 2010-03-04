@@ -38,7 +38,8 @@ class LauncherButtonStub : public StubBase {
   virtual void setThumbnail(const QString &thumbnail);
   virtual const QString & thumbnail() const;
   virtual void launch();
-}; 
+  virtual QString desktopEntry() const;
+};
 
 // 2. IMPLEMENT STUB
 void LauncherButtonStub::LauncherButtonConstructor(DuiWidget *parent) {
@@ -90,6 +91,11 @@ void LauncherButtonStub::launch() {
   stubMethodEntered("launch");
 }
 
+QString LauncherButtonStub::desktopEntry() const {
+  stubMethodEntered("desktopEntry");
+  return stubReturnValue<QString>("desktopEntry");
+}
+
 
 
 // 3. CREATE A STUB INSTANCE
@@ -136,6 +142,10 @@ const QString & LauncherButton::thumbnail() const {
 
 void LauncherButton::launch() {
   gLauncherButtonStub->launch();
+}
+
+QString LauncherButton::desktopEntry() const {
+  return gLauncherButtonStub->desktopEntry();
 }
 
 

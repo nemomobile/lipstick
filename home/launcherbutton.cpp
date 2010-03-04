@@ -59,6 +59,8 @@ LauncherButton::LauncherButton(const DuiDesktopEntry &entry, DuiWidget *parent) 
     } else if (entry.type() == "Directory") {
         setTarget(entry.nameUnlocalized());
     }
+
+    model()->setDesktopEntry(entry.fileName());
 }
 
 LauncherButton::~LauncherButton()
@@ -93,6 +95,11 @@ void LauncherButton::setThumbnail(const QString &thumbnail)
 const QString &LauncherButton::thumbnail() const
 {
     return model()->thumbnail();
+}
+
+QString LauncherButton::desktopEntry() const
+{
+    return model()->desktopEntry();
 }
 
 void LauncherButton::launch()
