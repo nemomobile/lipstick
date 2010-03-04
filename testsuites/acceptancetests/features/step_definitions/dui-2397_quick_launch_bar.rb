@@ -65,6 +65,14 @@ When /^I uninstall application "([^\"]*)" from the system$/ do |application|
     sleep 2
 end
 
+When /^I install application "([^\"]*)" to the system$/ do |application|
+    ensureConfigurationUpdated()
+
+    installApplication(application)
+    # Give some time for the application to react on the change
+    sleep 2
+end
+
 Then /^Quick Launch Bar is visible$/ do
     @app.QuickLaunchBar(:visible => 'true')
 end
@@ -118,8 +126,7 @@ end
 def setSlotConfiguration(slot, application)
     $configuration[slot] = application
 
-    # Copy the widgetsgallery desktop entry to a temporary file
-    File.copy('/usr/share/applications/widgetsgallery.desktop', applicationDesktopEntryName(application))
+    installApplication(application)
 
     $configurationDirty = true
 end
@@ -128,6 +135,11 @@ def removeSlotConfiguration(slot)
     $configuration.delete(slot)
 
     $configurationDirty = true
+end
+
+def installApplication(application)
+    # Copy the widgetsgallery desktop entry to a temporary file
+    File.copy('/usr/share/applications/widgetsgallery.desktop', applicationDesktopEntryName(application))
 end
 
 def uninstallApplication(application)
