@@ -1,0 +1,14 @@
+#!/usr/bin/awk -f
+BEGIN       { RESULTS = "/tmp/duihome_benchmarks/benchmarkresult.txt" 
+            }
+
+/<get>/     ||
+/<\/get>/   ||
+/<file>/    { next }
+
+/<\/set>/   { print "<get>"
+              print "<file>" RESULTS "</file>"
+              print "</get>"
+            }
+
+//          { print }
