@@ -22,9 +22,9 @@
 #include "launcher_stub.h"
 #include "launcherbutton_stub.h"
 
+#include <QtTest/QtTest>
 #include <QDir>
 #include <DuiDesktopEntry>
-#include <duifiledatastore.h>
 
 // QDir stubs
 bool QDir::exists(const QString &) const
@@ -38,13 +38,14 @@ bool QDir::mkpath(const QString &) const
     return true;
 }
 
-// DuiFileDataStore stubs
-bool DuiFileDataStore::contains(const QString &key) const
+// DuiDesktopEntry stubs
+QList<QString> gValidDesktopFiles;
+bool DuiDesktopEntry::isValid() const
 {
-    return key == "2/desktopFile" || key == "4/desktopFile";
+    return gValidDesktopFiles.contains(fileName());
 }
 
-QVariant DuiFileDataStore::value(const QString &key) const
+QVariant TestDataStore::value(const QString &key) const
 {
     if (key == "2/desktopFile") {
         return QVariant("/tmp/existing.desktop");
@@ -53,17 +54,41 @@ QVariant DuiFileDataStore::value(const QString &key) const
     }
 }
 
-// DuiDesktopEntry stubs
-QList<QString> gValidDesktopFiles;
-bool DuiDesktopEntry::isValid() const
+bool TestDataStore::setValue(const QString&, const QVariant&)
 {
-    return gValidDesktopFiles.contains(fileName());
+    return true;
 }
 
-bool Ut_QuickLaunchBar::mkpathCalled;
+QStringList TestDataStore::allKeys() const
+{
+    return QStringList();
+}
+
+bool TestDataStore::contains(const QString &key) const
+{
+    return key == "2/desktopFile" || key == "4/desktopFile";
+}
+
+bool TestDataStore::createValue(const QString&, const QVariant&)
+{
+    return true;
+}
+
+void TestDataStore::remove(const QString&)
+{
+
+}
+
+void TestDataStore::clear()
+{
+
+}
+
+bool Ut_QuickLaunchBar::mkpathCalled = false;
 
 void Ut_QuickLaunchBar::initTestCase()
 {
+    m_subject = NULL;
 }
 
 void Ut_QuickLaunchBar::cleanupTestCase()
@@ -77,24 +102,25 @@ void Ut_QuickLaunchBar::init()
     gValidDesktopFiles.clear();
     gValidDesktopFiles << "/tmp/existing.desktop";
 
-    m_subject = new QuickLaunchBar();
-    connect(this, SIGNAL(updateWidgetList()), m_subject, SLOT(updateWidgetList()));
-    connect(this, SIGNAL(applicationLaunched(const QString &)), m_subject, SLOT(launchApplication(const QString &)));
-    connect(this, SIGNAL(duiApplicationLaunched(const QString &)), m_subject, SLOT(launchDuiApplication(const QString &)));
+    setupTestSubject(new TestDataStore);
 }
 
 void Ut_QuickLaunchBar::cleanup()
 {
     delete m_subject;
+    m_subject = NULL;
+}
+
+void Ut_QuickLaunchBar::setupTestSubject(DuiDataStore *configuration)
+{
+    delete m_subject;
+    m_subject = new QuickLaunchBar(configuration);
+    connect(this, SIGNAL(updateWidgetList()), m_subject, SLOT(updateWidgetList()));
+    connect(this, SIGNAL(applicationLaunched(const QString &)), m_subject, SLOT(launchApplication(const QString &)));
+    connect(this, SIGNAL(duiApplicationLaunched(const QString &)), m_subject, SLOT(launchDuiApplication(const QString &)));
 }
 
 void Ut_QuickLaunchBar::testInitialization()
-{
-    // QDir::exists returns false so mkpath should be called
-    QVERIFY(mkpathCalled);
-}
-
-void Ut_QuickLaunchBar::testUpdateWidgetList()
 {
     // There should be 4 widgets; second should be a LauncherButton
     QCOMPARE(m_subject->model()->widgets().count(), 4);
@@ -102,6 +128,13 @@ void Ut_QuickLaunchBar::testUpdateWidgetList()
     QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(1)) != NULL);
     QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(2)) == NULL);
     QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(3)) == NULL);
+}
+
+void Ut_QuickLaunchBar::testInitializationWithoutDataStore()
+{
+    setupTestSubject(NULL);
+    // QDir::exists returns false so mkpath should be called
+    QVERIFY(mkpathCalled);
 }
 
 void Ut_QuickLaunchBar::testRemoveOneApplicationFromFileSystem()

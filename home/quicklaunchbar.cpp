@@ -27,7 +27,19 @@
 const int QuickLaunchBar::NUMBER_OF_LAUNCHER_BUTTONS = 4;
 
 QuickLaunchBar::QuickLaunchBar(QGraphicsItem *parent) : DuiWidgetController(new QuickLaunchBarModel, parent),
-    fileDataStore(NULL)
+    configurationDataStore(NULL)
+{
+    init();
+}
+
+QuickLaunchBar::QuickLaunchBar(DuiDataStore* configuration, QGraphicsItem *parent) :
+        DuiWidgetController(new QuickLaunchBarModel, parent),
+        configurationDataStore(configuration)
+{
+    init();
+}
+
+void QuickLaunchBar::init()
 {
     initializeDataStore();
     updateWidgetList();
@@ -39,16 +51,18 @@ QuickLaunchBar::QuickLaunchBar(QGraphicsItem *parent) : DuiWidgetController(new 
 
 QuickLaunchBar::~QuickLaunchBar()
 {
-    delete fileDataStore;
+    delete configurationDataStore;
 }
 
 void QuickLaunchBar::initializeDataStore()
 {
-    if (!QDir::root().exists(QDir::homePath() + "/.config/duihome")) {
-        QDir::root().mkpath(QDir::homePath() + "/.config/duihome");
-    }
+    if (configurationDataStore == NULL) {
+        if (!QDir::root().exists(QDir::homePath() + "/.config/duihome")) {
+            QDir::root().mkpath(QDir::homePath() + "/.config/duihome");
+        }
 
-    fileDataStore = new DuiFileDataStore(QDir::homePath() + "/.config/duihome/quicklaunchbar.data");
+        configurationDataStore = new DuiFileDataStore(QDir::homePath() + "/.config/duihome/quicklaunchbar.data");
+    }
 }
 
 void QuickLaunchBar::updateWidgetList()
@@ -63,8 +77,8 @@ void QuickLaunchBar::updateWidgetList()
 
         QString key;
         key.sprintf("%d/desktopFile", i);
-        if (fileDataStore->contains(key)) {
-            DuiDesktopEntry desktopEntry(fileDataStore->value(key).toString());
+        if (configurationDataStore->contains(key)) {
+            DuiDesktopEntry desktopEntry(configurationDataStore->value(key).toString());
             if (desktopEntry.isValid()) {
                 widget = new LauncherButton(desktopEntry);
                 widget->setObjectName("QuickLaunchBarButton");

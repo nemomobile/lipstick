@@ -24,7 +24,7 @@
 #include <QFileSystemWatcher>
 #include "quicklaunchbarmodel.h"
 
-class DuiFileDataStore;
+class DuiDataStore;
 
 /*!
  * A widget for showing a quick launch bar.
@@ -37,8 +37,16 @@ class QuickLaunchBar : public DuiWidgetController
 public:
     /*!
      * Constructs a new QuickLaunchBar.
+     * \param parent the parent object for this object if any.
      */
     explicit QuickLaunchBar(QGraphicsItem *parent = NULL);
+
+    /*!
+     * Constructs a new QuickLaunchBar.
+     * \param configuration an object that is used for configuration. This object takes the ownership of the configuration data store.
+     * \param parent the parent object for this object if any.
+     */
+    explicit QuickLaunchBar(DuiDataStore* configuration, QGraphicsItem *parent = NULL);
 
     /*!
      * Destroys the QuickLaunchBar.
@@ -82,7 +90,12 @@ private:
     static const int NUMBER_OF_LAUNCHER_BUTTONS;
 
     //! The data store for quick launch bar configuration
-    DuiFileDataStore *fileDataStore;
+    DuiDataStore *configurationDataStore;
+
+    /*!
+     * An initialization helper function that should be called once from any constructor.
+     */
+    void init();
 
     //! A file system watcher for the desktop entry file directory
     QFileSystemWatcher desktopDirectoryWatcher;

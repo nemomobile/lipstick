@@ -29,18 +29,24 @@
 class QuickLaunchBarStub : public StubBase {
   public:
   virtual void QuickLaunchBarConstructor(QGraphicsItem *parent);
+  virtual void QuickLaunchBarConstructor(DuiDataStore* configuration, QGraphicsItem *parent);
   virtual void QuickLaunchBarDestructor();
   virtual void launchApplication(const QString &application);
   virtual void launchDuiApplication(const QString &service);
   virtual void initializeDataStore();
   virtual void updateWidgetList();
-}; 
+};
 
 // 2. IMPLEMENT STUB
 void QuickLaunchBarStub::QuickLaunchBarConstructor(QGraphicsItem *parent) {
   Q_UNUSED(parent);
-
 }
+
+void QuickLaunchBarStub::QuickLaunchBarConstructor(DuiDataStore *configuration, QGraphicsItem *parent) {
+    Q_UNUSED(configuration);
+    Q_UNUSED(parent);
+}
+
 void QuickLaunchBarStub::QuickLaunchBarDestructor() {
 
 }
@@ -74,6 +80,10 @@ QuickLaunchBarStub* gQuickLaunchBarStub = &gDefaultQuickLaunchBarStub;
 // 4. CREATE A PROXY WHICH CALLS THE STUB
 QuickLaunchBar::QuickLaunchBar(QGraphicsItem *parent) {
   gQuickLaunchBarStub->QuickLaunchBarConstructor(parent);
+}
+
+QuickLaunchBar::QuickLaunchBar(DuiDataStore *configuration, QGraphicsItem *parent) {
+  gQuickLaunchBarStub->QuickLaunchBarConstructor(configuration, parent);
 }
 
 QuickLaunchBar::~QuickLaunchBar() {

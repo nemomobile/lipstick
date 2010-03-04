@@ -20,10 +20,23 @@
 #ifndef UT_QUICKLAUNCHBAR_H
 #define UT_QUICKLAUNCHBAR_H
 
-#include <QtTest/QtTest>
-#include <QObject>
+#include "duidatastore.h"
 
 class QuickLaunchBar;
+
+class TestDataStore : public DuiDataStore
+{
+    Q_OBJECT
+
+public:
+    virtual QVariant value(const QString&) const;
+    virtual bool setValue(const QString&, const QVariant&);
+    virtual QStringList allKeys() const;
+    virtual bool contains(const QString&) const;
+    virtual bool createValue(const QString&, const QVariant&);
+    virtual void remove(const QString&);
+    virtual void clear();
+};
 
 class Ut_QuickLaunchBar : public QObject
 {
@@ -47,9 +60,11 @@ private slots:
     // Called after every testfunction
     void cleanup();
 
+    void setupTestSubject(DuiDataStore *configuration);
+
     // Test cases
     void testInitialization();
-    void testUpdateWidgetList();
+    void testInitializationWithoutDataStore();
     void testRemoveOneApplicationFromFileSystem();
     void testLaunchApplication();
     void testLaunchDuiApplication();
