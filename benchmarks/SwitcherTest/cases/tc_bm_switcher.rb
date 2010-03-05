@@ -34,12 +34,19 @@ class TC_BM_Switcher < Dui::TestCase
         @sut.application(:name => 'widgetsgallery').DuiButton(:name=>'DuiHomeButton').tap
         @sut.run(:name => '/usr/bin/duicontrolpanel')
         @sut.application(:name => 'duicontrolpanel').DuiButton(:name=>'DuiHomeButton').tap
-        system("../toucher.sh &")
+
+        @sut.execute_shell_command("../toucher.sh &")
     end
 
     # method called after any test case for cleanup purposes
     def teardown
-        system("../killer.sh ../programlist.txt")
+        # While we start applications throught Matti machinery, we might
+        # as well kill them throught Matti machinery
+        #
+        #system("../killer.sh ../programlist.txt")
+        
+        @sut.kill_started_processes()
+
         @sut.execute_shell_command("pkill toucher.sh")
     end
 
@@ -48,7 +55,6 @@ def test_fps_when_switcher_panned
     @app.Switcher.flick(:Left)
     write_benchmark_command_to_file("test_fps_when_switcher_panned","@app.Switcher.flick(:Left)")
     sleep 2
-    @sut.execute_shell_command("pkill toucher.sh")
 end
 
 def test_fps_when_switcher_rotates
@@ -78,7 +84,7 @@ private
 def write_benchmark_command_to_file(testcase,command)
     #Put the current command and the time it was issued
     time = DateTime.now
-    writestring = "#{testcase}" + "  " + "#{command}" + "  " + "#{time}\n"
+    writestring = "#{testcase}  #{command}  #{time}\n"
     File.open("/tmp/duihome_benchmarks/duihome_benchmark_commands.txt",'a') {|f| f.write(writestring)}
 end
 end
