@@ -11,6 +11,9 @@ TEST_SUITES = \
     HomeAppletTests \
     DuiApplicationExtensionArea
 
+ACCEPTANCE_TESTS = \
+    acceptancetests
+
 TEST_APPS = \
     ta_homeswitcher \
     ta_callui \
@@ -20,7 +23,8 @@ TEST_APPS = \
 SUBDIRS = \
     lib \
     $$TEST_SUITES \
-    $$TEST_APPS
+    $$TEST_APPS \
+    $$ACCEPTANCE_TESTS
 
 unix{
   QMAKE_DEL_FILE = rm -rf
@@ -43,7 +47,7 @@ ridoc.commands=rdoc -r --op .ri
 test_xml.PRE_TARGETDEPS=./.ri/created.rid
 test_xml.target=meta/tests.xml
 test_xml.files=meta/tests.xml
-test_xml.commands=buildTestXml.rb -tmeta/tests.xml -i $$TEST_SUITE_INSTALL_LOCATION -f \"$$TEST_SUITES\" && $$XMLLINT --noout --schema testdefinition.xsd meta/tests.xml
+test_xml.commands=buildTestXml.rb -tmeta/tests.xml -i $$TEST_SUITE_INSTALL_LOCATION -f \"$$TEST_SUITES\" && ./appendAuxTestsXml.sh && $$XMLLINT --noout --schema testdefinition.xsd meta/tests.xml
 test_xml.depends=ridoc FORCE
 test_xml.path=$$TEST_SUITE_INSTALL_LOCATION
 test_xml.CONFIG+=no_check_exist
