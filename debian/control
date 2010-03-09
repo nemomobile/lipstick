@@ -121,7 +121,7 @@ Description: DirectUI functional tests for homescreen
 Package: duifw-home-benchmark-tests
 Architecture: any
 Section: misc
-Depends: duifw-tests-lib, duihomescreen (= ${binary:Version}), duihomescreen-plugins (= ${binary:Version}), duistatusindicatormenu, dui-demos-appletinstallationsource, dui-dev-tools, duicompositor, duicontrolpanel, contextkit-utils, libipc-run3-perl, dui-demos-widgetsgallery, duihomescreen-plugins-weatherapplet
+Depends: duifw-home-tests
 XB-Maemo-CI-Packages: duihomescreen
 XB-Maemo-CI-Stage: fast, acceptance, validation
 Description: DirectUI benchmark tests for homescreen

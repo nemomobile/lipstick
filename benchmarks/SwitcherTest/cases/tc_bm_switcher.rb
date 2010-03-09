@@ -18,7 +18,38 @@ require 'matti'
 include MattiVerify
 require 'open3'
 
-class TC_BM_Switcher < Dui::TestCase
+class BenchmarkTestCase < Dui::TestCase
+
+    def initialize *args
+
+        # Default number of times a test should be repeated
+        @benchmark_runs = 10
+
+        # Initialize the parent class
+        super *args
+
+        # Scan all public methods of this class and for every test method
+        # (name starting with 'test') replace it with such that will execute
+        # the test @benchmark_runs number of times
+        methods = self.class.public_instance_methods(true)
+        tests = methods.delete_if { |name| name !~ /^test./ }
+        tests.each do
+            |name|
+            real = "real_#{name}"
+
+            self.class.class_eval {
+                alias_method real, name
+                define_method name do
+                    @benchmark_runs.times { |n|
+                        self.__send__(real) 
+                    }
+                end
+            }
+        end
+    end
+end
+
+class TC_BM_Switcher < BenchmarkTestCase
 
     # method called before any test case
     def setup
@@ -29,11 +60,12 @@ class TC_BM_Switcher < Dui::TestCase
         # application and click the "back" button to get the thumbnails
         #
         #system("../programloader.sh ../programlist.txt")
-
-        @sut.run(:name => '/usr/bin/widgetsgallery')
-        @sut.application(:name => 'widgetsgallery').DuiButton(:name=>'DuiHomeButton').tap
-        @sut.run(:name => '/usr/bin/duicontrolpanel')
-        @sut.application(:name => 'duicontrolpanel').DuiButton(:name=>'DuiHomeButton').tap
+        
+        3.times { |n|
+            @sut.run(:name => "/usr/lib/duifw-home-tests/ta_activeapp",
+                     :arguments => "-no-refresh,-id,#{n}").
+                 DuiButton(:name => "HomeButton").tap
+        }
 
         @sut.execute_shell_command("../toucher.sh &")
     end
@@ -61,18 +93,22 @@ def test_fps_when_switcher_rotates
     # use context provider to change orientation
     cmd = "context-provide"
     cmd_in, cmd_out, cmd_err = Open3::popen3(cmd)
+
     write_benchmark_command_to_file("test_fps_when_switcher_rotates","cmd_in.puts add string Screen.TopEdge top")
     cmd_in.puts "add string Screen.TopEdge top"
+
     # change orientation to portrait
     write_benchmark_command_to_file("test_fps_when_switcher_rotates","cmd_in.puts Screen.TopEdge=right")
     cmd_in.puts "Screen.TopEdge=right"
     sleep 5
+    
+    # change orientation to landscape
     write_benchmark_command_to_file("test_fps_when_switcher_rotates","cmd_in.puts Screen.TopEdge=top")
     cmd_in.puts "Screen.TopEdge=top"
     sleep 5
-    # while launcher not shown, change orientation to landscape
-    write_benchmark_command_to_file("test_fps_when_switcher_rotates","cmd_in.puts Screen.TopEdge=right")
-    cmd_in.puts "Screen.TopEdge=right"
+
+    # reset
+    cmd_in.puts "Screen.TopEdge=top"
 
     cmd_in.close
     cmd_out.close
