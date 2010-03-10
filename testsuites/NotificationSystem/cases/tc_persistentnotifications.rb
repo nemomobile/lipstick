@@ -75,7 +75,7 @@ class TC_PersistentNotifications < Dui::TestCase
         remove_notification_manager_dir_from_config()
 
         #Add 3 persistent notifications
-        system("#{$notificationtoolapp} -a add -p -c 1'Event Type' 'Persistent 1' 'Body' 'path_to_image'")
+        system("#{$notificationtoolapp} -a add -p -c 1 'Event Type' 'Persistent 1' 'Body' 'path_to_image'")
         system("#{$notificationtoolapp} -a add -p -c 1 'Event Type' 'Persistent 2' 'Body' 'path_to_image'")
         system("#{$notificationtoolapp} -a add -p -c 1 'Event Type' 'Persistent 3' 'Body' 'path_to_image'")
 
