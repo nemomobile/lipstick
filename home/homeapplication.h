@@ -26,10 +26,6 @@
 #include "applicationcontext.h"
 
 class MainWindow;
-class NotificationManager;
-class HomeNotificationSink;
-class DuiCompositorNotificationSink;
-class DuiFeedbackNotificationSink;
 
 /*!
  * HomeApplication extends DuiApplication by keeping track of open X windows.
@@ -51,20 +47,6 @@ public:
      * Destroys the HomeApplication.
      */
     ~HomeApplication();
-
-    /*!
-     * Returns a reference to the notification manager.
-     *
-     * \return a reference to the notification manager
-     */
-    NotificationManager &notificationManager();
-
-    /*!
-     * Returns a reference to the home notification sink.
-     *
-     * \return a reference to the home notification sink
-     */
-    HomeNotificationSink &homeNotificationSink();
 
 public slots:
     /*!
@@ -92,11 +74,6 @@ protected:
     //! \reimp_end
 
 private slots:
-    /*!
-     * Enables or disables various sinks according to current use mode
-     */
-    void applyUseMode();
-
     /*!
      * Sends a dbus-signal after UI is visible, stops the process if
      * duihome has been started by upstart
@@ -130,21 +107,6 @@ private:
      * Emits windowListUpdated with the current window list as the parameter.
      */
     void updateWindowList();
-
-    //! Notification manager
-    NotificationManager *notificationManager_;
-
-    //! Home notification sink for visualizing the notification inside home
-    HomeNotificationSink *homeNotificationSink_;
-
-    //! Compositor notification sink for visualizing the notification outside home
-    DuiCompositorNotificationSink *compositorNotificationSink_;
-
-    //! Feedback notification sink for presenting the notification as a feedback
-    DuiFeedbackNotificationSink *feedbackNotificationSink_;
-
-    //! Context item for getting information about video recording status
-    QSharedPointer<ContextItem> useMode;
 
     //! Flag that indicates whether duihome was started by upstart or not
     bool upstartMode;

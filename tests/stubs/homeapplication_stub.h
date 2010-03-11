@@ -29,13 +29,10 @@ class HomeApplicationStub : public StubBase
 public:
     virtual void HomeApplicationConstructor(int &argc, char **argv);
     virtual void HomeApplicationDestructor();
-    virtual NotificationManager &notificationManager();
-    virtual HomeNotificationSink &homeNotificationSink();
     virtual void launchContentSearchService();
     virtual void windowListUpdated(QList<WindowInfo> &windowList);
     virtual void windowVisibilityChanged(Window window);
     virtual bool x11EventFilter(XEvent *event);
-    virtual void applyUseMode();
     virtual void updateWindowList();
     virtual void sendStartupNotifications();
 };
@@ -50,18 +47,6 @@ void HomeApplicationStub::HomeApplicationConstructor(int &argc, char **argv)
 void HomeApplicationStub::HomeApplicationDestructor()
 {
 
-}
-
-NotificationManager &HomeApplicationStub::notificationManager()
-{
-    stubMethodEntered("notificationManager");
-    return * stubReturnValue<NotificationManager *>("notificationManager");
-}
-
-HomeNotificationSink &HomeApplicationStub::homeNotificationSink()
-{
-    stubMethodEntered("homeNotificationSink");
-    return * stubReturnValue<HomeNotificationSink *>("homeNotificationSink");
 }
 
 void HomeApplicationStub::launchContentSearchService()
@@ -91,11 +76,6 @@ bool HomeApplicationStub::x11EventFilter(XEvent *event)
     return stubReturnValue<bool>("x11EventFilter");
 }
 
-void HomeApplicationStub::applyUseMode()
-{
-    stubMethodEntered("applyUseMode");
-}
-
 void HomeApplicationStub::updateWindowList()
 {
     stubMethodEntered("updateWindowList");
@@ -122,16 +102,6 @@ HomeApplication::~HomeApplication()
     gHomeApplicationStub->HomeApplicationDestructor();
 }
 
-NotificationManager &HomeApplication::notificationManager()
-{
-    return gHomeApplicationStub->notificationManager();
-}
-
-HomeNotificationSink &HomeApplication::homeNotificationSink()
-{
-    return gHomeApplicationStub->homeNotificationSink();
-}
-
 void HomeApplication::launchContentSearchService()
 {
     gHomeApplicationStub->launchContentSearchService();
@@ -140,11 +110,6 @@ void HomeApplication::launchContentSearchService()
 bool HomeApplication::x11EventFilter(XEvent *event)
 {
     return gHomeApplicationStub->x11EventFilter(event);
-}
-
-void HomeApplication::applyUseMode()
-{
-    gHomeApplicationStub->applyUseMode();
 }
 
 void HomeApplication::updateWindowList()

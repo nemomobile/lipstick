@@ -2,7 +2,7 @@ include(../common_top.pri)
 TARGET = ut_test
 QT += dbus
 
-PKGCONFIG += xcomposite ContentManagerSearchIf maemosec
+PKGCONFIG += xcomposite ContentManagerSearchIf
 
 TEMPLATE += lib
 
