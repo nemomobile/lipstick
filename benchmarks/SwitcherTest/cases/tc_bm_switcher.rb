@@ -121,6 +121,6 @@ def write_benchmark_command_to_file(testcase,command)
     #Put the current command and the time it was issued
     time = DateTime.now
     writestring = "#{testcase}  #{command}  #{time}\n"
-    File.open("/tmp/duihome_benchmarks/duihome_benchmark_commands.txt",'a') {|f| f.write(writestring)}
+    File.open("/tmp/duihome_benchmarks/benchmark_commands.txt",'a') {|f| f.write(writestring)}
 end
 end

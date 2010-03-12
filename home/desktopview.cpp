@@ -57,7 +57,7 @@ const int FpsRefreshInterval = 1000;
 
 void DesktopView::writeFps()
 {
-    QFile file("/tmp/duihome_benchmarks/result.txt");
+    QFile file("/tmp/duihome_benchmarks/benchmark_results.txt");
     file.open(QIODevice::WriteOnly | QIODevice::Append);
     QTextStream ts(&file);
 

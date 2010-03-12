@@ -1,7 +1,7 @@
 #!/usr/bin/awk -f
 BEGIN       { root = "/tmp/duihome_benchmarks/"
-              files[1] = root "benchmarkresult.txt"
-              files[2] = root "duihome_benchmark_commands.txt"
+              files[1] = root "benchmark_results.txt"
+              files[2] = root "benchmark_commands.txt"
               pad = step = ""
             }
 
