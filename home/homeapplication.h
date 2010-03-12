@@ -83,6 +83,11 @@ signals:
      */
     void windowVisibilityChanged(Window window);
 
+#ifdef BENCHMARKS_ON
+    void startBenchmarking();
+    void stopBenchmarking();
+#endif
+
 protected:
     /*! \reimp
      * The _NET_CLIENT_LIST property of the root window is interesting and

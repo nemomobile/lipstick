@@ -17,15 +17,6 @@
 **
 ****************************************************************************/
 
-#ifdef BENCHMARKS_ON
-#include <QTextStream>
-#include <QFile>
-#include <QTimer>
-#include <QTime>
-#include <QFileSystemWatcher>
-#include <QDir>
-#endif
-
 #include "launcher.h"
 #include "desktopview.h"
 #include "desktop.h"
@@ -46,35 +37,53 @@
 #include <DuiOverlay>
 #include <QGraphicsLinearLayout>
 
-
 #ifdef BENCHMARKS_ON
+#include <QTextStream>
+#include <QFile>
+#include <QTimer>
+#include <QTime>
+#include <QFileSystemWatcher>
+#include <QDir>
+
+// These should really be private variables if one has more than one
+// instance of Desktop
+static bool benchmarking = false;
 static QTime lastUpdate;
 static int frameCount = 0;
 static int fps = 0;
+
 const int MillisecsInSec = 1000;
 const int FpsRefreshInterval = 1000;
 
-uint DesktopView::getFps()
+void DesktopView::writeFps()
 {
-    return fps;
-}
-
-void DesktopView::writeFps(QString str)
-{
-    Q_UNUSED(str);
-    QFile file("/tmp/duihome_benchmarks/benchmarkresult.txt");
+    QFile file("/tmp/duihome_benchmarks/result.txt");
     file.open(QIODevice::WriteOnly | QIODevice::Append);
-    if(getFps() == 0) {
-        return;
-    }
-    QString fpsString = QString::number(getFps());
     QTextStream ts(&file);
+
+    QString fpsString = QString::number(fps);
     QDateTime now = QDateTime::currentDateTime();
-    QString nowString = now.toString("dd.MM.yy.hh:mm:ss");
-    ts << fpsString << "  "<< nowString << endl;
+
+    QString nowString = now.toString(Qt::ISODate);
+    ts << fpsString << " " << nowString << endl;
+
     file.close();
 }
 
+void DesktopView::startBenchmarking()
+{
+    frameCount = 0;
+    fps = 0;
+    lastUpdate = QTime::currentTime();
+    benchmarking = true;
+
+    update();
+}
+
+void DesktopView::stopBenchmarking()
+{
+    benchmarking = false;
+}
 #endif
 
 DesktopView::DesktopView(Desktop *desktop) :
@@ -147,13 +156,13 @@ DesktopView::DesktopView(Desktop *desktop) :
     MainWindow::instance()->sceneManager()->hideWindowNow(appletSpaceWindow);
 
 #ifdef BENCHMARKS_ON
-    watcher = new QFileSystemWatcher;
     QDir dir;
     if(!dir.exists("/tmp/duihome_benchmarks")) {
         dir.mkdir("/tmp/duihome_benchmarks");
     }
-    watcher->addPath("/tmp/duihome_benchmarks");
-    connect(watcher,SIGNAL(directoryChanged(QString)),this,SLOT(writeFps(QString)));
+
+    connect(DuiApplication::instance(), SIGNAL(startBenchmarking()), this, SLOT(startBenchmarking()));
+    connect(DuiApplication::instance(), SIGNAL(stopBenchmarking()), this, SLOT(stopBenchmarking()));
 #endif
 }
 
@@ -161,6 +170,28 @@ DesktopView::~DesktopView()
 {
     delete launcherWindow;
 }
+
+#ifdef BENCHMARKS_ON
+void DesktopView::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    DuiWidgetView::paint(painter, option, widget);
+
+    if (benchmarking) {
+        QTime now = QTime::currentTime();
+        ++frameCount;
+
+        if (lastUpdate.msecsTo(now) > FpsRefreshInterval) {
+            fps = (MillisecsInSec * frameCount) / (lastUpdate.msecsTo(now));
+            frameCount = 0;
+            lastUpdate = now;
+
+            writeFps();
+        }
+
+        update();
+    }
+}
+#endif
 
 void DesktopView::drawBackground(QPainter *painter, const QStyleOptionGraphicsItem *) const
 {
@@ -193,18 +224,6 @@ void DesktopView::drawBackground(QPainter *painter, const QStyleOptionGraphicsIt
     if (pixmap != NULL) {
         painter->drawTiledPixmap(QRectF(0, geometry().height(), geometry().width(), pixmap->height()), *pixmap);
     }
-
-#ifdef BENCHMARKS_ON
-    QTime now = QTime::currentTime();
-    ++frameCount;
-
-    if (lastUpdate.msecsTo(now) > FpsRefreshInterval) {
-        fps = (MillisecsInSec * frameCount) / (lastUpdate.msecsTo(now));
-        frameCount = 0;
-        lastUpdate = now;
-    }
-#endif
-
 }
 
 QRectF DesktopView::boundingRect() const

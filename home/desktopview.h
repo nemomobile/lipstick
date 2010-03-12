@@ -37,10 +37,6 @@ class AppletSpace;
 class DuiModalSceneWindow;
 class DuiPannableViewport;
 class DuiOverlay;
-#ifdef BENCHMARKS_ON
-    class QFileSystemWatcher;
-    class QTimer;
-#endif
 
 /*!
  * The desktop view draws a background for the desktop and manages layouts
@@ -67,6 +63,9 @@ public:
     virtual ~DesktopView();
 
     //! \reimp
+#ifdef BENCHMARKS_ON
+    virtual void paint (QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget=0);
+#endif
     virtual void drawBackground(QPainter *painter, const QStyleOptionGraphicsItem *option) const;
     virtual QRectF boundingRect() const;
     virtual void setGeometry(const QRectF &rect);
@@ -81,8 +80,9 @@ private slots:
 
 #ifdef BENCHMARKS_ON
 private slots:
-    //! Writes the current fps to a file
-    void writeFps(QString str);
+    void startBenchmarking();
+    void stopBenchmarking();
+    void writeFps();
 #endif
 
 private:
@@ -131,13 +131,6 @@ private:
 
     //! Pannable viewport in which the applet space is displayed
     DuiPannableViewport *appletSpaceViewport;
-
-#ifdef BENCHMARKS_ON
-    //! returns the current fps of duihome mainwindow
-    uint getFps();
-    //! Listen for requests from benchmark script.
-    QFileSystemWatcher *watcher;
-#endif
 
 #ifdef UNIT_TEST
     friend class Ut_DesktopView;
