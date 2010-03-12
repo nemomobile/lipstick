@@ -28,24 +28,33 @@ class BenchmarkTestCase < Dui::TestCase
         # Initialize the parent class
         super *args
 
-        # Scan all public methods of this class and for every test method
-        # (name starting with 'test') replace it with such that will execute
-        # the test @benchmark_runs number of times
-        methods = self.class.public_instance_methods(true)
-        tests = methods.delete_if { |name| name !~ /^test./ }
-        tests.each do
-            |name|
-            real = "real_#{name}"
+        # Scan all public methods of this _instance_ and for every test
+        # method (name starting with 'test') replace it with such that
+        # will execute the test @benchmark_runs number of times
+        class << self
+            methods = self.public_instance_methods(true)
+            tests = methods.delete_if { |name| name !~ /^test./ }
+            tests.each do
+                |name|
+                real = "real_#{name}"
 
-            self.class.class_eval {
                 alias_method real, name
                 define_method name do
+                    log_command "testcase '#{name}' started"
                     @benchmark_runs.times { |n|
+                        log_command "testcase '#{name}' run #{n}"
                         self.__send__(real) 
                     }
+                    log_command "testcase '#{name}' done"
                 end
-            }
+            end
         end
+    end
+
+    def log_command msg
+        time = DateTime.now
+        writestring = "#{time}  #{msg}\n"
+        File.open("/tmp/duihome_benchmarks/benchmark_commands.txt",'a') {|f| f.write(writestring)}
     end
 end
 
@@ -53,8 +62,9 @@ class TC_BM_Switcher < BenchmarkTestCase
 
     # method called before any test case
     def setup
-        @app = @sut.application(:name => 'duihome')
-        # Execute the switcherfps.sh script to load and check the programs loaded.
+        cmd = "context-provide"
+        @cmd_in, @cmd_out, @cmd_err = Open3::popen3(cmd)
+
         # While compositor only does compositing for windows when going back
         # to homescreen (minimizing?), we need to manually start each
         # application and click the "back" button to get the thumbnails
@@ -67,7 +77,8 @@ class TC_BM_Switcher < BenchmarkTestCase
                  DuiButton(:name => "HomeButton").tap
         }
 
-        @sut.execute_shell_command("../toucher.sh &")
+        @app = @sut.application(:name => 'duihome')
+        @app.call_method('startBenchmarking()')
     end
 
     # method called after any test case for cleanup purposes
@@ -77,50 +88,44 @@ class TC_BM_Switcher < BenchmarkTestCase
         #
         #system("../killer.sh ../programlist.txt")
         
+        @app.call_method('stopBenchmarking()')
+
         @sut.kill_started_processes()
 
-        @sut.execute_shell_command("pkill toucher.sh")
+        @cmd_in.close
+        @cmd_out.close
+        @cmd_err.close
     end
 
-def test_fps_when_switcher_panned
-    # Pan the switcher
-    @app.Switcher.flick(:Left)
-    write_benchmark_command_to_file("test_fps_when_switcher_panned","@app.Switcher.flick(:Left)")
-    sleep 2
-end
+    def test_fps_when_switcher_panned
+        # Pan the switcher
+        @app.Switcher.flick(:Left)
+        sleep 1
+    end
 
-def test_fps_when_switcher_rotates
-    # use context provider to change orientation
-    cmd = "context-provide"
-    cmd_in, cmd_out, cmd_err = Open3::popen3(cmd)
+    def test_fps_when_switcher_rotates
+        # initialize
+        @cmd_in.puts "add string Screen.TopEdge top"
 
-    write_benchmark_command_to_file("test_fps_when_switcher_rotates","cmd_in.puts add string Screen.TopEdge top")
-    cmd_in.puts "add string Screen.TopEdge top"
+        # change orientation to portrait
+        log_command "Screen.TopEdge=right"
+        @cmd_in.puts "Screen.TopEdge=right"
+        sleep 5
 
-    # change orientation to portrait
-    write_benchmark_command_to_file("test_fps_when_switcher_rotates","cmd_in.puts Screen.TopEdge=right")
-    cmd_in.puts "Screen.TopEdge=right"
-    sleep 5
-    
-    # change orientation to landscape
-    write_benchmark_command_to_file("test_fps_when_switcher_rotates","cmd_in.puts Screen.TopEdge=top")
-    cmd_in.puts "Screen.TopEdge=top"
-    sleep 5
+        # change orientation to landscape
+        log_command "Screen.TopEdge=top"
+        @cmd_in.puts "Screen.TopEdge=top"
+        sleep 5
 
-    # reset
-    cmd_in.puts "Screen.TopEdge=top"
-
-    cmd_in.close
-    cmd_out.close
-    cmd_err.close
-
-end
+        # reset
+        @cmd_in.puts "Screen.TopEdge=top"
+    end
 
 private 
-def write_benchmark_command_to_file(testcase,command)
-    #Put the current command and the time it was issued
-    time = DateTime.now
-    writestring = "#{testcase}  #{command}  #{time}\n"
-    File.open("/tmp/duihome_benchmarks/benchmark_commands.txt",'a') {|f| f.write(writestring)}
-end
+    def write_benchmark_command_to_file(testcase,command)
+        #Put the current command and the time it was issued
+        time = DateTime.now
+        writestring = "#{testcase}  #{command}  #{time}\n"
+        File.open("/tmp/duihome_benchmarks/benchmark_commands.txt",'a') {|f| f.write(writestring)}
+    end
 end
