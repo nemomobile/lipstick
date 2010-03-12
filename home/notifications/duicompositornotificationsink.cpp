@@ -67,6 +67,7 @@ void DuiCompositorNotificationSink::addNotification(const Notification &notifica
         // Create a new toplevel window for the info banner
         QGraphicsScene *scene = new QGraphicsScene;
         QGraphicsView *view = new QGraphicsView(scene);
+        view->setProperty("NoDuiStyle", true);
         view->setFrameStyle(0);
         view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
