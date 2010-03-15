@@ -21,7 +21,6 @@ CASES=File.join(PATH,"cases")
 $LOAD_PATH << File.join(PATH,"..","lib")
 require "dui.rb"
 require "runFixup.rb"
-require 'dbus'
 
 # Loads all the testcase files
 # TODO: Move to lib/dui.rb ?
@@ -30,4 +29,4 @@ Dir.entries(CASES).each do |file|
 end
 
 suite = Dui::Runner.new
-suite.start('duihome', nil)
+suite.start('duihome', nil, true)

@@ -193,4 +193,4 @@ suite = CustomRunner.new
 # NOTICE: Dont pass -hardware or -software anymore unless you explicitly
 # require either of them, hw acceleration will be automatically probed
 # at runtime via dui.rb library
-suite.start('duihome', '')
+suite.start('duihome', nil, true)
