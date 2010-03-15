@@ -23,7 +23,6 @@
 #include <QGLWidget>
 #include <DuiGLRenderer>
 #include <DuiApplication>
-#include <DuiScene>
 #include <DuiSceneManager>
 #include "x11wrapper.h"
 
@@ -31,8 +30,7 @@ MainWindow *MainWindow::mainWindowInstance = NULL;
 QGLContext *MainWindow::openGLContext = NULL;
 
 MainWindow::MainWindow(QWidget *parent) :
-    DuiWindow(parent),
-    scene(new DuiScene)
+    DuiWindow(parent)
 {
     mainWindowInstance = this;
 
@@ -58,16 +56,9 @@ MainWindow::MainWindow(QWidget *parent) :
     X11Wrapper::XSelectInput(display, window, attributes.your_event_mask | VisibilityChangeMask);
 #endif
 
-    // Take the scene into use and create a scene manager for it
-    setScene(scene);
-    setSceneRect(QRectF(QPointF(), visibleSceneSize(Dui::Landscape)));
-    centerOn(sceneRect().center());
-    DuiSceneManager *manager = new DuiSceneManager(scene);
-    setSceneManager(manager);
-
     // Create Home; the scene manager must be created before this
     home = new Home;
-    manager->showWindowNow(home);
+    sceneManager()->showWindowNow(home);
 
     excludeFromTaskBar();
 }
@@ -77,7 +68,6 @@ MainWindow::~MainWindow()
     mainWindowInstance = NULL;
     openGLContext = NULL;
     delete home;
-    delete scene;
 }
 
 MainWindow *MainWindow::instance(bool create)

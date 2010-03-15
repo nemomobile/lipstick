@@ -20,8 +20,7 @@ HEADERS += \
     $$SRCDIR/switcherbuttonmodel.h \
     $$SRCDIR/switcherphysicsintegrationstrategy.h \
     $$SRCDIR/switchermodel.h \
-    $$SRCDIR/mainwindow.h \
-    $$SRCDIR/duiscenemanager.h
+    $$SRCDIR/mainwindow.h
 
 # service classes
 SOURCES += ../stubs/stubbase.cpp \

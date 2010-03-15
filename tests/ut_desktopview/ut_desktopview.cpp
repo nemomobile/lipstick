@@ -192,8 +192,6 @@ void Ut_DesktopView::init()
     desktopView = new TestDesktopView(desktop);
     desktop->setView(desktopView);
     desktopView->modifiableStyle()->setDesktopBackgroundImage(backgroundImage);
-    desktopView->modifiableStyle()->setDesktopBackgroundTop(backgroundTopImage);
-    desktopView->modifiableStyle()->setDesktopBackgroundBottom(backgroundBottomImage);
     paintArea = QRectF();
     connect(this, SIGNAL(launcherButtonClicked()), desktopView, SLOT(toggleLauncher()));
 }
@@ -215,11 +213,7 @@ void Ut_DesktopView::testSetGeometry()
 
 void Ut_DesktopView::testBoundingRectAndDrawBackground()
 {
-    desktop->setGeometry(QRectF(0, 0, 50, 50));
     QRectF br = desktopView->boundingRect();
-
-    QVERIFY(br.contains(QRectF(0, 0, DuiDeviceProfile::instance()->resolution().width(), DuiDeviceProfile::instance()->resolution().height())));
-    QCOMPARE((int)br.y(), -backgroundTopImage->height());
 
     // Check that the view doesn't draw outside the bounding rectangle
     desktopView->drawBackground(painter, NULL);

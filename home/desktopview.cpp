@@ -55,23 +55,32 @@ DesktopView::DesktopView(Desktop *desktop) :
     mainLayout->setSpacing(0);
     desktop->setLayout(mainLayout);
 
-    // Create phone network status indicator
-    phoneNetworkIndicator = new PhoneNetworkStatusIndicator(contextFrameworkContext, desktop);
+    // Add a placeholder for the status area TODO remove hardcoded values
+    QGraphicsWidget *widget = new QGraphicsWidget;
+    widget->setMinimumHeight(28);
+    widget->setMaximumHeight(28);
+    mainLayout->addItem(widget);
+
+    // Create phone network status indicator and put it in a scene window
+    phoneNetworkIndicator = new PhoneNetworkStatusIndicator(contextFrameworkContext);
+    mainLayout->addItem(phoneNetworkIndicator);
 
     // Create switcher
+    switcher->setObjectName("OverviewSwitcher");
     mainLayout->addItem(switcher);
     connect(desktop, SIGNAL(viewportSizePosChanged(const QSizeF &, const QRectF &, const QPointF &)),
             switcher, SLOT(viewportSizePosChanged(const QSizeF &, const QRectF &, const QPointF &)));
 
-    // Fill the rest with empty space
-    mainLayout->addStretch();
+    // Add a placeholder for the quick launch bar TODO remove hardcoded values
+    widget = new QGraphicsWidget;
+    widget->setMinimumHeight(76);
+    widget->setMaximumHeight(76);
+    mainLayout->addItem(widget);
 
-    // Create a quick launch bar
+    // Create a quick launch bar and put it in a scene window
     quickLaunchBar = new QuickLaunchBar;
     connect(quickLaunchBar, SIGNAL(toggleLauncherButtonClicked()), this, SLOT(toggleLauncher()));
     connect(quickLaunchBar, SIGNAL(toggleAppletSpaceButtonClicked()), this, SLOT(toggleAppletSpace()));
-
-    // Create a layout for the quick launch bar window
     QGraphicsLinearLayout *windowLayout = new QGraphicsLinearLayout();
     windowLayout->setContentsMargins(0, 0, 0, 0);
     windowLayout->addItem(quickLaunchBar);
@@ -84,7 +93,7 @@ DesktopView::DesktopView(Desktop *desktop) :
     launcherViewport->setMinimumSize(DuiApplication::activeWindow()->visibleSceneSize());
     launcherViewport->setMaximumSize(DuiApplication::activeWindow()->visibleSceneSize());
 
-    // Create a layout for the launcher window
+    // Create a layout for the launcher scene window
     windowLayout = new QGraphicsLinearLayout();
     windowLayout->setContentsMargins(0, 0, 0, 0);
     windowLayout->addItem(launcherViewport);
@@ -98,7 +107,7 @@ DesktopView::DesktopView(Desktop *desktop) :
     appletSpaceViewport->setMinimumSize(DuiApplication::activeWindow()->visibleSceneSize());
     appletSpaceViewport->setMaximumSize(DuiApplication::activeWindow()->visibleSceneSize());
 
-    // Create a layout for the applet space window
+    // Create a layout for the applet space scene window
     windowLayout = new QGraphicsLinearLayout();
     windowLayout->setContentsMargins(0, 0, 0, 0);
     windowLayout->addItem(appletSpaceViewport);
@@ -110,6 +119,8 @@ DesktopView::DesktopView(Desktop *desktop) :
 DesktopView::~DesktopView()
 {
     delete launcherWindow;
+    delete quickLaunchBarWindow;
+    delete appletSpaceWindow;
 }
 
 void DesktopView::drawBackground(QPainter *painter, const QStyleOptionGraphicsItem *) const
@@ -117,53 +128,9 @@ void DesktopView::drawBackground(QPainter *painter, const QStyleOptionGraphicsIt
     // Draw the background image
     const QPixmap *pixmap = style()->desktopBackgroundImage();
     if (pixmap != NULL) {
-        // Always draw the background texture without rotation
-        const QTransform w = painter->worldTransform();
-        painter->setWorldTransform(QTransform());
-
-        // Use the actual screen size for painting the background because it does not rotate
-        QPointF p = w.map(QPointF(0, 0));
-        QPointF offset(-p.x() + w.dx(), -p.y() + w.dy());
-        painter->drawTiledPixmap(QRectF(0, 0, DuiDeviceProfile::instance()->resolution().width(), DuiDeviceProfile::instance()->resolution().height()), *pixmap, offset);
-
-        // Reset the transform
-        painter->setWorldTransform(w);
-    }
-
-    if (!model()->notificationAreaOpen()) {
-        // Draw the top image
-        pixmap = style()->desktopBackgroundTop();
-        if (pixmap != NULL) {
-            painter->drawTiledPixmap(QRectF(0, -pixmap->height(), geometry().width(), pixmap->height()), *pixmap);
-        }
-    }
-
-    // Draw the bottom image
-    pixmap = style()->desktopBackgroundBottom();
-    if (pixmap != NULL) {
-        painter->drawTiledPixmap(QRectF(0, geometry().height(), geometry().width(), pixmap->height()), *pixmap);
+        painter->drawTiledPixmap(boundingRect(), *pixmap, QPointF());
     }
 }
-
-QRectF DesktopView::boundingRect() const
-{
-    // The area to be drawn includes the top and bottom images in addition to the actual content
-    int top = 0;
-    int bottom = 0;
-    const QPixmap *topPixmap = style()->desktopBackgroundTop();
-    const QPixmap *bottomPixmap = style()->desktopBackgroundBottom();
-
-    if (topPixmap != NULL) {
-        top = topPixmap->height();
-    }
-    if (bottomPixmap != NULL) {
-        bottom = bottomPixmap->height();
-    }
-
-    QRectF rect(0, -top, geometry().width(), geometry().height() + top + bottom);
-    return rect.united(QRectF(0, 0, DuiDeviceProfile::instance()->resolution().width(), DuiDeviceProfile::instance()->resolution().height()));
-}
-
 
 void DesktopView::toggleLauncher()
 {
@@ -210,9 +177,11 @@ void DesktopView::setGeometry(const QRectF &rect)
 {
     DuiWidgetView::setGeometry(rect);
 
-    // Set the launcher viewport to the size of the desktop
+    // Set the viewports to the size of the desktop
     launcherViewport->setMinimumSize(rect.size());
     launcherViewport->setMaximumSize(rect.size());
+    appletSpaceViewport->setMinimumSize(rect.size());
+    appletSpaceViewport->setMaximumSize(rect.size());
 }
 
 DUI_REGISTER_VIEW_NEW(DesktopView, Desktop)

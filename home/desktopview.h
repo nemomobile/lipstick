@@ -64,7 +64,6 @@ public:
 
     //! \reimp
     virtual void drawBackground(QPainter *painter, const QStyleOptionGraphicsItem *option) const;
-    virtual QRectF boundingRect() const;
     virtual void setGeometry(const QRectF &rect);
     //! \reimp_end
 

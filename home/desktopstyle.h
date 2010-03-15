@@ -30,12 +30,6 @@ class DesktopStyle : public DuiWidgetStyle
 
     //! The image to draw the desktop background with
     DUI_STYLE_PTR_ATTRIBUTE(QPixmap *, desktopBackgroundImage, DesktopBackgroundImage)
-
-    //! The image to be drawn above the desktop
-    DUI_STYLE_PTR_ATTRIBUTE(QPixmap *, desktopBackgroundTop, DesktopBackgroundTop)
-
-    //! The image to be drawn below the desktop
-    DUI_STYLE_PTR_ATTRIBUTE(QPixmap *, desktopBackgroundBottom, DesktopBackgroundBottom)
 };
 
 class DesktopStyleContainer : public DuiWidgetStyleContainer

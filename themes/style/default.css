@@ -27,10 +27,6 @@ DuiPannableWidgetStyle {
 DesktopStyle {
     /* The image to draw the desktop background with */
     desktop-background-image: starfield -1 -1;
-    /* The image to be drawn above the desktop */
-    desktop-background-top: Home-top-bounce -1 -1;
-    /* The image to be drawn below the desktop */
-    desktop-background-bottom: Home-bottom-bounce -1 -1;
     margin-left: 0;
     margin-right: 0;
     margin-top: 0;
@@ -266,7 +262,7 @@ LauncherStyle {
     margin-bottom: 0;
     padding-left: 0;
     padding-right: 0;
-    padding-top: 0;
+    padding-top: 28;
     padding-bottom: 12;
     minimum-size: 100% -1;
     preferred-size: 100% -1;
@@ -387,7 +383,9 @@ DuiButtonIconStyle#QuickLaunchBarButton {
 
 
 SwitcherStyle {
-
+    minimum-size: 100% -1;
+    preferred-size: 100% -1;
+    maximum-size: 100% -1;
     margin-left: 0;
     margin-right: 0;
     margin-top: 0;
@@ -405,6 +403,14 @@ SwitcherStyle {
     item-rotation: 15;
     /* The amoun the items will overlap when stationary */
     item-over-lap: 3mm;
+    /* Defines horizontal spacing between switcher buttons. */
+    button-horizontal-spacing: 3mm;
+    /* Defines vertical spacing between switcher buttons. */
+    button-vertical-spacing: 3mm;
+    /* Defines amount of rows in switcher view. */
+    rows-per-page: 2;
+    /* Defines amount of columns in switcher view. */
+    columns-per-page: 3;
 }
 
 SwitcherStyle#OverviewSwitcher {
@@ -423,26 +429,6 @@ SwitcherStyle#OverviewSwitcher.Landscape {
 }
 
 SwitcherStyle#DetailviewSwitcher {
-}
-
-SwitcherStyle.Landscape {
-    /* 
-       The size values are defined for now, most likely they can be removed when
-       the applet library button is removed from the desktop.
-     */
-    minimum-size: 100% 398px;
-    preferred-size: 100% 398px;
-    maximum-size: 100% 398px;
-}
-
-SwitcherStyle.Portrait {
-   /* 
-       The size values are defined for now, most likely they can be removed when
-       the applet library button is removed from the desktop.
-     */
-    minimum-size: 100% 778px;
-    preferred-size: 100% 778px;
-    maximum-size: 100% 778px;
 }
 
 DuiPannableWidgetStyle#SwitcherDetailsViewport {
@@ -565,6 +551,8 @@ SwitcherButtonStyle#DetailviewButton.Landscape:large {
 
 
 StatusIndicatorImageStyle {
+    margin-left: 6;
+    margin-right: 6;
     margin-top: 4;
     margin-bottom: 0;
     /* The number of milliseconds in which the images in imageList are animated */
@@ -572,6 +560,9 @@ StatusIndicatorImageStyle {
 }
 
 StatusIndicatorLabelStyle {
+    minimum-size: -1 8;
+    preferred-size: -1 8;
+    maximum-size: -1 8;
     margin-left: 0;
     margin-right: 0;
     margin-top: 0;
@@ -583,7 +574,7 @@ StatusIndicatorLabelStyle {
 }
 
 DuiLabelStyle#StatusIndicatorLabel {
-    font: $FONT_SMALL;
+    font: $FONT_XSMALL;
     color: #FFFFFF;
 }
 

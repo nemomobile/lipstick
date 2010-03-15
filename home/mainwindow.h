@@ -61,9 +61,6 @@ private:
     //! The MainWindow instance
     static MainWindow *mainWindowInstance;
 
-    //! A scene for this window
-    DuiScene *scene;
-
     //! The Home widget
     Home *home;
 
