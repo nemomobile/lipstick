@@ -72,6 +72,11 @@ void DesktopView::writeFps()
 
 void DesktopView::startBenchmarking()
 {
+    QDir dir;
+    if(!dir.exists("/tmp/duihome_benchmarks")) {
+        dir.mkdir("/tmp/duihome_benchmarks");
+    }
+
     fpsFile = new QFile("/tmp/duihome_benchmarks/benchmark_results.txt");
     fpsFile->open(QIODevice::WriteOnly | QIODevice::Append);
     fpsStream = new QTextStream(fpsFile);
@@ -163,11 +168,6 @@ DesktopView::DesktopView(Desktop *desktop) :
     MainWindow::instance()->sceneManager()->hideWindowNow(appletSpaceWindow);
 
 #ifdef BENCHMARKS_ON
-    QDir dir;
-    if(!dir.exists("/tmp/duihome_benchmarks")) {
-        dir.mkdir("/tmp/duihome_benchmarks");
-    }
-
     connect(DuiApplication::instance(), SIGNAL(startBenchmarking()), this, SLOT(startBenchmarking()));
     connect(DuiApplication::instance(), SIGNAL(stopBenchmarking()), this, SLOT(stopBenchmarking()));
 #endif

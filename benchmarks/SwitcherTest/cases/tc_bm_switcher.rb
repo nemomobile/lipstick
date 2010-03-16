@@ -18,6 +18,9 @@ require 'matti'
 include MattiVerify
 require 'open3'
 
+# The directory where the  benchmarking commands and results are collected
+$dir = "/tmp/duihome_benchmarks"
+
 class BenchmarkTestCase < Dui::TestCase
 
     def initialize *args
@@ -54,7 +57,9 @@ class BenchmarkTestCase < Dui::TestCase
     def log_command msg
         time = DateTime.now
         writestring = "#{time}  #{msg}\n"
-        File.open("/tmp/duihome_benchmarks/benchmark_commands.txt",'a') {|f| f.write(writestring)}
+
+        Dir.mkdir($dir) unless File.directory?($dir)
+        File.open("#{$dir}/benchmark_commands.txt",'a') { |f| f.write(writestring) }
     end
 end
 
@@ -68,9 +73,6 @@ class TC_BM_Switcher < BenchmarkTestCase
         # While compositor only does compositing for windows when going back
         # to homescreen (minimizing?), we need to manually start each
         # application and click the "back" button to get the thumbnails
-        #
-        #system("../programloader.sh ../programlist.txt")
-        
         3.times { |n|
             @sut.run(:name => "/usr/lib/duifw-home-tests/ta_activeapp",
                      :arguments => "-no-refresh,-id,#{n}").
@@ -83,13 +85,10 @@ class TC_BM_Switcher < BenchmarkTestCase
 
     # method called after any test case for cleanup purposes
     def teardown
-        # While we start applications throught Matti machinery, we might
-        # as well kill them throught Matti machinery
-        #
-        #system("../killer.sh ../programlist.txt")
-        
         @app.call_method('stopBenchmarking()')
 
+        # While we start applications throught Matti machinery, we might
+        # as well kill them throught Matti machinery
         @sut.kill_started_processes()
 
         @cmd_in.close
@@ -119,13 +118,5 @@ class TC_BM_Switcher < BenchmarkTestCase
 
         # reset
         @cmd_in.puts "Screen.TopEdge=top"
-    end
-
-private 
-    def write_benchmark_command_to_file(testcase,command)
-        #Put the current command and the time it was issued
-        time = DateTime.now
-        writestring = "#{testcase}  #{command}  #{time}\n"
-        File.open("/tmp/duihome_benchmarks/benchmark_commands.txt",'a') {|f| f.write(writestring)}
     end
 end
