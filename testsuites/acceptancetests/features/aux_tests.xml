@@ -1,5 +1,5 @@
   <suite type="Functional" timeout="600" domain="Core" name="Quick_Launch_Bar">
-    <set timeout="200" feature="SWP#DUI-2397" name="Quick_Launch_Bar">
+    <set timeout="600" feature="SWP#DUI-2397" name="Quick_Launch_Bar">
       <description>Tests SWP#DUI-2397:</description>
       <case name="Quick_Launch_Bar">
         <description></description>
