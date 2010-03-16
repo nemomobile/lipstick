@@ -37,6 +37,67 @@
 #include <DuiOverlay>
 #include <QGraphicsLinearLayout>
 
+#ifdef BENCHMARKS_ON
+#include <QTextStream>
+#include <QFile>
+#include <QTimer>
+#include <QTime>
+#include <QFileSystemWatcher>
+#include <QDir>
+
+// These should really be private variables if one has more than one
+// instance of Desktop
+static bool benchmarking = false;
+static QTime lastUpdate;
+static int frameCount = 0;
+static int fps = 0;
+static QFile* fpsFile;
+static QTextStream* fpsStream;
+
+const int MillisecsInSec = 1000;
+const int FpsRefreshInterval = 1000;
+
+void DesktopView::writeFps()
+{
+    if (!benchmarking)
+        return;
+
+    QString fpsString = QString::number(fps);
+    QDateTime now = QDateTime::currentDateTime();
+    QString nowString = now.toString(Qt::ISODate);
+
+    *fpsStream << fpsString << " " << nowString << endl;
+    fpsStream->flush();
+}
+
+void DesktopView::startBenchmarking()
+{
+    QDir dir;
+    if(!dir.exists("/tmp/duihome_benchmarks")) {
+        dir.mkdir("/tmp/duihome_benchmarks");
+    }
+
+    fpsFile = new QFile("/tmp/duihome_benchmarks/benchmark_results.txt");
+    fpsFile->open(QIODevice::WriteOnly | QIODevice::Append);
+    fpsStream = new QTextStream(fpsFile);
+
+    frameCount = 0;
+    fps = 0;
+    lastUpdate = QTime::currentTime();
+    benchmarking = true;
+
+    update();
+}
+
+void DesktopView::stopBenchmarking()
+{
+    benchmarking = false;
+
+    delete fpsStream;
+    delete fpsFile;
+}
+#endif
+
 DesktopView::DesktopView(Desktop *desktop) :
     DuiWidgetView(desktop),
     switcher(new Switcher),
@@ -114,6 +175,11 @@ DesktopView::DesktopView(Desktop *desktop) :
     appletSpaceWindow->setLayout(windowLayout);
     appletSpaceWindow->setObjectName("AppletSpaceWindow");
     MainWindow::instance()->sceneManager()->hideWindowNow(appletSpaceWindow);
+
+#ifdef BENCHMARKS_ON
+    connect(DuiApplication::instance(), SIGNAL(startBenchmarking()), this, SLOT(startBenchmarking()));
+    connect(DuiApplication::instance(), SIGNAL(stopBenchmarking()), this, SLOT(stopBenchmarking()));
+#endif
 }
 
 DesktopView::~DesktopView()
@@ -122,6 +188,28 @@ DesktopView::~DesktopView()
     delete quickLaunchBarWindow;
     delete appletSpaceWindow;
 }
+
+#ifdef BENCHMARKS_ON
+void DesktopView::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    DuiWidgetView::paint(painter, option, widget);
+
+    if (benchmarking) {
+        QTime now = QTime::currentTime();
+        ++frameCount;
+
+        if (lastUpdate.msecsTo(now) > FpsRefreshInterval) {
+            fps = (MillisecsInSec * frameCount) / (lastUpdate.msecsTo(now));
+            frameCount = 0;
+            lastUpdate = now;
+
+            writeFps();
+        }
+
+        update();
+    }
+}
+#endif
 
 void DesktopView::drawBackground(QPainter *painter, const QStyleOptionGraphicsItem *) const
 {

@@ -63,6 +63,9 @@ public:
     virtual ~DesktopView();
 
     //! \reimp
+#ifdef BENCHMARKS_ON
+    virtual void paint (QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget=0);
+#endif
     virtual void drawBackground(QPainter *painter, const QStyleOptionGraphicsItem *option) const;
     virtual void setGeometry(const QRectF &rect);
     //! \reimp_end
@@ -73,6 +76,13 @@ private slots:
 
     //! Shows the applet space if it is not visible, hides it otherwise
     void toggleAppletSpace();
+
+#ifdef BENCHMARKS_ON
+private slots:
+    void startBenchmarking();
+    void stopBenchmarking();
+    void writeFps();
+#endif
 
 private:
     /*!

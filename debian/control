@@ -117,3 +117,12 @@ Depends: duifw-tests-lib, duihomescreen (= ${binary:Version}), duihomescreen-plu
 XB-Maemo-CI-Packages: duihomescreen
 XB-Maemo-CI-Stage: fast, acceptance, validation
 Description: DirectUI functional tests for homescreen
+
+Package: duifw-home-benchmark-tests
+Architecture: any
+Section: misc
+Depends: duifw-home-tests
+XB-Maemo-CI-Packages: duihomescreen
+XB-Maemo-CI-Stage: fast, acceptance, validation
+Description: DirectUI benchmark tests for homescreen
+

@@ -30,6 +30,10 @@ QMAKE_CXXFLAGS += \
 contains(TESTABILITY, on) {
     DEFINES += TESTABILITY_ON
 }
+
+contains(BENCHMARKS, on) {
+    DEFINES += BENCHMARKS_ON
+}
 QMAKE_CXXFLAGS += \
     -Werror \
     -g

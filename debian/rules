@@ -29,6 +29,10 @@ ifeq (,$(findstring notestability,$(DEB_BUILD_OPTIONS)))
    QMAKE_OPTIONS += TESTABILITY=on
 endif
 
+ifeq (,$(findstring nobenchmarks,$(DEB_BUILD_OPTIONS)))
+   QMAKE_OPTIONS += BENCHMARKS=on
+endif
+
 # shared library versions, option 1
 version=0.1.0
 major=0

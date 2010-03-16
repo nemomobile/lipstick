@@ -13,7 +13,8 @@ SUBDIRS = \
     applets \
     tests \
     testsuites \
-    translations 
+    translations \
+    benchmarks
 
 QMAKE_CLEAN += \
     build-stamp \
