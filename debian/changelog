@@ -1,9 +1,9 @@
-duihome (0.19.3~1) unstable; urgency=low
+duihome (0.19.3-1) unstable; urgency=low
 
-  * New version [UNRELEASED]
+  * New version
   * Implemented: SWP#DUI-2397 Quick Launch Bar
 
- -- Aki Koskinen <aki.koskinen@nokia.com>  Thu, 11 Mar 2010 09:52:00 +0200
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Tue, 16 Mar 2010 11:53:55 +0200
 
 duihome (0.19.2-1) unstable; urgency=low
 
