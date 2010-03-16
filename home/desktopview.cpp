@@ -51,27 +51,31 @@ static bool benchmarking = false;
 static QTime lastUpdate;
 static int frameCount = 0;
 static int fps = 0;
+static QFile* fpsFile;
+static QTextStream* fpsStream;
 
 const int MillisecsInSec = 1000;
 const int FpsRefreshInterval = 1000;
 
 void DesktopView::writeFps()
 {
-    QFile file("/tmp/duihome_benchmarks/benchmark_results.txt");
-    file.open(QIODevice::WriteOnly | QIODevice::Append);
-    QTextStream ts(&file);
+    if (!benchmarking)
+        return;
 
     QString fpsString = QString::number(fps);
     QDateTime now = QDateTime::currentDateTime();
-
     QString nowString = now.toString(Qt::ISODate);
-    ts << fpsString << " " << nowString << endl;
 
-    file.close();
+    *fpsStream << fpsString << " " << nowString << endl;
+    fpsStream->flush();
 }
 
 void DesktopView::startBenchmarking()
 {
+    fpsFile = new QFile("/tmp/duihome_benchmarks/benchmark_results.txt");
+    fpsFile->open(QIODevice::WriteOnly | QIODevice::Append);
+    fpsStream = new QTextStream(fpsFile);
+
     frameCount = 0;
     fps = 0;
     lastUpdate = QTime::currentTime();
@@ -83,6 +87,9 @@ void DesktopView::startBenchmarking()
 void DesktopView::stopBenchmarking()
 {
     benchmarking = false;
+
+    delete fpsStream;
+    delete fpsFile;
 }
 #endif
 
