@@ -46,10 +46,7 @@ void LauncherButtonView::drawBackground(QPainter *painter, const QStyleOptionGra
 {
     DuiButtonIconView::drawBackground(painter, option);
 
-    if (model()->targetType() == "Directory") {
-        // Draw the category background image
-        drawCategoryBackground(painter);
-    } else if (model()->targetType() == "Link" && !thumbnailPixmap.isNull()) {
+    if (model()->targetType() == "Link" && !thumbnailPixmap.isNull()) {
         if (thumbnailMask.isNull()) {
             // Create a thumbnail mask
             const DuiScalableImage *image = style()->shortcutThumbnailMaskImage();
@@ -70,14 +67,6 @@ void LauncherButtonView::drawBackground(QPainter *painter, const QStyleOptionGra
 
         // Draw shortcut thumbnail
         painter->drawPixmap(style()->shortcutThumbnailPosition(), thumbnailPixmap);
-    }
-}
-
-void LauncherButtonView::drawCategoryBackground(QPainter *painter) const
-{
-    const QPixmap *pixmap = style()->categoryImage();
-    if (pixmap != NULL) {
-        painter->drawPixmap(0, 0, *pixmap);
     }
 }
 

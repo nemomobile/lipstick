@@ -105,7 +105,6 @@ DesktopView::DesktopView(Desktop *desktop) :
     quickLaunchBarWindow(new DuiOverlay),
     launcher(new Launcher),
     launcherWindow(new DuiModalSceneWindow),
-    launcherViewport(new DuiPannableViewport(launcherWindow)),
     appletSpace(new AppletSpace),
     appletSpaceWindow(new DuiModalSceneWindow),
     appletSpaceViewport(new DuiPannableViewport(appletSpaceWindow))
@@ -149,17 +148,13 @@ DesktopView::DesktopView(Desktop *desktop) :
     quickLaunchBarWindow->setObjectName("QuickLaunchBarOverlay");
     MainWindow::instance()->sceneManager()->showWindowNow(quickLaunchBarWindow);
 
-    // Put the launcher inside a pannable viewport
-    launcherViewport->setWidget(launcher);
-    launcherViewport->setMinimumSize(DuiApplication::activeWindow()->visibleSceneSize());
-    launcherViewport->setMaximumSize(DuiApplication::activeWindow()->visibleSceneSize());
-
-    // Create a layout for the launcher scene window
     windowLayout = new QGraphicsLinearLayout();
     windowLayout->setContentsMargins(0, 0, 0, 0);
-    windowLayout->addItem(launcherViewport);
+
+    // The launcher is added into a modal scene window
     launcherWindow->setLayout(windowLayout);
     launcherWindow->setObjectName("LauncherWindow");
+    windowLayout->addItem(launcher);
     MainWindow::instance()->sceneManager()->hideWindowNow(launcherWindow);
 
     // Put the applet space inside a pannable viewport
@@ -232,12 +227,15 @@ void DesktopView::toggleLauncher()
 void DesktopView::showLauncher()
 {
     launcher->setEnabled(true);
-    launcher->openRootCategory();
+    
     MainWindow::instance()->sceneManager()->showWindow(launcherWindow);
 
     // Set the launcher window below other modal scene windows
     // @todo TODO get rid of the hardcoded value when DuiSceneManager enables dynamic allocation of Z values
     launcherWindow->parentItem()->setZValue(300);
+
+    // TODO : does this have to be animated??
+    switcher->setVisible(false);
 }
 
 void DesktopView::hideLauncher()
@@ -248,6 +246,9 @@ void DesktopView::hideLauncher()
 
     // Scroll the launcher above the screen
     MainWindow::instance()->sceneManager()->hideWindow(launcherWindow);
+    
+    // TODO : does this have to be animated??
+    switcher->setVisible(true);
 }
 
 void DesktopView::toggleAppletSpace()
@@ -264,10 +265,7 @@ void DesktopView::toggleAppletSpace()
 void DesktopView::setGeometry(const QRectF &rect)
 {
     DuiWidgetView::setGeometry(rect);
-
     // Set the viewports to the size of the desktop
-    launcherViewport->setMinimumSize(rect.size());
-    launcherViewport->setMaximumSize(rect.size());
     appletSpaceViewport->setMinimumSize(rect.size());
     appletSpaceViewport->setMaximumSize(rect.size());
 }

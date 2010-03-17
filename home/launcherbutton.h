@@ -140,15 +140,6 @@ signals:
      * \param link the link to be launched
      */
     void linkLaunched(const QString &link);
-
-    /*!
-     * \brief A signal for notifying that an object of type Directory has been launched
-     *
-     * \param directory the name of the directory
-     * \param title the title representing the directory
-     * \param iconId the ID of the icon representing the directory
-     */
-    void directoryLaunched(const QString &directory, const QString &title, const QString &iconId);
 };
 
 #endif /* DUILAUNCHAPPBUTTON_H */

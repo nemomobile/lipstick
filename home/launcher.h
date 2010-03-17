@@ -31,13 +31,15 @@
 #endif
 
 class DuiDesktopEntry;
+class LauncherDataStore;
+class DuiDataStore;
 
 /*!
  * Widget for launching and browsing installed applications.
  * The widget monitors a desktop file entry directory and creates buttons
  * that represent the applications that can be launched.
  *
- * Each application .desktop file must define the Name, Type and Icon keys where type is Application. The Exec key must define the application binary to be launched when the icon is selected. Each application can define the directory (submenu) in which the application should be displayed in by defining a value for the Categories key in its .desktop file. If no value has been defined for Categories the application will be displayed in the top level menu.
+ * Each application .desktop file must define the Name, Type and Icon keys where type is Application. The Exec key must define the application binary to be launched when the icon is selected.
  *
  * Shortcuts are stored in tracker in \c DesktopBookmarkFolder as \c nfo:bookmark objects. Bookmarks define title, bookmark content iri, and bookmark thumbnail graphics for each shortcut. All shortcuts are displayed in the Launcher top level menu. Each shortcut is bound to a !DuiServiceAction that is triggered when shortcut is clicked. This will commence default action associated with the content iri in the system.
  *
@@ -52,22 +54,6 @@ class DuiDesktopEntry;
  * Comment=my_localized_application_comment
  * Exec=/usr/bin/my-app
  * Icon=my_app_icon_id
- * Categories=Games
- * X-Icon-path=/usr/share/pixmaps/
- * X-Window-Icon=my_app_icon_id
- * X-Osso-Service=my_app_dbus_service
- * X-Osso-Type=application/x-executable
- * MimeType=image/png;image/svg
- * Prestarted=yes
- * \endcode
- *
- * Example my_category.directory file
- * \code
- * [Desktop Entry]
- * Version=1.0
- * Type=Directory
- * Name=my_localized_category_name
- * Icon=my_category_icon_id
  * \endcode
  *
  * Example sparql query to list homescreen shortcut items and its output:
@@ -102,7 +88,7 @@ public:
     virtual ~Launcher();
 
     /*!
-     * If enabled is true, the launcher is enabled (items can be clicked, button is visible); otherwise, it is disabled.
+     * If enabled is true, the launcher is activated (Launcher::activateLauncher()) and enabled (items can be clicked, button is visible); otherwise, it is disabled.
      *
      * \param enabled if true, the launcher is enabled; otherwise, it is disabled
      */
@@ -124,26 +110,22 @@ public:
      */
     static bool startDuiApplication(const QString &serviceName);
 
-public slots:
-    /*!
-     * Opens root category of launcher. Launcher can have subcategories under root category
-     * (f.ex. games, demos). This opens the launcher in root category which contains all other categories.
-     */
-    void openRootCategory();
-
 private slots:
-    /*!
-     * \brief Reads the contents of a .desktop or .directory file directory
-     */
-    void readDirectory(const QString &path, bool updateWidgetList = true);
 
     /*!
-     * \brief Launches an application and returns to the root category
+     * Updates buttons list according to a desktop entry directory.
+     * Removes buttons representing non-existing entries and adds new buttons for new entries.
+     * \param path the file path that gets searched for desktop entry files.
+     */
+    void updateButtonListFromDirectory(const QString &path);
+
+    /*!
+     * \brief Launches an application.
      */
     void launchApplication(const QString &application);
 
     /*!
-     * \brief Launches a DUI application and returns to the root category
+     * \brief Launches a DUI application.
      */
     void launchDuiApplication(const QString &service);
 
@@ -152,26 +134,12 @@ private slots:
      */
     void launchLink(const QString &link);
 
-    /*!
-     * \brief Launches a directory and moves into that category
-     */
-    void launchDirectory(const QString &directory, const QString &title, const QString &iconId);
-
 private:
     //! A file system watcher for the desktop entry file directory
     QFileSystemWatcher watcher;
 
-    //! A string that describes the current category
-    QString currentCategory;
-
-    //! A type for a container that can hold DuiDesktopEntry objects
-    typedef QList<DuiDesktopEntry *> DesktopEntryContainer;
-
-    //! Desktop entries
-    DesktopEntryContainer applicationDesktopEntries;
-
-    //! Desktop entries for directories
-    DesktopEntryContainer categoryDesktopEntries;
+    //! DataStore handle for storing launcher button positions and entries
+    LauncherDataStore *dataStore;
 
 #ifdef ENABLE_QTTRACKER
     //! The LibQtTracker item model for shortcuts
@@ -182,52 +150,85 @@ private:
     bool initialized;
 
     /*!
-     * Initializes the Launcher if necessary by reading the contents of the
-     * desktop entry file directory and starting to monitor it.
+     * Activates launcher by initializing the Launcher if necessary and by updating the buttons.
+     * Initialization restores launcher content from data store, reads the contents of the desktop
+     * entry file directories, update buttons according to entries and starts to monitor desktop
+     * entry directories.
      */
-    void initializeIfNecessary();
+    void activateLauncher();
 
     /*!
-     * Sets the category of this Launcher.
-     *
-     * \param category the category of this Launcher
-     * \param title text to use as the title, defaults to an empty string
-     * \param iconId the ID of the icon to use in the title, defaults to an empty string
+     * Updates the list of buttons based on the watched desktop entry directories.
      */
-    void setCategory(const QString &category, const QString &title = QString(), const QString &iconId = QString());
+    void updateButtonList();
 
     /*!
      * Creates a launcher button instance from a DuiDesktopEntry.
      *
      * \param entry the DuiDesktopEntry to create a launcher button from
-     * \return a DuiWidget representing the DuiDesktopEntry
+     * \return a LauncherButton representing the DuiDesktopEntry
      */
-    DuiWidget *createLauncherButton(const DuiDesktopEntry &entry);
+    LauncherButton *createLauncherButton(const DuiDesktopEntry &entry);
 
     /*!
-     * Helper method to update an internal desktop entry list. Checks if some desktop entries
-     * should be included in the launcher or not.
-     * \param desktopEntryContainer the container that will get manipulated.
+     * Connects the necessary signal so that when the laucher button is clicked
+     * the correct actions are taken.
+     *
+     * \param launcherButton The laucher button to connect
+     */
+    void connectLauncherButton(LauncherButton* launcherButton);
+
+    /*!
+     * Checks if launcher contains a button representing specific desktop entry
+     *
+     * \param desktopEntry Desktop entry to be checked
+     * \return true if the launcher contains button representing the given desktop entry
+     */
+    bool contains(const DuiDesktopEntry &entry);
+
+    /*!
+     * Updates buttons list data in data store.
+     */
+    void updateButtonsInDataStore();
+
+    /*!
+     * Restores buttons list data from data store.
+     */
+    void restoreButtonsFromDataStore();
+
+    /*!
+     * Updates buttons list from specific entry files in a directory.
+     * Checks if some desktop entries should be included in the launcher or not.
      * \param path the file path that gets searched for desktop entry files.
      * \param nameFilter a filter for the desktop entry files. E.g. "*.desktop".
      * \param acceptedTypes the types that should be accepted. This list is checked against the desktop files' Type value.
      */
-    void updateDesktopEntryList(DesktopEntryContainer &desktopEntryContainer, const QString &path, const QString &nameFilter, const QStringList &acceptedTypes) const;
+    void updateButtonListFromEntries(const QString &path, const QString &nameFilter, const QStringList &acceptedTypes);
+
+    /*!
+     * Adds a new button to launcher
+     * \param entry Desktop entry from which to create the button
+     */
+    void addNewLauncherButton(const DuiDesktopEntry &entry);
+
+    /*!
+     * Checks if desktop entry is valid for launcher
+     * \param entry Desktop entry to be validated
+     * \param acceptedTypes List of accepted entry types
+     * \return is desktop entry valid
+     */
+    bool isDesktopEntryValid(const DuiDesktopEntry &entry, const QStringList &acceptedTypes);
 
 #ifdef ENABLE_QTTRACKER
     /*!
      * Creates a launcher button instance from a shortcut IRI.
      *
      * \param shortcut the Tracker object to create a shortcut launcher button from
-     * \return a DuiWidget representing the shortcut IRI
+     * \return a LauncherButton representing the shortcut IRI
      */
-    DuiWidget *createShortcutLauncherButton(SopranoLive::LiveNode shortcut);
+    LauncherButton *createShortcutLauncherButton(SopranoLive::LiveNode shortcut);
 #endif
 
-    /*!
-     * Updates the list of widgets based on the DuiDesktopEntries.
-     */
-    void updateWidgetList();
 };
 
 #endif /* LAUNCHER_H */

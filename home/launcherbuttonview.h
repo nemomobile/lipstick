@@ -69,13 +69,6 @@ private:
     void updateThumbnail();
 
     /*!
-     * Draws the background of category buttons.
-     *
-     * \param painter the QPainter to paint to
-     */
-    void drawCategoryBackground(QPainter *painter) const;
-
-    /*!
      * Draws the contents of shortcut buttons.
      *
      * \param painter the QPainter to paint to

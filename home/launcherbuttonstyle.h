@@ -45,9 +45,6 @@ class LauncherButtonStyle : public DuiButtonIconStyle
     //! The position of the icon relative to top-left corner of the button
     DUI_STYLE_ATTRIBUTE(QPointF, iconPosition, IconPosition)
 
-    //! The image to be used as the background of the button if the button represents a category
-    DUI_STYLE_PTR_ATTRIBUTE(QPixmap *, categoryImage, CategoryImage)
-
     //! The image to be used as the container (background) of the button if the button represents a shortcut
     DUI_STYLE_PTR_ATTRIBUTE(DuiScalableImage *, shortcutContainerImage, ShortcutContainerImage)
 

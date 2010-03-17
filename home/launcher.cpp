@@ -21,8 +21,9 @@
 #include <QDir>
 #include <DuiActionProvider>
 #include <DuiApplicationIfProxy>
-#include <DuiWidgetController>
 #include <DuiDesktopEntry>
+#include "duifiledatastore.h"
+#include "launcherdatastore.h"
 
 #ifdef ENABLE_QTTRACKER
 #include <QtTracker/ontologies/nfo.h>
@@ -33,37 +34,35 @@
 
 Launcher::Launcher(DuiWidget *parent) :
     DuiWidgetController(new LauncherModel, parent),
+    dataStore(NULL),
     initialized(false)
 {
+
 }
 
 Launcher::~Launcher()
 {
-    // Destroy the remaining applet buttons
-    foreach(DuiWidget * w, model()->widgets()) {
-        delete w;
-    }
-
-    // Destroy the application desktop entries
-    foreach(DuiDesktopEntry * e, applicationDesktopEntries) {
-        delete e;
-    }
-
-    // Destroy the category desktop entries
-    foreach(DuiDesktopEntry * e, categoryDesktopEntries) {
-        delete e;
-    }
+    delete dataStore;
 }
 
-void Launcher::initializeIfNecessary()
+void Launcher::activateLauncher()
 {
     if (!initialized) {
-        // Read the contents of the applications directory
-        readDirectory(APPLICATIONS_DIRECTORY, false);
-        readDirectory(CATEGORIES_DIRECTORY, false);
-#ifdef TESTABILITY_ON
-        readDirectory(QDir::tempPath(), false);
-#endif
+
+        if (!QDir::root().exists(QDir::homePath() + "/.config/duihome")) {
+            QDir::root().mkpath(QDir::homePath() + "/.config/duihome");
+        }
+	
+	DuiFileDataStore* backendStore = new DuiFileDataStore(QDir::homePath() + "/.config/duihome/launcherbuttons.data");
+
+        dataStore = new LauncherDataStore(backendStore);
+
+        // restore previous button order from datastore
+        restoreButtonsFromDataStore();
+
+        // Update the button list according to watched directories
+        updateButtonList();
+
 #ifdef ENABLE_QTTRACKER
         // Query tracker for bookmarks (shortcuts)
         SopranoLive::RDFSelect select;
@@ -71,141 +70,123 @@ void Launcher::initializeIfNecessary()
         shortcutItemModel = tracker()->modelQuery(select);
 #endif
 
-        // Update the widget list
-        updateWidgetList();
-
         // Start watching the applications directory for changes
-        connect(&watcher, SIGNAL(directoryChanged(const QString)), this, SLOT(readDirectory(const QString)));
+        connect(&watcher, SIGNAL(directoryChanged(const QString)), this, SLOT(updateButtonListFromDirectory(const QString)));
         watcher.addPath(APPLICATIONS_DIRECTORY);
-        watcher.addPath(CATEGORIES_DIRECTORY);
 #ifdef TESTABILITY_ON
         watcher.addPath(QDir::tempPath());
 #endif
         // The launcher has now been initialized
         initialized = true;
+    } else {
+        updateButtonList();
     }
 }
 
-void Launcher::setCategory(const QString &category, const QString &title, const QString &iconId)
+void Launcher::updateButtonList()
 {
-    Q_UNUSED(title);
-    Q_UNUSED(iconId);
-
-    initializeIfNecessary();
-
-    model()->setCategory(category.isEmpty() ? LauncherModel::RootCategory : LauncherModel::SubCategory);
-
-    if (currentCategory != category) {
-        // Set the new category and update the widget list
-        currentCategory = category;
-        updateWidgetList();
-    }
-}
-
-void Launcher::updateWidgetList()
-{
-    // Remove all widgets from the model
-    QList<DuiWidget *> widgets;
-    QList<DuiWidget *> oldWidgets(model()->widgets());
-
-    // Create application launcher buttons
-    foreach(DuiDesktopEntry * e, applicationDesktopEntries) {
-        if (((currentCategory.isEmpty() && (e->categories().count() == 0
-                                            || (e->categories().count() == 1 && e->categories().at(0) == "DUI")) // TODO: remove the test on this line when the Category DUI feature is removed
-             )) ||
-                (!currentCategory.isEmpty() && e->categories().contains(currentCategory))) {
-            widgets.append(createLauncherButton(*e));
-        }
-    }
-
-    // Categories and shortcuts are currently only supported in the root
-    if (currentCategory.isEmpty()) {
-        // Create category launcher buttons
-        foreach(DuiDesktopEntry * e, categoryDesktopEntries) {
-            widgets.append(createLauncherButton(*e));
-        }
-
-#ifdef ENABLE_QTTRACKER
-        // Create shortcut launcher buttons
-        foreach(SopranoLive::LiveNode shortcut, shortcutItemModel.nodes()) {
-            widgets.append(createShortcutLauncherButton(shortcut));
-        }
-#endif
-    }
-
-    // Let the view know that the items have changed
-    model()->setWidgets(widgets);
-
-    // Destroy the old widgets. This MUST be done AFTER the widgets have been removed from the layout.
-    foreach(DuiWidget * widget, oldWidgets) {
-        delete widget;
-    }
-}
-
-void Launcher::readDirectory(const QString &path, bool updateWidgetList)
-{
-    if (path == APPLICATIONS_DIRECTORY) {
-        updateDesktopEntryList(applicationDesktopEntries, path, "*.desktop", QStringList() << "Application" << "Link");
-    } else if (path == CATEGORIES_DIRECTORY) {
-        updateDesktopEntryList(categoryDesktopEntries, path, "*.directory", QStringList() << "Directory");
-    }
+    updateButtonListFromDirectory(APPLICATIONS_DIRECTORY);
 
 #ifdef TESTABILITY_ON
-    else if (path == QDir::tempPath()) {
-        updateDesktopEntryList(applicationDesktopEntries, path, "*.desktop", QStringList() << "Application" << "Link");
-    }
+    updateButtonListFromDirectory(QDir::tempPath());
 #endif
-
-
-    if (updateWidgetList) {
-        this->updateWidgetList();
-    }
 }
 
-void Launcher::updateDesktopEntryList(DesktopEntryContainer &desktopEntryContainer, const QString &path, const QString &nameFilter, const QStringList &acceptedTypes) const
+void Launcher::updateButtonListFromDirectory(const QString &path)
 {
-    // Destroy the old desktop entries that originated from this directory
-    QDir pathDir(path);
-    for (int i = desktopEntryContainer.count() - 1; i >= 0; --i) {
-        DuiDesktopEntry *e = desktopEntryContainer.at(i);
-        QFileInfo entryPath(e->fileName());
-        if (!entryPath.exists() || QDir(entryPath.absolutePath()) == pathDir) {
-                delete desktopEntryContainer.takeAt(i);
+    updateButtonListFromEntries(path, "*.desktop", QStringList() << "Application" << "Link");
+}
+
+void Launcher::updateButtonListFromEntries(const QString &path, const QString &nameFilter, const QStringList &acceptedTypes)
+{
+    QStringList desktopEntryFiles;
+    // Update buttons according to the new desktop entries
+    foreach(QFileInfo fileInfo, QDir(path, nameFilter).entryInfoList(QDir::Files)) {
+        QString filePath(fileInfo.absoluteFilePath());
+        DuiDesktopEntry e(filePath);
+        if (isDesktopEntryValid(e, acceptedTypes)) {
+            desktopEntryFiles.append(filePath);
+
+	    // If the entry is not in the launcher we might need to add it
+	    if (!contains(e)) {
+		// If the data store does not know the item, we put it in the laucher grid as the items
+		// go by default into the laucher grid or
+		// if the data store already says that it goes into the grid, then lets put it there
+		if (dataStore->location(e) == LauncherDataStore::Unknown || 
+		    dataStore->location(e) == LauncherDataStore::LauncherGrid) {
+		    addNewLauncherButton(e);
+		}
+	    }
         }
     }
 
-    // Read in the new desktop entries
-    foreach(QFileInfo fileInfo, QDir(path, nameFilter).entryInfoList(QDir::Files)) {
-        DuiDesktopEntry *e = new DuiDesktopEntry(fileInfo.absoluteFilePath());
-        if (e->isValid() &&
-                acceptedTypes.contains(e->type()) &&
-                (e->onlyShowIn().count() == 0 || e->onlyShowIn().contains("X-DUI") || e->onlyShowIn().contains("DUI")) &&
-                (e->notShowIn().count() == 0 || !e->notShowIn().contains("X-DUI"))) {
-            desktopEntryContainer.append(e);
-        } else {
-            delete e;
+    QList< QSharedPointer<LauncherPage> > pages(model()->launcherPages());
+    foreach (QSharedPointer<LauncherPage> page, pages) {
+        // prune pages and remove empty pages
+        if (!page.data()->prune(desktopEntryFiles, path)) {
+            pages.removeOne(page);
         }
+    }
+    model()->setLauncherPages(pages);
+
+    updateButtonsInDataStore();
+}
+
+
+bool Launcher::contains(const DuiDesktopEntry &entry)
+{
+    QList< QSharedPointer<LauncherPage> > pages(model()->launcherPages());
+
+    bool containsButton = false;
+    foreach (QSharedPointer<LauncherPage> page, pages) {
+        containsButton = page.data()->contains(entry);
+        if(containsButton) {
+            break;
+        }
+    }
+    return containsButton;
+}
+
+void Launcher::addNewLauncherButton(const DuiDesktopEntry &entry)
+{
+    QList< QSharedPointer<LauncherPage> > pages(model()->launcherPages());
+    QSharedPointer<LauncherButton> button = QSharedPointer<LauncherButton>(createLauncherButton(entry));
+
+    bool added = false;
+    if (!pages.isEmpty()) {
+	QSharedPointer<LauncherPage> page = pages.last();
+	added = page.data()->appendButton(button);
+    } 
+
+    if (!added) {
+	QList< QSharedPointer<LauncherPage> > newPages(pages);
+        QSharedPointer<LauncherPage> newPage = QSharedPointer<LauncherPage>(new LauncherPage());
+        newPage.data()->appendButton(button);
+        newPages.append(newPage);
+        model()->setLauncherPages(newPages);
     }
 }
 
-DuiWidget *Launcher::createLauncherButton(const DuiDesktopEntry &entry)
+bool Launcher::isDesktopEntryValid(const DuiDesktopEntry &entry, const QStringList &acceptedTypes)
+{
+    return (entry.isValid() && acceptedTypes.contains(entry.type())) &&
+	(entry.onlyShowIn().count() == 0 || entry.onlyShowIn().contains("X-DUI")) &&
+	(entry.notShowIn().count() == 0 || !entry.notShowIn().contains("X-DUI"));
+}
+
+LauncherButton *Launcher::createLauncherButton(const DuiDesktopEntry &entry)
 {
     LauncherButton *launcherButton = new LauncherButton(entry);
-    launcherButton->setObjectName("LauncherButton");
-    connect(launcherButton, SIGNAL(applicationLaunched(const QString &)), this, SLOT(launchApplication(const QString &)), Qt::QueuedConnection);
-    connect(launcherButton, SIGNAL(duiApplicationLaunched(const QString &)), this, SLOT(launchDuiApplication(const QString &)), Qt::QueuedConnection);
-    connect(launcherButton, SIGNAL(linkLaunched(const QString &)), this, SLOT(launchLink(const QString &)), Qt::QueuedConnection);
-    connect(launcherButton, SIGNAL(directoryLaunched(const QString &, const QString &, const QString &)), this, SLOT(launchDirectory(const QString &, const QString &, const QString &)), Qt::QueuedConnection);
+    connectLauncherButton(launcherButton);
     return launcherButton;
 }
 
 #ifdef ENABLE_QTTRACKER
-DuiWidget *Launcher::createShortcutLauncherButton(SopranoLive::LiveNode shortcut)
+LauncherButton *Launcher::createShortcutLauncherButton(SopranoLive::LiveNode shortcut)
 {
     SopranoLive::Live<SopranoLive::nfo::Bookmark> bookmark = shortcut;
 
     LauncherButton *ret = new LauncherButton(NULL);
-    ret->setViewType("launcherbutton");
     ret->setObjectName("LauncherButton");
     ret->setTargetType("Link");
     ret->setText(bookmark->getTitle());
@@ -238,36 +219,24 @@ DuiWidget *Launcher::createShortcutLauncherButton(SopranoLive::LiveNode shortcut
 void Launcher::launchApplication(const QString &application)
 {
     startApplication(application);
-
-    openRootCategory();
 }
 
 void Launcher::launchDuiApplication(const QString &serviceName)
 {
     startDuiApplication(serviceName);
-
-    openRootCategory();
 }
 
 void Launcher::launchLink(const QString &)
 {
     // TODO not supported yet
-    openRootCategory();
-}
-
-void Launcher::launchDirectory(const QString &directory, const QString &title, const QString &iconId)
-{
-    setCategory(directory, title, iconId);
-}
-
-void Launcher::openRootCategory()
-{
-    setCategory(QString());
 }
 
 void Launcher::setEnabled(bool enabled)
 {
     QGraphicsItem::setEnabled(enabled);
+    if (enabled) {
+        activateLauncher();
+    }
 }
 
 bool Launcher::startApplication(const QString &application)
@@ -296,4 +265,30 @@ bool Launcher::startDuiApplication(const QString &serviceName)
         qWarning() << "DBus not connected?";
         return false;
     }
+}
+
+void Launcher::updateButtonsInDataStore()
+{
+    dataStore->updateLauncherButtons(model()->launcherPages());
+}
+
+void Launcher::restoreButtonsFromDataStore()
+{
+    QStringList acceptedTypes = (QStringList() << "Application" << "Link");
+    QList< QSharedPointer<LauncherPage> > restoredPages(dataStore->launcherButtons());
+
+    foreach (QSharedPointer<LauncherPage> page, restoredPages) {
+	foreach (QSharedPointer<LauncherButton> button, page.data()->model()->launcherButtons()) {
+	    connectLauncherButton(button.data());
+	}
+    }
+    model()->setLauncherPages(restoredPages);
+}
+
+void Launcher::connectLauncherButton(LauncherButton* launcherButton)
+{
+    launcherButton->setObjectName("LauncherButton");
+    connect(launcherButton, SIGNAL(applicationLaunched(const QString &)), this, SLOT(launchApplication(const QString &)), Qt::QueuedConnection);
+    connect(launcherButton, SIGNAL(duiApplicationLaunched(const QString &)), this, SLOT(launchDuiApplication(const QString &)), Qt::QueuedConnection);
+    connect(launcherButton, SIGNAL(linkLaunched(const QString &)), this, SLOT(launchLink(const QString &)), Qt::QueuedConnection);
 }

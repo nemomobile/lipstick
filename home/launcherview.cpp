@@ -16,42 +16,42 @@
 ** of this file.
 **
 ****************************************************************************/
-
 #include "launcherview.h"
 #include "launcher.h"
+#include "launchermodel.h"
+#include "launcherbutton.h"
+#include "pagedviewport.h"
+#include "mainwindow.h"
 #include <QGraphicsLinearLayout>
 #include <DuiFlowLayoutPolicy>
 #include <DuiOverlay>
 #include <DuiButton>
+#include <DuiApplication>
+#include <DuiSceneManager>
 
-LauncherView::LauncherView(Launcher *container) :
-    DuiExtendingBackgroundView(container),
-    controller(container),
-    mainLayout(new QGraphicsLinearLayout(Qt::Vertical)),
-    layout(new DuiLayout),
-    policy(new DuiFlowLayoutPolicy(layout)),
-    backButtonOverlay(new DuiOverlay),
-    backButton(new DuiButton(backButtonOverlay))
+LauncherView::LauncherView(Launcher *controller) :
+    DuiWidgetView(controller),
+    layout(new QGraphicsLinearLayout(Qt::Horizontal)),
+    pannedWidget(new DuiWidget)
 {
-    controller->setLayout(mainLayout);
-    mainLayout->setContentsMargins(0, 0, 0, 0);
-
-    // Create layout for the launcher buttons
+    layout->setSpacing(0);
     layout->setContentsMargins(0, 0, 0, 0);
-    policy->setObjectName("LauncherFlowLayoutPolicy");
-    mainLayout->addItem(layout);
+    pannedWidget->setLayout(layout);
 
-    // Set close button properties
-    backButton->setViewType("icon");
-    backButton->setObjectName("LauncherBackButton");
-    backButton->setIconID("Icon-back");
-    connect(backButton, SIGNAL(clicked()), controller, SLOT(openRootCategory()));
-    backButtonOverlay->setObjectName("LauncherBackButtonOverlay");
+    pagedViewport = new PagedViewport(controller);
+    pagedViewport->setWidget(pannedWidget);
+    pagedViewport->setObjectName("LauncherPagedViewport");
+    pagedViewport->setPanDirection(Qt::Horizontal);
 }
 
 LauncherView::~LauncherView()
 {
-    delete backButtonOverlay;
+}
+
+void LauncherView::setGeometry(const QRectF &rect)
+{
+    DuiWidgetView::setGeometry(rect);
+    pagedViewport->updatePageWidth(rect.width());
 }
 
 void LauncherView::updateData(const QList<const char *>& modifications)
@@ -59,25 +59,15 @@ void LauncherView::updateData(const QList<const char *>& modifications)
     DuiWidgetView::updateData(modifications);
     const char *member;
     foreach(member, modifications) {
-        if (member == LauncherModel::Widgets) {
-            // Remove all widgets from the layout (do not destroy them)
+        if (member == LauncherModel::LauncherPages) {
+            // Remove all pages from the layout (do not destroy them)
             while (layout->count() > 0) {
                 layout->removeAt(0);
             }
 
-            // Add widgets from the model to the layout
-            foreach(DuiWidget * widget, model()->widgets()) {
-                policy->addItem(widget);
-            }
-        } else if (member == LauncherModel::LayoutObjectName) {
-            // Set the name of the layout
-            policy->setObjectName(model()->layoutObjectName());
-        } else if (member == LauncherModel::Category) {
-            // Set the visibility of the back button
-            if (model()->category() == LauncherModel::RootCategory) {
-                backButtonOverlay->disappear();
-            } else {
-                backButtonOverlay->appear();
+            // Add pages from the model to the layout
+            foreach(QSharedPointer< LauncherPage > page, model()->launcherPages()) {
+                layout->addItem(page.data());
             }
         }
     }

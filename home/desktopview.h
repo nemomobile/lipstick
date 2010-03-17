@@ -113,9 +113,6 @@ private:
     //! scene window for the launcher
     DuiModalSceneWindow *launcherWindow;
 
-    //! Pannable viewport in which the launcher is displayed
-    DuiPannableViewport *launcherViewport;
-
     //! Phone network indicator
     StatusIndicator *phoneNetworkIndicator;
 

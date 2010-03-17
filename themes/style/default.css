@@ -2,6 +2,7 @@
 @const FONT_LARGE:   "Nokia Sans" 2.72mm; /* 28px */
 @const FONT_DEFAULT: "Nokia Sans" 2.34mm; /* 24px */
 @const FONT_SMALL:   "Nokia Sans" 1.95mm; /* 20px */
+@const FONT_MSMALL:  "Nokia Sans" 1.76mm; /* 18px */
 @const FONT_XSMALL:  "Nokia Sans" 1.56mm; /* 16px */
 @const FONT_XXSMALL: "Nokia Sans" 1.36mm; /* 14px */
 @const COLOR_ACTIVE_FOREGROUND: #ffffff; /* activated item title */
@@ -61,6 +62,7 @@ DuiSceneWindowStyle#LauncherWindow {
     minimum-size: 100% -1;
     preferred-size: 100% -1;
     maximum-size: 100% -1;
+    background-opacity: 0.5;
 }
 
 DuiSceneWindowStyle#AppletSpaceWindow {
@@ -262,20 +264,69 @@ LauncherStyle {
     margin-bottom: 0;
     padding-left: 0;
     padding-right: 0;
+    /* Add top padding so that the launcher does not go under the status area */
     padding-top: 28;
-    padding-bottom: 12;
-    minimum-size: 100% -1;
+    padding-bottom: 88; /* 76 + 12 == quick launch bar + ?;*/
     preferred-size: 100% -1;
-    maximum-size: 100% -1;
+    background-opacity: 0;
 }
 
-DuiAbstractLayoutPolicyStyle#LauncherFlowLayoutPolicy {
-    margin-left: 18;
-    margin-right: 18;
+LauncherPageStyle {
+    margin-left: 0;
+    margin-right: 0;
     margin-top: 0;
-    margin-bottom: 6;
-    vertical-spacing: 0;
-    horizontal-spacing: 0;
+    margin-bottom: 0;
+    preferred-size: 100% 100%;
+}
+
+LauncherPageStyle.Portrait {
+    padding-left: 5.7mm;
+    padding-right: 5.7mm;
+    padding-top: 5.7mm;
+    padding-bottom: 5.7mm;
+}
+
+LauncherPageStyle.Landscape {
+    padding-left: 5.0mm;
+    padding-right: 5.0mm;
+    padding-top: 3.9mm;
+    padding-bottom: 3.9mm;
+}
+
+DuiPannableWidgetStyle#LauncherPagedViewport {
+    pan-threshold: 15.0;
+    pan-click-threshold: 0.2;
+    pointer-spring-k: 0.6;
+    friction-c: 0.9;
+    sliding-friction-c: 0.9;
+    border-spring-k: 0.9;
+    border-friction-c: 0.9;
+    background-opacity: 0;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    preferred-size: 100% -1;
+}
+
+DuiAbstractLayoutPolicyStyle#LauncherPageFlowLayoutPolicy {
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    preferred-size: 100% 100%;
+}
+
+DuiAbstractLayoutPolicyStyle#LauncherPageFlowLayoutPolicy.Portrait {
+    vertical-spacing: 5.7mm;
+    horizontal-spacing: 0.8mm;
+}
+
+DuiAbstractLayoutPolicyStyle#LauncherPageFlowLayoutPolicy.Landscape {
+    vertical-spacing: 3.9mm;
+    horizontal-spacing: 0.8mm;
 }
 
 DuiButtonStyle#LauncherBackButton {
@@ -293,7 +344,7 @@ DuiOverlayStyle#LauncherBackButtonOverlay {
 }
 
 DuiButtonIconStyle#LauncherButton {
-    font: $FONT_SMALL;
+    font: $FONT_MSMALL;
     text-color: #ffffff;
     /* The position of title relative to top-left corner of the button */
     text-position: 0 78;
@@ -303,13 +354,26 @@ DuiButtonIconStyle#LauncherButton {
     invalid-shortcut-container-image: thumbnail-dummy-bookmark 12 12 36 12;
     /* The image to be used as the mask for a shortcut thumbnail */
     shortcut-thumbnail-mask-image: Bookmark-mask 12 12 36 12;
-    margin-left: 6;
-    margin-right: 6;
-    margin-top: 6;
-    margin-bottom: 6;
-    preferred-size: 126 126;
-    minimum-size: 126 126;
-    maximum-size: 126 126;
+
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+
+    text-margin-left: 0;
+    text-margin-top: 0;
+    text-margin-right: 0;
+    text-margin-bottom: 0;
+
+    preferred-size: 14.0mm 10.6mm;
+
+    icon-position: 1.8mm 1.8mm;
+    /* The size of the icon if the button represents a shortcut */
+    icon-size: 4.8mm 4.8mm;
 
     press-feedback: press;
     release-feedback: release;
@@ -326,9 +390,9 @@ DuiButtonIconStyle#LauncherButton.Landscape {
     /* The size of the title if the button represents a shortcut */
     shortcut-text-size: 108 30;
     /* The position of the icon relative to top-left corner of the button if the button represents a shortcut */
-    shortcut-icon-position: 47 43;
+    shortcut-icon-position: 1.8mm 1.8mm;
     /* The size of the icon if the button represents a shortcut */
-    shortcut-icon-size: 94 68;
+    shortcut-icon-size: 4.8mm 4.8mm;
 }
 DuiButtonIconStyle#LauncherButton.Portrait {
     /* The image to be used as the background of the button if the button represents a category */
@@ -342,9 +406,9 @@ DuiButtonIconStyle#LauncherButton.Portrait {
     /* The size of the title if the button represents a shortcut */
     shortcut-text-size: 76 30;
     /* The position of the icon relative to top-left corner of the button if the button represents a shortcut */
-    shortcut-icon-position: 0 43;
+    shortcut-icon-position: 1.8mm 1.8mm;
     /* The size of the icon if the button represents a shortcut */
-    shortcut-icon-size: 94 88;
+    shortcut-icon-size: 4.8mm 4.8mm;
 }
 
 QuickLaunchBarStyle {

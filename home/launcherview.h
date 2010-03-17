@@ -31,13 +31,15 @@ class Switcher;
 class QGraphicsLinearLayout;
 class DuiOverlay;
 class DuiButton;
+class DuiWidget;
+class PagedViewport;
 
 /*!
  * The launcher view draws a background for the container and
  * manages a layout related to the container. The widgets are inside a flow
  * layout. The view also contains an exit button for closing the container.
  */
-class LauncherView : public DuiExtendingBackgroundView
+class LauncherView : public DuiWidgetView
 {
     Q_OBJECT
     DUI_VIEW(LauncherModel, LauncherStyle)
@@ -55,6 +57,12 @@ public:
      */
     virtual ~LauncherView();
 
+    /*! \reimp
+     * Re-implemented here to adjust the paging page size when the geometry changes
+     */
+    virtual void setGeometry(const QRectF &rect);
+    //! \reimp_end
+
 protected slots:
     //! \reimp
     virtual void updateData(const QList<const char *>& modifications);
@@ -63,16 +71,13 @@ protected slots:
 private:
     //! The Launcher controller
     Launcher *controller;
-    //! The main layout
-    QGraphicsLinearLayout *mainLayout;
     //! A layout for the widgets
-    DuiLayout *layout;
-    //! A flow layout policy for the widgets
-    DuiFlowLayoutPolicy *policy;
-    //! An overlay for the back button
-    DuiOverlay *backButtonOverlay;
-    //! A back button
-    DuiButton *backButton;
+    QGraphicsLinearLayout *layout;
+    //! The widget that be inside the paged viewport. This will contain all of the launcher items
+    DuiWidget* pannedWidget;
+    //! The paged view port used to diaply the pannedWidget
+    PagedViewport* pagedViewport;
+
 };
 
 #endif // LAUNCHERVIEW_H

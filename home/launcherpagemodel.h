@@ -17,23 +17,26 @@
 **
 ****************************************************************************/
 
-#ifndef LAUNCHERMODEL_H_
-#define LAUNCHERMODEL_H_
+#ifndef LAUNCHERPAGEMODEL_H
+#define LAUNCHERPAGEMODEL_H
 
 #include <duiwidgetmodel.h>
-#include "launcherpage.h"
+#include <QList>
+#include "launcherbutton.h"
 
-class LauncherModel : public DuiWidgetModel
+class LauncherPageModel : public DuiWidgetModel
 {
     Q_OBJECT
-    DUI_MODEL(LauncherModel)
+    DUI_MODEL(LauncherPageModel)
 
 public:
-    typedef QList< QSharedPointer<LauncherPage> > LauncherPageList;
+    typedef QList< QSharedPointer<LauncherButton> > LauncherButtonList;
 
 private:
     //! The list of widgets to show in the launcher
-    DUI_MODEL_PROPERTY(LauncherModel::LauncherPageList, launcherPages, LauncherPages, true, LauncherPageList())
-};
+    DUI_MODEL_PROPERTY(LauncherPageModel::LauncherButtonList, launcherButtons, LauncherButtons, true, LauncherButtonList())
 
-#endif /* LAUNCHERMODEL_H_ */
+    //! Maximum number of buttons in page.
+    DUI_MODEL_PROPERTY(int, maxButtons, MaxButtons, true, 12)
+};
+#endif

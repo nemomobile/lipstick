@@ -16,24 +16,20 @@
 ** of this file.
 **
 ****************************************************************************/
+#ifndef LAUNCHERPAGESTYLE_H
+#define LAUNCHERPAGESTYLE_H
 
-#ifndef LAUNCHERMODEL_H_
-#define LAUNCHERMODEL_H_
+#include <duiwidgetstyle.h>
 
-#include <duiwidgetmodel.h>
-#include "launcherpage.h"
-
-class LauncherModel : public DuiWidgetModel
+class LauncherPageStyle : public DuiWidgetStyle
 {
     Q_OBJECT
-    DUI_MODEL(LauncherModel)
-
-public:
-    typedef QList< QSharedPointer<LauncherPage> > LauncherPageList;
-
-private:
-    //! The list of widgets to show in the launcher
-    DUI_MODEL_PROPERTY(LauncherModel::LauncherPageList, launcherPages, LauncherPages, true, LauncherPageList())
+    DUI_STYLE(LauncherPageStyle)
 };
 
-#endif /* LAUNCHERMODEL_H_ */
+class LauncherPageStyleContainer : public DuiWidgetStyleContainer
+{
+    DUI_STYLE_CONTAINER(LauncherPageStyle)
+};
+
+#endif

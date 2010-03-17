@@ -29,7 +29,9 @@ class LauncherButtonModel : public DuiButtonModel
     DUI_MODEL_PROPERTY(QString, targetType, TargetType, true, QString())
     DUI_MODEL_PROPERTY(QString, target, Target, true, QString())
     DUI_MODEL_PROPERTY(QString, thumbnail, Thumbnail, true, QString())
-    DUI_MODEL_PROPERTY(QString, desktopEntry, DesktopEntry, true, QString())
+
+    //! Desktop entry file that launcher button is representing
+    DUI_MODEL_PROPERTY(QString, desktopEntryFile, DesktopEntryFile, true, QString())
 };
 
 #endif /* LAUNCHERBUTTONMODEL_H_ */

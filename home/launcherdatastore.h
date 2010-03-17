@@ -48,6 +48,8 @@ public:
 
     //! The location of the desktop entry
     enum EntryLocation {
+        //! The entry location is unknow to the data store
+        Unknown,
 	//! The entry is defined to be in the launcher grid
 	LauncherGrid,
 	//! The entry is defined to be in the quick launch bar

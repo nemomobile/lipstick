@@ -20,7 +20,6 @@
 #include "launcherbutton.h"
 #include "launcherbuttonview.h"
 #include <DuiDesktopEntry>
-#include <QDebug>
 
 LauncherButton::LauncherButton(DuiWidget *parent) : DuiButton(parent, new LauncherButtonModel)
 {
@@ -35,6 +34,7 @@ LauncherButton::LauncherButton(const DuiDesktopEntry &entry, DuiWidget *parent) 
 
     setTargetType(entry.type());
     setText(entry.name());
+
     if (!entry.icon().isEmpty()) {
         setIconID(entry.icon());
     } else {
@@ -56,11 +56,9 @@ LauncherButton::LauncherButton(const DuiDesktopEntry &entry, DuiWidget *parent) 
         }
     } else if (entry.type() == "Link") {
         setTarget(entry.url());
-    } else if (entry.type() == "Directory") {
-        setTarget(entry.nameUnlocalized());
     }
 
-    model()->setDesktopEntry(entry.fileName());
+    model()->setDesktopEntryFile(entry.fileName());
 }
 
 LauncherButton::~LauncherButton()
@@ -99,7 +97,7 @@ const QString &LauncherButton::thumbnail() const
 
 QString LauncherButton::desktopEntry() const
 {
-    return model()->desktopEntry();
+    return model()->desktopEntryFile();
 }
 
 void LauncherButton::launch()
@@ -111,7 +109,5 @@ void LauncherButton::launch()
         emit duiApplicationLaunched(target());
     } else if (targetType() == "Link") {
         emit linkLaunched(target());
-    } else if (targetType() == "Directory") {
-        emit directoryLaunched(target(), text(), iconID());
     }
 }

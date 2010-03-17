@@ -114,7 +114,7 @@ QList< QSharedPointer<LauncherPage> > LauncherDataStore::launcherButtons()
         }
         DuiDesktopEntry entry(entryFile);
         QSharedPointer<LauncherButton> button = QSharedPointer<LauncherButton> (new LauncherButton(entry));
-        newPage.data()->addButton(button, buttonPositionOnPage);
+        newPage.data()->insertButton(button, buttonPositionOnPage);
     }
 
     return pages;
@@ -122,13 +122,15 @@ QList< QSharedPointer<LauncherPage> > LauncherDataStore::launcherButtons()
 
 LauncherDataStore::EntryLocation LauncherDataStore::location(const DuiDesktopEntry &entry)
 {
-    EntryLocation location = LauncherGrid;
+    EntryLocation location = Unknown;
     QString key(entryPathToKey(entry.fileName()));
     if (store->contains(key)) {
         QString placement = store->value(key).toString();
-        if (placement.section(SECTION_SEPARATOR, 0, 0) != LAUNCHER_PLACEMENT) {
+        if (placement.section(SECTION_SEPARATOR, 0, 0) == LAUNCHER_PLACEMENT) {
+            location = LauncherGrid;
+        } else if (placement.section(SECTION_SEPARATOR, 0, 0) == QUICKLAUNCHBAR_PLACEMENT) {
             location = QuickLaunchBar;
-        }
+	}
     }
     return location;
 }

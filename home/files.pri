@@ -1,4 +1,3 @@
-
 # Input
 HEADERS += homeapplication.h \
     windowinfo.h \
@@ -30,6 +29,7 @@ HEADERS += homeapplication.h \
     launcherbuttonview.h \
     launcherbuttonstyle.h \
     notifier.h \
+    pagedviewport.h \
     quicklaunchbar.h \
     quicklaunchbarmodel.h \
     quicklaunchbarview.h \
@@ -57,7 +57,12 @@ HEADERS += homeapplication.h \
     statusindicatorimagestyle.h \
     statusindicatorlabelstyle.h \
     x11helper.h \
-    x11wrapper.h
+    x11wrapper.h \
+    launcherpage.h \
+    launcherpageview.h \
+    launcherpagestyle.h \
+    launcherpagemodel.h \
+    launcherdatastore.h
 SOURCES += homeapplication.cpp \
     windowinfo.cpp \
     home.cpp \
@@ -76,6 +81,7 @@ SOURCES += homeapplication.cpp \
     launcherbutton.cpp \
     launcherbuttonview.cpp \
     notifier.cpp \
+    pagedviewport.cpp \
     quicklaunchbar.cpp \
     quicklaunchbarview.cpp \
     switcher.cpp \
@@ -91,9 +97,11 @@ SOURCES += homeapplication.cpp \
     statusindicatorimageview.cpp \
     statusindicatorlabelview.cpp \
     x11helper.cpp \
-    x11wrapper.cpp
-MODEL_HEADERS += \
-    appletspacemodel.h \
+    x11wrapper.cpp \
+    launcherpage.cpp \
+    launcherpageview.cpp \
+    launcherdatastore.cpp
+MODEL_HEADERS += appletspacemodel.h \
     clockmodel.h \
     desktopmodel.h \
     launcherbuttonmodel.h \
@@ -103,13 +111,14 @@ MODEL_HEADERS += \
     statusareamodel.h \
     switcherbuttonmodel.h \
     switchermodel.h \
+    launcherpagemodel.h \
     statusindicatormodel.h
-STYLE_HEADERS += \
-    appletspacestyle.h \
+STYLE_HEADERS += appletspacestyle.h \
     clockstyle.h \
     desktopstyle.h \
     launcherstyle.h \
     launcherbuttonstyle.h \
+    launcherpagestyle.h \
     notificationareastyle.h \
     quicklaunchbarstyle.h \
     statusareastyle.h \
@@ -117,5 +126,4 @@ STYLE_HEADERS += \
     switcherstyle.h \
     statusindicatorimagestyle.h \
     statusindicatorlabelstyle.h
-
 include(notifications/notifications.pri)
