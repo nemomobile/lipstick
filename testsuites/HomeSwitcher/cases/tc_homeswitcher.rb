@@ -30,6 +30,12 @@ include MattiVerify
 # These tests verify duihome switcher functionality
 class TC_homeswitcher < Dui::TestCase
 
+# FIXME
+# Commented out because switcher detail view is not currently accessible.
+# When switching between overview and detail view functionality
+# is implemented these tests should be fixed to use detail view
+
+=begin
     @@screen_width = 0
 
     def setup
@@ -237,4 +243,5 @@ private
             app = nil
         end while app
     end
+=end
 end

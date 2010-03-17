@@ -32,6 +32,12 @@ require 'nokogiri'
 # These tests should work if there is switcher applications/buttons left from earlier tests
 class TC_switcherbuttonorder < Dui::TestCase
 
+# FIXME
+# Commented out because switcher detail view is not currently accessible.
+# When switching between overview and detail view functionality
+# is implemented these tests should be fixed to use detail view
+
+=begin
     def setup
         @home  = @sut.application(:name => 'duihome')
     end
@@ -99,8 +105,10 @@ class TC_switcherbuttonorder < Dui::TestCase
 
         added_button_name = 'Ta_HomeSwitcher-' + added_buttons.to_s
         added_button_pos = @home.SwitcherButton(:text => added_button_name).attribute('pos')
+        puts 'added_button ' + added_button_pos.to_s
 
         switcher_buttons_array.each { |button|
+            puts 'button ' + button[:pos].to_s
             # Iterates through every button switcher, hence the greater than or equal
             verify_true { added_button_pos.to_i >= button[:pos] }
         }
@@ -387,5 +395,7 @@ class TC_switcherbuttonorder < Dui::TestCase
             app = nil
         end while app
     end
+
+=end
 
 end

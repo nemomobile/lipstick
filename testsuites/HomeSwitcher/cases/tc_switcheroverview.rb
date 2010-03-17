@@ -506,6 +506,12 @@ class TC_switcheroverview < Dui::TestCase
     #* Post-conditions
     #  * None
     def test_09_buttons_are_in_correct_columns_and_rows_in_overview_switcher_with_different_button_numbers_in_portrait_mode
+
+        # Index of size compare button
+        button_index = 0
+        # Tolerated error margin
+        range = 2
+
         ctx = open_context_provider
         set_orientation_portrait(ctx)
 
@@ -538,9 +544,10 @@ class TC_switcheroverview < Dui::TestCase
         verify_true { button_x(0) == button_x(2) }
         verify_true { button_x(1) == button_x(3) }
 
+        width_range, height_range = get_button_size_range(button_index, range)
         count_switcher_buttons.times { |index|
-            verify_true { button_width(0) == button_width(index) }
-            verify_true { button_height(0) == button_height(index) }
+            verify_true { width_range.include?(button_width(index)) }
+            verify_true { height_range.include?(button_height(index)) }
         }
 
         button_0_width_medium = button_width(0)
@@ -565,9 +572,10 @@ class TC_switcheroverview < Dui::TestCase
         verify_true { button_x(2) == button_x(4) }
         verify_true { button_x(3) == button_x(5) }
 
+        width_range, height_range = get_button_size_range(button_index, range)
         count_switcher_buttons.times { |index|
-            verify_true { button_width(0) == button_width(index) }
-            verify_true { button_height(0) == button_height(index) }
+            verify_true { width_range.include?(button_width(index)) }
+            verify_true { height_range.include?(button_height(index)) }
         }
 
         close_context_provider(ctx)
@@ -753,6 +761,9 @@ class TC_switcheroverview < Dui::TestCase
     #  * None
     def test_12_when_removing_buttons_from_portrait_mode_button_size_is_correctly_handled
 
+        button_index = 0
+        range = 2
+
         ctx = open_context_provider
         set_orientation_portrait(ctx)
 
@@ -763,9 +774,10 @@ class TC_switcheroverview < Dui::TestCase
         }
         verify_equal(6) { count_switcher_buttons }
 
+        width_range, height_range = get_button_size_range(button_index, range)
         count_switcher_buttons.times { |index|
-            verify_true { button_width(0) == button_width(index) }
-            verify_true { button_height(0) == button_height(index) }
+            verify_true { width_range.include?(button_width(index)) }
+            verify_true { height_range.include?(button_height(index)) }
         }
 
         #Buttons in small size
@@ -779,9 +791,10 @@ class TC_switcheroverview < Dui::TestCase
 
         #Buttons in medium size
         verify_true { button_0_size_width_small < button_width(0) && button_0_size_height_small < button_width(0) }
+        width_range, height_range = get_button_size_range(button_index, range)
         count_switcher_buttons.times { |index|
-            verify_true { button_width(0) == button_width(index) }
-            verify_true { button_height(0) == button_height(index) }
+            verify_true { width_range.include?(button_width(index)) }
+            verify_true { height_range.include?(button_height(index)) }
         }
 
         button_0_size_width_medium = button_width(0)
@@ -794,8 +807,9 @@ class TC_switcheroverview < Dui::TestCase
 
         # Buttons in large size
         verify_true { button_0_size_width_medium < button_width(0) && button_0_size_height_medium < button_width(0) }
-        verify_true { button_width(0) == button_width(1) }
-        verify_true { button_height(0) == button_height(1) }
+        width_range, height_range = get_button_size_range(button_index, range)
+        verify_true { width_range.include?(button_width(1)) }
+        verify_true { height_range.include?(button_height(1)) }
 
         close_context_provider(ctx)
     end
@@ -1012,6 +1026,21 @@ private
         @home.SwitcherButton( :text => 'Ta_HomeSwitcher-' + index.to_s ).attribute('height').to_i
     end
 
+    # Calculates width and height range of button
+    # index is the index of button
+    # range is a value that is added and removed from size to get the max and min values of range
+    # return range of width and range of height
+    def get_button_size_range(index, range)
+        width = button_width(index)
+        height = button_height(index)
 
+        width_max = width + range
+        width_min = width - range
+
+        height_max = height + range
+        height_min = height - range
+
+        return (width_min ... width_max), (height_min ... height_max)
+    end
 
 end
