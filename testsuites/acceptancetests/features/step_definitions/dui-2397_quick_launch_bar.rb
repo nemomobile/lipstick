@@ -1,4 +1,5 @@
 require 'matti'
+require 'tmpdir'
 
 Before do
     @sut = MATTI.sut(:Id => 'sut_qt_maemo')
@@ -129,7 +130,7 @@ def ensureConfigurationUpdated()
 
         $configuration.each_pair do |s, a|
             output += "[#{s}]\n"
-            output += "desktopFile=/tmp/#{a}.desktop\n"
+            output += "desktopFile=" + applicationDesktopEntryName(a) + "\n"
         end
 
         target = File.expand_path('~/.config/duihome/quicklaunchbar.data')
@@ -181,5 +182,5 @@ def uninstallApplication(application)
 end
 
 def applicationDesktopEntryName(application)
-    return '/tmp/' + application + '.desktop'
+    return Dir.tmpdir() + '/' + application + '.desktop'
 end

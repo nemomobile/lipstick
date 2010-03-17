@@ -48,7 +48,7 @@ void QuickLaunchBar::init()
     connect(&desktopDirectoryWatcher, SIGNAL(directoryChanged(QString)), this, SLOT(updateWidgetList()));
     desktopDirectoryWatcher.addPath(APPLICATIONS_DIRECTORY);
 #ifdef TESTABILITY_ON
-    desktopDirectoryWatcher.addPath("/tmp");
+    desktopDirectoryWatcher.addPath(QDir::tempPath());
 #endif
 }
 
