@@ -8,7 +8,10 @@ SUBDIRS = \
     ut_desktopview \
     ut_launcher \
     ut_launcherview \
+    ut_launcherpage \
+    ut_launcherpageview \
     ut_launcherbuttonview \
+    ut_launcherdatastore \
     ut_statusarea \
     ut_statusareaview \
     ut_statusareawindow \
@@ -46,6 +49,7 @@ SUBDIRS = \
     ut_eventtypestore \
     ut_appletspace \
     ut_appletspaceview \
+    ut_pagedviewport \
     ut_test
 
 QMAKE_STRIP = echo

@@ -1,22 +1,3 @@
-/***************************************************************************
-**
-** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
-** All rights reserved.
-** Contact: Nokia Corporation (directui@nokia.com)
-**
-** This file is part of duihome.
-**
-** If you have questions regarding the use of this file, please contact
-** Nokia at directui@nokia.com.
-**
-** This library is free software; you can redistribute it and/or
-** modify it under the terms of the GNU Lesser General Public
-** License version 2.1 as published by the Free Software Foundation
-** and appearing in the file LICENSE.LGPL included in the packaging
-** of this file.
-**
-****************************************************************************/
-
 #ifndef LAUNCHER_STUB
 #define LAUNCHER_STUB
 
@@ -27,28 +8,25 @@
 // 1. DECLARE STUB
 // FIXME - stubgen is not yet finished
 class LauncherStub : public StubBase {
-  //! A type for a container that can hold DuiDesktopEntry objects
-  typedef QList<DuiDesktopEntry *> DesktopEntryContainer;
   public:
   virtual void LauncherConstructor(DuiWidget *parent);
   virtual void LauncherDestructor();
   virtual void setEnabled(bool enabled);
   virtual bool startApplication(const QString &application);
   virtual bool startDuiApplication(const QString &serviceName);
-  virtual void openRootCategory();
-  virtual void readDirectory(const QString &path, bool updateWidgetList);
+  virtual void activateLauncher();
   virtual void launchApplication(const QString &application);
   virtual void launchDuiApplication(const QString &service);
   virtual void launchLink(const QString &link);
-  virtual void launchDirectory(const QString &directory, const QString &title, const QString &iconId);
-  virtual void initializeIfNecessary();
-  virtual void setCategory(const QString &category, const QString &title, const QString &iconId);
-  virtual DuiWidget * createLauncherButton(const DuiDesktopEntry &entry);
-  virtual void updateDesktopEntryList(DesktopEntryContainer &desktopEntryContainer, const QString &path, const QString &nameFilter, const QStringList &acceptedTypes) const;
-#ifdef ENABLE_QTTRACKER
-  virtual DuiWidget * createShortcutLauncherButton(SopranoLive::LiveNode shortcut);
-#endif
-  virtual void updateWidgetList();
+  virtual void updateButtonListFromDirectory(const QString &path);
+  virtual void updateButtonList();
+  virtual LauncherButton * createLauncherButton(const DuiDesktopEntry &entry);
+  virtual bool contains(const DuiDesktopEntry &entry);
+  virtual void updateButtonsInDataStore();
+  virtual void restoreButtonsFromDataStore();
+  virtual void updateButtonListFromEntries(const QString &path, const QString &nameFilter, const QStringList &acceptedTypes);
+  virtual void addNewLauncherButton(const DuiDesktopEntry &entry);
+  virtual bool isDesktopEntryValid(const DuiDesktopEntry &entry, const QStringList &acceptedTypes);
 }; 
 
 // 2. IMPLEMENT STUB
@@ -79,15 +57,8 @@ bool LauncherStub::startDuiApplication(const QString &serviceName) {
   return stubReturnValue<bool>("startDuiApplication");
 }
 
-void LauncherStub::openRootCategory() {
-  stubMethodEntered("openRootCategory");
-}
-
-void LauncherStub::readDirectory(const QString &path, bool updateWidgetList) {
-  QList<ParameterBase*> params;
-  params.append( new Parameter<const QString & >(path));
-  params.append( new Parameter<bool >(updateWidgetList));
-  stubMethodEntered("readDirectory",params);
+void LauncherStub::activateLauncher() {
+  stubMethodEntered("activateLauncher");
 }
 
 void LauncherStub::launchApplication(const QString &application) {
@@ -108,55 +79,59 @@ void LauncherStub::launchLink(const QString &link) {
   stubMethodEntered("launchLink",params);
 }
 
-void LauncherStub::launchDirectory(const QString &directory, const QString &title, const QString &iconId) {
+void LauncherStub::updateButtonListFromDirectory(const QString &path) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const QString & >(directory));
-  params.append( new Parameter<const QString & >(title));
-  params.append( new Parameter<const QString & >(iconId));
-  stubMethodEntered("launchDirectory",params);
+  params.append( new Parameter<const QString & >(path));
+  stubMethodEntered("updateButtonListFromDirectory",params);
 }
 
-void LauncherStub::initializeIfNecessary() {
-  stubMethodEntered("initializeIfNecessary");
+void LauncherStub::updateButtonList() {
+  stubMethodEntered("updateButtonList");
 }
 
-void LauncherStub::setCategory(const QString &category, const QString &title, const QString &iconId) {
-  QList<ParameterBase*> params;
-  params.append( new Parameter<const QString & >(category));
-  params.append( new Parameter<const QString & >(title));
-  params.append( new Parameter<const QString & >(iconId));
-  stubMethodEntered("setCategory",params);
-}
-
-DuiWidget * LauncherStub::createLauncherButton(const DuiDesktopEntry &entry) {
+LauncherButton * LauncherStub::createLauncherButton(const DuiDesktopEntry &entry) {
   QList<ParameterBase*> params;
   params.append( new Parameter<const DuiDesktopEntry & >(entry));
   stubMethodEntered("createLauncherButton",params);
-  return stubReturnValue<DuiWidget *>("createLauncherButton");
+  return stubReturnValue<LauncherButton *>("createLauncherButton");
 }
 
-void LauncherStub::updateDesktopEntryList(DesktopEntryContainer &desktopEntryContainer, const QString &path, const QString &nameFilter, const QStringList &acceptedTypes) const {
+bool LauncherStub::contains(const DuiDesktopEntry &entry) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<DesktopEntryContainer & >(desktopEntryContainer));
+  params.append( new Parameter<const DuiDesktopEntry & >(entry));
+  stubMethodEntered("contains",params);
+  return stubReturnValue<bool>("contains");
+}
+
+void LauncherStub::updateButtonsInDataStore() {
+  stubMethodEntered("updateButtonsInDataStore");
+}
+
+void LauncherStub::restoreButtonsFromDataStore() {
+  stubMethodEntered("restoreButtonsFromDataStore");
+}
+
+void LauncherStub::updateButtonListFromEntries(const QString &path, const QString &nameFilter, const QStringList &acceptedTypes) {
+  QList<ParameterBase*> params;
   params.append( new Parameter<const QString & >(path));
   params.append( new Parameter<const QString & >(nameFilter));
   params.append( new Parameter<const QStringList & >(acceptedTypes));
-  stubMethodEntered("updateDesktopEntryList",params);
+  stubMethodEntered("updateButtonListFromEntries",params);
 }
 
-#ifdef ENABLE_QTTRACKER
-DuiWidget * LauncherStub::createShortcutLauncherButton(SopranoLive::LiveNode shortcut) {
+void LauncherStub::addNewLauncherButton(const DuiDesktopEntry &entry) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<SopranoLive::LiveNode >(shortcut));
-  stubMethodEntered("createShortcutLauncherButton",params);
-  return stubReturnValue<DuiWidget *>("createShortcutLauncherButton");
-}
-#endif
-
-void LauncherStub::updateWidgetList() {
-  stubMethodEntered("updateWidgetList");
+  params.append( new Parameter<const DuiDesktopEntry & >(entry));
+  stubMethodEntered("addNewLauncherButton",params);
 }
 
+bool LauncherStub::isDesktopEntryValid(const DuiDesktopEntry &entry, const QStringList &acceptedTypes) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<const DuiDesktopEntry & >(entry));
+  params.append( new Parameter<const QStringList & >(acceptedTypes));
+  stubMethodEntered("isDesktopEntryValid",params);
+  return stubReturnValue<bool>("isDesktopEntryValid");
+}
 
 
 // 3. CREATE A STUB INSTANCE
@@ -185,12 +160,8 @@ bool Launcher::startDuiApplication(const QString &serviceName) {
   return gLauncherStub->startDuiApplication(serviceName);
 }
 
-void Launcher::openRootCategory() {
-  gLauncherStub->openRootCategory();
-}
-
-void Launcher::readDirectory(const QString &path, bool updateWidgetList) {
-  gLauncherStub->readDirectory(path, updateWidgetList);
+void Launcher::activateLauncher() {
+  gLauncherStub->activateLauncher();
 }
 
 void Launcher::launchApplication(const QString &application) {
@@ -205,35 +176,40 @@ void Launcher::launchLink(const QString &link) {
   gLauncherStub->launchLink(link);
 }
 
-void Launcher::launchDirectory(const QString &directory, const QString &title, const QString &iconId) {
-  gLauncherStub->launchDirectory(directory, title, iconId);
+void Launcher::updateButtonListFromDirectory(const QString &path) {
+  gLauncherStub->updateButtonListFromDirectory(path);
 }
 
-void Launcher::initializeIfNecessary() {
-  gLauncherStub->initializeIfNecessary();
+void Launcher::updateButtonList() {
+  gLauncherStub->updateButtonList();
 }
 
-void Launcher::setCategory(const QString &category, const QString &title, const QString &iconId) {
-  gLauncherStub->setCategory(category, title, iconId);
-}
-
-DuiWidget * Launcher::createLauncherButton(const DuiDesktopEntry &entry) {
+LauncherButton * Launcher::createLauncherButton(const DuiDesktopEntry &entry) {
   return gLauncherStub->createLauncherButton(entry);
 }
 
-void Launcher::updateDesktopEntryList(DesktopEntryContainer &desktopEntryContainer, const QString &path, const QString &nameFilter, const QStringList &acceptedTypes) const {
-  gLauncherStub->updateDesktopEntryList(desktopEntryContainer, path, nameFilter, acceptedTypes);
+bool Launcher::contains(const DuiDesktopEntry &entry) {
+  return gLauncherStub->contains(entry);
 }
 
-#ifdef ENABLE_QTTRACKER
-DuiWidget * Launcher::createShortcutLauncherButton(SopranoLive::LiveNode shortcut) {
-  return gLauncherStub->createShortcutLauncherButton(shortcut);
-}
-#endif
-
-void Launcher::updateWidgetList() {
-  gLauncherStub->updateWidgetList();
+void Launcher::updateButtonsInDataStore() {
+  gLauncherStub->updateButtonsInDataStore();
 }
 
+void Launcher::restoreButtonsFromDataStore() {
+  gLauncherStub->restoreButtonsFromDataStore();
+}
+
+void Launcher::updateButtonListFromEntries(const QString &path, const QString &nameFilter, const QStringList &acceptedTypes) {
+  gLauncherStub->updateButtonListFromEntries(path, nameFilter, acceptedTypes);
+}
+
+void Launcher::addNewLauncherButton(const DuiDesktopEntry &entry) {
+  gLauncherStub->addNewLauncherButton(entry);
+}
+
+bool Launcher::isDesktopEntryValid(const DuiDesktopEntry &entry, const QStringList &acceptedTypes) {
+  return gLauncherStub->isDesktopEntryValid(entry, acceptedTypes);
+}
 
 #endif

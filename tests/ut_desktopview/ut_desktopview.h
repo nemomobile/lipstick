@@ -62,8 +62,6 @@ private slots:
     // Called after every testfunction
     void cleanup();
 
-    // Test geometry setting
-    void testSetGeometry();
     // Test bounding rectangle and background drawing
     void testBoundingRectAndDrawBackground();
     // Test showing and hiding launcher

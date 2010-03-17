@@ -22,7 +22,11 @@
 #include <DuiApplicationIfProxy>
 #include "ut_launcher.h"
 #include "launcher.h"
+#include "launcherpage.h"
 #include "launcherbutton.h"
+#include "launcherdatastore.h"
+#include "launchermodel.h"
+#include "launcherpagemodel.h"
 #include "homeapplication.h"
 
 QFileInfoList Ut_Launcher::desktopFileInfoList;
@@ -60,10 +64,6 @@ QString DuiDesktopEntry::fileName() const
     return desktopEntryFileName[this];
 }
 
-QStringList DuiDesktopEntry::categories() const
-{
-    return desktopEntryCategories.value(desktopEntryFileName.value(this));
-}
 
 bool DuiDesktopEntry::isValid() const
 {
@@ -121,11 +121,7 @@ QFileInfoList QDir::entryInfoList(Filters filters, SortFlags sort) const
     Q_UNUSED(filters);
     Q_UNUSED(sort);
 
-    // Return either a list of desktop entries or a list of directory entries based on the name filters given to QDir
-    if (nameFilters().at(0) == "*.desktop")
-        return Ut_Launcher::desktopFileInfoList;
-    else
-        return Ut_Launcher::directoryFileInfoList;
+    return Ut_Launcher::desktopFileInfoList;
 }
 
 // QFileSystemWatcher stubs
@@ -135,6 +131,30 @@ void QFileSystemWatcher::addPath(const QString &)
 
 void QDBusPendingReplyData::setMetaTypes(int, int const *)
 {
+}
+
+// LauncherDataStore stubs
+LauncherDataStore::LauncherDataStore(DuiDataStore* dataStore)
+{
+    Q_UNUSED(dataStore);
+}
+
+LauncherDataStore::~LauncherDataStore() { }
+
+void LauncherDataStore::updateLauncherButtons(const QList< QSharedPointer<LauncherPage> > &pages)
+{ 
+    Q_UNUSED(pages)
+}
+
+QList< QSharedPointer<LauncherPage> > LauncherDataStore::launcherButtons()
+{
+    return QList< QSharedPointer<LauncherPage> >();
+}
+
+LauncherDataStore::EntryLocation LauncherDataStore::location(const DuiDesktopEntry &entry)
+{
+    Q_UNUSED(entry);
+    return LauncherDataStore::LauncherGrid;
 }
 
 QDBusPendingReply<> DuiApplicationIfProxy::launch()
@@ -226,6 +246,12 @@ void Ut_Launcher::initTestCase()
 
     // Incomplete files
     desktopEntryIcon.insert(QString(APPLICATIONS_DIRECTORY) + "test5.desktop", "Icon-music");
+
+    // Filler app files
+    for (int i = 0; i < 20; i++) {
+        desktopEntryName.insert(QString(APPLICATIONS_DIRECTORY) + QString("fillerApplication%1.desktop").arg(i), QString("Fill%1").arg(i));
+        desktopEntryType.insert(QString(APPLICATIONS_DIRECTORY) + QString("fillerApplication%1.desktop").arg(i), "Application");
+    }
 }
 
 void Ut_Launcher::cleanupTestCase()
@@ -236,13 +262,12 @@ void Ut_Launcher::cleanupTestCase()
 
 void Ut_Launcher::init()
 {
-    // Create a launcher and connect the directory changed signal
-    launcher = new Launcher;
+    // Create a launcher and connect the signals
+    launcher = new Launcher();
+    connect(this, SIGNAL(directoryChanged(const QString)), launcher, SLOT(updateButtonListFromDirectory(const QString)));
     connect(this, SIGNAL(applicationLaunched(const QString)), launcher, SLOT(launchApplication(const QString)));
     connect(this, SIGNAL(duiApplicationLaunched(const QString)), launcher, SLOT(launchDuiApplication(const QString)));
     connect(this, SIGNAL(linkLaunched(const QString)), launcher, SLOT(launchLink(const QString)));
-    connect(this, SIGNAL(directoryChanged(const QString)), launcher, SLOT(readDirectory(const QString)));
-    connect(this, SIGNAL(directoryLaunched(QString, QString, QString)), launcher, SLOT(launchDirectory(QString, QString, QString)));
 
     // No files by default
     desktopFileInfoList.clear();
@@ -257,6 +282,16 @@ void Ut_Launcher::cleanup()
     delete launcher;
 }
 
+int Ut_Launcher::buttonsCount()
+{
+    QList< QSharedPointer<LauncherPage> > pages(launcher->model()->launcherPages());
+    int count = 0;
+    foreach (QSharedPointer<LauncherPage> page, pages) {
+        count += page.data()->model()->launcherButtons().count();
+    }
+return count;
+}
+
 void Ut_Launcher::testInitialization()
 {
     // Add some desktop files in the root category
@@ -268,14 +303,14 @@ void Ut_Launcher::testInitialization()
     QCoreApplication::processEvents(QEventLoop::AllEvents, 1000);
 
     // Initalize launcher
-    launcher->openRootCategory();
+    launcher->setEnabled(true);
 
-    // There should be three widgets in the view
-    QCOMPARE(launcher->model()->widgets().count(), 3);
+    // There should be three launcherButtons in the view
+    QCOMPARE(buttonsCount(), 3);
 
-    // The widgets should be LauncherButtons
+   // The launcherButtons should be LauncherButtons
     for (int i = 0; i < 3; i++) {
-        LauncherButton *b = dynamic_cast<LauncherButton *>(launcher->model()->widgets().at(i));
+        QSharedPointer<LauncherButton> b = launcher->model()->launcherPages().at(0)->model()->launcherButtons().at(i);
 
         QVERIFY(b != NULL);
 
@@ -311,12 +346,12 @@ void Ut_Launcher::testOnlyShowInDui()
     QCoreApplication::processEvents(QEventLoop::AllEvents, 1000);
 
     // Initalize launcher
-    launcher->openRootCategory();
+    launcher->setEnabled(true);
 
-    // There should be three widgets in the view
-    QCOMPARE(launcher->model()->widgets().count(), 1);
+    // There should be three launcherButtons in the view
+    QCOMPARE(buttonsCount(), 1);
 
-    LauncherButton *b = dynamic_cast<LauncherButton *>(launcher->model()->widgets().at(0));
+    QSharedPointer<LauncherButton> b = launcher->model()->launcherPages().at(0)->model()->launcherButtons().at(0);
     QVERIFY(b != NULL);
 
     // Check name and icon for all entries
@@ -335,10 +370,10 @@ void Ut_Launcher::testOnlyShowInNotDui()
     QCoreApplication::processEvents(QEventLoop::AllEvents, 1000);
 
     // Initalize launcher
-    launcher->openRootCategory();
+    launcher->setEnabled(true);
 
-    // There should be no widgets
-    QCOMPARE(launcher->model()->widgets().count(), 0);
+    // There should be no launcherButtons
+    QCOMPARE(buttonsCount(), 0);
 }
 
 void Ut_Launcher::testNotShowInDui()
@@ -350,10 +385,10 @@ void Ut_Launcher::testNotShowInDui()
     QCoreApplication::processEvents(QEventLoop::AllEvents, 1000);
 
     // Initalize launcher
-    launcher->openRootCategory();
+    launcher->setEnabled(true);
 
-    // There should be no widgets
-    QCOMPARE(launcher->model()->widgets().count(), 0);
+    // There should be no launcherButtons
+    QCOMPARE(buttonsCount(), 0);
 }
 
 void Ut_Launcher::testNotShowInNotDui()
@@ -365,12 +400,12 @@ void Ut_Launcher::testNotShowInNotDui()
     QCoreApplication::processEvents(QEventLoop::AllEvents, 1000);
 
     // Initalize launcher
-    launcher->openRootCategory();
+    launcher->setEnabled(true);
 
     // There should be one widget
-    QCOMPARE(launcher->model()->widgets().count(), 1);
+    QCOMPARE(buttonsCount(), 1);
 
-    LauncherButton *b = dynamic_cast<LauncherButton *>(launcher->model()->widgets().at(0));
+    QSharedPointer<LauncherButton> b = launcher->model()->launcherPages().at(0)->model()->launcherButtons().at(0);
     QVERIFY(b != NULL);
 
     // Check name and icon for all entries
@@ -380,23 +415,24 @@ void Ut_Launcher::testNotShowInNotDui()
     QCOMPARE(b->target(), QString("no-desktop-application"));
 }
 
-// TODO: remove this test when the Category DUI feature is removed
-void Ut_Launcher::testCategoryDui()
+void Ut_Launcher::testCategories()
 {
-    // Add some desktop files in the root category
+    // Add some desktop files
+    // TODO: remove this when the Category DUI feature is removed
     desktopFileInfoList.append(QFileInfo(QString(APPLICATIONS_DIRECTORY) + "applicationWithOnlyCategoryDUI.desktop"));
     desktopFileInfoList.append(QFileInfo(QString(APPLICATIONS_DIRECTORY) + "applicationInCategory.desktop"));
+    desktopFileInfoList.append(QFileInfo(QString(CATEGORIES_DIRECTORY) + "directoryEntry1.directory"));
 
     // Process events to make sure all notifications are done
     QCoreApplication::processEvents(QEventLoop::AllEvents, 1000);
 
     // Initalize launcher
-    launcher->openRootCategory();
+    launcher->setEnabled(true);
 
-    // There should be one widget
-    QCOMPARE(launcher->model()->widgets().count(), 1);
+    // There should be two widgets
+    QCOMPARE(buttonsCount(), 2);
 
-    LauncherButton *b = dynamic_cast<LauncherButton *>(launcher->model()->widgets().at(0));
+    QSharedPointer<LauncherButton> b = launcher->model()->launcherPages().at(0)->model()->launcherButtons().at(0);
     QVERIFY(b != NULL);
 
     // Check name and icon for all entries
@@ -406,25 +442,28 @@ void Ut_Launcher::testCategoryDui()
     QCOMPARE(b->target(), QString("dui-category-application"));
 }
 
-void Ut_Launcher::testDesktopEntryAddToRoot()
+void Ut_Launcher::testDesktopEntryAdd()
 {
     // Initalize launcher
-    launcher->openRootCategory();
+    launcher->setEnabled(true);
 
-    // There should be no widgets in the view
-    QCOMPARE(launcher->model()->widgets().count(), 0);
+    // There should be no launcherButtons in the view
+    QCOMPARE(buttonsCount(), 0);
 
     // Add a desktop file in the "desktop file directory"
     desktopFileInfoList.append(QFileInfo(QString(APPLICATIONS_DIRECTORY) + "regularApplication.desktop"));
 
+    // Process events to make sure all notifications are done
+    QCoreApplication::processEvents(QEventLoop::AllEvents, 1000);
+
     // Fake a directory change notification
     emit directoryChanged(APPLICATIONS_DIRECTORY);
 
     // There should be one widget in the view
-    QCOMPARE(launcher->model()->widgets().count(), 1);
+    QCOMPARE(buttonsCount(), 1);
 
     // The widget should be a LauncherButton
-    LauncherButton *b = dynamic_cast<LauncherButton *>(launcher->model()->widgets().at(0));
+    QSharedPointer<LauncherButton> b = launcher->model()->launcherPages().at(0)->model()->launcherButtons().at(0);
 
     QVERIFY(b != NULL);
 
@@ -433,129 +472,32 @@ void Ut_Launcher::testDesktopEntryAddToRoot()
     QCOMPARE(b->iconID(), QString("Icon-camera"));
     QCOMPARE(b->target(), QString("test0"));
     QCOMPARE(b->targetType(), QString("Application"));
-}
-
-void Ut_Launcher::testDesktopEntryAddToNamedCategory()
-{
-    // Adds two items, one to root category, another to "TestCat1" category. Checks that only first one is added to root category, then changes category to TestCat1, and tests that only second item is there.
-
-    // Initalize launcher
-    launcher->openRootCategory();
-
-    // There should be no widgets in the view
-    QCOMPARE(launcher->model()->widgets().count(), 0);
-
-    // Add a desktop file in the root category
-    desktopFileInfoList.append(QFileInfo(QString(APPLICATIONS_DIRECTORY) + "regularApplication.desktop"));
-
-    // Application defines category different from root, shouldn't be added to root
-    desktopFileInfoList.append(QFileInfo(QString(APPLICATIONS_DIRECTORY) + "applicationInCategory.desktop"));
-
-    // Check root category
-
-    // Fake a directory change notification
-    emit directoryChanged(APPLICATIONS_DIRECTORY);
-
-    // There should be one widget in the view
-    QCOMPARE(launcher->model()->widgets().count(), 1);
-
-    // The widget should be a LauncherButton
-    LauncherButton *b = dynamic_cast<LauncherButton *>(launcher->model()->widgets().at(0));
-
-    QVERIFY(b != NULL);
-
-    // Check name, icon, target and type
-    QCOMPARE(b->text(), QString("Test0"));
-    QCOMPARE(b->iconID(), QString("Icon-camera"));
-    QCOMPARE(b->target(), QString("test0"));
-    QCOMPARE(b->targetType(), QString("Application"));
-
-    // Check "TestCat1" category
-
-    // Change category. No items from root should be present
-    emit directoryLaunched(QString("TestCat1"));
-
-    // There should be one widget in the category (the other one is in root)
-    QCOMPARE(launcher->model()->widgets().count(), 1);
-
-    // The widget should be a LauncherButton
-    b = dynamic_cast<LauncherButton *>(launcher->model()->widgets().at(0));
-
-    QVERIFY(b != NULL);
-
-    // Check that item from TestCat1 is there
-    QCOMPARE(b->text(), QString("Test4"));
-    QCOMPARE(b->iconID(), QString("Icon-music"));
-    QCOMPARE(b->target(), QString("test4"));
-    QCOMPARE(b->targetType(), QString("Application"));
-}
-
-void Ut_Launcher::testCategoryEntryAdd()
-{
-    launcher->openRootCategory();
-
-    // There should be no widgets in the view
-    QCOMPARE(launcher->model()->widgets().count(), 0);
-
-    directoryFileInfoList.append(QFileInfo(QString(CATEGORIES_DIRECTORY) + "directoryEntry1.directory"));
-
-    emit directoryChanged(CATEGORIES_DIRECTORY);
-
-    // There should be one widget in the root
-    QCOMPARE(launcher->model()->widgets().count(), 1);
-
-    // The widget should be a LauncherButton
-    LauncherButton *b = dynamic_cast<LauncherButton *>(launcher->model()->widgets().at(0));
-
-    QVERIFY(b != NULL);
-
-    // Check name, icon, target and type
-    QCOMPARE(b->text(), QString("TestCat1"));
-    QCOMPARE(b->iconID(), QString("Icon-camera"));
-}
-
-void Ut_Launcher::testCategoryEntryAddToAnotherCategory()
-{
-    launcher->openRootCategory();
-    directoryFileInfoList.append(QFileInfo(QString(CATEGORIES_DIRECTORY) + "directoryEntry1.directory"));
-    emit directoryChanged(CATEGORIES_DIRECTORY);
-
-    //Change to previously added category
-    emit directoryLaunched(QString("TestCat1"));
-
-    // There should be no widgets in this category
-    QCOMPARE(launcher->model()->widgets().count(), 0);
-
-    // We don't support subcategories. Try adding a category to TestCat1
-    directoryFileInfoList.append(QFileInfo(QString(CATEGORIES_DIRECTORY) + "directoryEntry2.directory"));
-
-    // As we are not in root category, the item should not be added.
-    QCOMPARE(launcher->model()->widgets().count(), 0);
 }
 
 void Ut_Launcher::testInvalidFiles()
 {
     // Test adding files which should be considered invalid for some reason
-    launcher->openRootCategory();
 
-    // There should be no widgets in the root
-    QCOMPARE(launcher->model()->widgets().count(), 0);
+    launcher->setEnabled(true);
+
+    // There should be no launcherButtons in the root
+    QCOMPARE(buttonsCount(), 0);
 
     // Entry is of type Directory, which shouldn't be added
     desktopFileInfoList.append(QFileInfo(QString(APPLICATIONS_DIRECTORY) + "directoryInApplicationsDirectory.desktop"));
 
     emit directoryChanged(APPLICATIONS_DIRECTORY);
 
-    // There should be no widgets in the root
-    QCOMPARE(launcher->model()->widgets().count(), 0);
+    // There should be no launcherButtons in the root
+    QCOMPARE(buttonsCount(), 0);
 
     // Entry is missing name, shouldn't be added
     desktopFileInfoList.append(QFileInfo(QString(APPLICATIONS_DIRECTORY) + "test5.desktop"));
 
     emit directoryChanged(APPLICATIONS_DIRECTORY);
 
-    // There should be no widgets in the root
-    QCOMPARE(launcher->model()->widgets().count(), 0);
+    // There should be no launcherButtons in the root
+    QCOMPARE(buttonsCount(), 0);
 }
 
 void Ut_Launcher::testDesktopEntryRemove()
@@ -564,10 +506,10 @@ void Ut_Launcher::testDesktopEntryRemove()
     desktopFileInfoList.append(QFileInfo(QString(APPLICATIONS_DIRECTORY) + "regularApplication.desktop"));
 
     // Initalize launcher
-    launcher->openRootCategory();
+    launcher->setEnabled(true);
 
     // There should be one widget in the root
-    QCOMPARE(launcher->model()->widgets().count(), 1);
+    QCOMPARE(buttonsCount(), 1);
 
     // "Delete" the desktop file
     desktopFileInfoList.clear();
@@ -575,15 +517,15 @@ void Ut_Launcher::testDesktopEntryRemove()
     // Fake a directory change notification
     emit directoryChanged(APPLICATIONS_DIRECTORY);
 
-    // There should be no widgets in the root
-    QCOMPARE(launcher->model()->widgets().count(), 0);
+    // There should be no launcherButtons in the root
+    QCOMPARE(buttonsCount(), 0);
 }
 
 void Ut_Launcher::testApplicationLaunched()
 {
     desktopFileInfoList.append(QFileInfo(QString(APPLICATIONS_DIRECTORY) + "regularApplication.desktop"));
 
-    launcher->openRootCategory();
+    launcher->setEnabled(true);
 
     emit applicationLaunched("test0");
 
@@ -594,58 +536,102 @@ void Ut_Launcher::testDuiApplicationLaunched()
 {
     desktopFileInfoList.append(QFileInfo(QString(APPLICATIONS_DIRECTORY) + "xMaemoApplication.desktop"));
 
-    launcher->openRootCategory();
+    launcher->setEnabled(true);
 
     emit duiApplicationLaunched("com.nokia.test1");
 
     QCOMPARE(duiApplicationIfProxyLaunchCalled, true);
 }
 
-void Ut_Launcher::testLaunchingApplicationFromCategory()
+void Ut_Launcher::testLaunchingLink()
 {
-    desktopFileInfoList.append(QFileInfo(QString(APPLICATIONS_DIRECTORY) + "regularApplication.desktop"));
-
-    launcher->openRootCategory();
-
-    // Set new category for the launcher and verify that category has changed.
-    emit directoryLaunched(QString("directory"), QString("directoryTitle"), QString("directoryIcon"));
-    QCOMPARE(launcher->model()->category(), LauncherModel::SubCategory);
-
-    // Launch application.
-    emit applicationLaunched("test0");
-
-    // Verify that application is started and that launcher returns to root category
-    QCOMPARE(applicationStarted, QString("test0"));
-    QCOMPARE(launcher->model()->category(), LauncherModel::RootCategory);
-}
-
-void Ut_Launcher::testLaunchingDuiApplicationFromCategory()
-{
-    desktopFileInfoList.append(QFileInfo(QString(APPLICATIONS_DIRECTORY) + "xMaemoApplication.desktop"));
-
-    launcher->openRootCategory();
-
-    // Set new category for the launcher and verify that category has changed.
-    emit directoryLaunched(QString("directory"), QString("directoryTitle"), QString("directoryIcon"));
-    QCOMPARE(launcher->model()->category(), LauncherModel::SubCategory);
-
-    // Launch dui application
-    emit duiApplicationLaunched("com.nokia.test1");
-
-    // Verify that application is started and that launcher returns to root category
-    QCOMPARE(duiApplicationIfProxyLaunchCalled, true);
-    QCOMPARE(launcher->model()->category(), LauncherModel::RootCategory);
-}
-
-void Ut_Launcher::testLaunchingLinkFromCategory()
-{
-    launcher->openRootCategory();
+    launcher->setEnabled(true);
 
     // Launch link
     emit linkLaunched("testLink");
 
-    // Verify that launcher returns to root category
-    QCOMPARE(launcher->model()->category(), LauncherModel::RootCategory);
+    // Not supported at the moment
+}
+
+void Ut_Launcher::testPaging()
+{
+    launcher->setEnabled(true);
+
+    for (int i = 0; i < 15; i++) {
+        desktopFileInfoList.append(QString(APPLICATIONS_DIRECTORY) + QString("fillerApplication%1.desktop").arg(i));
+    }
+
+    // Process events to make sure all notifications are done
+    QCoreApplication::processEvents(QEventLoop::AllEvents, 1000);
+
+    // Fake a directory change notification
+    emit directoryChanged(APPLICATIONS_DIRECTORY);
+
+    QCOMPARE(buttonsCount(), 15);
+    QCOMPARE(launcher->model()->launcherPages().count(), 2);
+    QCOMPARE(launcher->model()->launcherPages().at(0).data()->model()->launcherButtons().count(), 12);
+    QCOMPARE(launcher->model()->launcherPages().at(1).data()->model()->launcherButtons().count(), 3);
+
+}
+
+void Ut_Launcher::testEmptyPage()
+{
+    launcher->setEnabled(true);
+
+    for (int i = 0; i < 15; i++) {
+        desktopFileInfoList.append(QString(APPLICATIONS_DIRECTORY) + QString("fillerApplication%1.desktop").arg(i));
+    }
+
+    // Process events to make sure all notifications are done
+    QCoreApplication::processEvents(QEventLoop::AllEvents, 1000);
+    // Fake a directory change notification
+    emit directoryChanged(APPLICATIONS_DIRECTORY);
+
+    QCOMPARE(launcher->model()->launcherPages().count(), 2);
+    desktopFileInfoList.clear();
+    for (int i = 0; i < 12; i++) {
+        desktopFileInfoList.append(QString(APPLICATIONS_DIRECTORY) + QString("fillerApplication%1.desktop").arg(i));
+    }
+
+    // Process events to make sure all notifications are done
+    QCoreApplication::processEvents(QEventLoop::AllEvents, 1000);
+    // Fake a directory change notification
+    emit directoryChanged(APPLICATIONS_DIRECTORY);
+
+    QCOMPARE(launcher->model()->launcherPages().count(), 1);
+}
+
+void Ut_Launcher::testAddingAndRemovingButtonsWithMultiplePages()
+{
+    launcher->setEnabled(true);
+
+    for (int i = 0; i < 15; i++) {
+        desktopFileInfoList.append(QString(APPLICATIONS_DIRECTORY) + QString("fillerApplication%1.desktop").arg(i));
+    }
+    // Process events to make sure all notifications are done
+    QCoreApplication::processEvents(QEventLoop::AllEvents, 1000);
+    // Fake a directory change notification
+    emit directoryChanged(APPLICATIONS_DIRECTORY);
+
+    // make a space for 1st page
+    desktopFileInfoList.removeOne(QString(APPLICATIONS_DIRECTORY) + QString("fillerApplication11.desktop"));
+    // Fake a directory change notification
+    emit directoryChanged(APPLICATIONS_DIRECTORY);
+
+    QCOMPARE(launcher->model()->launcherPages().count(), 2);
+    QCOMPARE(launcher->model()->launcherPages().at(0).data()->model()->launcherButtons().count(), 11);
+    QCOMPARE(launcher->model()->launcherPages().at(1).data()->model()->launcherButtons().count(), 3);
+
+    // add new button and verify it was added to last page
+    desktopFileInfoList.append(QString(APPLICATIONS_DIRECTORY) + QString("fillerApplication15.desktop"));
+    // Process events to make sure all notifications are done
+    QCoreApplication::processEvents(QEventLoop::AllEvents, 1000);
+    // Fake a directory change notification
+    emit directoryChanged(APPLICATIONS_DIRECTORY);
+
+    QCOMPARE(launcher->model()->launcherPages().count(), 2);
+    QCOMPARE(launcher->model()->launcherPages().at(0).data()->model()->launcherButtons().count(), 11);
+    QCOMPARE(launcher->model()->launcherPages().at(1).data()->model()->launcherButtons().count(), 4);
 }
 
 QTEST_APPLESS_MAIN(Ut_Launcher)

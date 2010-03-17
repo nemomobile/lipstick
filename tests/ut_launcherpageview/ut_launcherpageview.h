@@ -22,13 +22,12 @@
 
 #include <QtTest/QtTest>
 #include <QObject>
-#include "launcherview.h"
+#include "launcherpageview.h"
 
 class DuiApplication;
-class DuiApplicationWindow;
 class Launcher;
 
-class Ut_LauncherView : public QObject
+class Ut_LauncherPageView : public QObject
 {
     Q_OBJECT
 
@@ -43,19 +42,14 @@ private slots:
     void cleanup();
 
     // Test cases
-    void testPagedViewportObjectName();
-    void testSetButtons();
-    void testAddAndRemovePages();
-    void testSetPageWidthUpdateWhenGeometryChanges();
+    void testAddButtonsToPage();
 
 private:
     // DuiApplication
     DuiApplication *app;
-    // DuiApplicationWindow needed by the application
-    DuiApplicationWindow* appWindow;
     // The object being tested
-    Launcher *controller;
-    LauncherView *view;
+    LauncherPage *controller;
+    LauncherPageView *view;
 };
 
 #endif

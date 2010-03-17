@@ -16,19 +16,27 @@
 ** of this file.
 **
 ****************************************************************************/
-
+#include <DuiApplicationWindow>
 #include <DuiFlowLayoutPolicy>
 #include <QGraphicsLinearLayout>
 #include <DuiSceneManager>
 #include "ut_launcherview.h"
 #include "launcher.h"
+#include "launcherpage.h"
+#include "launcherbuttonmodel.h"
 #include "launcherbutton_stub.h"
 #include "homeapplication_stub.h"
 #include "mainwindow_stub.h"
 #include "launcherview.h"
+#include "pagedviewport.h"
+
+#include "duiwidgetcreator.h"
+DUI_REGISTER_WIDGET(PagedViewport)
 
 // DuiSceneWindow stubs
 int showWindowCount = 0;
+int pageWidth = 0;
+
 void DuiSceneWindow::appear(DuiSceneWindow::DeletionPolicy)
 {
     showWindowCount++;
@@ -40,10 +48,30 @@ void DuiSceneWindow::disappear()
     hideWindowCount++;
 }
 
-// DuiWindow stubs
-DuiSceneManager *DuiWindow::sceneManager()
+PagedViewport::PagedViewport(QGraphicsItem *parent) : DuiPannableViewport(parent)
+{   
+
+}
+
+PagedViewport::~PagedViewport() {
+
+}
+
+
+//PagedViewport stubs
+void PagedViewport::panToPage(uint page)
 {
-    return NULL;
+    Q_UNUSED(page)
+}
+
+void PagedViewport::updatePageWidth(int width)
+{
+    pageWidth = width;
+}
+
+void PagedViewport::setPanDirection(const Qt::Orientations &panDirection)
+{
+  Q_UNUSED(panDirection);
 }
 
 void Ut_LauncherView::initTestCase()
@@ -51,11 +79,14 @@ void Ut_LauncherView::initTestCase()
     static int argc = 1;
     static char *app_name = (char *)"./ut_launcherview";
     app = new DuiApplication(argc, &app_name);
+    appWindow = new DuiApplicationWindow;
 }
 
 void Ut_LauncherView::cleanupTestCase()
 {
+    delete appWindow;
     delete app;
+
 }
 
 void Ut_LauncherView::init()
@@ -72,51 +103,72 @@ void Ut_LauncherView::cleanup()
     delete controller;
 }
 
-void Ut_LauncherView::testSwitchingToSubCategory()
+
+void Ut_LauncherView::testSetPageWidthUpdateWhenGeometryChanges()
 {
-    // Switch to subcategory
-    controller->model()->setCategory(LauncherModel::SubCategory);
-    QCOMPARE(showWindowCount, 1);
+    QRectF rect(0, 0, 100, 100);
+    view->setGeometry(rect);    
+    QCOMPARE(pageWidth, 100);
 }
 
-void Ut_LauncherView::testSwitchingToRootCategory()
+void Ut_LauncherView::testPagedViewportObjectName()
 {
-    // Switch to subcategory
-    controller->model()->setCategory(LauncherModel::SubCategory);
-    QCOMPARE(hideWindowCount, 0);
-
-    // Switch back to root category
-    controller->model()->setCategory(LauncherModel::RootCategory);
-    QCOMPARE(hideWindowCount, 1);
+    PagedViewport *viewport = dynamic_cast<PagedViewport *>(controller->childItems().at(0));
+    QVERIFY(viewport != NULL);
+    QCOMPARE(viewport->objectName(), QString("LauncherPagedViewport"));
 }
 
-void Ut_LauncherView::testSetWidgets()
+void Ut_LauncherView::testSetButtons()
 {
-    DuiWidget *widget1 = new DuiWidget;
-    DuiWidget *widget2 = new DuiWidget;
-    QList<DuiWidget *> widgets;
-    widgets.append(widget1);
-    widgets.append(widget2);
-    controller->model()->setWidgets(widgets);
+    QSharedPointer<LauncherButton> button1(new LauncherButton());
+    QSharedPointer<LauncherButton> button2(new LauncherButton());
+    QList< QSharedPointer<LauncherPage> > pages;
+    QSharedPointer<LauncherPage> page(new LauncherPage());
+    page->appendButton(button1);
+    page->appendButton(button2);
+    pages.append(page);
+    controller->model()->setLauncherPages(pages);
 
-    QGraphicsLinearLayout *mainLayout = dynamic_cast<QGraphicsLinearLayout *>(controller->layout());
-    QVERIFY(mainLayout != NULL);
-    QCOMPARE(mainLayout->count(), 1);
-    DuiLayout *layout = dynamic_cast<DuiLayout *>(mainLayout->itemAt(0));
-    QVERIFY(layout != NULL);
+    PagedViewport *viewport = dynamic_cast<PagedViewport *>(controller->childItems().at(0));
+    QVERIFY(viewport != NULL);
+    
+    QGraphicsWidget* pannedWidget = viewport->widget();
+    QVERIFY(pannedWidget != NULL);
+    
+    QGraphicsLayout* layout = pannedWidget->layout();
+
+    QCOMPARE(layout->count(), 1);
+    QCOMPARE(layout->itemAt(0), page.data());
+}
+
+void Ut_LauncherView::testAddAndRemovePages()
+{
+    // add two pages
+    QList< QSharedPointer<LauncherPage> > pages;
+    for (int iter1 = 0; iter1 < 2; iter1++){
+        QSharedPointer<LauncherPage> page(new LauncherPage());
+        for (int iter2 = 0; iter2 < 10; iter2++) {
+            QSharedPointer<LauncherButton> button(new LauncherButton());
+            page->appendButton(button);
+        }
+        pages.append(page);
+    }
+    controller->model()->setLauncherPages(pages);
+
+    PagedViewport *viewport = dynamic_cast<PagedViewport *>(controller->childItems().at(0));
+    QVERIFY(viewport != NULL);
+
+    QGraphicsWidget* pannedWidget = viewport->widget();
+    QVERIFY(pannedWidget != NULL);
+
+    QGraphicsLayout* layout = pannedWidget->layout();
+
     QCOMPARE(layout->count(), 2);
-    QCOMPARE(layout->itemAt(0), widget1);
-    QCOMPARE(layout->itemAt(1), widget2);
-}
 
-void Ut_LauncherView::testSetLayoutObjectName()
-{
-    controller->model()->setLayoutObjectName("TestName");
-    QGraphicsLinearLayout *mainLayout = dynamic_cast<QGraphicsLinearLayout *>(controller->layout());
-    QVERIFY(mainLayout != NULL);
-    QCOMPARE(mainLayout->count(), 1);
-    DuiLayout *layout = dynamic_cast<DuiLayout *>(mainLayout->itemAt(0));
-    QCOMPARE(layout->policy()->objectName(), QString("TestName"));
+    pages.removeAt(1);
+    controller->model()->setLauncherPages(pages);
+
+    QCOMPARE(layout->count(), 1);
 }
 
 QTEST_APPLESS_MAIN(Ut_LauncherView)

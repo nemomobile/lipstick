@@ -7,18 +7,23 @@ STYLE_HEADERS += \
     $$SRCDIR/launcherstyle.h
 
 MODEL_HEADERS += \
-    $$SRCDIR/launchermodel.h
+    $$SRCDIR/launchermodel.h \
+    $$SRCDIR/launcherpagemodel.h \
+    $$SRCDIR/launcherbuttonmodel.h
 
 # unit test and unit
 SOURCES += \
     ut_launcherview.cpp \
     $$SRCDIR/launcherview.cpp \
-    $$SRCDIR/launcher.cpp
+    $$SRCDIR/launcher.cpp \
+    $$SRCDIR/launcherdatastore.cpp \
+    $$SRCDIR/launcherpage.cpp
 
 # service classes
 SOURCES += ../stubs/stubbase.cpp \
-    $$SRCDIR/windowinfo.cpp
-
+    $$SRCDIR/windowinfo.cpp \
+#    $$SRCDIR/pagedviewport.cpp \
+    $$SRCDIR/switcherphysicsintegrationstrategy.cpp
 
 # unit test and unit
 HEADERS += \
@@ -27,9 +32,15 @@ HEADERS += \
     $$SRCDIR/launcherstyle.h \
     $$SRCDIR/launchermodel.h \
     $$SRCDIR/launcher.h \
+    $$SRCDIR/launcherdatastore.h \
+    $$SRCDIR/launcherpage.h \
+    $$SRCDIR/launcherpagemodel.h \
     $$SRCDIR/launcherbutton.h \
+    $$SRCDIR/launcherbuttonmodel.h \
     $$SRCDIR/homeapplication.h \
-    $$SRCDIR/mainwindow.h
+    $$SRCDIR/mainwindow.h \
+    $$SRCDIR/pagedviewport.h \
+    $$SRCDIR/switcherphysicsintegrationstrategy.h
 
 DEFINES += APPLICATIONS_DIRECTORY=\'$$quote(\"/tmp/ut_launcherview/applications/\")\'
 DEFINES += CATEGORIES_DIRECTORY=\'$$quote(\"/tmp/ut_launcherview/categories/\")\'

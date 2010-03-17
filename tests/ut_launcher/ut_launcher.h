@@ -38,10 +38,12 @@ public:
     static bool          duiApplicationIfProxyLaunchCalled;
 
 private:
+    //TestLauncher *launcher;
     Launcher *launcher;
     DuiApplication *app;
 
     void writeDesktopFile(QString fileName, QString type, QString name, QString iconName, QString exec);
+    int buttonsCount();
 
 signals:
     void directoryLaunched(const QString &directory, const QString &title = QString(), const QString &iconId = QString());
@@ -71,17 +73,10 @@ private slots:
     void testNotShowInDui();
     // Test that the launcher includes an entry that is not supposed to be shown in some other environment than DUI
     void testNotShowInNotDui();
-    // Test that the launcher includes an entry that has a Category set to DUI
-    // TODO: remove this when the Category DUI feature is removed
-    void testCategoryDui();
+    // Test that the launcher includes entries with categories and doesn't include directory entiries
+    void testCategories();
     // Test that adding a new desktop entry to root adds a new widget
-    void testDesktopEntryAddToRoot();
-    // Test that adding a new desktop entry to a named category adds a new widget only to the correct category
-    void testDesktopEntryAddToNamedCategory();
-    // Test adding category to root
-    void testCategoryEntryAdd();
-    // Test adding category to another category
-    void testCategoryEntryAddToAnotherCategory();
+    void testDesktopEntryAdd();
     // Test that invalid files are not added
     void testInvalidFiles();
     // Test that removing a new desktop entry removes the widget
@@ -90,11 +85,13 @@ private slots:
     void testApplicationLaunched();
     // Test that launching a DuiApplication is attempted
     void testDuiApplicationLaunched();
-    // Test launching an application from a subcategory
-    void testLaunchingApplicationFromCategory();
-    // Test launching a DUI application from a subcategory
-    void testLaunchingDuiApplicationFromCategory();
     // Test launching a link from a subcategory
-    void testLaunchingLinkFromCategory();
+    void testLaunchingLink();
+    // Test that launcher buttons are paged to multiple pages
+    void testPaging();
+    // Test that empty page is removed from launcher
+    void testEmptyPage();
+    // Test that with multiple pages buttons are added correctly and remain correct when buttons removed
+    void testAddingAndRemovingButtonsWithMultiplePages();
 };
 #endif //_UT_LAUNCHER_

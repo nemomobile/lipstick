@@ -17,18 +17,16 @@
 **
 ****************************************************************************/
 
-#ifndef UT_LAUNCHERVIEW_H
-#define UT_LAUNCHERVIEW_H
+#ifndef UT_LAUNCHERPAGE_H
+#define UT_LAUNCHERPAGE_H
 
 #include <QtTest/QtTest>
 #include <QObject>
-#include "launcherview.h"
 
 class DuiApplication;
-class DuiApplicationWindow;
-class Launcher;
+class LauncherPage;
 
-class Ut_LauncherView : public QObject
+class Ut_LauncherPage : public QObject
 {
     Q_OBJECT
 
@@ -43,19 +41,18 @@ private slots:
     void cleanup();
 
     // Test cases
-    void testPagedViewportObjectName();
-    void testSetButtons();
-    void testAddAndRemovePages();
-    void testSetPageWidthUpdateWhenGeometryChanges();
-
+    void testAddButtonWhenPageNotFull();
+    void testAddButtonWhenPageIsFull();
+    void testContainsDesktopEntry();
+    void testRemoveButton();
+    void testPruning();
+  
+  
 private:
     // DuiApplication
     DuiApplication *app;
-    // DuiApplicationWindow needed by the application
-    DuiApplicationWindow* appWindow;
     // The object being tested
-    Launcher *controller;
-    LauncherView *view;
+    LauncherPage *m_subject;
 };
 
 #endif

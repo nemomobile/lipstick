@@ -29,7 +29,7 @@ static void comparePageLocations(QList< QSharedPointer<LauncherPage> > pages);
 
 static void compareEntryPageLocations(QSharedPointer<LauncherPage> pageToCompare, int page);
 
-static void createSimpleTestData(QList< QSharedPointer<LauncherPage> > pages);
+static void createSimpleTestData(QList< QSharedPointer<LauncherPage> > &pages);
 
 static QSharedPointer<LauncherPage> createLauncherPage(const QStringList entries);
 
@@ -109,19 +109,8 @@ void Ut_LauncherDataStore::cleanup()
 void Ut_LauncherDataStore::testAddingLauncherItemsToAnEmptyStore()
 {
     QCOMPARE(testData.count(), 0);
-
-    QStringList pageOneEntries;
-    pageOneEntries << QString("/path/entry.desktop") << QString("/path/entry-1.desktop");
-
-    QStringList pageTwoEntries;
-    pageTwoEntries << QString("/path/entry-2.desktop") << QString("/path/entry-3.desktop") << QString("/path/entry-4.desktop");
-
-    QSharedPointer<LauncherPage> pageOne = createLauncherPage(pageOneEntries);
-    QSharedPointer<LauncherPage> pageTwo = createLauncherPage(pageTwoEntries);
-
     QList< QSharedPointer<LauncherPage> > pages;
-    pages.append(pageOne);
-    pages.append(pageTwo);
+    createSimpleTestData(pages);
 
     m_subject->updateLauncherButtons(pages);
 
@@ -242,13 +231,17 @@ void Ut_LauncherDataStore::testLaucherButtonLocation()
 {
     QList< QSharedPointer<LauncherPage> > pages;
     createSimpleTestData(pages);
-
+    m_subject->updateLauncherButtons(pages);
     const DuiDesktopEntry entry("/path/entry.desktop");
     LauncherDataStore::EntryLocation location = m_subject->location(entry);
     QCOMPARE(location, LauncherDataStore::LauncherGrid);
+
+    const DuiDesktopEntry unknownEntry("/path/to-an-unknown-entry.desktop");
+    location = m_subject->location(unknownEntry);
+    QCOMPARE(location, LauncherDataStore::Unknown);
 }
 
-static void createSimpleTestData(QList< QSharedPointer<LauncherPage> > pages)
+static void createSimpleTestData(QList< QSharedPointer<LauncherPage> > &pages)
 {
     QStringList pageOneEntries;
     pageOneEntries << QString("/path/entry.desktop") << QString("/path/entry-1.desktop");
@@ -284,7 +277,7 @@ static QSharedPointer<LauncherPage> createLauncherPage(const QStringList entries
     const QSharedPointer<LauncherPage> page = QSharedPointer<LauncherPage>(new LauncherPage());
     foreach (QString entry, entries) {
 	QSharedPointer<LauncherButton> button = QSharedPointer<LauncherButton>(createLauncherButton(entry));
-	page.data()->addButton(button);
+	page.data()->appendButton(button);
     }
     return page;
 }

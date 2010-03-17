@@ -201,16 +201,6 @@ void Ut_DesktopView::cleanup()
     delete desktop;
 }
 
-void Ut_DesktopView::testSetGeometry()
-{
-    QRectF rect(0, 0, 200, 100);
-    desktopView->setGeometry(rect);
-
-    // Test that the launcher viewport size is adjusted to be the same as the desktop's geometry
-    QCOMPARE(desktopView->launcherViewport->minimumSize(), rect.size());
-    QCOMPARE(desktopView->launcherViewport->maximumSize(), rect.size());
-}
-
 void Ut_DesktopView::testBoundingRectAndDrawBackground()
 {
     QRectF br = desktopView->boundingRect();
