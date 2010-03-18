@@ -25,9 +25,7 @@
 
 class DuiApplication;
 class MainWindow;
-class StatusArea;
 class Home;
-class NotificationArea;
 class DuiSceneWindow;
 
 class Ut_Home : public QObject
@@ -49,22 +47,12 @@ private slots:
 
     // Test bounding rectangle
     void testBoundingRect();
-    // Test notification area visibility
-    void testNotificationAreaVisibility();
-    // Test notification area panning
-    void testNotificationAreaPanning();
-    // Test notification area transition
-    void testNotificationAreaTransition();
 
 private:
     // DuiApplication
     DuiApplication *app;
     // The object being tested
     Home *home;
-    // NotificationArea
-    NotificationArea *notificationAreaWidget;
-    // StatusArea
-    StatusArea *statusArea;
 };
 
 #endif

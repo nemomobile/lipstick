@@ -45,20 +45,7 @@ public:
      */
     virtual ~Desktop();
 
-    /*!
-     * Used for informing the desktop when the notification area opened or closed.
-     * \param open the new status
-     * \param launcherIconID the icon ID which should be used for the launcher button
-     */
-    void setNotificationAreaOpen(bool open, const QString &launcherIconID = "");
-
 signals:
-    //! A signal emitted by the notification area button of status area when clicked
-    void toggleNotificationArea(QGraphicsItem *reserveSpaceForItem);
-
-    //! Emitted when the notification area visibility changes
-    void notificationAreaVisibilityChanged(bool visible, const QString &launcherIconID);
-
     /*!
      * \brief Signaled when the viewport size, the panning range or the panning position changes.
      */

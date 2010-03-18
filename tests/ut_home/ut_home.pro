@@ -28,13 +28,6 @@ SOURCES += ../stubs/stubbase.cpp
 HEADERS += \
     $$SRCDIR/desktop.h \
     $$SRCDIR/desktopmodel.h \
-    $$SRCDIR/statusarea.h \
-    $$SRCDIR/statusareawindow.h \
-    $$SRCDIR/notificationarea.h \
-    $$SRCDIR/mainwindow.h \
     $$SRCDIR/homeapplication.h \
-    $$SRCDIR/notifications/homenotificationsink.h \
-    $$SRCDIR/notifications/widgetnotificationsink.h \
-    $$SRCDIR/notifications/notificationsink.h
 
 include(../common_bot.pri)

@@ -19,7 +19,6 @@
 
 #include "mainwindow.h"
 #include "homeapplication.h"
-#include "notificationmanager.h"
 #include "x11wrapper.h"
 
 int main(int argc, char *argv[])
@@ -28,11 +27,6 @@ int main(int argc, char *argv[])
 
     MainWindow *mainWindow = MainWindow::instance(true);
     mainWindow->show();
-
-    // Restore persistent notifications after all the signal connections are made to the notification sinks
-    app.notificationManager().restorePersistentData();
-
-    app.notificationManager().loadSystemNotificationSource();
 
     // Tell X that changes in the properties and the substructure of the root
     // window are interesting. These are used to get the list of windows and

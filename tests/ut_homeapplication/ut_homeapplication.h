@@ -85,8 +85,6 @@ private slots:
     // Test the startup, so that the process stopping and d-bus
     // notifications don't happen when the --upstart switch is not given
     void testNonUpstartStartup();
-    // Test the Use.Mode context property
-    void testUseMode();
     // Test X11EventFilter with window state change
     void testX11EventFilterWithWmStateChange();
     // Test X11EventFilter with PropertyNotify events

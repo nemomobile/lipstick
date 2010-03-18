@@ -2,8 +2,6 @@ TEMPLATE = subdirs
 SUBDIRS = \
     ut_mainwindow \
     ut_home \
-    ut_clock \
-    ut_clockview \
     ut_desktop \
     ut_desktopview \
     ut_launcher \
@@ -12,10 +10,6 @@ SUBDIRS = \
     ut_launcherpageview \
     ut_launcherbuttonview \
     ut_launcherdatastore \
-    ut_statusarea \
-    ut_statusareaview \
-    ut_statusareawindow \
-    ut_statusindicator \
     ut_switcher \
     ut_switcherview \
     ut_switcherbutton \
@@ -23,30 +17,10 @@ SUBDIRS = \
     ut_switcherphysicsintegrationstrategy \
     ut_quicklaunchbar \
     ut_quicklaunchbarview \
-    ut_notificationparameter \
-    ut_notificationparameters \
-    ut_notification \
-    ut_notificationgroup \
-    ut_notificationmanager \
-    ut_notificationarea \
-    ut_notificationareaview \
     ut_duihomeshortcutmanager \
-    ut_dbusinterfacenotificationsource \
-    ut_duihomesystemnotificationpluginbase \
-    ut_systemnotificationsource \
-    ut_homenotificationsink \
-    ut_notificationareasink \
-    ut_widgetnotificationsink \
-    ut_duicompositornotificationsink \
-    ut_duifeedbacknotificationsink \
-    ut_notifiernotificationsink \
-    ut_notifier \
-    ut_statusindicatorimageview \
-    ut_statusindicatorlabelview \
     ut_homeapplication \
     ut_windowinfo \
     ut_x11helper \
-    ut_eventtypestore \
     ut_appletspace \
     ut_appletspaceview \
     ut_pagedviewport \

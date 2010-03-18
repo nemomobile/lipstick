@@ -27,13 +27,6 @@
 #include "mainwindow.h"
 #include "x11wrapper.h"
 #include "x11helper.h"
-#include "notificationmanager.h"
-#include "homenotificationsink.h"
-#include "duicompositornotificationsink.h"
-#include "duifeedbacknotificationsink.h"
-#include "contextframeworkcontext.h"
-#include "applicationcontext.h"
-
 
 /*!
  * D-Bus names for the notification that's sent when home is ready
@@ -78,12 +71,7 @@ static bool isUpstartMode(int argc, char *argv[])
 }
 
 HomeApplication::HomeApplication(int &argc, char **argv) :
-    DuiApplication(argc, argv),
-    // TODO make the relay interval themeable
-    notificationManager_(new NotificationManager(3000)),
-    homeNotificationSink_(new HomeNotificationSink),
-    compositorNotificationSink_(new DuiCompositorNotificationSink),
-    feedbackNotificationSink_(new DuiFeedbackNotificationSink)
+    DuiApplication(argc, argv)
 {
     // Get X11 Atoms for different window types
     Display *dpy = QX11Info::display();
@@ -98,27 +86,6 @@ HomeApplication::HomeApplication(int &argc, char **argv) :
     skipTaskbarAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_STATE_SKIP_TASKBAR", False);
     windowStateAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_STATE", False);
 
-    // Connect the notification signals for the home notification sink
-    connect(notificationManager_, SIGNAL(notificationUpdated(const Notification &)), homeNotificationSink_, SLOT(addNotification(const Notification &)));
-    connect(notificationManager_, SIGNAL(notificationRemoved(uint)), homeNotificationSink_, SLOT(removeNotification(uint)));
-    connect(notificationManager_, SIGNAL(notificationRestored(const Notification &)), homeNotificationSink_, SIGNAL(transferNotification(const Notification &)));
-    connect(homeNotificationSink_, SIGNAL(notificationRemovalRequested(uint)), notificationManager_, SLOT(removeNotification(uint)));
-
-    // Connect the notification signals for the compositor notification sink
-    connect(notificationManager_, SIGNAL(notificationUpdated(const Notification &)), compositorNotificationSink_, SLOT(addNotification(const Notification &)));
-    connect(notificationManager_, SIGNAL(notificationRemoved(uint)), compositorNotificationSink_, SLOT(removeNotification(uint)));
-    connect(compositorNotificationSink_, SIGNAL(notificationRemovalRequested(uint)), notificationManager_, SLOT(removeNotification(uint)));
-
-    // Connect the notification signals for the feedback notification sink
-    connect(notificationManager_, SIGNAL(notificationUpdated(const Notification &)), feedbackNotificationSink_, SLOT(addNotification(const Notification &)));
-    connect(notificationManager_, SIGNAL(notificationRemoved(uint)), feedbackNotificationSink_, SLOT(removeNotification(uint)));
-
-    // Subscribe to a context property for getting information about the video recording status
-    ContextFrameworkContext context;
-    useMode = QSharedPointer<ContextItem>(context.createContextItem("Use.Mode"));
-    connect(useMode.data(), SIGNAL(contentsChanged()), this, SLOT(applyUseMode()));
-    applyUseMode();
-
     // launch a timer for sending a dbus-signal upstart when home is ready
     // and on screen
     upstartMode = isUpstartMode(argc, argv);
@@ -131,19 +98,6 @@ HomeApplication::HomeApplication(int &argc, char **argv) :
 
 HomeApplication::~HomeApplication()
 {
-    delete notificationManager_;
-    delete homeNotificationSink_;
-    delete compositorNotificationSink_;
-    delete feedbackNotificationSink_;
-}
-
-void HomeApplication::applyUseMode()
-{
-    bool videoRecording = useMode->value().toString() == "recording";
-
-    compositorNotificationSink_->setApplicationEventsEnabled(!videoRecording);
-    homeNotificationSink_->setApplicationEventsEnabled(!videoRecording);
-    feedbackNotificationSink_->setApplicationEventsEnabled(!videoRecording);
 }
 
 void HomeApplication::sendStartupNotifications()
@@ -323,14 +277,4 @@ void HomeApplication::updateWindowList()
         // Signal listeners that the window list has changed
         emit windowListUpdated(windowList);
     }
-}
-
-NotificationManager &HomeApplication::notificationManager()
-{
-    return *notificationManager_;
-}
-
-HomeNotificationSink &HomeApplication::homeNotificationSink()
-{
-    return *homeNotificationSink_;
 }

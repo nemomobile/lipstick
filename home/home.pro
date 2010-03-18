@@ -41,8 +41,7 @@ CONFIG += link_pkgconfig \
     dui
 PKGCONFIG += xcomposite \
     contextsubscriber-1.0 \
-    ContentManagerSearchIf \
-    maemosec
+    ContentManagerSearchIf
 
 # Support for deprecated DuiValueSpace. Remove this define when new ContextSubscriber is used.
 DEFINES += DUIVALUESPACE_USE_DEPRECATED
@@ -65,4 +64,3 @@ DEFINES += APPLET_DATA=\'$$quote(\"$$DUI_APPLET_DATA_DIR\")\'
 DEFINES += APPLET_SETTINGS=\'$$quote(\"$$DUI_APPLET_SETTINGS_DIR\")\'
 DEFINES += APPLICATIONS_DIRECTORY=\'$$quote(\"/usr/share/applications/\")\'
 DEFINES += CATEGORIES_DIRECTORY=\'$$quote(\"/usr/share/desktop-directories\")\'
-DEFINES += NOTIFICATIONS_EVENT_TYPES=\'$$quote(\"$$DUI_NOTIFICATIONS_EVENT_TYPES_DIR\")\'

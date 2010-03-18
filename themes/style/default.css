@@ -109,123 +109,9 @@ DuiOverlayStyle#AppletSpaceCloseButtonOverlay {
     offset: 0 0;
 }
 
-StatusAreaStyle {
-    background-image:;
-    background-color: #000000;
-    minimum-size: 100% 28;
-    preferred-size: 100% 28;
-    maximum-size: 100% 28;
-    margin-left: 0;
-    margin-right: 0;
-    margin-top: 0;
-    margin-bottom: 0;
-    padding-left: 0;
-    padding-right: 0;
-    padding-top: 0;
-    padding-bottom: 0;
-}
-StatusAreaStyle:pressed {
-    background-image: button-status-area-pressed 0 0 0 0;
-    background-color: $COLOR_ACTIVE_BACKGROUND;
-    background-opacity: 1.0;
-    text-color: $COLOR_ACTIVE_FOREGROUND;
-}
-
-StatusAreaStyle:selected {
-    background-image: button-status-area-pressed;
-    background-color: $COLOR_ACTIVE_BACKGROUND;
-    background-opacity: 1.0;
-    text-color: $COLOR_ACTIVE_FOREGROUND;
-}
-
-NotificationAreaStyle {
-    margin-top: 24px;
-    margin-bottom: 24px;
-    minimum-size: 100% 80;
-}
-
-#NotificationAreaViewport {
-    background-image: notification-area-background;
-}
-DuiOverlayStyle#NotificationAreaViewportOverlay {
-    vertical-align: top;
-    horizontal-align: left;
-    offset: 0 0;
-}
-
-DuiAbstractLayoutPolicyStyle#NotificationAreaFlowLayoutPolicy {
-    horizontal-spacing: 12;
-    vertical-spacing: 12;
-}
-
-
-DuiButtonStyle#Notifier {
-    background-image: icon-s-status-notifier 9 9 9 9;
-    font: $FONT_XSMALL;
-    text-color: #FFFFFF;
-    text-margin-left: 0;
-    text-margin-top: 0;
-    text-margin-right: 0;
-    text-margin-bottom: 0;
-    preferred-size: 36 18;
-    minimum-size: 36 18;
-    maximum-size: 36 18;
-}
-
-NotificationAreaStyle.Landscape {
-/*    margin-left: 43px; */
-}
-
-NotificationAreaStyle.Portrait {
-/*    margin-left: 49px; */
-}
-
-DuiSceneWindowAnimatorStyle:event_notification {
-    transition-in-type: "move.right";
-    transition-out-type: "move.to";
-    transition-out-destination: 0 78;
-    transition-out-fade: false;
-}
-
-DuiSceneWindowAnimatorStyle {
-    transition-in-duration: 500;
-    transition-in-type: "move.down";
-    transition-in-fade: true;
-    transition-out-duration: 500;
-    transition-out-type: "move.up";
-    transition-out-fade: true;
-}
-
 DuiButtonIconStyle {
     glow-color: #ffffff;
     horizontal-text-align: center;
-}
-
-ClockStyle {
-    margin-left: 0;
-    margin-right: 0;
-    margin-top: 0;
-    margin-bottom: 0;
-    padding-left: 0;
-    padding-right: 0;
-    padding-top: 0;
-    padding-bottom: 0;
-    time-format: "HH:mm";
-    preferred-size: 84 28;
-    minimum-size: 84 28;
-    maximum-size: 84 28;
-}
-DuiLabelStyle#ClockLabel {
-    font: $FONT_SMALL;
-    color: #FFFFFF;
-    margin-left: 0;
-    margin-right: 0;
-    margin-top: 0;
-    margin-bottom: 0;
-    padding-left: 1.6mm;
-    padding-right: 0;
-    padding-top: 0;
-    padding-bottom: 0;
 }
 
 DuiButtonStyle#ToggleLauncherButton {
@@ -614,15 +500,6 @@ SwitcherButtonStyle#DetailviewButton.Landscape:large {
 /* switcher button detail view end */
 
 
-StatusIndicatorImageStyle {
-    margin-left: 6;
-    margin-right: 6;
-    margin-top: 4;
-    margin-bottom: 0;
-    /* The number of milliseconds in which the images in imageList are animated */
-    animation-duration: 3000;
-}
-
 StatusIndicatorLabelStyle {
     minimum-size: -1 8;
     preferred-size: -1 8;
@@ -640,53 +517,4 @@ StatusIndicatorLabelStyle {
 DuiLabelStyle#StatusIndicatorLabel {
     font: $FONT_XSMALL;
     color: #FFFFFF;
-}
-
-StatusIndicatorImageStyle#PhoneNetworkSignalStrengthStatusIndicator {
-    /* The list of IDs of the images to be shown in the status indicator separated by spaces */
-    image-list: "icon-s-status-network0 icon-s-status-network1 icon-s-status-network2 icon-s-status-network3 icon-s-status-network4 icon-s-status-network5";
-    preferred-size: 14 18;
-    minimum-size: 14 18;
-    maximum-size: 14 18;
-}
-
-StatusIndicatorImageStyle#BatteryStatusIndicatorLevel {
-    /* The list of IDs of the images to be shown in the status indicator separated by spaces */
-    image-list: "icon-s-status-battery0 icon-s-status-battery13 icon-s-status-battery25 icon-s-status-battery38 icon-s-status-battery50 icon-s-status-battery62 icon-s-status-battery75 icon-s-status-battery88 icon-s-status-battery100";
-    preferred-size: 29 18;
-    minimum-size: 29 18;
-    maximum-size: 29 18;
-}
-
-StatusIndicatorImageStyle#BatteryStatusIndicatorCharging {
-    /* The list of IDs of the images to be shown in the status indicator separated by spaces */
-    image-list: "icon-s-status-battery0 icon-s-status-battery13 icon-s-status-battery25 icon-s-status-battery38 icon-s-status-battery50 icon-s-status-battery62 icon-s-status-battery75 icon-s-status-battery88 icon-s-status-battery100";
-    preferred-size: 29 18;
-    minimum-size: 29 18;
-    maximum-size: 29 18;
-}
-
-StatusIndicatorImageStyle#ClockAlarmStatusIndicator {
-    /* The list of IDs of the images to be shown in the status indicator separated by spaces */
-    image-list: "icon-s-status-alarm icon-s-status-alarm";
-    preferred-size: 10 11;
-    minimum-size: 10 11;
-    maximum-size: 10 11;
-    margin-top: 0;
-}
-
-StatusIndicatorImageStyle#BluetoothStatusIndicator {
-    /* The list of IDs of the images to be shown in the status indicator separated by spaces */
-    image-list: "icon-s-status-bluetooth icon-s-status-bluetooth-active";
-    preferred-size: 10 18;
-    minimum-size: 10 18;
-    maximum-size: 10 18;
-}
-
-StatusIndicatorImageStyle#InternetConnectionStatusIndicator {
-    /* The list of IDs of the images to be shown in the status indicator separated by spaces */
-    image-list: "icon-s-status-wlan";
-    preferred-size: 24 18;
-    minimum-size: 24 18;
-    maximum-size: 24 18;
 }

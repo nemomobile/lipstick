@@ -27,9 +27,3 @@ Desktop::Desktop(DuiWidget *parent) : DuiWidgetController(new DesktopModel, pare
 Desktop::~Desktop()
 {
 }
-
-void Desktop::setNotificationAreaOpen(bool open, const QString &launcherIconID)
-{
-    model()->setNotificationAreaOpen(open);
-    emit notificationAreaVisibilityChanged(open, launcherIconID);
-}

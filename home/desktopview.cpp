@@ -20,7 +20,6 @@
 #include "launcher.h"
 #include "desktopview.h"
 #include "desktop.h"
-#include "notificationarea.h"
 #include "mainwindow.h"
 #include "switcher.h"
 #include "statusindicator.h"

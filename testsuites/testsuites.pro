@@ -1,11 +1,9 @@
 include(../duiconfig.pri)
 TEMPLATE=subdirs
 TEST_SUITES = \
-    NotificationSystem \
     HomeLauncher \
     HomeMashupCategories \
     HomeSwitcher \
-    HomeStatusIndicatorMenu \
     HomeStartup \
     DuiAppletInstallationThroughAppletLibrary \
     HomeAppletTests \

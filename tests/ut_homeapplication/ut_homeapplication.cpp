@@ -27,18 +27,11 @@
 #include <DuiSceneManager>
 #include <DuiLocale>
 #include "homeapplication.h"
-#include "notificationmanager_stub.h"
-#include "homenotificationsink.h"
-#include "duicompositornotificationsink.h"
-#include "duifeedbacknotificationsink.h"
 #include "x11wrapper.h"
 #include "x11helper.h"
-#include "eventtypestore_stub.h"
 #include "mainwindow_stub.h"
 #include "duiwindow_stub.h"
 #include "duiapplication_stub.h"
-#include "testcontextitem.h"
-#include "contextframeworkcontext.h"
 #include <signal.h>
 
 #define ATOM_TYPE 0x00010000
@@ -395,150 +388,6 @@ void QDBusPendingReplyData::setMetaTypes(int count, const int *metaTypes)
     Q_UNUSED(metaTypes);
 }
 
-maemosec::storage::~storage()
-{
-}
-
-Notification::~Notification()
-{
-}
-
-NotificationGroup::~NotificationGroup()
-{
-}
-
-NotificationParameters::NotificationParameters()
-{
-}
-
-NotificationParameters::~NotificationParameters()
-{
-}
-
-// NotificationSink stubs (used by HomeNotificationSink)
-void NotificationSink::addGroup(uint, const NotificationParameters &)
-{
-}
-
-void NotificationSink::removeGroup(uint)
-{
-}
-
-NotificationSink::NotificationSink()
-{
-}
-
-bool NotificationSink::applicationEventsEnabled()
-{
-    return true;
-}
-
-bool NotificationSink::canAddNotification(const Notification &/*notification*/)
-{
-    return true;
-}
-
-QHash<NotificationSink *, bool> sinkSetEnabled;
-void NotificationSink::setApplicationEventsEnabled(bool enabled)
-{
-    sinkSetEnabled[this] = enabled;
-}
-
-
-// WidgetNotificationSink stubs (used by HomeNotificationSink)
-void WidgetNotificationSink::infoBannerClicked()
-{
-}
-
-// HomeNotificationSink stubs (used by NotificationArea)
-HomeNotificationSink *homeNotificationSink = 0;
-HomeNotificationSink::HomeNotificationSink()
-{
-    homeNotificationSink = this;
-}
-
-HomeNotificationSink::~HomeNotificationSink()
-{
-}
-
-void HomeNotificationSink::addNotification(const Notification &)
-{
-}
-
-void HomeNotificationSink::removeNotification(uint)
-{
-}
-
-void HomeNotificationSink::notificationAnimationDone()
-{
-}
-
-void HomeNotificationSink::timeout()
-{
-}
-
-void HomeNotificationSink::setNotificationAreaVisible(bool)
-{
-}
-
-bool HomeNotificationSink::canAddNotification(const Notification &/*notification*/)
-{
-    return true;
-}
-
-
-// DuiCompositorNotificationSink stubs (used by NotificationArea)
-DuiCompositorNotificationSink *duiCompositorNotificationSink = 0;
-DuiCompositorNotificationSink::DuiCompositorNotificationSink()
-{
-    duiCompositorNotificationSink = this;
-}
-
-DuiCompositorNotificationSink::~DuiCompositorNotificationSink()
-{
-}
-
-void DuiCompositorNotificationSink::addNotification(const Notification &)
-{
-}
-
-void DuiCompositorNotificationSink::removeNotification(uint)
-{
-}
-
-void DuiCompositorNotificationSink::timeout()
-{
-}
-
-void DuiCompositorNotificationSink::rotateInfoBanners(const Dui::Orientation &)
-{
-}
-
-// DuiFeedbackNotificationSink stubs (used by NotificationArea)
-DuiFeedbackNotificationSink *duiFeedbackNotificationSink = 0;
-DuiFeedbackNotificationSink::DuiFeedbackNotificationSink()
-{
-    duiFeedbackNotificationSink = this;
-}
-
-DuiFeedbackNotificationSink::~DuiFeedbackNotificationSink()
-{
-}
-
-void DuiFeedbackNotificationSink::addNotification(const Notification &)
-{
-}
-
-void DuiFeedbackNotificationSink::removeNotification(uint)
-{
-}
-
-TestContextItem *testContextItem;
-ContextItem *ContextFrameworkContext::createContextItem(const QString& /*key*/)
-{
-    testContextItem = new TestContextItem;
-    return testContextItem;
-}
 // stubs needed for the d-bus signal and process stopping
 
 static pid_t signalPid = 0;
@@ -567,17 +416,6 @@ bool QDBusConnection::send(const QDBusMessage &message) const
     dbusMessageType = message.type();
     dbusMessageMember = message.member();
     return true;
-}
-
-ContextFrameworkItem::ContextFrameworkItem(const QString &key)
-    : property(key)
-{
-    connect(&property, SIGNAL(valueChanged()), this, SIGNAL(contentsChanged()));
-}
-
-QVariant ContextFrameworkItem::value() const
-{
-    return property.value();
 }
 
 // Test class
@@ -693,18 +531,6 @@ void Ut_HomeApplication::testNonUpstartStartup()
     QCOMPARE(signalPid, 0);
     QCOMPARE(signalValue, 0);
     compareDbusValues();
-}
-
-void Ut_HomeApplication::testUseMode()
-{
-    testContextItem->setValue("");
-    QVERIFY(sinkSetEnabled[homeNotificationSink]);
-    QVERIFY(sinkSetEnabled[duiCompositorNotificationSink]);
-    QVERIFY(sinkSetEnabled[duiFeedbackNotificationSink]);
-    testContextItem->setValue("recording");
-    QVERIFY(!sinkSetEnabled[homeNotificationSink]);
-    QVERIFY(!sinkSetEnabled[duiCompositorNotificationSink]);
-    QVERIFY(!sinkSetEnabled[duiFeedbackNotificationSink]);
 }
 
 void Ut_HomeApplication::testX11EventFilterWithWmStateChange()
