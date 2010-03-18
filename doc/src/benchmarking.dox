@@ -1,0 +1,197 @@
+/*! \page benchmarking Benchmarking DirectUI Homescreen
+
+It is possible to benchmark the performance of the homescreen application and collect the "frames per second" statistics from it. For that, the application should be built with \b BENCHMARKS=on option set. This option enables code in homescreen to toggle benchmarking on and off much like FPS counter is toggled in any DirectUI application. The \b duihomescreen Debian package is built with this option enabled unless \b nobenchmarks option is added to the \b DEB_BUILD_OPTIONS environment variable at the time of building.
+
+When benchmarking is enabled, the \c DesktopView will request an update (re-paint) after every paint operation, collecting statistics of how many times per second the painting happened. These statistics will be written to a file in the system temporary directory. Note that the \b BENCHMARKS=on option does not automatically enable benchmarking, it merely compiles in the code that can be used to facilitate benchmarking of the homescreen application. Benchmarking needs to be separately enabled and disabled as it is done by the benchmarking test case scripts. Thus, there is no performance penalty of having benchmarking code compiled in but not activated.
+
+Benchmarking test cases are automated using the MATTI environment and are executed in the same fashion as the homescreen functional tests. This also implies that the usual testability components (qttasserver, libdui testability plug-in) must be in place for successful execution of these tests. Benchmarking test cases are distributed in the \b duifw-home-benchmark-tests and are installed to the \b /usr/share/duifw-home-benchmark-tests directory. They can be executed using \b duitestrunner or directly from the command line (like the functional tests).
+
+Upon completion of the test cases, two files can be collected from the system under test:
+- /tmp/duihome_benchmarks/benchmark_commands.txt - The timestamped log of events as seen by the test cases. This usually contains the list of test cases (and test case runs) that were executed.
+- /tmp/duihome_benchmarks/benchmark_results.txt - The timestamped FPS statistics as produced by the homescreen application during the execution of the above test cases.
+
+These files are also collected by the CITA machinery and are uploaded together with the other test logs, making them available in the "Result Files" menu in the TERO web interface.
+
+Here is an example of the produced files:
+
+benchmark_commands.txt:
+\verbatim
+1970-01-01T00:02:40+00:00  testcase 'test_fps_when_switcher_panned' started
+1970-01-01T00:02:40+00:00  testcase 'test_fps_when_switcher_panned' run 0
+1970-01-01T00:02:43+00:00  testcase 'test_fps_when_switcher_panned' run 1
+1970-01-01T00:02:46+00:00  testcase 'test_fps_when_switcher_panned' run 2
+1970-01-01T00:02:49+00:00  testcase 'test_fps_when_switcher_panned' run 3
+1970-01-01T00:02:52+00:00  testcase 'test_fps_when_switcher_panned' run 4
+1970-01-01T00:02:55+00:00  testcase 'test_fps_when_switcher_panned' run 5
+1970-01-01T00:02:58+00:00  testcase 'test_fps_when_switcher_panned' run 6
+1970-01-01T00:03:01+00:00  testcase 'test_fps_when_switcher_panned' run 7
+1970-01-01T00:03:04+00:00  testcase 'test_fps_when_switcher_panned' run 8
+1970-01-01T00:03:07+00:00  testcase 'test_fps_when_switcher_panned' run 9
+1970-01-01T00:03:10+00:00  testcase 'test_fps_when_switcher_panned' done
+1970-01-01T00:03:37+00:00  testcase 'test_fps_when_switcher_rotates' started
+1970-01-01T00:03:37+00:00  testcase 'test_fps_when_switcher_rotates' run 0
+1970-01-01T00:03:38+00:00  Screen.TopEdge=right
+1970-01-01T00:03:43+00:00  Screen.TopEdge=top
+1970-01-01T00:03:48+00:00  testcase 'test_fps_when_switcher_rotates' run 1
+1970-01-01T00:03:48+00:00  Screen.TopEdge=right
+1970-01-01T00:03:53+00:00  Screen.TopEdge=top
+1970-01-01T00:03:58+00:00  testcase 'test_fps_when_switcher_rotates' run 2
+1970-01-01T00:03:58+00:00  Screen.TopEdge=right
+1970-01-01T00:04:03+00:00  Screen.TopEdge=top
+1970-01-01T00:04:08+00:00  testcase 'test_fps_when_switcher_rotates' run 3
+1970-01-01T00:04:08+00:00  Screen.TopEdge=right
+1970-01-01T00:04:13+00:00  Screen.TopEdge=top
+1970-01-01T00:04:18+00:00  testcase 'test_fps_when_switcher_rotates' run 4
+1970-01-01T00:04:18+00:00  Screen.TopEdge=right
+1970-01-01T00:04:23+00:00  Screen.TopEdge=top
+1970-01-01T00:04:28+00:00  testcase 'test_fps_when_switcher_rotates' run 5
+1970-01-01T00:04:28+00:00  Screen.TopEdge=right
+1970-01-01T00:04:33+00:00  Screen.TopEdge=top
+1970-01-01T00:04:38+00:00  testcase 'test_fps_when_switcher_rotates' run 6
+1970-01-01T00:04:38+00:00  Screen.TopEdge=right
+1970-01-01T00:04:43+00:00  Screen.TopEdge=top
+1970-01-01T00:04:48+00:00  testcase 'test_fps_when_switcher_rotates' run 7
+1970-01-01T00:04:48+00:00  Screen.TopEdge=right
+1970-01-01T00:04:53+00:00  Screen.TopEdge=top
+1970-01-01T00:04:58+00:00  testcase 'test_fps_when_switcher_rotates' run 8
+1970-01-01T00:04:58+00:00  Screen.TopEdge=right
+1970-01-01T00:05:03+00:00  Screen.TopEdge=top
+1970-01-01T00:05:08+00:00  testcase 'test_fps_when_switcher_rotates' run 9
+1970-01-01T00:05:08+00:00  Screen.TopEdge=right
+1970-01-01T00:05:13+00:00  Screen.TopEdge=top
+1970-01-01T00:05:18+00:00  testcase 'test_fps_when_switcher_rotates' done
+\endverbatim
+
+benchmark_results.txt:
+\verbatim
+11 1970-01-01T00:02:41
+16 1970-01-01T00:02:42
+8 1970-01-01T00:02:44
+13 1970-01-01T00:02:45
+12 1970-01-01T00:02:46
+10 1970-01-01T00:02:47
+12 1970-01-01T00:02:48
+13 1970-01-01T00:02:49
+10 1970-01-01T00:02:50
+12 1970-01-01T00:02:51
+12 1970-01-01T00:02:52
+10 1970-01-01T00:02:53
+12 1970-01-01T00:02:54
+13 1970-01-01T00:02:55
+11 1970-01-01T00:02:56
+13 1970-01-01T00:02:57
+12 1970-01-01T00:02:58
+10 1970-01-01T00:02:59
+12 1970-01-01T00:03:00
+12 1970-01-01T00:03:01
+10 1970-01-01T00:03:02
+11 1970-01-01T00:03:03
+11 1970-01-01T00:03:04
+13 1970-01-01T00:03:06
+12 1970-01-01T00:03:07
+11 1970-01-01T00:03:08
+12 1970-01-01T00:03:09
+12 1970-01-01T00:03:10
+8 1970-01-01T00:03:39
+8 1970-01-01T00:03:40
+13 1970-01-01T00:03:41
+13 1970-01-01T00:03:42
+11 1970-01-01T00:03:43
+6 1970-01-01T00:03:44
+9 1970-01-01T00:03:45
+13 1970-01-01T00:03:46
+13 1970-01-01T00:03:47
+10 1970-01-01T00:03:48
+8 1970-01-01T00:03:49
+10 1970-01-01T00:03:50
+13 1970-01-01T00:03:51
+13 1970-01-01T00:03:52
+8 1970-01-01T00:03:53
+8 1970-01-01T00:03:54
+11 1970-01-01T00:03:56
+13 1970-01-01T00:03:57
+13 1970-01-01T00:03:58
+7 1970-01-01T00:03:59
+8 1970-01-01T00:04:00
+13 1970-01-01T00:04:01
+13 1970-01-01T00:04:02
+11 1970-01-01T00:04:03
+6 1970-01-01T00:04:04
+8 1970-01-01T00:04:05
+13 1970-01-01T00:04:06
+13 1970-01-01T00:04:07
+11 1970-01-01T00:04:08
+7 1970-01-01T00:04:09
+8 1970-01-01T00:04:10
+13 1970-01-01T00:04:11
+13 1970-01-01T00:04:12
+9 1970-01-01T00:04:13
+8 1970-01-01T00:04:14
+10 1970-01-01T00:04:15
+13 1970-01-01T00:04:16
+13 1970-01-01T00:04:18
+8 1970-01-01T00:04:19
+8 1970-01-01T00:04:20
+11 1970-01-01T00:04:21
+13 1970-01-01T00:04:22
+13 1970-01-01T00:04:23
+6 1970-01-01T00:04:24
+7 1970-01-01T00:04:25
+13 1970-01-01T00:04:26
+13 1970-01-01T00:04:27
+12 1970-01-01T00:04:28
+6 1970-01-01T00:04:29
+8 1970-01-01T00:04:30
+13 1970-01-01T00:04:31
+13 1970-01-01T00:04:32
+11 1970-01-01T00:04:33
+7 1970-01-01T00:04:34
+9 1970-01-01T00:04:35
+13 1970-01-01T00:04:36
+13 1970-01-01T00:04:37
+10 1970-01-01T00:04:39
+8 1970-01-01T00:04:40
+10 1970-01-01T00:04:41
+13 1970-01-01T00:04:42
+13 1970-01-01T00:04:43
+7 1970-01-01T00:04:44
+9 1970-01-01T00:04:45
+12 1970-01-01T00:04:46
+13 1970-01-01T00:04:47
+13 1970-01-01T00:04:48
+7 1970-01-01T00:04:49
+8 1970-01-01T00:04:50
+13 1970-01-01T00:04:51
+13 1970-01-01T00:04:52
+11 1970-01-01T00:04:54
+7 1970-01-01T00:04:55
+9 1970-01-01T00:04:56
+13 1970-01-01T00:04:57
+13 1970-01-01T00:04:58
+8 1970-01-01T00:04:59
+8 1970-01-01T00:05:00
+11 1970-01-01T00:05:01
+13 1970-01-01T00:05:02
+13 1970-01-01T00:05:03
+6 1970-01-01T00:05:04
+8 1970-01-01T00:05:05
+12 1970-01-01T00:05:06
+13 1970-01-01T00:05:07
+12 1970-01-01T00:05:08
+6 1970-01-01T00:05:09
+7 1970-01-01T00:05:10
+13 1970-01-01T00:05:11
+13 1970-01-01T00:05:13
+11 1970-01-01T00:05:14
+6 1970-01-01T00:05:15
+8 1970-01-01T00:05:16
+13 1970-01-01T00:05:17
+13 1970-01-01T00:05:18
+\endverbatim
+
+At present time, certain amount of personal involvement is required to understand and analyze the results. We can see the "test_fps_when_switcher_panned" test case was ran 10 times, starting at 00:02:40, ending at 00:03:10. There are 28 FPS readings available for the period. It can be observed that the lowest FPS count for that test case was 8 and the highest was 16. Eliminating the outliers, we can say that the FPS was in the range of 10 .. 13 frames per second with an average of 11.615 FPS.
+
+This process should be automated in the future.
+
+*/
+
