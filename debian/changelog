@@ -1,3 +1,10 @@
+duihome (0.19.4~1) unstable; urgency=low
+
+  * New version [UNRELEASED]
+  * Implemented: SWP#DUI-1949 Launcher layout & navigation
+
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Thu, 18 Mar 2010 12:40:48 +0200
+
 duihome (0.19.3-1) unstable; urgency=low
 
   * New version
