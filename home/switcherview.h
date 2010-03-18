@@ -83,23 +83,25 @@ private slots:
     /*! Listens when the pannig has stopped in the viewport */
     void panningStopped();
 
-    /*! Update all buttons in layout policy */
-    void updateButtons(Dui::Orientation orientation);
+    /*! Update all buttons in the layout policies */
+    void updateButtons();
 
 private:
 
     /*! Convenience function to update the panning parameters */
-    void updatePanMarginsAndSnapInterval();
+    void updateSnapInterval();
 
-    /*! Updates a button in the overview layoutpolicy.
-     * If button is not found in switcher, than a new button is added.
-     * This calculates the correct position and will set the correct style mode to the button.
-     */
-    void updateButtonInOverviewPolicy(QSharedPointer<SwitcherButton> button, const QSizeF& size);
+    /*! Adds a button in the correct position in the overview layout policy */
+    void addButtonInOverviewPolicy(QSharedPointer<SwitcherButton> button);
 
-    qreal calculateOverviewContentsMargins(const QSizeF& size);
+    /*! Updates the content margin and spacings of the layout policies */
+    void updateContentsMarginsAndSpacings();
 
-    void toggleSwitcherMode();
+    /*! Updates the modes of the buttons according to the switcher mode */
+    void updateButtonModes();
+
+    /*! Selects the layout policy and sets up switcher mode dependent signals */
+    void applySwitcherMode();
 
     /*! The switcher controller */
     Switcher *controller;

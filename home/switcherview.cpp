@@ -69,14 +69,7 @@ SwitcherView::SwitcherView(Switcher *switcher) :
     detailPolicy->setSpacing(0);
     detailPolicy->setObjectName("DetailviewPolicy");
 
-    DuiWidget* verticalWidget = new DuiWidget;
-    QGraphicsLinearLayout* verticalLayoutHelper = new QGraphicsLinearLayout(Qt::Vertical, verticalWidget);
-    verticalLayoutHelper->setContentsMargins(0, 0, 0, 0);
-    verticalLayoutHelper->setSpacing(0);
-    verticalLayoutHelper->addStretch();
-    verticalLayoutHelper->addItem(pannedWidget);
-    verticalLayoutHelper->addStretch();
-    viewport->setWidget(verticalWidget);
+    viewport->setWidget(pannedWidget);
 
     // The integrator gets deleted by the physics 
     integrator = new SwitcherPhysicsIntegrationStrategy;
@@ -190,16 +183,16 @@ void SwitcherView::sizePosChanged(const QSizeF &viewportSize, const QRectF &pann
 void SwitcherView::setGeometry(const QRectF &rect)
 {
     DuiWidgetView::setGeometry(rect);
-    updatePanMarginsAndSnapInterval();
+    updateSnapInterval();
 }
 
 void SwitcherView::setupModel()
 {
     DuiWidgetView::setupModel();
-    toggleSwitcherMode();
+    applySwitcherMode();
 }
 
-void SwitcherView::toggleSwitcherMode()
+void SwitcherView::applySwitcherMode()
 {
     if (model()->switcherMode() == SwitcherModel::Detailview) {
         disconnect(MainWindow::instance()->sceneManager(), 0, this, 0);
@@ -209,46 +202,48 @@ void SwitcherView::toggleSwitcherMode()
         controller->setObjectName("DetailviewSwitcher");
     } else {
         disconnect(viewport, 0, this, 0);
-        connect(MainWindow::instance()->sceneManager(), SIGNAL(orientationChanged(Dui::Orientation)), this, SLOT(updateButtons(Dui::Orientation)));
+        connect(MainWindow::instance()->sceneManager(), SIGNAL(orientationChangeFinished(Dui::Orientation)), this, SLOT(updateButtons()));
 
         pannedLayout->setPolicy(overviewPolicy);
         controller->setObjectName("OverviewSwitcher");
     }
+
+    updateButtonModes();
 }
 
 void SwitcherView::updateData(const QList<const char*>& modifications)
 {
     DuiWidgetView::updateData(modifications);
     const char *member;
-    foreach(member, modifications)
-        {
-            if (member == SwitcherModel::Buttons) {
-                updateButtons(MainWindow::instance()->sceneManager()->orientation());
-                if (model()->buttons().isEmpty()) {
-                    // Reset the priority if the model is empty
-                    firstButtonPriority = WindowInfo::Normal;
-                } else {
-                    SwitcherButton *firstButton = model()->buttons().first().data();
+    foreach(member, modifications) {
+        if (member == SwitcherModel::Buttons) {
+            if (model()->buttons().isEmpty()) {
+                // Reset the priority if the model is empty
+                firstButtonPriority = WindowInfo::Normal;
+            } else {
+                SwitcherButton *firstButton = model()->buttons().first().data();
 
-                    // If the first button's priority has risen pan the view to show it
-                    if (firstButton->windowPriority() < firstButtonPriority) {
-                        // The integrator will be started
-                        // by updatePanMarginsAndSnapInterval,
-                        // so no need to start it here
-                        integrator->panToItem(0);
-                    }
-
-                    firstButtonPriority = firstButton->windowPriority();
+                // If the first button's priority has risen pan the view to show it
+                if (firstButton->windowPriority() < firstButtonPriority) {
+                    // The integrator will be started
+                    // by updateContentsMarginsAndSpacings,
+                    // so no need to start it here
+                    integrator->panToItem(0);
                 }
+
+                firstButtonPriority = firstButton->windowPriority();
             }
-            if (member == SwitcherModel::SwitcherMode) {
-                toggleSwitcherMode();
-                updateButtons(MainWindow::instance()->sceneManager()->orientation());
-            }
+
+            updateButtons();
         }
+
+        if (member == SwitcherModel::SwitcherMode) {
+            applySwitcherMode();
+        }
+    }
 }
 
-void SwitcherView::updateButtons(Dui::Orientation orientation)
+void SwitcherView::updateButtons()
 {
     focusedSwitcherButton = std::min(focusedSwitcherButton, model()->buttons().size() - 1);
     focusedSwitcherButton = std::max(focusedSwitcherButton, 0);
@@ -257,17 +252,45 @@ void SwitcherView::updateButtons(Dui::Orientation orientation)
         pannedLayout->removeAt(0);
     }
     // Add widgets from the model to the layout
-    const QSizeF size = screenSize(orientation);
-    foreach (QSharedPointer<SwitcherButton> button, model()->buttons())
-        {
-            if (model()->switcherMode() == SwitcherModel::Detailview) {
-                button.data()->setObjectName("DetailviewButton");
-                button.data()->model()->setViewMode(SwitcherButtonModel::Medium);
-                detailPolicy->addItem(button.data());
+    foreach (QSharedPointer<SwitcherButton> button, model()->buttons()) {
+        detailPolicy->addItem(button.data());
+        addButtonInOverviewPolicy(button);
+    }
+
+    updateButtonModes();
+}
+
+void SwitcherView::updateButtonModes()
+{
+    int buttonCount = model()->buttons().count();
+
+    if (model()->switcherMode() == SwitcherModel::Detailview) {
+        foreach (QSharedPointer<SwitcherButton> button, model()->buttons()) {
+            button.data()->setObjectName("DetailviewButton");
+            button.data()->model()->setViewMode(SwitcherButtonModel::Medium);
+        }
+    } else {
+        foreach (QSharedPointer<SwitcherButton> button, model()->buttons()) {
+            button.data()->setObjectName("OverviewButton");
+            if (MainWindow::instance()->sceneManager()->orientation() == Dui::Portrait) {
+                if (buttonCount < 3) {
+                    button.data()->model()->setViewMode(SwitcherButtonModel::Large);
+                } else if (buttonCount < 5) {
+                    button.data()->model()->setViewMode(SwitcherButtonModel::Medium);
+                } else {
+                    button.data()->model()->setViewMode(SwitcherButtonModel::Small);
+                }
             } else {
-                updateButtonInOverviewPolicy(button, size);
+                if (buttonCount < 3) {
+                    button.data()->model()->setViewMode(SwitcherButtonModel::Large);
+                } else {
+                    button.data()->model()->setViewMode(SwitcherButtonModel::Medium);
+                }
             }
         }
+    }
+
+    updateContentsMarginsAndSpacings();
 }
 
 void SwitcherView::snapIndexChanged(int newPosition)
@@ -287,7 +310,7 @@ void SwitcherView::snapIndexChanged(int newPosition)
     }
 }
 
-void SwitcherView::updatePanMarginsAndSnapInterval()
+void SwitcherView::updateSnapInterval()
 {
     if (!model()->buttons().empty()) {
         // For simplicity we assume that 
@@ -299,15 +322,8 @@ void SwitcherView::updatePanMarginsAndSnapInterval()
              Practically we enable margins to the panned layout in order to
              align the centers of the switcher button and the duipannableviewport.
              */
-            qreal width = button->preferredSize().width();
-            qreal margin = (geometry().width() - width) / 2;
-
-            pannedLayout->setContentsMargins(margin, 0, margin, 0);
-            uint snapInterval = width + detailPolicy->spacing();
-            integrator->setSnapInterval(snapInterval);
+            integrator->setSnapInterval(button->preferredSize().width());
         } else {
-            // TODO: get these margins from the theme
-            //overviewPolicy->setContentsMargins(40, 0, 40, 0);
             integrator->setSnapInterval(geometry().width());
         }
     } else {
@@ -315,13 +331,23 @@ void SwitcherView::updatePanMarginsAndSnapInterval()
     }
 }
 
-qreal SwitcherView::calculateOverviewContentsMargins(const QSizeF& size)
+void SwitcherView::updateContentsMarginsAndSpacings()
 {
-
     int buttonCount = model()->buttons().count();
+    int colsPerPage = style()->columnsPerPage();
+    int rows = style()->rowsPerPage();
+
+    if (buttonCount == 0 || colsPerPage == 0 || rows == 0)
+        return;
 
     SwitcherButton* button = model()->buttons().first().data();
     qreal buttonWidth = button->preferredSize().width();
+    qreal buttonHeight = button->preferredSize().height();
+
+    qreal detailMargin = (geometry().width() - buttonWidth) / 2;
+    qreal horizontalContentMargin = (geometry().height() - buttonHeight) / 2;
+    detailPolicy->setContentsMargins(detailMargin, horizontalContentMargin,
+                                     detailMargin, horizontalContentMargin);
 
     int columns;
     if (overviewPolicy->columnCount() < style()->columnsPerPage()) {
@@ -330,12 +356,14 @@ qreal SwitcherView::calculateOverviewContentsMargins(const QSizeF& size)
         columns = style()->columnsPerPage();
     }
     qreal effectiveButtonsWidth = (columns * buttonWidth) + ((columns - 1) * style()->buttonHorizontalSpacing());
-    qreal leftContentMargin = (size.width() - effectiveButtonsWidth) / 2;
+    qreal effectiveButtonsHeight = (rows * buttonHeight) + ((rows - 1) * style()->buttonVerticalSpacing());
+    qreal leftContentMargin = (geometry().width() - effectiveButtonsWidth) / 2;
     qreal rightContentMargin = leftContentMargin;
+    horizontalContentMargin = (geometry().height() - effectiveButtonsHeight) / 2;
 
     /*
-     If the last page is missing buttons i.e. it is not full, we add extra margins to it
-     so that the pageing works
+       If the last page is missing buttons i.e. it is not full, we add extra margins to it
+       so that the pageing works
      */
     if (buttonCount > (style()->columnsPerPage() * style()->rowsPerPage())) {
         int lastPageButtonCount = buttonCount % (style()->columnsPerPage() * style()->rowsPerPage());
@@ -347,11 +375,27 @@ qreal SwitcherView::calculateOverviewContentsMargins(const QSizeF& size)
             rightContentMargin += missingButtonCount * style()->buttonHorizontalSpacing();
         }
     }
-    pannedLayout->setContentsMargins(leftContentMargin, 0, rightContentMargin, 0);
-    return leftContentMargin;
+
+    overviewPolicy->setContentsMargins(leftContentMargin, horizontalContentMargin,
+                                       rightContentMargin, horizontalContentMargin);
+
+    for(int column = 0; column < overviewPolicy->columnCount(); column++) {
+        if ((column % colsPerPage) == colsPerPage - 1) {
+            overviewPolicy->setColumnSpacing(column, leftContentMargin * 2);
+        } else {
+            overviewPolicy->setColumnSpacing(column, style()->buttonHorizontalSpacing());
+        }
+    }
+
+    for(int row = 0; row < rows; row++) {
+        // add vertical spacing for all but last row
+        if(row < rows - 1){
+            overviewPolicy->setRowSpacing(row, style()->buttonVerticalSpacing());
+        }
+    }
 }
 
-void SwitcherView::updateButtonInOverviewPolicy(QSharedPointer<SwitcherButton> aButton, const QSizeF& size)
+void SwitcherView::addButtonInOverviewPolicy(QSharedPointer<SwitcherButton> button)
 {
     int colsPerPage = style()->columnsPerPage();
     int rows = style()->rowsPerPage();
@@ -359,53 +403,12 @@ void SwitcherView::updateButtonInOverviewPolicy(QSharedPointer<SwitcherButton> a
     if (rows == 0 || colsPerPage == 0) {
         return;
     }
-    int location = model()->buttons().indexOf(aButton);
+    int location = model()->buttons().indexOf(button);
     int page = location / (colsPerPage * rows);
     int row = (location / colsPerPage) % rows;
     int column = (location % colsPerPage) + (page * colsPerPage);
-    int buttonCount = model()->buttons().count();
 
-    SwitcherButton* button = aButton.data();
-
-    overviewPolicy->addItem(button, row, column);
-    button->setObjectName("OverviewButton");
-
-    if (MainWindow::instance()->sceneManager()->orientation() == Dui::Portrait) {
-        /* In portrait we have the following sizes
-         "large"  when 1-2
-         "medium" when 3-4
-         "small"  when 5+
-         */
-        if (buttonCount < 3) {
-            button->model()->setViewMode(SwitcherButtonModel::Large);
-        } else if (buttonCount < 5) {
-            button->model()->setViewMode(SwitcherButtonModel::Medium);
-        } else {
-            button->model()->setViewMode(SwitcherButtonModel::Small);
-        }
-    } else {
-        /* In landscape we have the following sizes
-         "medium" when 1-2
-         "small"  when 3+
-         */
-        if (buttonCount < 3) {
-            button->model()->setViewMode(SwitcherButtonModel::Large);
-        } else {
-            button->model()->setViewMode(SwitcherButtonModel::Medium);
-        }
-    }
-
-    qreal contentMargin = calculateOverviewContentsMargins(size);
-    if ((column % colsPerPage) == colsPerPage - 1) {
-        overviewPolicy->setColumnSpacing(column, contentMargin * 2);
-    } else {
-        overviewPolicy->setColumnSpacing(column, style()->buttonHorizontalSpacing());
-    }
-
-    // add vertical spacing for all but last row
-    if (row < rows - 1) {
-        overviewPolicy->setRowSpacing(row, style()->buttonVerticalSpacing());
-    }
+    overviewPolicy->addItem(button.data(), row, column);
 }
 
 static qreal calculateCenterCorrection(qreal value, qreal scaleFactor)
@@ -413,17 +416,5 @@ static qreal calculateCenterCorrection(qreal value, qreal scaleFactor)
     return (value * (scaleFactor - 1)) / 2.0;
 }
 
-/*
- This function is a work around for the fact that the orientationChanged signal
- comes before the 'setGeometry' for the swticher has been called.
- */
-static const QSizeF screenSize(Dui::Orientation orientation)
-{
-    QSizeF size = DuiDeviceProfile::instance()->resolution();
-    if (orientation == Dui::Portrait) {
-        size.transpose();
-    }
-    return size;
-}
 
 DUI_REGISTER_VIEW_NEW(SwitcherView, Switcher)
