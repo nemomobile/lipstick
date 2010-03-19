@@ -93,10 +93,10 @@ public:
 
 private:
     /*!
-      * This helper method gets a key from entry path by making it relative to root.
+      * This helper method gets a key from entry path by adding key prefix to the path.
       *
-      * For some reason DuiDataStore removes preceding back slash from key.
-      * To overcome this we need to use path relative to root as a key.
+      * Due QSettings DuiFileDataStore removes preceding forward slash from key.
+      * To overcome this we need to use a key prefix in the key.
       *
       * \param entryPath The absolute entry path of the desktop entry (eg. "/usr/share/applications/deskentry.desktop").
       * \return The key for the entry.
@@ -104,12 +104,12 @@ private:
     QString entryPathToKey(QString entryPath);
 
     /*!
-      * This helper method gets entry path from key by making path absolute.
+      * This helper method gets entry path from key by removing key prefix.
       *
-      * For some reason DuiDataStore removes preceding back slash from key.
-      * To overcome this we need to use path relative to root as a key.
+      * Due QSettings DuiFileDataStore removes preceding forward slash from key.
+      * To overcome this we need to use a key prefix in the key.
       *
-      * \param key The key with entry path relative to root (eg. "usr/shareapplications/deskentry.desktop").
+      * \param key The key as key prefix and entry path (eg. "KEY_PREFIX/usr/shareapplications/deskentry.desktop").
       * \return The entry path.
       */
     QString keyToEntryPath(QString key);

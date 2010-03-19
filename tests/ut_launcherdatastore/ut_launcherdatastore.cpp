@@ -23,6 +23,8 @@
 #include "launcherpage.h"
 #include "ut_launcherdatastore.h"
 
+static const QString KEY_PREFIX = "DesktopEntries";
+
 static QSharedPointer<LauncherButton> createLauncherButton(const QString path);
 
 static void comparePageLocations(QList< QSharedPointer<LauncherPage> > pages);
@@ -124,8 +126,8 @@ void Ut_LauncherDataStore::testAddingLauncherItemsToNonEmptyStore()
     QCOMPARE(testData.count(), 0);
 
     QStringList existingEntryList;
-    existingEntryList << QString("path/old-entry.desktop") << QString("path/old-entry-1.desktop");
-    existingEntryList << QString("path/old-entry-2.desktop")<< QString("path/old-entry-3.desktop");
+    existingEntryList << QString(KEY_PREFIX + "/path/old-entry.desktop") << QString(KEY_PREFIX + "/path/old-entry-1.desktop");
+    existingEntryList << QString(KEY_PREFIX + "/path/old-entry-2.desktop")<< QString(KEY_PREFIX + "/path/old-entry-3.desktop");
 
     for (int i = 0; i < existingEntryList.count(); i++) {
         QString value(formatter.arg(i).arg(0));
@@ -165,8 +167,8 @@ void Ut_LauncherDataStore::testGettingLauncherButtonsFromDataStore()
     QCOMPARE(testData.count(), 0);
 
     QStringList existingEntryList;
-    existingEntryList << QString("path/old-entry.desktop") << QString("path/old-entry-1.desktop");
-    existingEntryList << QString("path/old-entry-2.desktop")<< QString("path/old-entry-3.desktop");
+    existingEntryList << QString(KEY_PREFIX + "/path/old-entry.desktop") << QString(KEY_PREFIX + "/path/old-entry-1.desktop");
+    existingEntryList << QString(KEY_PREFIX + "/path/old-entry-2.desktop")<< QString(KEY_PREFIX + "/path/old-entry-3.desktop");
 
     for (int i = 0; i < existingEntryList.count(); i++) {
         QString value(formatter.arg(i).arg(0));
@@ -176,8 +178,8 @@ void Ut_LauncherDataStore::testGettingLauncherButtonsFromDataStore()
 
     //Right now we have four pages in the data store, lets add some more
 
-    existingEntryList << QString("path/old-entry-4.desktop") << QString("path/old-entry-5.desktop");
-    existingEntryList << QString("path/old-entry-6.desktop") << QString("path/old-entry-7.desktop");
+    existingEntryList << QString(KEY_PREFIX + "/path/old-entry-4.desktop") << QString(KEY_PREFIX + "/path/old-entry-5.desktop");
+    existingEntryList << QString(KEY_PREFIX + "/path/old-entry-6.desktop") << QString(KEY_PREFIX + "/path/old-entry-7.desktop");
     // First, second and third pages get some extra data
     testData.insert(existingEntryList[4], QString("launcher/0/1"));
     testData.insert(existingEntryList[5], QString("launcher/1/1"));
@@ -291,13 +293,13 @@ static QSharedPointer<LauncherButton> createLauncherButton(const QString path)
 
 static QString pathFromKey(QString key)
 {
-    key.insert(0, "/");
+    key.replace(0, KEY_PREFIX.length(), "");
     return key;
 }
 
 static QString keyFromPath(QString path)
 {
-    path.replace(0, 1, "");
+    path.insert(0, KEY_PREFIX);
     return path;
 }
 

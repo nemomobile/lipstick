@@ -27,6 +27,7 @@
 static const QString LAUNCHER_PLACEMENT = "launcher";
 static const QString QUICKLAUNCHBAR_PLACEMENT = "quicklaunchbar";
 static const char SECTION_SEPARATOR = '/';
+static const QString KEY_PREFIX = "DesktopEntries";
 
 LauncherDataStore::LauncherDataStore(DuiDataStore* dataStore)
 {
@@ -137,13 +138,12 @@ LauncherDataStore::EntryLocation LauncherDataStore::location(const DuiDesktopEnt
 
 QString LauncherDataStore::entryPathToKey(QString entryPath)
 {
-    // remove root from the path
-    entryPath.replace(0, 1, "");
-    return entryPath;
+    // add key prefix to the entry path
+    return QString(KEY_PREFIX + entryPath);
 }
 
 QString LauncherDataStore::keyToEntryPath(QString key)
 {
-    // add root to the path
-    return QString("/" + key);
+    // remove key prefix from the key    
+    return key.replace(0, KEY_PREFIX.length(), "");
 }
