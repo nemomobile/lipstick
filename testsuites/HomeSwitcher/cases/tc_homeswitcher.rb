@@ -142,9 +142,7 @@ class TC_homeswitcher < Dui::TestCase
             @home.SwitcherButton(:text => name).tap
 
             # Tap the close button of the switcher button
-            button_width = @home.SwitcherButton(:text => name ).attribute('width')
-            # Button dimensions are acquired from Matti Visualizer. Style changes may affect this test.
-            @home.SwitcherButton(:text => name).tap_object(button_width.to_i-15, 0+15)
+            @home.SwitcherButton.DuiButton().tap
 
             verify_not { @home.SwitcherButton(:text => name) }
             verify_equal(buttons_num - 1 -m, 0, "Buttons number mismatch") { count_switcher_buttons }

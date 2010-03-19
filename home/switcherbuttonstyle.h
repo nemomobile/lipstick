@@ -40,11 +40,14 @@ class SwitcherButtonStyle : public DuiButtonStyle
     //! The position of the icon relative to the top-left corner of the button
     DUI_STYLE_ATTRIBUTE(QPointF, iconPosition, IconPosition)
 
+    //! The close button
+    DUI_STYLE_ATTRIBUTE(qreal, closeButtonVerticalPosition, CloseButtonVerticalPosition)
+
+    //! The close button icon
+    DUI_STYLE_ATTRIBUTE(QString, closeIcon, CloseIcon)
+
     //! The image to be drawn as the container for the button
     DUI_STYLE_PTR_ATTRIBUTE(DuiScalableImage *, containerImage, ContainerImage)
-
-    //! The image to be drawn on top of the button when the button is dragged over the close area
-    DUI_STYLE_PTR_ATTRIBUTE(DuiScalableImage*, closeImage, CloseImage)
 };
 
 class SwitcherButtonStyleContainer : public DuiButtonStyleContainer

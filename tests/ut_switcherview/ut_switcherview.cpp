@@ -108,6 +108,10 @@ void SwitcherButton::updateIconGeometry()
 {
 }
 
+void SwitcherButton::resetState()
+{
+}
+
 WindowInfo::WindowPriority SwitcherButton::windowPriority() const
 {
     return priority;

@@ -19,20 +19,20 @@
 #ifndef SWITCHERBUTTONVIEW_H
 #define SWITCHERBUTTONVIEW_H
 
-#include <QTimer>
-#include <DuiWidgetView>
+#include <DuiButtonView>
 #include "switcherbuttonmodel.h"
 #include "switcherbuttonstyle.h"
 #include "x11wrapper.h"
 
 class SwitcherButton;
+class DuiButton;
 
 /*!
  * \class SwitcherButtonView
  *
  * \brief SwitcherButtonView implements a switcher style view
  */
-class SwitcherButtonView : public DuiWidgetView
+class SwitcherButtonView : public DuiButtonView
 {
     Q_OBJECT
     DUI_VIEW(SwitcherButtonModel, SwitcherButtonStyle)
@@ -55,38 +55,13 @@ public:
     virtual void drawContents(QPainter *painter, const QStyleOptionGraphicsItem *option) const;
     virtual QRectF boundingRect() const;
     virtual void applyStyle();
+    void setGeometry(const QRectF &rect);
     //! \reimp_end
-
-signals:
-    /*!
-     * \brief Signals that the button has been released
-     */
-    void clicked();
-
-    /*!
-     * \brief Signals when mouse button has been pressed
-     */
-    void pressed();
-
-    /*!
-     * \brief Signals when the window should be brought to front
-     */
-    void switched();
-
-    /*!
-     * \brief Signals when the window should be closed
-     */
-    void closed();
 
 protected slots:
     //! \reimp
     virtual void updateData(const QList<const char *>& modifications);
     //! \reimp_end
-
-    /*!
-     * A slot that should be called when window closing has been requested but the window has not closed during a certain time.
-     */
-    void resetState();
 
     /*!
      * \brief A slot for receiving information about pixmap changes
@@ -100,9 +75,6 @@ protected slots:
 
 protected:
     //! \reimp
-    virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
-    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-    virtual void cancelEvent(DuiCancelEvent *event);
     virtual void setupModel();
     //! \reimp_end
 
@@ -160,8 +132,7 @@ protected:
     //! The point where dragging started
     QPointF dragStartPos;
 
-    //! A timer to check if the window is closed when switcher button is dragged outside switcher before timer expires
-    QTimer windowCloseTimer;
+    DuiButton *closeButton;
 
     Q_DISABLE_COPY(SwitcherButtonView);
 };

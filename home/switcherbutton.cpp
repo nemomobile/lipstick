@@ -31,6 +31,10 @@ SwitcherButton::SwitcherButton(const QString &title, DuiWidget *parent, Window w
     DuiButton(title, parent, new SwitcherButtonModel),
     priority(windowPriority)
 {
+    // Configure timers
+    windowCloseTimer.setSingleShot(true);
+    connect(&windowCloseTimer, SIGNAL(timeout()), this, SLOT(resetState()));
+
     if (iconGeometryAtom == 0) {
         // Get the icon geometry X11 Atom if it doesn't exist yet
         iconGeometryAtom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_WM_ICON_GEOMETRY", False);
@@ -40,6 +44,8 @@ SwitcherButton::SwitcherButton(const QString &title, DuiWidget *parent, Window w
     model()->setXWindow(window);
 
     connect(MainWindow::instance(), SIGNAL(orientationChangeFinished(const Dui::Orientation &)), this, SLOT(updateIconGeometry()));
+
+    connect(this, SIGNAL(clicked()), this, SLOT(switchToWindow()));
 }
 
 SwitcherButton::~SwitcherButton()
@@ -68,6 +74,9 @@ void SwitcherButton::switchToWindow()
 
 void SwitcherButton::close()
 {
+    setVisible(false);
+    windowCloseTimer.start(5000);
+
     emit closeWindow(model()->xWindow());
 }
 
@@ -82,6 +91,12 @@ void SwitcherButton::setGeometry(const QRectF &rect)
 
     // When the switcher button's geometry is changed update the icon geometry
     updateIconGeometry();
+}
+
+void SwitcherButton::resetState()
+{
+    setVisible(true);
+    prepareGeometryChange();
 }
 
 void SwitcherButton::updateIconGeometry()

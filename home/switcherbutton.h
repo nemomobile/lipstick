@@ -20,6 +20,7 @@
 #ifndef SWITCHERBUTTON_H
 #define SWITCHERBUTTON_H
 
+#include <QTimer>
 #include <DuiButton>
 #include "switcherbuttonmodel.h"
 #include "windowinfo.h"
@@ -95,11 +96,18 @@ public slots:
     void close();
 
     /*!
+     * A slot that should be called when window closing has been requested but the window has not closed during a certain time.
+     */
+    void resetState();
+
+    /*!
      * \brief Updates the _NET_WM_ICON_GEOMETRY X property for the Window
      */
     void updateIconGeometry();
 
 private:
+    //! A timer to check if the window is closed when switcher button is dragged outside switcher before timer expires
+    QTimer windowCloseTimer;
 
     //! X11 Atom for the icon geometry
     static Atom iconGeometryAtom;

@@ -473,7 +473,7 @@ class TC_switcheroverview < Dui::TestCase
 
         name = buttons[remove_button_index].name
         button_width = button_width(remove_button_index)
-        @home.SwitcherButton(:text => name).tap_object(button_width-15, 0+15)
+        @home.SwitcherButton.DuiButton().tap
 
         verify_equal(added_buttons-1) { count_switcher_buttons }
 
@@ -700,7 +700,7 @@ class TC_switcheroverview < Dui::TestCase
         name = buttons[12].name
         button_width = button_width(12)
         button_height = button_height(12)
-        @home.SwitcherButton(:text => name).tap_object(button_width - 15, button_height - 15)
+        @home.SwitcherButton.DuiButton().tap
 
         verify_equal(added_buttons-1) { count_switcher_buttons }
 
@@ -719,7 +719,7 @@ class TC_switcheroverview < Dui::TestCase
         name = buttons[6].name
         button_width = button_width(6)
         button_height = button_height(6)
-        @home.SwitcherButton(:text => name).tap_object(button_width - 15, button_height - 15)
+        @home.SwitcherButton.DuiButton().tap
 
         verify_equal(added_buttons - 2) { count_switcher_buttons }
 

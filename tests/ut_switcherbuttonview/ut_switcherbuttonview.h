@@ -51,11 +51,10 @@ class TestSwitcherButtonView : public SwitcherButtonView
 public:
     TestSwitcherButtonView(SwitcherButton &button);
 
-    void mousePressRelease(const QPointF &p);
-    void mousePress(const QPointF &p);
-    void mouseMove(const QPointF &p);
-    void mouseRelease(const QPointF &p);
-    void mouseCancel();
+    // helper method to emulate close button click
+    void emulateCloseButtonClick();
+    // helper method to emulate switcher button click
+    void emulateButtonClick();
     void drawContents(QPainter *painter, const QStyleOptionGraphicsItem *item) const;
 
     QRectF closeRect() const {
@@ -130,11 +129,13 @@ private:
     TestSwitcherButton *button;
 
     // SwitcherButtonView instance under testing
-    TestSwitcherButtonView *view;
+    TestSwitcherButtonView *m_subject;
 
 signals:
     // Signal for notifying about window visibility changed
     void windowVisibilityChanged(Window window);
+
+    void closeButtonPressed();
 
 private slots:
     void init();
@@ -144,8 +145,6 @@ private slots:
     void testMousePressRelease();
     void testClosingWithTimeout();
     void testClosingWithoutTimeout();
-    void testDragOutsideDoesNothing();
-    void testDragInsideDoesNothing();
     void testXWindow();
     void testXWindowWithXError();
     void testTextOpacity();

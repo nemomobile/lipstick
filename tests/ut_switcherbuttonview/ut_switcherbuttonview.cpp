@@ -187,43 +187,19 @@ TestSwitcherButtonView::TestSwitcherButtonView(SwitcherButton &button) :
 {
 }
 
-void TestSwitcherButtonView::mousePressRelease(const QPointF &p)
+void TestSwitcherButtonView::emulateCloseButtonClick()
 {
-    mousePress(p);
-    mouseRelease(p);
-}
+    controller->close();
+ }
 
-void TestSwitcherButtonView::mousePress(const QPointF &p)
+void TestSwitcherButtonView::emulateButtonClick()
 {
     QGraphicsSceneMouseEvent event;
+    QPointF p = buttonRect().center();
     event.setPos(p);
     event.setScenePos(p);
-
     mousePressEvent(&event);
-}
-
-void TestSwitcherButtonView::mouseMove(const QPointF &p)
-{
-    QGraphicsSceneMouseEvent event;
-    event.setPos(p);
-    event.setScenePos(p);
-
-    mouseMoveEvent(&event);
-}
-
-void TestSwitcherButtonView::mouseRelease(const QPointF &p)
-{
-    QGraphicsSceneMouseEvent event;
-    event.setPos(p);
-    event.setScenePos(p);
-
     mouseReleaseEvent(&event);
-}
-
-void TestSwitcherButtonView::mouseCancel()
-{
-    DuiCancelEvent event;
-    cancelEvent(&event);
 }
 
 void TestSwitcherButtonView::drawContents(QPainter *painter, const QStyleOptionGraphicsItem *item) const
@@ -257,8 +233,8 @@ QPixmap QPixmap::fromX11Pixmap(Qt::HANDLE, ShareMode)
 void Ut_SwitcherButtonView::init()
 {
     button = new TestSwitcherButton("Test");
-    view = button->getView();
-    connect(this, SIGNAL(windowVisibilityChanged(Window)), view, SLOT(windowVisibilityChanged(Window)));
+    m_subject = button->getView();
+    connect(this, SIGNAL(windowVisibilityChanged(Window)), m_subject, SLOT(windowVisibilityChanged(Window)));
 
     // This really shouldn't be necessary, but apparently libdui needs something
     // as stupid as this since commit 9aa354a239. If libdui gets fixed
@@ -309,39 +285,29 @@ void Ut_SwitcherButtonView::cleanupTestCase()
 void Ut_SwitcherButtonView::testMousePressRelease()
 {
     // The DuiButton signals and the windowToFront signal are interesting
-    QSignalSpy pressedSpy(button, SIGNAL(pressed()));
-    QSignalSpy clickedSpy(button, SIGNAL(clicked()));
     QSignalSpy windowToFrontSpy(button, SIGNAL(windowToFront(Window)));
 
-    button->setGeometry(QRectF(0, 0, 100, 100));
-
     // Click the button
-    view->mousePressRelease(view->buttonRect().center());
+    m_subject->emulateButtonClick();
 
-    // Check that pressed, clicked and windowToFront were emitted
-    QCOMPARE(pressedSpy.count(), 1);
-    QCOMPARE(clickedSpy.count(), 1);
+    // Check that windowToFront were emitted
     QCOMPARE(windowToFrontSpy.count(), 1);
 }
 
 void Ut_SwitcherButtonView::testClosingWithTimeout()
 {
     QSignalSpy closeSpy(button, SIGNAL(closeWindow(Window)));
-    QSignalSpy clickedSpy(button, SIGNAL(clicked()));
 
     DuiWidget *parent = new DuiWidget();
     DuiWidget *switcher = new DuiWidget(parent);
-    switcher->setGeometry(QRectF(0, 0, 100, 100));
     button->setParentItem(switcher);
-    button->setGeometry(QRectF(0, 0, 100, 100));
 
     timerImmediateTimeout = true;
 
-    // Click the close button: check that a closeWindow signal is fired and clicked is not
-    QRectF closeRect = view->closeRect();
-    view->mousePressRelease(closeRect.center());
+    // "Click" the close button: check that a closeWindow signal is fired
+    m_subject->emulateCloseButtonClick();
+
     QCOMPARE(closeSpy.count(), 1);
-    QCOMPARE(clickedSpy.count(), 0);
 
     // The window close timeout occurs immediately: check that after the timeout button is not closed and still visible
     QCOMPARE(button->isVisible(), true);
@@ -350,7 +316,6 @@ void Ut_SwitcherButtonView::testClosingWithTimeout()
 void Ut_SwitcherButtonView::testClosingWithoutTimeout()
 {
     QSignalSpy closeSpy(button, SIGNAL(closeWindow(Window)));
-    QSignalSpy clickedSpy(button, SIGNAL(clicked()));
 
     DuiWidget *parent = new DuiWidget();
     DuiWidget *switcher = new DuiWidget(parent);
@@ -358,94 +323,12 @@ void Ut_SwitcherButtonView::testClosingWithoutTimeout()
     button->setParentItem(switcher);
     button->setGeometry(QRectF(0, 0, 100, 100));
 
-    // Click the close button: check that a closeWindow signal is fired and clicked is not
-    view->mousePressRelease(view->closeRect().center());
+    // "Click" the close button: check that a closeWindow signal is fired
+    m_subject->emulateCloseButtonClick();
     QCOMPARE(closeSpy.count(), 1);
-    QCOMPARE(clickedSpy.count(), 0);
 
     // The window close timeout does not occur: check that button is closed and invisible
     QCOMPARE(button->isVisible(), false);
-}
-
-void Ut_SwitcherButtonView::testDragOutsideDoesNothing()
-{
-    QSignalSpy clickedSpy(button, SIGNAL(clicked()));
-    QSignalSpy windowToFrontSpy(button, SIGNAL(windowToFront(Window)));
-    QSignalSpy closeSpy(button, SIGNAL(closeWindow(Window)));
-
-    DuiWidget *parent = new DuiWidget();
-    DuiWidget *switcher = new DuiWidget(parent);
-    switcher->setGeometry(QRectF(0, 0, 200, 200));
-    button->setParentItem(switcher);
-    button->setGeometry(QRectF(0, 0, 100, 100));
-
-    // Test that mouse press on the button, drag off and release triggers
-    // no actions
-    view->mousePress(view->buttonRect().center());
-    view->mouseMove(QPointF(200, 200));
-    view->mouseRelease(QPointF(200, 200));
-    QCOMPARE(clickedSpy.count(), 0);
-    QCOMPARE(windowToFrontSpy.count(), 0);
-    QCOMPARE(closeSpy.count(), 0);
-
-    // Test that mouse press on the close button, drag off and release
-    // triggers no actions
-    view->mousePress(view->closeRect().center());
-    view->mouseMove(QPointF(200, 200));
-    view->mouseRelease(QPointF(200, 200));
-    QCOMPARE(clickedSpy.count(), 0);
-    QCOMPARE(windowToFrontSpy.count(), 0);
-    QCOMPARE(closeSpy.count(), 0);
-
-    // Test that mouse press elsewhere on the switcher, drag to the button
-    // and release triggers no actions
-    view->mousePress(QPointF(200, 200));
-    view->mouseMove(view->buttonRect().center());
-    view->mouseRelease(view->buttonRect().center());
-    QCOMPARE(clickedSpy.count(), 0);
-    QCOMPARE(windowToFrontSpy.count(), 0);
-    QCOMPARE(closeSpy.count(), 0);
-
-    // Test that mouse press elsewhere on the switcher, drag to the close
-    // button and release triggers no actions
-    view->mousePress(QPointF(200, 200));
-    view->mouseMove(view->closeRect().center());
-    view->mouseRelease(view->closeRect().center());
-    QCOMPARE(clickedSpy.count(), 0);
-    QCOMPARE(windowToFrontSpy.count(), 0);
-    QCOMPARE(closeSpy.count(), 0);
-}
-
-void Ut_SwitcherButtonView::testDragInsideDoesNothing()
-{
-    QSignalSpy clickedSpy(button, SIGNAL(clicked()));
-    QSignalSpy windowToFrontSpy(button, SIGNAL(windowToFront(Window)));
-    QSignalSpy closeSpy(button, SIGNAL(closeWindow(Window)));
-
-    DuiWidget *parent = new DuiWidget();
-    DuiWidget *switcher = new DuiWidget(parent);
-    switcher->setGeometry(QRectF(0, 0, 200, 200));
-    button->setParentItem(switcher);
-    button->setGeometry(QRectF(0, 0, 100, 100));
-
-    // Test that mouse press on the button, drag to the close button and
-    // release triggers no actions
-    view->mousePress(view->buttonRect().center());
-    view->mouseMove(view->closeRect().center());
-    view->mouseRelease(view->closeRect().center());
-    QCOMPARE(clickedSpy.count(), 0);
-    QCOMPARE(windowToFrontSpy.count(), 0);
-    QCOMPARE(closeSpy.count(), 0);
-
-    // Test that mouse press on the close button, drag to the switcher
-    // button and release triggers no actions
-    view->mousePress(view->closeRect().center());
-    view->mouseMove(view->buttonRect().center());
-    view->mouseRelease(view->buttonRect().center());
-    QCOMPARE(clickedSpy.count(), 0);
-    QCOMPARE(windowToFrontSpy.count(), 0);
-    QCOMPARE(closeSpy.count(), 0);
-
 }
 
 void Ut_SwitcherButtonView::testXWindow()
@@ -478,23 +361,23 @@ void Ut_SwitcherButtonView::testTextOpacity()
     QPainter painter;
     button->model()->setText("test");
     button->model()->setTextVisible(true);
-    view->modifiableStyle()->setTextOpacity(0.5);
-    view->drawContents(&painter, NULL);
+    m_subject->modifiableStyle()->setTextOpacity(0.5);
+    m_subject->drawContents(&painter, NULL);
     QCOMPARE(painterText, QString("test"));
-    QCOMPARE(painterTextOpacity, view->modifiableStyle()->textOpacity());
+    QCOMPARE(painterTextOpacity, m_subject->modifiableStyle()->textOpacity());
 }
 
 void Ut_SwitcherButtonView::testViewModeChange()
 {
-    QCOMPARE(view->styleContainer().currentMode(), QString());
+    QCOMPARE(m_subject->styleContainer().currentMode(), QString("default"));
     QCOMPARE(button->model()->viewMode(), SwitcherButtonModel::UnSpecified);
     for (int i = 0; i < 2; ++i) { // test setting a couple of times
         button->model()->setViewMode(SwitcherButtonModel::Small);
-        QCOMPARE(view->styleContainer().currentMode(), QString("small"));
+        QCOMPARE(m_subject->styleContainer().currentMode(), QString("small"));
         button->model()->setViewMode(SwitcherButtonModel::Medium);
-        QCOMPARE(view->styleContainer().currentMode(), QString("medium"));
+        QCOMPARE(m_subject->styleContainer().currentMode(), QString("medium"));
         button->model()->setViewMode(SwitcherButtonModel::Large);
-        QCOMPARE(view->styleContainer().currentMode(), QString("large"));
+        QCOMPARE(m_subject->styleContainer().currentMode(), QString("large"));
     }
 }
 

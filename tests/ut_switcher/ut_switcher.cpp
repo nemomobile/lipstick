@@ -65,6 +65,10 @@ void SwitcherButton::switchToWindow()
 {
 }
 
+void SwitcherButton::resetState()
+{
+}
+
 void SwitcherButton::close()
 {
 }

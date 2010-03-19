@@ -409,8 +409,35 @@ SwitcherButtonStyle {
     icon-position: 0 0;
     /* The image to be drawn as the container for the button */
     container-image:;
-    /* The image to be drawn as the container for the button in selected state */
-    close-image:;
+
+    /* The close button icon */
+    close-icon: ;
+}
+
+DuiButtonIconStyle#CloseButtonOverview
+{
+    minimum-size: 48 48;
+    preferred-size: 48 48;
+    maximum-size: 48 48;
+
+    icon-size: 18 18;
+
+    /* icon aligned to right (48-18=30) */
+    /* icon-align: right; doesn't do the trick.. */
+    padding-left: 30;
+}
+
+DuiButtonIconStyle#CloseButtonDetailview
+{
+    minimum-size: 48 48;
+    preferred-size: 48 48;
+    maximum-size: 48 48;
+
+    icon-size: 32 32;
+
+    /* icon aligned to right (48-32=16) */
+    /* icon-align: right; doesn't do the trick.. */
+    padding-left: 16;
 }
 
 /* The default values for the switcher button in the overview mode */
@@ -421,7 +448,9 @@ SwitcherButtonStyle#OverviewButton {
     text-margin-right: 1;
 
     text-opacity: 1.0;
-    close-image: icon-m-framework-close;
+
+    close-button-vertical-position: -30;
+    close-icon: "icon-s-framework-close-thumbnail";
 }
 
 SwitcherButtonStyle#OverviewButton.Portrait:small {
@@ -472,6 +501,8 @@ SwitcherButtonStyle#DetailviewButton {
     text-margin-bottom: 5;
     text-margin-left: 6;
     text-margin-right: 6;
+
+    close-button-vertical-position: -36;
 }
 
 SwitcherButtonStyle#DetailviewButton.Portrait {
@@ -479,11 +510,12 @@ SwitcherButtonStyle#DetailviewButton.Portrait {
     minimum-size: 28.77mm 51.8mm;
     maximum-size: 28.77mm 51.8mm;
     icon-size: 28.77mm 51.8mm;
+    close-icon: "";
 }
 
 SwitcherButtonStyle#DetailviewButton.Portrait:large {
     text-opacity: 1.0;
-    close-image: icon-m-framework-close;
+    close-icon: "icon-m-framework-close-thumbnail";
 }
 
 SwitcherButtonStyle#DetailviewButton.Landscape {
@@ -491,11 +523,12 @@ SwitcherButtonStyle#DetailviewButton.Landscape {
     minimum-size: 51.8mm 28.77mm;
     maximum-size: 51.8mm 28.77mm;
     icon-size: 51.8mm 28.77mm;
+    close-icon: "";
 }
 
 SwitcherButtonStyle#DetailviewButton.Landscape:large {
     text-opacity: 1.0;
-    close-image: icon-m-framework-close;
+    close-icon: "icon-m-framework-close-thumbnail";
 }
 /* switcher button detail view end */
 

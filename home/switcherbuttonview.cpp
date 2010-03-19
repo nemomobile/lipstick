@@ -16,6 +16,7 @@
 ** of this file.
 **
 ****************************************************************************/
+
 #include <cmath>
 #include <QTimer>
 #include <QGraphicsSceneMouseEvent>
@@ -34,20 +35,21 @@ bool SwitcherButtonView::badMatchOccurred = false;
 #endif
 
 SwitcherButtonView::SwitcherButtonView(SwitcherButton *button) :
-    DuiWidgetView(button),
+    DuiButtonView(button),
     controller(button),
     xWindowPixmap(0),
     xWindowPixmapDamage(0)
 {
-    // Configure timers
-    windowCloseTimer.setSingleShot(true);
-    connect(&windowCloseTimer, SIGNAL(timeout()), this, SLOT(resetState()));
-
     // Connect to the windowVisibilityChanged signal of the HomeApplication to get information about window visiblity changes
     connect(qApp, SIGNAL(windowVisibilityChanged(Window)), this, SLOT(windowVisibilityChanged(Window)));
 
     // Show interest in X pixmap change signals
     connect(qApp, SIGNAL(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)), this, SLOT(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)));
+
+    closeButton = new DuiButton(controller);
+    closeButton->setViewType(DuiButton::iconType);
+
+    connect(closeButton, SIGNAL(clicked()), controller, SLOT(close()));
 }
 
 SwitcherButtonView::~SwitcherButtonView()
@@ -63,6 +65,13 @@ SwitcherButtonView::~SwitcherButtonView()
         X11Wrapper::XFreePixmap(QX11Info::display(), xWindowPixmap);
     }
 #endif
+}
+
+void SwitcherButtonView::setGeometry(const QRectF &rect)
+{
+    DuiButtonView::setGeometry(rect);
+
+    closeButton->setGeometry(closeRect());
 }
 
 void SwitcherButtonView::drawBackground(QPainter *painter, const QStyleOptionGraphicsItem *option) const
@@ -134,20 +143,6 @@ void SwitcherButtonView::drawContents(QPainter *painter, const QStyleOptionGraph
         painter->drawText(titleRect(), Qt::AlignLeft | Qt::ElideRight, text);
     }
 
-    // Draw a close image at top right corner, at the moment it is assumed that 
-    // the close button is square!!
-    if (style()->closeImage()) {
-	painter->setOpacity(1.0f);
-	QRectF title = titleRect();
-
-
-	QRectF rect = buttonRect();
-	rect.setTopLeft(QPointF(rect.right() - title.height(), title.y()));
-	rect.setWidth(title.height());
-	rect.setHeight(title.height());       
-	style()->closeImage()->draw(rect.x(), rect.y(), rect.width(), rect.height(), painter);
-    }
-
     // Restore the painter state
     painter->restore();
 }
@@ -173,18 +168,12 @@ QRectF SwitcherButtonView::titleRect() const
 
 QRectF SwitcherButtonView::closeRect() const
 {
-    QRectF rect = buttonRect();
-    if (style()->closeImage()) {
-        const QPixmap* closeImage = style()->closeImage()->pixmap();
-	// calculate the rect for the close button alone
-	rect.setBottomLeft(rect.topRight() - QPointF(closeImage->width() * 0.5f, 0));
-	rect.setTopRight(rect.topRight() - QPointF(0, closeImage->height() * 0.5f));
-	rect.setWidth(closeImage->width());
-	rect.setHeight(closeImage->height());
-    } else {
-        // HACK: specify a fake 1x1 rectagle at the top-right corner of the button
-        rect.setBottomLeft(rect.topRight() - QPointF(1, -1));
-    }
+    QRectF switchButtonRect = buttonRect();
+    QRectF rect;
+
+    rect.setX(switchButtonRect.right() - closeButton->preferredWidth());
+    rect.setY(switchButtonRect.top() + style()->closeButtonVerticalPosition());
+    rect.setSize(closeButton->preferredSize());
 
     return rect;
 }
@@ -196,8 +185,23 @@ QRectF SwitcherButtonView::boundingRect() const
 
 void SwitcherButtonView::applyStyle()
 {
-    DuiWidgetView::applyStyle();
     updateThumbnail();
+
+    // Apply style to close button
+    if (controller->objectName() == "DetailviewButton") {
+        closeButton->setObjectName("CloseButtonDetailview");
+        if (model()->viewMode() == SwitcherButtonModel::Large) {
+            closeButton->show();
+        } else {
+            closeButton->hide();
+        }
+    } else {
+        closeButton->setObjectName("CloseButtonOverview");
+        closeButton->show();
+    }
+    closeButton->setIconID(style()->closeIcon());
+
+    DuiWidgetView::applyStyle();
 }
 
 void SwitcherButtonView::setupModel()
@@ -226,9 +230,9 @@ void SwitcherButtonView::updateViewMode()
     case SwitcherButtonModel::UnSpecified:
 	break;
     }
-    
+
     // When the style mode changes, the style is not automatically applied -> call it explicitly
-    applyStyle();    
+    applyStyle();
 }
 
 void SwitcherButtonView::updateData(const QList<const char *>& modifications)
@@ -244,67 +248,6 @@ void SwitcherButtonView::updateData(const QList<const char *>& modifications)
 	if (member == SwitcherButtonModel::ViewMode) {
 	    updateViewMode();
 	}
-    }
-}
-
-void SwitcherButtonView::resetState()
-{
-    controller->setVisible(true);
-    controller->prepareGeometryChange();
-}
-
-void SwitcherButtonView::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
-    if (!model()->down()) {
-
-        model()->setDown(true);
-
-        if (closeRect().contains(event->pos())) {
-            model()->setPressed(SwitcherButtonModel::ClosePressed);
-        } else if (buttonRect().contains(event->pos())) {
-            model()->setPressed(SwitcherButtonModel::ButtonPressed);
-        } else {
-            model()->setPressed(SwitcherButtonModel::NonePressed);
-        }
-        event->accept();
-    }
-}
-
-void SwitcherButtonView::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
-{
-    if (model()->down()) {
-        model()->setDown(false);
-
-        if (closeRect().contains(event->pos())) {
-            if (model()->pressed() == SwitcherButtonModel::ClosePressed) {
-                // Close icon clicked, send the close signal and hide
-                // the button
-                controller->close();
-                controller->setVisible(false);
-                windowCloseTimer.start(5000);
-            }
-        } else if (buttonRect().contains(event->pos())) {
-            if (model()->pressed() == SwitcherButtonModel::ButtonPressed) {
-                // Switcher button clicked, let the controller know that
-                // the window should be brought to front
-                model()->click();
-                controller->switchToWindow();
-                update();
-            }
-        }
-
-        model()->setPressed(SwitcherButtonModel::NonePressed);
-        event->accept();
-    }
-}
-
-void SwitcherButtonView::cancelEvent(DuiCancelEvent *event)
-{
-    if (model()->down()) {
-        model()->setDown(false);
-        model()->setPressed(SwitcherButtonModel::NonePressed);
-
-        event->accept();
     }
 }
 
