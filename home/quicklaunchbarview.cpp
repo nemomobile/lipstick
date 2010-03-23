@@ -42,7 +42,7 @@ QuickLaunchBarView::QuickLaunchBarView(QuickLaunchBar *controller) : DuiWidgetVi
     // Create launcher button
     toggleLauncherButton->setViewType("icon");
     toggleLauncherButton->setObjectName("ToggleLauncherButton");
-    toggleLauncherButton->setIconID("icon-m-launcher");
+    toggleLauncherButton->setIconID("icon-m-quicklaunchbar-menu-open");
     connect(toggleLauncherButton, SIGNAL(clicked()), controller, SIGNAL(toggleLauncherButtonClicked()));
 
     // Put the stuff into a layout
