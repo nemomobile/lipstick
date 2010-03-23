@@ -33,11 +33,10 @@ MainWindow::MainWindow(QWidget *parent) :
     DuiWindow(parent)
 {
     mainWindowInstance = this;
-
-#ifdef __arm__
-    // Set the window type to desktop but only on ARM to avoid disturbing the development environment
-    setAttribute(Qt::WA_X11NetWmWindowTypeDesktop);
-#endif
+    if (qgetenv("DUIHOME_DESKTOP") != "0") {
+        // Dont Set the window type to desktop if DUIHOME_DESKTOP is set to 0
+        setAttribute(Qt::WA_X11NetWmWindowTypeDesktop);
+    }
 
     if (!DuiApplication::softwareRendering()) {
         // Get GL context
