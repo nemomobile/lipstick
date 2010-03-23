@@ -1,3 +1,9 @@
+duihome (0.20.2~1) unstable; urgency=low
+
+  * New version [UNRELEASED]
+
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Tue, 23 Mar 2010 18:40:53 +0200
+
 duihome (0.20.1-1) unstable; urgency=low
 
   * Use the correct icon ID for the launcher button
