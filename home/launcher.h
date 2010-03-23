@@ -110,6 +110,12 @@ public:
      */
     static bool startDuiApplication(const QString &serviceName);
 
+signals:
+    /*!
+     * Signal sent when a launcher button was clicked.
+     */
+    void launcherButtonClicked();
+
 private slots:
 
     /*!

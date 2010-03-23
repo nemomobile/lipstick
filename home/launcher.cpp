@@ -291,4 +291,5 @@ void Launcher::connectLauncherButton(LauncherButton* launcherButton)
     connect(launcherButton, SIGNAL(applicationLaunched(const QString &)), this, SLOT(launchApplication(const QString &)), Qt::QueuedConnection);
     connect(launcherButton, SIGNAL(duiApplicationLaunched(const QString &)), this, SLOT(launchDuiApplication(const QString &)), Qt::QueuedConnection);
     connect(launcherButton, SIGNAL(linkLaunched(const QString &)), this, SLOT(launchLink(const QString &)), Qt::QueuedConnection);
+    connect(launcherButton, SIGNAL(clicked()), this, SIGNAL(launcherButtonClicked()));
 }
