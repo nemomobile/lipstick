@@ -1,10 +1,10 @@
-duihome (0.20.0~1) unstable; urgency=low
+duihome (0.20.0-1) unstable; urgency=low
 
-  * New version [UNRELEASED]
+  * New version
   * Implemented: SWP#DUI-1949 Launcher layout & navigation
   * Implemented: SWP#DUI-1944 Notification plugin in Status Indicator Menu
 
- -- Vesa Halttunen <vesa.halttunen@nokia.com>  Thu, 18 Mar 2010 15:56:02 +0200
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Tue, 23 Mar 2010 15:27:36 +0200
 
 duihome (0.19.3-1) unstable; urgency=low
 
