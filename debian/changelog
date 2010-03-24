@@ -7,6 +7,7 @@ duihome (0.20.2-1) unstable; urgency=low
 duihome (0.20.1-1) unstable; urgency=low
 
   * Use the correct icon ID for the launcher button
+  * Fixes: NB#161282 -duihome's window type is TYPE_NORMAL instead of TYPE_DESKTOP
 
  -- Vesa Halttunen <vesa.halttunen@nokia.com>  Tue, 23 Mar 2010 16:32:30 +0200
 
