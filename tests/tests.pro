@@ -1,29 +1,29 @@
 TEMPLATE = subdirs
 SUBDIRS = \
-    ut_mainwindow \
-    ut_home \
+    ut_appletspace \
+    ut_appletspaceview \
     ut_desktop \
     ut_desktopview \
+    ut_duihomeshortcutmanager \
+    ut_home \
+    ut_homeapplication \
     ut_launcher \
-    ut_launcherview \
-    ut_launcherpage \
-    ut_launcherpageview \
     ut_launcherbuttonview \
     ut_launcherdatastore \
+    ut_launcherpage \
+    ut_launcherpageview \
+    ut_launcherview \
+    ut_mainwindow \
+    ut_pagedviewport \
+    ut_quicklaunchbar \
+    ut_quicklaunchbarview \
     ut_switcher \
-    ut_switcherview \
     ut_switcherbutton \
     ut_switcherbuttonview \
     ut_switcherphysicsintegrationstrategy \
-    ut_quicklaunchbar \
-    ut_quicklaunchbarview \
-    ut_duihomeshortcutmanager \
-    ut_homeapplication \
+    ut_switcherview \
     ut_windowinfo \
     ut_x11helper \
-    ut_appletspace \
-    ut_appletspaceview \
-    ut_pagedviewport \
     ut_test
 
 QMAKE_STRIP = echo
