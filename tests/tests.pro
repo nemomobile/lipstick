@@ -18,6 +18,7 @@ SUBDIRS = \
     ut_quicklaunchbar \
     ut_quicklaunchbarview \
     ut_statusindicator \
+    ut_statusindicatorlabelview \
     ut_switcher \
     ut_switcherbutton \
     ut_switcherbuttonview \
