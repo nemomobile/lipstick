@@ -71,16 +71,12 @@ When /^I uninstall application "([^\"]*)" from the system$/ do |application|
     ensureConfigurationUpdated()
 
     uninstallApplication(application)
-    # Give some time for the application to react on the change
-    sleep 2
 end
 
 When /^I install application "([^\"]*)" to the system$/ do |application|
     ensureConfigurationUpdated()
 
     installApplication(application)
-    # Give some time for the application to react on the change
-    sleep 2
 end
 
 When /^I tap on the icon on slot "([^\"]*)" of Quick Launch Bar$/ do |slot|
@@ -139,9 +135,6 @@ def ensureConfigurationUpdated()
         }
 
         $configurationDirty = false
-
-        # Give some time for the application to react on the change
-        sleep 2
     end
 end
 

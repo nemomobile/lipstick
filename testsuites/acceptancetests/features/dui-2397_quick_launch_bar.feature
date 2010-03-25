@@ -81,6 +81,7 @@ Feature: DUI-2397 Quick Launch Bar
 		And no application is configured to the slot "3" of Quick Launch Bar
 		And I have configured application "3" to the slot "4" of Quick Launch Bar
 		When I uninstall application "3" from the system
+		And Quick Launch Bar slot "4" contains no icon
 		And I install application "3" to the system
 		Then Quick Launch Bar is visible
 		And Quick Launch Bar slot "1" contains application "1" icon
