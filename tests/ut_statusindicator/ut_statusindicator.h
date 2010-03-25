@@ -19,35 +19,11 @@
 #ifndef _UT_STATUSINDICATOR_
 #define _UT_STATUSINDICATOR_
 
-#include <QtGui>
-#include <QtTest/QtTest>
 #include <QObject>
-#include <duiapplication.h>
-#include <duiwidget.h>
-#include "statusindicator.h"
-#include "statusindicatorimageview.h"
-#include "applicationcontext.h"
 
-class TestStatusIndicatorImageView : public StatusIndicatorImageView
-{
-    Q_OBJECT
-    DUI_VIEW(StatusIndicatorModel, StatusIndicatorImageStyle)
-
-public:
-    TestStatusIndicatorImageView(StatusIndicator *controller);
-
-protected slots:
-    virtual void updateData(const QList<const char *>& modifications);
-};
-
-class TestStatusIndicatorLabelView : public StatusIndicatorImageView
-{
-public:
-    TestStatusIndicatorLabelView(StatusIndicator *controller);
-};
-
-
+class StatusIndicator;
 class TestContext;
+class DuiApplication;
 
 class Ut_StatusIndicator : public QObject
 {
@@ -61,23 +37,14 @@ private:
 private slots:
     // Executed once before every test case
     void init();
-
     // Executed once after every test case
     void cleanup();
-
     // Executed once before first test case
     void initTestCase();
-
     // Executed once after last test case
     void cleanupTestCase();
 
     void testModelUpdates();
-    void testPhoneNetworkSignalStrength();
-    void testBattery();
-    void testAlarm();
-    void testBluetooth();
-    void testInternetConnection();
-    void testAnimation();
     void testPhoneNetwork();
 };
 

@@ -17,6 +17,7 @@ SUBDIRS = \
     ut_pagedviewport \
     ut_quicklaunchbar \
     ut_quicklaunchbarview \
+    ut_statusindicator \
     ut_switcher \
     ut_switcherbutton \
     ut_switcherbuttonview \
