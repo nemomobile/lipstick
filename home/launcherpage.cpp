@@ -64,13 +64,24 @@ bool LauncherPage::contains(const DuiDesktopEntry &desktopEntry) const
     return containsButton;
 }
 
-bool LauncherPage::prune(QStringList entryList, QString directory)
+static bool fileNameMatchesPaths(const QString &fileName,
+                                 const QStringList &paths) {
+    foreach (const QString& dir, paths) {
+        if (fileName.startsWith(dir)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool LauncherPage::prune(QStringList entryList, QStringList directories)
 {
     QList< QSharedPointer<LauncherButton> > newButtons(model()->launcherButtons());
     foreach (QSharedPointer<LauncherButton> button, newButtons) {
         QString fileName = button.data()->model()->desktopEntryFile();
         // check against directory so that we dont prune entries from other directories
-        if (!entryList.contains(fileName) && fileName.startsWith(directory)) {
+        if (!entryList.contains(fileName)
+            && fileNameMatchesPaths(fileName, directories)) {
             newButtons.removeOne(button);
         }
     }

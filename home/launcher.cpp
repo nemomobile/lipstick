@@ -32,12 +32,18 @@
 #include "launcher.h"
 #include "launcherbutton.h"
 
+static const char* const FILE_FILTER = "*.desktop";
+
 Launcher::Launcher(DuiWidget *parent) :
     DuiWidgetController(new LauncherModel, parent),
     dataStore(NULL),
     initialized(false)
 {
-
+    pathsForDesktopEntries << APPLICATIONS_DIRECTORY;
+#ifdef TESTABILITY_ON
+    pathsForDesktopEntries << QDir::tempPath();
+#endif
+    supportedDesktopEntryFileTypes << "Application" << "Link";
 }
 
 Launcher::~Launcher()
@@ -72,10 +78,9 @@ void Launcher::activateLauncher()
 
         // Start watching the applications directory for changes
         connect(&watcher, SIGNAL(directoryChanged(const QString)), this, SLOT(updateButtonListFromDirectory(const QString)));
-        watcher.addPath(APPLICATIONS_DIRECTORY);
-#ifdef TESTABILITY_ON
-        watcher.addPath(QDir::tempPath());
-#endif
+        foreach (const QString& dir, pathsForDesktopEntries) {
+            watcher.addPath(dir);
+        }
         // The launcher has now been initialized
         initialized = true;
     } else {
@@ -85,45 +90,55 @@ void Launcher::activateLauncher()
 
 void Launcher::updateButtonList()
 {
-    updateButtonListFromDirectory(APPLICATIONS_DIRECTORY);
-
-#ifdef TESTABILITY_ON
-    updateButtonListFromDirectory(QDir::tempPath());
-#endif
+    // this updates for all paths
+    updateButtonListFromEntries(pathsForDesktopEntries,
+                                pathsForDesktopEntries,
+                                FILE_FILTER,
+                                supportedDesktopEntryFileTypes
+                                );
 }
 
 void Launcher::updateButtonListFromDirectory(const QString &path)
 {
-    updateButtonListFromEntries(path, "*.desktop", QStringList() << "Application" << "Link");
+    // this updates for path whose directory changed
+    updateButtonListFromEntries(QStringList() << path,
+                                pathsForDesktopEntries,
+                                FILE_FILTER,
+                                supportedDesktopEntryFileTypes);
 }
 
-void Launcher::updateButtonListFromEntries(const QString &path, const QString &nameFilter, const QStringList &acceptedTypes)
+void Launcher::updateButtonListFromEntries(const QStringList &modifiedPaths,
+                                           const QStringList &allPaths,
+                                           const QString &nameFilter,
+                                           const QStringList &acceptedTypes)
 {
     QStringList desktopEntryFiles;
     // Update buttons according to the new desktop entries
-    foreach(QFileInfo fileInfo, QDir(path, nameFilter).entryInfoList(QDir::Files)) {
-        QString filePath(fileInfo.absoluteFilePath());
-        DuiDesktopEntry e(filePath);
-        if (isDesktopEntryValid(e, acceptedTypes)) {
-            desktopEntryFiles.append(filePath);
+    foreach(const QString& path, modifiedPaths) {
+        foreach(QFileInfo fileInfo, QDir(path, nameFilter).entryInfoList(QDir::Files)) {
+            QString filePath(fileInfo.absoluteFilePath());
+            DuiDesktopEntry e(filePath);
+            if (isDesktopEntryValid(e, acceptedTypes)) {
+                desktopEntryFiles.append(filePath);
 
-	    // If the entry is not in the launcher we might need to add it
-	    if (!contains(e)) {
-		// If the data store does not know the item, we put it in the laucher grid as the items
-		// go by default into the laucher grid or
-		// if the data store already says that it goes into the grid, then lets put it there
-		if (dataStore->location(e) == LauncherDataStore::Unknown || 
-		    dataStore->location(e) == LauncherDataStore::LauncherGrid) {
-		    addNewLauncherButton(e);
-		}
-	    }
+                // If the entry is not in the launcher we might need to add it
+                if (!contains(e)) {
+                    // If the data store does not know the item, we put it in the laucher grid as the items
+                    // go by default into the laucher grid or
+                    // if the data store already says that it goes into the grid, then lets put it there
+                    if (dataStore->location(e) == LauncherDataStore::Unknown ||
+                        dataStore->location(e) == LauncherDataStore::LauncherGrid) {
+                        addNewLauncherButton(e);
+                    }
+                }
+            }
         }
     }
 
     QList< QSharedPointer<LauncherPage> > pages(model()->launcherPages());
     foreach (QSharedPointer<LauncherPage> page, pages) {
         // prune pages and remove empty pages
-        if (!page.data()->prune(desktopEntryFiles, path)) {
+        if (!page->prune(desktopEntryFiles, allPaths)) {
             pages.removeOne(page);
         }
     }
@@ -156,7 +171,7 @@ void Launcher::addNewLauncherButton(const DuiDesktopEntry &entry)
     if (!pages.isEmpty()) {
 	QSharedPointer<LauncherPage> page = pages.last();
 	added = page.data()->appendButton(button);
-    } 
+    }
 
     if (!added) {
 	QList< QSharedPointer<LauncherPage> > newPages(pages);

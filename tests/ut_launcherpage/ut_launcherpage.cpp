@@ -122,7 +122,7 @@ void Ut_LauncherPage::testPruning()
 
     entryList.takeAt(2);
     const QString dir("/my/dir");
-    QVERIFY(m_subject->prune(entryList, dir));
+    QVERIFY(m_subject->prune(entryList, QStringList() << dir));
 
     /*
       Check that the "/not-my/dir" named directory is not pruned away from this page
@@ -135,7 +135,7 @@ void Ut_LauncherPage::testPruning()
     entryList.clear();
     entryList << "/not-my/dir/my-entry-name3";
 
-    QVERIFY(m_subject->prune(entryList, dir));
+    QVERIFY(m_subject->prune(entryList, QStringList() << dir));
 
     /*
       Check that the "/not-my/dir" named directory is not pruned away from this page
@@ -150,7 +150,7 @@ void Ut_LauncherPage::testPruning()
 
     const QString lastDir("/not-my/dir");
     // verify that empty page returns false on pruning
-    QVERIFY(!m_subject->prune(entryList, lastDir));
+    QVERIFY(!m_subject->prune(entryList, QStringList() << lastDir));
     QCOMPARE(m_subject->model()->launcherButtons().count(), 0);
 }
 

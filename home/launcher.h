@@ -147,6 +147,13 @@ private:
     //! DataStore handle for storing launcher button positions and entries
     LauncherDataStore *dataStore;
 
+    //! Paths that can contain desktop entries. If testability is
+    //! enabled, this list will contain more than one item.
+    QStringList pathsForDesktopEntries;
+
+    //! List of file types to support for desktop entries.
+    QStringList supportedDesktopEntryFileTypes;
+
 #ifdef ENABLE_QTTRACKER
     //! The LibQtTracker item model for shortcuts
     SopranoLive::LiveNodes shortcutItemModel;
@@ -205,11 +212,15 @@ private:
     /*!
      * Updates buttons list from specific entry files in a directory.
      * Checks if some desktop entries should be included in the launcher or not.
-     * \param path the file path that gets searched for desktop entry files.
+     * \param modifiedPaths the file paths that get searched for desktop entry files.
+     * \param allPaths the file paths that can contain desktop entry files.
      * \param nameFilter a filter for the desktop entry files. E.g. "*.desktop".
      * \param acceptedTypes the types that should be accepted. This list is checked against the desktop files' Type value.
      */
-    void updateButtonListFromEntries(const QString &path, const QString &nameFilter, const QStringList &acceptedTypes);
+    void updateButtonListFromEntries(const QStringList &modifiedPaths,
+                                     const QStringList &allPaths,
+                                     const QString &nameFilter,
+                                     const QStringList &acceptedTypes);
 
     /*!
      * Adds a new button to launcher

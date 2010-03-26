@@ -31,7 +31,7 @@ class LauncherPage : public DuiWidgetController
     DUI_CONTROLLER(LauncherPage)
 public:
 
-    /*! 
+    /*!
      * Constructs a LauncherPage
      * \param parent The parent widget of this page.
      */
@@ -42,9 +42,9 @@ public:
      * Fixed positions for buttons are not maintained, so when multiple buttons are added,
      * adding order must be position index order to assure inserting to correct index in button list.
      * Two scenarios exist when the button is not added to a page:
-     * \li If the position index is higher than the maximum items allowed per page, 
+     * \li If the position index is higher than the maximum items allowed per page,
      * \li If the page is full
-     * 
+     *
      * The maximum items per page is currently defined as 12
      *
      * \param button Button to be added.
@@ -54,7 +54,7 @@ public:
     bool insertButton(QSharedPointer<LauncherButton> button, int positionIndex);
 
     /*!
-     * Tries to appends a button to the end of this page. This is a convenience function for 
+     * Tries to appends a button to the end of this page. This is a convenience function for
      * \link LauncherPage::insertButton. See possible error scenarios there.
      *
      * \param button Button to be added.
@@ -78,10 +78,14 @@ public:
      /*!
      * Removes non-existing buttons from this page.
      * \param entryList List of entries to compare against
-     * \param directory Directory path that is pruned
+     * \param directories Directory paths for which pruning is done. If there
+     * are entries that are not in the paths used by the launcher,
+     * those entries are pruned. For entries that are in the paths used,
+     * stale entries (for which a desktop entry is no longer in place)
+     * are pruned.
      * \return true if page still contais buttons after pruning
      */
-    bool prune(QStringList entryList, QString directory);
+    bool prune(QStringList entryList, QStringList directories);
 };
 
 #endif

@@ -24,7 +24,7 @@ class LauncherStub : public StubBase {
   virtual bool contains(const DuiDesktopEntry &entry);
   virtual void updateButtonsInDataStore();
   virtual void restoreButtonsFromDataStore();
-  virtual void updateButtonListFromEntries(const QString &path, const QString &nameFilter, const QStringList &acceptedTypes);
+  virtual void updateButtonListFromEntries(const QStringList &modifiedPaths, const QStringList &allPaths, const QString &nameFilter, const QStringList &acceptedTypes);
   virtual void addNewLauncherButton(const DuiDesktopEntry &entry);
   virtual bool isDesktopEntryValid(const DuiDesktopEntry &entry, const QStringList &acceptedTypes);
 }; 
@@ -111,9 +111,10 @@ void LauncherStub::restoreButtonsFromDataStore() {
   stubMethodEntered("restoreButtonsFromDataStore");
 }
 
-void LauncherStub::updateButtonListFromEntries(const QString &path, const QString &nameFilter, const QStringList &acceptedTypes) {
+void LauncherStub::updateButtonListFromEntries(const QStringList &modifiedPaths, const QStringList &allPaths, const QString &nameFilter, const QStringList &acceptedTypes) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const QString & >(path));
+  params.append( new Parameter<const QStringList & >(modifiedPaths));
+  params.append( new Parameter<const QStringList & >(allPaths));
   params.append( new Parameter<const QString & >(nameFilter));
   params.append( new Parameter<const QStringList & >(acceptedTypes));
   stubMethodEntered("updateButtonListFromEntries",params);
@@ -200,8 +201,8 @@ void Launcher::restoreButtonsFromDataStore() {
   gLauncherStub->restoreButtonsFromDataStore();
 }
 
-void Launcher::updateButtonListFromEntries(const QString &path, const QString &nameFilter, const QStringList &acceptedTypes) {
-  gLauncherStub->updateButtonListFromEntries(path, nameFilter, acceptedTypes);
+void Launcher::updateButtonListFromEntries(const QStringList &modifiedPaths, const QStringList &allPaths, const QString &nameFilter, const QStringList &acceptedTypes) {
+  gLauncherStub->updateButtonListFromEntries(modifiedPaths, allPaths, nameFilter, acceptedTypes);
 }
 
 void Launcher::addNewLauncherButton(const DuiDesktopEntry &entry) {
