@@ -109,6 +109,7 @@ public:
 
     // Whether a Damage object has been created
     static bool damageCreated;
+    static unsigned long damageHandle;
 
     // Main window
     static MainWindow *mainWindow;
