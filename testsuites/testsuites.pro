@@ -16,10 +16,12 @@ TEST_APPS = \
     ta_homeswitcher \
     ta_callui \
     ta_activeapp \
-    fakesystemnotificationplugin
+    fixture_mashupcanvas \
+    fakesystemnotificationplugin 
 
 SUBDIRS = \
     lib \
+    helpers \
     $$TEST_SUITES \
     $$TEST_APPS \
     $$ACCEPTANCE_TESTS
@@ -50,8 +52,12 @@ test_xml.depends=ridoc FORCE
 test_xml.path=$$TEST_SUITE_INSTALL_LOCATION
 test_xml.CONFIG+=no_check_exist
 
+sudoers.path=$$SUDOERS_DIR
+sudoers.files=duifw-home-tests.sudoers
+
 INSTALLS+= \
-    test_xml
+    test_xml \
+    sudoers
 
 check.target = check
 check.CONFIG = recursive

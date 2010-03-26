@@ -1,0 +1,7 @@
+#!/bin/sh -e
+
+#DEBHELPER#
+
+if test -x /usr/sbin/update-sudoers ; then
+    /usr/sbin/update-sudoers
+fi

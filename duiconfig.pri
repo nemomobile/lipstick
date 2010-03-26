@@ -10,6 +10,8 @@ unix {
      TEST_APP_INSTALL_LOCATION=/usr/lib/duifw-home-tests
      TEST_THEME_ROOT_LOCATION=/usr/share/themes/base/dui
      TEST_BENCHMARKS_INSTALL_LOCATION=/usr/share/duifw-home-benchmark-tests
+
+     SUDOERS_DIR = /etc/sudoers.d
 }
 mac {
      # Do mac stuff here

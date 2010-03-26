@@ -113,7 +113,7 @@ Description: Testsuite for Direct UI Home screen
 Package: duifw-home-tests
 Architecture: any
 Section: misc
-Depends: duifw-tests-lib, duihomescreen (= ${binary:Version}), duihomescreen-plugins (= ${binary:Version}), duistatusindicatormenu, dui-demos-appletinstallationsource, dui-dev-tools, duicompositor, duicontrolpanel, contextkit-utils, libipc-run3-perl, dui-demos-widgetsgallery, dui-demos-applicationextension, duihomescreen-plugins-weatherapplet, libcucumber-ruby
+Depends: duifw-tests-lib, duihomescreen (= ${binary:Version}), duihomescreen-plugins (= ${binary:Version}), duistatusindicatormenu, dui-demos-appletinstallationsource, dui-dev-tools, duicompositor, duicontrolpanel, contextkit-utils, libipc-run3-perl, dui-demos-widgetsgallery, dui-demos-applicationextension, duihomescreen-plugins-weatherapplet, libcucumber-ruby, sudo
 XB-Maemo-CI-Packages: duihomescreen
 XB-Maemo-CI-Stage: fast, acceptance, validation
 Description: DirectUI functional tests for homescreen
