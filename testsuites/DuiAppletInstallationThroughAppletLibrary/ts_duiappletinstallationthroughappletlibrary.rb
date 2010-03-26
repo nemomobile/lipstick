@@ -22,6 +22,7 @@ $LOAD_PATH << File.join(PATH,"..","lib")
 require "dui.rb"
 require "runFixup.rb"
 require "dbus"
+require "utils.rb"
 
 # Loads all the testcase files
 # TODO: Move to lib/dui.rb ?
@@ -162,14 +163,18 @@ class CustomRunner < Dui::Runner
         @dbusListenerThread = Thread.new do
             dbusMain.run
         end
+
+        # Delete any previous mashup canvas configuration
+        $configPath = getAppHome(@sut.application(:name => 'duihome')) + "/.config/duihome"
+        $canvasData = $configPath + "/appletcanvas.data"
+        FileUtils.mkdir_p $configPath
+        FileUtils.rm($canvasData, :force => true)
     end
 
     def teardown
         @dbusListenerThread.exit
 
-        if File.exist?(ENV['HOME'] + "/.config/duihome/appletcanvas.data")
-            File.delete(ENV['HOME'] + "/.config/duihome/appletcanvas.data")
-        end
+        FileUtils.rm($canvasData, :force => true)
 
         super
     end
@@ -180,13 +185,6 @@ class TC_DuiAppletInstallationThroughAppletLibrary
     def testDBusService
         $testDBusObject
     end
-end
-
-# Delete any previous mashup canvas configuration
-Dir.mkdir(ENV['HOME'] + "/.config") unless File.exist?(ENV['HOME'] + "/.config")
-Dir.mkdir(ENV['HOME'] + "/.config/duihome") unless File.exist?(ENV['HOME'] + "/.config/duihome")
-if File.exist?(ENV['HOME'] + "/.config/duihome/appletcanvas.data")
-    File.delete(ENV['HOME'] + "/.config/duihome/appletcanvas.data")
 end
 
 suite = CustomRunner.new
