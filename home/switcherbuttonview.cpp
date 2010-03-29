@@ -284,7 +284,7 @@ void SwitcherButtonView::updateXWindowPixmap()
 
     if (xWindowPixmap != 0) {
         // Register the pixmap for XDamage events
-        xWindowPixmapDamage = X11Wrapper::XDamageCreate(QX11Info::display(), xWindowPixmap, XDamageReportNonEmpty);
+      xWindowPixmapDamage = X11Wrapper::XDamageCreate(QX11Info::display(), model()->xWindow(), XDamageReportNonEmpty);
 
         backendSpecificUpdateXWindowPixmap();
     }

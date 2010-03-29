@@ -41,7 +41,6 @@
 #include <algorithm>
 
 static qreal calculateCenterCorrection(qreal value, qreal scaleFactor);
-static const QSizeF screenSize(Dui::Orientation orientation);
 static const qreal HALF_PI = M_PI / 2.0;
 static const qreal MAX_Z_VALUE = 1.0;
 

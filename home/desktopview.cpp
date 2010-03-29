@@ -137,7 +137,6 @@ DesktopView::DesktopView(Desktop *desktop) :
     mainLayout->addItem(widget);
 
     // Create a quick launch bar and put it in a scene window
-    quickLaunchBar = new QuickLaunchBar;
     connect(quickLaunchBar, SIGNAL(toggleLauncherButtonClicked()), this, SLOT(toggleLauncher()));
     connect(quickLaunchBar, SIGNAL(toggleAppletSpaceButtonClicked()), this, SLOT(toggleAppletSpace()));
     QGraphicsLinearLayout *windowLayout = new QGraphicsLinearLayout();
@@ -151,6 +150,7 @@ DesktopView::DesktopView(Desktop *desktop) :
     windowLayout->setContentsMargins(0, 0, 0, 0);
 
     // The launcher is added into a modal scene window
+    connect(launcher, SIGNAL(launcherButtonClicked()), this, SLOT(toggleLauncher()));
     launcherWindow->setLayout(windowLayout);
     launcherWindow->setObjectName("LauncherWindow");
     windowLayout->addItem(launcher);

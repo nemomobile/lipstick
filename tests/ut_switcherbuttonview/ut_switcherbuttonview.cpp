@@ -95,6 +95,7 @@ Pixmap Ut_SwitcherButtonView::lastPixmap;
 bool Ut_SwitcherButtonView::xCompositeNameWindowPixmapCausesBadMatch = false;
 XErrorHandler Ut_SwitcherButtonView::xErrorHandler = NULL;
 bool Ut_SwitcherButtonView::damageCreated = false;
+unsigned long Ut_SwitcherButtonView::damageHandle = 0;
 
 XErrorHandler X11Wrapper::XSetErrorHandler(XErrorHandler handler)
 {
@@ -121,9 +122,10 @@ int X11Wrapper::XFreePixmap(Display *, Pixmap pixmap)
     return Ut_SwitcherButtonView::allocatedPixmaps.removeOne(pixmap) ? 0 : BadPixmap;
 }
 
-Damage X11Wrapper::XDamageCreate(Display *, Drawable, int)
+Damage X11Wrapper::XDamageCreate(Display *, Drawable damage, int)
 {
     Ut_SwitcherButtonView::damageCreated = true;
+    Ut_SwitcherButtonView::damageHandle = damage;
     return 0;
 }
 
@@ -340,6 +342,8 @@ void Ut_SwitcherButtonView::testXWindow()
     Pixmap oldPixmap = allocatedPixmaps.at(0);
     QCOMPARE(oldPixmap, (Pixmap)1);
     QCOMPARE(damageCreated, true);
+    // check that the damage is tracked with the underlying window
+    QCOMPARE(damageHandle, button->model()->xWindow());
 
     // Setting another X window ID should free the previously allocated Pixmap and allocate a new one
     button->model()->setXWindow(2);
@@ -369,7 +373,7 @@ void Ut_SwitcherButtonView::testTextOpacity()
 
 void Ut_SwitcherButtonView::testViewModeChange()
 {
-    QCOMPARE(m_subject->styleContainer().currentMode(), QString("default"));
+    QCOMPARE(m_subject->styleContainer().currentMode(), QString(""));
     QCOMPARE(button->model()->viewMode(), SwitcherButtonModel::UnSpecified);
     for (int i = 0; i < 2; ++i) { // test setting a couple of times
         button->model()->setViewMode(SwitcherButtonModel::Small);

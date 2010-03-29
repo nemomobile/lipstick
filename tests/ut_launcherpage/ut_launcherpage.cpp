@@ -111,9 +111,13 @@ void Ut_LauncherPage::testRemoveButton()
 void Ut_LauncherPage::testPruning()
 {
     QStringList entryList;
-    entryList << "/my/dir/my-entry-name" << "/my/dir/my-entry-name1" << "/my/dir/my-entry-name2" << "/not-my/dir/my-entry-name3" << "/my/dir/my-entry-name4";
-
-    m_subject->model()->setMaxButtons(5);
+    entryList << "/my/dir/my-entry-name"
+              << "/my/dir/my-entry-name1"
+              << "/my/dir/my-entry-name2"
+              << "/another-my/dir/my-entry-name3"
+              << "/my/dir/my-entry-name4"
+              << "/not-my/dir/my-entry-name5";
+    m_subject->model()->setMaxButtons(6);
     foreach (QString entry, entryList) {
 	QSharedPointer<LauncherButton> button = createLauncherButton(entry);
 	bool added = m_subject->appendButton(button);
@@ -122,10 +126,12 @@ void Ut_LauncherPage::testPruning()
 
     entryList.takeAt(2);
     const QString dir("/my/dir");
-    QVERIFY(m_subject->prune(entryList, dir));
+    const QString dir2("/another-my/dir");
+    QVERIFY(m_subject->prune(entryList, QStringList() << dir << dir2));
 
     /*
-      Check that the "/not-my/dir" named directory is not pruned away from this page
+      Check that the directory /another-my/dir is not pruned away
+      from this page, but /not-my/dir is
      */
     QCOMPARE(m_subject->model()->launcherButtons().count(), 4);
     foreach (QSharedPointer<LauncherButton> button, m_subject->model()->launcherButtons()) {
@@ -133,24 +139,23 @@ void Ut_LauncherPage::testPruning()
     }
 
     entryList.clear();
-    entryList << "/not-my/dir/my-entry-name3";
-
-    QVERIFY(m_subject->prune(entryList, dir));
+    entryList << "/another-my/dir/my-entry-name3";
+    QVERIFY(m_subject->prune(entryList, QStringList() << dir << dir2));
 
     /*
-      Check that the "/not-my/dir" named directory is not pruned away from this page
+      Check that the "/another-my/dir" named directory is not pruned away from this page
      */
     QCOMPARE(m_subject->model()->launcherButtons().count(), 1);
     foreach (QSharedPointer<LauncherButton> button, m_subject->model()->launcherButtons()) {
 	QVERIFY(entryList.contains(button.data()->model()->desktopEntryFile()));
     }
-    
+
     entryList.clear();
     entryList << "/my/dir/does-not-matter";
 
     const QString lastDir("/not-my/dir");
     // verify that empty page returns false on pruning
-    QVERIFY(!m_subject->prune(entryList, lastDir));
+    QVERIFY(!m_subject->prune(entryList, QStringList() << lastDir));
     QCOMPARE(m_subject->model()->launcherButtons().count(), 0);
 }
 

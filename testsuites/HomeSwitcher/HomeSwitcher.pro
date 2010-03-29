@@ -5,7 +5,7 @@ suites.path=$$TEST_SUITE_INSTALL_LOCATION/HomeSwitcher
 suites.files=ts_homeswitcher.rb \
 
 cases.path=$$TEST_SUITE_INSTALL_LOCATION/HomeSwitcher/cases
-cases.files=cases/tc_homeswitcher.rb \
+cases.files=cases/tc_*.rb
 
 INSTALLS += \
     cases \

@@ -2,7 +2,7 @@ Source: duihome
 Section: x11
 Priority: extra
 Maintainer: Tuomas Järvensivu <tuomas.jarvensivu@nokia.com>
-Build-Depends: debhelper (>= 5), doxygen (>=1.5.9), libdui-dev (>= 0.19), libqt4-dev (>= 4.6), libqt4-opengl-dev, libxcomposite-dev, libxext-dev, libqttracker-dev (>= 0.3.1), libcontextsubscriber-dev, maemo-services-dev, libmaemosec-dev, ruby, ruby1.8, rdoc1.8, ri1.8, rdoc, ri, libbuilder-ruby, libbuilder-ruby1.8, libmatti-ruby, libmatti-ruby1.8, librmagick-ruby, librmagick-ruby1.8, libxml2-utils, libdbus-ruby, libdbus-ruby1.8, duifw-tests-lib, duifw-tests-dev, buildtestxml-ruby
+Build-Depends: debhelper (>= 5), doxygen (>=1.5.9), libdui-dev (>= 0.19), libqt4-dev (>= 4.6), libqt4-opengl-dev, libxcomposite-dev, libxext-dev, libqttracker-dev (>= 0.3.1), libcontextsubscriber-dev, maemo-services-dev, libmaemosec-dev, ruby, ruby1.8, rdoc1.8, ri1.8, rdoc, ri, libbuilder-ruby, libbuilder-ruby1.8, matti, librmagick-ruby, librmagick-ruby1.8, libxml2-utils, libdbus-ruby, libdbus-ruby1.8, duifw-tests-lib, duifw-tests-dev, buildtestxml-ruby
 Standards-Version: 3.7.2
 
 Package: duihomescreen
@@ -113,7 +113,7 @@ Description: Testsuite for Direct UI Home screen
 Package: duifw-home-tests
 Architecture: any
 Section: misc
-Depends: duifw-tests-lib, duihomescreen (= ${binary:Version}), duihomescreen-plugins (= ${binary:Version}), duistatusindicatormenu, dui-demos-appletinstallationsource, dui-dev-tools, duicompositor, duicontrolpanel, contextkit-utils, libipc-run3-perl, dui-demos-widgetsgallery, duihomescreen-plugins-weatherapplet, libcucumber-ruby
+Depends: duifw-tests-lib, duihomescreen (= ${binary:Version}), duihomescreen-plugins (= ${binary:Version}), duistatusindicatormenu, dui-demos-appletinstallationsource, dui-dev-tools, duicompositor, duicontrolpanel, contextkit-utils, libipc-run3-perl, dui-demos-widgetsgallery, dui-demos-applicationextension, duihomescreen-plugins-weatherapplet, libcucumber-ruby
 XB-Maemo-CI-Packages: duihomescreen
 XB-Maemo-CI-Stage: fast, acceptance, validation
 Description: DirectUI functional tests for homescreen

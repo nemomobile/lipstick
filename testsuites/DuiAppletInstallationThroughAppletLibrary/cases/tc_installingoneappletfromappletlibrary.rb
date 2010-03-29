@@ -532,7 +532,7 @@ class TC_DuiAppletInstallationThroughAppletLibrary < Dui::TestCase
 
 private
 
- # Opens the applet library
+    # Opens the applet library
     def accessInstallationSource
         begin
             @app.DuiContainer(:name => 'DuiAppletInventorySourceContainer', :__timeout => 5)

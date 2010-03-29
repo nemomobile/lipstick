@@ -1,10 +1,30 @@
-duihome (0.20.0~1) unstable; urgency=low
+duihome (0.20.3~1) unstable; urgency=low
 
-  * New version [UNRELEASED]
+  * Fixes: NB#159568 -  Switcher thumbnails content doesn't display how the app
+    really looks like.
+
+ -- Ville Voutilainen <ville.voutilainen@ixonos.com>  Fri, 26 Mar 2010 10:02:01 +0200
+
+duihome (0.20.2-1) unstable; urgency=low
+
+  * Close the launcher when a launcher button is clicked
+
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Tue, 23 Mar 2010 18:40:53 +0200
+
+duihome (0.20.1-1) unstable; urgency=low
+
+  * Use the correct icon ID for the launcher button
+  * Fixes: NB#161282 -duihome's window type is TYPE_NORMAL instead of TYPE_DESKTOP
+
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Tue, 23 Mar 2010 16:32:30 +0200
+
+duihome (0.20.0-1) unstable; urgency=low
+
+  * New version
   * Implemented: SWP#DUI-1949 Launcher layout & navigation
   * Implemented: SWP#DUI-1944 Notification plugin in Status Indicator Menu
 
- -- Vesa Halttunen <vesa.halttunen@nokia.com>  Thu, 18 Mar 2010 15:56:02 +0200
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Tue, 23 Mar 2010 15:27:36 +0200
 
 duihome (0.19.3-1) unstable; urgency=low
 

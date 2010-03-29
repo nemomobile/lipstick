@@ -2,13 +2,13 @@ include(../../duiconfig.pri)
 TEMPLATE=subdirs
 
 suites.path=$$TEST_SUITE_INSTALL_LOCATION/DuiApplicationExtensionArea
-suites.files=ts_duiapplicationextensionarea.rb \
+suites.files=ts_duiapplicationextensionarea.rb
 
 cases.path=$$TEST_SUITE_INSTALL_LOCATION/DuiApplicationExtensionArea/cases
-cases.files=cases/tc_duiapplicationextensionarea.rb \
+cases.files=cases/tc_*.rb
 
 INSTALLS += \
     cases \
-    suites \
+    suites
 
 include(../check.pri)

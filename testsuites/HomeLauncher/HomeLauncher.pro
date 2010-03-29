@@ -2,13 +2,13 @@ include(../../duiconfig.pri)
 TEMPLATE=subdirs
 
 suites.path=$$TEST_SUITE_INSTALL_LOCATION/HomeLauncher
-suites.files=ts_homelauncher.rb \
+suites.files=ts_homelauncher.rb
 
 cases.path=$$TEST_SUITE_INSTALL_LOCATION/HomeLauncher/cases
-cases.files=cases/tc_homelauncher.rb \
+cases.files=cases/tc_*.rb
 
 INSTALLS += \
     cases \
-    suites \
+    suites
 
 include(../check.pri)

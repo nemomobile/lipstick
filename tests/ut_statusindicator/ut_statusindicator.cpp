@@ -17,12 +17,12 @@
 **
 ****************************************************************************/
 
-#include <DuiOnDisplayChangeEvent>
 #include "ut_statusindicator.h"
+#include <DuiApplication>
+#include <DuiOnDisplayChangeEvent>
 #include "statusindicator.h"
-#include "statusindicatorimageview.h"
-#include "statusindicatorlabelview.h"
 #include "testcontextitem.h"
+#include <QtTest/QtTest>
 
 QHash<QString, TestContextItem *> testContextItems;
 
@@ -39,43 +39,16 @@ public:
     }
 };
 
-// Stubs for status indicator views
-
-QVariant gModelValue;
-
-TestStatusIndicatorImageView::TestStatusIndicatorImageView(StatusIndicator *controller) :
-    StatusIndicatorImageView(controller)
-{
-}
-
-void TestStatusIndicatorImageView::updateData(const QList<const char *>& modifications)
-{
-    DuiWidgetView::updateData(modifications);
-    const char *member;
-    foreach(member, modifications) {
-        if (member == StatusIndicatorModel::Value) {
-            gModelValue = model()->value();
-        }
-    }
-}
-
-TestStatusIndicatorLabelView::TestStatusIndicatorLabelView(StatusIndicator *controller) :
-    StatusIndicatorImageView(controller)
-{
-}
-
-
-
 void Ut_StatusIndicator::init()
 {
     testContext = new TestContext();
     testContextItems.clear();
-    gModelValue.clear();
 }
 
 void Ut_StatusIndicator::cleanup()
 {
     delete testContext;
+    testContext = NULL;
 }
 
 void Ut_StatusIndicator::initTestCase()
@@ -96,104 +69,22 @@ void Ut_StatusIndicator::testModelUpdates()
 {
     DuiOnDisplayChangeEvent exitDisplayEvent(DuiOnDisplayChangeEvent::FullyOffDisplay, QRectF());
     DuiOnDisplayChangeEvent enterDisplayEvent(DuiOnDisplayChangeEvent::FullyOnDisplay, QRectF());
-    statusIndicator = new ClockAlarmStatusIndicator(*testContext);
+    statusIndicator = new PhoneNetworkStatusIndicator(*testContext);
 
     // When the application is visible the model should be updated
     qApp->sendEvent(statusIndicator, &enterDisplayEvent);
-    testContextItems["UserAlarm.Present"]->setValue(QVariant(true));
-    QCOMPARE(statusIndicator->model()->value(), QVariant(1));
+    testContextItems["Cellular.NetworkName"]->setValue(QVariant("NetworkName"));
+    QCOMPARE(statusIndicator->model()->value(), QVariant("NetworkName"));
 
     // When the application is not visible the model should not be updated
     qApp->sendEvent(statusIndicator, &exitDisplayEvent);
-    testContextItems["UserAlarm.Present"]->setValue(QVariant(false));
-    QCOMPARE(statusIndicator->model()->value(), QVariant(1));
+    testContextItems["Cellular.NetworkName"]->setValue(QVariant("OtherNetworkName"));
+    QCOMPARE(statusIndicator->model()->value(), QVariant("NetworkName"));
 
     // When the application becomes visible the model should be updated
     qApp->sendEvent(statusIndicator, &enterDisplayEvent);
-    QCOMPARE(statusIndicator->model()->value(), QVariant(0));
+    QCOMPARE(statusIndicator->model()->value(), QVariant("OtherNetworkName"));
 
-    delete statusIndicator;
-}
-
-void Ut_StatusIndicator::testPhoneNetworkSignalStrength()
-{
-    statusIndicator = new PhoneNetworkSignalStrengthStatusIndicator(*testContext);
-    statusIndicator->setView(new TestStatusIndicatorImageView(statusIndicator));
-
-    testContextItems["Cellular.SignalStrength"]->setValue(QVariant(100));
-
-    QVERIFY(statusIndicator->model()->value().type() == QVariant::Double);
-    QCOMPARE(qRound(statusIndicator->model()->value().toDouble() * 100), 100);
-
-    delete statusIndicator;
-}
-
-void Ut_StatusIndicator::testBattery()
-{
-    statusIndicator = new BatteryStatusIndicator(*testContext);
-
-    testContextItems["Battery.ChargePercentage"]->setValue(QVariant(100));
-    QVERIFY(statusIndicator->model()->value().type() == QVariant::Double);
-    QCOMPARE(qRound(statusIndicator->model()->value().toDouble() * 100), 100);
-
-    testContextItems["Battery.IsCharging"]->setValue(QVariant(false));
-    QVERIFY(statusIndicator->objectName().indexOf("Level") >= 0);
-
-    testContextItems["Battery.IsCharging"]->setValue(QVariant(true));
-    QVERIFY(statusIndicator->objectName().indexOf("Charging") >= 0);
-
-    delete statusIndicator;
-}
-
-void Ut_StatusIndicator::testAlarm()
-{
-    statusIndicator = new ClockAlarmStatusIndicator(*testContext);
-
-    testContextItems["UserAlarm.Present"]->setValue(QVariant(false));
-    QCOMPARE(statusIndicator->model()->value(), QVariant(false));
-
-    testContextItems["UserAlarm.Present"]->setValue(QVariant(true));
-    QCOMPARE(statusIndicator->model()->value(), QVariant(true));
-
-    delete statusIndicator;
-}
-
-void Ut_StatusIndicator::testBluetooth()
-{
-    statusIndicator = new BluetoothStatusIndicator(*testContext);
-
-    testContextItems["Bluetooth.Enabled"]->setValue(QVariant(false));
-    QCOMPARE(statusIndicator->model()->value(), QVariant(false));
-
-    testContextItems["Bluetooth.Enabled"]->setValue(QVariant(true));
-    QCOMPARE(statusIndicator->model()->value(), QVariant(true));
-
-    delete statusIndicator;
-}
-
-void Ut_StatusIndicator::testInternetConnection()
-{
-    statusIndicator = new InternetConnectionStatusIndicator(*testContext);
-
-    testContextItems["Internet.SignalStrength"]->setValue(QVariant(100));
-    QVERIFY(statusIndicator->model()->value().type() == QVariant::Double);
-    QCOMPARE(qRound(statusIndicator->model()->value().toDouble() * 100), 100);
-
-    delete statusIndicator;
-}
-
-void Ut_StatusIndicator::testAnimation()
-{
-    DuiOnDisplayChangeEvent exitDisplayEvent(DuiOnDisplayChangeEvent::FullyOffDisplay, QRectF());
-    DuiOnDisplayChangeEvent enterDisplayEvent(DuiOnDisplayChangeEvent::FullyOnDisplay, QRectF());
-    statusIndicator = new BatteryStatusIndicator(*testContext);
-
-    testContextItems["Battery.IsCharging"]->setValue(QVariant(true));
-    qApp->sendEvent(statusIndicator, &exitDisplayEvent);
-    QCOMPARE(statusIndicator->model()->animate(), false);
-
-    qApp->sendEvent(statusIndicator, &enterDisplayEvent);
-    QCOMPARE(statusIndicator->model()->animate(), true);
     delete statusIndicator;
 }
 
