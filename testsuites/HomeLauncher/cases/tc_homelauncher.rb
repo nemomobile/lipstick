@@ -860,6 +860,7 @@ private
             home.close
             if File.exists?('/proc' + pid + '/status')
                 Process.kill(:SIGKILL, pid.to_i)
+            end
         end
     end
 
