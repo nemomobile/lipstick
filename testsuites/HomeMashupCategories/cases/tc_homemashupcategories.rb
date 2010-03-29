@@ -29,6 +29,9 @@ include MattiVerify
 
     # method called before any test case
     def setup
+        # default timeout
+        @DTO = 30
+
         # get the application
         @app = @sut.application(:name => 'duihome')
 
@@ -99,9 +102,9 @@ include MattiVerify
         verify_equal("test1,test2", 0, "Cetegories did not set correctly") { list }
 
         # Verify that all test applets are visible
-        verify_true(10) { @app.test_object_exists?('DuiAppletButton', {:text => 'Mashup Test 1'}) }
-        verify_true(10) { @app.test_object_exists?('DuiAppletButton', {:text => 'Mashup Test 2'}) }
-        verify_true(10) { @app.test_object_exists?('DuiAppletButton', {:text => 'Mashup Test all'}) }
+        verify_true(@DTO) { @app.test_object_exists?('DuiAppletButton', {:text => 'Mashup Test 1'}) }
+        verify_true(@DTO) { @app.test_object_exists?('DuiAppletButton', {:text => 'Mashup Test 2'}) }
+        verify_true(@DTO) { @app.test_object_exists?('DuiAppletButton', {:text => 'Mashup Test all'}) }
 
         # Set applet inventory categories to 'test1'
         mashupCanvas.fixture("mashupcanvas", "setCategories",
@@ -110,9 +113,9 @@ include MattiVerify
         verify_equal("test1", 0, "Cetegories did not set correctly") { list }
 
         # Verify that only '1' and 'all' test applets are visible
-        verify_true(10) { @app.test_object_exists?('DuiAppletButton', {:text => 'Mashup Test 1'}) }
-        verify_false(10) { @app.test_object_exists?('DuiAppletButton', {:text => 'Mashup Test 2'}) }
-        verify_true(10) { @app.test_object_exists?('DuiAppletButton', {:text => 'Mashup Test all'}) }
+        verify_true(@DTO) { @app.test_object_exists?('DuiAppletButton', {:text => 'Mashup Test 1'}) }
+        verify_false(@DTO) { @app.test_object_exists?('DuiAppletButton', {:text => 'Mashup Test 2'}) }
+        verify_true(@DTO) { @app.test_object_exists?('DuiAppletButton', {:text => 'Mashup Test all'}) }
 
         # Set applet inventory categories to 'test2'
         mashupCanvas.fixture("mashupcanvas", "setCategories",
@@ -121,9 +124,9 @@ include MattiVerify
         verify_equal("test2", 0, "Cetegories did not set correctly") { list }
 
         # Verify that only '2' and 'all' test applets are visible
-        verify_false(10) { @app.test_object_exists?('DuiAppletButton', {:text => 'Mashup Test 1'}) }
-        verify_true(10) { @app.test_object_exists?('DuiAppletButton', {:text => 'Mashup Test 2'}) }
-        verify_true(10) { @app.test_object_exists?('DuiAppletButton', {:text => 'Mashup Test all'}) }
+        verify_false(@DTO) { @app.test_object_exists?('DuiAppletButton', {:text => 'Mashup Test 1'}) }
+        verify_true(@DTO) { @app.test_object_exists?('DuiAppletButton', {:text => 'Mashup Test 2'}) }
+        verify_true(@DTO) { @app.test_object_exists?('DuiAppletButton', {:text => 'Mashup Test all'}) }
 
         # Set applet inventory categories to 'test3'
         mashupCanvas.fixture("mashupcanvas", "setCategories",
@@ -132,9 +135,9 @@ include MattiVerify
         verify_equal("test3", 0, "Cetegories did not set correctly") { list }
 
         # Verify that no test applets are visible
-        verify_false(10) { @app.test_object_exists?('DuiAppletButton', {:text => 'Mashup Test 1'}) }
-        verify_false(10) { @app.test_object_exists?('DuiAppletButton', {:text => 'Mashup Test 2'}) }
-        verify_false(10) { @app.test_object_exists?('DuiAppletButton', {:text => 'Mashup Test all'}) }
+        verify_false(@DTO) { @app.test_object_exists?('DuiAppletButton', {:text => 'Mashup Test 1'}) }
+        verify_false(@DTO) { @app.test_object_exists?('DuiAppletButton', {:text => 'Mashup Test 2'}) }
+        verify_false(@DTO) { @app.test_object_exists?('DuiAppletButton', {:text => 'Mashup Test all'}) }
 
         # Reset applet inventory categories
         mashupCanvas.fixture("mashupcanvas", "setCategories",
@@ -161,11 +164,11 @@ private
 
     def open_applet_space
         if not applet_space_open?
-            verify(10, "Cannot tap the applet space button") {
+            verify(@DTO, "Cannot tap the applet space button") {
                 # This button really needs a name
                 @app.DuiButton(:text => 'Applet Space').tap
             }
-            verify_true(10, "Opening applet space failed") {
+            verify_true(@DTO, "Opening applet space failed") {
                 applet_space_open?
             }
         end
@@ -175,10 +178,10 @@ private
 
     def close_applet_space
         if applet_space_open?
-            verify(10, "Cannot tap the applet space close button") {
+            verify(@DTO, "Cannot tap the applet space close button") {
                 @app.DuiButton(:name => 'AppletSpaceCloseButton').tap
             }
-            verify_false(10, "Closing applet space failed") {
+            verify_false(@DTO, "Closing applet space failed") {
                 applet_space_open?
             }
         end
@@ -201,10 +204,10 @@ private
 
     def open_applet_inventory
         if not applet_inventory_open?
-            verify(10, "Cannot tap the applet inventory button") {
+            verify(@DTO, "Cannot tap the applet inventory button") {
                 @app.DuiButton(:name => 'DuiAppletInventoryButton').tap
             }
-            verify_true(10, "Opening applet inventory failed") {
+            verify_true(@DTO, "Opening applet inventory failed") {
                 applet_inventory_open?
             }
         end
@@ -214,10 +217,10 @@ private
 
     def close_applet_inventory
         if applet_inventory_open?
-            verify(10, "Cannot tap the applet inventory close button") {
+            verify(@DTO, "Cannot tap the applet inventory close button") {
                 @app.DuiButton(:name => 'DuiAppletInventoryCloseButton').tap
             }
-            verify_false(10, "Closing applet inventory failed") {
+            verify_false(@DTO, "Closing applet inventory failed") {
                 applet_inventory_open?
             }
         end
