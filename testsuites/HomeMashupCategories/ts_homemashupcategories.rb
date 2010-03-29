@@ -21,7 +21,6 @@ CASES=File.join(PATH,"cases")
 $LOAD_PATH << File.join(PATH,"..","lib")
 require "dui.rb"
 require "runFixup.rb"
-require "utils.rb"
 
 # Loads all the testcase files
 # TODO: Move to lib/dui.rb ?

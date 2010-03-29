@@ -245,7 +245,7 @@ private
             X-DUIApplet-Identifier=weatherappletres
         EOF
 
-        create_file name, entry
+        File.open(name, 'w') { |f| f.write(entry) }
     end
 
     # Remove all test applet .desktop-entry from the
@@ -253,7 +253,7 @@ private
 
     def remove_test_applets
         Dir.glob("/usr/share/dui/applets/mashup-test-*.desktop").each { |f|
-            remove_file f
+            File.delete(f)
         }
     end
 end

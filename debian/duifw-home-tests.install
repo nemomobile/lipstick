@@ -4,4 +4,3 @@ usr/share/themes/base/dui/ta_homeswitcher/*
 usr/lib/dui/notifications/systemnotificationplugins/*fake*
 /usr/lib/qt4/plugins/tasfixtures/*
 etc/dbus-1/system.d/com.nokia.package_manager.conf
-etc/sudoers.d/*

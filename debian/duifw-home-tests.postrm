@@ -1,9 +1,0 @@
-#!/bin/sh -e
-
-#DEBHELPER#
-
-rm -rf /etc/sudoers.d/duifw-home-tests.sudoers
-
-if test -x /usr/sbin/update-sudoers ; then
-    /usr/sbin/update-sudoers
-fi

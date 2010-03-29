@@ -1,3 +1,0 @@
-root,user ALL = NOPASSWD: /usr/share/duifw-home-tests/helpers/create-file.sh
-root,user ALL = NOPASSWD: /usr/share/duifw-home-tests/helpers/remove-file.sh
-
