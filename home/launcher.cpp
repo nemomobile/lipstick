@@ -83,8 +83,6 @@ void Launcher::activateLauncher()
         }
         // The launcher has now been initialized
         initialized = true;
-    } else {
-        updateButtonList();
     }
 }
 
