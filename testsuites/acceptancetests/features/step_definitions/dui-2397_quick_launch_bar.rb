@@ -1,6 +1,10 @@
 require 'matti'
 require 'tmpdir'
 
+PATH = File.dirname(__FILE__)
+$LOAD_PATH << File.join(PATH, "..", "..", "..", "lib")
+require 'utils'
+
 Before do
     @sut = MATTI.sut(:Id => 'sut_qt_maemo')
 end
@@ -35,6 +39,7 @@ end
 
 Given /^duihome is running$/ do
     @app = @sut.application(:name => 'duihome')
+    @appOwnerName = getProcessOwnerName(@app.uid)
 end
 
 Given /^switcher is opened$/ do
@@ -127,7 +132,7 @@ def ensureConfigurationUpdated()
             output += "desktopFile=" + applicationDesktopEntryName(a) + "\n"
         end
 
-        target = File.expand_path('~/.config/duihome/quicklaunchbar.data')
+        target = File.expand_path("~#{@appOwnerName}/.config/duihome/quicklaunchbar.data")
         File.open(target, 'w') { |f|
             f.write(output)
         }
