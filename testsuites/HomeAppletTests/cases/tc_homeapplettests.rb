@@ -14,6 +14,7 @@
 #  disclosed to others without the prior written consent of Nokia.
 
 require 'matti'
+require 'utils.rb'
 include MattiVerify
 
 #SuiteDomain::            Application framework
@@ -29,33 +30,42 @@ include MattiVerify
 
 # This test suite tests the functionality of applets
 class TC_HomeAppletTests < Dui::TestCase
-    # Removes applets from the canvas one by one as long as they exist
-    def removeAllApplets
-        begin
-            while @app.DuiMashupCanvas.DuiContainer(:__index => 0, :__timeout => 0)
-                @app.DuiMashupCanvas.DuiContainer(:__index => 0).long_tap
-                begin
-                    @app.DuiButton(:text => 'Remove Applet', :__timeout => 2).tap
-                rescue
-                    @app.DuiButton(:text => '!! Remove Applet', :__timeout => 2).tap
-                end
-            end
-        rescue
-        end
-    end
 
     # method called before any test case
     def setup
         # get the application
         @app = @sut.application(:name => 'duihome')
-
-        # Clear any existing applets from the canvas
-        removeAllApplets
     end
 
     # method called after any test case for cleanup purposes
     def teardown
-    end
+	@app.DuiButton(:text => 'Applet Space').tap
+        noOfContainers = count_containers
+	i = 0
+        while i <  noOfContainers do
+	    @app.DuiContainer(:__index => 0).long_tap
+	    begin
+                @app.DuiObjectMenu.DuiButton(:text => 'Remove').tap
+            rescue
+                @app.DuiObjectMenu.DuiButton(:text => '!! Remove Applet').tap
+            end
+        i = i + 1
+       end
+       @app.DuiButton(:text => 'Applet Space').tap
+   end
+   
+   # Counts and returns the number of containers in the applet space
+   
+   def count_containers
+       count = 0
+       begin
+           container = @app.DuiContainer(:__index => count)
+           count = count + 1
+       rescue NoMethodError, MobyBase::TestObjectNotFoundError
+           container = nil
+       end while container
+       return count
+   end
 
     # Pans the applet library to make the button with the text passed as an argument
     # to become visible.
@@ -68,7 +78,7 @@ class TC_HomeAppletTests < Dui::TestCase
 
 
     #SubFeature::   SWP#DUI-1602
-    #Timeout::      60
+    #Timeout::      600
     #Type::         Functional
     #Manual::       false
     #Level::        Feature
@@ -78,29 +88,29 @@ class TC_HomeAppletTests < Dui::TestCase
     #* Pre-conditions
     #  * duihome started
     #* Test steps
+    #  * Open the applet space
     #  * Accesses applet library
     #  * Flick to find the weather applet
     #  * Selects the weather applet
     #  * Verifies weather applet was loaded
+    #  * Close the applet space
     #* Post-conditions
     #  * None
     #* References
     #  * None
     def test_1_instantiate_applet_from_applet_library
         # Action 1: User opens applet library
-        verify(20) {@app.DuiButton(:name => 'DuiAppletInventoryButton', :__timeout => 1).tap}
-
+        @app.DuiButton(:text => 'Applet Space').tap
+	@app.DuiButton(:name => 'DuiAppletInventoryButton').tap
 	scrollTo("Weather")
-        
 	# Instantiate Weather applet
-        verify(20) {@app.DuiAppletButton(:text => 'Weather').tap}
-        
-	# Verify there is an applet on home screen
-	verify(20) {@app.DuiContainer(:title=> 'Weather today')}
+        @app.DuiAppletButton(:text => 'Weather').tap
+	verify {@app.DuiContainer(:title=> 'Weather Today')}
+        @app.DuiButton(:text => 'Applet Space').tap
     end
 
     #SubFeature::   SWP#DUI-1602
-    #Timeout::      60
+    #Timeout::      600
     #Type::         Functional
     #Manual::       false
     #Level::        Feature
@@ -120,36 +130,40 @@ class TC_HomeAppletTests < Dui::TestCase
     #  * initiate long tap on WeatherButton
     #  * Check that this time context sensitive menu appears
     #  * Remove the applet
+    #  * Close the applet space
     #* Post-conditions
     #  * None
     #* References
     #  * None
     def test_2_long_tap_applet_launches_applet_object_menu
 	test_1_instantiate_applet_from_applet_library
+        @app.DuiButton(:text => 'Applet Space').tap
 	# Initiate object menu on container
-        verify(20) {@app.DuiContainer(:title=> 'Weather today').long_tap}
+        @app.DuiContainer(:title=> 'Weather Today').long_tap
         # Verify object menu appeared
-        verify(20) {@app.DuiObjectMenu}
+        verify {@app.DuiObjectMenu}
         # Verify presence of default actions
-        verify(5) {@app.DuiObjectMenu.DuiButton(:text=> 'Remove Applet')}
-        verify(5) {@app.DuiObjectMenu.DuiButton(:text=> 'Settings')}
+        verify {@app.DuiObjectMenu.DuiButton(:text=> 'Remove')}
+        verify {@app.DuiObjectMenu.DuiButton(:text=> 'Settings')}
         # Verify action works
-        verify(5) {@app.DuiObjectMenu.DuiButton(:text=> 'Remove Applet').tap}
+        verify {@app.DuiObjectMenu.DuiButton(:text=> 'Remove').tap}
         # Verify no applet anymore
-        verify_false(20) {@app.test_object_exists?("DuiContainer",{:title => "Weather today"})}        
-
+        verify_false {@app.test_object_exists?("DuiContainer",{:title => "Weather Today"})}        
+        @app.DuiButton(:text => 'Applet Space').tap
 	test_1_instantiate_applet_from_applet_library
+        @app.DuiButton(:text => 'Applet Space').tap
 	# Initiate object menu on Weather button
-	verify(20) {@app.DuiContainer(:title=> 'Weather today').long_tap_object(200,200)}
+	@app.DuiContainer(:title=> 'Weather Today').long_tap_object(200,200)
         # Verify object menu appeared
-	verify(20) {@app.DuiObjectMenu}
+	verify {@app.DuiObjectMenu}
         # Verify presence of extra context sensitive actions
-        verify(5) {@app.DuiObjectMenu.DuiButton(:text=> 'Remove Applet')}
-        verify(5) {@app.DuiObjectMenu.DuiButton(:text=> 'Settings')}
-        verify(5) {@app.DuiObjectMenu.DuiButton(:text=> 'Toggle generic style')}
+        verify {@app.DuiObjectMenu.DuiButton(:text=> 'Remove')}
+        verify {@app.DuiObjectMenu.DuiButton(:text=> 'Settings')}
+        verify {@app.DuiObjectMenu.DuiButton(:text=> 'Toggle generic style')}
         # Verify action works
-        verify(5) {@app.DuiObjectMenu.DuiButton(:text=> 'Remove Applet').tap}
+        verify {@app.DuiObjectMenu.DuiButton(:text=> 'Remove').tap}
         # Verify no applet anymore
-        verify_false(20) {@app.test_object_exists?("DuiContainer",{:title => "Weather today"})}    
+        verify_false {@app.test_object_exists?("DuiContainer",{:title => "Weather Today"})}
+        @app.DuiButton(:text => 'Applet Space').tap   
     end
 end
