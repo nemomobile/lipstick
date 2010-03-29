@@ -24,7 +24,7 @@ require 'open3'
     #
     #SetHardware::            true
     #SetScratchbox::          true
-    #SetFeature::             
+    #SetFeature::
     #SetTimeout::             10
     class TC_HomeMashupCategories < Dui::TestCase
 
@@ -74,8 +74,8 @@ require 'open3'
     #* Post-conditions
     #  * none
     #* References
-    #  
-    
+    #
+
     def test_categories
 
 	add_test_applet "1", "test1"
@@ -173,11 +173,11 @@ private
     end
 
     # Close applet space if it is open
-    
+
     def close_applet_space
         if applet_space_open?
             verify(10, "Cannot tap the applet space close button") {
-                @app.DuiButton(:name => 'AppletSpaceCloseButton').tap                  
+                @app.DuiButton(:name => 'AppletSpaceCloseButton').tap
             }
             verify_false(10, "Closing applet space failed") {
                 applet_space_open?
@@ -201,27 +201,27 @@ private
     # This function only works if the applet space is already open.
 
     def open_applet_inventory
-        if not applet_inventory_open?                                        
+        if not applet_inventory_open?
             verify(10, "Cannot tap the applet inventory button") {
-                @app.DuiButton(:name => 'DuiAppletInventoryButton').tap                  
+                @app.DuiButton(:name => 'DuiAppletInventoryButton').tap
             }
             verify_true(10, "Opening applet inventory failed") {
                 applet_inventory_open?
             }
-        end                                                                    
+        end
     end
 
     # Close applet inventory (applet library) if it is open
 
     def close_applet_inventory
-        if applet_inventory_open?                                        
+        if applet_inventory_open?
             verify(10, "Cannot tap the applet inventory close button") {
-                @app.DuiButton(:name => 'DuiAppletInventoryCloseButton').tap                  
+                @app.DuiButton(:name => 'DuiAppletInventoryCloseButton').tap
             }
             verify_false(10, "Closing applet inventory failed") {
                 applet_inventory_open?
             }
-        end                                                                    
+        end
     end
 
     # Add a test applet .desktop-entry to the "/usr/share/dui/applets/"
@@ -261,11 +261,11 @@ private
         cmd = "/usr/bin/sudo /usr/share/duifw-home-tests/helpers/create-file.sh #{name}"
         execute cmd, content
     end
-  
+
     # Remove a file using sudo and a helper script.
 
     def remove_file name
-        cmd = "/usr/bin/sudo /usr/share/duifw-home-tests/helpers/remove-file.sh #{name}" 
+        cmd = "/usr/bin/sudo /usr/share/duifw-home-tests/helpers/remove-file.sh #{name}"
         execute cmd
     end
 
@@ -276,7 +276,7 @@ private
     def execute cmd, input=nil, check=true
 
         cmdin, cmdout, cmderr = Open3::popen3(cmd)
-        cmdin.puts input unless input.nil?       
+        cmdin.puts input unless input.nil?
         cmdin.close
 
         out = cmdout.readlines.join

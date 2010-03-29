@@ -42,7 +42,7 @@ bool FixtureMashupCanvas::execute(void * objectInstance, QString actionName, QHa
             return false;
         }
 
-        QStringList categories = 
+        QStringList categories =
             parameters.value("categories").split(",", QString::SkipEmptyParts);
         mashupCanvas->setCategories(categories);
 

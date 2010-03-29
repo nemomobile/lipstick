@@ -17,7 +17,7 @@ TEST_APPS = \
     ta_callui \
     ta_activeapp \
     fixture_mashupcanvas \
-    fakesystemnotificationplugin 
+    fakesystemnotificationplugin
 
 SUBDIRS = \
     lib \
