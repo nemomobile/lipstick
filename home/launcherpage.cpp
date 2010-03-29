@@ -81,7 +81,7 @@ bool LauncherPage::prune(QStringList entryList, QStringList directories)
         QString fileName = button.data()->model()->desktopEntryFile();
         // check against directory so that we dont prune entries from other directories
         if (!entryList.contains(fileName)
-            && fileNameMatchesPaths(fileName, directories)) {
+            && !fileNameMatchesPaths(fileName, directories)) {
             newButtons.removeOne(button);
         }
     }
