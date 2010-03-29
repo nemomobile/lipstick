@@ -99,17 +99,15 @@ Then /^Quick Launch Bar slot "([^\"]*)" contains application "([^\"]*)" icon$/ d
     ensureConfigurationUpdated()
 
     index = slot.to_i - 1
-    qlbObject = @app.QuickLaunchBar.child(:name => 'QuickLaunchBarButton', :__index => index)
-    verify_equal('LauncherButton') { qlbObject.type }
-    verify_equal(applicationDesktopEntryName(application)) { qlbObject.attribute('desktopEntry') }
+    verify_equal('LauncherButton', 10) { @app.QuickLaunchBar.child(:name => 'QuickLaunchBarButton', :__index => index).type }
+    verify_equal(applicationDesktopEntryName(application), 5) { @app.QuickLaunchBar.child(:name => 'QuickLaunchBarButton', :__index => index).attribute('desktopEntry') }
 end
 
 Then /^Quick Launch Bar slot "([^\"]*)" contains no icon$/ do |slot|
     ensureConfigurationUpdated()
 
     index = slot.to_i - 1
-    qlbObject = @app.QuickLaunchBar.child(:name => 'QuickLaunchBarButton', :__index => index)
-    verify_equal('DuiWidget') { qlbObject.type }
+    verify_equal('DuiWidget', 10) { @app.QuickLaunchBar.child(:name => 'QuickLaunchBarButton', :__index => index).type }
 end
 
 Then /^application "([^\"]*)" is on the foreground$/ do |application|
