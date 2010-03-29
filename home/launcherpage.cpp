@@ -79,9 +79,12 @@ bool LauncherPage::prune(QStringList entryList, QStringList directories)
     QList< QSharedPointer<LauncherButton> > newButtons(model()->launcherButtons());
     foreach (QSharedPointer<LauncherButton> button, newButtons) {
         QString fileName = button.data()->model()->desktopEntryFile();
-        // check against directory so that we dont prune entries from other directories
-        if (!entryList.contains(fileName)
-            && !fileNameMatchesPaths(fileName, directories)) {
+        // check against directory so that we dont prune
+        // entries from other directories
+        bool fileNameMatches = fileNameMatchesPaths(fileName, directories);
+        if (!fileNameMatches
+            || (!entryList.contains(fileName)
+                && fileNameMatches)) {
             newButtons.removeOne(button);
         }
     }
