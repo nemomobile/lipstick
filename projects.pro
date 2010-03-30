@@ -12,8 +12,7 @@ SUBDIRS = \
     themes \
     applets \
     tests \
-    translations \
-    benchmarks
+    translations
 
 QMAKE_CLEAN += \
     build-stamp \
