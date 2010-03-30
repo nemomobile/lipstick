@@ -29,7 +29,7 @@ class SwitcherButtonModel : public DuiButtonModel
     DUI_MODEL(SwitcherButtonModel)
 
 public:
-    //! The possible UI elements that the mouse can be presed on
+    //! The possible UI elements that the mouse can be pressed on
     enum PressedType {
         NonePressed,
         ButtonPressed,
@@ -37,20 +37,19 @@ public:
     };
 
     enum ViewModeType {
-        UnSpecified,
-	Small,
-	Medium,
-	Large      
+        Small,
+        Medium,
+        Large
     };
 private:
     //! The X Window represented by the switcher buttom
     DUI_MODEL_PROPERTY(Window, xWindow, XWindow, true, 0)
     //! The UI element that the mouse was pressed on
     DUI_MODEL_PROPERTY(SwitcherButtonModel::PressedType, pressed, Pressed, true, NonePressed)
-    //! Repsesents the if this switcher button is emphasized or not
+    //! Represents the if this switcher button is emphasized or not
     DUI_MODEL_PROPERTY(bool, emphasized, Emphasized, true, false)
     //! The current view mode of this button
-    DUI_MODEL_PROPERTY(SwitcherButtonModel::ViewModeType, viewMode, ViewMode, true, UnSpecified)
+    DUI_MODEL_PROPERTY(SwitcherButtonModel::ViewModeType, viewMode, ViewMode, true, Large)
 };
 
 

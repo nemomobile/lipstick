@@ -227,8 +227,6 @@ void SwitcherButtonView::updateViewMode()
     case SwitcherButtonModel::Large:
 	style().setModeLarge();
 	break;
-    case SwitcherButtonModel::UnSpecified:
-	break;
     }
 
     // When the style mode changes, the style is not automatically applied -> call it explicitly
