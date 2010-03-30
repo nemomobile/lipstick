@@ -12,7 +12,6 @@ SUBDIRS = \
     themes \
     applets \
     tests \
-    testsuites \
     translations \
     benchmarks
 
