@@ -17,70 +17,39 @@
 #include <DuiApplication>
 #include <QDebug>
 #include <QSignalSpy>
-#include "switcherphysicsintegrationstrategy.h"
-#include "ut_switcherphysicsintegrationstrategy.h"
-#include "duiphysics2dpanning.h"
+#include "pagedpanning.h"
+#include "ut_pagedpanning.h"
 
-static void testMovement(SwitcherPhysicsIntegrationStrategy* integrator,
-                         int snapInterval,
-                         qreal originalPosition,
-                         qreal moveAmount,
-                         qreal targetPosition,
-                         bool leftToRight,
-                         int targetSnapIndex,
-                         qreal rangeStart = 0.0,
-                         qreal rangeEnd = 1000.0);
-
-static void performMovement(SwitcherPhysicsIntegrationStrategy* integrator,
-                            qreal moveAmount,
-                            bool leftToRight,
-                            qreal &position,
-                            qreal &velocity,
-                            qreal &pointerSpring,
-                            qreal &acceleration,
-                            qreal rangeStart,
-                            qreal rangeEnd,
-                            DuiPhysics2DIntegrationStrategy::IntegrationData &integrationData);
-
-static void fillDefaultIntegrationData(DuiPhysics2DIntegrationStrategy::IntegrationData &integrationData);
-
-static void fillIntegrationData(DuiPhysics2DIntegrationStrategy::IntegrationData &integrationData,
-                                bool pointer,
-                                qreal pointerSpringK,
-                                qreal frictionC,
-                                qreal slideFrictionC,
-                                qreal borderSpringK,
-                                qreal borderFrictionC);
-
-void Ut_SwitcherPhysicsIntegrationStrategy::initTestCase()
+void Ut_PagedPanning::initTestCase()
 {
     int argc = 1;
     char *app_name = (char *)"./ut_switcherphysicsintegrationstrategy";
     app = new DuiApplication(argc, &app_name);
 }
 
-void Ut_SwitcherPhysicsIntegrationStrategy::cleanupTestCase()
+
+void Ut_PagedPanning::cleanupTestCase()
 {
     delete app;
 }
 
-void Ut_SwitcherPhysicsIntegrationStrategy::init()
+void Ut_PagedPanning::init()
 {
-    m_subject = new SwitcherPhysicsIntegrationStrategy;
+    m_subject = new PagedPanning(NULL);
 }
 
-void Ut_SwitcherPhysicsIntegrationStrategy::cleanup()
+void Ut_PagedPanning::cleanup()
 {
     delete m_subject;
 }
 
 // Test cases
-void Ut_SwitcherPhysicsIntegrationStrategy::testCreation()
+void Ut_PagedPanning::testCreation()
 {
-    QCOMPARE((int)m_subject->snapInterval(), 0);
+    QCOMPARE((int)m_subject->pageWidth(), 0);
 }
 
-void Ut_SwitcherPhysicsIntegrationStrategy::testMovementSmallerThenSnapIntervalRightToLeft()
+void Ut_PagedPanning::testMovementSmallerThenSnapIntervalRightToLeft()
 {
     qreal currentPosition = 500.0;
     testMovement(m_subject,
@@ -92,7 +61,7 @@ void Ut_SwitcherPhysicsIntegrationStrategy::testMovementSmallerThenSnapIntervalR
                  5);               // Target snap index after move
 }
 
-void Ut_SwitcherPhysicsIntegrationStrategy::testMovementGreaterThenSnapIntervalRightToLeft()
+void Ut_PagedPanning::testMovementGreaterThenSnapIntervalRightToLeft()
 {
     qreal currentPosition = 500.0;
     testMovement(m_subject,
@@ -106,7 +75,7 @@ void Ut_SwitcherPhysicsIntegrationStrategy::testMovementGreaterThenSnapIntervalR
 
 
 
-void Ut_SwitcherPhysicsIntegrationStrategy::testMovementSmallerThenSnapIntervalLeftToRight()
+void Ut_PagedPanning::testMovementSmallerThenSnapIntervalLeftToRight()
 {
     qreal currentPosition = 200.0;
     testMovement(m_subject,
@@ -118,7 +87,7 @@ void Ut_SwitcherPhysicsIntegrationStrategy::testMovementSmallerThenSnapIntervalL
                  2);               // Target snap index after move
 }
 
-void Ut_SwitcherPhysicsIntegrationStrategy::testMovementGreaterThenSnapIntervalLeftToRight()
+void Ut_PagedPanning::testMovementGreaterThenSnapIntervalLeftToRight()
 {
     qreal currentPosition = 200.0;
     testMovement(m_subject,
@@ -130,18 +99,17 @@ void Ut_SwitcherPhysicsIntegrationStrategy::testMovementGreaterThenSnapIntervalL
                  1);               // Target snap index after move
 }
 
-void Ut_SwitcherPhysicsIntegrationStrategy::testHugeMovementLeftToRight()
+void Ut_PagedPanning::testHugeMovementLeftToRight()
 {
-    m_subject->setSnapInterval(100);
-    DuiPhysics2DIntegrationStrategy::IntegrationData integrationData;
-    fillDefaultIntegrationData(integrationData);
-
+    m_subject->setPageWidth(100);
     qreal position = 400;
     qreal velocity = 0;
     qreal pointerSpring = 0;
     qreal acceleration = 0;
     qreal rangeStart = 0;
     qreal rangeEnd = 1000;
+
+    fillDefaultIntegrationParameters(m_subject, rangeStart, rangeEnd);
 
     /*
       To fully test this movement direction, specifically the signal emission
@@ -152,22 +120,20 @@ void Ut_SwitcherPhysicsIntegrationStrategy::testHugeMovementLeftToRight()
                     120, // amount to move
                     false, // left-to-right
                     position, velocity, pointerSpring,
-                    acceleration, rangeStart, rangeEnd, integrationData);
+                    acceleration);
 
-
-    integrationData.pointer = true;
     velocity = 0;
     pointerSpring = 0;
     acceleration = 0;
     QCOMPARE(position, 500.0);
     
-    QSignalSpy spy(m_subject, SIGNAL(snapIndexChanged(int)));
+    QSignalSpy spy(m_subject, SIGNAL(pageChanged(int)));
 
     performMovement(m_subject,
                     700, // amount to move
                     true, // left-to-right
                     position, velocity, pointerSpring,
-                    acceleration, rangeStart, rangeEnd, integrationData);
+                    acceleration);
 
     QCOMPARE(position, 0.0);
     QCOMPARE(spy.count(), 1); // make sure the signal was emitted exactly one time
@@ -175,7 +141,7 @@ void Ut_SwitcherPhysicsIntegrationStrategy::testHugeMovementLeftToRight()
     QVERIFY(arguments.at(0).toInt() == 0); // the snap index should be one
 }
 
-void Ut_SwitcherPhysicsIntegrationStrategy::testHugeMovementRightToLeft()
+void Ut_PagedPanning::testHugeMovementRightToLeft()
 {
     qreal currentPosition = 400.0;
     testMovement(m_subject,
@@ -188,7 +154,7 @@ void Ut_SwitcherPhysicsIntegrationStrategy::testHugeMovementRightToLeft()
 }
 
 
-void Ut_SwitcherPhysicsIntegrationStrategy::testMovementExcatlySnapInterval()
+void Ut_PagedPanning::testMovementExcatlySnapInterval()
 {
     qreal currentPosition = 200.0;
     testMovement(m_subject,
@@ -201,11 +167,11 @@ void Ut_SwitcherPhysicsIntegrationStrategy::testMovementExcatlySnapInterval()
 
 }
 
-void Ut_SwitcherPhysicsIntegrationStrategy::testAutoPanning()
+void Ut_PagedPanning::testAutoPanning()
 {
     qreal currentPosition = 300.0;
 
-    m_subject->panToItem(0);
+    m_subject->panToPage(0);
     testMovement(m_subject,
                  100,              // Snap interval
                  currentPosition,  // The position where the movement starts
@@ -216,7 +182,7 @@ void Ut_SwitcherPhysicsIntegrationStrategy::testAutoPanning()
 
     currentPosition = 0.0;
 
-    m_subject->panToItem(5);
+    m_subject->panToPage(5);
     testMovement(m_subject,
                  100,              // Snap interval
                  currentPosition,  // The position where the movement starts
@@ -237,90 +203,73 @@ void Ut_SwitcherPhysicsIntegrationStrategy::testAutoPanning()
                  6);               // Target snap index after move
 }
 
-static void testMovement(SwitcherPhysicsIntegrationStrategy* integrator,
-                         int snapInterval,
-                         qreal currentPosition,
-                         qreal moveAmount,
-                         qreal targetPosition,
-                         bool leftToRight,
-                         int targetSnapIndex,
-                         qreal rangeStart,
-                         qreal rangeEnd)
+void Ut_PagedPanning::testMovement(PagedPanning* pagedPanning,
+				  int pageWidth,
+				  qreal currentPosition,
+				  qreal moveAmount,
+				  qreal targetPosition,
+				  bool leftToRight,
+				  int targetPage,
+				  qreal rangeStart,
+				  qreal rangeEnd)
 {
-    integrator->setSnapInterval(snapInterval);
-    DuiPhysics2DIntegrationStrategy::IntegrationData integrationData;
-    fillDefaultIntegrationData(integrationData);
+    pagedPanning->setPageWidth(pageWidth);
+
+    fillDefaultIntegrationParameters(pagedPanning, rangeStart, rangeEnd);
+
 
     qreal velocity = 0;
     qreal pointerSpring = 0;
     qreal acceleration = 0;
-    QSignalSpy spy(integrator, SIGNAL(snapIndexChanged(int)));
+    QSignalSpy spy(pagedPanning, SIGNAL(pageChanged(int)));
 
-    performMovement(integrator,
+    performMovement(pagedPanning,
                     moveAmount, // amount to move
                     leftToRight, // left-to-right
                     currentPosition, velocity, pointerSpring,
-                    acceleration, rangeStart, rangeEnd, integrationData);
+                    acceleration);
 
     QCOMPARE(currentPosition, targetPosition);
     QCOMPARE(spy.count(), 1); // make sure the signal was emitted exactly one time
     QList<QVariant> arguments = spy.takeFirst(); // take the first signal
-    QVERIFY(arguments.at(0).toInt() == targetSnapIndex);
+    QVERIFY(arguments.at(0).toInt() == targetPage);
 }
 
 
-static void performMovement(SwitcherPhysicsIntegrationStrategy* integrator,
-                            qreal moveAmount,
-                            bool leftToRight,
-                            qreal &position,
-                            qreal &velocity,
-                            qreal &pointerSpring,
-                            qreal &acceleration,
-                            qreal rangeStart,
-                            qreal rangeEnd,
-                            DuiPhysics2DIntegrationStrategy::IntegrationData &integrationData)
+void Ut_PagedPanning::performMovement(PagedPanning* pagedPanning,
+				      qreal moveAmount,
+				      bool leftToRight,
+				      qreal &position,
+				      qreal &velocity,
+				      qreal &pointerSpring,
+				      qreal &acceleration)
 
 {
     int i = 0;
-    while (integrationData.pointer || velocity != 0.0) {
-        if ( i++ < moveAmount) {
+    bool pointerPressControl = true;
+    while (pointerPressControl || velocity != 0.0) {
+        if (i++ < moveAmount) {
             pointerSpring += leftToRight ? 1 : -1;
-            integrationData.pointer = true;
         } else {
-            integrationData.pointer = false;
+	    pointerPressControl = false;
         }
-        integrator->integrate(position,
-                             velocity,
-                             pointerSpring,
-                             acceleration,
-                             rangeStart,
-                             rangeEnd,
-                             integrationData);
+	pagedPanning->integrateAxis(Qt::Horizontal,
+				    position,
+				    velocity,
+				    acceleration,
+				    pointerSpring,
+				    pointerPressControl);
     }
 }
 
-// Helper functions
-static void fillDefaultIntegrationData(DuiPhysics2DIntegrationStrategy::IntegrationData &integrationData)
+void Ut_PagedPanning::fillDefaultIntegrationParameters(PagedPanning* pagedPanning, qreal rangeStart, qreal rangeEnd)
 {
-    // Fills in the values for the intergration co-efficients
-    fillIntegrationData(integrationData, true, 0.6, 0.9, 0.9, 0.9, 0.9);
+    pagedPanning->setPointerSpringK(0.6);
+    pagedPanning->setFriction(0.9);
+    pagedPanning->setSlidingFriction(0.9);
+    pagedPanning->setBorderSpringK(0.9);
+    pagedPanning->setBorderFriction(0.9);
+    pagedPanning->setRange(QRectF(rangeStart, 0, rangeEnd, 0));
 }
 
-
-static void fillIntegrationData(DuiPhysics2DIntegrationStrategy::IntegrationData &integrationData,
-                                bool pointer,
-                                qreal pointerSpringK,
-                                qreal frictionC,
-                                qreal slideFrictionC,
-                                qreal borderSpringK,
-                                qreal borderFrictionC)
-{
-    integrationData.pointer = pointer;
-    integrationData.pointerSpringK = pointerSpringK;
-    integrationData.frictionC = frictionC;
-    integrationData.slideFrictionC = slideFrictionC;
-    integrationData.borderSpringK = borderSpringK;
-    integrationData.borderFrictionC = borderFrictionC;
-}
-
-QTEST_APPLESS_MAIN(Ut_SwitcherPhysicsIntegrationStrategy)
+QTEST_APPLESS_MAIN(Ut_PagedPanning)

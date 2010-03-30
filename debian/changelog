@@ -2,7 +2,8 @@ duihome (0.21.0~1) unstable; urgency=low
 
   * Fixes: NB#159568 -  Switcher thumbnails content doesn't display how the app
     really looks like.
-
+  * Adapted to libdui 0.20.0 API changes
+	
  -- Vesa Halttunen <vesa.halttunen@nokia.com>  Thu, 01 Apr 2010 15:52:01 +0200
 
 duihome (0.20.2-1) unstable; urgency=low

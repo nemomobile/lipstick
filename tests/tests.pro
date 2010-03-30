@@ -12,6 +12,7 @@ SUBDIRS = \
     ut_launcherpageview \
     ut_launcherview \
     ut_mainwindow \
+    ut_pagedpanning \
     ut_pagedviewport \
     ut_quicklaunchbar \
     ut_quicklaunchbarview \
@@ -20,7 +21,6 @@ SUBDIRS = \
     ut_switcher \
     ut_switcherbutton \
     ut_switcherbuttonview \
-    ut_switcherphysicsintegrationstrategy \
     ut_switcherview \
     ut_windowinfo \
     ut_x11helper \

@@ -19,7 +19,7 @@
 #include "switcherview.h"
 #include "switcher.h"
 #include "switcherbutton.h"
-#include "switcherphysicsintegrationstrategy.h"
+#include "pagedpanning.h"
 #include "mainwindow.h"
 
 #include <DuiSceneManager>
@@ -51,8 +51,13 @@ SwitcherView::SwitcherView(Switcher *switcher) :
     switcher->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     switcher->setLayout(mainLayout);
 
+    // The panning gets deleted by the physics 
+    pagedPanning = new PagedPanning(viewport);
+    connect(pagedPanning, SIGNAL(pageChanged(int)), this, SLOT(snapIndexChanged(int)));
+
     // We have custom values for this view port in the style
     viewport->setObjectName("SwitcherDetailsViewport");
+    viewport->setPhysics(pagedPanning);
     viewport->setPanDirection(Qt::Horizontal);
 
     mainLayout->addItem(viewport);
@@ -70,12 +75,6 @@ SwitcherView::SwitcherView(Switcher *switcher) :
 
     viewport->setWidget(pannedWidget);
 
-    // The integrator gets deleted by the physics 
-    integrator = new SwitcherPhysicsIntegrationStrategy;
-
-    connect(integrator, SIGNAL(snapIndexChanged(int)), this, SLOT(snapIndexChanged(int)));
-
-    viewport->physics()->setIntegrationStrategy(integrator);
     focusedSwitcherButton = 0;
     firstButtonPriority = WindowInfo::Normal;
 }
@@ -99,13 +98,12 @@ void SwitcherView::panningStopped()
     }
 }
 
-void SwitcherView::sizePosChanged(const QSizeF &viewportSize, const QRectF &pannedRange, const QPointF &pannedPos)
+void SwitcherView::animateDetailView(const QPointF &pannedPos)
 {
-    Q_UNUSED(pannedRange);
-    qreal viewportWidthHalf = viewportSize.width() / 2;
+    qreal viewportWidthHalf = geometry().width() / 2;
     for (int i = 0; i < pannedLayout->count(); i++) {
         SwitcherButton* widget = dynamic_cast<SwitcherButton*> (pannedLayout->itemAt(i));
-        widget->model()->setViewMode(SwitcherButtonModel::Medium); //unsetEmphasis();
+        widget->model()->setViewMode(SwitcherButtonModel::Medium);
         QRectF widgetGeometry = widget->geometry();
 
         // Pre calculate some variables for speed and readability
@@ -196,7 +194,7 @@ void SwitcherView::applySwitcherMode()
     if (model()->switcherMode() == SwitcherModel::Detailview) {
         disconnect(MainWindow::instance()->sceneManager(), 0, this, 0);
         pannedLayout->setPolicy(detailPolicy);
-        connect(viewport, SIGNAL(sizePosChanged(QSizeF, QRectF, QPointF)), this, SLOT(sizePosChanged(QSizeF, QRectF, QPointF)));
+        connect(viewport, SIGNAL(positionChanged(QPointF)), this, SLOT(animateDetailView(QPointF)));
         connect(viewport, SIGNAL(panningStopped()), this, SLOT(panningStopped()));
         controller->setObjectName("DetailviewSwitcher");
     } else {
@@ -224,10 +222,7 @@ void SwitcherView::updateData(const QList<const char*>& modifications)
 
                 // If the first button's priority has risen pan the view to show it
                 if (firstButton->windowPriority() < firstButtonPriority) {
-                    // The integrator will be started
-                    // by updateContentsMarginsAndSpacings,
-                    // so no need to start it here
-                    integrator->panToItem(0);
+		    pagedPanning->panToPage(0);
                 }
 
                 firstButtonPriority = firstButton->windowPriority();
@@ -321,12 +316,12 @@ void SwitcherView::updateSnapInterval()
              Practically we enable margins to the panned layout in order to
              align the centers of the switcher button and the duipannableviewport.
              */
-            integrator->setSnapInterval(button->preferredSize().width());
+	    pagedPanning->setPageWidth(button->preferredSize().width());
         } else {
-            integrator->setSnapInterval(geometry().width());
+	    pagedPanning->setPageWidth(geometry().width());
         }
     } else {
-        integrator->setSnapInterval(0);
+	pagedPanning->setPageWidth(0);
     }
 }
 

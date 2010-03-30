@@ -18,7 +18,7 @@ HEADERS += \
     $$SRCDIR/switcherstyle.h \
     $$SRCDIR/switcherbutton.h \
     $$SRCDIR/switcherbuttonmodel.h \
-    $$SRCDIR/switcherphysicsintegrationstrategy.h \
+    $$SRCDIR/pagedpanning.h \
     $$SRCDIR/switchermodel.h \
     $$SRCDIR/mainwindow.h
 

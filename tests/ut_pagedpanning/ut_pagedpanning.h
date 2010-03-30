@@ -14,16 +14,16 @@
  * written consent of Nokia.
  */
 
-#ifndef UT_SWITCHERPHYSICSINTEGRATIONSTRATEGY_H
-#define UT_SWITCHERPHYSICSINTEGRATIONSTRATEGY_H
+#ifndef UT_PAGEDPANNING_H
+#define UT_PAGEDPANNING_H
 
 #include <QtTest/QtTest>
 #include <QObject>
 
 class DuiApplication;
-class SwitcherPhysicsIntegrationStrategy;
+class PagedPanning;
 
-class Ut_SwitcherPhysicsIntegrationStrategy : public QObject
+class Ut_PagedPanning : public QObject
 {
     Q_OBJECT
 
@@ -91,7 +91,28 @@ private:
     // DuiApplication
     DuiApplication *app;
     // The object being tested
-    SwitcherPhysicsIntegrationStrategy* m_subject;
+    PagedPanning* m_subject;
+
+    void testMovement(PagedPanning* integrator,
+		      int pageWidth,
+		      qreal originalPosition,
+		      qreal moveAmount,
+		      qreal targetPosition,
+		      bool leftToRight,
+		      int targetPage,
+		      qreal rangeStart = 0.0,
+		      qreal rangeEnd = 1000.0);
+    
+    void performMovement(PagedPanning* pagedPanning,
+			 qreal moveAmount,
+			 bool leftToRight,
+			 qreal &position,
+			 qreal &velocity,
+			 qreal &pointerSpring,
+			 qreal &acceleration);
+
+    void fillDefaultIntegrationParameters(PagedPanning* pagedPanning, qreal rangeStart, qreal rangeEnd);
+
 };
 
 #endif

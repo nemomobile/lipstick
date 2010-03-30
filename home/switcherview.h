@@ -23,7 +23,6 @@
 #include <DuiWidgetView>
 #include "switchermodel.h"
 #include "switcherstyle.h"
-#include "switcherphysicsintegrationstrategy.h"
 
 class Switcher;
 class QPixmap;
@@ -32,6 +31,7 @@ class DuiLinearLayoutPolicy;
 class DuiGridLayoutPolicy;
 class QGraphicsLinearLayout;
 class DuiPannableViewport;
+class PagedPanning;
 
 /*!
  * The switcher view draws a background for the switcher.
@@ -75,7 +75,7 @@ protected slots:
 
 private slots:
     /*! Monitors the movement of the pannable viewport */
-    void sizePosChanged(const QSizeF &viewportSize, const QRectF &pannedRange, const QPointF &pannedPos);
+    void animateDetailView(const QPointF &pannedPos);
 
     /*! Listens for changes in the physics integrator */
     void snapIndexChanged(int newPosition);
@@ -121,8 +121,8 @@ private:
     DuiGridLayoutPolicy* overviewPolicy;
     DuiLinearLayoutPolicy* detailPolicy;
 
-    /*! The integrator for the pannable viewport, controls how the switcher buttons move */
-    SwitcherPhysicsIntegrationStrategy* integrator;
+    /*! The custom physics that does the paged panning */
+    PagedPanning* pagedPanning;
 
     /*! The current focused switcher button */
     int focusedSwitcherButton;

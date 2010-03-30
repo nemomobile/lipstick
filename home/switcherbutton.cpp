@@ -17,13 +17,13 @@
 **
 ****************************************************************************/
 
-#include <QX11Info>
+#include "switcherbutton.h"
 #include <DuiApplication>
 #include "homeapplication.h"
-#include "mainwindow.h"
-#include "switcherbutton.h"
-#include "x11wrapper.h"
 #include "switcherbuttonview.h"
+#include "mainwindow.h"
+#include "x11wrapper.h"
+#include <QX11Info>
 
 Atom SwitcherButton::iconGeometryAtom = 0;
 

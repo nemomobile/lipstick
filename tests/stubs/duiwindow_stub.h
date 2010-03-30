@@ -40,10 +40,10 @@ public:
     virtual Dui::OrientationAngle orientationAngle() const;
     virtual QSize visibleSceneSize(Dui::Orientation) const;
     virtual QSize visibleSceneSize() const;
-    virtual bool keepCurrentOrientation() const;
-    virtual void setKeepCurrentOrientation(bool enabled);
+    virtual bool isOrientationLocked() const;
+    virtual void setOrientationLocked(bool enabled);
     virtual bool isOnDisplay() const;
-    virtual void setOrientationAngle(Dui::OrientationAngle angle, Dui::OrientationChangeMode mode);
+    virtual void setOrientationAngle(Dui::OrientationAngle angle);
     virtual bool event(QEvent *event);
     virtual void onDisplayChangeEvent(DuiOnDisplayChangeEvent *event);
     virtual void enterDisplayEvent();
@@ -127,17 +127,17 @@ QSize DuiWindowStub::visibleSceneSize() const
     return stubReturnValue<QSize>("visibleSceneSize");
 }
 
-bool DuiWindowStub::keepCurrentOrientation() const
+bool DuiWindowStub::isOrientationLocked() const
 {
-    stubMethodEntered("keepCurrentOrientation");
-    return stubReturnValue<bool>("keepCurrentOrientation");
+    stubMethodEntered("isOrientationLocked");
+    return stubReturnValue<bool>("isOrientationLocked");
 }
 
-void DuiWindowStub::setKeepCurrentOrientation(bool enabled)
+void DuiWindowStub::setOrientationLocked(bool enabled)
 {
     QList<ParameterBase *> params;
     params.append(new Parameter<bool >(enabled));
-    stubMethodEntered("setKeepCurrentOrientation", params);
+    stubMethodEntered("setOrientationLocked", params);
 }
 
 bool DuiWindowStub::isOnDisplay() const
@@ -146,11 +146,10 @@ bool DuiWindowStub::isOnDisplay() const
     return stubReturnValue<bool>("isOnDisplay");
 }
 
-void DuiWindowStub::setOrientationAngle(Dui::OrientationAngle angle, Dui::OrientationChangeMode mode)
+void DuiWindowStub::setOrientationAngle(Dui::OrientationAngle angle)
 {
     QList<ParameterBase *> params;
     params.append(new Parameter<Dui::OrientationAngle >(angle));
-    params.append(new Parameter<Dui::OrientationChangeMode >(mode));
     stubMethodEntered("setOrientationAngle", params);
 }
 
@@ -269,14 +268,14 @@ QSize DuiWindow::visibleSceneSize() const
     return gDuiWindowStub->visibleSceneSize();
 }
 
-bool DuiWindow::keepCurrentOrientation() const
+bool DuiWindow::isOrientationLocked() const
 {
-    return gDuiWindowStub->keepCurrentOrientation();
+    return gDuiWindowStub->isOrientationLocked();
 }
 
-void DuiWindow::setKeepCurrentOrientation(bool enabled)
+void DuiWindow::setOrientationLocked(bool enabled)
 {
-    gDuiWindowStub->setKeepCurrentOrientation(enabled);
+    gDuiWindowStub->setOrientationLocked(enabled);
 }
 
 bool DuiWindow::isOnDisplay() const
@@ -284,9 +283,9 @@ bool DuiWindow::isOnDisplay() const
     return gDuiWindowStub->isOnDisplay();
 }
 
-void DuiWindow::setOrientationAngle(Dui::OrientationAngle angle, Dui::OrientationChangeMode mode)
+void DuiWindow::setOrientationAngle(Dui::OrientationAngle angle)
 {
-    gDuiWindowStub->setOrientationAngle(angle, mode);
+    gDuiWindowStub->setOrientationAngle(angle);
 }
 
 bool DuiWindow::event(QEvent *event)

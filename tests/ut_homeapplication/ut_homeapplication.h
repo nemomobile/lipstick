@@ -94,9 +94,9 @@ private slots:
     // Test X11EventFilter with ClientMessage events
     void testX11EventFilterWithClientMessage();
     // Test content search service launch
-    void testContentSearchLaunch();
+    //void testContentSearchLaunch();
     // Test content search service launch without service framework
-    void testContentSearchLaunchWithoutServiceFW();
+    //void testContentSearchLaunchWithoutServiceFW();
     // Test updating windows list
     void testUpdateWindowList();
 

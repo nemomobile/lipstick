@@ -10,7 +10,7 @@ MODEL_HEADERS += $$SRCDIR/switchermodel.h \
 SOURCES += \
     ut_switcher.cpp \
     $$SRCDIR/switcher.cpp \
-    $$SRCDIR/switcherphysicsintegrationstrategy.cpp
+    $$SRCDIR/pagedpanning.cpp
 
 # service classes
 SOURCES += \
@@ -32,7 +32,7 @@ HEADERS += \
     $$SRCDIR/switcherbutton.h \
     $$SRCDIR/switcherbuttonstyle.h \
     $$SRCDIR/switcherbuttonmodel.h \
-    $$SRCDIR/switcherphysicsintegrationstrategy.h \
+    $$SRCDIR/pagedpanning.h \
     $$SRCDIR/windowinfo.h \
     $$SRCDIR/mainwindow.h
 

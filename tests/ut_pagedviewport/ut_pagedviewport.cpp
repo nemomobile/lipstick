@@ -20,65 +20,46 @@
 #include <DuiApplication>
 #include "ut_pagedviewport.h"
 #include "pagedviewport.h"
-#include "switcherphysicsintegrationstrategy.h"
+#include "pagedpanning.h"
 
-static uint checkSnapInterval = 0;
-static uint testPanTargetIndex = 0;
+static uint checkPageWidth = 0;
+static uint testPanTargetPage = 0;
 
-// SwitcherIntegrationStrategy stubs
-SwitcherPhysicsIntegrationStrategy::SwitcherPhysicsIntegrationStrategy()
+PagedPanning::PagedPanning(QObject* parent) : DuiPhysics2DPanning(parent),
+					      pageWidth_(0),
+					      currentPage(0),
+					      autoIntegrateMode(false),
+					      autoIntegrateTargetPage(0)
 {
-    snapInterval_ = 0;
-    autoPanMode = false;
+
 }
 
-SwitcherPhysicsIntegrationStrategy::~SwitcherPhysicsIntegrationStrategy()
-{
-}
-
-void SwitcherPhysicsIntegrationStrategy::panToItem(uint itemIndex)
-{
-    testPanTargetIndex = itemIndex;
-    autoPanTargetIndex = itemIndex;
-    autoPanMode = true;
-}
-
-void SwitcherPhysicsIntegrationStrategy::integrate(qreal &, qreal &, qreal &, qreal &, qreal, qreal, IntegrationData&)
-{
-    emit snapIndexChanged(testPanTargetIndex);
-}
-
-
-void SwitcherPhysicsIntegrationStrategy::setSnapInterval(uint newSnapInterval)
-{
-    checkSnapInterval = newSnapInterval;
-}
-
-uint SwitcherPhysicsIntegrationStrategy::snapInterval() const
-{
-    return 0;
-}
-
-void SwitcherPhysicsIntegrationStrategy::snapIntegrate(qreal &, qreal &, qreal &, qreal &, qreal, qreal, DuiPhysics2DIntegrationStrategy::IntegrationData &)
+PagedPanning::~PagedPanning()
 {
 }
 
-void SwitcherPhysicsIntegrationStrategy::autoPanIntegrate(qreal &, qreal &, qreal &, qreal &, DuiPhysics2DIntegrationStrategy::IntegrationData &)
+void PagedPanning::panToPage(uint page)
 {
+    testPanTargetPage = page;
+    autoIntegrateTargetPage = page;
+    autoIntegrateMode = true;
+    emit pageChanged(page);
 }
 
-/*
- * setPosition of DuiPhysics2DPanning class is stubbed here to call integrator() method
- * from same class. integrator() calls integrate method from set integrations strategy class.
- * In this case it's SwitcherPhysicsIntegrationStrategy. In these tests integrate() method
- * of SwitcherPhysicsIntegrationStrategy class is stubbed to emit snapIndexChanged signal
- * that is monitored in PagedViewport class and in these tests.
- */
-void DuiPhysics2DPanning::setPosition(const QPointF &position)
+void PagedPanning::integrateAxis(Qt::Orientation, qreal &, qreal &, qreal &, qreal &, bool)
 {
-    Q_UNUSED(position)
-    // integrator() is called with attribute 1 for it to call integrate() method.
-    integrator(1);
+    emit pageChanged(testPanTargetPage);
+}
+
+
+void PagedPanning::setPageWidth(uint pageWidth)
+{
+    checkPageWidth = pageWidth;
+}
+
+uint PagedPanning::pageWidth() const
+{
+    return checkPageWidth;
 }
 
 void Ut_PagedViewport::initTestCase()
@@ -95,7 +76,7 @@ void Ut_PagedViewport::cleanupTestCase()
 
 void Ut_PagedViewport::init()
 {
-    m_subject = new PagedViewport();
+    m_subject = new PagedViewport(NULL);
 }
 
 void Ut_PagedViewport::cleanup()
@@ -105,11 +86,11 @@ void Ut_PagedViewport::cleanup()
 
 void Ut_PagedViewport::test_updatePageWidth()
 {
-    checkSnapInterval = 0;
-    uint testValue = 12;
-    m_subject->updatePageWidth(testValue);
+    checkPageWidth = 0;
+    uint target = 12;
+    m_subject->updatePageWidth(target);
 
-    QCOMPARE(testValue, checkSnapInterval);
+    QCOMPARE(target, checkPageWidth);
 }
 
 void Ut_PagedViewport::test_panToPage()
@@ -123,6 +104,8 @@ void Ut_PagedViewport::test_panToPage()
     m_subject->updatePageWidth(100);
 
     m_subject->panToPage(1);
+
+    QCoreApplication::processEvents(QEventLoop::AllEvents, 1000);
 
     QCOMPARE(spy.count(), 1);
     QList<QVariant> arguments = spy.takeFirst();

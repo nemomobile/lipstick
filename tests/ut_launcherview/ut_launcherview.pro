@@ -22,8 +22,7 @@ SOURCES += \
 # service classes
 SOURCES += ../stubs/stubbase.cpp \
     $$SRCDIR/windowinfo.cpp \
-#    $$SRCDIR/pagedviewport.cpp \
-    $$SRCDIR/switcherphysicsintegrationstrategy.cpp
+    $$SRCDIR/pagedpanning.cpp
 
 # unit test and unit
 HEADERS += \
@@ -40,7 +39,7 @@ HEADERS += \
     $$SRCDIR/homeapplication.h \
     $$SRCDIR/mainwindow.h \
     $$SRCDIR/pagedviewport.h \
-    $$SRCDIR/switcherphysicsintegrationstrategy.h
+    $$SRCDIR/pagedpanning.h
 
 DEFINES += APPLICATIONS_DIRECTORY=\'$$quote(\"/tmp/ut_launcherview/applications/\")\'
 DEFINES += CATEGORIES_DIRECTORY=\'$$quote(\"/tmp/ut_launcherview/categories/\")\'

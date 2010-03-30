@@ -147,7 +147,7 @@ DesktopView::DesktopView(Desktop *desktop) :
     windowLayout->addItem(quickLaunchBar);
     quickLaunchBarWindow->setLayout(windowLayout);
     quickLaunchBarWindow->setObjectName("QuickLaunchBarOverlay");
-    MainWindow::instance()->sceneManager()->showWindowNow(quickLaunchBarWindow);
+    MainWindow::instance()->sceneManager()->appearSceneWindowNow(quickLaunchBarWindow);
 
     windowLayout = new QGraphicsLinearLayout();
     windowLayout->setContentsMargins(0, 0, 0, 0);
@@ -158,7 +158,7 @@ DesktopView::DesktopView(Desktop *desktop) :
     launcherWindow->setObjectName("LauncherWindow");
 
     windowLayout->addItem(launcher);
-    MainWindow::instance()->sceneManager()->hideWindowNow(launcherWindow);
+    MainWindow::instance()->sceneManager()->disappearSceneWindowNow(launcherWindow);
 
     // Put the applet space inside a pannable viewport
     connect(appletSpace, SIGNAL(closed()), this, SLOT(toggleAppletSpace()));
@@ -172,7 +172,7 @@ DesktopView::DesktopView(Desktop *desktop) :
     windowLayout->addItem(appletSpaceViewport);
     appletSpaceWindow->setLayout(windowLayout);
     appletSpaceWindow->setObjectName("AppletSpaceWindow");
-    MainWindow::instance()->sceneManager()->hideWindowNow(appletSpaceWindow);
+    MainWindow::instance()->sceneManager()->disappearSceneWindowNow(appletSpaceWindow);
 
 #ifdef BENCHMARKS_ON
     connect(DuiApplication::instance(), SIGNAL(startBenchmarking()), this, SLOT(startBenchmarking()));
@@ -234,7 +234,7 @@ void DesktopView::showLauncher()
 
     launcher->setEnabled(true);
 
-    MainWindow::instance()->sceneManager()->showWindow(launcherWindow);
+    MainWindow::instance()->sceneManager()->appearSceneWindow(launcherWindow);
 
     // Set the launcher window below other modal scene windows
     // @todo TODO get rid of the hardcoded value when DuiSceneManager enables dynamic allocation of Z values
@@ -250,7 +250,8 @@ void DesktopView::hideLauncher()
     // the dialog it's not possible to launch another application
     launcher->setEnabled(false);
 
-    MainWindow::instance()->sceneManager()->hideWindow(launcherWindow);
+    // Scroll the launcher above the screen
+    MainWindow::instance()->sceneManager()->disappearSceneWindow(launcherWindow);
     
     // TODO : does this have to be animated??
     switcher->setVisible(true);

@@ -108,12 +108,12 @@ int MockPaintDevice::metric(PaintDeviceMetric metric) const
 }
 
 // DuiSceneManager stubs
-void DuiSceneManager::showWindow(DuiSceneWindow *window, DuiSceneWindow::DeletionPolicy)
+void DuiSceneManager::appearSceneWindow(DuiSceneWindow *window, DuiSceneWindow::DeletionPolicy)
 {
     window->show();
 }
 
-void DuiSceneManager::hideWindow(DuiSceneWindow *window)
+void DuiSceneManager::disappearSceneWindow(DuiSceneWindow *window)
 {
     window->hide();
 }

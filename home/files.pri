@@ -19,6 +19,7 @@ HEADERS += homeapplication.h \
     launcherstyle.h \
     launcherbutton.h \
     launcherbuttonmodel.h \
+    pagedpanning.h \
     pagedviewport.h \
     quicklaunchbar.h \
     quicklaunchbarmodel.h \
@@ -37,7 +38,6 @@ HEADERS += homeapplication.h \
     switcherbuttonview.h \
     switcherbuttonswview.h \
     switcherbuttonstyle.h \
-    switcherphysicsintegrationstrategy.h \
     x11helper.h \
     x11wrapper.h \
     launcherpage.h \
@@ -57,6 +57,7 @@ SOURCES += homeapplication.cpp \
     launcher.cpp \
     launcherview.cpp \
     launcherbutton.cpp \
+    pagedpanning.cpp \
     pagedviewport.cpp \
     quicklaunchbar.cpp \
     quicklaunchbarview.cpp \
@@ -67,7 +68,6 @@ SOURCES += homeapplication.cpp \
     switcherbutton.cpp \
     switcherbuttonview.cpp \
     switcherbuttonswview.cpp \
-    switcherphysicsintegrationstrategy.cpp \
     x11helper.cpp \
     x11wrapper.cpp \
     launcherpage.cpp \

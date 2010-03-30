@@ -21,11 +21,13 @@
 #define HOMEAPPLICATION_H_
 
 #include <DuiApplication>
-#include <contentsearchif.h>
+//#include <contentsearchif.h>
 #include "windowinfo.h"
 #include "applicationcontext.h"
+#include <QTimer>
 
 class MainWindow;
+
 
 /*!
  * HomeApplication extends DuiApplication by keeping track of open X windows.
@@ -99,7 +101,7 @@ private:
     Atom windowStateAtom;
 
     //! Content search service interface. Used to launch the content search service.
-    ContentSearchIf contentSearchIf;
+    //ContentSearchIf contentSearchIf;
 
     //! A list of windows that are being closed
     QList<Window> windowsBeingClosed;

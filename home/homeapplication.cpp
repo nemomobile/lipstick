@@ -116,9 +116,11 @@ void HomeApplication::sendStartupNotifications()
 
 void HomeApplication::launchContentSearchService()
 {
+    /*
     if (contentSearchIf.isValid()) {
         contentSearchIf.launch("");
     }
+    */
 }
 
 bool HomeApplication::x11EventFilter(XEvent *event)

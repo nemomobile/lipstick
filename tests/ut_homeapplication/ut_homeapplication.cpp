@@ -349,7 +349,7 @@ void XSetWMProperties(Display *, Window, XTextProperty *, XTextProperty *, char 
 {
 }
 
-// DuiServiceFwBaseIf stubs (used by StatusArea through service framework)
+/* DuiServiceFwBaseIf stubs (used by StatusArea through service framework)
 QString DuiServiceFwBaseIf::resolveServiceName(const QString &ifName, const QString &preferredService)
 {
     Q_UNUSED(preferredService);
@@ -359,11 +359,13 @@ QString DuiServiceFwBaseIf::resolveServiceName(const QString &ifName, const QStr
 
 bool DuiServiceFwBaseIf::isValid() const
 {
-    if (Ut_HomeApplication::validInterfaces.contains(interface)) {
+    
+    if (Ut_HomeApplication::validInterfaces.contains(interfaceName())) {
         return true;
     }
     return false;
 }
+*/
 
 // QDBusAbstractInterface stubs (used by HomeApplication through service framework)
 QDBusPendingCall QDBusAbstractInterface::asyncCallWithArgumentList(const QString &method, const QList<QVariant> & args)
@@ -498,6 +500,7 @@ static void compareDbusValues()
     QCOMPARE(dbusMessageType, QDBusMessage::SignalMessage);
     QCOMPARE(dbusMessageMember, HOME_READY_SIGNAL_NAME);
 }
+
 
 void Ut_HomeApplication::testUpstartStartup()
 {
@@ -724,7 +727,7 @@ void Ut_HomeApplication::testX11EventFilterWithClientMessage()
     QCOMPARE(r.windowList.at(2).window(), (Window)(WINDOW_ATTRIBUTE_TEST_WINDOWS + 8));
     QCOMPARE(r.windowList.at(3).window(), (Window)(WINDOW_ATTRIBUTE_TEST_WINDOWS + 9));
 }
-
+/*
 void Ut_HomeApplication::testContentSearchLaunch()
 {
     // Add interface so that isValid() returns true
@@ -752,7 +755,7 @@ void Ut_HomeApplication::testContentSearchLaunchWithoutServiceFW()
     QCOMPARE(serviceInterfaces.at(0), QString("com.nokia.ContentSearchIf"));
     QCOMPARE(asyncCallMethods.count(), 0);
 }
-
+*/
 void Ut_HomeApplication::testUpdateWindowList()
 {
     WindowListReceiver r;

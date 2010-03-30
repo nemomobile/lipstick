@@ -16,19 +16,19 @@ class DuiSceneManagerStub : public StubBase {
   virtual Dui::OrientationAngle orientationAngle() const;
   virtual QSize visibleSceneSize(Dui::Orientation orientation) const;
   virtual QSize visibleSceneSize() const;
-  virtual void setOrientationAngle(Dui::OrientationAngle angle, Dui::OrientationChangeMode mode);
+  virtual void setOrientationAngle(Dui::OrientationAngle angle, DuiSceneManager::TransitionMode mode = DuiSceneManager::AnimatedTransition);
   virtual void requestSoftwareInputPanel(QGraphicsWidget *inputWidget);
   virtual void closeSoftwareInputPanel();
-  virtual void showWindow(DuiSceneWindow *window, DuiSceneWindow::DeletionPolicy policy);
-  virtual void showWindowNow(DuiSceneWindow *window, DuiSceneWindow::DeletionPolicy policy);
+  virtual void appearSceneWindow(DuiSceneWindow *window, DuiSceneWindow::DeletionPolicy policy);
+  virtual void appearSceneWindowNow(DuiSceneWindow *window, DuiSceneWindow::DeletionPolicy policy);
   virtual int execDialog(DuiDialog *dialog);
-  virtual void hideWindow(DuiSceneWindow *window);
-  virtual void hideWindowNow(DuiSceneWindow *window);
-  virtual void closeWindow(DuiSceneWindow *window);
-  virtual void closeWindowNow(DuiSceneWindow *window);
-  virtual void orientationAboutToChange(const Dui::Orientation &orientation);
-  virtual void orientationChanged(const Dui::Orientation &orientation);
-  virtual void orientationChangeFinished(const Dui::Orientation &orientation);
+  virtual void disappearSceneWindow(DuiSceneWindow *window);
+  virtual void disappearSceneWindowNow(DuiSceneWindow *window);
+  virtual void dismissSceneWindow(DuiSceneWindow *window);
+  virtual void dismissSceneWindowNow(DuiSceneWindow *window);
+  virtual void orientationAboutToChange(Dui::Orientation orientation);
+  virtual void orientationChanged(Dui::Orientation orientation);
+  virtual void orientationChangeFinished(Dui::Orientation orientation);
   virtual bool eventFilter(QObject *watched, QEvent *event);
 }; 
 
@@ -68,10 +68,10 @@ QSize DuiSceneManagerStub::visibleSceneSize() const {
   return stubReturnValue<QSize>("visibleSceneSize");
 }
 
-void DuiSceneManagerStub::setOrientationAngle(Dui::OrientationAngle angle, Dui::OrientationChangeMode mode) {
+void DuiSceneManagerStub::setOrientationAngle(Dui::OrientationAngle angle, DuiSceneManager::TransitionMode mode) {
   QList<ParameterBase*> params;
   params.append( new Parameter<Dui::OrientationAngle >(angle));
-  params.append( new Parameter<Dui::OrientationChangeMode >(mode));
+  params.append( new Parameter<DuiSceneManager::TransitionMode >(mode));
   stubMethodEntered("setOrientationAngle",params);
 }
 
@@ -85,18 +85,18 @@ void DuiSceneManagerStub::closeSoftwareInputPanel() {
   stubMethodEntered("closeSoftwareInputPanel");
 }
 
-void DuiSceneManagerStub::showWindow(DuiSceneWindow *window, DuiSceneWindow::DeletionPolicy policy) {
+void DuiSceneManagerStub::appearSceneWindow(DuiSceneWindow *window, DuiSceneWindow::DeletionPolicy policy) {
   QList<ParameterBase*> params;
   params.append( new Parameter<DuiSceneWindow * >(window));
   params.append( new Parameter<DuiSceneWindow::DeletionPolicy >(policy));
-  stubMethodEntered("showWindow",params);
+  stubMethodEntered("appearSceneWindow",params);
 }
 
-void DuiSceneManagerStub::showWindowNow(DuiSceneWindow *window, DuiSceneWindow::DeletionPolicy policy) {
+void DuiSceneManagerStub::appearSceneWindowNow(DuiSceneWindow *window, DuiSceneWindow::DeletionPolicy policy) {
   QList<ParameterBase*> params;
   params.append( new Parameter<DuiSceneWindow * >(window));
   params.append( new Parameter<DuiSceneWindow::DeletionPolicy >(policy));
-  stubMethodEntered("showWindowNow",params);
+  stubMethodEntered("appearSceneWindowNow",params);
 }
 
 int DuiSceneManagerStub::execDialog(DuiDialog *dialog) {
@@ -106,45 +106,45 @@ int DuiSceneManagerStub::execDialog(DuiDialog *dialog) {
   return stubReturnValue<int>("execDialog");
 }
 
-void DuiSceneManagerStub::hideWindow(DuiSceneWindow *window) {
+void DuiSceneManagerStub::disappearSceneWindow(DuiSceneWindow *window) {
   QList<ParameterBase*> params;
   params.append( new Parameter<DuiSceneWindow * >(window));
-  stubMethodEntered("hideWindow",params);
+  stubMethodEntered("disappearSceneWindow",params);
 }
 
-void DuiSceneManagerStub::hideWindowNow(DuiSceneWindow *window) {
+void DuiSceneManagerStub::disappearSceneWindowNow(DuiSceneWindow *window) {
   QList<ParameterBase*> params;
   params.append( new Parameter<DuiSceneWindow * >(window));
-  stubMethodEntered("hideWindowNow",params);
+  stubMethodEntered("disappearSceneWindowNow",params);
 }
 
-void DuiSceneManagerStub::closeWindow(DuiSceneWindow *window) {
+void DuiSceneManagerStub::dismissSceneWindow(DuiSceneWindow *window) {
   QList<ParameterBase*> params;
   params.append( new Parameter<DuiSceneWindow * >(window));
-  stubMethodEntered("closeWindow",params);
+  stubMethodEntered("dismissSceneWindow",params);
 }
 
-void DuiSceneManagerStub::closeWindowNow(DuiSceneWindow *window) {
+void DuiSceneManagerStub::dismissSceneWindowNow(DuiSceneWindow *window) {
   QList<ParameterBase*> params;
   params.append( new Parameter<DuiSceneWindow * >(window));
-  stubMethodEntered("closeWindowNow",params);
+  stubMethodEntered("dismissSceneWindowNow",params);
 }
 
-void DuiSceneManagerStub::orientationAboutToChange(const Dui::Orientation &orientation) {
+void DuiSceneManagerStub::orientationAboutToChange(Dui::Orientation orientation) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const Dui::Orientation & >(orientation));
+  params.append( new Parameter<Dui::Orientation >(orientation));
   stubMethodEntered("orientationAboutToChange",params);
 }
 
-void DuiSceneManagerStub::orientationChanged(const Dui::Orientation &orientation) {
+void DuiSceneManagerStub::orientationChanged(Dui::Orientation orientation) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const Dui::Orientation & >(orientation));
+  params.append( new Parameter<const Dui::Orientation >(orientation));
   stubMethodEntered("orientationChanged",params);
 }
 
-void DuiSceneManagerStub::orientationChangeFinished(const Dui::Orientation &orientation) {
+void DuiSceneManagerStub::orientationChangeFinished(Dui::Orientation orientation) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const Dui::Orientation & >(orientation));
+  params.append( new Parameter<const Dui::Orientation >(orientation));
   stubMethodEntered("orientationChangeFinished",params);
 }
 
@@ -192,7 +192,8 @@ QSize DuiSceneManager::visibleSceneSize() const {
   return gDuiSceneManagerStub->visibleSceneSize();
 }
 
-void DuiSceneManager::setOrientationAngle(Dui::OrientationAngle angle, Dui::OrientationChangeMode mode) {
+void DuiSceneManager::setOrientationAngle(Dui::OrientationAngle angle, DuiSceneManager::TransitionMode mode) 
+{
   gDuiSceneManagerStub->setOrientationAngle(angle, mode);
 }
 
@@ -204,43 +205,43 @@ void DuiSceneManager::closeSoftwareInputPanel() {
   gDuiSceneManagerStub->closeSoftwareInputPanel();
 }
 
-void DuiSceneManager::showWindow(DuiSceneWindow *window, DuiSceneWindow::DeletionPolicy policy) {
-  gDuiSceneManagerStub->showWindow(window, policy);
+void DuiSceneManager::appearSceneWindow(DuiSceneWindow *window, DuiSceneWindow::DeletionPolicy policy) {
+  gDuiSceneManagerStub->appearSceneWindow(window, policy);
 }
 
-void DuiSceneManager::showWindowNow(DuiSceneWindow *window, DuiSceneWindow::DeletionPolicy policy) {
-  gDuiSceneManagerStub->showWindowNow(window, policy);
+void DuiSceneManager::appearSceneWindowNow(DuiSceneWindow *window, DuiSceneWindow::DeletionPolicy policy) {
+  gDuiSceneManagerStub->appearSceneWindowNow(window, policy);
 }
 
 int DuiSceneManager::execDialog(DuiDialog *dialog) {
   return gDuiSceneManagerStub->execDialog(dialog);
 }
 
-void DuiSceneManager::hideWindow(DuiSceneWindow *window) {
-  gDuiSceneManagerStub->hideWindow(window);
+void DuiSceneManager::disappearSceneWindow(DuiSceneWindow *window) {
+  gDuiSceneManagerStub->disappearSceneWindow(window);
 }
 
-void DuiSceneManager::hideWindowNow(DuiSceneWindow *window) {
-  gDuiSceneManagerStub->hideWindowNow(window);
+void DuiSceneManager::disappearSceneWindowNow(DuiSceneWindow *window) {
+  gDuiSceneManagerStub->disappearSceneWindowNow(window);
 }
 
-void DuiSceneManager::closeWindow(DuiSceneWindow *window) {
-  gDuiSceneManagerStub->closeWindow(window);
+void DuiSceneManager::dismissSceneWindow(DuiSceneWindow *window) {
+  gDuiSceneManagerStub->dismissSceneWindow(window);
 }
 
-void DuiSceneManager::closeWindowNow(DuiSceneWindow *window) {
-  gDuiSceneManagerStub->closeWindowNow(window);
+void DuiSceneManager::dismissSceneWindowNow(DuiSceneWindow *window) {
+  gDuiSceneManagerStub->dismissSceneWindowNow(window);
 }
 
-void DuiSceneManager::orientationAboutToChange(const Dui::Orientation &orientation) {
+void DuiSceneManager::orientationAboutToChange(Dui::Orientation orientation) {
   gDuiSceneManagerStub->orientationAboutToChange(orientation);
 }
 
-void DuiSceneManager::orientationChanged(const Dui::Orientation &orientation) {
+void DuiSceneManager::orientationChanged(Dui::Orientation orientation) {
   gDuiSceneManagerStub->orientationChanged(orientation);
 }
 
-void DuiSceneManager::orientationChangeFinished(const Dui::Orientation &orientation) {
+void DuiSceneManager::orientationChangeFinished(Dui::Orientation orientation) {
   gDuiSceneManagerStub->orientationChangeFinished(orientation);
 }
 

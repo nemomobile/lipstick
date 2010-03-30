@@ -57,7 +57,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Create Home; the scene manager must be created before this
     home = new Home;
-    sceneManager()->showWindowNow(home);
+    sceneManager()->appearSceneWindowNow(home);
 
     excludeFromTaskBar();
 }

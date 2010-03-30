@@ -21,7 +21,7 @@
 
 #include <DuiPannableViewport>
 
-class SwitcherPhysicsIntegrationStrategy;
+class PagedPanning;
 
 /*!
  * \class PagedViewport
@@ -94,8 +94,8 @@ public Q_SLOTS:
 
 private:
 
-    //! The integration strategy to make the paging happen.
-    SwitcherPhysicsIntegrationStrategy* integrationStrategy;
+    //! Our custom phyics implementation
+    PagedPanning* pagedPanning;
 };
 
 #endif

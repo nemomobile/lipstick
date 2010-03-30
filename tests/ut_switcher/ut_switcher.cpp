@@ -54,6 +54,7 @@ SwitcherButton::SwitcherButton(const QString &title, DuiWidget *parent, Window w
     Q_UNUSED(window);
 
     g_windowButtonMap[this] = window;
+    setModel(new SwitcherButtonModel());
 }
 
 SwitcherButton::~SwitcherButton()

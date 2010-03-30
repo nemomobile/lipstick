@@ -17,7 +17,7 @@
 **
 ****************************************************************************/
 #include "pagedviewport.h"
-#include "switcherphysicsintegrationstrategy.h"
+#include "pagedpanning.h"
 #include "duiwidgetcreator.h"
 
 DUI_REGISTER_WIDGET(PagedViewport)
@@ -25,9 +25,9 @@ DUI_REGISTER_WIDGET(PagedViewport)
 PagedViewport::PagedViewport(QGraphicsItem *parent) : DuiPannableViewport(parent)
 {
     // The strategy will be deleted by the pannable viewport
-    integrationStrategy = new SwitcherPhysicsIntegrationStrategy;
-    physics()->setIntegrationStrategy(integrationStrategy);
-    connect(integrationStrategy, SIGNAL(snapIndexChanged(int)), this, SIGNAL(pageChanged(int)));
+    pagedPanning = new PagedPanning(this);
+    setPhysics(pagedPanning);
+    connect(pagedPanning, SIGNAL(pageChanged(int)), this, SIGNAL(pageChanged(int)));
     setPanDirection(Qt::Horizontal);
 }
 
@@ -42,15 +42,10 @@ void PagedViewport::setPanDirection(const Qt::Orientations &)
 
 void PagedViewport::panToPage(uint page)
 {
-    integrationStrategy->panToItem(page);
-    // Currently the integrator can not start the movement, so we need
-    // to start the movement manually, the integration strategy will then
-    // make sure that we end up in the right page
-    QPointF currentPosition = physics()->position();
-    physics()->setPosition(currentPosition + QPointF(1,0));
+    pagedPanning->panToPage(page);
 }
 
 void PagedViewport::updatePageWidth(int width)
 {
-    integrationStrategy->setSnapInterval(width);
+    pagedPanning->setPageWidth(width);
 }

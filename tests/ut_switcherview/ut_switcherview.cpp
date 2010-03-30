@@ -28,6 +28,7 @@
 #include "switcher_stub.h"
 #include "switcherbutton.h"
 #include "x11wrapper_stub.h"
+#include "pagedpanning.h"
 
 SwitcherModel* g_switcherModel;
 QMap<SwitcherButton *, Window> g_windowButtonMap;
@@ -130,31 +131,33 @@ Window SwitcherButton::xWindow()
 bool g_panRequested;
 uint g_panRequestIndex;
 
-void SwitcherPhysicsIntegrationStrategy::panToItem(uint itemIndex) {
+void PagedPanning::panToPage(uint itemIndex) {
     g_panRequested = true;
     g_panRequestIndex = itemIndex;
+    emit pageChanged(itemIndex);
 }
 
-SwitcherPhysicsIntegrationStrategy::SwitcherPhysicsIntegrationStrategy() {
+PagedPanning::PagedPanning(QObject* parent) : DuiPhysics2DPanning(parent),
+					      pageWidth_(0),
+					      currentPage(0),
+					      autoIntegrateMode(false),
+					      autoIntegrateTargetPage(0)
+{
+
+}
+PagedPanning::~PagedPanning() {
 }
 
-SwitcherPhysicsIntegrationStrategy::~SwitcherPhysicsIntegrationStrategy() {
+void PagedPanning::integrateAxis(Qt::Orientation, qreal &, qreal &, qreal &, qreal &, bool)
+{
+
 }
 
-void SwitcherPhysicsIntegrationStrategy::integrate(qreal &, qreal &, qreal &, qreal &, qreal, qreal, DuiPhysics2DIntegrationStrategy::IntegrationData &) {
+void PagedPanning::setPageWidth(uint) {
 }
 
-void SwitcherPhysicsIntegrationStrategy::setSnapInterval(uint) {
-}
-
-uint SwitcherPhysicsIntegrationStrategy::snapInterval() const {
+uint PagedPanning::pageWidth() const {
     return 0;
-}
-
-void SwitcherPhysicsIntegrationStrategy::snapIntegrate(qreal &, qreal &, qreal &, qreal &, qreal, qreal, DuiPhysics2DIntegrationStrategy::IntegrationData &) {
-}
-
-void SwitcherPhysicsIntegrationStrategy::autoPanIntegrate(qreal &, qreal &, qreal &, qreal &, DuiPhysics2DIntegrationStrategy::IntegrationData &) {
 }
 
 void Ut_SwitcherView::initTestCase()
