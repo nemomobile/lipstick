@@ -59,9 +59,6 @@ DuiSceneWindowStyle#LauncherWindow {
     padding-right: 0;
     padding-top: 0;
     padding-bottom: 0;
-    minimum-size: 100% -1;
-    preferred-size: 100% -1;
-    maximum-size: 100% -1;
     background-opacity: 0.5;
 }
 
@@ -153,7 +150,6 @@ LauncherStyle {
     /* Add top padding so that the launcher does not go under the status area */
     padding-top: 28;
     padding-bottom: 88; /* 76 + 12 == quick launch bar + ?;*/
-    preferred-size: 100% -1;
     background-opacity: 0;
 }
 
@@ -166,8 +162,8 @@ LauncherPageStyle {
 }
 
 LauncherPageStyle.Portrait {
-    padding-left: 5.5mm;
-    padding-right: 5.5mm;
+    padding-left: 5.2mm;
+    padding-right: 5.2mm;
     padding-top: 5.7mm;
     padding-bottom: 5.7mm;
 }
@@ -194,7 +190,7 @@ DuiPannableWidgetStyle#LauncherPagedViewport {
     margin-bottom: 0;
     padding-left: 0;
     padding-right: 0;
-    preferred-size: 100% -1;
+    minimum-size: 100% 100%;
 }
 
 DuiAbstractLayoutPolicyStyle#LauncherPageFlowLayoutPolicy {
@@ -202,7 +198,6 @@ DuiAbstractLayoutPolicyStyle#LauncherPageFlowLayoutPolicy {
     margin-right: 0;
     margin-top: 0;
     margin-bottom: 0;
-    preferred-size: 100% 100%;
 }
 
 DuiAbstractLayoutPolicyStyle#LauncherPageFlowLayoutPolicy.Portrait {

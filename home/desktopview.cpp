@@ -153,6 +153,7 @@ DesktopView::DesktopView(Desktop *desktop) :
     connect(launcher, SIGNAL(launcherButtonClicked()), this, SLOT(toggleLauncher()));
     launcherWindow->setLayout(windowLayout);
     launcherWindow->setObjectName("LauncherWindow");
+
     windowLayout->addItem(launcher);
     MainWindow::instance()->sceneManager()->hideWindowNow(launcherWindow);
 
@@ -225,8 +226,11 @@ void DesktopView::toggleLauncher()
 
 void DesktopView::showLauncher()
 {
+    // Needed to update the panned page width in case the orientation has changed
+    launcher->resize(geometry().size());
+
     launcher->setEnabled(true);
-    
+
     MainWindow::instance()->sceneManager()->showWindow(launcherWindow);
 
     // Set the launcher window below other modal scene windows
@@ -243,7 +247,6 @@ void DesktopView::hideLauncher()
     // the dialog it's not possible to launch another application
     launcher->setEnabled(false);
 
-    // Scroll the launcher above the screen
     MainWindow::instance()->sceneManager()->hideWindow(launcherWindow);
     
     // TODO : does this have to be animated??

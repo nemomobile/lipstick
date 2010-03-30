@@ -212,6 +212,9 @@ void Ut_DesktopView::testShowingHidingLauncher()
     QCOMPARE(desktopView->launcherWindow->isVisible(), true);
     QCOMPARE(gLauncherStub->stubLastCallTo("setEnabled").parameter<bool>(0), true);
 
+    // Check that the launcher's size was set correctly
+    QCOMPARE(desktopView->launcher->geometry().size(), desktopView->geometry().size());
+
     // Hide launcher
     emit launcherButtonClicked();
     QCOMPARE(desktopView->launcherWindow->isVisible(), false);
