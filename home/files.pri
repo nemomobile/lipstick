@@ -19,6 +19,8 @@ HEADERS += homeapplication.h \
     launcherstyle.h \
     launcherbutton.h \
     launcherbuttonmodel.h \
+    launcherbuttonview.h \
+    launcherbuttonstyle.h \
     pagedviewport.h \
     quicklaunchbar.h \
     quicklaunchbarmodel.h \
@@ -57,6 +59,7 @@ SOURCES += homeapplication.cpp \
     launcher.cpp \
     launcherview.cpp \
     launcherbutton.cpp \
+    launcherbuttonview.cpp \
     pagedviewport.cpp \
     quicklaunchbar.cpp \
     quicklaunchbarview.cpp \
@@ -87,6 +90,7 @@ STYLE_HEADERS += appletspacestyle.h \
     appletspacestyle.h \
     desktopstyle.h \
     launcherstyle.h \
+    launcherbuttonstyle.h \
     launcherpagestyle.h \
     quicklaunchbarstyle.h \
     statusindicatorlabelstyle.h \

@@ -14,13 +14,13 @@ class LauncherStub : public StubBase {
   virtual void setEnabled(bool enabled);
   virtual bool startApplication(const QString &application);
   virtual bool startDuiApplication(const QString &serviceName);
-  virtual void updateButtonListFromDirectory(const QString &path);
+  virtual void activateLauncher();
   virtual void launchApplication(const QString &application);
   virtual void launchDuiApplication(const QString &service);
-  virtual void activateLauncher();
+  virtual void launchLink(const QString &link);
+  virtual void updateButtonListFromDirectory(const QString &path);
   virtual void updateButtonList();
   virtual LauncherButton * createLauncherButton(const DuiDesktopEntry &entry);
-  virtual void connectLauncherButton(LauncherButton *launcherButton);
   virtual bool contains(const DuiDesktopEntry &entry);
   virtual void updateButtonsInDataStore();
   virtual void restoreButtonsFromDataStore();
@@ -32,8 +32,8 @@ class LauncherStub : public StubBase {
 // 2. IMPLEMENT STUB
 void LauncherStub::LauncherConstructor(DuiWidget *parent) {
   Q_UNUSED(parent);
-}
 
+}
 void LauncherStub::LauncherDestructor() {
 
 }
@@ -57,10 +57,8 @@ bool LauncherStub::startDuiApplication(const QString &serviceName) {
   return stubReturnValue<bool>("startDuiApplication");
 }
 
-void LauncherStub::updateButtonListFromDirectory(const QString &path) {
-  QList<ParameterBase*> params;
-  params.append( new Parameter<const QString & >(path));
-  stubMethodEntered("updateButtonListFromDirectory",params);
+void LauncherStub::activateLauncher() {
+  stubMethodEntered("activateLauncher");
 }
 
 void LauncherStub::launchApplication(const QString &application) {
@@ -75,8 +73,16 @@ void LauncherStub::launchDuiApplication(const QString &service) {
   stubMethodEntered("launchDuiApplication",params);
 }
 
-void LauncherStub::activateLauncher() {
-  stubMethodEntered("activateLauncher");
+void LauncherStub::launchLink(const QString &link) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<const QString & >(link));
+  stubMethodEntered("launchLink",params);
+}
+
+void LauncherStub::updateButtonListFromDirectory(const QString &path) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<const QString & >(path));
+  stubMethodEntered("updateButtonListFromDirectory",params);
 }
 
 void LauncherStub::updateButtonList() {
@@ -88,12 +94,6 @@ LauncherButton * LauncherStub::createLauncherButton(const DuiDesktopEntry &entry
   params.append( new Parameter<const DuiDesktopEntry & >(entry));
   stubMethodEntered("createLauncherButton",params);
   return stubReturnValue<LauncherButton *>("createLauncherButton");
-}
-
-void LauncherStub::connectLauncherButton(LauncherButton *launcherButton) {
-  QList<ParameterBase*> params;
-  params.append( new Parameter<LauncherButton * >(launcherButton));
-  stubMethodEntered("connectLauncherButton",params);
 }
 
 bool LauncherStub::contains(const DuiDesktopEntry &entry) {
@@ -135,14 +135,13 @@ bool LauncherStub::isDesktopEntryValid(const DuiDesktopEntry &entry, const QStri
 }
 
 
-
 // 3. CREATE A STUB INSTANCE
 LauncherStub gDefaultLauncherStub;
 LauncherStub* gLauncherStub = &gDefaultLauncherStub;
 
 
 // 4. CREATE A PROXY WHICH CALLS THE STUB
-Launcher::Launcher(DuiWidget* parent) : DuiWidgetController(parent) {
+Launcher::Launcher(DuiWidget *parent) {
   gLauncherStub->LauncherConstructor(parent);
 }
 
@@ -162,8 +161,8 @@ bool Launcher::startDuiApplication(const QString &serviceName) {
   return gLauncherStub->startDuiApplication(serviceName);
 }
 
-void Launcher::updateButtonListFromDirectory(const QString &path) {
-  gLauncherStub->updateButtonListFromDirectory(path);
+void Launcher::activateLauncher() {
+  gLauncherStub->activateLauncher();
 }
 
 void Launcher::launchApplication(const QString &application) {
@@ -174,8 +173,12 @@ void Launcher::launchDuiApplication(const QString &service) {
   gLauncherStub->launchDuiApplication(service);
 }
 
-void Launcher::activateLauncher() {
-  gLauncherStub->activateLauncher();
+void Launcher::launchLink(const QString &link) {
+  gLauncherStub->launchLink(link);
+}
+
+void Launcher::updateButtonListFromDirectory(const QString &path) {
+  gLauncherStub->updateButtonListFromDirectory(path);
 }
 
 void Launcher::updateButtonList() {
@@ -184,10 +187,6 @@ void Launcher::updateButtonList() {
 
 LauncherButton * Launcher::createLauncherButton(const DuiDesktopEntry &entry) {
   return gLauncherStub->createLauncherButton(entry);
-}
-
-void Launcher::connectLauncherButton(LauncherButton *launcherButton) {
-  gLauncherStub->connectLauncherButton(launcherButton);
 }
 
 bool Launcher::contains(const DuiDesktopEntry &entry) {
@@ -213,6 +212,5 @@ void Launcher::addNewLauncherButton(const DuiDesktopEntry &entry) {
 bool Launcher::isDesktopEntryValid(const DuiDesktopEntry &entry, const QStringList &acceptedTypes) {
   return gLauncherStub->isDesktopEntryValid(entry, acceptedTypes);
 }
-
 
 #endif

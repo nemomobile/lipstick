@@ -18,6 +18,7 @@
 ****************************************************************************/
 
 #include "launcherbutton.h"
+#include "launcherbuttonview.h"
 #include <DuiDesktopEntry>
 
 LauncherButton::LauncherButton(DuiWidget *parent) : DuiButton(parent, new LauncherButtonModel)
@@ -53,6 +54,8 @@ LauncherButton::LauncherButton(const DuiDesktopEntry &entry, DuiWidget *parent) 
             setTarget(thisXMaemoService);
             setTargetType("Service");
         }
+    } else if (entry.type() == "Link") {
+        setTarget(entry.url());
     }
 
     model()->setDesktopEntryFile(entry.fileName());
@@ -82,6 +85,16 @@ const QString &LauncherButton::target() const
     return model()->target();
 }
 
+void LauncherButton::setThumbnail(const QString &thumbnail)
+{
+    model()->setThumbnail(thumbnail);
+}
+
+const QString &LauncherButton::thumbnail() const
+{
+    return model()->thumbnail();
+}
+
 QString LauncherButton::desktopEntry() const
 {
     return model()->desktopEntryFile();
@@ -94,5 +107,7 @@ void LauncherButton::launch()
         emit applicationLaunched(target());
     } else if (targetType() == "Service") {
         emit duiApplicationLaunched(target());
+    } else if (targetType() == "Link") {
+        emit linkLaunched(target());
     }
 }

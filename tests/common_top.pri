@@ -21,6 +21,10 @@ QMAKE_CXXFLAGS += -ftest-coverage \
     -fprofile-arcs
 }
 
+# libqttracker support
+#LIBS += -lqttracker
+#DEFINES += ENABLE_QTTRACKER
+
 # Support for deprecated DuiValueSpace. Remove this define when new ContextSubscriber is used.
 DEFINES += DUIVALUESPACE_USE_DEPRECATED
 

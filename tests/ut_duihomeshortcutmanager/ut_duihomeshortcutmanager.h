@@ -17,21 +17,37 @@
 **
 ****************************************************************************/
 
-#ifndef LAUNCHERBUTTONMODEL_H_
-#define LAUNCHERBUTTONMODEL_H_
+#ifndef _UT_DUIHOMESHORTCUTMANAGER_
+#define _UT_DUIHOMESHORTCUTMANAGER_
 
-#include <duibuttonmodel.h>
+#include <QtGui>
+#include <QtTest/QtTest>
+#include <QObject>
+#include "duihomeshortcutmanager.h"
 
-class LauncherButtonModel : public DuiButtonModel
+class Ut_DuiHomeShortcutManager : public QObject
 {
     Q_OBJECT
-    DUI_MODEL(LauncherButtonModel)
-    DUI_MODEL_PROPERTY(QString, targetType, TargetType, true, QString())
-    DUI_MODEL_PROPERTY(QString, target, Target, true, QString())
-    DUI_MODEL_PROPERTY(QString, thumbnail, Thumbnail, true, QString())
 
-    //! Desktop entry file that launcher button is representing
-    DUI_MODEL_PROPERTY(QString, desktopEntryFile, DesktopEntryFile, true, QString())
+public:
+    static QString query;
+    static QString thumbnailFileName;
+
+private slots:
+    // Executed once before every test case
+    void init();
+
+    // Executed once after every test case
+    void cleanup();
+
+    // Executed once before first test case
+    void initTestCase();
+
+    // Executed once after last test case
+    void cleanupTestCase();
+
+    // Test shortcut creation
+    void testShortcutCreation();
 };
 
-#endif /* LAUNCHERBUTTONMODEL_H_ */
+#endif //_UT_DUIHOMESHORTCUTMANAGER_

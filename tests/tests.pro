@@ -4,9 +4,11 @@ SUBDIRS = \
     ut_appletspaceview \
     ut_desktop \
     ut_desktopview \
+    ut_duihomeshortcutmanager \
     ut_home \
     ut_homeapplication \
     ut_launcher \
+    ut_launcherbuttonview \
     ut_launcherdatastore \
     ut_launcherpage \
     ut_launcherpageview \

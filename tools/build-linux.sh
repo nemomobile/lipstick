@@ -20,8 +20,8 @@ fi
 echo "##teamcity[progressFinish 'Artifacts directory cleaned']"
 
 echo "##teamcity[progressStart 'Installing dependencies...']"
-sb-install harmattan-i386 duitheme libduivaluespace-dev libcontextprovider-dev libcontextsubscriber-dev libdui-dev libxcomposite-dev libxext-dev maemo-services-dev libmaemosec-dev libdbus-ruby libdbus-ruby1.8 duifw-tests-lib duifw-tests-dev buildtestxml-ruby libssl-dev
-#debhelper (>= 5), doxygen (>=1.5.9), libdui-dev (>= 0.18), libqt4-dev (>= 4.6), libqt4-opengl-dev, libxcomposite-dev, libxext-dev, libcontextsubscriber-dev, maemo-services-dev, libmaemosec-dev, ruby, ruby1.8, rdoc1.8, ri1.8, rdoc, ri, libbuilder-ruby, libbuilder-ruby1.8, libmatti-ruby, libmatti-ruby1.8, librmagick-ruby, librmagick-ruby1.8, libxml2-utils, libdbus-ruby, libdbus-ruby1.8, duifw-tests-lib, duifw-tests-dev, buildtestxml-ruby
+sb-install harmattan-i386 duitheme libduivaluespace-dev libcontextprovider-dev libcontextsubscriber-dev libdui-dev libxcomposite-dev libxext-dev libqttracker-dev maemo-services-dev libmaemosec-dev libdbus-ruby libdbus-ruby1.8 duifw-tests-lib duifw-tests-dev buildtestxml-ruby libssl-dev
+#debhelper (>= 5), doxygen (>=1.5.9), libdui-dev (>= 0.18), libqt4-dev (>= 4.6), libqt4-opengl-dev, libxcomposite-dev, libxext-dev, libqttracker-dev (>= 0.3.1), libcontextsubscriber-dev, maemo-services-dev, libmaemosec-dev, ruby, ruby1.8, rdoc1.8, ri1.8, rdoc, ri, libbuilder-ruby, libbuilder-ruby1.8, libmatti-ruby, libmatti-ruby1.8, librmagick-ruby, librmagick-ruby1.8, libxml2-utils, libdbus-ruby, libdbus-ruby1.8, duifw-tests-lib, duifw-tests-dev, buildtestxml-ruby
 echo "##teamcity[progressFinish 'Dependencies installed']"
 
 echo "##teamcity[progressStart 'Building duihome...']"

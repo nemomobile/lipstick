@@ -50,6 +50,7 @@ signals:
     void directoryChanged(const QString path);
     void applicationLaunched(const QString &service);
     void duiApplicationLaunched(const QString &service);
+    void linkLaunched(const QString &link);
     void buttonClicked();
 
 private slots:
@@ -84,6 +85,8 @@ private slots:
     void testApplicationLaunched();
     // Test that launching a DuiApplication is attempted
     void testDuiApplicationLaunched();
+    // Test launching a link from a subcategory
+    void testLaunchingLink();
     // Test that launcher buttons are paged to multiple pages
     void testPaging();
     // Test that empty page is removed from launcher
