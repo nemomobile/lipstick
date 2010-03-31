@@ -26,10 +26,6 @@
 #include <DuiWidgetController>
 #include "launchermodel.h"
 
-#ifdef ENABLE_QTTRACKER
-#include <QtTracker/Tracker>
-#endif
-
 class DuiDesktopEntry;
 class LauncherDataStore;
 class DuiDataStore;
@@ -41,10 +37,6 @@ class DuiDataStore;
  *
  * Each application .desktop file must define the Name, Type and Icon keys where type is Application. The Exec key must define the application binary to be launched when the icon is selected.
  *
- * Shortcuts are stored in tracker in \c DesktopBookmarkFolder as \c nfo:bookmark objects. Bookmarks define title, bookmark content iri, and bookmark thumbnail graphics for each shortcut. All shortcuts are displayed in the Launcher top level menu. Each shortcut is bound to a !DuiServiceAction that is triggered when shortcut is clicked. This will commence default action associated with the content iri in the system.
- *
- * Convenience API for creating shortcuts on homescreen launcher menu is provided in the \c libduihome package through the \c DuiHomeShortcutManager class.
- *
  * Example my_application.desktop file:
  * \code
  * [Desktop Entry]
@@ -54,19 +46,6 @@ class DuiDataStore;
  * Comment=my_localized_application_comment
  * Exec=/usr/bin/my-app
  * Icon=my_app_icon_id
- * \endcode
- *
- * Example sparql query to list homescreen shortcut items and its output:
- * \code
- * tracker-sparql -q '
- *    SELECT ?ref ?thumb ?title WHERE {
- *        <maemo:DesktopBookmarkFolder> nfo:containsBookmark ?x.
- *        ?x maemo:bookmarkThumbnail ?thumb ;
- *           nfo:bookmarks ?ref ;
- *           nie:title ?title .
- *   }'
- *   file:///home/user/image.jpeg, file:///home/user/.thumbnails/large/0912830981230.png, Lovely image
- *   file:///home/user/image.jpeg, file:///home/user/.thumbnails/large/0912830981230.png, Lovely image
  * \endcode
  */
 class Launcher : public DuiWidgetController
@@ -135,11 +114,6 @@ private slots:
      */
     void launchDuiApplication(const QString &service);
 
-    /*!
-     * \brief Launches a link
-     */
-    void launchLink(const QString &link);
-
 private:
     //! A file system watcher for the desktop entry file directory
     QFileSystemWatcher watcher;
@@ -153,11 +127,6 @@ private:
 
     //! List of file types to support for desktop entries.
     QStringList supportedDesktopEntryFileTypes;
-
-#ifdef ENABLE_QTTRACKER
-    //! The LibQtTracker item model for shortcuts
-    SopranoLive::LiveNodes shortcutItemModel;
-#endif
 
     //! Whether the launcher has been initialized or not
     bool initialized;
@@ -235,17 +204,6 @@ private:
      * \return is desktop entry valid
      */
     bool isDesktopEntryValid(const DuiDesktopEntry &entry, const QStringList &acceptedTypes);
-
-#ifdef ENABLE_QTTRACKER
-    /*!
-     * Creates a launcher button instance from a shortcut IRI.
-     *
-     * \param shortcut the Tracker object to create a shortcut launcher button from
-     * \return a LauncherButton representing the shortcut IRI
-     */
-    LauncherButton *createShortcutLauncherButton(SopranoLive::LiveNode shortcut);
-#endif
-
 };
 
 #endif /* LAUNCHER_H */

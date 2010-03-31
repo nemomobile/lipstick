@@ -1,22 +1,3 @@
-/***************************************************************************
-**
-** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
-** All rights reserved.
-** Contact: Nokia Corporation (directui@nokia.com)
-**
-** This file is part of duihome.
-**
-** If you have questions regarding the use of this file, please contact
-** Nokia at directui@nokia.com.
-**
-** This library is free software; you can redistribute it and/or
-** modify it under the terms of the GNU Lesser General Public
-** License version 2.1 as published by the Free Software Foundation
-** and appearing in the file LICENSE.LGPL included in the packaging
-** of this file.
-**
-****************************************************************************/
-
 #ifndef LAUNCHERBUTTON_STUB
 #define LAUNCHERBUTTON_STUB
 
@@ -35,11 +16,9 @@ class LauncherButtonStub : public StubBase {
   virtual const QString & targetType() const;
   virtual void setTarget(const QString &target);
   virtual const QString & target() const;
-  virtual void setThumbnail(const QString &thumbnail);
-  virtual const QString & thumbnail() const;
-  virtual void launch();
   virtual QString desktopEntry() const;
-};
+  virtual void launch();
+}; 
 
 // 2. IMPLEMENT STUB
 void LauncherButtonStub::LauncherButtonConstructor(DuiWidget *parent) {
@@ -62,7 +41,7 @@ void LauncherButtonStub::setTargetType(const QString &type) {
 
 const QString & LauncherButtonStub::targetType() const {
   stubMethodEntered("targetType");
-  return stubReturnValue<QString>("targetType");
+  return stubReturnValue<const QString &>("targetType");
 }
 
 void LauncherButtonStub::setTarget(const QString &target) {
@@ -73,27 +52,16 @@ void LauncherButtonStub::setTarget(const QString &target) {
 
 const QString & LauncherButtonStub::target() const {
   stubMethodEntered("target");
-  return stubReturnValue<QString>("target");
-}
-
-void LauncherButtonStub::setThumbnail(const QString &thumbnail) {
-  QList<ParameterBase*> params;
-  params.append( new Parameter<const QString & >(thumbnail));
-  stubMethodEntered("setThumbnail",params);
-}
-
-const QString & LauncherButtonStub::thumbnail() const {
-  stubMethodEntered("thumbnail");
-  return stubReturnValue<QString>("thumbnail");
-}
-
-void LauncherButtonStub::launch() {
-  stubMethodEntered("launch");
+  return stubReturnValue<const QString &>("target");
 }
 
 QString LauncherButtonStub::desktopEntry() const {
   stubMethodEntered("desktopEntry");
   return stubReturnValue<QString>("desktopEntry");
+}
+
+void LauncherButtonStub::launch() {
+  stubMethodEntered("launch");
 }
 
 
@@ -132,20 +100,12 @@ const QString & LauncherButton::target() const {
   return gLauncherButtonStub->target();
 }
 
-void LauncherButton::setThumbnail(const QString &thumbnail) {
-  gLauncherButtonStub->setThumbnail(thumbnail);
-}
-
-const QString & LauncherButton::thumbnail() const {
-  return gLauncherButtonStub->thumbnail();
+QString LauncherButton::desktopEntry() const {
+  return gLauncherButtonStub->desktopEntry();
 }
 
 void LauncherButton::launch() {
   gLauncherButtonStub->launch();
-}
-
-QString LauncherButton::desktopEntry() const {
-  return gLauncherButtonStub->desktopEntry();
 }
 
 

@@ -19,15 +19,10 @@
 
 #include <QFlags>
 #include <QDir>
-#include <DuiActionProvider>
 #include <DuiApplicationIfProxy>
 #include <DuiDesktopEntry>
 #include "duifiledatastore.h"
 #include "launcherdatastore.h"
-
-#ifdef ENABLE_QTTRACKER
-#include <QtTracker/ontologies/nfo.h>
-#endif
 
 #include "launcher.h"
 #include "launcherbutton.h"
@@ -43,7 +38,7 @@ Launcher::Launcher(DuiWidget *parent) :
 #ifdef TESTABILITY_ON
     pathsForDesktopEntries << QDir::tempPath();
 #endif
-    supportedDesktopEntryFileTypes << "Application" << "Link";
+    supportedDesktopEntryFileTypes << "Application";
 }
 
 Launcher::~Launcher()
@@ -68,13 +63,6 @@ void Launcher::activateLauncher()
 
         // Update the button list according to watched directories
         updateButtonList();
-
-#ifdef ENABLE_QTTRACKER
-        // Query tracker for bookmarks (shortcuts)
-        SopranoLive::RDFSelect select;
-        select.addColumn("iri", SopranoLive::RDFVariable::fromType<SopranoLive::nfo::Bookmark>());
-        shortcutItemModel = tracker()->modelQuery(select);
-#endif
 
         // Start watching the applications directory for changes
         connect(&watcher, SIGNAL(directoryChanged(const QString)), this, SLOT(updateButtonListFromDirectory(const QString)));
@@ -194,41 +182,6 @@ LauncherButton *Launcher::createLauncherButton(const DuiDesktopEntry &entry)
     return launcherButton;
 }
 
-#ifdef ENABLE_QTTRACKER
-LauncherButton *Launcher::createShortcutLauncherButton(SopranoLive::LiveNode shortcut)
-{
-    SopranoLive::Live<SopranoLive::nfo::Bookmark> bookmark = shortcut;
-
-    LauncherButton *ret = new LauncherButton(NULL);
-    ret->setObjectName("LauncherButton");
-    ret->setTargetType("Link");
-    ret->setText(bookmark->getTitle());
-    ret->setTarget(bookmark->getBookmarks().toString());
-
-    // TODO: We could set the icon of the launcher button here if the shortcuts supported
-    // them.
-
-    QList<SopranoLive::LiveNode> l = bookmark->getMaemoBookmarkThumbnails().nodes();
-    if (l.count() > 0) {
-        // Use the first thumbnail
-        ret->setThumbnail(l[0].toString());
-    }
-
-    // Add the default action to the launcher button
-    DuiAction *action = DuiActionProvider::getDefaultAction(QUrl(ret->target()));
-    if (action != NULL) {
-        action->setVisible(false);
-        ret->addAction(action);
-        connect(ret, SIGNAL(clicked()), action, SLOT(trigger()));
-    }
-
-    // Connect the link launched signal for closing the launcher
-    connect(ret, SIGNAL(linkLaunched(const QString &)), this, SLOT(linkLaunched(const QString &)), Qt::QueuedConnection);
-
-    return ret;
-}
-#endif
-
 void Launcher::launchApplication(const QString &application)
 {
     startApplication(application);
@@ -237,11 +190,6 @@ void Launcher::launchApplication(const QString &application)
 void Launcher::launchDuiApplication(const QString &serviceName)
 {
     startDuiApplication(serviceName);
-}
-
-void Launcher::launchLink(const QString &)
-{
-    // TODO not supported yet
 }
 
 void Launcher::setEnabled(bool enabled)
@@ -287,7 +235,7 @@ void Launcher::updateButtonsInDataStore()
 
 void Launcher::restoreButtonsFromDataStore()
 {
-    QStringList acceptedTypes = (QStringList() << "Application" << "Link");
+    QStringList acceptedTypes = (QStringList() << "Application");
     QList< QSharedPointer<LauncherPage> > restoredPages(dataStore->launcherButtons());
 
     foreach (QSharedPointer<LauncherPage> page, restoredPages) {
@@ -303,6 +251,5 @@ void Launcher::connectLauncherButton(LauncherButton* launcherButton)
     launcherButton->setObjectName("LauncherButton");
     connect(launcherButton, SIGNAL(applicationLaunched(const QString &)), this, SLOT(launchApplication(const QString &)), Qt::QueuedConnection);
     connect(launcherButton, SIGNAL(duiApplicationLaunched(const QString &)), this, SLOT(launchDuiApplication(const QString &)), Qt::QueuedConnection);
-    connect(launcherButton, SIGNAL(linkLaunched(const QString &)), this, SLOT(launchLink(const QString &)), Qt::QueuedConnection);
     connect(launcherButton, SIGNAL(clicked()), this, SIGNAL(launcherButtonClicked()));
 }
