@@ -21,7 +21,7 @@ class LauncherStub : public StubBase {
   virtual void updateButtonList();
   virtual LauncherButton * createLauncherButton(const DuiDesktopEntry &entry);
   virtual void connectLauncherButton(LauncherButton *launcherButton);
-  virtual bool contains(const DuiDesktopEntry &entry);
+  virtual bool contains(const QString &desktopEntryFile);
   virtual void updateButtonsInDataStore();
   virtual void restoreButtonsFromDataStore();
   virtual void updateButtonListFromEntries(const QStringList &modifiedPaths, const QStringList &allPaths, const QString &nameFilter, const QStringList &acceptedTypes);
@@ -96,9 +96,9 @@ void LauncherStub::connectLauncherButton(LauncherButton *launcherButton) {
   stubMethodEntered("connectLauncherButton",params);
 }
 
-bool LauncherStub::contains(const DuiDesktopEntry &entry) {
+bool LauncherStub::contains(const QString &desktopEntryFile) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const DuiDesktopEntry & >(entry));
+  params.append( new Parameter<const QString& >(desktopEntryFile));
   stubMethodEntered("contains",params);
   return stubReturnValue<bool>("contains");
 }
@@ -190,8 +190,8 @@ void Launcher::connectLauncherButton(LauncherButton *launcherButton) {
   gLauncherStub->connectLauncherButton(launcherButton);
 }
 
-bool Launcher::contains(const DuiDesktopEntry &entry) {
-  return gLauncherStub->contains(entry);
+bool Launcher::contains(const QString &desktopEntryFile) {
+  return gLauncherStub->contains(desktopEntryFile);
 }
 
 void Launcher::updateButtonsInDataStore() {

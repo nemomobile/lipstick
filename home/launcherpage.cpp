@@ -52,11 +52,11 @@ void LauncherPage::removeButton(QSharedPointer<LauncherButton> button)
    model()->setLauncherButtons(buttons);
 }
 
-bool LauncherPage::contains(const DuiDesktopEntry &desktopEntry) const
+bool LauncherPage::contains(const QString &desktopEntryFile) const
 {
     bool containsButton = false;
     foreach (QSharedPointer<LauncherButton> button, model()->launcherButtons()) {
-       containsButton = desktopEntry.fileName() == button.data()->model()->desktopEntryFile();
+       containsButton = desktopEntryFile == button->model()->desktopEntryFile();
        if (containsButton) {
            break;
        }
@@ -78,7 +78,7 @@ bool LauncherPage::prune(QStringList entryList, QStringList directories)
 {
     QList< QSharedPointer<LauncherButton> > newButtons(model()->launcherButtons());
     foreach (QSharedPointer<LauncherButton> button, newButtons) {
-        QString fileName = button.data()->model()->desktopEntryFile();
+        QString fileName = button->model()->desktopEntryFile();
         // check against directory so that we dont prune
         // entries from other directories
         bool fileNameMatches = fileNameMatchesPaths(fileName, directories);

@@ -53,7 +53,7 @@ void Launcher::activateLauncher()
         if (!QDir::root().exists(QDir::homePath() + "/.config/duihome")) {
             QDir::root().mkpath(QDir::homePath() + "/.config/duihome");
         }
-	
+
 	DuiFileDataStore* backendStore = new DuiFileDataStore(QDir::homePath() + "/.config/duihome/launcherbuttons.data");
 
         dataStore = new LauncherDataStore(backendStore);
@@ -103,20 +103,26 @@ void Launcher::updateButtonListFromEntries(const QStringList &modifiedPaths,
     foreach(const QString& path, modifiedPaths) {
         foreach(QFileInfo fileInfo, QDir(path, nameFilter).entryInfoList(QDir::Files)) {
             QString filePath(fileInfo.absoluteFilePath());
-            DuiDesktopEntry e(filePath);
-            if (isDesktopEntryValid(e, acceptedTypes)) {
-                desktopEntryFiles.append(filePath);
+            // If the entry is not in the launcher we might need to add it
+            if (!contains(filePath)) {
+                DuiDesktopEntry e(filePath);
+                if (isDesktopEntryValid(e, acceptedTypes)) {
+                    desktopEntryFiles.append(filePath);
 
-                // If the entry is not in the launcher we might need to add it
-                if (!contains(e)) {
+
                     // If the data store does not know the item, we put it in the laucher grid as the items
                     // go by default into the laucher grid or
                     // if the data store already says that it goes into the grid, then lets put it there
-                    if (dataStore->location(e) == LauncherDataStore::Unknown ||
-                        dataStore->location(e) == LauncherDataStore::LauncherGrid) {
+                    LauncherDataStore::EntryLocation entryLocationInDataStore =
+                        dataStore->location(e);
+                    if (entryLocationInDataStore == LauncherDataStore::Unknown
+                        || entryLocationInDataStore ==
+                        LauncherDataStore::LauncherGrid) {
                         addNewLauncherButton(e);
                     }
                 }
+            } else {
+                desktopEntryFiles.append(filePath);
             }
         }
     }
@@ -134,13 +140,13 @@ void Launcher::updateButtonListFromEntries(const QStringList &modifiedPaths,
 }
 
 
-bool Launcher::contains(const DuiDesktopEntry &entry)
+bool Launcher::contains(const QString &desktopEntryFile)
 {
     QList< QSharedPointer<LauncherPage> > pages(model()->launcherPages());
 
     bool containsButton = false;
     foreach (QSharedPointer<LauncherPage> page, pages) {
-        containsButton = page.data()->contains(entry);
+        containsButton = page->contains(desktopEntryFile);
         if(containsButton) {
             break;
         }
@@ -156,13 +162,13 @@ void Launcher::addNewLauncherButton(const DuiDesktopEntry &entry)
     bool added = false;
     if (!pages.isEmpty()) {
 	QSharedPointer<LauncherPage> page = pages.last();
-	added = page.data()->appendButton(button);
+	added = page->appendButton(button);
     }
 
     if (!added) {
 	QList< QSharedPointer<LauncherPage> > newPages(pages);
         QSharedPointer<LauncherPage> newPage = QSharedPointer<LauncherPage>(new LauncherPage());
-        newPage.data()->appendButton(button);
+        newPage->appendButton(button);
         newPages.append(newPage);
         model()->setLauncherPages(newPages);
     }
@@ -239,7 +245,7 @@ void Launcher::restoreButtonsFromDataStore()
     QList< QSharedPointer<LauncherPage> > restoredPages(dataStore->launcherButtons());
 
     foreach (QSharedPointer<LauncherPage> page, restoredPages) {
-	foreach (QSharedPointer<LauncherButton> button, page.data()->model()->launcherButtons()) {
+	foreach (QSharedPointer<LauncherButton> button, page->model()->launcherButtons()) {
 	    connectLauncherButton(button.data());
 	}
     }

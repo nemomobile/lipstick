@@ -46,16 +46,15 @@ void LauncherDataStore::updateLauncherButtons(const QList< QSharedPointer<Launch
 
     // Collect entries of buttons in launcher from the old list
     // This is used to prune non-existent entries from store
-    QStringList oldListOfLauncherEntries;
+    QMap<QString, QString> oldLauncherEntries;
     // Collect entries of buttons in launcher in the new list
     // This is used to prune non-existent entries from store
-    QStringList newListOfLauncherEntries;
+    QSet<QString> newLauncherEntries;
+
 
     foreach(QString key, oldListOfAllKeys){
-        QString place(store->value(key).toString().section(SECTION_SEPARATOR, 0, 0));
-        if (place == LAUNCHER_PLACEMENT) {
-            oldListOfLauncherEntries.append(keyToEntryPath(key));
-        }
+        QString place(store->value(key).toString());
+        oldLauncherEntries.insert(keyToEntryPath(key), place);
     }
 
     QString launcherPlacement(LAUNCHER_PLACEMENT + SECTION_SEPARATOR + "%1" + SECTION_SEPARATOR + "%2");
@@ -63,20 +62,29 @@ void LauncherDataStore::updateLauncherButtons(const QList< QSharedPointer<Launch
     int buttonPosition;
     foreach(QSharedPointer<LauncherPage> page, pages){
         buttonPosition = 0;
-        foreach(QSharedPointer<LauncherButton> button, page.data()->model()->launcherButtons()){
-            QString desktopFile = button.data()->model()->desktopEntryFile();
+        foreach(QSharedPointer<LauncherButton> button, page->model()->launcherButtons()){
+            QString desktopFile = button->model()->desktopEntryFile();
             QString placement(launcherPlacement.arg(pageIndex).arg(buttonPosition));
-            newListOfLauncherEntries.append(desktopFile);
-            store->createValue(entryPathToKey(desktopFile), QVariant(placement));
+            newLauncherEntries.insert(desktopFile);
+            if (!oldLauncherEntries.contains(desktopFile)
+                || oldLauncherEntries[desktopFile] != placement) {
+                store->createValue(entryPathToKey(desktopFile),
+                                   QVariant(placement));
+            }
             buttonPosition++;
         }
         pageIndex++;
     }
 
     // Remove old non-existent entries from data store
-    foreach(QString entryFile, oldListOfLauncherEntries){
-        if (!newListOfLauncherEntries.contains(entryFile)) {
-            store->remove(entryPathToKey(entryFile));
+    for (QMap<QString, QString>::const_iterator entry =
+             oldLauncherEntries.constBegin(),
+             end = oldLauncherEntries.constEnd();
+         entry != end; ++entry){
+        if (entry.value().section(SECTION_SEPARATOR, 0, 0) == LAUNCHER_PLACEMENT) {
+            if (!newLauncherEntries.contains(entry.key())) {
+                store->remove(entryPathToKey(entry.key()));
+            }
         }
     }
 }
@@ -115,7 +123,7 @@ QList< QSharedPointer<LauncherPage> > LauncherDataStore::launcherButtons()
         }
         DuiDesktopEntry entry(entryFile);
         QSharedPointer<LauncherButton> button = QSharedPointer<LauncherButton> (new LauncherButton(entry));
-        newPage.data()->insertButton(button, buttonPositionOnPage);
+        newPage->insertButton(button, buttonPositionOnPage);
     }
 
     return pages;
@@ -144,6 +152,6 @@ QString LauncherDataStore::entryPathToKey(QString entryPath)
 
 QString LauncherDataStore::keyToEntryPath(QString key)
 {
-    // remove key prefix from the key    
+    // remove key prefix from the key
     return key.replace(0, KEY_PREFIX.length(), "");
 }

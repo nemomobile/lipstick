@@ -163,10 +163,10 @@ private:
     /*!
      * Checks if launcher contains a button representing specific desktop entry
      *
-     * \param desktopEntry Desktop entry to be checked
+     * \param desktopEntryFile Path of a desktop entry to be checked
      * \return true if the launcher contains button representing the given desktop entry
      */
-    bool contains(const DuiDesktopEntry &entry);
+    bool contains(const QString &desktopEntryFile);
 
     /*!
      * Updates buttons list data in data store.

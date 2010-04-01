@@ -69,7 +69,7 @@ void Ut_LauncherPage::testAddButtonWhenPageIsFull()
     bool added = m_subject->appendButton(button1);
     QVERIFY(added);
     QCOMPARE(m_subject->model()->launcherButtons().count(), 1);
-    
+
     QSharedPointer<LauncherButton> button2 = createLauncherButton();
     added = m_subject->appendButton(button2);
     QVERIFY(!added);
@@ -81,13 +81,11 @@ void Ut_LauncherPage::testContainsDesktopEntry()
     QSharedPointer<LauncherButton> button = createLauncherButton("my-entry-name");
     bool added = m_subject->appendButton(button);
     QVERIFY(added);
-    
-    const DuiDesktopEntry entry("my-entry-name");
-    bool contains = m_subject->contains(entry);
+
+    bool contains = m_subject->contains("my-entry-name");
     QVERIFY(contains);
 
-    const DuiDesktopEntry badEntry("bad-entry-name");
-    contains = m_subject->contains(badEntry);
+    contains = m_subject->contains("bad-entry-name");
     QVERIFY(!contains);
 
 }

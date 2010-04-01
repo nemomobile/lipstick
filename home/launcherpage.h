@@ -70,10 +70,10 @@ public:
 
     /*!
      * Checks if this page contains a button representing specific desktop entry
-     * \param desktopEntry Desktop entry to be checked
+     * \param desktopEntryFile Path of a desktop entry to be checked
      * \return true if the page contains a button representing desktop entry
      */
-    bool contains(const DuiDesktopEntry &desktopEntry) const;
+    bool contains(const QString &desktopEntryFile) const;
 
      /*!
      * Removes non-existing buttons from this page.
