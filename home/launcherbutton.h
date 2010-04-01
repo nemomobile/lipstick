@@ -23,7 +23,6 @@
 #include <DuiButton>
 #include "launcherbuttonmodel.h"
 
-class LauncherButtonPrivate;
 class DuiDesktopEntry;
 
 /*!
@@ -31,7 +30,7 @@ class DuiDesktopEntry;
  *
  * User has to set the target to be launched using setTarget() method and
  * the target type using the setTargetType() method. The target type can
- * be an Application or a Link. If the target type is an Application and
+ * be an Application. If the target type is an Application and
  * the target is set this button widget launches the specified application
  * into its own process when the button is clicked.
  */
@@ -94,20 +93,6 @@ public:
     const QString &target() const;
 
     /*!
-     * \brief Sets the path of the thumbnail of this button
-     *
-     * \param thumbnail The path of the thumbnail to be displayed
-     */
-    void setThumbnail(const QString &thumbnail);
-
-    /*!
-     * \brief Returns the path of the thumbnail of this button widget.
-     *
-     * \return Thumbnail
-     */
-    const QString &thumbnail() const;
-
-    /*!
      * Returns the file name of the desktop entry where this launcher button was constructed from.
      * \return the desktop entry file name.
      */
@@ -133,13 +118,6 @@ signals:
      * \param service the name of the dbus service to launch
      */
     void duiApplicationLaunched(const QString &service);
-
-    /*!
-     * \brief A signal for notifying that an object of type Link has been launched
-     *
-     * \param link the link to be launched
-     */
-    void linkLaunched(const QString &link);
 };
 
 #endif /* DUILAUNCHAPPBUTTON_H */

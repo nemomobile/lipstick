@@ -17,6 +17,15 @@
 **
 ****************************************************************************/
 
+#ifdef BENCHMARKS_ON
+#include <QTextStream>
+#include <QFile>
+#include <QTimer>
+#include <QTime>
+#include <QFileSystemWatcher>
+#include <QDir>
+#endif
+
 #include "launcher.h"
 #include "desktopview.h"
 #include "desktop.h"
@@ -37,12 +46,6 @@
 #include <QGraphicsLinearLayout>
 
 #ifdef BENCHMARKS_ON
-#include <QTextStream>
-#include <QFile>
-#include <QTimer>
-#include <QTime>
-#include <QFileSystemWatcher>
-#include <QDir>
 
 // These should really be private variables if one has more than one
 // instance of Desktop

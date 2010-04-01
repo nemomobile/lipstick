@@ -13,20 +13,15 @@ contains(COV_OPTION, on) {
         -fprofile-arcs
 }
 
-# libqttracker support
-LIBS += -lqttracker
-DEFINES += ENABLE_QTTRACKER
 include(base.pri)
 
 # Input
-INSTALL_HEADERS += duihomeshortcutmanager.h \
-    duihomesystemnotificationpluginbase.h \
+INSTALL_HEADERS += duihomesystemnotificationpluginbase.h \
     duihomesystemnotificationsourceinterface.h \
     duihomesystemnotificationplugininterface.h
 HEADERS += \
     $$INSTALL_HEADERS
-SOURCES += duihomeshortcutmanager.cpp \
-    duihomesystemnotificationpluginbase.cpp
+SOURCES += duihomesystemnotificationpluginbase.cpp
 headers.path += /usr/include/$$TARGET
 headers.files += $$INSTALL_HEADERS
 target.path += /usr/lib

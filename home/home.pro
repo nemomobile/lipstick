@@ -46,10 +46,6 @@ PKGCONFIG += xcomposite \
 # Support for deprecated DuiValueSpace. Remove this define when new ContextSubscriber is used.
 DEFINES += DUIVALUESPACE_USE_DEPRECATED
 
-# libqttracker support
-LIBS += -lqttracker
-DEFINES += ENABLE_QTTRACKER
-
 QMAKE_EXTRA_TARGETS += check
 check.commands = $$system(true)
 QMAKE_EXTRA_TARGETS += check-xml
