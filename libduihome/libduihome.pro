@@ -16,12 +16,8 @@ contains(COV_OPTION, on) {
 include(base.pri)
 
 # Input
-INSTALL_HEADERS += duihomesystemnotificationpluginbase.h \
-    duihomesystemnotificationsourceinterface.h \
-    duihomesystemnotificationplugininterface.h
-HEADERS += \
-    $$INSTALL_HEADERS
-SOURCES += duihomesystemnotificationpluginbase.cpp
+HEADERS +=
+SOURCES += 
 headers.path += /usr/include/$$TARGET
 headers.files += $$INSTALL_HEADERS
 target.path += /usr/lib
