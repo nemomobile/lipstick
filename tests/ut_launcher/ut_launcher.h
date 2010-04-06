@@ -72,8 +72,6 @@ private slots:
     void testNotShowInDui();
     // Test that the launcher includes an entry that is not supposed to be shown in some other environment than DUI
     void testNotShowInNotDui();
-    // Test that the launcher includes entries with categories and doesn't include directory entiries
-    void testCategories();
     // Test that adding a new desktop entry to root adds a new widget
     void testDesktopEntryAdd();
     // Test that invalid files are not added

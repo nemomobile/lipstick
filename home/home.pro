@@ -59,4 +59,3 @@ INSTALLS += target
 DEFINES += APPLET_DATA=\'$$quote(\"$$DUI_APPLET_DATA_DIR\")\'
 DEFINES += APPLET_SETTINGS=\'$$quote(\"$$DUI_APPLET_SETTINGS_DIR\")\'
 DEFINES += APPLICATIONS_DIRECTORY=\'$$quote(\"/usr/share/applications/\")\'
-DEFINES += CATEGORIES_DIRECTORY=\'$$quote(\"/usr/share/desktop-directories\")\'

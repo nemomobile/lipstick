@@ -8,7 +8,6 @@ TEMPLATE += lib
 
 DEFINES += APPLET_DATA=\'$$quote(\"$$DUI_APPLET_DATA_DIR\")\'
 DEFINES += APPLICATIONS_DIRECTORY=\'$$quote(\"/usr/share/applications/\")\'
-DEFINES += CATEGORIES_DIRECTORY=\'$$quote(\"/usr/share/desktop-directories\")\'
 DEFINES += NOTIFICATIONS_EVENT_TYPES=\'$$quote(\"$$DUI_NOTIFICATIONS_EVENT_TYPES_DIR\")\'
 
 INCLUDEPATH += $$SRCDIR/notifications

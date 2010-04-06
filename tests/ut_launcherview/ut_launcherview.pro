@@ -42,6 +42,5 @@ HEADERS += \
     $$SRCDIR/pagedpanning.h
 
 DEFINES += APPLICATIONS_DIRECTORY=\'$$quote(\"/tmp/ut_launcherview/applications/\")\'
-DEFINES += CATEGORIES_DIRECTORY=\'$$quote(\"/tmp/ut_launcherview/categories/\")\'
 
 include(../common_bot.pri)

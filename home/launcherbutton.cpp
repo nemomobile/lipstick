@@ -67,7 +67,7 @@ void LauncherButton::setTargetType(const QString &type)
     model()->setTargetType(type);
 }
 
-const QString &LauncherButton::targetType() const
+QString LauncherButton::targetType() const
 {
     return model()->targetType();
 }
@@ -77,7 +77,7 @@ void LauncherButton::setTarget(const QString &target)
     model()->setTarget(target);
 }
 
-const QString &LauncherButton::target() const
+QString LauncherButton::target() const
 {
     return model()->target();
 }

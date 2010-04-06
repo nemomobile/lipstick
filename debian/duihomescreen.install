@@ -1,5 +1,4 @@
 usr/bin/duihome*
-usr/share/desktop-directories/*.directory
 usr/share/applications/*.desktop
 usr/share/themes/base/dui/duihome/*.conf
 usr/share/themes/base/dui/duihome/images/*.png

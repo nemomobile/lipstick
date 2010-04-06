@@ -31,6 +31,5 @@ HEADERS += \
     $$SRCDIR/launcherbutton.h
 
 DEFINES += APPLICATIONS_DIRECTORY=\'$$quote(\"/tmp/ut_launcher/applications/\")\'
-DEFINES += CATEGORIES_DIRECTORY=\'$$quote(\"/tmp/ut_launcher/categories/\")\'
 
 include(../common_bot.pri)

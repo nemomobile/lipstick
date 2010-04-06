@@ -13,9 +13,9 @@ class LauncherButtonStub : public StubBase {
   virtual void LauncherButtonConstructor(const DuiDesktopEntry &entry, DuiWidget *parent);
   virtual void LauncherButtonDestructor();
   virtual void setTargetType(const QString &type);
-  virtual const QString & targetType() const;
+  virtual QString targetType() const;
   virtual void setTarget(const QString &target);
-  virtual const QString & target() const;
+  virtual QString target() const;
   virtual QString desktopEntry() const;
   virtual void launch();
 }; 
@@ -35,24 +35,24 @@ void LauncherButtonStub::LauncherButtonDestructor() {
 }
 void LauncherButtonStub::setTargetType(const QString &type) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const QString & >(type));
+  params.append( new Parameter<QString>(type));
   stubMethodEntered("setTargetType",params);
 }
 
-const QString & LauncherButtonStub::targetType() const {
+QString LauncherButtonStub::targetType() const {
   stubMethodEntered("targetType");
-  return stubReturnValue<const QString &>("targetType");
+  return stubReturnValue<QString>("targetType");
 }
 
 void LauncherButtonStub::setTarget(const QString &target) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const QString & >(target));
+  params.append( new Parameter<QString >(target));
   stubMethodEntered("setTarget",params);
 }
 
-const QString & LauncherButtonStub::target() const {
+QString LauncherButtonStub::target() const {
   stubMethodEntered("target");
-  return stubReturnValue<const QString &>("target");
+  return stubReturnValue<QString>("target");
 }
 
 QString LauncherButtonStub::desktopEntry() const {
@@ -88,7 +88,7 @@ void LauncherButton::setTargetType(const QString &type) {
   gLauncherButtonStub->setTargetType(type);
 }
 
-const QString & LauncherButton::targetType() const {
+QString LauncherButton::targetType() const {
   return gLauncherButtonStub->targetType();
 }
 
@@ -96,7 +96,7 @@ void LauncherButton::setTarget(const QString &target) {
   gLauncherButtonStub->setTarget(target);
 }
 
-const QString & LauncherButton::target() const {
+QString LauncherButton::target() const {
   return gLauncherButtonStub->target();
 }
 

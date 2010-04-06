@@ -74,7 +74,7 @@ public:
      *
      * \return Type of the object to be launched
      */
-    const QString &targetType() const;
+    QString targetType() const;
 
     /*!
      * \brief Sets the target to be launched when this button widget
@@ -90,7 +90,7 @@ public:
      *
      * \return Full path to the application file
      */
-    const QString &target() const;
+    QString target() const;
 
     /*!
      * Returns the file name of the desktop entry where this launcher button was constructed from.

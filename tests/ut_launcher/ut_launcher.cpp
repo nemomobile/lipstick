@@ -232,14 +232,6 @@ void Ut_Launcher::initTestCase()
     desktopEntryExec.insert(QString(APPLICATIONS_DIRECTORY) + "applicationInCategory.desktop", "test4");
     desktopEntryCategories.insert(QString(APPLICATIONS_DIRECTORY) + "applicationInCategory.desktop", QStringList() << "somecategory" << "TestCat1");
 
-    // Test categories
-    desktopEntryName.insert(QString(CATEGORIES_DIRECTORY) + "directoryEntry1.directory", "TestCat1");
-    desktopEntryType.insert(QString(CATEGORIES_DIRECTORY) + "directoryEntry1.directory", "Directory");
-    desktopEntryIcon.insert(QString(CATEGORIES_DIRECTORY) + "directoryEntry1.directory", "Icon-camera");
-    desktopEntryName.insert(QString(CATEGORIES_DIRECTORY) + "directoryEntry2.directory", "TestCat2");
-    desktopEntryType.insert(QString(CATEGORIES_DIRECTORY) + "directoryEntry2.directory", "Directory");
-    desktopEntryIcon.insert(QString(CATEGORIES_DIRECTORY) + "directoryEntry2.directory", "Icon-camera");
-
     // Incomplete files
     desktopEntryIcon.insert(QString(APPLICATIONS_DIRECTORY) + "test5.desktop", "Icon-music");
 
@@ -403,33 +395,6 @@ void Ut_Launcher::testNotShowInNotDui()
     QCOMPARE(b->iconID(), QString("Icon-camera"));
     QCOMPARE(b->targetType(), QString("Application"));
     QCOMPARE(b->target(), QString("no-desktop-application"));
-}
-
-void Ut_Launcher::testCategories()
-{
-    // Add some desktop files
-    desktopFileInfoList.append(QFileInfo(QString(APPLICATIONS_DIRECTORY) + "applicationWithOnlyCategoryDUI.desktop"));
-    desktopFileInfoList.append(QFileInfo(QString(APPLICATIONS_DIRECTORY) + "applicationInCategory.desktop"));
-    desktopFileInfoList.append(QFileInfo(QString(CATEGORIES_DIRECTORY) + "directoryEntry1.directory"));
-    int amountOfValidEntries = 2;
-
-    // Process events to make sure all notifications are done
-    QCoreApplication::processEvents(QEventLoop::AllEvents, 1000);
-
-    // Initalize launcher
-    launcher->setEnabled(true);
-
-    // There should be two widgets
-    QCOMPARE(buttonsCount(), amountOfValidEntries);
-
-    QSharedPointer<LauncherButton> b = launcher->model()->launcherPages().at(0)->model()->launcherButtons().at(0);
-    QVERIFY(b != NULL);
-
-    // Check name and icon for all entries
-    QCOMPARE(b->text(), QString("Category DUI application"));
-    QCOMPARE(b->iconID(), QString("Icon-camera"));
-    QCOMPARE(b->targetType(), QString("Application"));
-    QCOMPARE(b->target(), QString("dui-category-application"));
 }
 
 void Ut_Launcher::testDesktopEntryAdd()

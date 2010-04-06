@@ -42,10 +42,5 @@ QMAKE_EXTRA_TARGETS += check-xml
 
 include(shared.pri)
 include(debian/deb.pri)
-# Install instructions
-INSTALLS += \
-    directory_desktop_entries
-directory_desktop_entries.path = /usr/share/desktop-directories
-directory_desktop_entries.files = desktop-directories/*.directory
 
 include(doc/doc.pri)
