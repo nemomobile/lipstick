@@ -46,15 +46,10 @@ Home::Home(QGraphicsItem *parent) : DuiApplicationPage(parent)
 
 // SwitcherButton stubs (used by Switcher)
 SwitcherButton::SwitcherButton(const QString &title, DuiWidget *parent, Window window, WindowInfo::WindowPriority windowPriority) :
-    DuiButton(title, parent),
+    DuiButton(title, parent, new SwitcherButtonModel),
     priority(windowPriority)
 {
-    Q_UNUSED(title);
-    Q_UNUSED(parent);
-    Q_UNUSED(window);
-
     g_windowButtonMap[this] = window;
-    setModel(new SwitcherButtonModel());
 }
 
 SwitcherButton::~SwitcherButton()
