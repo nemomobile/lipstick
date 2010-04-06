@@ -21,7 +21,6 @@
 #include "home.h"
 
 #include <QGLWidget>
-#include <DuiGLRenderer>
 #include <DuiApplication>
 #include <DuiSceneManager>
 #include "x11wrapper.h"

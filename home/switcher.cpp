@@ -18,8 +18,8 @@
 ****************************************************************************/
 
 #include <QX11Info>
+#include <QApplication>
 #include <DuiLayout>
-#include <DuiGLRenderer>
 #include <DuiFlowLayoutPolicy>
 
 #include "switcher.h"
