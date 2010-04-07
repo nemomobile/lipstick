@@ -1,0 +1,81 @@
+/*! \page startup %Direct UI Homescreen %startup signalling
+
+%Direct UI Homescreen integrates to upstart scripts by stopping its execution after
+it is drawn and responsive. Direct UI Homescreen also sends a D-Bus signal that
+tells other interested parties that the home screen is up and running.
+
+\section upstart Integration with upstart scripts
+
+%Direct UI Homescreen has two modes in which it operates:
+
+-# upstart mode, where duihome stops itself after it has initialized and
+is responsive
+-# non-upstart mode, where duihome doesn't stop.
+
+The latter mode is used for functional tests and such, the former mode
+is what will run on production devices. Using the upstart mode practically
+causes duihome to stop itself with a SIGSTOP signal, which tells the
+controlling upstart script to send a SIGCONT and run the dependent
+scripts. This is practically achieved by using a proper command line
+argument, and adding a proper expect-stop-stanza to the upstart script
+of duihome. An example script is below:
+
+\code
+start on started xsession-default/mission-control
+expect stop
+stop on stopping xsession
+
+console none
+script
+   exec su - user -c "exec /usr/bin/duihome --upstart"
+end script
+
+post-start script
+   initctl emit --quiet --no-wait DESKTOP_READY
+end script
+
+respawn
+respawn limit 3 30
+reboot
+\endcode
+
+Note the "--upstart" parameter, and the "expect stop" stanza.
+
+\section dbus D-Bus notification of Direct UI Homescreen readiness
+
+Regardless of the use of upstart mode, duihome sends a D-Bus signal
+when it has initialized and is responsive. The D-Bus signal details
+are as follows:
+
+<table>
+  <tr>
+    <th>Signal property</th>
+    <th>Value</th>
+  </tr>
+  <tr>
+    <td>
+      Interface
+    </td>
+    <td>
+      com.nokia.duihome.readyNotifier
+    </td>
+  </tr>
+  <tr>
+    <td>
+      Path
+    </td>
+    <td>
+      /com/nokia/duihome
+    </td>
+  </tr>
+  <tr>
+    <td>
+      Name
+    </td>
+    <td>
+      ready
+    </td>
+  </tr>
+</table>
+
+*/
