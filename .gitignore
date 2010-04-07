@@ -20,5 +20,4 @@ tests/ut_statusarea/ut_statusarea
 tests/ut_notificationmanager/ut_notificationmanager
 tests/ut_switcher/ut_switcher
 tests/ut_switcherbutton/ut_switcherbutton
-testsuites/.ri
-testsuites/meta/tests.xml
+configure-stamp
