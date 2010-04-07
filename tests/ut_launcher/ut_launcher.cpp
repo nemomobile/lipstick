@@ -18,7 +18,6 @@
 ****************************************************************************/
 #include <DuiApplication>
 #include <DuiDesktopEntry>
-#include <duidesktopentry_p.h>
 #include <DuiApplicationIfProxy>
 #include "ut_launcher.h"
 #include "launcher.h"
