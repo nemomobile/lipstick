@@ -45,7 +45,7 @@ AppletSpaceView::AppletSpaceView(AppletSpace *controller) :
     // Set close button properties
     closeButton->setViewType("icon");
     closeButton->setObjectName("AppletSpaceCloseButton");
-    closeButton->setIconID("Icon-close");
+    closeButton->setIconID("icon-m-framework-close");
     QObject::connect(closeButton, SIGNAL(clicked()), controller, SIGNAL(closed()));
 
     closeButtonOverlay->setObjectName("AppletSpaceCloseButtonOverlay");
