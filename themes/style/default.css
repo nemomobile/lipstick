@@ -227,14 +227,6 @@ DuiOverlayStyle#LauncherBackButtonOverlay {
 DuiButtonIconStyle#LauncherButton {
     font: $FONT_MSMALL;
     text-color: #ffffff;
-    /* The position of title relative to top-left corner of the button */
-    text-position: 0 78;
-    /* The image to be used as the container (background) of the button if the button represents a shortcut */
-    shortcut-container-image: Bookmark-thumbnail 12 12 36 12;
-    /* The image to be used as the container (background) of the button if the button represents an invalid shortcut */
-    invalid-shortcut-container-image: thumbnail-dummy-bookmark 12 12 36 12;
-    /* The image to be used as the mask for a shortcut thumbnail */
-    shortcut-thumbnail-mask-image: Bookmark-mask 12 12 36 12;
 
     margin-left: 0;
     margin-right: 0;
@@ -252,44 +244,11 @@ DuiButtonIconStyle#LauncherButton {
 
     preferred-size: 14.0mm 10.6mm;
 
-    icon-position: 1.8mm 1.8mm;
     /* The size of the icon if the button represents a shortcut */
     icon-size: 4.8mm 4.8mm;
 
     press-feedback: press;
     release-feedback: release;
-}
-DuiButtonIconStyle#LauncherButton.Landscape {
-    /* The image to be used as the background of the button if the button represents a category */
-    category-image: C2-container-category-indicator-bg-123px;
-    /* The position of the shortcut thumbnail relative to top-left corner of the button */
-    shortcut-thumbnail-position: 1 1;
-    /* The size of the shortcut thumbnail */
-    shortcut-thumbnail-size: 124 124;
-    /* The position of title relative to top-left corner of the button if the button represents a shortcut */
-    shortcut-text-position: 9 3;
-    /* The size of the title if the button represents a shortcut */
-    shortcut-text-size: 108 30;
-    /* The position of the icon relative to top-left corner of the button if the button represents a shortcut */
-    shortcut-icon-position: 1.8mm 1.8mm;
-    /* The size of the icon if the button represents a shortcut */
-    shortcut-icon-size: 4.8mm 4.8mm;
-}
-DuiButtonIconStyle#LauncherButton.Portrait {
-    /* The image to be used as the background of the button if the button represents a category */
-    category-image: C2-container-category-indicator-bg-94px;
-    /* The position of the shortcut thumbnail relative to top-left corner of the button */
-    shortcut-thumbnail-position: 1 1;
-    /* The size of the shortcut thumbnail */
-    shortcut-thumbnail-size: 92 121;
-    /* The position of title relative to top-left corner of the button if the button represents a shortcut */
-    shortcut-text-position: 9 3;
-    /* The size of the title if the button represents a shortcut */
-    shortcut-text-size: 76 30;
-    /* The position of the icon relative to top-left corner of the button if the button represents a shortcut */
-    shortcut-icon-position: 1.8mm 1.8mm;
-    /* The size of the icon if the button represents a shortcut */
-    shortcut-icon-size: 4.8mm 4.8mm;
 }
 
 QuickLaunchBarStyle {
@@ -342,7 +301,7 @@ SwitcherStyle {
 
     /* how much to down scale the non emphasizzed items */
     scale-factor: 0.8;
-    /* The amount the focused item will "fast-forward" during the transition */ 
+    /* The amount the focused item will "fast-forward" during the transition */
     fast-forward: 40;
     /* The angle that the item will rotate during the transition */
     item-rotation: 15;
@@ -371,9 +330,6 @@ SwitcherStyle#OverviewSwitcher.Portrait {
 SwitcherStyle#OverviewSwitcher.Landscape {
     rows-per-page: 2;
     columns-per-page: 3;
-}
-
-SwitcherStyle#DetailviewSwitcher {
 }
 
 DuiPannableWidgetStyle#SwitcherDetailsViewport {
