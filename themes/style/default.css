@@ -265,14 +265,6 @@ QuickLaunchBarStyle {
 DuiButtonIconStyle#QuickLaunchBarButton {
     font: $FONT_SMALL;
     text-color: #ffffff;
-    /* The position of title relative to top-left corner of the button */
-    text-position: 0 78;
-    /* The image to be used as the container (background) of the button if the button represents a shortcut */
-    shortcut-container-image: Bookmark-thumbnail 12 12 36 12;
-    /* The image to be used as the container (background) of the button if the button represents an invalid shortcut */
-    invalid-shortcut-container-image: thumbnail-dummy-bookmark 12 12 36 12;
-    /* The image to be used as the mask for a shortcut thumbnail */
-    shortcut-thumbnail-mask-image: Bookmark-mask 12 12 36 12;
     margin-left: 6;
     margin-right: 6;
     margin-top: 6;
