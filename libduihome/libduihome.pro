@@ -1,10 +1,9 @@
 TEMPLATE = lib
-CONFIG += dll
+CONFIG += dll dui
 TARGET = duihome
 DEPENDPATH += .
 INCLUDEPATH += ../include \
     . \
-LIBS += -ldui
 
 # For setting the coverage flag ON
 contains(COV_OPTION, on) { 
