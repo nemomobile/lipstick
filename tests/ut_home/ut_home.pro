@@ -1,7 +1,6 @@
 include(../common_top.pri)
 TARGET = ut_home
 INCLUDEPATH += $$SRCDIR/notifications
-PKGCONFIG += ContentManagerSearchIf
 
 MODEL_HEADERS += $$SRCDIR/desktopmodel.h
 

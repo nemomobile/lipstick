@@ -2,8 +2,6 @@ include(../common_top.pri)
 TARGET = ut_desktopview
 INCLUDEPATH += $$SRCDIR/notifications
 
-PKGCONFIG += ContentManagerSearchIf
-
 MODEL_HEADERS += $$SRCDIR/desktopmodel.h
 STYLE_HEADERS += $$SRCDIR/desktopstyle.h
 

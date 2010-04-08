@@ -2,8 +2,6 @@ include(../common_top.pri)
 TARGET = ut_homeapplication
 INCLUDEPATH += $$SRCDIR/notifications
 
-PKGCONFIG += ContentManagerSearchIf
-
 # unit test and unit
 SOURCES += \
     ut_homeapplication.cpp \

@@ -7,7 +7,8 @@ INCLUDEPATH += $$SRCDIR $$HOMELIBDIR $$STUBSDIR $$DUI_INSTALL_HEADERS
 DEPENDPATH = $$INCLUDEPATH
 CONFIG += debug dui link_pkgconfig
 PKGCONFIG += contextsubscriber-1.0 \
-    ContentManagerSearchIf
+    xcomposite
+#    ContentManagerSearchIf
 QT += testlib network gui dbus xml
 exists($$[QT_INSTALL_LIBS]/libQtOpenGL.so):QT += opengl
 TEMPLATE = app

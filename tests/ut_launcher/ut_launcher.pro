@@ -1,8 +1,6 @@
 include(../common_top.pri)
 TARGET = ut_launcher
 
-PKGCONFIG += ContentManagerSearchIf
-
 MODEL_HEADERS += $$SRCDIR/launcherbuttonmodel.h \
     $$SRCDIR/launchermodel.h \
     $$SRCDIR/launcherpagemodel.h

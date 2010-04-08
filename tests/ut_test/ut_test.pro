@@ -2,8 +2,6 @@ include(../common_top.pri)
 TARGET = ut_test
 QT += dbus
 
-PKGCONFIG += xcomposite ContentManagerSearchIf
-
 TEMPLATE += lib
 
 DEFINES += APPLET_DATA=\'$$quote(\"$$DUI_APPLET_DATA_DIR\")\'

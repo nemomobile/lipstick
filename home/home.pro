@@ -41,7 +41,7 @@ CONFIG += link_pkgconfig \
     dui
 PKGCONFIG += xcomposite \
     contextsubscriber-1.0 \
-    ContentManagerSearchIf
+#    ContentManagerSearchIf
 
 # Support for deprecated DuiValueSpace. Remove this define when new ContextSubscriber is used.
 DEFINES += DUIVALUESPACE_USE_DEPRECATED

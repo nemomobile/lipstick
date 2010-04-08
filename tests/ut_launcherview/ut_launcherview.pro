@@ -1,8 +1,6 @@
 include(../common_top.pri)
 TARGET = ut_launcherview
 
-PKGCONFIG += ContentManagerSearchIf
-
 STYLE_HEADERS += \
     $$SRCDIR/launcherstyle.h
 
