@@ -363,6 +363,8 @@ SwitcherButtonStyle {
 
     /* The close button icon */
     close-icon: ;
+
+    close-button-vertical-position: 0.0;
 }
 
 DuiButtonIconStyle#CloseButtonOverview
