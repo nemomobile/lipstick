@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=DUIApplet
 Name=Help
-Icon=W-Icon-help
+Icon=icon-l-help
 Exec=duiappletrunner
 Categories=Documentation;
 

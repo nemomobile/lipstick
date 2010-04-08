@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=DUIApplet
 Name=Weather (5s startup delay)
-Icon=W-Icon-weather
+Icon=icon-m-notification-temperature
 Exec=duiappletrunner
 
 [DUI]

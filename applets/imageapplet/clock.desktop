@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=DUIApplet
 Name=Clock
-Icon=W-Icon-clock
+Icon=icon-l-clock
 Exec=duiappletrunner
 Categories=Utility;Clock;
 

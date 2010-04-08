@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=DUIApplet
 Name=Calendar
-Icon=W-Icon-calendar
+Icon=icon-l-calendar
 Exec=duiappletrunner
 Categories=Office;Calendar;
 

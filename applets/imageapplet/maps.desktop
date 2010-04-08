@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=DUIApplet
 Name=Maps
-Icon=W-Icon-maps
+Icon=icon-l-maps
 Exec=duiappletrunner
 Categories=Education;Geography;
 

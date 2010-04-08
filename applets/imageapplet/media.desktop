@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=DUIApplet
 Name=Media Player
-Icon=W-Icon-mediaplayer
+Icon=icon-l-music
 Exec=duiappletrunner
 Categories=AudioVideo;Player;
 

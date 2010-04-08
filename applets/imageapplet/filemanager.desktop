@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=DUIApplet
 Name=Filemanager
-Icon=W-Icon-filemanager
+Icon=icon-l-backup
 Exec=duiappletrunner
 Categories=System;FileTools;FileManager;
 

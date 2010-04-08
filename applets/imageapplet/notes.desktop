@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=DUIApplet
 Name=Notes
-Icon=W-Icon-notes
+Icon=icon-l-notes
 Exec=duiappletrunner
 Categories=Office;
 
