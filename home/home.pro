@@ -27,9 +27,6 @@ QMAKE_CXXFLAGS += \
     -fprofile-arcs \
 
 }
-contains(TESTABILITY, on) {
-    DEFINES += TESTABILITY_ON
-}
 
 contains(BENCHMARKS, on) {
     DEFINES += BENCHMARKS_ON

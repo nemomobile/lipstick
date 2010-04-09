@@ -23,12 +23,6 @@ ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
     INSTALL_PROGRAM += -s
 endif
 
-# When doing official releases, set TESTABILITY to off. Defaults to on now
-# because integration cannot pass DEB_BUILD_OPTIONS.
-ifeq (,$(findstring notestability,$(DEB_BUILD_OPTIONS)))
-   QMAKE_OPTIONS += TESTABILITY=on
-endif
-
 ifeq (,$(findstring nobenchmarks,$(DEB_BUILD_OPTIONS)))
    QMAKE_OPTIONS += BENCHMARKS=on
 endif

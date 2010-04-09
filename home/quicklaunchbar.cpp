@@ -47,9 +47,6 @@ void QuickLaunchBar::init()
     // Start watching the applications directory for changes
     connect(&desktopDirectoryWatcher, SIGNAL(directoryChanged(QString)), this, SLOT(updateWidgetList()));
     desktopDirectoryWatcher.addPath(APPLICATIONS_DIRECTORY);
-#ifdef TESTABILITY_ON
-    desktopDirectoryWatcher.addPath(QDir::tempPath());
-#endif
 }
 
 QuickLaunchBar::~QuickLaunchBar()

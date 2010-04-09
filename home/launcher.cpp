@@ -35,9 +35,6 @@ Launcher::Launcher(DuiWidget *parent) :
     initialized(false)
 {
     pathsForDesktopEntries << APPLICATIONS_DIRECTORY;
-#ifdef TESTABILITY_ON
-    pathsForDesktopEntries << QDir::tempPath();
-#endif
     supportedDesktopEntryFileTypes << "Application";
 }
 
