@@ -162,8 +162,8 @@ LauncherPageStyle {
 }
 
 LauncherPageStyle.Portrait {
-    padding-left: 5.2mm;
-    padding-right: 5.2mm;
+    padding-left: 5.1mm;
+    padding-right: 5.1mm;
     padding-top: 5.7mm;
     padding-bottom: 5.7mm;
 }
@@ -191,6 +191,7 @@ DuiPannableWidgetStyle#LauncherPagedViewport {
     padding-left: 0;
     padding-right: 0;
     minimum-size: 100% 100%;
+    maximum-size: 100% 100%;
 }
 
 DuiAbstractLayoutPolicyStyle#LauncherPageFlowLayoutPolicy {
