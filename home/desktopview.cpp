@@ -25,6 +25,7 @@
 #include <QFileSystemWatcher>
 #include <QDir>
 #endif
+#include <QDebug>
 
 #include "launcher.h"
 #include "desktopview.h"
@@ -229,16 +230,15 @@ void DesktopView::toggleLauncher()
 
 void DesktopView::showLauncher()
 {
-    // Needed to update the panned page width in case the orientation has changed
-    launcher->resize(geometry().size());
-
-    launcher->setEnabled(true);
-
     MainWindow::instance()->sceneManager()->appearSceneWindow(launcherWindow);
 
     // Set the launcher window below other modal scene windows
     // @todo TODO get rid of the hardcoded value when DuiSceneManager enables dynamic allocation of Z values
     launcherWindow->parentItem()->setZValue(300);
+
+    // Needed to update the panned page width in case the orientation has changed
+    launcher->setEnabled(true);
+    launcher->resize(geometry().size());
 
     // TODO : does this have to be animated??
     switcher->setVisible(false);
