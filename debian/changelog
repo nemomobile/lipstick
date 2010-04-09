@@ -1,7 +1,8 @@
 duihome (0.21.0~5) unstable; urgency=low
 
-  * Fixes: NB#159568 -  Switcher thumbnails content doesn't display how the app
+  * Fixes: NB#159568 - Switcher thumbnails content doesn't display how the app
     really looks like.
+  * Fixes: NB#162716 - Missing close applet space icon
   * Adapted to libdui 0.20.0 API changes
   * Moved the functional tests and benchmarks to a separate repository
 	
