@@ -1,8 +1,8 @@
-duihome (0.21.0~7) unstable; urgency=low
-
+duihome (0.21.0~8) unstable; urgency=low
   * Fixes: NB#159568 - Switcher thumbnails content doesn't display how the app
     really looks like.
   * Fixes: NB#162716 - Missing close applet space icon
+  * Fixes launcher panning in portrait mode
   * Adapted to libdui 0.20.0 API changes
   * Moved the functional tests and benchmarks to a separate repository
   * Removed TESTABILITY ifdefs from launcher and quicklauncher
