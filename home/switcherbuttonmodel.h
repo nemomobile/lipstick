@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -20,13 +20,13 @@
 #ifndef SWITCHERBUTTONMODEL_H_
 #define SWITCHERBUTTONMODEL_H_
 
-#include <duibuttonmodel.h>
+#include <mbuttonmodel.h>
 #include <X11/X.h>
 
-class SwitcherButtonModel : public DuiButtonModel
+class SwitcherButtonModel : public MButtonModel
 {
     Q_OBJECT
-    DUI_MODEL(SwitcherButtonModel)
+    M_MODEL(SwitcherButtonModel)
 
 public:
     //! The possible UI elements that the mouse can be pressed on
@@ -43,13 +43,13 @@ public:
     };
 private:
     //! The X Window represented by the switcher buttom
-    DUI_MODEL_PROPERTY(Window, xWindow, XWindow, true, 0)
+    M_MODEL_PROPERTY(Window, xWindow, XWindow, true, 0)
     //! The UI element that the mouse was pressed on
-    DUI_MODEL_PROPERTY(SwitcherButtonModel::PressedType, pressed, Pressed, true, NonePressed)
+    M_MODEL_PROPERTY(SwitcherButtonModel::PressedType, pressed, Pressed, true, NonePressed)
     //! Represents the if this switcher button is emphasized or not
-    DUI_MODEL_PROPERTY(bool, emphasized, Emphasized, true, false)
+    M_MODEL_PROPERTY(bool, emphasized, Emphasized, true, false)
     //! The current view mode of this button
-    DUI_MODEL_PROPERTY(SwitcherButtonModel::ViewModeType, viewMode, ViewMode, true, Large)
+    M_MODEL_PROPERTY(SwitcherButtonModel::ViewModeType, viewMode, ViewMode, true, Large)
 };
 
 

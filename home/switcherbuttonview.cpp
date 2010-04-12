@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -24,9 +24,9 @@
 #include <QApplication>
 #include <QX11Info>
 #include <QPainter>
-#include <DuiScalableImage>
-#include <DuiCancelEvent>
-#include <DuiSceneManager>
+#include <MScalableImage>
+#include <MCancelEvent>
+#include <MSceneManager>
 #include "switcherbuttonview.h"
 #include "switcherbutton.h"
 
@@ -35,7 +35,7 @@ bool SwitcherButtonView::badMatchOccurred = false;
 #endif
 
 SwitcherButtonView::SwitcherButtonView(SwitcherButton *button) :
-    DuiButtonView(button),
+    MButtonView(button),
     controller(button),
     xWindowPixmap(0),
     xWindowPixmapDamage(0)
@@ -46,8 +46,8 @@ SwitcherButtonView::SwitcherButtonView(SwitcherButton *button) :
     // Show interest in X pixmap change signals
     connect(qApp, SIGNAL(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)), this, SLOT(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)));
 
-    closeButton = new DuiButton(controller);
-    closeButton->setViewType(DuiButton::iconType);
+    closeButton = new MButton(controller);
+    closeButton->setViewType(MButton::iconType);
 
     connect(closeButton, SIGNAL(clicked()), controller, SLOT(close()));
 }
@@ -69,7 +69,7 @@ SwitcherButtonView::~SwitcherButtonView()
 
 void SwitcherButtonView::setGeometry(const QRectF &rect)
 {
-    DuiButtonView::setGeometry(rect);
+    MButtonView::setGeometry(rect);
 
     closeButton->setGeometry(closeRect());
 }
@@ -82,22 +82,22 @@ void SwitcherButtonView::drawBackground(QPainter *painter, const QStyleOptionGra
     // Rotate the thumbnails and adjust their size if the screen
     // has been rotated
 
-    DuiSceneManager *manager = MainWindow::instance()->sceneManager();
+    MSceneManager *manager = MainWindow::instance()->sceneManager();
     QPoint pos = style()->iconPosition().toPoint();
     QSize size = style()->iconSize();
 
-    if (manager->orientation() == Dui::Portrait) {
+    if (manager->orientation() == M::Portrait) {
         size.transpose();
     }
 
     switch (manager->orientationAngle()) {
-        case Dui::Angle90:
+        case M::Angle90:
             pos -= QPoint(size.width(), 0);
             break;
-        case Dui::Angle180:
+        case M::Angle180:
             pos -= QPoint(size.width(), size.height());
             break;
-        case Dui::Angle270:
+        case M::Angle270:
             pos -= QPoint(0, size.height());
             break;
         default:
@@ -128,7 +128,7 @@ void SwitcherButtonView::drawContents(QPainter *painter, const QStyleOptionGraph
     painter->save();
 
     // Draw the container
-    const DuiScalableImage *container = style()->containerImage();
+    const MScalableImage *container = style()->containerImage();
     if (container != NULL) {
         container->draw(QRect(QPoint(0, 0), size().toSize()), painter);
     }
@@ -201,12 +201,12 @@ void SwitcherButtonView::applyStyle()
     }
     closeButton->setIconID(style()->closeIcon());
 
-    DuiWidgetView::applyStyle();
+    MWidgetView::applyStyle();
 }
 
 void SwitcherButtonView::setupModel()
 {
-    DuiWidgetView::setupModel();
+    MWidgetView::setupModel();
 
     if (model()->xWindow() != 0) {
         updateXWindowPixmap();
@@ -235,7 +235,7 @@ void SwitcherButtonView::updateViewMode()
 
 void SwitcherButtonView::updateData(const QList<const char *>& modifications)
 {
-    DuiWidgetView::updateData(modifications);
+    MWidgetView::updateData(modifications);
     const char *member;
     foreach(member, modifications) {
         if (member == SwitcherButtonModel::XWindow && model()->xWindow() != 0) {
@@ -328,4 +328,4 @@ void SwitcherButtonView::damageEvent(Qt::HANDLE &damage, short &x, short &y, uns
     }
 }
 
-DUI_REGISTER_VIEW_NEW(SwitcherButtonView, SwitcherButton)
+M_REGISTER_VIEW_NEW(SwitcherButtonView, SwitcherButton)

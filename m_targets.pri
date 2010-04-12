@@ -1,0 +1,4 @@
+QMAKE_TARGET_COMPANY = Nokia
+QMAKE_TARGET_PRODUCT = Meego Touch
+QMAKE_TARGET_DESCRIPTION = Meego Touch Home application
+QMAKE_TARGET_COPYRIGHT = Copyright (C) 2010 Nokia

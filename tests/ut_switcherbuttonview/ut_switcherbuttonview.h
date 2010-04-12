@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -27,7 +27,7 @@
 #include "switcherbutton.h"
 #include "switcherbuttonview.h"
 
-class DuiScalableImage;
+class MScalableImage;
 class MainWindow;
 class HomeApplication;
 
@@ -40,13 +40,13 @@ class Ut_SwitcherButtonStyleContainer : public SwitcherButtonStyleContainer
 public:
     QString currentMode()
     {
-	return DuiButtonStyleContainer::currentMode();
+	return MButtonStyleContainer::currentMode();
     }
 };
 
 class TestSwitcherButtonView : public SwitcherButtonView
 {
-    DUI_VIEW(SwitcherButtonModel, Ut_SwitcherButtonStyle)
+    M_VIEW(SwitcherButtonModel, Ut_SwitcherButtonStyle)
 
 public:
     TestSwitcherButtonView(SwitcherButton &button);
@@ -79,7 +79,7 @@ public:
 class TestSwitcherButton : public SwitcherButton
 {
 public:
-    TestSwitcherButton(const QString &title, DuiWidget *parent = NULL, Window window = 0);
+    TestSwitcherButton(const QString &title, MWidget *parent = NULL, Window window = 0);
 
     TestSwitcherButtonView *getView();
 
@@ -92,7 +92,7 @@ class Ut_SwitcherButtonView : public QObject
     Q_OBJECT
 
 public:
-    static const DuiScalableImage *drawnScalableImage;
+    static const MScalableImage *drawnScalableImage;
 
     // Switch for making the close timer timeout to occur immediately or not
     static bool timerImmediateTimeout;

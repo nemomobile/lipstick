@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -24,8 +24,8 @@
 #include <QVector>
 
 class Launcher;
-class DuiApplication;
-class DuiWidget;
+class MApplication;
+class MWidget;
 
 class Ut_Launcher : public QObject
 {
@@ -35,12 +35,12 @@ public:
     static QFileInfoList desktopFileInfoList;
     static QFileInfoList directoryFileInfoList;
     static QString       applicationStarted;
-    static bool          duiApplicationIfProxyLaunchCalled;
+    static bool          mApplicationIfProxyLaunchCalled;
 
 private:
     //TestLauncher *launcher;
     Launcher *launcher;
-    DuiApplication *app;
+    MApplication *app;
 
     void writeDesktopFile(QString fileName, QString type, QString name, QString iconName, QString exec);
     int buttonsCount();
@@ -49,7 +49,7 @@ signals:
     void directoryLaunched(const QString &directory, const QString &title = QString(), const QString &iconId = QString());
     void directoryChanged(const QString path);
     void applicationLaunched(const QString &service);
-    void duiApplicationLaunched(const QString &service);
+    void mApplicationLaunched(const QString &service);
     void buttonClicked();
 
 private slots:
@@ -64,14 +64,14 @@ private slots:
 
     // Test that the launcher initialization creates items for all desktop entries
     void testInitialization();
-    // Test that the launcher includes an entry that is supposed to be shown in DUI
-    void testOnlyShowInDui();
-    // Test that the launcher doesn't include an entry that isn't supposed to be shown in DUI
-    void testOnlyShowInNotDui();
-    // Test that the launcher doesn't include an entry that is not supposed to be shown in DUI
-    void testNotShowInDui();
-    // Test that the launcher includes an entry that is not supposed to be shown in some other environment than DUI
-    void testNotShowInNotDui();
+    // Test that the launcher includes an entry that is supposed to be shown in M
+    void testOnlyShowInM();
+    // Test that the launcher doesn't include an entry that isn't supposed to be shown in M
+    void testOnlyShowInNotM();
+    // Test that the launcher doesn't include an entry that is not supposed to be shown in M
+    void testNotShowInM();
+    // Test that the launcher includes an entry that is not supposed to be shown in some other environment than M
+    void testNotShowInNotM();
     // Test that adding a new desktop entry to root adds a new widget
     void testDesktopEntryAdd();
     // Test that invalid files are not added
@@ -80,8 +80,8 @@ private slots:
     void testDesktopEntryRemove();
     // Test that launching an Application is attempted
     void testApplicationLaunched();
-    // Test that launching a DuiApplication is attempted
-    void testDuiApplicationLaunched();
+    // Test that launching a MApplication is attempted
+    void testMApplicationLaunched();
     // Test that launcher buttons are paged to multiple pages
     void testPaging();
     // Test that empty page is removed from launcher

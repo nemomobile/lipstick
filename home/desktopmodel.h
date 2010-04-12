@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -21,15 +21,15 @@
 #ifndef DESKTOPMODEL_H_
 #define DESKTOPMODEL_H_
 
-#include <DuiWidgetModel>
+#include <MWidgetModel>
 
-class DesktopModel : public DuiWidgetModel
+class DesktopModel : public MWidgetModel
 {
     Q_OBJECT
-    DUI_MODEL(DesktopModel)
+    M_MODEL(DesktopModel)
 
     //! Set to true when the notification area is open, the desktop will then draw the background underneath the notification area
-    DUI_MODEL_PROPERTY(bool, notificationAreaOpen, NotificationAreaOpen, true, false)
+    M_MODEL_PROPERTY(bool, notificationAreaOpen, NotificationAreaOpen, true, false)
 };
 
 #endif /* DESKTOPMODEL_H_ */

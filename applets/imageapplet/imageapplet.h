@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -19,22 +19,22 @@
 #ifndef IMAGEAPPLET_H
 #define IMAGEAPPLET_H
 
-#include <duiappletinterface.h>
-#include <duiappletmetadata.h>
+#include <mappletinterface.h>
+#include <mappletmetadata.h>
 #include <QObject>
 
-class DuiDataStore;
-class DuiDataAccess;
+class MDataStore;
+class MDataAccess;
 
 // This class doesn't do anything else but creates widgets inside this library
-class ImageApplet : public QObject, public DuiAppletInterface
+class ImageApplet : public QObject, public MAppletInterface
 {
     Q_OBJECT
-    Q_INTERFACES(DuiAppletInterface)
+    Q_INTERFACES(MAppletInterface)
 
-public: // methods derived from DuiAppletInterface
+public: // methods derived from MAppletInterface
 
-    virtual DuiWidget *constructWidget(const DuiAppletMetaData &metadata, DuiDataStore &instanceData, DuiDataAccess &appletSettings);
+    virtual MWidget *constructWidget(const MAppletMetaData &metadata, MDataStore &instanceData, MDataAccess &appletSettings);
 };
 
 #endif // IMAGEAPPLET_H

@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -20,18 +20,18 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <DuiWindow>
+#include <MWindow>
 #include <X11/Xdefs.h>
 
 class Home;
-class DuiScene;
-class DuiSceneManager;
+class MScene;
+class MSceneManager;
 class QGLContext;
 
 /*!
- * Main window for the Home application. Contains a DuiHome widget.
+ * Main window for the Home application. Contains a MHome widget.
  */
-class MainWindow : public DuiWindow
+class MainWindow : public MWindow
 {
     Q_OBJECT
 

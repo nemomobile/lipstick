@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -20,18 +20,18 @@
 #ifndef LAUNCHERVIEW_H
 #define LAUNCHERVIEW_H
 
-#include <duiextendingbackgroundview.h>
+#include <mextendingbackgroundview.h>
 #include "launcherstyle.h"
 #include "launchermodel.h"
 
 class Launcher;
-class DuiFlowLayoutPolicy;
-class DuiLayout;
+class MFlowLayoutPolicy;
+class MLayout;
 class Switcher;
 class QGraphicsLinearLayout;
-class DuiOverlay;
-class DuiButton;
-class DuiWidget;
+class MOverlay;
+class MButton;
+class MWidget;
 class PagedViewport;
 
 /*!
@@ -39,10 +39,10 @@ class PagedViewport;
  * manages a layout related to the container. The widgets are inside a flow
  * layout. The view also contains an exit button for closing the container.
  */
-class LauncherView : public DuiWidgetView
+class LauncherView : public MWidgetView
 {
     Q_OBJECT
-    DUI_VIEW(LauncherModel, LauncherStyle)
+    M_VIEW(LauncherModel, LauncherStyle)
 
 public:
     /*!
@@ -74,7 +74,7 @@ private:
     //! A layout for the widgets
     QGraphicsLinearLayout *layout;
     //! The widget that be inside the paged viewport. This will contain all of the launcher items
-    DuiWidget* pannedWidget;
+    MWidget* pannedWidget;
     //! The paged view port used to diaply the pannedWidget
     PagedViewport* pagedViewport;
 

@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -21,23 +21,23 @@
 #include "home.h"
 
 #include <QGLWidget>
-#include <DuiApplication>
-#include <DuiSceneManager>
+#include <MApplication>
+#include <MSceneManager>
 #include "x11wrapper.h"
 
 MainWindow *MainWindow::mainWindowInstance = NULL;
 QGLContext *MainWindow::openGLContext = NULL;
 
 MainWindow::MainWindow(QWidget *parent) :
-    DuiWindow(parent)
+    MWindow(parent)
 {
     mainWindowInstance = this;
-    if (qgetenv("DUIHOME_DESKTOP") != "0") {
-        // Dont Set the window type to desktop if DUIHOME_DESKTOP is set to 0
+    if (qgetenv("MEEGOHOME_DESKTOP") != "0") {
+        // Dont Set the window type to desktop if MEEGOHOME_DESKTOP is set to 0
         setAttribute(Qt::WA_X11NetWmWindowTypeDesktop);
     }
 
-    if (!DuiApplication::softwareRendering()) {
+    if (!MApplication::softwareRendering()) {
         // Get GL context
         QGLWidget *w = dynamic_cast<QGLWidget *>(viewport());
         if (w != NULL) {

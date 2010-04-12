@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -37,13 +37,13 @@
 #include "appletspace.h"
 #include "quicklaunchbar.h"
 
-#include <DuiViewCreator>
-#include <DuiDeviceProfile>
-#include <DuiSceneManager>
-#include <DuiModalSceneWindow>
-#include <DuiPannableViewport>
-#include <DuiApplication>
-#include <DuiOverlay>
+#include <MViewCreator>
+#include <MDeviceProfile>
+#include <MSceneManager>
+#include <MModalSceneWindow>
+#include <MPannableViewport>
+#include <MApplication>
+#include <MOverlay>
 #include <QGraphicsLinearLayout>
 
 #ifdef BENCHMARKS_ON
@@ -102,15 +102,15 @@ void DesktopView::stopBenchmarking()
 #endif
 
 DesktopView::DesktopView(Desktop *desktop) :
-    DuiWidgetView(desktop),
+    MWidgetView(desktop),
     switcher(new Switcher),
     quickLaunchBar(new QuickLaunchBar),
-    quickLaunchBarWindow(new DuiOverlay),
+    quickLaunchBarWindow(new MOverlay),
     launcher(new Launcher),
-    launcherWindow(new DuiModalSceneWindow),
+    launcherWindow(new MModalSceneWindow),
     appletSpace(new AppletSpace),
-    appletSpaceWindow(new DuiModalSceneWindow),
-    appletSpaceViewport(new DuiPannableViewport(appletSpaceWindow))
+    appletSpaceWindow(new MModalSceneWindow),
+    appletSpaceViewport(new MPannableViewport(appletSpaceWindow))
 {
     // Create the main layout that contains the switcher etc.
     QGraphicsLinearLayout *mainLayout = new QGraphicsLinearLayout(Qt::Vertical);
@@ -164,8 +164,8 @@ DesktopView::DesktopView(Desktop *desktop) :
     // Put the applet space inside a pannable viewport
     connect(appletSpace, SIGNAL(closed()), this, SLOT(toggleAppletSpace()));
     appletSpaceViewport->setWidget(appletSpace);
-    appletSpaceViewport->setMinimumSize(DuiApplication::activeWindow()->visibleSceneSize());
-    appletSpaceViewport->setMaximumSize(DuiApplication::activeWindow()->visibleSceneSize());
+    appletSpaceViewport->setMinimumSize(MApplication::activeWindow()->visibleSceneSize());
+    appletSpaceViewport->setMaximumSize(MApplication::activeWindow()->visibleSceneSize());
 
     // Create a layout for the applet space scene window
     windowLayout = new QGraphicsLinearLayout();
@@ -176,8 +176,8 @@ DesktopView::DesktopView(Desktop *desktop) :
     MainWindow::instance()->sceneManager()->disappearSceneWindowNow(appletSpaceWindow);
 
 #ifdef BENCHMARKS_ON
-    connect(DuiApplication::instance(), SIGNAL(startBenchmarking()), this, SLOT(startBenchmarking()));
-    connect(DuiApplication::instance(), SIGNAL(stopBenchmarking()), this, SLOT(stopBenchmarking()));
+    connect(MApplication::instance(), SIGNAL(startBenchmarking()), this, SLOT(startBenchmarking()));
+    connect(MApplication::instance(), SIGNAL(stopBenchmarking()), this, SLOT(stopBenchmarking()));
 #endif
 }
 
@@ -191,7 +191,7 @@ DesktopView::~DesktopView()
 #ifdef BENCHMARKS_ON
 void DesktopView::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    DuiWidgetView::paint(painter, option, widget);
+    MWidgetView::paint(painter, option, widget);
 
     if (benchmarking) {
         QTime now = QTime::currentTime();
@@ -233,7 +233,7 @@ void DesktopView::showLauncher()
     MainWindow::instance()->sceneManager()->appearSceneWindow(launcherWindow);
 
     // Set the launcher window below other modal scene windows
-    // @todo TODO get rid of the hardcoded value when DuiSceneManager enables dynamic allocation of Z values
+    // @todo TODO get rid of the hardcoded value when MSceneManager enables dynamic allocation of Z values
     launcherWindow->parentItem()->setZValue(300);
 
     // Needed to update the panned page width in case the orientation has changed
@@ -270,10 +270,10 @@ void DesktopView::toggleAppletSpace()
 
 void DesktopView::setGeometry(const QRectF &rect)
 {
-    DuiWidgetView::setGeometry(rect);
+    MWidgetView::setGeometry(rect);
     // Set the viewports to the size of the desktop
     appletSpaceViewport->setMinimumSize(rect.size());
     appletSpaceViewport->setMaximumSize(rect.size());
 }
 
-DUI_REGISTER_VIEW_NEW(DesktopView, Desktop)
+M_REGISTER_VIEW_NEW(DesktopView, Desktop)

@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -23,8 +23,8 @@
 #include <QtTest/QtTest>
 #include <QObject>
 
-class DuiApplication;
-class DuiWindow;
+class MApplication;
+class MWindow;
 class AppletSpace;
 class AppletSpaceView;
 
@@ -49,10 +49,10 @@ private slots:
     // Test cases
     void testCloseButtonVisibility();
 private:
-    // DuiApplication
-    DuiApplication *app;
+    // MApplication
+    MApplication *app;
     // Window
-    DuiWindow *window;
+    MWindow *window;
     // Controller for the object being tested
     AppletSpace *controller;
     // View for the object being tested

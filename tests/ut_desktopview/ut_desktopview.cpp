@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -17,16 +17,16 @@
 **
 ****************************************************************************/
 
-#include <DuiApplication>
-#include <DuiApplicationWindow>
+#include <MApplication>
+#include <MApplicationWindow>
 #include <QPaintEngine>
 #include <QPaintDevice>
-#include <DuiButton>
-#include <DuiSceneManager>
-#include <DuiScene>
-#include <DuiDeviceProfile>
-#include <DuiPannableViewport>
-#include <DuiModalSceneWindow>
+#include <MButton>
+#include <MSceneManager>
+#include <MScene>
+#include <MDeviceProfile>
+#include <MPannableViewport>
+#include <MModalSceneWindow>
 
 #include "ut_desktopview.h"
 #include "desktopview.h"
@@ -107,13 +107,13 @@ int MockPaintDevice::metric(PaintDeviceMetric metric) const
     return 0;
 }
 
-// DuiSceneManager stubs
-void DuiSceneManager::appearSceneWindow(DuiSceneWindow *window, DuiSceneWindow::DeletionPolicy)
+// MSceneManager stubs
+void MSceneManager::appearSceneWindow(MSceneWindow *window, MSceneWindow::DeletionPolicy)
 {
     window->show();
 }
 
-void DuiSceneManager::disappearSceneWindow(DuiSceneWindow *window)
+void MSceneManager::disappearSceneWindow(MSceneWindow *window)
 {
     window->hide();
 }
@@ -129,13 +129,13 @@ bool QDBusConnection::registerObject(QString const &, QObject *, QFlags<QDBusCon
     return true;
 }
 
-// DuiTheme stubs
-void DuiTheme::releasePixmap(const QPixmap *)
+// MTheme stubs
+void MTheme::releasePixmap(const QPixmap *)
 {
 }
 
 // Desktop stubs
-Desktop::Desktop(DuiWidget *parent) : DuiWidgetController(new DesktopModel, parent)
+Desktop::Desktop(MWidget *parent) : MWidgetController(new DesktopModel, parent)
 {
 }
 
@@ -154,7 +154,7 @@ MainWindow *Ut_DesktopView::mainWindow;
 
 void Ut_DesktopView::initTestCase()
 {
-    // DuiApplications must be created manually these days due to theme system changes
+    // MApplications must be created manually these days due to theme system changes
     static int argc = 1;
     static char *app_name = (char *)"./ut_desktopview";
     app = new HomeApplication(argc, &app_name);
@@ -175,7 +175,7 @@ void Ut_DesktopView::cleanupTestCase()
     delete paintDevice;
     delete mainWindow;
 
-    // Destroy the DuiApplication
+    // Destroy the MApplication
     delete app;
 }
 

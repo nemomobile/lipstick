@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -20,21 +20,21 @@
 #ifndef LAUNCHERPAGEVIEW_H
 #define LAUNCHERPAGEVIEW_H
 
-#include <DuiWidgetView>
+#include <MWidgetView>
 #include "launcherpage.h"
 #include "launcherpagemodel.h"
 #include "launcherpagestyle.h"
 
 class Launcher;
-class DuiFlowLayoutPolicy;
-class DuiLayout;
+class MFlowLayoutPolicy;
+class MLayout;
 class QGraphicsLinearLayout;
 
 
-class LauncherPageView : public DuiWidgetView
+class LauncherPageView : public MWidgetView
 {
     Q_OBJECT
-    DUI_VIEW(LauncherPageModel, LauncherPageStyle)
+    M_VIEW(LauncherPageModel, LauncherPageStyle)
 
 public:
     /*!
@@ -60,9 +60,9 @@ protected slots:
 
 private:
     //! A layout for the buttons 
-    DuiLayout *layout;
+    MLayout *layout;
     //! A flow layout policy for the widgets
-    DuiFlowLayoutPolicy *policy;
+    MFlowLayoutPolicy *policy;
 };
 
 #endif // LAUNCHERVIEW_H

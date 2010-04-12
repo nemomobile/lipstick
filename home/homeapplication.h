@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -20,7 +20,7 @@
 #ifndef HOMEAPPLICATION_H_
 #define HOMEAPPLICATION_H_
 
-#include <DuiApplication>
+#include <MApplication>
 //#include <contentsearchif.h>
 #include "windowinfo.h"
 #include "applicationcontext.h"
@@ -30,9 +30,9 @@ class MainWindow;
 
 
 /*!
- * HomeApplication extends DuiApplication by keeping track of open X windows.
+ * HomeApplication extends MApplication by keeping track of open X windows.
  */
-class HomeApplication : public DuiApplication
+class HomeApplication : public MApplication
 {
     Q_OBJECT
 

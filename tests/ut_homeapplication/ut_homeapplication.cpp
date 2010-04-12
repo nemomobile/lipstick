@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -23,15 +23,15 @@
 #include <QDBusAbstractInterface>
 #include <QDBusMessage>
 #include <QDBusConnection>
-#include <DuiScene>
-#include <DuiSceneManager>
-#include <DuiLocale>
+#include <MScene>
+#include <MSceneManager>
+#include <MLocale>
 #include "homeapplication.h"
 #include "x11wrapper.h"
 #include "x11helper.h"
 #include "mainwindow_stub.h"
-#include "duiwindow_stub.h"
-#include "duiapplication_stub.h"
+#include "mwindow_stub.h"
+#include "mapplication_stub.h"
 #include <signal.h>
 
 #define ATOM_TYPE 0x00010000
@@ -56,7 +56,7 @@ QStringList QCoreApplication::arguments()
     return QStringList();
 }
 
-void DuiLocale::setDefault(const DuiLocale &)
+void MLocale::setDefault(const MLocale &)
 {
 }
 
@@ -349,15 +349,15 @@ void XSetWMProperties(Display *, Window, XTextProperty *, XTextProperty *, char 
 {
 }
 
-/* DuiServiceFwBaseIf stubs (used by StatusArea through service framework)
-QString DuiServiceFwBaseIf::resolveServiceName(const QString &ifName, const QString &preferredService)
+/* MServiceFwBaseIf stubs (used by StatusArea through service framework)
+QString MServiceFwBaseIf::resolveServiceName(const QString &ifName, const QString &preferredService)
 {
     Q_UNUSED(preferredService);
     Ut_HomeApplication::serviceInterfaces.append(ifName);
     return "";
 }
 
-bool DuiServiceFwBaseIf::isValid() const
+bool MServiceFwBaseIf::isValid() const
 {
     
     if (Ut_HomeApplication::validInterfaces.contains(interfaceName())) {
@@ -456,7 +456,7 @@ int Ut_HomeApplication::clientListNumberOfWindows;
 void Ut_HomeApplication::initTestCase()
 {
     qRegisterMetaType<Window>("Window");
-    gDuiApplicationStub->stubSetReturnValue("x11EventFilter", false);
+    gMApplicationStub->stubSetReturnValue("x11EventFilter", false);
 }
 
 void Ut_HomeApplication::cleanupTestCase()
@@ -626,9 +626,9 @@ void Ut_HomeApplication::testX11EventFilterWithPropertyNotify()
 void Ut_HomeApplication::testX11EventFilterWithVisibilityNotify()
 {
     MainWindow *w = MainWindow::instance(true);
-    QList<DuiWindow *> windowList;
+    QList<MWindow *> windowList;
     windowList.append(w);
-    gDuiApplicationStub->stubSetReturnValue<QList<DuiWindow *> >("windows", windowList);
+    gMApplicationStub->stubSetReturnValue<QList<MWindow *> >("windows", windowList);
 
     int x11EventFilterCallCount;
     WindowVisibilityReceiver r;
@@ -642,30 +642,30 @@ void Ut_HomeApplication::testX11EventFilterWithVisibilityNotify()
     event.xvisibility.send_event = TRUE;
 
     // Make sure the window visibility change signal is not emitted if state is VisibilityUnobscured
-    x11EventFilterCallCount = gDuiApplicationStub->stubCallCount("x11EventFilter");
+    x11EventFilterCallCount = gMApplicationStub->stubCallCount("x11EventFilter");
     QVERIFY(!m_subject->testX11EventFilter(&event));
     QCOMPARE(r.windowList.count(), 0);
-    QCOMPARE(gDuiApplicationStub->stubCallCount("x11EventFilter"), x11EventFilterCallCount + 1);
+    QCOMPARE(gMApplicationStub->stubCallCount("x11EventFilter"), x11EventFilterCallCount + 1);
 
     // Make sure the window visibility change signal was emitted with the given window if state is VisibilityFullyObscured
-    x11EventFilterCallCount = gDuiApplicationStub->stubCallCount("x11EventFilter");
+    x11EventFilterCallCount = gMApplicationStub->stubCallCount("x11EventFilter");
     event.xvisibility.state = VisibilityFullyObscured;
     QVERIFY(m_subject->testX11EventFilter(&event));
     QCOMPARE(r.windowList.count(), 1);
     QCOMPARE(r.windowList.at(0), (Window)303);
-    QCOMPARE(gDuiApplicationStub->stubCallCount("x11EventFilter"), x11EventFilterCallCount);
+    QCOMPARE(gMApplicationStub->stubCallCount("x11EventFilter"), x11EventFilterCallCount);
 
     // Make sure the window visibility change signal is not emitted if send_event is FALSE but the event is processed
     event.xvisibility.send_event = FALSE;
     QVERIFY(m_subject->testX11EventFilter(&event));
     QCOMPARE(r.windowList.count(), 1);
-    QCOMPARE(gDuiApplicationStub->stubCallCount("x11EventFilter"), x11EventFilterCallCount);
+    QCOMPARE(gMApplicationStub->stubCallCount("x11EventFilter"), x11EventFilterCallCount);
 
     // Make sure the window visibility change signal is not emitted if the window is the homescreen itself
     event.xvisibility.window = w->winId();
     QVERIFY(!m_subject->testX11EventFilter(&event));
     QCOMPARE(r.windowList.count(), 1);
-    QCOMPARE(gDuiApplicationStub->stubCallCount("x11EventFilter"), x11EventFilterCallCount + 1);
+    QCOMPARE(gMApplicationStub->stubCallCount("x11EventFilter"), x11EventFilterCallCount + 1);
 }
 
 void Ut_HomeApplication::testX11EventFilterWithClientMessage()

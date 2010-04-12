@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -21,55 +21,55 @@
 #ifndef STATUSINDICATORMODEL_H_
 #define STATUSINDICATORMODEL_H_
 
-#include <DuiWidgetModel>
+#include <MWidgetModel>
 #include <QVariant>
 
-class StatusIndicatorModel : public DuiWidgetModel
+class StatusIndicatorModel : public MWidgetModel
 {
     Q_OBJECT
-    DUI_MODEL(StatusIndicatorModel)
-    DUI_MODEL_PROPERTY(QVariant, value, Value, true, QVariant())
-    DUI_MODEL_PROPERTY(bool, animate, Animate, true, false)
+    M_MODEL(StatusIndicatorModel)
+    M_MODEL_PROPERTY(QVariant, value, Value, true, QVariant())
+    M_MODEL_PROPERTY(bool, animate, Animate, true, false)
 };
 
 class ProfileStatusIndicatorModel : public StatusIndicatorModel
 {
-    DUI_MODEL(ProfileStatusIndicatorModel)
+    M_MODEL(ProfileStatusIndicatorModel)
 };
 
 class PhoneNetworkSignalStrengthStatusIndicatorModel : public StatusIndicatorModel
 {
-    DUI_MODEL(PhoneNetworkSignalStrengthStatusIndicatorModel)
+    M_MODEL(PhoneNetworkSignalStrengthStatusIndicatorModel)
 };
 
 class PhoneNetworkStatusIndicatorModel : public StatusIndicatorModel
 {
-    DUI_MODEL(PhoneNetworkStatusIndicatorModel)
+    M_MODEL(PhoneNetworkStatusIndicatorModel)
 };
 
 class BatteryStatusIndicatorModel : public StatusIndicatorModel
 {
-    DUI_MODEL(BatteryStatusIndicatorModel)
+    M_MODEL(BatteryStatusIndicatorModel)
 };
 
 class ClockAlarmStatusIndicatorModel : public StatusIndicatorModel
 {
-    DUI_MODEL(ClockAlarmStatusIndicatorModel)
+    M_MODEL(ClockAlarmStatusIndicatorModel)
 };
 
 class BluetoothStatusIndicatorModel : public StatusIndicatorModel
 {
-    DUI_MODEL(BluetoothStatusIndicatorModel)
+    M_MODEL(BluetoothStatusIndicatorModel)
 };
 
 class InternetConnectionStatusIndicatorModel : public StatusIndicatorModel
 {
-    DUI_MODEL(InternetConnectionStatusIndicatorModel)
+    M_MODEL(InternetConnectionStatusIndicatorModel)
 };
 
 class GPSStatusIndicatorModel : public StatusIndicatorModel
 {
-    DUI_MODEL(GPSStatusIndicatorModel)
+    M_MODEL(GPSStatusIndicatorModel)
 };
 
 #endif /* STATUSINDICATORMODEL_H_ */

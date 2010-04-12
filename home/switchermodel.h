@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -21,10 +21,10 @@
 #ifndef SWITCHERMODEL_H_
 #define SWITCHERMODEL_H_
 
-#include <DuiWidgetModel>
+#include <MWidgetModel>
 #include "switcherbutton.h"
 
-class SwitcherModel : public DuiWidgetModel
+class SwitcherModel : public MWidgetModel
 {
     Q_OBJECT
 
@@ -37,9 +37,9 @@ public:
     typedef QList< QSharedPointer<SwitcherButton> > ButtonList;
 
 private:
-    DUI_MODEL(SwitcherModel)
-    DUI_MODEL_PROPERTY(SwitcherModel::ButtonList, buttons, Buttons, true, ButtonList())
-    DUI_MODEL_PROPERTY(SwitcherModel::Mode, switcherMode, SwitcherMode, true, Overview)
+    M_MODEL(SwitcherModel)
+    M_MODEL_PROPERTY(SwitcherModel::ButtonList, buttons, Buttons, true, ButtonList())
+    M_MODEL_PROPERTY(SwitcherModel::Mode, switcherMode, SwitcherMode, true, Overview)
 };
 
 #endif /* SWITCHERMODEL_H_ */

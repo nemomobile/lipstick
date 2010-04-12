@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -21,27 +21,27 @@
 #define WEATHERBUTTON_H
 
 #include <QTimer>
-#include <DuiButton>
+#include <MButton>
 #include "weatherbuttonmodel.h"
 
 /*!
  * WeatherButton widget represents an open window in the Weather.
  */
-class WeatherButton : public DuiButton
+class WeatherButton : public MButton
 {
     Q_OBJECT
-    DUI_CONTROLLER(WeatherButton)
+    M_CONTROLLER(WeatherButton)
 
 public:
     /*!
      * Constructs an WeatherButton.
      *
      * \param title the Name of the city represented by this button
-     * \param parent parent DuiWidget
+     * \param parent parent MWidget
      * \param iconIndex the index of the icon to use (0-4)
      * \param timeout the time in milliseconds until the icon should be changed
      */
-    WeatherButton(const QString &title, DuiWidget *parent = NULL, int iconIndex = 0, int timeout = 750);
+    WeatherButton(const QString &title, MWidget *parent = NULL, int iconIndex = 0, int timeout = 750);
 
     /*!
      * Destroys the WeatherButton.

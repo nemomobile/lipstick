@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -16,48 +16,48 @@
 ** of this file.
 **
 ****************************************************************************/
-#ifndef DUIHOMEAPPLETMETADATA_STUB
-#define DUIHOMEAPPLETMETADATA_STUB
+#ifndef MHOMEAPPLETMETADATA_STUB
+#define MHOMEAPPLETMETADATA_STUB
 
-#include "duihomeappletmetadata.h"
+#include "mhomeappletmetadata.h"
 #include <stubbase.h>
 
 
 // 1. DECLARE STUB
 // FIXME - stubgen is not yet finished
-class DuiHomeAppletMetaDataStub : public StubBase
+class MHomeAppletMetaDataStub : public StubBase
 {
 public:
-    virtual void DuiHomeAppletMetaDataConstructor(const QString &filename);
-    virtual void DuiHomeAppletMetaDataDestructor();
+    virtual void MHomeAppletMetaDataConstructor(const QString &filename);
+    virtual void MHomeAppletMetaDataDestructor();
     virtual bool isValid() const;
     virtual QString runnerBinary() const;
     virtual QString appletBinary() const;
 };
 
 // 2. IMPLEMENT STUB
-void DuiHomeAppletMetaDataStub::DuiHomeAppletMetaDataConstructor(const QString &filename)
+void MHomeAppletMetaDataStub::MHomeAppletMetaDataConstructor(const QString &filename)
 {
     Q_UNUSED(filename);
 
 }
-void DuiHomeAppletMetaDataStub::DuiHomeAppletMetaDataDestructor()
+void MHomeAppletMetaDataStub::MHomeAppletMetaDataDestructor()
 {
 
 }
-bool DuiHomeAppletMetaDataStub::isValid() const
+bool MHomeAppletMetaDataStub::isValid() const
 {
     stubMethodEntered("isValid");
     return stubReturnValue<bool>("isValid");
 }
 
-QString DuiHomeAppletMetaDataStub::runnerBinary() const
+QString MHomeAppletMetaDataStub::runnerBinary() const
 {
     stubMethodEntered("runnerBinary");
     return stubReturnValue<QString>("runnerBinary");
 }
 
-QString DuiHomeAppletMetaDataStub::appletBinary() const
+QString MHomeAppletMetaDataStub::appletBinary() const
 {
     stubMethodEntered("appletBinary");
     return stubReturnValue<QString>("appletBinary");
@@ -66,34 +66,34 @@ QString DuiHomeAppletMetaDataStub::appletBinary() const
 
 
 // 3. CREATE A STUB INSTANCE
-DuiHomeAppletMetaDataStub gDefaultDuiHomeAppletMetaDataStub;
-DuiHomeAppletMetaDataStub *gDuiHomeAppletMetaDataStub = &gDefaultDuiHomeAppletMetaDataStub;
+MHomeAppletMetaDataStub gDefaultMHomeAppletMetaDataStub;
+MHomeAppletMetaDataStub *gMHomeAppletMetaDataStub = &gDefaultMHomeAppletMetaDataStub;
 
 
 // 4. CREATE A PROXY WHICH CALLS THE STUB
-DuiHomeAppletMetaData::DuiHomeAppletMetaData(const QString &filename)
+MHomeAppletMetaData::MHomeAppletMetaData(const QString &filename)
 {
-    gDuiHomeAppletMetaDataStub->DuiHomeAppletMetaDataConstructor(filename);
+    gMHomeAppletMetaDataStub->MHomeAppletMetaDataConstructor(filename);
 }
 
-DuiHomeAppletMetaData::~DuiHomeAppletMetaData()
+MHomeAppletMetaData::~MHomeAppletMetaData()
 {
-    gDuiHomeAppletMetaDataStub->DuiHomeAppletMetaDataDestructor();
+    gMHomeAppletMetaDataStub->MHomeAppletMetaDataDestructor();
 }
 
-bool DuiHomeAppletMetaData::isValid() const
+bool MHomeAppletMetaData::isValid() const
 {
-    return gDuiHomeAppletMetaDataStub->isValid();
+    return gMHomeAppletMetaDataStub->isValid();
 }
 
-QString DuiHomeAppletMetaData::runnerBinary() const
+QString MHomeAppletMetaData::runnerBinary() const
 {
-    return gDuiHomeAppletMetaDataStub->runnerBinary();
+    return gMHomeAppletMetaDataStub->runnerBinary();
 }
 
-QString DuiHomeAppletMetaData::appletBinary() const
+QString MHomeAppletMetaData::appletBinary() const
 {
-    return gDuiHomeAppletMetaDataStub->appletBinary();
+    return gMHomeAppletMetaDataStub->appletBinary();
 }
 
 

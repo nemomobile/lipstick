@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -21,8 +21,8 @@
 #include "appletspacemodel.h"
 #include <QDebug>
 
-AppletSpace::AppletSpace(DuiWidget *parent) :
-    DuiWidgetController(new AppletSpaceModel, parent)
+AppletSpace::AppletSpace(MWidget *parent) :
+    MWidgetController(new AppletSpaceModel, parent)
 {
 }
 
@@ -32,7 +32,7 @@ AppletSpace::~AppletSpace()
 
 void AppletSpace::setEnabled(bool enabled)
 {
-    DuiWidgetController::setEnabled(enabled);
+    MWidgetController::setEnabled(enabled);
 
     // Show or hide the button
     model()->setCloseButtonVisible(enabled);

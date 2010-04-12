@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -21,9 +21,9 @@
 #define HOME_H
 
 #include <QTimeLine>
-#include <DuiWidget>
-#include <DuiDeviceProfile>
-#include <DuiSceneWindow>
+#include <MWidget>
+#include <MDeviceProfile>
+#include <MSceneWindow>
 
 class Desktop;
 
@@ -31,7 +31,7 @@ class Desktop;
  * The main widget of the Home application. Acts as container for the desktop
  * and the notification area.
  */
-class Home : public DuiSceneWindow
+class Home : public MSceneWindow
 {
     Q_OBJECT
 

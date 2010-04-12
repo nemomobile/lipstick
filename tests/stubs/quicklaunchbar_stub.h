@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -29,10 +29,10 @@
 class QuickLaunchBarStub : public StubBase {
   public:
   virtual void QuickLaunchBarConstructor(QGraphicsItem *parent);
-  virtual void QuickLaunchBarConstructor(DuiDataStore* configuration, QGraphicsItem *parent);
+  virtual void QuickLaunchBarConstructor(MDataStore* configuration, QGraphicsItem *parent);
   virtual void QuickLaunchBarDestructor();
   virtual void launchApplication(const QString &application);
-  virtual void launchDuiApplication(const QString &service);
+  virtual void launchMApplication(const QString &service);
   virtual void initializeDataStore();
   virtual void updateWidgetList();
 };
@@ -42,7 +42,7 @@ void QuickLaunchBarStub::QuickLaunchBarConstructor(QGraphicsItem *parent) {
   Q_UNUSED(parent);
 }
 
-void QuickLaunchBarStub::QuickLaunchBarConstructor(DuiDataStore *configuration, QGraphicsItem *parent) {
+void QuickLaunchBarStub::QuickLaunchBarConstructor(MDataStore *configuration, QGraphicsItem *parent) {
     Q_UNUSED(configuration);
     Q_UNUSED(parent);
 }
@@ -56,10 +56,10 @@ void QuickLaunchBarStub::launchApplication(const QString &application) {
   stubMethodEntered("launchApplication",params);
 }
 
-void QuickLaunchBarStub::launchDuiApplication(const QString &service) {
+void QuickLaunchBarStub::launchMApplication(const QString &service) {
   QList<ParameterBase*> params;
   params.append( new Parameter<const QString & >(service));
-  stubMethodEntered("launchDuiApplication",params);
+  stubMethodEntered("launchMApplication",params);
 }
 
 void QuickLaunchBarStub::initializeDataStore() {
@@ -82,7 +82,7 @@ QuickLaunchBar::QuickLaunchBar(QGraphicsItem *parent) {
   gQuickLaunchBarStub->QuickLaunchBarConstructor(parent);
 }
 
-QuickLaunchBar::QuickLaunchBar(DuiDataStore *configuration, QGraphicsItem *parent) {
+QuickLaunchBar::QuickLaunchBar(MDataStore *configuration, QGraphicsItem *parent) {
   gQuickLaunchBarStub->QuickLaunchBarConstructor(configuration, parent);
 }
 
@@ -94,8 +94,8 @@ void QuickLaunchBar::launchApplication(const QString &application) {
   gQuickLaunchBarStub->launchApplication(application);
 }
 
-void QuickLaunchBar::launchDuiApplication(const QString &service) {
-  gQuickLaunchBarStub->launchDuiApplication(service);
+void QuickLaunchBar::launchMApplication(const QString &service) {
+  gQuickLaunchBarStub->launchMApplication(service);
 }
 
 void QuickLaunchBar::initializeDataStore() {

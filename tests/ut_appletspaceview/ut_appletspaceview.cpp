@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -17,9 +17,9 @@
 **
 ****************************************************************************/
 
-#include <DuiApplication>
-#include <DuiWindow>
-#include <DuiSceneWindow>
+#include <MApplication>
+#include <MWindow>
+#include <MSceneWindow>
 #include "ut_appletspaceview.h"
 #include "appletspaceview.h"
 #include "appletspace.h"
@@ -28,12 +28,12 @@ int Ut_AppletSpaceView::showWindowCount;
 int Ut_AppletSpaceView::hideWindowCount;
 
 // SceneWindow stubs
-void DuiSceneWindow::appear(DuiSceneWindow::DeletionPolicy)
+void MSceneWindow::appear(MSceneWindow::DeletionPolicy)
 {
     Ut_AppletSpaceView::showWindowCount++;
 }
 
-void DuiSceneWindow::disappear()
+void MSceneWindow::disappear()
 {
     Ut_AppletSpaceView::hideWindowCount++;
 }
@@ -42,8 +42,8 @@ void Ut_AppletSpaceView::initTestCase()
 {
     static int argc = 1;
     static char *app_name[1] = { (char *) "./ut_appletspaceview" };
-    app = new DuiApplication(argc, app_name);
-    window = new DuiWindow;
+    app = new MApplication(argc, app_name);
+    window = new MWindow;
 }
 
 void Ut_AppletSpaceView::cleanupTestCase()

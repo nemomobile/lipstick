@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -20,12 +20,12 @@
 #ifndef WEATHERBUTTONMODEL_H_
 #define WEATHERBUTTONMODEL_H_
 
-#include <duibuttonmodel.h>
+#include <mbuttonmodel.h>
 
-class WeatherButtonModel : public DuiButtonModel
+class WeatherButtonModel : public MButtonModel
 {
     Q_OBJECT
-    DUI_MODEL(WeatherButtonModel)
+    M_MODEL(WeatherButtonModel)
 
 public:
     enum UnitType {
@@ -34,11 +34,11 @@ public:
     };
 
 private:
-    DUI_MODEL_PROPERTY(WeatherButtonModel::UnitType, unit, Unit, true, Celsius)
-    DUI_MODEL_PROPERTY(int, iconIndex, IconIndex, true, 0)
+    M_MODEL_PROPERTY(WeatherButtonModel::UnitType, unit, Unit, true, Celsius)
+    M_MODEL_PROPERTY(int, iconIndex, IconIndex, true, 0)
     //! A property to tell if the button should use the generic style or a hardcoded one
-    DUI_MODEL_PROPERTY(bool, useStyle, UseStyle, true, true)
-    DUI_MODEL_PROPERTY(int, temperature, Temperature, true, 0)
+    M_MODEL_PROPERTY(bool, useStyle, UseStyle, true, true)
+    M_MODEL_PROPERTY(int, temperature, Temperature, true, 0)
 };
 
 #endif /* WEATHERBUTTONMODEL_H_ */

@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -24,7 +24,7 @@
 #include <QObject>
 #include "launcherpageview.h"
 
-class DuiApplication;
+class MApplication;
 class Launcher;
 
 class Ut_LauncherPageView : public QObject
@@ -45,8 +45,8 @@ private slots:
     void testAddButtonsToPage();
 
 private:
-    // DuiApplication
-    DuiApplication *app;
+    // MApplication
+    MApplication *app;
     // The object being tested
     LauncherPage *controller;
     LauncherPageView *view;

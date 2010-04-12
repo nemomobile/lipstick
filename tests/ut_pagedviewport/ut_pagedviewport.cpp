@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -17,7 +17,7 @@
 **
 ****************************************************************************/
 
-#include <DuiApplication>
+#include <MApplication>
 #include "ut_pagedviewport.h"
 #include "pagedviewport.h"
 #include "pagedpanning.h"
@@ -25,7 +25,7 @@
 static uint checkPageWidth = 0;
 static uint testPanTargetPage = 0;
 
-PagedPanning::PagedPanning(QObject* parent) : DuiPhysics2DPanning(parent),
+PagedPanning::PagedPanning(QObject* parent) : MPhysics2DPanning(parent),
 					      pageWidth_(0),
 					      currentPage(0),
 					      autoIntegrateMode(false),
@@ -66,7 +66,7 @@ void Ut_PagedViewport::initTestCase()
 {
     static int argc = 1;
     static char *app_name[1] = { (char *) "./ut_pagedviewport" };
-    app = new DuiApplication(argc, app_name);
+    app = new MApplication(argc, app_name);
 }
 
 void Ut_PagedViewport::cleanupTestCase()

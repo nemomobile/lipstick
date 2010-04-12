@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -23,14 +23,14 @@
 #include "mainwindow.h"
 
 #include <QGraphicsLinearLayout>
-#include <DuiButton>
-#include <DuiViewCreator>
+#include <MButton>
+#include <MViewCreator>
 
 const int QuickLaunchBarView::TOGGLE_LAUNCHER_BUTTON_INDEX = 2;
 
-QuickLaunchBarView::QuickLaunchBarView(QuickLaunchBar *controller) : DuiWidgetView(controller),
+QuickLaunchBarView::QuickLaunchBarView(QuickLaunchBar *controller) : MWidgetView(controller),
     launcherButtonLayout(new QGraphicsLinearLayout(Qt::Horizontal)),
-    toggleLauncherButton(new DuiButton)
+    toggleLauncherButton(new MButton)
 {
     QGraphicsLinearLayout *l = new QGraphicsLinearLayout(Qt::Horizontal);
     l->setContentsMargins(0, 0, 0, 0);
@@ -49,7 +49,7 @@ QuickLaunchBarView::QuickLaunchBarView(QuickLaunchBar *controller) : DuiWidgetVi
     l->addStretch();
     l->addItem(launcherButtonLayout);
     l->addStretch();
-    DuiButton *appletSpaceButton = new DuiButton("Applet Space");
+    MButton *appletSpaceButton = new MButton("Applet Space");
     connect(appletSpaceButton, SIGNAL(clicked()), controller, SIGNAL(toggleAppletSpaceButtonClicked()));
     l->addItem(appletSpaceButton);
 }
@@ -60,7 +60,7 @@ QuickLaunchBarView::~QuickLaunchBarView()
 
 void QuickLaunchBarView::setupModel()
 {
-    DuiWidgetView::setupModel();
+    MWidgetView::setupModel();
     QList<const char *> modifications;
     modifications << QuickLaunchBarModel::Widgets;
     updateData(modifications);
@@ -68,7 +68,7 @@ void QuickLaunchBarView::setupModel()
 
 void QuickLaunchBarView::updateData(const QList<const char *>& modifications)
 {
-    DuiWidgetView::updateData(modifications);
+    MWidgetView::updateData(modifications);
     const char *member;
     foreach(member, modifications) {
         if (member == QuickLaunchBarModel::Widgets) {
@@ -78,7 +78,7 @@ void QuickLaunchBarView::updateData(const QList<const char *>& modifications)
             }
 
             // Add all launcher buttons to the launcher button layout
-            foreach (DuiWidget *widget, model()->widgets()) {
+            foreach (MWidget *widget, model()->widgets()) {
                 launcherButtonLayout->addItem(widget);
 
                 if (launcherButtonLayout->count() == TOGGLE_LAUNCHER_BUTTON_INDEX) {
@@ -90,4 +90,4 @@ void QuickLaunchBarView::updateData(const QList<const char *>& modifications)
     }
 }
 
-DUI_REGISTER_VIEW_NEW(QuickLaunchBarView, QuickLaunchBar)
+M_REGISTER_VIEW_NEW(QuickLaunchBarView, QuickLaunchBar)

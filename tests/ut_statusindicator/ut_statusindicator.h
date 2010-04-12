@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -23,14 +23,14 @@
 
 class StatusIndicator;
 class TestContext;
-class DuiApplication;
+class MApplication;
 
 class Ut_StatusIndicator : public QObject
 {
     Q_OBJECT
 
 private:
-    DuiApplication  *app;
+    MApplication  *app;
     StatusIndicator *statusIndicator;
     TestContext     *testContext;
 

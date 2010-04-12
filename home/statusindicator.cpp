@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -17,13 +17,13 @@
 **
 ****************************************************************************/
 
-#include <DuiApplication>
+#include <MApplication>
 #include "statusindicator.h"
 #include "statusindicatormodel.h"
 #include "applicationcontext.h"
 
-StatusIndicator::StatusIndicator(DuiWidget *parent) :
-    DuiWidgetController(new StatusIndicatorModel, parent),
+StatusIndicator::StatusIndicator(MWidget *parent) :
+    MWidgetController(new StatusIndicatorModel, parent),
     animateIfPossible(false),
     modelUpdatesEnabled(true),
     currentValue(QVariant())
@@ -75,7 +75,7 @@ void StatusIndicator::updateAnimationStatus()
     }
 }
 
-PhoneNetworkStatusIndicator::PhoneNetworkStatusIndicator(ApplicationContext &context, DuiWidget *parent) :
+PhoneNetworkStatusIndicator::PhoneNetworkStatusIndicator(ApplicationContext &context, MWidget *parent) :
     StatusIndicator(parent)
 {
     setObjectName(metaObject()->className());

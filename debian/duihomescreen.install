@@ -1,8 +1,6 @@
-usr/bin/duihome*
+usr/bin/duihome
 usr/share/applications/*.desktop
-usr/share/themes/base/dui/duihome/*.conf
-usr/share/themes/base/dui/duihome/images/*.png
-usr/share/themes/base/dui/duihome/style/*.css
-usr/share/themes/base/dui/duihome/svg/*.svg
-usr/share/dui/notifications/eventtypes/*.conf
-usr/share/duihome/shaders/*
+usr/share/themes/base/meegotouch/duihome/*.conf
+usr/share/themes/base/meegotouch/duihome/images/*.png
+usr/share/themes/base/meegotouch/duihome/style/*.css
+usr/share/themes/base/meegotouch/duihome/svg/*.svg

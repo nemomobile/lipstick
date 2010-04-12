@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -25,12 +25,12 @@
 
 #include "statusindicatorlabelview.h"
 
-class DuiApplication;
+class MApplication;
 
 class TestStatusIndicatorLabelView : public StatusIndicatorLabelView
 {
     Q_OBJECT
-    DUI_VIEW(StatusIndicatorModel, StatusIndicatorLabelStyle)
+    M_VIEW(StatusIndicatorModel, StatusIndicatorLabelStyle)
 
 public:
     TestStatusIndicatorLabelView(StatusIndicator *controller);
@@ -59,8 +59,8 @@ private slots:
     void testModelChanged();
 
 private:
-    // DuiApplication
-    DuiApplication *app;
+    // MApplication
+    MApplication *app;
     // A controller for the test subject
     StatusIndicator *controller;
     // The object being tested

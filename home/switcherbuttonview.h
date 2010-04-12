@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -19,23 +19,23 @@
 #ifndef SWITCHERBUTTONVIEW_H
 #define SWITCHERBUTTONVIEW_H
 
-#include <DuiButtonView>
+#include <MButtonView>
 #include "switcherbuttonmodel.h"
 #include "switcherbuttonstyle.h"
 #include "x11wrapper.h"
 
 class SwitcherButton;
-class DuiButton;
+class MButton;
 
 /*!
  * \class SwitcherButtonView
  *
  * \brief SwitcherButtonView implements a switcher style view
  */
-class SwitcherButtonView : public DuiButtonView
+class SwitcherButtonView : public MButtonView
 {
     Q_OBJECT
-    DUI_VIEW(SwitcherButtonModel, SwitcherButtonStyle)
+    M_VIEW(SwitcherButtonModel, SwitcherButtonStyle)
 
 public:
     /*!
@@ -132,7 +132,7 @@ protected:
     //! The point where dragging started
     QPointF dragStartPos;
 
-    DuiButton *closeButton;
+    MButton *closeButton;
 
     Q_DISABLE_COPY(SwitcherButtonView);
 };

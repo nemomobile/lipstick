@@ -12,7 +12,7 @@ lib/lib*.so*
 *.log.xml
 *.gcno
 *.gcda
-duihome
+meegohome
 *.pro.user
 tests/ut_desktop/ut_desktop
 tests/ut_launcher/ut_launcher

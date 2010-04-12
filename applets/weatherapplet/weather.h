@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -20,19 +20,19 @@
 #ifndef WEATHER_H
 #define WEATHER_H
 
-#include <DuiWidgetController>
+#include <MWidgetController>
 #include "weathermodel.h"
 
-class DuiDataStore;
-class DuiDataAccess;
+class MDataStore;
+class MDataAccess;
 
 /*!
  * The weather applet is only for demonstration purposes.
  */
-class Weather : public DuiWidgetController
+class Weather : public MWidgetController
 {
     Q_OBJECT
-    DUI_CONTROLLER(Weather)
+    M_CONTROLLER(Weather)
 
     Q_PROPERTY(QString appletTitle READ title)
 
@@ -42,7 +42,7 @@ public:
      * \param instanceData the instance data object for the applet.
      * \param settings the settings object for the applet.
      */
-    Weather(DuiDataStore &instanceData, DuiDataAccess &settings);
+    Weather(MDataStore &instanceData, MDataAccess &settings);
 
     /*!
      * Destroys the Weather.
@@ -93,7 +93,7 @@ signals:
 
 private:
     //! The instance data object for the applet
-    DuiDataStore &instanceData;
+    MDataStore &instanceData;
 
     //! The title of the applet
     QString appletTitle;

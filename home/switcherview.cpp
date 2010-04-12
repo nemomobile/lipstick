@@ -4,7 +4,7 @@
  ** All rights reserved.
  ** Contact: Nokia Corporation (directui@nokia.com)
  **
- ** This file is part of duihome.
+ ** This file is part of mhome.
  **
  ** If you have questions regarding the use of this file, please contact
  ** Nokia at directui@nokia.com.
@@ -22,19 +22,19 @@
 #include "pagedpanning.h"
 #include "mainwindow.h"
 
-#include <DuiSceneManager>
-#include <DuiViewCreator>
-#include <DuiLayout>
-#include <DuiTheme>
-#include <DuiLocale>
-#include <DuiApplication>
-#include <DuiWindow>
-#include <DuiFlowLayoutPolicy>
-#include <DuiAbstractLayoutPolicyStyle>
-#include <DuiPannableViewport>
-#include <DuiLinearLayoutPolicy>
-#include <DuiGridLayoutPolicy>
-#include <DuiDeviceProfile>
+#include <MSceneManager>
+#include <MViewCreator>
+#include <MLayout>
+#include <MTheme>
+#include <MLocale>
+#include <MApplication>
+#include <MWindow>
+#include <MFlowLayoutPolicy>
+#include <MAbstractLayoutPolicyStyle>
+#include <MPannableViewport>
+#include <MLinearLayoutPolicy>
+#include <MGridLayoutPolicy>
+#include <MDeviceProfile>
 #include <QTimeLine>
 #include <QGraphicsLinearLayout>
 #include <math.h>
@@ -45,7 +45,7 @@ static const qreal HALF_PI = M_PI / 2.0;
 static const qreal MAX_Z_VALUE = 1.0;
 
 SwitcherView::SwitcherView(Switcher *switcher) :
-    DuiWidgetView(switcher), controller(switcher), mainLayout(new QGraphicsLinearLayout(Qt::Vertical)), pannedWidget(new DuiWidget), viewport(new DuiPannableViewport)
+    MWidgetView(switcher), controller(switcher), mainLayout(new QGraphicsLinearLayout(Qt::Vertical)), pannedWidget(new MWidget), viewport(new MPannableViewport)
 {
     mainLayout->setContentsMargins(0, 0, 0, 0);
     switcher->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -62,14 +62,14 @@ SwitcherView::SwitcherView(Switcher *switcher) :
 
     mainLayout->addItem(viewport);
 
-    pannedLayout = new DuiLayout(pannedWidget);
+    pannedLayout = new MLayout(pannedWidget);
     pannedLayout->setContentsMargins(0, 0, 0, 0);
 
-    overviewPolicy = new DuiGridLayoutPolicy(pannedLayout);
+    overviewPolicy = new MGridLayoutPolicy(pannedLayout);
     overviewPolicy->setSpacing(0);
     overviewPolicy->setObjectName("OverviewPolicy");
 
-    detailPolicy = new DuiLinearLayoutPolicy(pannedLayout, Qt::Horizontal);
+    detailPolicy = new MLinearLayoutPolicy(pannedLayout, Qt::Horizontal);
     detailPolicy->setSpacing(0);
     detailPolicy->setObjectName("DetailviewPolicy");
 
@@ -179,13 +179,13 @@ void SwitcherView::animateDetailView(const QPointF &pannedPos)
 
 void SwitcherView::setGeometry(const QRectF &rect)
 {
-    DuiWidgetView::setGeometry(rect);
+    MWidgetView::setGeometry(rect);
     updateSnapInterval();
 }
 
 void SwitcherView::setupModel()
 {
-    DuiWidgetView::setupModel();
+    MWidgetView::setupModel();
     applySwitcherMode();
 }
 
@@ -199,7 +199,7 @@ void SwitcherView::applySwitcherMode()
         controller->setObjectName("DetailviewSwitcher");
     } else {
         disconnect(viewport, 0, this, 0);
-        connect(MainWindow::instance()->sceneManager(), SIGNAL(orientationChangeFinished(Dui::Orientation)), this, SLOT(updateButtons()));
+        connect(MainWindow::instance()->sceneManager(), SIGNAL(orientationChangeFinished(M::Orientation)), this, SLOT(updateButtons()));
 
         pannedLayout->setPolicy(overviewPolicy);
         controller->setObjectName("OverviewSwitcher");
@@ -210,7 +210,7 @@ void SwitcherView::applySwitcherMode()
 
 void SwitcherView::updateData(const QList<const char*>& modifications)
 {
-    DuiWidgetView::updateData(modifications);
+    MWidgetView::updateData(modifications);
     const char *member;
     foreach(member, modifications) {
         if (member == SwitcherModel::Buttons) {
@@ -266,7 +266,7 @@ void SwitcherView::updateButtonModes()
     } else {
         foreach (QSharedPointer<SwitcherButton> button, model()->buttons()) {
             button.data()->setObjectName("OverviewButton");
-            if (MainWindow::instance()->sceneManager()->orientation() == Dui::Portrait) {
+            if (MainWindow::instance()->sceneManager()->orientation() == M::Portrait) {
                 if (buttonCount < 3) {
                     button.data()->model()->setViewMode(SwitcherButtonModel::Large);
                 } else if (buttonCount < 5) {
@@ -314,7 +314,7 @@ void SwitcherView::updateSnapInterval()
         if (model()->switcherMode() == SwitcherModel::Detailview) {
             /*
              Practically we enable margins to the panned layout in order to
-             align the centers of the switcher button and the duipannableviewport.
+             align the centers of the switcher button and the mpannableviewport.
              */
 	    pagedPanning->setPageWidth(button->preferredSize().width());
         } else {
@@ -411,4 +411,4 @@ static qreal calculateCenterCorrection(qreal value, qreal scaleFactor)
 }
 
 
-DUI_REGISTER_VIEW_NEW(SwitcherView, Switcher)
+M_REGISTER_VIEW_NEW(SwitcherView, Switcher)

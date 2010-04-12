@@ -9,28 +9,28 @@
 // FIXME - stubgen is not yet finished
 class LauncherStub : public StubBase {
   public:
-  virtual void LauncherConstructor(DuiWidget *parent);
+  virtual void LauncherConstructor(MWidget *parent);
   virtual void LauncherDestructor();
   virtual void setEnabled(bool enabled);
   virtual bool startApplication(const QString &application);
-  virtual bool startDuiApplication(const QString &serviceName);
+  virtual bool startMApplication(const QString &serviceName);
   virtual void updateButtonListFromDirectory(const QString &path);
   virtual void launchApplication(const QString &application);
-  virtual void launchDuiApplication(const QString &service);
+  virtual void launchMApplication(const QString &service);
   virtual void activateLauncher();
   virtual void updateButtonList();
-  virtual LauncherButton * createLauncherButton(const DuiDesktopEntry &entry);
+  virtual LauncherButton * createLauncherButton(const MDesktopEntry &entry);
   virtual void connectLauncherButton(LauncherButton *launcherButton);
   virtual bool contains(const QString &desktopEntryFile);
   virtual void updateButtonsInDataStore();
   virtual void restoreButtonsFromDataStore();
   virtual void updateButtonListFromEntries(const QStringList &modifiedPaths, const QStringList &allPaths, const QString &nameFilter, const QStringList &acceptedTypes);
-  virtual void addNewLauncherButton(const DuiDesktopEntry &entry);
-  virtual bool isDesktopEntryValid(const DuiDesktopEntry &entry, const QStringList &acceptedTypes);
+  virtual void addNewLauncherButton(const MDesktopEntry &entry);
+  virtual bool isDesktopEntryValid(const MDesktopEntry &entry, const QStringList &acceptedTypes);
 }; 
 
 // 2. IMPLEMENT STUB
-void LauncherStub::LauncherConstructor(DuiWidget *parent) {
+void LauncherStub::LauncherConstructor(MWidget *parent) {
   Q_UNUSED(parent);
 }
 
@@ -50,11 +50,11 @@ bool LauncherStub::startApplication(const QString &application) {
   return stubReturnValue<bool>("startApplication");
 }
 
-bool LauncherStub::startDuiApplication(const QString &serviceName) {
+bool LauncherStub::startMApplication(const QString &serviceName) {
   QList<ParameterBase*> params;
   params.append( new Parameter<QString >(serviceName));
-  stubMethodEntered("startDuiApplication",params);
-  return stubReturnValue<bool>("startDuiApplication");
+  stubMethodEntered("startMApplication",params);
+  return stubReturnValue<bool>("startMApplication");
 }
 
 void LauncherStub::updateButtonListFromDirectory(const QString &path) {
@@ -69,10 +69,10 @@ void LauncherStub::launchApplication(const QString &application) {
   stubMethodEntered("launchApplication",params);
 }
 
-void LauncherStub::launchDuiApplication(const QString &service) {
+void LauncherStub::launchMApplication(const QString &service) {
   QList<ParameterBase*> params;
   params.append( new Parameter<const QString & >(service));
-  stubMethodEntered("launchDuiApplication",params);
+  stubMethodEntered("launchMApplication",params);
 }
 
 void LauncherStub::activateLauncher() {
@@ -83,9 +83,9 @@ void LauncherStub::updateButtonList() {
   stubMethodEntered("updateButtonList");
 }
 
-LauncherButton * LauncherStub::createLauncherButton(const DuiDesktopEntry &entry) {
+LauncherButton * LauncherStub::createLauncherButton(const MDesktopEntry &entry) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const DuiDesktopEntry & >(entry));
+  params.append( new Parameter<const MDesktopEntry & >(entry));
   stubMethodEntered("createLauncherButton",params);
   return stubReturnValue<LauncherButton *>("createLauncherButton");
 }
@@ -120,15 +120,15 @@ void LauncherStub::updateButtonListFromEntries(const QStringList &modifiedPaths,
   stubMethodEntered("updateButtonListFromEntries",params);
 }
 
-void LauncherStub::addNewLauncherButton(const DuiDesktopEntry &entry) {
+void LauncherStub::addNewLauncherButton(const MDesktopEntry &entry) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const DuiDesktopEntry & >(entry));
+  params.append( new Parameter<const MDesktopEntry & >(entry));
   stubMethodEntered("addNewLauncherButton",params);
 }
 
-bool LauncherStub::isDesktopEntryValid(const DuiDesktopEntry &entry, const QStringList &acceptedTypes) {
+bool LauncherStub::isDesktopEntryValid(const MDesktopEntry &entry, const QStringList &acceptedTypes) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const DuiDesktopEntry & >(entry));
+  params.append( new Parameter<const MDesktopEntry & >(entry));
   params.append( new Parameter<const QStringList & >(acceptedTypes));
   stubMethodEntered("isDesktopEntryValid",params);
   return stubReturnValue<bool>("isDesktopEntryValid");
@@ -142,7 +142,7 @@ LauncherStub* gLauncherStub = &gDefaultLauncherStub;
 
 
 // 4. CREATE A PROXY WHICH CALLS THE STUB
-Launcher::Launcher(DuiWidget* parent) : DuiWidgetController(parent) {
+Launcher::Launcher(MWidget* parent) : MWidgetController(parent) {
   gLauncherStub->LauncherConstructor(parent);
 }
 
@@ -158,8 +158,8 @@ bool Launcher::startApplication(const QString &application) {
   return gLauncherStub->startApplication(application);
 }
 
-bool Launcher::startDuiApplication(const QString &serviceName) {
-  return gLauncherStub->startDuiApplication(serviceName);
+bool Launcher::startMApplication(const QString &serviceName) {
+  return gLauncherStub->startMApplication(serviceName);
 }
 
 void Launcher::updateButtonListFromDirectory(const QString &path) {
@@ -170,8 +170,8 @@ void Launcher::launchApplication(const QString &application) {
   gLauncherStub->launchApplication(application);
 }
 
-void Launcher::launchDuiApplication(const QString &service) {
-  gLauncherStub->launchDuiApplication(service);
+void Launcher::launchMApplication(const QString &service) {
+  gLauncherStub->launchMApplication(service);
 }
 
 void Launcher::activateLauncher() {
@@ -182,7 +182,7 @@ void Launcher::updateButtonList() {
   gLauncherStub->updateButtonList();
 }
 
-LauncherButton * Launcher::createLauncherButton(const DuiDesktopEntry &entry) {
+LauncherButton * Launcher::createLauncherButton(const MDesktopEntry &entry) {
   return gLauncherStub->createLauncherButton(entry);
 }
 
@@ -206,11 +206,11 @@ void Launcher::updateButtonListFromEntries(const QStringList &modifiedPaths, con
   gLauncherStub->updateButtonListFromEntries(modifiedPaths, allPaths, nameFilter, acceptedTypes);
 }
 
-void Launcher::addNewLauncherButton(const DuiDesktopEntry &entry) {
+void Launcher::addNewLauncherButton(const MDesktopEntry &entry) {
   gLauncherStub->addNewLauncherButton(entry);
 }
 
-bool Launcher::isDesktopEntryValid(const DuiDesktopEntry &entry, const QStringList &acceptedTypes) {
+bool Launcher::isDesktopEntryValid(const MDesktopEntry &entry, const QStringList &acceptedTypes) {
   return gLauncherStub->isDesktopEntryValid(entry, acceptedTypes);
 }
 

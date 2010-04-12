@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -23,7 +23,7 @@
 #include <QtTest/QtTest>
 #include <QObject>
 
-class DuiApplication;
+class MApplication;
 class QuickLaunchBar;
 class QuickLaunchBarView;
 
@@ -47,8 +47,8 @@ private slots:
     // Test cases
     void testUpdateData();
 private:
-    // DuiApplication
-    DuiApplication *app;
+    // MApplication
+    MApplication *app;
     // The controller
     QuickLaunchBar *controller;
     // The object being tested

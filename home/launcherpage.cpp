@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -21,9 +21,9 @@
 #include "launcherpagemodel.h"
 #include "launcherpageview.h"
 #include "launcherbutton.h"
-#include <DuiDesktopEntry>
+#include <MDesktopEntry>
 
-LauncherPage::LauncherPage(DuiWidget *parent) : DuiWidgetController(new LauncherPageModel, parent)
+LauncherPage::LauncherPage(MWidget *parent) : MWidgetController(new LauncherPageModel, parent)
 {
 }
 

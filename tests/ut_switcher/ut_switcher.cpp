@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -17,8 +17,8 @@
 **
 ****************************************************************************/
 #include <QtTest/QtTest>
-#include <DuiApplication>
-#include <DuiApplicationPage>
+#include <MApplication>
+#include <MApplicationPage>
 
 #include <QFocusEvent>
 #include "ut_switcher.h"
@@ -27,26 +27,26 @@
 #include "switcherview.h"
 #include "windowinfo.h"
 #include "x11wrapper_stub.h"
-#include "duiscenemanager_stub.h"
-#include "duiwindow_stub.h"
+#include "mscenemanager_stub.h"
+#include "mwindow_stub.h"
 
 QMap<SwitcherButton *, Window> g_windowButtonMap;
 
 // Home stubs
-class Home : public DuiApplicationPage
+class Home : public MApplicationPage
 {
 public:
     Home(QGraphicsItem *parent = 0);
 };
 
-Home::Home(QGraphicsItem *parent) : DuiApplicationPage(parent)
+Home::Home(QGraphicsItem *parent) : MApplicationPage(parent)
 {
 }
 
 
 // SwitcherButton stubs (used by Switcher)
-SwitcherButton::SwitcherButton(const QString &title, DuiWidget *parent, Window window, WindowInfo::WindowPriority windowPriority) :
-    DuiButton(title, parent, new SwitcherButtonModel),
+SwitcherButton::SwitcherButton(const QString &title, MWidget *parent, Window window, WindowInfo::WindowPriority windowPriority) :
+    MButton(title, parent, new SwitcherButtonModel),
     priority(windowPriority)
 {
     g_windowButtonMap[this] = window;
@@ -76,7 +76,7 @@ void SwitcherButton::prepareGeometryChange()
 
 void SwitcherButton::setGeometry(const QRectF &rect)
 {
-    return DuiButton::setGeometry(rect);
+    return MButton::setGeometry(rect);
 }
 
 void SwitcherButton::updateIconGeometry()
@@ -122,19 +122,19 @@ void Ut_Switcher::cleanup()
 
 void Ut_Switcher::initTestCase()
 {
-    // DuiApplications must be created manually these days due to theme system changes
+    // MApplications must be created manually these days due to theme system changes
     static int argc = 1;
     static char *app_name = (char *)"./ut_switcher";
-    app = new DuiApplication(argc, &app_name);
+    app = new MApplication(argc, &app_name);
 
-    duiSceneManager = new DuiSceneManager(NULL, NULL);
-    gDuiWindowStub->stubSetReturnValue("sceneManager", duiSceneManager);
+    mSceneManager = new MSceneManager(NULL, NULL);
+    gMWindowStub->stubSetReturnValue("sceneManager", mSceneManager);
 }
 
 void Ut_Switcher::cleanupTestCase()
 {
-    delete duiSceneManager;
-    // Destroy the DuiApplication
+    delete mSceneManager;
+    // Destroy the MApplication
     delete app;
 }
 

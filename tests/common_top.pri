@@ -1,11 +1,11 @@
 include(../check.pri)
-include(../../duiconfig.pri)
+include(../../mconfig.pri)
 SRCDIR = ../../home
-HOMELIBDIR = ../../libduihome
+HOMELIBDIR = ../../libmeegotouchhome
 STUBSDIR = ../stubs
-INCLUDEPATH += $$SRCDIR $$HOMELIBDIR $$STUBSDIR $$DUI_INSTALL_HEADERS
+INCLUDEPATH += $$SRCDIR $$HOMELIBDIR $$STUBSDIR $$M_INSTALL_HEADERS
 DEPENDPATH = $$INCLUDEPATH
-CONFIG += debug dui link_pkgconfig
+CONFIG += debug meegotouch link_pkgconfig
 PKGCONFIG += contextsubscriber-1.0 \
     xcomposite
 #    ContentManagerSearchIf
@@ -23,7 +23,7 @@ QMAKE_CXXFLAGS += -ftest-coverage \
 }
 
 # Support for deprecated DuiValueSpace. Remove this define when new ContextSubscriber is used.
-DEFINES += DUIVALUESPACE_USE_DEPRECATED
+DEFINES += MVALUESPACE_USE_DEPRECATED
 
 # install tests
 target.path = $$[QT_INSTALL_LIBS]/duihomescreen-tests

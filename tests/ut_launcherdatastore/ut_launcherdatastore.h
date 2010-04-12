@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -22,21 +22,21 @@
 
 #include <QtTest/QtTest>
 #include <QObject>
-#include <DuiDataStore>
+#include <MDataStore>
 
-class DuiApplication;
+class MApplication;
 class LauncherDataStore;
 
-class TestDataStore : public DuiDataStore
+class TestDataStore : public MDataStore
 {
     //! \reimp
-    // From DuiDataAccess
+    // From MDataAccess
     virtual QVariant value(const QString &key) const;
     virtual bool setValue(const QString &key, const QVariant& value);
     virtual QStringList allKeys() const;
     virtual bool contains(const QString &key) const;
 
-    // From DuiDataStore
+    // From MDataStore
     virtual bool createValue (const QString &key, const QVariant &value);
     virtual void remove (const QString &key);
     virtual void clear();
@@ -67,8 +67,8 @@ private slots:
     void testLaucherButtonLocation();
 
 private:
-    // DuiApplication
-    DuiApplication *app;
+    // MApplication
+    MApplication *app;
     // The object being tested
     LauncherDataStore *m_subject;
     TestDataStore* testStore;

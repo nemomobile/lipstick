@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -92,7 +92,7 @@ HomeApplicationStub *gHomeApplicationStub = &gDefaultHomeApplicationStub;
 
 
 // 4. CREATE A PROXY WHICH CALLS THE STUB
-HomeApplication::HomeApplication(int &argc, char **argv) : DuiApplication(argc, argv)
+HomeApplication::HomeApplication(int &argc, char **argv) : MApplication(argc, argv)
 {
     gHomeApplicationStub->HomeApplicationConstructor(argc, argv);
 }

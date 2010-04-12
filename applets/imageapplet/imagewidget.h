@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -20,11 +20,11 @@
 #ifndef IMAGEWIDGET_H
 #define IMAGEWIDGET_H
 
-#include <DuiWidget>
+#include <MWidget>
 
 class QPixmap;
 
-class ImageWidget : public DuiWidget
+class ImageWidget : public MWidget
 {
     Q_OBJECT
 
@@ -40,7 +40,7 @@ private slots:
     /*!
      * \brief A slot for getting information about orientation changes
      */
-    void orientationChanged(const Dui::Orientation &);
+    void orientationChanged(const M::Orientation &);
 
 private:
     QPixmap *image_landscape;

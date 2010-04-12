@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -20,20 +20,20 @@
 #include "quicklaunchbar.h"
 #include "launcherbutton.h"
 #include "launcher.h"
-#include <DuiDesktopEntry>
-#include <duifiledatastore.h>
+#include <MDesktopEntry>
+#include <mfiledatastore.h>
 #include <QDir>
 
 const int QuickLaunchBar::NUMBER_OF_LAUNCHER_BUTTONS = 4;
 
-QuickLaunchBar::QuickLaunchBar(QGraphicsItem *parent) : DuiWidgetController(new QuickLaunchBarModel, parent),
+QuickLaunchBar::QuickLaunchBar(QGraphicsItem *parent) : MWidgetController(new QuickLaunchBarModel, parent),
     configurationDataStore(NULL)
 {
     init();
 }
 
-QuickLaunchBar::QuickLaunchBar(DuiDataStore* configuration, QGraphicsItem *parent) :
-        DuiWidgetController(new QuickLaunchBarModel, parent),
+QuickLaunchBar::QuickLaunchBar(MDataStore* configuration, QGraphicsItem *parent) :
+        MWidgetController(new QuickLaunchBarModel, parent),
         configurationDataStore(configuration)
 {
     init();
@@ -61,7 +61,7 @@ void QuickLaunchBar::initializeDataStore()
             QDir::root().mkpath(QDir::homePath() + "/.config/duihome");
         }
 
-        configurationDataStore = new DuiFileDataStore(QDir::homePath() + "/.config/duihome/quicklaunchbar.data");
+        configurationDataStore = new MFileDataStore(QDir::homePath() + "/.config/duihome/quicklaunchbar.data");
     }
 
     connect(configurationDataStore, SIGNAL(valueChanged(QString, QVariant)), this, SLOT(updateWidgetList()));
@@ -70,22 +70,22 @@ void QuickLaunchBar::initializeDataStore()
 void QuickLaunchBar::updateWidgetList()
 {
     // Get the old widgets so that they can be removed
-    QList<DuiWidget *> oldWidgets(model()->widgets());
+    QList<MWidget *> oldWidgets(model()->widgets());
 
     // Construct a list of new widgets
-    QList<DuiWidget *> newWidgets;
+    QList<MWidget *> newWidgets;
     for (int i = 1; i <= NUMBER_OF_LAUNCHER_BUTTONS; i++) {
-        DuiWidget *widget = NULL;
+        MWidget *widget = NULL;
 
         QString key;
         key.sprintf("%d/desktopFile", i);
         if (configurationDataStore->contains(key)) {
-            DuiDesktopEntry desktopEntry(configurationDataStore->value(key).toString());
+            MDesktopEntry desktopEntry(configurationDataStore->value(key).toString());
             if (desktopEntry.isValid()) {
                 widget = new LauncherButton(desktopEntry);
 
                 connect(widget, SIGNAL(applicationLaunched(const QString &)), this, SLOT(launchApplication(const QString &)), Qt::QueuedConnection);
-                connect(widget, SIGNAL(duiApplicationLaunched(const QString &)), this, SLOT(launchDuiApplication(const QString &)), Qt::QueuedConnection);
+                connect(widget, SIGNAL(mApplicationLaunched(const QString &)), this, SLOT(launchMApplication(const QString &)), Qt::QueuedConnection);
             } else {
                 // The desktop file is no longer valid so we'll remove the configuration
                 // Temporarily disable the listening of the change signals from the configuration to prevent a recursive call to this method
@@ -97,7 +97,7 @@ void QuickLaunchBar::updateWidgetList()
 
         if (widget == NULL) {
             // Use an empty widget if the entry was not valid
-            widget = new DuiWidget;
+            widget = new MWidget;
         }
 
         widget->setObjectName("QuickLaunchBarButton");
@@ -117,7 +117,7 @@ void QuickLaunchBar::launchApplication(const QString &application)
     Launcher::startApplication(application);
 }
 
-void QuickLaunchBar::launchDuiApplication(const QString &serviceName)
+void QuickLaunchBar::launchMApplication(const QString &serviceName)
 {
-    Launcher::startDuiApplication(serviceName);
+    Launcher::startMApplication(serviceName);
 }

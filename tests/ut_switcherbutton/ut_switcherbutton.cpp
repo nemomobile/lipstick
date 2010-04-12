@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -20,8 +20,8 @@
 #include "switcherbutton.h"
 #include "homeapplication_stub.h"
 #include "mainwindow_stub.h"
-#include <DuiScene>
-#include <DuiSceneManager>
+#include <MScene>
+#include <MSceneManager>
 #include <cstring>
 #include <QSharedPointer>
 

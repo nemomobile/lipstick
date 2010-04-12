@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -71,7 +71,7 @@ static bool isUpstartMode(int argc, char *argv[])
 }
 
 HomeApplication::HomeApplication(int &argc, char **argv) :
-    DuiApplication(argc, argv)
+    MApplication(argc, argv)
 {
     // Get X11 Atoms for different window types
     Display *dpy = QX11Info::display();
@@ -135,7 +135,7 @@ bool HomeApplication::x11EventFilter(XEvent *event)
         if (event->xvisibility.state == VisibilityFullyObscured) {
             // A window was obscured: was it a homescreen window?
             bool homescreenWindowVisibilityChanged = false;
-            Q_FOREACH(DuiWindow * win, DuiApplication::windows()) {
+            Q_FOREACH(MWindow * win, MApplication::windows()) {
                 if (event->xvisibility.window == win->winId()) {
                     homescreenWindowVisibilityChanged = true;
                     break;
@@ -164,7 +164,7 @@ bool HomeApplication::x11EventFilter(XEvent *event)
         return true;
     }
 
-    return DuiApplication::x11EventFilter(event);
+    return MApplication::x11EventFilter(event);
 }
 
 void HomeApplication::updateWindowList()

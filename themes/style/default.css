@@ -8,13 +8,13 @@
 @const COLOR_ACTIVE_FOREGROUND: #ffffff; /* activated item title */
 @const COLOR_ACTIVE_BACKGROUND: #CCFF33; /* activated item background */
 
-DuiSceneWindowStyle#Home {
+MSceneWindowStyle#Home {
     minimum-size: 100% 100%;
     preferred-size: 100% 100%;
     maximum-size: 100% 100%;
 }
 
-DuiPannableWidgetStyle {
+MPannableWidgetStyle {
     margin-left: 0;
     margin-right: 0;
     margin-top: 0;
@@ -41,7 +41,7 @@ DesktopStyle {
     maximum-size: 100% -1;
 }
 
-DuiOverlayStyle#QuickLaunchBarOverlay {
+MOverlayStyle#QuickLaunchBarOverlay {
     minimum-size: 100% -1;
     preferred-size: 100% -1;
     maximum-size: 100% -1;
@@ -50,7 +50,7 @@ DuiOverlayStyle#QuickLaunchBarOverlay {
     horizontal-align: left;
 }
 
-DuiSceneWindowStyle#LauncherWindow {
+MSceneWindowStyle#LauncherWindow {
     margin-left: 0;
     margin-right: 0;
     margin-top: 0;
@@ -62,7 +62,7 @@ DuiSceneWindowStyle#LauncherWindow {
     background-opacity: 0.5;
 }
 
-DuiSceneWindowStyle#AppletSpaceWindow {
+MSceneWindowStyle#AppletSpaceWindow {
     margin-left: 0;
     margin-right: 0;
     margin-top: 0;
@@ -92,48 +92,48 @@ AppletSpaceStyle {
     maximum-size: 100% -1;
 }
 
-DuiButtonStyle#AppletSpaceCloseButton {
+MButtonStyle#AppletSpaceCloseButton {
     icon-size: 40 40;
     preferred-size: 64 64;
     minimum-size: 64 64;
     maximum-size: 64 64;
 }
 
-DuiOverlayStyle#AppletSpaceCloseButtonOverlay {
+MOverlayStyle#AppletSpaceCloseButtonOverlay {
     minimum-size: 64 64;
     preferred-size: 64 64;
     maximum-size: 64 64;
     offset: 0 0;
 }
 
-DuiButtonIconStyle {
+MButtonIconStyle {
     glow-color: #ffffff;
     horizontal-text-align: center;
 }
 
-DuiButtonStyle#ToggleLauncherButton {
+MButtonStyle#ToggleLauncherButton {
     icon-size: 48 48;
 }
-DuiButtonStyle#ToggleLauncherButton.Landscape {
+MButtonStyle#ToggleLauncherButton.Landscape {
     preferred-size: 72 72;
     maximum-size: 72 72;
     minimum-size: 72 72;
 }
-DuiButtonStyle#ToggleLauncherButton.Portrait {
+MButtonStyle#ToggleLauncherButton.Portrait {
     preferred-size: 88 88;
     maximum-size: 88 88;
     minimum-size: 88 88;
 }
 
-DuiButtonStyle#SearchButton {
+MButtonStyle#SearchButton {
     icon-size: 48 48;
 }
-DuiButtonStyle#SearchButton.Landscape {
+MButtonStyle#SearchButton.Landscape {
     preferred-size: 72 72;
     maximum-size: 72 72;
     minimum-size: 72 72;
 }
-DuiButtonStyle#SearchButton.Portrait {
+MButtonStyle#SearchButton.Portrait {
     preferred-size: 88 88;
     maximum-size: 88 88;
     minimum-size: 88 88;
@@ -175,7 +175,7 @@ LauncherPageStyle.Landscape {
     padding-bottom: 3.9mm;
 }
 
-DuiPannableWidgetStyle#LauncherPagedViewport {
+MPannableWidgetStyle#LauncherPagedViewport {
     pan-threshold: 15.0;
     pan-click-threshold: 0.2;
     pointer-spring-k: 0.6;
@@ -194,38 +194,38 @@ DuiPannableWidgetStyle#LauncherPagedViewport {
     maximum-size: 100% 100%;
 }
 
-DuiAbstractLayoutPolicyStyle#LauncherPageFlowLayoutPolicy {
+MAbstractLayoutPolicyStyle#LauncherPageFlowLayoutPolicy {
     margin-left: 0;
     margin-right: 0;
     margin-top: 0;
     margin-bottom: 0;
 }
 
-DuiAbstractLayoutPolicyStyle#LauncherPageFlowLayoutPolicy.Portrait {
+MAbstractLayoutPolicyStyle#LauncherPageFlowLayoutPolicy.Portrait {
     vertical-spacing: 5.7mm;
     horizontal-spacing: 0.8mm;
 }
 
-DuiAbstractLayoutPolicyStyle#LauncherPageFlowLayoutPolicy.Landscape {
+MAbstractLayoutPolicyStyle#LauncherPageFlowLayoutPolicy.Landscape {
     vertical-spacing: 3.9mm;
     horizontal-spacing: 0.8mm;
 }
 
-DuiButtonStyle#LauncherBackButton {
+MButtonStyle#LauncherBackButton {
     icon-size: 40 40;
     preferred-size: 64 64;
     minimum-size: 64 64;
     maximum-size: 64 64;
 }
 
-DuiOverlayStyle#LauncherBackButtonOverlay {
+MOverlayStyle#LauncherBackButtonOverlay {
     minimum-size: 64 64;
     preferred-size: 64 64;
     maximum-size: 64 64;
     offset: 0 0;
 }
 
-DuiButtonIconStyle#LauncherButton {
+MButtonIconStyle#LauncherButton {
     font: $FONT_MSMALL;
     text-color: #ffffff;
 
@@ -263,7 +263,7 @@ QuickLaunchBarStyle {
     margin-bottom: 0;
 }
 
-DuiButtonIconStyle#QuickLaunchBarButton {
+MButtonIconStyle#QuickLaunchBarButton {
     font: $FONT_SMALL;
     text-color: #ffffff;
     margin-left: 6;
@@ -325,7 +325,7 @@ SwitcherStyle#OverviewSwitcher.Landscape {
     columns-per-page: 3;
 }
 
-DuiPannableWidgetStyle#SwitcherDetailsViewport {
+MPannableWidgetStyle#SwitcherDetailsViewport {
     pan-threshold: 15.0;
     pan-click-threshold: 0.2;
     pointer-spring-k: 0.6;
@@ -360,7 +360,7 @@ SwitcherButtonStyle {
     close-button-vertical-position: 0.0;
 }
 
-DuiButtonIconStyle#CloseButtonOverview
+MButtonIconStyle#CloseButtonOverview
 {
     minimum-size: 48 48;
     preferred-size: 48 48;
@@ -373,7 +373,7 @@ DuiButtonIconStyle#CloseButtonOverview
     padding-left: 30;
 }
 
-DuiButtonIconStyle#CloseButtonDetailview
+MButtonIconStyle#CloseButtonDetailview
 {
     minimum-size: 48 48;
     preferred-size: 48 48;
@@ -493,7 +493,7 @@ StatusIndicatorLabelStyle {
     padding-bottom: 0;
 }
 
-DuiLabelStyle#StatusIndicatorLabel {
+MLabelStyle#StatusIndicatorLabel {
     font: $FONT_XSMALL;
     color: #FFFFFF;
 }

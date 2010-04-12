@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -20,15 +20,15 @@
 #include "statusindicatorlabelview.h"
 #include "statusindicator.h"
 #include <QGraphicsLinearLayout>
-#include <DuiTheme>
-#include <DuiLabel>
-#include <DuiViewCreator>
+#include <MTheme>
+#include <MLabel>
+#include <MViewCreator>
 
 StatusIndicatorLabelView::StatusIndicatorLabelView(StatusIndicator *controller) :
-    DuiWidgetView(controller),
+    MWidgetView(controller),
     controller(controller)
 {
-    label = new DuiLabel(controller);
+    label = new MLabel(controller);
     label->setObjectName("StatusIndicatorLabel");
 }
 
@@ -38,14 +38,14 @@ StatusIndicatorLabelView::~StatusIndicatorLabelView()
 
 void StatusIndicatorLabelView::setupModel()
 {
-    DuiWidgetView::setupModel();
+    MWidgetView::setupModel();
 
     label->setText(model()->value().toString());
 }
 
 void StatusIndicatorLabelView::updateData(const QList<const char *>& modifications)
 {
-    DuiWidgetView::updateData(modifications);
+    MWidgetView::updateData(modifications);
 
     const char *member;
     foreach(member, modifications) {
@@ -54,4 +54,4 @@ void StatusIndicatorLabelView::updateData(const QList<const char *>& modificatio
         }
     }
 }
-DUI_REGISTER_VIEW_NEW(StatusIndicatorLabelView, StatusIndicator)
+M_REGISTER_VIEW_NEW(StatusIndicatorLabelView, StatusIndicator)

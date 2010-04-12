@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -19,15 +19,15 @@
 
 #include <QX11Info>
 #include <QApplication>
-#include <DuiLayout>
-#include <DuiFlowLayoutPolicy>
+#include <MLayout>
+#include <MFlowLayoutPolicy>
 
 #include "switcher.h"
 #include "switcherbutton.h"
 #include "windowinfo.h"
 
-Switcher::Switcher(DuiWidget *parent) :
-    DuiWidgetController(new SwitcherModel, parent)
+Switcher::Switcher(MWidget *parent) :
+    MWidgetController(new SwitcherModel, parent)
 {
     // Connect to the windowListUpdated signal of the HomeApplication to get information about window list changes
     connect(qApp, SIGNAL(windowListUpdated(const QList<WindowInfo> &)), this, SLOT(windowListUpdated(const QList<WindowInfo> &)));

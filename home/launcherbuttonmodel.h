@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -20,17 +20,17 @@
 #ifndef LAUNCHERBUTTONMODEL_H_
 #define LAUNCHERBUTTONMODEL_H_
 
-#include <duibuttonmodel.h>
+#include <mbuttonmodel.h>
 
-class LauncherButtonModel : public DuiButtonModel
+class LauncherButtonModel : public MButtonModel
 {
     Q_OBJECT
-    DUI_MODEL(LauncherButtonModel)
-    DUI_MODEL_PROPERTY(QString, targetType, TargetType, true, QString())
-    DUI_MODEL_PROPERTY(QString, target, Target, true, QString())
+    M_MODEL(LauncherButtonModel)
+    M_MODEL_PROPERTY(QString, targetType, TargetType, true, QString())
+    M_MODEL_PROPERTY(QString, target, Target, true, QString())
 
     //! Desktop entry file that launcher button is representing
-    DUI_MODEL_PROPERTY(QString, desktopEntryFile, DesktopEntryFile, true, QString())
+    M_MODEL_PROPERTY(QString, desktopEntryFile, DesktopEntryFile, true, QString())
 };
 
 #endif /* LAUNCHERBUTTONMODEL_H_ */

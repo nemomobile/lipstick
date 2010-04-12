@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -22,13 +22,13 @@
 
 #include <QtTest/QtTest>
 #include <QObject>
-#include <DuiApplication>
+#include <MApplication>
 
-class DuiWindow;
+class MWindow;
 class TestSwitcherView;
 class Switcher;
 class SwitcherButton;
-class DuiSceneManager;
+class MSceneManager;
 
 class Ut_SwitcherView : public QObject
 {
@@ -55,7 +55,7 @@ private slots:
     void testPanningStoppedInOverView();
 
 private:
-    void verifyButtonModesInOverviewMode(Dui::Orientation orientation);
+    void verifyButtonModesInOverviewMode(M::Orientation orientation);
     void verifyButtonModesInOverviewMode(QList< QSharedPointer<SwitcherButton> > &buttonList);
 
     QList< QSharedPointer<SwitcherButton> > createButtonList(int buttons);
@@ -66,8 +66,8 @@ signals:
     void panningStopped();
 
 private:
-    DuiApplication *app;
-    DuiSceneManager *duiSceneManager;
+    MApplication *app;
+    MSceneManager *mSceneManager;
     Switcher *switcher;
     // The object being tested
     TestSwitcherView *m_subject;

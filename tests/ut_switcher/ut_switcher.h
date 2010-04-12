@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -22,10 +22,10 @@
 #include <QObject>
 #include "windowinfo.h"
 
-class DuiApplication;
+class MApplication;
 class Switcher;
 class SwitcherButton;
-class DuiSceneManager;
+class MSceneManager;
 class QSizeF;
 class QRectF;
 class QPointF;
@@ -38,7 +38,7 @@ public:
     static QList<SwitcherButton *> iconGeometryUpdated;
 
 private:
-    DuiApplication *app;
+    MApplication *app;
     Switcher *switcher;
 
     QList<WindowInfo> createWindowList(int numWindows);
@@ -85,6 +85,6 @@ private slots:
     void testCallWindowFromExisistingWindow();
 
 private:
-    DuiSceneManager *duiSceneManager;
+    MSceneManager *mSceneManager;
 };
 #endif //_UT_SWITCHER_

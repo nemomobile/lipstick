@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -20,24 +20,24 @@
 #include "imagewidget.h"
 
 #include <QtGui>
-#include <DuiApplication>
-#include <DuiWindow>
-#include <DuiTheme>
+#include <MApplication>
+#include <MWindow>
+#include <MTheme>
 
 ImageWidget::ImageWidget(const QString &landscape, const QString &portrait):
     image_landscape(0), image_portrait(0), currentImage(0), gestureStarted(false)
 {
     cornersResizing << QPointF(0, 0) << QPointF(0, 0) << QPointF(0, 0) << QPointF(0, 0);
 
-    image_landscape = DuiTheme::pixmapCopy(landscape);
-    image_portrait = DuiTheme::pixmapCopy(portrait);
+    image_landscape = MTheme::pixmapCopy(landscape);
+    image_portrait = MTheme::pixmapCopy(portrait);
 
     // TODO orientation stuff commented out since there is currently no way to get the orientation
     setCurrentImage(image_landscape);
-//    setCurrentImage(DuiApplication::activeWindow()->orientation() == Dui::Landscape ? image_landscape : image_portrait);
+//    setCurrentImage(MApplication::activeWindow()->orientation() == M::Landscape ? image_landscape : image_portrait);
 
     // Get informed about orientation changes
-//    connect(DuiApplication::activeWindow(), SIGNAL(orientationChanged(const Dui::Orientation &)), this, SLOT(orientationChanged(const Dui::Orientation &)));
+//    connect(MApplication::activeWindow(), SIGNAL(orientationChanged(const M::Orientation &)), this, SLOT(orientationChanged(const M::Orientation &)));
 }
 
 ImageWidget::~ImageWidget()
@@ -112,7 +112,7 @@ QSizeF ImageWidget::sizeHint(Qt::SizeHint, const QSizeF &) const
     return (currentImage != NULL && !currentImage->isNull()) ? currentImage->size() : QSizeF(50, 50);
 }
 
-void ImageWidget::orientationChanged(const Dui::Orientation &orientation)
+void ImageWidget::orientationChanged(const M::Orientation &orientation)
 {
-    setCurrentImage(orientation == Dui::Landscape ? image_landscape : image_portrait);
+    setCurrentImage(orientation == M::Landscape ? image_landscape : image_portrait);
 }

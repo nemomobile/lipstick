@@ -9,8 +9,8 @@
 // FIXME - stubgen is not yet finished
 class LauncherButtonStub : public StubBase {
   public:
-  virtual void LauncherButtonConstructor(DuiWidget *parent);
-  virtual void LauncherButtonConstructor(const DuiDesktopEntry &entry, DuiWidget *parent);
+  virtual void LauncherButtonConstructor(MWidget *parent);
+  virtual void LauncherButtonConstructor(const MDesktopEntry &entry, MWidget *parent);
   virtual void LauncherButtonDestructor();
   virtual void setTargetType(const QString &type);
   virtual QString targetType() const;
@@ -21,11 +21,11 @@ class LauncherButtonStub : public StubBase {
 }; 
 
 // 2. IMPLEMENT STUB
-void LauncherButtonStub::LauncherButtonConstructor(DuiWidget *parent) {
+void LauncherButtonStub::LauncherButtonConstructor(MWidget *parent) {
   Q_UNUSED(parent);
 
 }
-void LauncherButtonStub::LauncherButtonConstructor(const DuiDesktopEntry &entry, DuiWidget *parent) {
+void LauncherButtonStub::LauncherButtonConstructor(const MDesktopEntry &entry, MWidget *parent) {
   Q_UNUSED(entry);
   Q_UNUSED(parent);
 
@@ -72,11 +72,11 @@ LauncherButtonStub* gLauncherButtonStub = &gDefaultLauncherButtonStub;
 
 
 // 4. CREATE A PROXY WHICH CALLS THE STUB
-LauncherButton::LauncherButton(DuiWidget *parent) {
+LauncherButton::LauncherButton(MWidget *parent) {
   gLauncherButtonStub->LauncherButtonConstructor(parent);
 }
 
-LauncherButton::LauncherButton(const DuiDesktopEntry &entry, DuiWidget *parent) {
+LauncherButton::LauncherButton(const MDesktopEntry &entry, MWidget *parent) {
   gLauncherButtonStub->LauncherButtonConstructor(entry, parent);
 }
 

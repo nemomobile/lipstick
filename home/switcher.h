@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -20,7 +20,7 @@
 #ifndef SWITCHER_H
 #define SWITCHER_H
 
-#include <DuiWidgetController>
+#include <MWidgetController>
 #include "switchermodel.h"
 #include <X11/Xlib.h>
 
@@ -29,10 +29,10 @@ class WindowInfo;
 /*!
  * Switcher is a widget that shows the available windows.
  */
-class Switcher : public DuiWidgetController
+class Switcher : public MWidgetController
 {
     Q_OBJECT
-    DUI_CONTROLLER(Switcher)
+    M_CONTROLLER(Switcher)
 
 public:
     /*!
@@ -40,7 +40,7 @@ public:
      *
      * \param parent the parent widget of the Switcher, defaults to NULL
      */
-    Switcher(DuiWidget *parent = NULL);
+    Switcher(MWidget *parent = NULL);
 
     /*!
      * Destroys the Switcher.

@@ -2,7 +2,7 @@ LANGUAGES = fi
 CATALOGNAME = duihome
 SOURCEDIR = $$PWD/..
 TRANSLATIONDIR = $$PWD
-TRANSLATION_INSTALLDIR = /usr/share/l10n/dui
-DUIROOT = ..
-include($$DUIROOT/duiconfig.pri)
-include($$DUIROOT/translations.pri)
+TRANSLATION_INSTALLDIR = /usr/share/l10n/meegotouch
+MROOT = ..
+include($$MROOT/mconfig.pri)
+include($$MROOT/translations.pri)

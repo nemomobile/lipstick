@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -20,10 +20,10 @@
 #ifndef LAUNCHERBUTTON_H
 #define LAUNCHERBUTTON_H
 
-#include <DuiButton>
+#include <MButton>
 #include "launcherbuttonmodel.h"
 
-class DuiDesktopEntry;
+class MDesktopEntry;
 
 /*!
  * Button widget that can launch an application when its being clicked.
@@ -34,10 +34,10 @@ class DuiDesktopEntry;
  * the target is set this button widget launches the specified application
  * into its own process when the button is clicked.
  */
-class LauncherButton : public DuiButton
+class LauncherButton : public MButton
 {
     Q_OBJECT
-    DUI_CONTROLLER(LauncherButton)
+    M_CONTROLLER(LauncherButton)
 
     Q_PROPERTY(QString desktopEntry READ desktopEntry)
 
@@ -47,15 +47,15 @@ public:
      *
      * \param parent the parent widget, defaults to NULL
      */
-    LauncherButton(DuiWidget *parent = 0);
+    LauncherButton(MWidget *parent = 0);
 
     /*!
-     * Creates a launcher button instance from a DuiDesktopEntry.
+     * Creates a launcher button instance from a MDesktopEntry.
      *
-     * \param entry the DuiDesktopEntry to create a launcher button from
+     * \param entry the MDesktopEntry to create a launcher button from
      * \param parent the parent widget, defaults to NULL
      */
-    LauncherButton(const DuiDesktopEntry &entry, DuiWidget *parent = 0);
+    LauncherButton(const MDesktopEntry &entry, MWidget *parent = 0);
 
     /*!
      * Destroys the Launcher.
@@ -117,7 +117,7 @@ signals:
      *
      * \param service the name of the dbus service to launch
      */
-    void duiApplicationLaunched(const QString &service);
+    void mApplicationLaunched(const QString &service);
 };
 
-#endif /* DUILAUNCHAPPBUTTON_H */
+#endif /* MLAUNCHAPPBUTTON_H */

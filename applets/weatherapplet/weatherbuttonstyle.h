@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -26,27 +26,27 @@
 #include <QPointF>
 #include <QSize>
 #include <QSizeF>
-#include <duibuttonstyle.h>
+#include <mbuttonstyle.h>
 
-class WeatherButtonStyle : public DuiButtonStyle
+class WeatherButtonStyle : public MButtonStyle
 {
     Q_OBJECT
-    DUI_STYLE(WeatherButtonStyle)
+    M_STYLE(WeatherButtonStyle)
 
-    DUI_STYLE_ATTRIBUTE(QFont, temperatureFont, TemperatureFont)
-    DUI_STYLE_ATTRIBUTE(QColor, temperatureColor, TemperatureColor)
-    DUI_STYLE_ATTRIBUTE(QPointF, temperaturePosition, TemperaturePosition)
-    DUI_STYLE_ATTRIBUTE(QSize, temperatureSize, TemperatureSize)
-    DUI_STYLE_ATTRIBUTE(QFont, cityFont, CityFont)
-    DUI_STYLE_ATTRIBUTE(QColor, cityColor, CityColor)
-    DUI_STYLE_ATTRIBUTE(QPointF, cityPosition, CityPosition)
-    DUI_STYLE_ATTRIBUTE(QSize, citySize, CitySize)
-    DUI_STYLE_ATTRIBUTE(QPointF, iconPosition, IconPosition)
+    M_STYLE_ATTRIBUTE(QFont, temperatureFont, TemperatureFont)
+    M_STYLE_ATTRIBUTE(QColor, temperatureColor, TemperatureColor)
+    M_STYLE_ATTRIBUTE(QPointF, temperaturePosition, TemperaturePosition)
+    M_STYLE_ATTRIBUTE(QSize, temperatureSize, TemperatureSize)
+    M_STYLE_ATTRIBUTE(QFont, cityFont, CityFont)
+    M_STYLE_ATTRIBUTE(QColor, cityColor, CityColor)
+    M_STYLE_ATTRIBUTE(QPointF, cityPosition, CityPosition)
+    M_STYLE_ATTRIBUTE(QSize, citySize, CitySize)
+    M_STYLE_ATTRIBUTE(QPointF, iconPosition, IconPosition)
 };
 
-class WeatherButtonStyleContainer : public DuiButtonStyleContainer
+class WeatherButtonStyleContainer : public MButtonStyleContainer
 {
-    DUI_STYLE_CONTAINER(WeatherButtonStyle)
+    M_STYLE_CONTAINER(WeatherButtonStyle)
 };
 
 #endif /* WEATHERBUTTONSTYLE_H_ */

@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -22,9 +22,9 @@
 
 #include <QSharedPointer>
 
-class DuiDataStore;
+class MDataStore;
 class LauncherPage;
-class DuiDesktopEntry;
+class MDesktopEntry;
 
 /*!
  * \class LauncherDataStore
@@ -36,8 +36,8 @@ class DuiDesktopEntry;
  * (eg. "usr/share/applications/deskentry.desktop").
  * Value consists of location info: location, page index and position on page (eg. "launcher/1/1").
  *
- * The LauncherDataStore uses a DuiDataStore as a backend to actually store the 
- * the data. The ownership of the DuiDataStore is transferred to the LauncherDataStore.
+ * The LauncherDataStore uses a MDataStore as a backend to actually store the 
+ * the data. The ownership of the MDataStore is transferred to the LauncherDataStore.
  *
  * Currently only launcher grid is supported.
  */
@@ -57,12 +57,12 @@ public:
     };
     
     /*!
-     * Constructs LauncherDataStore. The ownership of the DuiDataStore is transferred
+     * Constructs LauncherDataStore. The ownership of the MDataStore is transferred
      * to this LauncherDataStore.
      *
      * \param dataStore The backend data store. 
      */
-    LauncherDataStore(DuiDataStore* dataStore);
+    LauncherDataStore(MDataStore* dataStore);
 
     /*!
      * Destroys LauncherDataStore
@@ -89,13 +89,13 @@ public:
      * \param entry The entry whos location is returned.
      * \return The location of the entry
      */
-    EntryLocation location(const DuiDesktopEntry &entry);
+    EntryLocation location(const MDesktopEntry &entry);
 
 private:
     /*!
       * This helper method gets a key from entry path by adding key prefix to the path.
       *
-      * Due QSettings DuiFileDataStore removes preceding forward slash from key.
+      * Due QSettings MFileDataStore removes preceding forward slash from key.
       * To overcome this we need to use a key prefix in the key.
       *
       * \param entryPath The absolute entry path of the desktop entry (eg. "/usr/share/applications/deskentry.desktop").
@@ -106,7 +106,7 @@ private:
     /*!
       * This helper method gets entry path from key by removing key prefix.
       *
-      * Due QSettings DuiFileDataStore removes preceding forward slash from key.
+      * Due QSettings MFileDataStore removes preceding forward slash from key.
       * To overcome this we need to use a key prefix in the key.
       *
       * \param key The key as key prefix and entry path (eg. "KEY_PREFIX/usr/shareapplications/deskentry.desktop").
@@ -115,7 +115,7 @@ private:
     QString keyToEntryPath(QString key);
 
     //! The actual data store where the data is stored.
-    DuiDataStore* store;
+    MDataStore* store;
 };
 
 #endif

@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -20,16 +20,16 @@
 #ifndef APPLETSPACEMODEL_H_
 #define APPLETSPACEMODEL_H_
 
-#include <duiwidgetmodel.h>
+#include <mwidgetmodel.h>
 
-class AppletSpaceModel : public DuiWidgetModel
+class AppletSpaceModel : public MWidgetModel
 {
     Q_OBJECT
-    DUI_MODEL(AppletSpaceModel)
+    M_MODEL(AppletSpaceModel)
 
 private:
     //! Whether the close button should be visible or not
-    DUI_MODEL_PROPERTY(bool, closeButtonVisible, CloseButtonVisible, true, false)
+    M_MODEL_PROPERTY(bool, closeButtonVisible, CloseButtonVisible, true, false)
 };
 
 #endif /* APPLETSPACEMODEL_H_ */

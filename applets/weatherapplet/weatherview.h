@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -20,24 +20,24 @@
 #ifndef WEATHERVIEW_H
 #define WEATHERVIEW_H
 
-#include <DuiWidgetView>
+#include <MWidgetView>
 #include "weathermodel.h"
 
 class Weather;
 class WeatherButton;
-class DuiLayout;
-class DuiLinearLayoutPolicy;
-class DuiLabel;
+class MLayout;
+class MLinearLayoutPolicy;
+class MLabel;
 
 /*!
  * The example view allows the user to paint on a canvas using the mouse.
  * It also provides controls for clearing the canvas and selecting the
  * color of the pen.
  */
-class WeatherView : public DuiWidgetView
+class WeatherView : public MWidgetView
 {
     Q_OBJECT
-    DUI_VIEW(WeatherModel, DuiWidgetStyle)
+    M_VIEW(WeatherModel, MWidgetStyle)
 
 public:
     /*!
@@ -104,16 +104,16 @@ private:
     Weather *controller;
 
     //! Layout for the weather buttons
-    DuiLayout *weatherButtonLayout;
+    MLayout *weatherButtonLayout;
     //! Layout policy for the weather buttons
-    DuiLinearLayoutPolicy *weatherButtonLayoutPolicy;
+    MLinearLayoutPolicy *weatherButtonLayoutPolicy;
 
     //! Timer mode
     bool timerMode;
     //! Id for the timer
     int timerId;
     //! A label to show the progress of the timer
-    DuiLabel *timerLabel;
+    MLabel *timerLabel;
 
     //! Button for local weather
     WeatherButton *localButton;

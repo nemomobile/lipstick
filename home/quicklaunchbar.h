@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -20,19 +20,19 @@
 #ifndef QUICKLAUNCHBAR_H
 #define QUICKLAUNCHBAR_H
 
-#include <DuiWidgetController>
+#include <MWidgetController>
 #include <QFileSystemWatcher>
 #include "quicklaunchbarmodel.h"
 
-class DuiDataStore;
+class MDataStore;
 
 /*!
  * A widget for showing a quick launch bar.
  */
-class QuickLaunchBar : public DuiWidgetController
+class QuickLaunchBar : public MWidgetController
 {
     Q_OBJECT
-    DUI_CONTROLLER(QuickLaunchBar)
+    M_CONTROLLER(QuickLaunchBar)
 
 public:
     /*!
@@ -46,7 +46,7 @@ public:
      * \param configuration an object that is used for configuration. This object takes the ownership of the configuration data store.
      * \param parent the parent object for this object if any.
      */
-    explicit QuickLaunchBar(DuiDataStore* configuration, QGraphicsItem *parent = NULL);
+    explicit QuickLaunchBar(MDataStore* configuration, QGraphicsItem *parent = NULL);
 
     /*!
      * Destroys the QuickLaunchBar.
@@ -73,11 +73,11 @@ private slots:
     void launchApplication(const QString &application);
 
     /*!
-     * \brief Launches a DUI application
+     * \brief Launches a M application
      *
      * \param service the service framework service name of the application to be launched
      */
-    void launchDuiApplication(const QString &service);
+    void launchMApplication(const QString &service);
 
     //! Updates the widget list based on the contents of the data store
     void updateWidgetList();
@@ -90,7 +90,7 @@ private:
     static const int NUMBER_OF_LAUNCHER_BUTTONS;
 
     //! The data store for quick launch bar configuration
-    DuiDataStore *configurationDataStore;
+    MDataStore *configurationDataStore;
 
     /*!
      * An initialization helper function that should be called once from any constructor.

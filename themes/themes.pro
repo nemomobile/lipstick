@@ -1,4 +1,4 @@
-include(../duiconfig.pri)
+include(../mconfig.pri)
 
 TEMPLATE = subdirs
 SUBDIRS = \
@@ -10,7 +10,7 @@ INSTALLS += \
     conf
 conf.files = \
     duihome.conf
-conf.path = $$DUIHOME_THEMES_DIR
+conf.path = $$MEEGOHOME_THEMES_DIR
 
 QMAKE_EXTRA_TARGETS += check
 check.commands = $$system(true)

@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -17,9 +17,9 @@
 **
 ****************************************************************************/
 
-#include <DuiFlowLayoutPolicy>
+#include <MFlowLayoutPolicy>
 #include <QGraphicsLinearLayout>
-#include <DuiSceneManager>
+#include <MSceneManager>
 #include "ut_launcherpageview.h"
 #include "launcherpagemodel.h"
 #include "launcherpagestyle.h"
@@ -29,21 +29,21 @@
 #include "mainwindow_stub.h"
 #include "launcherpageview.h"
 
-// DuiSceneWindow stubs
+// MSceneWindow stubs
 int showWindowCount = 0;
-void DuiSceneWindow::appear(DuiSceneWindow::DeletionPolicy)
+void MSceneWindow::appear(MSceneWindow::DeletionPolicy)
 {
     showWindowCount++;
 }
 
 int hideWindowCount = 0;
-void DuiSceneWindow::disappear()
+void MSceneWindow::disappear()
 {
     hideWindowCount++;
 }
 
-// DuiWindow stubs
-DuiSceneManager *DuiWindow::sceneManager()
+// MWindow stubs
+MSceneManager *MWindow::sceneManager()
 {
     return NULL;
 }
@@ -52,7 +52,7 @@ void Ut_LauncherPageView::initTestCase()
 {
     static int argc = 1;
     static char *app_name = (char *)"./ut_launcherpageview";
-    app = new DuiApplication(argc, &app_name);
+    app = new MApplication(argc, &app_name);
 }
 
 void Ut_LauncherPageView::cleanupTestCase()
@@ -83,7 +83,7 @@ void Ut_LauncherPageView::testAddButtonsToPage()
     widgets.append(widget2);
     controller->model()->setLauncherButtons(widgets);
 
-    DuiLayout* mainLayout = dynamic_cast<DuiLayout *>(controller->layout());
+    MLayout* mainLayout = dynamic_cast<MLayout *>(controller->layout());
     QVERIFY(mainLayout != NULL);
 
     QCOMPARE(mainLayout->count(), 2);

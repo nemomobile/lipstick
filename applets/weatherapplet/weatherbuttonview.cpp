@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -23,8 +23,8 @@
 #include <QPainter>
 #include <QX11Info>
 #include <QTimeLine>
-#include <DuiTheme>
-#include <duiviewcreator.h>
+#include <MTheme>
+#include <mviewcreator.h>
 #include "weatherbutton.h"
 
 const int WeatherButtonView::numberOfIcons = 5;
@@ -32,16 +32,16 @@ const QPixmap **WeatherButtonView::icons = NULL;
 int WeatherButtonView::iconsReferenceCount = 0;
 
 WeatherButtonView::WeatherButtonView(WeatherButton *button) :
-    DuiWidgetView(button),
+    MWidgetView(button),
     controller(button)
 {
     if (iconsReferenceCount == 0) {
         icons = new const QPixmap*[numberOfIcons];
-        icons[0] = DuiTheme::pixmap("weather-thunder");
-        icons[1] = DuiTheme::pixmap("weather-cloudy");
-        icons[2] = DuiTheme::pixmap("weather-sunny");
-        icons[3] = DuiTheme::pixmap("weather-snowy");
-        icons[4] = DuiTheme::pixmap("weather-rainy");
+        icons[0] = MTheme::pixmap("weather-thunder");
+        icons[1] = MTheme::pixmap("weather-cloudy");
+        icons[2] = MTheme::pixmap("weather-sunny");
+        icons[3] = MTheme::pixmap("weather-snowy");
+        icons[4] = MTheme::pixmap("weather-rainy");
     }
 
     iconsReferenceCount++;
@@ -91,14 +91,14 @@ void WeatherButtonView::drawContents(QPainter *painter, const QStyleOptionGraphi
 
 void WeatherButtonView::updateData(const QList<const char *>& modifications)
 {
-    DuiWidgetView::updateData(modifications);
+    MWidgetView::updateData(modifications);
 
     update();
 }
 
 void WeatherButtonView::setupModel()
 {
-    DuiWidgetView::setupModel();
+    MWidgetView::setupModel();
 
     QList<const char *> modifications;
     modifications.append(WeatherButtonModel::Unit);
@@ -108,4 +108,4 @@ void WeatherButtonView::setupModel()
     updateData(modifications);
 }
 
-DUI_REGISTER_VIEW_NEW(WeatherButtonView, WeatherButton)
+M_REGISTER_VIEW_NEW(WeatherButtonView, WeatherButton)

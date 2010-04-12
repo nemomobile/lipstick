@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -20,18 +20,18 @@
 #ifndef WEATHERMODEL_H_
 #define WEATHERMODEL_H_
 
-#include <DuiWidgetModel>
+#include <MWidgetModel>
 
-class WeatherModel : public DuiWidgetModel
+class WeatherModel : public MWidgetModel
 {
     Q_OBJECT
-    DUI_MODEL(WeatherModel)
+    M_MODEL(WeatherModel)
 
-    DUI_MODEL_PROPERTY(QList<QString>, cities, Cities, true, QList<QString>())
-    DUI_MODEL_PROPERTY(int, unit, Unit, true, 0)
-    DUI_MODEL_PROPERTY(int, numMonitoredCities, NumMonitoredCities, true, 2)
-    DUI_MODEL_PROPERTY(bool, showLocal, ShowLocal, true, false)
-    DUI_MODEL_PROPERTY(int, localTemperature, LocalTemperature, true, 0)
+    M_MODEL_PROPERTY(QList<QString>, cities, Cities, true, QList<QString>())
+    M_MODEL_PROPERTY(int, unit, Unit, true, 0)
+    M_MODEL_PROPERTY(int, numMonitoredCities, NumMonitoredCities, true, 2)
+    M_MODEL_PROPERTY(bool, showLocal, ShowLocal, true, false)
+    M_MODEL_PROPERTY(int, localTemperature, LocalTemperature, true, 0)
 };
 
 #endif /* WEATHERMODEL_H_ */

@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -20,7 +20,7 @@
 #define WEATHERBUTTONVIEW_H
 
 #include <QTimer>
-#include <DuiWidgetView>
+#include <MWidgetView>
 #include "weatherbuttonstyle.h"
 #include "weatherbuttonmodel.h"
 
@@ -33,10 +33,10 @@ class QPixmap;
  *
  * \brief WeatherButtonView implements a weather style view
  */
-class WeatherButtonView : public DuiWidgetView
+class WeatherButtonView : public MWidgetView
 {
     Q_OBJECT
-    DUI_VIEW(WeatherButtonModel, WeatherButtonStyle)
+    M_VIEW(WeatherButtonModel, WeatherButtonStyle)
 
 public:
     /*!

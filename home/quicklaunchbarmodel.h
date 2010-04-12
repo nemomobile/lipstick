@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -20,20 +20,20 @@
 #ifndef QUICKLAUNCHBARMODEL_H_
 #define QUICKLAUNCHBARMODEL_H_
 
-#include <DuiWidgetModel>
+#include <MWidgetModel>
 
-typedef QList<DuiWidget *> WidgetList;
+typedef QList<MWidget *> WidgetList;
 
 /*!
  * A model for the QuickLaunchBar widget.
  */
-class QuickLaunchBarModel : public DuiWidgetModel
+class QuickLaunchBarModel : public MWidgetModel
 {
     Q_OBJECT
-    DUI_MODEL(QuickLaunchBarModel)
+    M_MODEL(QuickLaunchBarModel)
 
     //! The list of widgets to show in the quick launch bar
-    DUI_MODEL_PROPERTY(WidgetList, widgets, Widgets, true, QList<DuiWidget *>())
+    M_MODEL_PROPERTY(WidgetList, widgets, Widgets, true, QList<MWidget *>())
 };
 
 #endif /* QUICKLAUNCHBARMODEL_H_ */

@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -21,8 +21,8 @@
 
 #include <QtTest/QtTest>
 #include <QObject>
-#include <duiapplication.h>
-#include <duiwidget.h>
+#include <mapplication.h>
+#include <mwidget.h>
 #include "desktop.h"
 
 class Ut_Desktop : public QObject
@@ -30,20 +30,20 @@ class Ut_Desktop : public QObject
     Q_OBJECT
 
 public:
-    static DuiWidget *widget1;
-    static DuiWidget *widget2;
-    static DuiWidget *widget3;
+    static MWidget *widget1;
+    static MWidget *widget2;
+    static MWidget *widget3;
 
 private:
-    DuiApplication *app;
+    MApplication *app;
     Desktop *desktop;
 
 signals:
     // Signal for adding a widget to the Desktop
-    void addWidget(DuiWidget *widget);
+    void addWidget(MWidget *widget);
 
     // Signal for removing a widget from the Desktop
-    void removeWidget(DuiWidget *widget);
+    void removeWidget(MWidget *widget);
 
 private slots:
     // Executed once before every test case

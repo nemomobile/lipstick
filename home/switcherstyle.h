@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -21,57 +21,57 @@
 #ifndef SWITCHERSTYLE_H_
 #define SWITCHERSTYLE_H_
 
-#include <DuiWidgetStyle>
+#include <MWidgetStyle>
 #include <QFont>
 
-class SwitcherStyle : public DuiWidgetStyle
+class SwitcherStyle : public MWidgetStyle
 {
     Q_OBJECT
-    DUI_STYLE(SwitcherStyle)
+    M_STYLE(SwitcherStyle)
 
     /*! Defines how much the focused switcher button will be scaled */
-    DUI_STYLE_ATTRIBUTE(qreal, scaleFactor, ScaleFactor)
+    M_STYLE_ATTRIBUTE(qreal, scaleFactor, ScaleFactor)
 
     /*!
      * Defines how much extra the focused switcher button will move 
      * horizontally "out of the way".
      */
-    DUI_STYLE_ATTRIBUTE(qreal, fastForward, FastForward)
+    M_STYLE_ATTRIBUTE(qreal, fastForward, FastForward)
 
     /*!
      * Defines how much the focused switcher button will rotate at maximum 
      * during horizontal movement
      */
-    DUI_STYLE_ATTRIBUTE(qreal, itemRotation, ItemRotation)
+    M_STYLE_ATTRIBUTE(qreal, itemRotation, ItemRotation)
     /*!
      * Defines how mush the items will over lap when they are stationary
      */
-    DUI_STYLE_ATTRIBUTE(qreal, itemOverLap, ItemOverLap)
+    M_STYLE_ATTRIBUTE(qreal, itemOverLap, ItemOverLap)
 
      /*!
      * Defines horizontal spacing between switcher buttons.
      */
-    DUI_STYLE_ATTRIBUTE(qreal, buttonHorizontalSpacing, ButtonHorizontalSpacing)
+    M_STYLE_ATTRIBUTE(qreal, buttonHorizontalSpacing, ButtonHorizontalSpacing)
 
     /*!
      * Defines vertical spacing between switcher buttons.
      */
-    DUI_STYLE_ATTRIBUTE(qreal, buttonVerticalSpacing, ButtonVerticalSpacing)
+    M_STYLE_ATTRIBUTE(qreal, buttonVerticalSpacing, ButtonVerticalSpacing)
 
      /*!
      * Defines amount of rows in switcher view.
      */
-    DUI_STYLE_ATTRIBUTE(int, rowsPerPage, RowsPerPage)
+    M_STYLE_ATTRIBUTE(int, rowsPerPage, RowsPerPage)
 
     /*!
      * Defines amount of columns in switcher view.
      */
-    DUI_STYLE_ATTRIBUTE(int, columnsPerPage, ColumnsPerPage)
+    M_STYLE_ATTRIBUTE(int, columnsPerPage, ColumnsPerPage)
 };
 
-class SwitcherStyleContainer : public DuiWidgetStyleContainer
+class SwitcherStyleContainer : public MWidgetStyleContainer
 {
-    DUI_STYLE_CONTAINER(SwitcherStyle)
+    M_STYLE_CONTAINER(SwitcherStyle)
 };
 
 #endif /* SWITCHERSTYLE_H_ */

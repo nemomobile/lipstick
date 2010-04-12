@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -21,20 +21,20 @@
 #ifndef DESKTOPSTYLE_H_
 #define DESKTOPSTYLE_H_
 
-#include <DuiWidgetStyle>
+#include <MWidgetStyle>
 
-class DesktopStyle : public DuiWidgetStyle
+class DesktopStyle : public MWidgetStyle
 {
     Q_OBJECT
-    DUI_STYLE(DesktopStyle)
+    M_STYLE(DesktopStyle)
 
     //! The image to draw the desktop background with
-    DUI_STYLE_PTR_ATTRIBUTE(QPixmap *, desktopBackgroundImage, DesktopBackgroundImage)
+    M_STYLE_PTR_ATTRIBUTE(QPixmap *, desktopBackgroundImage, DesktopBackgroundImage)
 };
 
-class DesktopStyleContainer : public DuiWidgetStyleContainer
+class DesktopStyleContainer : public MWidgetStyleContainer
 {
-    DUI_STYLE_CONTAINER(DesktopStyle)
+    M_STYLE_CONTAINER(DesktopStyle)
 };
 
 #endif /* DESKTOPSTYLE_H_ */

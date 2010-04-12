@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -20,7 +20,7 @@
 #include "desktop.h"
 #include "desktopmodel.h"
 
-Desktop::Desktop(DuiWidget *parent) : DuiWidgetController(new DesktopModel, parent)
+Desktop::Desktop(MWidget *parent) : MWidgetController(new DesktopModel, parent)
 {
 }
 

@@ -1,4 +1,4 @@
-include(../../duiconfig.pri)
+include(../../mconfig.pri)
 
 TEMPLATE = subdirs
 
@@ -6,7 +6,7 @@ INSTALLS += \
     svg
 
 svg.files =*.svg
-svg.path = $$DUIHOME_THEMES_DIR/svg
+svg.path = $$MEEGOHOME_THEMES_DIR/svg
 
 QMAKE_EXTRA_TARGETS += check
 check.commands = $$system(true)

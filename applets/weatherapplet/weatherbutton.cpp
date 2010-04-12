@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -19,8 +19,8 @@
 
 #include "weatherbutton.h"
 
-WeatherButton::WeatherButton(const QString &title, DuiWidget *parent, int iconIndex, int timeout) :
-    DuiButton(title, parent, new WeatherButtonModel)
+WeatherButton::WeatherButton(const QString &title, MWidget *parent, int iconIndex, int timeout) :
+    MButton(title, parent, new WeatherButtonModel)
 {
     // Set the initial icon index
     model()->setIconIndex(iconIndex);

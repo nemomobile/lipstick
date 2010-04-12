@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -22,7 +22,7 @@
 #include <QPointF>
 #include <QSizeF>
 #include <QPainter>
-#include <DuiScalableImage>
+#include <MScalableImage>
 
 SwitcherButtonSWView::SwitcherButtonSWView(SwitcherButton *button) :
     SwitcherButtonView(button)
@@ -46,4 +46,4 @@ void SwitcherButtonSWView::backendSpecificUpdateXWindowPixmap()
     qWindowPixmap = QPixmap::fromX11Pixmap(xWindowPixmap, QPixmap::ExplicitlyShared);
 }
 
-DUI_REGISTER_VIEW_NEW(SwitcherButtonSWView, SwitcherButton)
+M_REGISTER_VIEW_NEW(SwitcherButtonSWView, SwitcherButton)

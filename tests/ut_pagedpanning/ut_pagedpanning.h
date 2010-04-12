@@ -20,7 +20,7 @@
 #include <QtTest/QtTest>
 #include <QObject>
 
-class DuiApplication;
+class MApplication;
 class PagedPanning;
 
 class Ut_PagedPanning : public QObject
@@ -88,8 +88,8 @@ private slots:
     void testAutoPanning();
 
 private:
-    // DuiApplication
-    DuiApplication *app;
+    // MApplication
+    MApplication *app;
     // The object being tested
     PagedPanning* m_subject;
 

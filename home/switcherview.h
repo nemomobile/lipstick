@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -20,26 +20,26 @@
 #ifndef SWITCHERVIEW_H
 #define SWITCHERVIEW_H
 
-#include <DuiWidgetView>
+#include <MWidgetView>
 #include "switchermodel.h"
 #include "switcherstyle.h"
 
 class Switcher;
 class QPixmap;
-class DuiLayout;
-class DuiLinearLayoutPolicy;
-class DuiGridLayoutPolicy;
+class MLayout;
+class MLinearLayoutPolicy;
+class MGridLayoutPolicy;
 class QGraphicsLinearLayout;
-class DuiPannableViewport;
+class MPannableViewport;
 class PagedPanning;
 
 /*!
  * The switcher view draws a background for the switcher.
  */
-class SwitcherView : public DuiWidgetView
+class SwitcherView : public MWidgetView
 {
     Q_OBJECT
-    DUI_VIEW(SwitcherModel, SwitcherStyle)
+    M_VIEW(SwitcherModel, SwitcherStyle)
 
 public:
     /*!
@@ -106,20 +106,20 @@ private:
     /*! The switcher controller */
     Switcher *controller;
 
-    DuiWidget* layoutWidget;
+    MWidget* layoutWidget;
 
     /*! Layouts */
     QGraphicsLinearLayout *mainLayout;
 
     /*! The widget that will contain all of the switcher buttons */
-    DuiWidget* pannedWidget;
+    MWidget* pannedWidget;
 
     /*! Layout for the panned widget */
-    DuiLayout* pannedLayout;    
+    MLayout* pannedLayout;    
 
     /*! Layout policies for the different switcher modes */
-    DuiGridLayoutPolicy* overviewPolicy;
-    DuiLinearLayoutPolicy* detailPolicy;
+    MGridLayoutPolicy* overviewPolicy;
+    MLinearLayoutPolicy* detailPolicy;
 
     /*! The custom physics that does the paged panning */
     PagedPanning* pagedPanning;
@@ -136,7 +136,7 @@ private:
 #endif
 
     /*! The viewport that shows the switcher buttons */
-    DuiPannableViewport *viewport;
+    MPannableViewport *viewport;
 };
 
 #endif // SWITCHERVIEW_H

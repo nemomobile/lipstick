@@ -2,12 +2,12 @@
 # Main projectfile
 # ####################################################################
 
-include(duiconfig.pri)
+include(mconfig.pri)
 
 CONFIG += ordered
 TEMPLATE = subdirs
 SUBDIRS = \
-    libduihome \
+    libmeegotouchhome \
     home \
     themes \
     applets \

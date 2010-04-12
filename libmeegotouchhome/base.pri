@@ -11,4 +11,4 @@ CONFIG += qmake_cache target_qt
 #contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols
 #unix:contains(QT_CONFIG, reduce_relocations):CONFIG += bsymbolic_functions
 
-include(../dui_targets.pri)
+include(../m_targets.pri)

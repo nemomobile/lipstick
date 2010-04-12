@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -18,27 +18,27 @@
 ****************************************************************************/
 
 #include <QGraphicsLinearLayout>
-#include <DuiModalSceneWindow>
-#include <DuiPannableViewport>
-#include <DuiMashupCanvas>
-#include <DuiOverlay>
-#include <DuiButton>
+#include <MModalSceneWindow>
+#include <MPannableViewport>
+#include <MMashupCanvas>
+#include <MOverlay>
+#include <MButton>
 #include "appletspaceview.h"
 #include "appletspace.h"
 #include <QDebug>
 
 AppletSpaceView::AppletSpaceView(AppletSpace *controller) :
-    DuiExtendingBackgroundView(controller),
+    MExtendingBackgroundView(controller),
     controller(controller),
-    closeButtonOverlay(new DuiOverlay),
-    closeButton(new DuiButton(closeButtonOverlay))
+    closeButtonOverlay(new MOverlay),
+    closeButton(new MButton(closeButtonOverlay))
 {
     // Put the mashup canvas into the bottom of the layout
     QGraphicsLinearLayout *layout = new QGraphicsLinearLayout(Qt::Vertical);
     layout->setContentsMargins(0, 0, 0, 0);
     controller->setLayout(layout);
 
-    mashupCanvas = new DuiMashupCanvas("appletcanvas");
+    mashupCanvas = new MMashupCanvas("appletcanvas");
     layout->addStretch();
     layout->addItem(mashupCanvas);
 
@@ -58,7 +58,7 @@ AppletSpaceView::~AppletSpaceView()
 
 void AppletSpaceView::updateData(const QList<const char *>& modifications)
 {
-    DuiExtendingBackgroundView::updateData(modifications);
+    MExtendingBackgroundView::updateData(modifications);
     const char *member;
     foreach(member, modifications) {
         if (member == AppletSpaceModel::CloseButtonVisible) {
@@ -72,4 +72,4 @@ void AppletSpaceView::updateData(const QList<const char *>& modifications)
     }
 }
 
-DUI_REGISTER_VIEW_NEW(AppletSpaceView, AppletSpace)
+M_REGISTER_VIEW_NEW(AppletSpaceView, AppletSpace)

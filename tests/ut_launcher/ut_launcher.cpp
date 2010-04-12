@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -16,9 +16,9 @@
 ** of this file.
 **
 ****************************************************************************/
-#include <DuiApplication>
-#include <DuiDesktopEntry>
-#include <DuiApplicationIfProxy>
+#include <MApplication>
+#include <MDesktopEntry>
+#include <MApplicationIfProxy>
 #include "ut_launcher.h"
 #include "launcher.h"
 #include "launcherpage.h"
@@ -30,7 +30,7 @@
 
 QFileInfoList Ut_Launcher::desktopFileInfoList;
 QFileInfoList Ut_Launcher::directoryFileInfoList;
-bool          Ut_Launcher::duiApplicationIfProxyLaunchCalled;
+bool          Ut_Launcher::mApplicationIfProxyLaunchCalled;
 QString       Ut_Launcher::applicationStarted;
 
 // QCoreApplication stubs to avoid crashing in processEvents()
@@ -39,8 +39,8 @@ QStringList QCoreApplication::arguments()
     return QStringList();
 }
 
-// DuiDesktopEntry stubs (used by Launcher)
-QMap<const DuiDesktopEntry *, QString> desktopEntryFileName;
+// MDesktopEntry stubs (used by Launcher)
+QMap<const MDesktopEntry *, QString> desktopEntryFileName;
 QMap<QString, QStringList> desktopEntryCategories;
 QMap<QString, QStringList> desktopEntryOnlyShowIn;
 QMap<QString, QStringList> desktopEntryNotShowIn;
@@ -52,64 +52,64 @@ QMap<QString, QString> desktopEntryExec;
 QMap<QString, QString> desktopEntryUrl;
 QMap<QString, QString> desktopEntryNameUnlocalized;
 
-DuiDesktopEntry::DuiDesktopEntry(const QString &fileName) :
+MDesktopEntry::MDesktopEntry(const QString &fileName) :
     d_ptr(NULL)
 {
     desktopEntryFileName.insert(this, fileName);
 }
 
-QString DuiDesktopEntry::fileName() const
+QString MDesktopEntry::fileName() const
 {
     return desktopEntryFileName[this];
 }
 
 
-bool DuiDesktopEntry::isValid() const
+bool MDesktopEntry::isValid() const
 {
     return true;
 }
 
-QStringList DuiDesktopEntry::onlyShowIn() const
+QStringList MDesktopEntry::onlyShowIn() const
 {
     return desktopEntryOnlyShowIn.value(desktopEntryFileName.value(this));
 }
 
-QStringList DuiDesktopEntry::notShowIn() const
+QStringList MDesktopEntry::notShowIn() const
 {
     return desktopEntryNotShowIn.value(desktopEntryFileName.value(this));
 }
 
-QString DuiDesktopEntry::type() const
+QString MDesktopEntry::type() const
 {
     return desktopEntryType.value(desktopEntryFileName.value(this));
 }
 
-QString DuiDesktopEntry::xMaemoService() const
+QString MDesktopEntry::xMaemoService() const
 {
     return desktopEntryXMaemoService.value(desktopEntryFileName.value(this));
 }
 
-QString DuiDesktopEntry::name() const
+QString MDesktopEntry::name() const
 {
     return desktopEntryName.value(desktopEntryFileName.value(this));
 }
 
-QString DuiDesktopEntry::icon() const
+QString MDesktopEntry::icon() const
 {
     return desktopEntryIcon.value(desktopEntryFileName.value(this));
 }
 
-QString DuiDesktopEntry::exec() const
+QString MDesktopEntry::exec() const
 {
     return desktopEntryExec.value(desktopEntryFileName.value(this));
 }
 
-QString DuiDesktopEntry::url() const
+QString MDesktopEntry::url() const
 {
     return desktopEntryUrl.value(desktopEntryFileName.value(this));
 }
 
-QString DuiDesktopEntry::nameUnlocalized() const
+QString MDesktopEntry::nameUnlocalized() const
 {
     return desktopEntryNameUnlocalized.value(desktopEntryFileName.value(this));
 }
@@ -133,7 +133,7 @@ void QDBusPendingReplyData::setMetaTypes(int, int const *)
 }
 
 // LauncherDataStore stubs
-LauncherDataStore::LauncherDataStore(DuiDataStore* dataStore)
+LauncherDataStore::LauncherDataStore(MDataStore* dataStore)
 {
     Q_UNUSED(dataStore);
 }
@@ -150,15 +150,15 @@ QList< QSharedPointer<LauncherPage> > LauncherDataStore::launcherButtons()
     return QList< QSharedPointer<LauncherPage> >();
 }
 
-LauncherDataStore::EntryLocation LauncherDataStore::location(const DuiDesktopEntry &entry)
+LauncherDataStore::EntryLocation LauncherDataStore::location(const MDesktopEntry &entry)
 {
     Q_UNUSED(entry);
     return LauncherDataStore::LauncherGrid;
 }
 
-QDBusPendingReply<> DuiApplicationIfProxy::launch()
+QDBusPendingReply<> MApplicationIfProxy::launch()
 {
-    Ut_Launcher::duiApplicationIfProxyLaunchCalled = true;
+    Ut_Launcher::mApplicationIfProxyLaunchCalled = true;
 
     return QDBusPendingReply<>();
 }
@@ -178,10 +178,10 @@ bool QDBusConnection::isConnected() const
 // Tests
 void Ut_Launcher::initTestCase()
 {
-    // Create a DuiAapplication
+    // Create a MAapplication
     static int argc = 1;
     static char *app_name = (char *)"./ut_launcher";
-    app = new DuiApplication(argc, &app_name);
+    app = new MApplication(argc, &app_name);
 
     // Test applications for root category
     desktopEntryName.insert(QString(APPLICATIONS_DIRECTORY) + "regularApplication.desktop", "Test0");
@@ -196,33 +196,33 @@ void Ut_Launcher::initTestCase()
     desktopEntryName.insert(QString(APPLICATIONS_DIRECTORY) + "directoryInApplicationsDirectory.desktop", "Test3");
     desktopEntryType.insert(QString(APPLICATIONS_DIRECTORY) + "directoryInApplicationsDirectory.desktop", "Directory");
     desktopEntryIcon.insert(QString(APPLICATIONS_DIRECTORY) + "directoryInApplicationsDirectory.desktop", "Icon-camera");
-    desktopEntryName.insert(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInDUI.desktop", "Only show in DUI");
-    desktopEntryType.insert(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInDUI.desktop", "Application");
-    desktopEntryIcon.insert(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInDUI.desktop", "Icon-dui-application");
-    desktopEntryExec.insert(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInDUI.desktop", "dui-application");
-    desktopEntryOnlyShowIn.insert(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInDUI.desktop", QStringList() << "X-DUI" << "KDE" << "GNOME");
+    desktopEntryName.insert(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInM.desktop", "Only show in M");
+    desktopEntryType.insert(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInM.desktop", "Application");
+    desktopEntryIcon.insert(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInM.desktop", "Icon-m-application");
+    desktopEntryExec.insert(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInM.desktop", "m-application");
+    desktopEntryOnlyShowIn.insert(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInM.desktop", QStringList() << "X-M" << "KDE" << "GNOME");
     desktopEntryName.insert(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInDesktops.desktop", "Only show in desktops");
     desktopEntryType.insert(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInDesktops.desktop", "Application");
     desktopEntryIcon.insert(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInDesktops.desktop", "Icon-camera");
     desktopEntryExec.insert(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInDesktops.desktop", "desktop-application");
     desktopEntryOnlyShowIn.insert(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInDesktops.desktop", QStringList() << "KDE" << "GNOME");
-    desktopEntryName.insert(QString(APPLICATIONS_DIRECTORY) + "applicationNotShowInDUI.desktop", "Not show in DUI");
-    desktopEntryType.insert(QString(APPLICATIONS_DIRECTORY) + "applicationNotShowInDUI.desktop", "Application");
-    desktopEntryIcon.insert(QString(APPLICATIONS_DIRECTORY) + "applicationNotShowInDUI.desktop", "Icon-camera");
-    desktopEntryExec.insert(QString(APPLICATIONS_DIRECTORY) + "applicationNotShowInDUI.desktop", "noshow-application");
-    desktopEntryNotShowIn.insert(QString(APPLICATIONS_DIRECTORY) + "applicationNotShowInDUI.desktop", QStringList() << "X-DUI" << "KDE" << "GNOME");
+    desktopEntryName.insert(QString(APPLICATIONS_DIRECTORY) + "applicationNotShowInM.desktop", "Not show in M");
+    desktopEntryType.insert(QString(APPLICATIONS_DIRECTORY) + "applicationNotShowInM.desktop", "Application");
+    desktopEntryIcon.insert(QString(APPLICATIONS_DIRECTORY) + "applicationNotShowInM.desktop", "Icon-camera");
+    desktopEntryExec.insert(QString(APPLICATIONS_DIRECTORY) + "applicationNotShowInM.desktop", "noshow-application");
+    desktopEntryNotShowIn.insert(QString(APPLICATIONS_DIRECTORY) + "applicationNotShowInM.desktop", QStringList() << "X-M" << "KDE" << "GNOME");
     desktopEntryName.insert(QString(APPLICATIONS_DIRECTORY) + "applicationNotShowInDesktop.desktop", "Not show in desktops");
     desktopEntryType.insert(QString(APPLICATIONS_DIRECTORY) + "applicationNotShowInDesktop.desktop", "Application");
     desktopEntryIcon.insert(QString(APPLICATIONS_DIRECTORY) + "applicationNotShowInDesktop.desktop", "Icon-camera");
     desktopEntryExec.insert(QString(APPLICATIONS_DIRECTORY) + "applicationNotShowInDesktop.desktop", "no-desktop-application");
     desktopEntryNotShowIn.insert(QString(APPLICATIONS_DIRECTORY) + "applicationNotShowInDesktop.desktop", QStringList() << "KDE" << "GNOME");
 
-    // TODO: remove this desktop file when the Category DUI feature is removed
-    desktopEntryName.insert(QString(APPLICATIONS_DIRECTORY) + "applicationWithOnlyCategoryDUI.desktop", "Category DUI application");
-    desktopEntryType.insert(QString(APPLICATIONS_DIRECTORY) + "applicationWithOnlyCategoryDUI.desktop", "Application");
-    desktopEntryIcon.insert(QString(APPLICATIONS_DIRECTORY) + "applicationWithOnlyCategoryDUI.desktop", "Icon-camera");
-    desktopEntryExec.insert(QString(APPLICATIONS_DIRECTORY) + "applicationWithOnlyCategoryDUI.desktop", "dui-category-application");
-    desktopEntryCategories.insert(QString(APPLICATIONS_DIRECTORY) + "applicationWithOnlyCategoryDUI.desktop", QStringList() << "DUI");
+    // TODO: remove this desktop file when the Category M feature is removed
+    desktopEntryName.insert(QString(APPLICATIONS_DIRECTORY) + "applicationWithOnlyCategoryM.desktop", "Category M application");
+    desktopEntryType.insert(QString(APPLICATIONS_DIRECTORY) + "applicationWithOnlyCategoryM.desktop", "Application");
+    desktopEntryIcon.insert(QString(APPLICATIONS_DIRECTORY) + "applicationWithOnlyCategoryM.desktop", "Icon-camera");
+    desktopEntryExec.insert(QString(APPLICATIONS_DIRECTORY) + "applicationWithOnlyCategoryM.desktop", "m-category-application");
+    desktopEntryCategories.insert(QString(APPLICATIONS_DIRECTORY) + "applicationWithOnlyCategoryM.desktop", QStringList() << "M");
 
     // Test applications that belong to categories
     desktopEntryName.insert(QString(APPLICATIONS_DIRECTORY) + "applicationInCategory.desktop", "Test4");
@@ -243,7 +243,7 @@ void Ut_Launcher::initTestCase()
 
 void Ut_Launcher::cleanupTestCase()
 {
-    // Destroy DuiApplication
+    // Destroy MApplication
     delete app;
 }
 
@@ -253,13 +253,13 @@ void Ut_Launcher::init()
     launcher = new Launcher();
     connect(this, SIGNAL(directoryChanged(const QString)), launcher, SLOT(updateButtonListFromDirectory(const QString)));
     connect(this, SIGNAL(applicationLaunched(const QString)), launcher, SLOT(launchApplication(const QString)));
-    connect(this, SIGNAL(duiApplicationLaunched(const QString)), launcher, SLOT(launchDuiApplication(const QString)));
+    connect(this, SIGNAL(mApplicationLaunched(const QString)), launcher, SLOT(launchMApplication(const QString)));
 
     // No files by default
     desktopFileInfoList.clear();
     directoryFileInfoList.clear();
     applicationStarted.clear();
-    duiApplicationIfProxyLaunchCalled = false;
+    mApplicationIfProxyLaunchCalled = false;
 }
 
 void Ut_Launcher::cleanup()
@@ -318,10 +318,10 @@ void Ut_Launcher::testInitialization()
     }
 }
 
-void Ut_Launcher::testOnlyShowInDui()
+void Ut_Launcher::testOnlyShowInM()
 {
     // Add some desktop files in the root category
-    desktopFileInfoList.append(QFileInfo(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInDUI.desktop"));
+    desktopFileInfoList.append(QFileInfo(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInM.desktop"));
 
     // Process events to make sure all notifications are done
     QCoreApplication::processEvents(QEventLoop::AllEvents, 1000);
@@ -336,13 +336,13 @@ void Ut_Launcher::testOnlyShowInDui()
     QVERIFY(b != NULL);
 
     // Check name and icon for all entries
-    QCOMPARE(b->text(), QString("Only show in DUI"));
-    QCOMPARE(b->iconID(), QString("Icon-dui-application"));
+    QCOMPARE(b->text(), QString("Only show in M"));
+    QCOMPARE(b->iconID(), QString("Icon-m-application"));
     QCOMPARE(b->targetType(), QString("Application"));
-    QCOMPARE(b->target(), QString("dui-application"));
+    QCOMPARE(b->target(), QString("m-application"));
 }
 
-void Ut_Launcher::testOnlyShowInNotDui()
+void Ut_Launcher::testOnlyShowInNotM()
 {
     // Add some desktop files in the root category
     desktopFileInfoList.append(QFileInfo(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInDesktop.desktop"));
@@ -357,10 +357,10 @@ void Ut_Launcher::testOnlyShowInNotDui()
     QCOMPARE(buttonsCount(), 0);
 }
 
-void Ut_Launcher::testNotShowInDui()
+void Ut_Launcher::testNotShowInM()
 {
     // Add some desktop files in the root category
-    desktopFileInfoList.append(QFileInfo(QString(APPLICATIONS_DIRECTORY) + "applicationNotShowInDUI.desktop"));
+    desktopFileInfoList.append(QFileInfo(QString(APPLICATIONS_DIRECTORY) + "applicationNotShowInM.desktop"));
 
     // Process events to make sure all notifications are done
     QCoreApplication::processEvents(QEventLoop::AllEvents, 1000);
@@ -372,7 +372,7 @@ void Ut_Launcher::testNotShowInDui()
     QCOMPARE(buttonsCount(), 0);
 }
 
-void Ut_Launcher::testNotShowInNotDui()
+void Ut_Launcher::testNotShowInNotM()
 {
     // Add some desktop files in the root category
     desktopFileInfoList.append(QFileInfo(QString(APPLICATIONS_DIRECTORY) + "applicationNotShowInDesktop.desktop"));
@@ -486,15 +486,15 @@ void Ut_Launcher::testApplicationLaunched()
     QCOMPARE(applicationStarted, QString("test0"));
 }
 
-void Ut_Launcher::testDuiApplicationLaunched()
+void Ut_Launcher::testMApplicationLaunched()
 {
     desktopFileInfoList.append(QFileInfo(QString(APPLICATIONS_DIRECTORY) + "xMaemoApplication.desktop"));
 
     launcher->setEnabled(true);
 
-    emit duiApplicationLaunched("com.nokia.test1");
+    emit mApplicationLaunched("com.nokia.test1");
 
-    QCOMPARE(duiApplicationIfProxyLaunchCalled, true);
+    QCOMPARE(mApplicationIfProxyLaunchCalled, true);
 }
 
 void Ut_Launcher::testPaging()

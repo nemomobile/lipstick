@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -18,7 +18,7 @@
 ****************************************************************************/
 
 #include "switcherbutton.h"
-#include <DuiApplication>
+#include <MApplication>
 #include "homeapplication.h"
 #include "switcherbuttonview.h"
 #include "mainwindow.h"
@@ -27,8 +27,8 @@
 
 Atom SwitcherButton::iconGeometryAtom = 0;
 
-SwitcherButton::SwitcherButton(const QString &title, DuiWidget *parent, Window window, WindowInfo::WindowPriority windowPriority) :
-    DuiButton(title, parent, new SwitcherButtonModel),
+SwitcherButton::SwitcherButton(const QString &title, MWidget *parent, Window window, WindowInfo::WindowPriority windowPriority) :
+    MButton(title, parent, new SwitcherButtonModel),
     priority(windowPriority)
 {
     // Configure timers
@@ -43,7 +43,7 @@ SwitcherButton::SwitcherButton(const QString &title, DuiWidget *parent, Window w
     // Update the window title and pixmap
     model()->setXWindow(window);
 
-    connect(MainWindow::instance(), SIGNAL(orientationChangeFinished(const Dui::Orientation &)), this, SLOT(updateIconGeometry()));
+    connect(MainWindow::instance(), SIGNAL(orientationChangeFinished(const M::Orientation &)), this, SLOT(updateIconGeometry()));
 
     connect(this, SIGNAL(clicked()), this, SLOT(switchToWindow()));
 }
@@ -87,7 +87,7 @@ void SwitcherButton::prepareGeometryChange()
 
 void SwitcherButton::setGeometry(const QRectF &rect)
 {
-    DuiButton::setGeometry(rect);
+    MButton::setGeometry(rect);
 
     // When the switcher button's geometry is changed update the icon geometry
     updateIconGeometry();

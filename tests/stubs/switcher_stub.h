@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -26,7 +26,7 @@
 class SwitcherStub : public StubBase
 {
 public:
-    virtual void switcherConstructor(DuiWidget *parent = NULL);
+    virtual void switcherConstructor(MWidget *parent = NULL);
     virtual void switcherDestructor();
     virtual void windowListUpdated(const QList<WindowInfo> &windowList);
     virtual void windowToFront(Window window);
@@ -34,10 +34,10 @@ public:
     virtual void viewportSizePosChanged(const QSizeF &viewportSize, const QRectF &pannedRange, const QPointF &pannedPos);
 };
 
-void SwitcherStub::switcherConstructor(DuiWidget *parent)
+void SwitcherStub::switcherConstructor(MWidget *parent)
 {
     QList<ParameterBase *> params;
-    params.append(new Parameter<DuiWidget *>(parent));
+    params.append(new Parameter<MWidget *>(parent));
     stubMethodEntered("switcherConstructor", params);
 }
 
@@ -80,7 +80,7 @@ void SwitcherStub::viewportSizePosChanged(const QSizeF &viewportSize, const QRec
 SwitcherStub gDefaultSwitcherStub;
 SwitcherStub *gSwitcherStub = &gDefaultSwitcherStub;
 
-Switcher::Switcher(DuiWidget *parent)
+Switcher::Switcher(MWidget *parent)
 {
     gSwitcherStub->switcherConstructor(parent);
 }

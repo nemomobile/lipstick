@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -24,8 +24,8 @@
 #include <QObject>
 #include "launcherview.h"
 
-class DuiApplication;
-class DuiApplicationWindow;
+class MApplication;
+class MApplicationWindow;
 class Launcher;
 
 class Ut_LauncherView : public QObject
@@ -49,10 +49,10 @@ private slots:
     void testSetPageWidthUpdateWhenGeometryChanges();
 
 private:
-    // DuiApplication
-    DuiApplication *app;
-    // DuiApplicationWindow needed by the application
-    DuiApplicationWindow* appWindow;
+    // MApplication
+    MApplication *app;
+    // MApplicationWindow needed by the application
+    MApplicationWindow* appWindow;
     // The object being tested
     Launcher *controller;
     LauncherView *view;

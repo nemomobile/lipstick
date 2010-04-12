@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -18,11 +18,8 @@
 ****************************************************************************/
 #include "pagedviewport.h"
 #include "pagedpanning.h"
-#include "duiwidgetcreator.h"
 
-DUI_REGISTER_WIDGET(PagedViewport)
-
-PagedViewport::PagedViewport(QGraphicsItem *parent) : DuiPannableViewport(parent)
+PagedViewport::PagedViewport(QGraphicsItem *parent) : MPannableViewport(parent)
 {
     // The strategy will be deleted by the pannable viewport
     pagedPanning = new PagedPanning(this);
@@ -37,7 +34,7 @@ PagedViewport::~PagedViewport() {
 
 void PagedViewport::setPanDirection(const Qt::Orientations &)
 {
-    DuiPannableViewport::setPanDirection(Qt::Horizontal);
+    MPannableViewport::setPanDirection(Qt::Horizontal);
 }
 
 void PagedViewport::panToPage(uint page)

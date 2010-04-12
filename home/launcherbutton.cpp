@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -18,15 +18,15 @@
 ****************************************************************************/
 
 #include "launcherbutton.h"
-#include <DuiDesktopEntry>
+#include <MDesktopEntry>
 
-LauncherButton::LauncherButton(DuiWidget *parent) : DuiButton(parent, new LauncherButtonModel)
+LauncherButton::LauncherButton(MWidget *parent) : MButton(parent, new LauncherButtonModel)
 {
     // Connect the button clicked signal to launch application slot.
     connect(this, SIGNAL(clicked()), this, SLOT(launch()));
 }
 
-LauncherButton::LauncherButton(const DuiDesktopEntry &entry, DuiWidget *parent) : DuiButton(parent, new LauncherButtonModel)
+LauncherButton::LauncherButton(const MDesktopEntry &entry, MWidget *parent) : MButton(parent, new LauncherButtonModel)
 {
     // Connect the button clicked signal to launch application slot.
     connect(this, SIGNAL(clicked()), this, SLOT(launch()));
@@ -93,6 +93,6 @@ void LauncherButton::launch()
     if (targetType() == "Application") {
         emit applicationLaunched(target());
     } else if (targetType() == "Service") {
-        emit duiApplicationLaunched(target());
+        emit mApplicationLaunched(target());
     }
 }

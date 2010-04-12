@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -24,7 +24,7 @@
 
 #include <QtTest/QtTest>
 #include <QDir>
-#include <DuiDesktopEntry>
+#include <MDesktopEntry>
 
 // QDir stubs
 bool QDir::exists(const QString &) const
@@ -38,9 +38,9 @@ bool QDir::mkpath(const QString &) const
     return true;
 }
 
-// DuiDesktopEntry stubs
+// MDesktopEntry stubs
 QList<QString> gValidDesktopFiles;
-bool DuiDesktopEntry::isValid() const
+bool MDesktopEntry::isValid() const
 {
     return gValidDesktopFiles.contains(fileName());
 }
@@ -103,7 +103,7 @@ void Ut_QuickLaunchBar::init()
     gValidDesktopFiles.clear();
     gValidDesktopFiles << "/tmp/existing.desktop";
 
-    DuiDataStore *configuration = new TestDataStore;
+    MDataStore *configuration = new TestDataStore;
     configuration->setValue("2/desktopFile", "/tmp/existing.desktop");
     configuration->setValue("4/desktopFile", "/tmp/inexisting.desktop");
     setupTestSubject(configuration);
@@ -115,14 +115,14 @@ void Ut_QuickLaunchBar::cleanup()
     m_subject = NULL;
 }
 
-void Ut_QuickLaunchBar::setupTestSubject(DuiDataStore *configuration)
+void Ut_QuickLaunchBar::setupTestSubject(MDataStore *configuration)
 {
     delete m_subject;
     m_configuration = configuration;
     m_subject = new QuickLaunchBar(configuration);
     connect(this, SIGNAL(updateWidgetList()), m_subject, SLOT(updateWidgetList()));
     connect(this, SIGNAL(applicationLaunched(const QString &)), m_subject, SLOT(launchApplication(const QString &)));
-    connect(this, SIGNAL(duiApplicationLaunched(const QString &)), m_subject, SLOT(launchDuiApplication(const QString &)));
+    connect(this, SIGNAL(mApplicationLaunched(const QString &)), m_subject, SLOT(launchMApplication(const QString &)));
 }
 
 void Ut_QuickLaunchBar::testInitialization()
@@ -162,11 +162,11 @@ void Ut_QuickLaunchBar::testLaunchApplication()
     QCOMPARE(gLauncherStub->stubLastCallTo("startApplication").parameter<QString>(0), QString("testApplication"));
 }
 
-void Ut_QuickLaunchBar::testLaunchDuiApplication()
+void Ut_QuickLaunchBar::testLaunchMApplication()
 {
-    emit duiApplicationLaunched("testService");
-    QCOMPARE(gLauncherStub->stubCallCount("startDuiApplication"), 1);
-    QCOMPARE(gLauncherStub->stubLastCallTo("startDuiApplication").parameter<QString>(0), QString("testService"));
+    emit mApplicationLaunched("testService");
+    QCOMPARE(gLauncherStub->stubCallCount("startMApplication"), 1);
+    QCOMPARE(gLauncherStub->stubLastCallTo("startMApplication").parameter<QString>(0), QString("testService"));
 }
 
 void Ut_QuickLaunchBar::testExternalConfigurationChangeIsNoticed()

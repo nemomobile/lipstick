@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -23,18 +23,18 @@
 #include "statusindicator.h"
 #include "statusindicatormodel.h"
 #include "statusindicatorlabelstyle.h"
-#include <DuiWidgetView>
+#include <MWidgetView>
 
-class DuiLabel;
+class MLabel;
 
 /*!
   \class StatusIndicatorLabelView
   \brief a view class for the status indicator widgets.
 */
-class StatusIndicatorLabelView : public DuiWidgetView
+class StatusIndicatorLabelView : public MWidgetView
 {
     Q_OBJECT
-    DUI_VIEW(StatusIndicatorModel, StatusIndicatorLabelStyle)
+    M_VIEW(StatusIndicatorModel, StatusIndicatorLabelStyle)
 
 public:
     /*!
@@ -64,7 +64,7 @@ private:
     StatusIndicator *controller;
 
     //! A label for the text
-    DuiLabel *label;
+    MLabel *label;
 };
 
 #endif // STATUSINDICATORLABELVIEW_H

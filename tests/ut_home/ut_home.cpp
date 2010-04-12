@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -17,12 +17,12 @@
 **
 ****************************************************************************/
 
-#include <DuiPannableViewport>
-#include <DuiModalSceneWindow>
-#include <DuiWidgetView>
-#include <DuiButton>
-#include <DuiScene>
-#include <DuiSceneManager>
+#include <MPannableViewport>
+#include <MModalSceneWindow>
+#include <MWidgetView>
+#include <MButton>
+#include <MScene>
+#include <MSceneManager>
 #include "ut_home.h"
 #include "homeapplication_stub.h"
 #include "home.h"
@@ -37,7 +37,7 @@ void XSetWMProperties(Display *, Window, XTextProperty *, XTextProperty *, char 
 // Desktop stubs
 Desktop *desktopWidget = NULL;
 
-Desktop::Desktop(DuiWidget *parent) : DuiWidgetController(new DesktopModel, parent)
+Desktop::Desktop(MWidget *parent) : MWidgetController(new DesktopModel, parent)
 {
     desktopWidget = this;
 }

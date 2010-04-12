@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -21,21 +21,21 @@
 #define LAUNCHERPAGE_H
 
 #include <QObject>
-#include <DuiWidgetController>
+#include <MWidgetController>
 #include "launcherpagemodel.h"
 
 
-class LauncherPage : public DuiWidgetController
+class LauncherPage : public MWidgetController
 {
     Q_OBJECT
-    DUI_CONTROLLER(LauncherPage)
+    M_CONTROLLER(LauncherPage)
 public:
 
     /*!
      * Constructs a LauncherPage
      * \param parent The parent widget of this page.
      */
-    LauncherPage(DuiWidget *parent = NULL);
+    LauncherPage(MWidget *parent = NULL);
 
     /*!
      * Add button to page.

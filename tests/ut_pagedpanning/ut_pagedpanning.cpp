@@ -14,7 +14,7 @@
  * written consent of Nokia.
  */
 #include <QtTest/QtTest>
-#include <DuiApplication>
+#include <MApplication>
 #include <QDebug>
 #include <QSignalSpy>
 #include "pagedpanning.h"
@@ -24,7 +24,7 @@ void Ut_PagedPanning::initTestCase()
 {
     int argc = 1;
     char *app_name = (char *)"./ut_switcherphysicsintegrationstrategy";
-    app = new DuiApplication(argc, &app_name);
+    app = new MApplication(argc, &app_name);
 }
 
 

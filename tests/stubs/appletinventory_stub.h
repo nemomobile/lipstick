@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -30,8 +30,8 @@ class AppletInventoryStub : public StubBase
 public:
     virtual void AppletInventoryConstructor();
     virtual void AppletInventoryDestructor();
-    virtual AppletInventory::InitializationError start(DuiDynamicContainer *containerWidget);
-    virtual DuiWidget *instantiateApplet(const DuiHomeAppletMetaData &metadata);
+    virtual AppletInventory::InitializationError start(MDynamicContainer *containerWidget);
+    virtual MWidget *instantiateApplet(const MHomeAppletMetaData &metadata);
     virtual void appletPathChanged(const QString &path);
     virtual void appletButtonClicked();
     virtual uint getUniqueAppletId();
@@ -53,20 +53,20 @@ void AppletInventoryStub::AppletInventoryDestructor()
 
 }
 
-AppletInventory::InitializationError AppletInventoryStub::start(DuiDynamicContainer *containerWidget)
+AppletInventory::InitializationError AppletInventoryStub::start(MDynamicContainer *containerWidget)
 {
     QList<ParameterBase *> params;
-    params.append(new Parameter<DuiDynamicContainer *>(containerWidget));
+    params.append(new Parameter<MDynamicContainer *>(containerWidget));
     stubMethodEntered("start", params);
     return stubReturnValue<AppletInventory::InitializationError>("start");
 }
 
-DuiWidget *AppletInventoryStub::instantiateApplet(const DuiHomeAppletMetaData &metadata)
+MWidget *AppletInventoryStub::instantiateApplet(const MHomeAppletMetaData &metadata)
 {
     QList<ParameterBase *> params;
-    params.append(new Parameter<const DuiHomeAppletMetaData & >(metadata));
+    params.append(new Parameter<const MHomeAppletMetaData & >(metadata));
     stubMethodEntered("instantiateApplet", params);
-    return stubReturnValue<DuiWidget *>("instantiateApplet");
+    return stubReturnValue<MWidget *>("instantiateApplet");
 }
 
 void AppletInventoryStub::appletPathChanged(const QString &path)
@@ -102,8 +102,8 @@ AppletInventoryStub *gAppletInventoryStub = &gDefaultAppletInventoryStub;
 
 
 // 4. CREATE A PROXY WHICH CALLS THE STUB
-AppletInventory::AppletInventory(DuiWidget *parent)
-    : DuiDynamicContainer(Qt::Vertical, parent)
+AppletInventory::AppletInventory(MWidget *parent)
+    : MDynamicContainer(Qt::Vertical, parent)
 {
     gAppletInventoryStub->AppletInventoryConstructor();
 }
@@ -113,12 +113,12 @@ AppletInventory::~AppletInventory()
     gAppletInventoryStub->AppletInventoryDestructor();
 }
 
-AppletInventory::InitializationError AppletInventory::start(DuiDynamicContainer *containerWidget)
+AppletInventory::InitializationError AppletInventory::start(MDynamicContainer *containerWidget)
 {
     return gAppletInventoryStub->start(containerWidget);
 }
 
-DuiWidget *AppletInventory::instantiateApplet(const DuiHomeAppletMetaData &metadata)
+MWidget *AppletInventory::instantiateApplet(const MHomeAppletMetaData &metadata)
 {
     return gAppletInventoryStub->instantiateApplet(metadata);
 }

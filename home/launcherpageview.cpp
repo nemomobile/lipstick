@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -21,13 +21,13 @@
 #include "launcherpage.h"
 #include "launcherpagemodel.h"
 #include "launcherbutton.h"
-#include <DuiLayout>
-#include <DuiFlowLayoutPolicy>
+#include <MLayout>
+#include <MFlowLayoutPolicy>
 
 LauncherPageView::LauncherPageView(LauncherPage *controller) :
-    DuiWidgetView(controller),
-    layout(new DuiLayout),
-    policy(new DuiFlowLayoutPolicy(layout))
+    MWidgetView(controller),
+    layout(new MLayout),
+    policy(new MFlowLayoutPolicy(layout))
 {
     policy->setObjectName("LauncherPageFlowLayoutPolicy");
     controller->setLayout(layout);
@@ -39,7 +39,7 @@ LauncherPageView::~LauncherPageView()
 
 void LauncherPageView::updateData(const QList<const char *>& modifications)
 {
-    DuiWidgetView::updateData(modifications);
+    MWidgetView::updateData(modifications);
     const char *member;
     foreach(member, modifications) {
         if (member == LauncherPageModel::LauncherButtons) {
@@ -58,11 +58,11 @@ void LauncherPageView::updateData(const QList<const char *>& modifications)
 
 void LauncherPageView::setupModel()
 {
-    DuiWidgetView::setupModel();
+    MWidgetView::setupModel();
 
     QList<const char *> modifications;
     modifications << LauncherPageModel::LauncherButtons;
     updateData(modifications);
 }
 
-DUI_REGISTER_VIEW_NEW(LauncherPageView, LauncherPage)
+M_REGISTER_VIEW_NEW(LauncherPageView, LauncherPage)

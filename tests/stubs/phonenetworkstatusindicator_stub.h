@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -28,14 +28,14 @@
 class PhoneNetworkStatusIndicatorStub : public StubBase
 {
 public:
-    virtual void PhoneNetworkStatusIndicatorConstructor(ApplicationContext &context, DuiWidget *parent);
+    virtual void PhoneNetworkStatusIndicatorConstructor(ApplicationContext &context, MWidget *parent);
     virtual void PhoneNetworkStatusIndicatorDestructor();
     virtual void phoneNetworkChanged();
     ContextItem *networkName ;
 };
 
 // 2. IMPLEMENT STUB
-void PhoneNetworkStatusIndicatorStub::PhoneNetworkStatusIndicatorConstructor(ApplicationContext &context, DuiWidget *parent)
+void PhoneNetworkStatusIndicatorStub::PhoneNetworkStatusIndicatorConstructor(ApplicationContext &context, MWidget *parent)
 {
     Q_UNUSED(context);
     Q_UNUSED(parent);
@@ -58,7 +58,7 @@ PhoneNetworkStatusIndicatorStub *gPhoneNetworkStatusIndicatorStub = &gDefaultPho
 
 
 // 4. CREATE A PROXY WHICH CALLS THE STUB
-PhoneNetworkStatusIndicator::PhoneNetworkStatusIndicator(ApplicationContext &context, DuiWidget *parent)
+PhoneNetworkStatusIndicator::PhoneNetworkStatusIndicator(ApplicationContext &context, MWidget *parent)
 {
     gPhoneNetworkStatusIndicatorStub->PhoneNetworkStatusIndicatorConstructor(context, parent);
 }

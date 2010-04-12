@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -20,7 +20,7 @@
 #ifndef STATUSINDICATOR_H
 #define STATUSINDICATOR_H
 
-#include <DuiWidgetController>
+#include <MWidgetController>
 #include <QSharedPointer>
 #include "statusindicatormodel.h"
 
@@ -31,10 +31,10 @@ class ContextItem;
  * StatusIndicator is a widget for displaying either image or text based status
  * indicators in the status indicator area of the home screen.
  */
-class StatusIndicator : public DuiWidgetController
+class StatusIndicator : public MWidgetController
 {
     Q_OBJECT
-    DUI_CONTROLLER(StatusIndicator)
+    M_CONTROLLER(StatusIndicator)
 
     Q_PROPERTY(QVariant value READ value WRITE setValue)
 
@@ -42,9 +42,9 @@ public:
     /*!
      * Constructs a StatusIndicator.
      *
-     * \param parent parent DuiWidget
+     * \param parent parent MWidget
      */
-    explicit StatusIndicator(DuiWidget *parent = NULL);
+    explicit StatusIndicator(MWidget *parent = NULL);
 
     /*!
      * \brief Destructor
@@ -99,16 +99,16 @@ private:
 class PhoneNetworkStatusIndicator : public StatusIndicator
 {
     Q_OBJECT
-    DUI_CONTROLLER(PhoneNetworkStatusIndicator)
+    M_CONTROLLER(PhoneNetworkStatusIndicator)
 
 public:
     /*!
      * Constructs a PhoneNetworkStatusIndicator.
      *
      * \param context the application context to get status information from
-     * \param parent parent DuiWidget. If parent is NULL, the creating client must take the responsibility to delete the indicator.
+     * \param parent parent MWidget. If parent is NULL, the creating client must take the responsibility to delete the indicator.
      */
-    explicit PhoneNetworkStatusIndicator(ApplicationContext &context, DuiWidget *parent = NULL);
+    explicit PhoneNetworkStatusIndicator(ApplicationContext &context, MWidget *parent = NULL);
 
     virtual ~PhoneNetworkStatusIndicator();
 

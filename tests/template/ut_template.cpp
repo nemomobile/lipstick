@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -17,7 +17,7 @@
 **
 ****************************************************************************/
 
-#include <DuiApplication>
+#include <MApplication>
 #include "ut_mkutclassname.h"
 mkutclassinclude
 mkutclassinclude_p
@@ -26,7 +26,7 @@ void Ut_MkUtClassName::initTestCase()
 {
     static int argc = 1;
     static char *app_name[1] = { (char *) "./ut_mkutclassname" };
-    app = new DuiApplication(argc, app_name);
+    app = new MApplication(argc, app_name);
 }
 
 void Ut_MkUtClassName::cleanupTestCase()

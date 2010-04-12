@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -20,22 +20,22 @@
 #ifndef APPLETSPACEVIEW_H_
 #define APPLETSPACEVIEW_H_
 
-#include <duiextendingbackgroundview.h>
+#include <mextendingbackgroundview.h>
 #include "appletspacestyle.h"
 #include "appletspacemodel.h"
 
 class AppletSpace;
-class DuiMashupCanvas;
-class DuiOverlay;
-class DuiButton;
+class MMashupCanvas;
+class MOverlay;
+class MButton;
 
 /*!
  * The applet space view contains a mashup
  */
-class AppletSpaceView : public DuiExtendingBackgroundView
+class AppletSpaceView : public MExtendingBackgroundView
 {
     Q_OBJECT
-    DUI_VIEW(AppletSpaceModel, AppletSpaceStyle)
+    M_VIEW(AppletSpaceModel, AppletSpaceStyle)
 
 public:
     /*!
@@ -59,11 +59,11 @@ private:
     //! The AppletSpace controller
     AppletSpace *controller;
     //! The mashup canvas
-    DuiMashupCanvas *mashupCanvas;
+    MMashupCanvas *mashupCanvas;
     //! An overlay for the close button
-    DuiOverlay *closeButtonOverlay;
+    MOverlay *closeButtonOverlay;
     //! A close button
-    DuiButton *closeButton;
+    MButton *closeButton;
 };
 
 #endif /* APPLETSPACEVIEW_H_ */

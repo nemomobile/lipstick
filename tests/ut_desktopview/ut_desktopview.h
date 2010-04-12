@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -24,17 +24,17 @@
 #include <QObject>
 #include "desktopview.h"
 
-class DuiApplication;
+class MApplication;
 class MainWindow;
 class Desktop;
 class QPainter;
 class QPixmap;
 class MockPaintDevice;
-class DuiButton;
+class MButton;
 
 class TestDesktopView : public DesktopView
 {
-    DUI_VIEW(DesktopModel, DesktopStyle)
+    M_VIEW(DesktopModel, DesktopStyle)
 
 public:
     TestDesktopView(Desktop *desktop);
@@ -77,8 +77,8 @@ signals:
     void launcherButtonClicked();
 
 private:
-    // The duiapp
-    DuiApplication *app;
+    // The mapp
+    MApplication *app;
     // The object being tested
     TestDesktopView *desktopView;
     // Desktop for the view

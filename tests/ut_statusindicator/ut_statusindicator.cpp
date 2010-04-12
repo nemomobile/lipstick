@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -18,8 +18,8 @@
 ****************************************************************************/
 
 #include "ut_statusindicator.h"
-#include <DuiApplication>
-#include <DuiOnDisplayChangeEvent>
+#include <MApplication>
+#include <MOnDisplayChangeEvent>
 #include "statusindicator.h"
 #include "testcontextitem.h"
 #include <QtTest/QtTest>
@@ -53,22 +53,22 @@ void Ut_StatusIndicator::cleanup()
 
 void Ut_StatusIndicator::initTestCase()
 {
-    // DuiApplications must be created manually these days due to theme system changes
+    // MApplications must be created manually these days due to theme system changes
     static int argc = 1;
     static char *app_name = (char *)"./ut_statusindicator";
-    app = new DuiApplication(argc, &app_name);
+    app = new MApplication(argc, &app_name);
 }
 
 void Ut_StatusIndicator::cleanupTestCase()
 {
-    // Destroy the DuiApplication
+    // Destroy the MApplication
     delete app;
 }
 
 void Ut_StatusIndicator::testModelUpdates()
 {
-    DuiOnDisplayChangeEvent exitDisplayEvent(DuiOnDisplayChangeEvent::FullyOffDisplay, QRectF());
-    DuiOnDisplayChangeEvent enterDisplayEvent(DuiOnDisplayChangeEvent::FullyOnDisplay, QRectF());
+    MOnDisplayChangeEvent exitDisplayEvent(MOnDisplayChangeEvent::FullyOffDisplay, QRectF());
+    MOnDisplayChangeEvent enterDisplayEvent(MOnDisplayChangeEvent::FullyOnDisplay, QRectF());
     statusIndicator = new PhoneNetworkStatusIndicator(*testContext);
 
     // When the application is visible the model should be updated

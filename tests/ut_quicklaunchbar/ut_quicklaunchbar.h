@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -20,11 +20,11 @@
 #ifndef UT_QUICKLAUNCHBAR_H
 #define UT_QUICKLAUNCHBAR_H
 
-#include "duidatastore.h"
+#include "mdatastore.h"
 
 class QuickLaunchBar;
 
-class TestDataStore : public DuiDataStore
+class TestDataStore : public MDataStore
 {
     Q_OBJECT
 
@@ -51,7 +51,7 @@ public:
 signals:
     void updateWidgetList();
     void applicationLaunched(const QString &application);
-    void duiApplicationLaunched(const QString &serviceName);
+    void mApplicationLaunched(const QString &serviceName);
 
 private slots:
     // Called before the first testfunction is executed
@@ -63,21 +63,21 @@ private slots:
     // Called after every testfunction
     void cleanup();
 
-    void setupTestSubject(DuiDataStore *configuration);
+    void setupTestSubject(MDataStore *configuration);
 
     // Test cases
     void testInitialization();
     void testInitializationWithoutDataStore();
     void testRemoveOneApplicationFromFileSystem();
     void testLaunchApplication();
-    void testLaunchDuiApplication();
+    void testLaunchMApplication();
     void testExternalConfigurationChangeIsNoticed();
 
 private:
     // The object being tested
     QuickLaunchBar *m_subject;
     // The configuration object used by the test subject
-    DuiDataStore *m_configuration;
+    MDataStore *m_configuration;
 };
 
 #endif

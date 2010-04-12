@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -17,7 +17,7 @@
 **
 ****************************************************************************/
 
-#include <DuiApplication>
+#include <MApplication>
 #include "ut_quicklaunchbarview.h"
 #include "quicklaunchbar.h"
 #include "quicklaunchbarview.h"
@@ -29,7 +29,7 @@ void Ut_QuickLaunchBarView::initTestCase()
 {
     static int argc = 1;
     static char *app_name[1] = { (char *) "./ut_quicklaunchbarview" };
-    app = new DuiApplication(argc, app_name);
+    app = new MApplication(argc, app_name);
 }
 
 void Ut_QuickLaunchBarView::cleanupTestCase()
@@ -53,10 +53,10 @@ void Ut_QuickLaunchBarView::testUpdateData()
 {
     QuickLaunchBarModel model;
     m_subject->setModel(&model);
-    QList<DuiWidget *> widgets;
-    DuiWidget *widget1 = new DuiWidget;
-    DuiWidget *widget2 = new DuiWidget;
-    DuiWidget *widget3 = new DuiWidget;
+    QList<MWidget *> widgets;
+    MWidget *widget1 = new MWidget;
+    MWidget *widget2 = new MWidget;
+    MWidget *widget3 = new MWidget;
     widgets << widget1;
     widgets << widget2;
     widgets << widget3;

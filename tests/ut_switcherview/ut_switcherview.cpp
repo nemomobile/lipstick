@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -17,12 +17,12 @@
 **
 ****************************************************************************/
 
-#include <DuiApplication>
-#include <DuiApplicationPage>
-#include "duiwindow_stub.h"
+#include <MApplication>
+#include <MApplicationPage>
+#include "mwindow_stub.h"
 #include "ut_switcherview.h"
 #include "mainwindow_stub.h"
-#include "duiscenemanager_stub.h"
+#include "mscenemanager_stub.h"
 #include "switcherview.h"
 #include "switcherstyle.h"
 #include "switcher_stub.h"
@@ -43,7 +43,7 @@ class Ut_SwitcherStyleContainer : public SwitcherStyleContainer
 
 class TestSwitcherView : public SwitcherView
 {
-    DUI_VIEW(SwitcherModel, Ut_SwitcherStyle)
+    M_VIEW(SwitcherModel, Ut_SwitcherStyle)
 
 public:
     TestSwitcherView(Switcher *controller) : SwitcherView(controller) {}
@@ -61,19 +61,19 @@ public:
 };
 
 // Home stubs
-class Home : public DuiApplicationPage
+class Home : public MApplicationPage
 {
 public:
     Home(QGraphicsItem *parent = 0);
 };
 
-Home::Home(QGraphicsItem *parent) : DuiApplicationPage(parent)
+Home::Home(QGraphicsItem *parent) : MApplicationPage(parent)
 {
 }
 
 // SwitcherButton stubs
-SwitcherButton::SwitcherButton(const QString &title, DuiWidget *parent, Window window, WindowInfo::WindowPriority windowPriority) :
-    DuiButton(title, parent),
+SwitcherButton::SwitcherButton(const QString &title, MWidget *parent, Window window, WindowInfo::WindowPriority windowPriority) :
+    MButton(title, parent),
     priority(windowPriority)
 {
     Q_UNUSED(title);
@@ -137,7 +137,7 @@ void PagedPanning::panToPage(uint itemIndex) {
     emit pageChanged(itemIndex);
 }
 
-PagedPanning::PagedPanning(QObject* parent) : DuiPhysics2DPanning(parent),
+PagedPanning::PagedPanning(QObject* parent) : MPhysics2DPanning(parent),
 					      pageWidth_(0),
 					      currentPage(0),
 					      autoIntegrateMode(false),
@@ -164,9 +164,9 @@ void Ut_SwitcherView::initTestCase()
 {
     static int argc = 1;
     static char *app_name = (char *)"./ut_switcherview";
-    app = new DuiApplication(argc, &app_name);
-    duiSceneManager = new DuiSceneManager(NULL, NULL);
-    gDuiWindowStub->stubSetReturnValue("sceneManager", duiSceneManager);
+    app = new MApplication(argc, &app_name);
+    mSceneManager = new MSceneManager(NULL, NULL);
+    gMWindowStub->stubSetReturnValue("sceneManager", mSceneManager);
 }
 
 void Ut_SwitcherView::cleanupTestCase()
@@ -212,7 +212,7 @@ void Ut_SwitcherView::cleanup()
 void Ut_SwitcherView::verifyButtonModesInOverviewMode(QList< QSharedPointer<SwitcherButton> > &buttonList)
 {
     int buttons = buttonList.count();
-    if (gDuiSceneManagerStub->orientation() == Dui::Landscape){
+    if (gMSceneManagerStub->orientation() == M::Landscape){
         for(int i = 0; i < buttons; i++){
             if (buttons < 3) {
                 QVERIFY(buttonList[i].data()->model()->viewMode() == SwitcherButtonModel::Large);
@@ -326,19 +326,19 @@ void Ut_SwitcherView::testButtonModesInOverviewMode()
 {
     m_subject->modifiableStyle()->setRowsPerPage(2);
     m_subject->modifiableStyle()->setColumnsPerPage(3);
-    gDuiSceneManagerStub->stubSetReturnValue("orientation", Dui::Landscape);
-    verifyButtonModesInOverviewMode(Dui::Landscape);
+    gMSceneManagerStub->stubSetReturnValue("orientation", M::Landscape);
+    verifyButtonModesInOverviewMode(M::Landscape);
 
     m_subject->modifiableStyle()->setRowsPerPage(3);
     m_subject->modifiableStyle()->setColumnsPerPage(2);
-    gDuiSceneManagerStub->stubSetReturnValue("orientation", Dui::Portrait);
-    verifyButtonModesInOverviewMode(Dui::Portrait);
+    gMSceneManagerStub->stubSetReturnValue("orientation", M::Portrait);
+    verifyButtonModesInOverviewMode(M::Portrait);
 }
 
-void Ut_SwitcherView::verifyButtonModesInOverviewMode(Dui::Orientation orientation)
+void Ut_SwitcherView::verifyButtonModesInOverviewMode(M::Orientation orientation)
 {
     g_switcherModel->setSwitcherMode(SwitcherModel::Overview);
-    gDuiSceneManagerStub->stubSetReturnValue("orientation", orientation);
+    gMSceneManagerStub->stubSetReturnValue("orientation", orientation);
 
     QList< QSharedPointer<SwitcherButton> > buttonList = createButtonList(1);
 
@@ -365,7 +365,7 @@ void Ut_SwitcherView::verifyButtonModesInOverviewMode(Dui::Orientation orientati
 void Ut_SwitcherView::testPanningStoppedInOverView()
 {
     g_switcherModel->setSwitcherMode(SwitcherModel::Overview);
-    gDuiSceneManagerStub->stubSetReturnValue("orientation", Dui::Landscape);
+    gMSceneManagerStub->stubSetReturnValue("orientation", M::Landscape);
     m_subject->modifiableStyle()->setRowsPerPage(2);
     m_subject->modifiableStyle()->setColumnsPerPage(3);
 

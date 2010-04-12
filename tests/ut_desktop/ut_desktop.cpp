@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -33,15 +33,15 @@ void Ut_Desktop::cleanup()
 
 void Ut_Desktop::initTestCase()
 {
-    // DuiApplications must be created manually these days due to theme system changes
+    // MApplications must be created manually these days due to theme system changes
     static int argc = 1;
     static char *app_name = (char *)"./ut_desktop";
-    app = new DuiApplication(argc, &app_name);
+    app = new MApplication(argc, &app_name);
 }
 
 void Ut_Desktop::cleanupTestCase()
 {
-    // Destroy the DuiApplication
+    // Destroy the MApplication
     delete app;
 }
 

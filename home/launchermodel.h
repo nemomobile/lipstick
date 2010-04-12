@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -20,20 +20,20 @@
 #ifndef LAUNCHERMODEL_H_
 #define LAUNCHERMODEL_H_
 
-#include <duiwidgetmodel.h>
+#include <mwidgetmodel.h>
 #include "launcherpage.h"
 
-class LauncherModel : public DuiWidgetModel
+class LauncherModel : public MWidgetModel
 {
     Q_OBJECT
-    DUI_MODEL(LauncherModel)
+    M_MODEL(LauncherModel)
 
 public:
     typedef QList< QSharedPointer<LauncherPage> > LauncherPageList;
 
 private:
     //! The list of widgets to show in the launcher
-    DUI_MODEL_PROPERTY(LauncherModel::LauncherPageList, launcherPages, LauncherPages, true, LauncherPageList())
+    M_MODEL_PROPERTY(LauncherModel::LauncherPageList, launcherPages, LauncherPages, true, LauncherPageList())
 };
 
 #endif /* LAUNCHERMODEL_H_ */

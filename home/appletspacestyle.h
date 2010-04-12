@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -19,17 +19,17 @@
 #ifndef APPLETSPACESTYLE_H
 #define APPLETSPACESTYLE_H
 
-#include <duiextendingbackgroundstyle.h>
+#include <mextendingbackgroundstyle.h>
 
-class AppletSpaceStyle : public DuiExtendingBackgroundStyle
+class AppletSpaceStyle : public MExtendingBackgroundStyle
 {
     Q_OBJECT
-    DUI_STYLE(AppletSpaceStyle)
+    M_STYLE(AppletSpaceStyle)
 };
 
-class AppletSpaceStyleContainer : public DuiExtendingBackgroundStyleContainer
+class AppletSpaceStyleContainer : public MExtendingBackgroundStyleContainer
 {
-    DUI_STYLE_CONTAINER(AppletSpaceStyle)
+    M_STYLE_CONTAINER(AppletSpaceStyle)
 };
 
 #endif

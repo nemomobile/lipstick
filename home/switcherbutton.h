@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -21,7 +21,7 @@
 #define SWITCHERBUTTON_H
 
 #include <QTimer>
-#include <DuiButton>
+#include <MButton>
 #include "switcherbuttonmodel.h"
 #include "windowinfo.h"
 #include <X11/Xlib.h>
@@ -29,21 +29,21 @@
 /*!
  * SwitcherButton widget represents an open window in the Switcher.
  */
-class SwitcherButton : public DuiButton
+class SwitcherButton : public MButton
 {
     Q_OBJECT
-    DUI_CONTROLLER(SwitcherButton)
+    M_CONTROLLER(SwitcherButton)
 
 public:
     /*!
      * Constructs an SwitcherButton.
      *
      * \param title the Title of the window represented by this button
-     * \param parent parent DuiWidget
+     * \param parent parent MWidget
      * \param window the X Window represented by this button
      * \param priority the priority of the X Window represented by this button
      */
-    SwitcherButton(const QString &title, DuiWidget *parent = NULL, Window window = 0, WindowInfo::WindowPriority windowPriority = WindowInfo::Normal);
+    SwitcherButton(const QString &title, MWidget *parent = NULL, Window window = 0, WindowInfo::WindowPriority windowPriority = WindowInfo::Normal);
 
     /*!
      * Destroys the SwitcherButton.

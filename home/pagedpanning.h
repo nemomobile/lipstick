@@ -1,5 +1,5 @@
 /*
- * This file is part of duihome
+ * This file is part of mhome
  *
  * Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -17,18 +17,18 @@
 #define PAGEDPANNING_H
 
 #include <QObject>
-#include <duiphysics2dpanning.h>
+#include <mphysics2dpanning.h>
 
 /*!
  * \class PagedPanning
  *
- * \brief This class extends the \c DuiPhysics2DPanning to provide 
+ * \brief This class extends the \c MPhysics2DPanning to provide 
  * a paged effect to the viewport
  *
  * The paging is only supported in the horizontal direction.
  *
  */
-class PagedPanning : public DuiPhysics2DPanning
+class PagedPanning : public MPhysics2DPanning
 {
     Q_OBJECT
     

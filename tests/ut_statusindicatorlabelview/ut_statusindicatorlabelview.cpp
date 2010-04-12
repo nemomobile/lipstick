@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -20,8 +20,8 @@
 #include "ut_statusindicatorlabelview.h"
 #include "statusindicatorlabelview.h"
 
-#include <DuiApplication>
-#include <DuiLabel>
+#include <MApplication>
+#include <MLabel>
 
 TestStatusIndicatorLabelView::TestStatusIndicatorLabelView(StatusIndicator *controller) :
     StatusIndicatorLabelView(controller)
@@ -33,17 +33,17 @@ StatusIndicatorModel *TestStatusIndicatorLabelView::getModel()
     return model();
 }
 
-QString gDuiLabelText;
-void DuiLabel::setText(const QString &text)
+QString gMLabelText;
+void MLabel::setText(const QString &text)
 {
-    gDuiLabelText = text;
+    gMLabelText = text;
 }
 
 void Ut_StatusIndicatorLabelView::initTestCase()
 {
     static int argc = 1;
     static char *app_name = (char *)"./ut_statusindicatorlabelview";
-    app = new DuiApplication(argc, &app_name);
+    app = new MApplication(argc, &app_name);
 }
 
 void Ut_StatusIndicatorLabelView::cleanupTestCase()
@@ -57,7 +57,7 @@ void Ut_StatusIndicatorLabelView::init()
     m_subject = new TestStatusIndicatorLabelView(controller);
     controller->setView(m_subject);
 
-    gDuiLabelText.clear();
+    gMLabelText.clear();
 }
 
 void Ut_StatusIndicatorLabelView::cleanup()
@@ -68,7 +68,7 @@ void Ut_StatusIndicatorLabelView::cleanup()
 void Ut_StatusIndicatorLabelView::testLabelChanged()
 {
     m_subject->getModel()->setValue("newValue");
-    QCOMPARE(gDuiLabelText, QString("newValue"));
+    QCOMPARE(gMLabelText, QString("newValue"));
 }
 
 void Ut_StatusIndicatorLabelView::testModelChanged()
@@ -76,7 +76,7 @@ void Ut_StatusIndicatorLabelView::testModelChanged()
     StatusIndicatorModel *m = new StatusIndicatorModel;
     m->setValue("newValue");
     m_subject->setModel(m);
-    QCOMPARE(gDuiLabelText, QString("newValue"));
+    QCOMPARE(gMLabelText, QString("newValue"));
 }
 
 

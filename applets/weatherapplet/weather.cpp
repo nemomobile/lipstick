@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -18,13 +18,13 @@
 ****************************************************************************/
 
 #include "weather.h"
-#include <DuiDataAccess>
-#include <DuiDataStore>
+#include <MDataAccess>
+#include <MDataStore>
 #include <QDebug>
 
 
-Weather::Weather(DuiDataStore &instanceData, DuiDataAccess &settings) :
-    DuiWidgetController(new WeatherModel, NULL),
+Weather::Weather(MDataStore &instanceData, MDataAccess &settings) :
+    MWidgetController(new WeatherModel, NULL),
     instanceData(instanceData),
     appletTitle(qtTrId("xx_weathertoday"))
 {

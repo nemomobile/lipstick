@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -23,16 +23,16 @@
 #include "pagedviewport.h"
 #include "mainwindow.h"
 #include <QGraphicsLinearLayout>
-#include <DuiFlowLayoutPolicy>
-#include <DuiOverlay>
-#include <DuiButton>
-#include <DuiApplication>
-#include <DuiSceneManager>
+#include <MFlowLayoutPolicy>
+#include <MOverlay>
+#include <MButton>
+#include <MApplication>
+#include <MSceneManager>
 
 LauncherView::LauncherView(Launcher *controller) :
-    DuiWidgetView(controller),
+    MWidgetView(controller),
     layout(new QGraphicsLinearLayout(Qt::Horizontal)),
-    pannedWidget(new DuiWidget)
+    pannedWidget(new MWidget)
 {
     layout->setSpacing(0);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -50,13 +50,13 @@ LauncherView::~LauncherView()
 
 void LauncherView::setGeometry(const QRectF &rect)
 {
-    DuiWidgetView::setGeometry(rect);
+    MWidgetView::setGeometry(rect);
     pagedViewport->updatePageWidth(rect.width());
 }
 
 void LauncherView::updateData(const QList<const char *>& modifications)
 {
-    DuiWidgetView::updateData(modifications);
+    MWidgetView::updateData(modifications);
     const char *member;
     foreach(member, modifications) {
         if (member == LauncherModel::LauncherPages) {
@@ -73,4 +73,4 @@ void LauncherView::updateData(const QList<const char *>& modifications)
     }
 }
 
-DUI_REGISTER_VIEW_NEW(LauncherView, Launcher)
+M_REGISTER_VIEW_NEW(LauncherView, Launcher)

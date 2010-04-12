@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -20,17 +20,17 @@
 #ifndef DESKTOP_H
 #define DESKTOP_H
 
-#include <DuiWidgetController>
+#include <MWidgetController>
 #include "desktopmodel.h"
 
 /*!
  * The desktop widget is a container for the status area,
  * notification area, switcher and the applet mashup canvas.
  */
-class Desktop : public DuiWidgetController
+class Desktop : public MWidgetController
 {
     Q_OBJECT
-    DUI_CONTROLLER(Desktop)
+    M_CONTROLLER(Desktop)
 
 public:
     /*!
@@ -38,7 +38,7 @@ public:
      *
      * \param parent the parent widget of the Desktop, defaults to NULL
      */
-    Desktop(DuiWidget *parent = NULL);
+    Desktop(MWidget *parent = NULL);
 
     /*!
      * Destroys the Desktop.

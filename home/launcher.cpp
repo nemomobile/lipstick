@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -19,9 +19,9 @@
 
 #include <QFlags>
 #include <QDir>
-#include <DuiApplicationIfProxy>
-#include <DuiDesktopEntry>
-#include "duifiledatastore.h"
+#include <MApplicationIfProxy>
+#include <MDesktopEntry>
+#include "mfiledatastore.h"
 #include "launcherdatastore.h"
 
 #include "launcher.h"
@@ -29,8 +29,8 @@
 
 static const char* const FILE_FILTER = "*.desktop";
 
-Launcher::Launcher(DuiWidget *parent) :
-    DuiWidgetController(new LauncherModel, parent),
+Launcher::Launcher(MWidget *parent) :
+    MWidgetController(new LauncherModel, parent),
     dataStore(NULL),
     initialized(false)
 {
@@ -51,7 +51,7 @@ void Launcher::activateLauncher()
             QDir::root().mkpath(QDir::homePath() + "/.config/duihome");
         }
 
-	DuiFileDataStore* backendStore = new DuiFileDataStore(QDir::homePath() + "/.config/duihome/launcherbuttons.data");
+	MFileDataStore* backendStore = new MFileDataStore(QDir::homePath() + "/.config/duihome/launcherbuttons.data");
 
         dataStore = new LauncherDataStore(backendStore);
 
@@ -102,7 +102,7 @@ void Launcher::updateButtonListFromEntries(const QStringList &modifiedPaths,
             QString filePath(fileInfo.absoluteFilePath());
             // If the entry is not in the launcher we might need to add it
             if (!contains(filePath)) {
-                DuiDesktopEntry e(filePath);
+                MDesktopEntry e(filePath);
                 if (isDesktopEntryValid(e, acceptedTypes)) {
                     desktopEntryFiles.append(filePath);
 
@@ -151,7 +151,7 @@ bool Launcher::contains(const QString &desktopEntryFile)
     return containsButton;
 }
 
-void Launcher::addNewLauncherButton(const DuiDesktopEntry &entry)
+void Launcher::addNewLauncherButton(const MDesktopEntry &entry)
 {
     QList< QSharedPointer<LauncherPage> > pages(model()->launcherPages());
     QSharedPointer<LauncherButton> button = QSharedPointer<LauncherButton>(createLauncherButton(entry));
@@ -171,14 +171,14 @@ void Launcher::addNewLauncherButton(const DuiDesktopEntry &entry)
     }
 }
 
-bool Launcher::isDesktopEntryValid(const DuiDesktopEntry &entry, const QStringList &acceptedTypes)
+bool Launcher::isDesktopEntryValid(const MDesktopEntry &entry, const QStringList &acceptedTypes)
 {
     return (entry.isValid() && acceptedTypes.contains(entry.type())) &&
 	(entry.onlyShowIn().count() == 0 || entry.onlyShowIn().contains("X-DUI")) &&
 	(entry.notShowIn().count() == 0 || !entry.notShowIn().contains("X-DUI"));
 }
 
-LauncherButton *Launcher::createLauncherButton(const DuiDesktopEntry &entry)
+LauncherButton *Launcher::createLauncherButton(const MDesktopEntry &entry)
 {
     LauncherButton *launcherButton = new LauncherButton(entry);
     connectLauncherButton(launcherButton);
@@ -190,9 +190,9 @@ void Launcher::launchApplication(const QString &application)
     startApplication(application);
 }
 
-void Launcher::launchDuiApplication(const QString &serviceName)
+void Launcher::launchMApplication(const QString &serviceName)
 {
-    startDuiApplication(serviceName);
+    startMApplication(serviceName);
 }
 
 void Launcher::setEnabled(bool enabled)
@@ -214,15 +214,15 @@ bool Launcher::startApplication(const QString &application)
     }
 }
 
-bool Launcher::startDuiApplication(const QString &serviceName)
+bool Launcher::startMApplication(const QString &serviceName)
 {
     qDebug() << "Attempting to launch " << serviceName;
 
-    DuiApplicationIfProxy duiApplicationIfProxy(serviceName, NULL);
+    MApplicationIfProxy mApplicationIfProxy(serviceName, NULL);
 
-    if (duiApplicationIfProxy.connection().isConnected()) {
+    if (mApplicationIfProxy.connection().isConnected()) {
         qDebug() << "Launching " << serviceName;
-        duiApplicationIfProxy.launch();
+        mApplicationIfProxy.launch();
         return true;
     } else {
         qWarning() << "Could not launch" << serviceName;
@@ -253,6 +253,6 @@ void Launcher::connectLauncherButton(LauncherButton* launcherButton)
 {
     launcherButton->setObjectName("LauncherButton");
     connect(launcherButton, SIGNAL(applicationLaunched(const QString &)), this, SLOT(launchApplication(const QString &)), Qt::QueuedConnection);
-    connect(launcherButton, SIGNAL(duiApplicationLaunched(const QString &)), this, SLOT(launchDuiApplication(const QString &)), Qt::QueuedConnection);
+    connect(launcherButton, SIGNAL(mApplicationLaunched(const QString &)), this, SLOT(launchMApplication(const QString &)), Qt::QueuedConnection);
     connect(launcherButton, SIGNAL(clicked()), this, SIGNAL(launcherButtonClicked()));
 }

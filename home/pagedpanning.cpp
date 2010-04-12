@@ -1,5 +1,5 @@
 /*
- * This file is part of duihome
+ * This file is part of mhome
  *
  * Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -18,7 +18,7 @@
 #include <QtGlobal>
 #include <algorithm>
 
-PagedPanning::PagedPanning(QObject* parent) : DuiPhysics2DPanning(parent),
+PagedPanning::PagedPanning(QObject* parent) : MPhysics2DPanning(parent),
 					      pageWidth_(0),
 					      currentPage(0),
 					      autoIntegrateMode(false),

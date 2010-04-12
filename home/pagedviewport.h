@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -19,7 +19,7 @@
 #ifndef PAGEDVIEWPORT_H
 #define PAGEDVIEWPORT_H
 
-#include <DuiPannableViewport>
+#include <MPannableViewport>
 
 class PagedPanning;
 
@@ -28,18 +28,18 @@ class PagedPanning;
  * \brief PagedViewport creates a view that allows any widget to be panned a set 
  * of pages.
  *
- * The PagedViewport extends the DuiPannableViewport functionality so that it
+ * The PagedViewport extends the MPannableViewport functionality so that it
  * pans the widget inside the viewport through pages. The page within this class
  * refres to the visual appearance only. 
  *
- * The widget inside the DuiPannableViewport
+ * The widget inside the MPannableViewport
  * is not split into multiple component or widgets. The PagedViewport only modifies the
- * movement of the DuiPannableViewport so that the widget being panned appears to
+ * movement of the MPannableViewport so that the widget being panned appears to
  * consist of multiple pages.
  * 
  * Currently only horizontal paging is supported.
  */
-class PagedViewport : public DuiPannableViewport
+class PagedViewport : public MPannableViewport
 {
     Q_OBJECT
 

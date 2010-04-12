@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -17,16 +17,16 @@
 **
 ****************************************************************************/
 
-#include <DuiAppletMetaData>
-#include <DuiLibrary>
+#include <MAppletMetaData>
+#include <MLibrary>
 #include "weatherapplet.h"
 #include "weather.h"
 #include "weatherview.h"
 
-DUI_LIBRARY
+M_LIBRARY
 Q_EXPORT_PLUGIN2(weatherapplet, WeatherApplet)
 
-DuiWidget *WeatherApplet::constructWidget(const DuiAppletMetaData &metaData, DuiDataStore &instanceData, DuiDataAccess &settings)
+MWidget *WeatherApplet::constructWidget(const MAppletMetaData &metaData, MDataStore &instanceData, MDataAccess &settings)
 {
     if (metaData.contains("X-Additional", "StartupDelay")) {
         QString delayStr = metaData.value("X-Additional", "StartupDelay");

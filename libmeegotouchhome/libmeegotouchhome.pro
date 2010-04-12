@@ -1,6 +1,6 @@
 TEMPLATE = lib
-CONFIG += dll dui
-TARGET = duihome
+CONFIG += dll meegotouch
+TARGET = meegotouchhome
 DEPENDPATH += .
 INCLUDEPATH += ../include \
     . \

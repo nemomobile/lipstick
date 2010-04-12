@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -16,10 +16,10 @@
 ** of this file.
 **
 ****************************************************************************/
-#include <DuiApplicationWindow>
-#include <DuiFlowLayoutPolicy>
+#include <MApplicationWindow>
+#include <MFlowLayoutPolicy>
 #include <QGraphicsLinearLayout>
-#include <DuiSceneManager>
+#include <MSceneManager>
 #include "ut_launcherview.h"
 #include "launcher.h"
 #include "launcherpage.h"
@@ -30,25 +30,25 @@
 #include "launcherview.h"
 #include "pagedviewport.h"
 
-#include "duiwidgetcreator.h"
-DUI_REGISTER_WIDGET(PagedViewport)
+#include "mwidgetcreator.h"
+M_REGISTER_WIDGET(PagedViewport)
 
-// DuiSceneWindow stubs
+// MSceneWindow stubs
 int showWindowCount = 0;
 int pageWidth = 0;
 
-void DuiSceneWindow::appear(DuiSceneWindow::DeletionPolicy)
+void MSceneWindow::appear(MSceneWindow::DeletionPolicy)
 {
     showWindowCount++;
 }
 
 int hideWindowCount = 0;
-void DuiSceneWindow::disappear()
+void MSceneWindow::disappear()
 {
     hideWindowCount++;
 }
 
-PagedViewport::PagedViewport(QGraphicsItem *parent) : DuiPannableViewport(parent)
+PagedViewport::PagedViewport(QGraphicsItem *parent) : MPannableViewport(parent)
 {   
 
 }
@@ -78,8 +78,8 @@ void Ut_LauncherView::initTestCase()
 {
     static int argc = 1;
     static char *app_name = (char *)"./ut_launcherview";
-    app = new DuiApplication(argc, &app_name);
-    appWindow = new DuiApplicationWindow;
+    app = new MApplication(argc, &app_name);
+    appWindow = new MApplicationWindow;
 }
 
 void Ut_LauncherView::cleanupTestCase()

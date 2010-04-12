@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -20,16 +20,16 @@
 #ifndef APPLETSPACE_H_
 #define APPLETSPACE_H_
 
-#include <DuiWidgetController>
+#include <MWidgetController>
 #include "appletspacemodel.h"
 
 /*!
  * A widget that contains an applet space (mashup canvas).
  */
-class AppletSpace : public DuiWidgetController
+class AppletSpace : public MWidgetController
 {
     Q_OBJECT
-    DUI_CONTROLLER(AppletSpace)
+    M_CONTROLLER(AppletSpace)
 
 public:
     /*!
@@ -37,7 +37,7 @@ public:
      *
      * \param parent Parent for the widget, defaults to NULL
      */
-    AppletSpace(DuiWidget *parent = NULL);
+    AppletSpace(MWidget *parent = NULL);
 
     /*!
      * Destroys the AppletSpace.

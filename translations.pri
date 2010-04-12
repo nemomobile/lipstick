@@ -6,13 +6,13 @@
 #
 # Create a subdirectory “translations” in the source folder of the
 # application which contains a translations.po file and the .ts
-# files, for example if the source dir is “libdui/demos/widgetsgallery”:
+# files, for example if the source dir is “libm/demos/widgetsgallery”:
 #
-#    libdui/demos/widgetsgallery/translations.pro
-#    libdui/demos/widgetsgallery/widgetsgallery_ar.ts
-#    libdui/demos/widgetsgallery/widgetsgallery_de.ts
-#    libdui/demos/widgetsgallery/widgetsgallery_en.ts
-#    libdui/demos/widgetsgallery/widgetsgallery_fi.ts
+#    libm/demos/widgetsgallery/translations.pro
+#    libm/demos/widgetsgallery/widgetsgallery_ar.ts
+#    libm/demos/widgetsgallery/widgetsgallery_de.ts
+#    libm/demos/widgetsgallery/widgetsgallery_en.ts
+#    libm/demos/widgetsgallery/widgetsgallery_fi.ts
 #
 # The translations.pro file should have contents like this:
 #
@@ -20,9 +20,9 @@
 #    CATALOGNAME = widgetsgallery
 #    SOURCEDIR = $$PWD/..
 #    TRANSLATIONDIR = $$PWD
-#    DUIROOT = ../../..
-#    include($$DUIROOT/duiconfig.pri)
-#    include($$DUIROOT/translations.pri)
+#    MROOT = ../../..
+#    include($$MROOT/mconfig.pri)
+#    include($$MROOT/translations.pri)
 #
 # It is better to have an extra translations.pro file in the directory
 # where the translations are instead of adding the stuff for the translations
@@ -35,7 +35,7 @@
 # Introducing the extra translations/translations.pro file makes it
 # necessary to add the widgetsgallery/translations directory to the
 # list of sub-directories in a .pro file higher up in the directory
-# hierarchy. For example the libdui/demos/demos.pro file contains
+# hierarchy. For example the libm/demos/demos.pro file contains
 # something like the following:
 #
 #    SUBDIRS     =  \
@@ -161,7 +161,7 @@ isEqual(INSTALL_TRANSLATIONS, "no") {
 }
 else {
     isEmpty(TRANSLATION_INSTALLDIR) {
-        TRANSLATION_INSTALLDIR = $${DUI_TRANSLATION_DIR}
+        TRANSLATION_INSTALLDIR = $${M_TRANSLATION_DIR}
     }
     qmfiles.files = $$prependAll(LANGUAGES, $$OUT_PWD/$${CATALOGNAME}_,.qm)
     !isEqual(DISABLE_QTTRID_ENGINEERING_ENGLISH, "yes") {

@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -18,21 +18,21 @@
 ****************************************************************************/
 #include <QtGui>
 
-#include <DuiLibrary>
+#include <MLibrary>
 #include "imageapplet.h"
 #include "imagewidget.h"
 
-DUI_LIBRARY
+M_LIBRARY
 Q_EXPORT_PLUGIN2(imageapplet, ImageApplet)
 
-DuiWidget *ImageApplet::constructWidget(const DuiAppletMetaData &metadata, DuiDataStore &, DuiDataAccess &)
+MWidget *ImageApplet::constructWidget(const MAppletMetaData &metadata, MDataStore &, MDataAccess &)
 {
-    if (!metadata.contains("DUI/X-DUIApplet-ImageLandscape") || !metadata.contains("DUI/X-DUIApplet-ImagePortrait")) {
+    if (!metadata.contains("M/X-MApplet-ImageLandscape") || !metadata.contains("M/X-MApplet-ImagePortrait")) {
         return NULL;
     }
 
-    ImageWidget *widget = new ImageWidget(metadata.value("DUI/X-DUIApplet-ImageLandscape"),
-                                          metadata.value("DUI/X-DUIApplet-ImagePortrait"));
+    ImageWidget *widget = new ImageWidget(metadata.value("M/X-MApplet-ImageLandscape"),
+                                          metadata.value("M/X-MApplet-ImagePortrait"));
 
     return widget;
 }

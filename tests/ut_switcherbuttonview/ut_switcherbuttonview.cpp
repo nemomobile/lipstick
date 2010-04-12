@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -19,10 +19,10 @@
 #include "ut_switcherbuttonview.h"
 
 #include <QGLContext>
-#include <DuiScalableImage>
-#include <DuiCancelEvent>
-#include <DuiSceneManager>
-#include <DuiScene>
+#include <MScalableImage>
+#include <MCancelEvent>
+#include <MSceneManager>
+#include <MScene>
 #include "mainwindow_stub.h"
 #include "homeapplication_stub.h"
 
@@ -46,39 +46,39 @@ int X11Wrapper::XChangeProperty(Display *, Window, Atom, Atom, int, int, unsigne
     return 0;
 }
 
-// DuiTheme stubs
-void DuiTheme::releasePixmap(const QPixmap *)
+// MTheme stubs
+void MTheme::releasePixmap(const QPixmap *)
 {
 }
 
-// DUIGLRenderer stubs (used by SwitcherButton)
-#ifdef DUI_USE_OPENGL
-DuiGLRenderer::DuiGLRenderer() : d_ptr(0)
+// MGLRenderer stubs (used by SwitcherButton)
+#ifdef M_USE_OPENGL
+MGLRenderer::MGLRenderer() : d_ptr(0)
 {
 }
 
-DuiGLRenderer::~DuiGLRenderer()
+MGLRenderer::~MGLRenderer()
 {
 }
 
-DuiGLRenderer *DuiGLRenderer::instance()
+MGLRenderer *MGLRenderer::instance()
 {
-    static DuiGLRenderer duiGLRenderer;
-    return &duiGLRenderer;
+    static MGLRenderer mGLRenderer;
+    return &mGLRenderer;
 }
 
-quint32 DuiGLRenderer::bindX11Pixmap(Pixmap pixmap)
+quint32 MGLRenderer::bindX11Pixmap(Pixmap pixmap)
 {
     Q_UNUSED(pixmap);
     return 1;
 }
 
-void DuiGLRenderer::unbindX11Pixmap(Pixmap pixmap)
+void MGLRenderer::unbindX11Pixmap(Pixmap pixmap)
 {
     Q_UNUSED(pixmap);
 }
 
-void DuiGLRenderer::drawTexture(const QTransform &transform, quint32 texId, const QSizeF &size, qreal opacity,
+void MGLRenderer::drawTexture(const QTransform &transform, quint32 texId, const QSizeF &size, qreal opacity,
                                 bool inverted)
 {
     Q_UNUSED(transform);
@@ -144,10 +144,10 @@ void QTimeLine::start()
     emit finished();
 }
 
-// DuiScalableImage stubs
-const DuiScalableImage *Ut_SwitcherButtonView::drawnScalableImage;
+// MScalableImage stubs
+const MScalableImage *Ut_SwitcherButtonView::drawnScalableImage;
 
-void DuiScalableImage::draw(const QRect &rect, QPainter *painter) const
+void MScalableImage::draw(const QRect &rect, QPainter *painter) const
 {
     Q_UNUSED(rect);
     Q_UNUSED(painter);
@@ -171,7 +171,7 @@ void QPainter::drawText(const QRectF &, int, const QString &text, QRectF *)
 }
 
 // Test switcher button implementation
-TestSwitcherButton::TestSwitcherButton(const QString &title, DuiWidget *parent, Window window) :
+TestSwitcherButton::TestSwitcherButton(const QString &title, MWidget *parent, Window window) :
     SwitcherButton(title, parent, window)
 {
     view = new TestSwitcherButtonView(*this);
@@ -286,7 +286,7 @@ void Ut_SwitcherButtonView::cleanupTestCase()
 
 void Ut_SwitcherButtonView::testMousePressRelease()
 {
-    // The DuiButton signals and the windowToFront signal are interesting
+    // The MButton signals and the windowToFront signal are interesting
     QSignalSpy windowToFrontSpy(button, SIGNAL(windowToFront(Window)));
 
     // Click the button
@@ -300,8 +300,8 @@ void Ut_SwitcherButtonView::testClosingWithTimeout()
 {
     QSignalSpy closeSpy(button, SIGNAL(closeWindow(Window)));
 
-    DuiWidget *parent = new DuiWidget();
-    DuiWidget *switcher = new DuiWidget(parent);
+    MWidget *parent = new MWidget();
+    MWidget *switcher = new MWidget(parent);
     button->setParentItem(switcher);
 
     timerImmediateTimeout = true;
@@ -319,8 +319,8 @@ void Ut_SwitcherButtonView::testClosingWithoutTimeout()
 {
     QSignalSpy closeSpy(button, SIGNAL(closeWindow(Window)));
 
-    DuiWidget *parent = new DuiWidget();
-    DuiWidget *switcher = new DuiWidget(parent);
+    MWidget *parent = new MWidget();
+    MWidget *switcher = new MWidget(parent);
     switcher->setGeometry(QRectF(0, 0, 100, 100));
     button->setParentItem(switcher);
     button->setGeometry(QRectF(0, 0, 100, 100));

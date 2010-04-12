@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -21,18 +21,18 @@
 #include "desktop.h"
 #include "mainwindow.h"
 
-#include <DuiApplicationPage>
-#include <DuiModalSceneWindow>
-#include <DuiOverlay>
-#include <DuiPannableViewport>
-#include <DuiButton>
-#include <DuiSceneManager>
-#include <DuiApplication>
+#include <MApplicationPage>
+#include <MModalSceneWindow>
+#include <MOverlay>
+#include <MPannableViewport>
+#include <MButton>
+#include <MSceneManager>
+#include <MApplication>
 #include <QGraphicsLinearLayout>
 #include "homeapplication.h"
 
 Home::Home(QGraphicsItem *parent) :
-    DuiSceneWindow(parent),
+    MSceneWindow(parent),
     desktop(new Desktop(this))
 {
     setObjectName("Home");

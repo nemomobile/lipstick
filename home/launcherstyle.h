@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -22,19 +22,19 @@
 #include <QPoint>
 #include <QColor>
 #include <QFont>
-#include <duiextendingbackgroundstyle.h>
+#include <mextendingbackgroundstyle.h>
 
-class DuiScalableImage;
+class MScalableImage;
 
-class LauncherStyle : public DuiExtendingBackgroundStyle
+class LauncherStyle : public MExtendingBackgroundStyle
 {
     Q_OBJECT
-    DUI_STYLE(LauncherStyle)
+    M_STYLE(LauncherStyle)
 };
 
-class LauncherStyleContainer : public DuiExtendingBackgroundStyleContainer
+class LauncherStyleContainer : public MExtendingBackgroundStyleContainer
 {
-    DUI_STYLE_CONTAINER(LauncherStyle)
+    M_STYLE_CONTAINER(LauncherStyle)
 };
 
 #endif

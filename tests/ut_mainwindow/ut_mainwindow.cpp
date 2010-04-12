@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -22,18 +22,18 @@
 
 #include "mainwindow.h"
 
-#include <DuiApplication>
-#include <DuiApplicationPage>
+#include <MApplication>
+#include <MApplicationPage>
 
 
 // Home stubs
-class Home : public DuiApplicationPage
+class Home : public MApplicationPage
 {
 public:
     Home(QGraphicsItem *parent = 0);
 };
 
-Home::Home(QGraphicsItem *parent) : DuiApplicationPage(parent)
+Home::Home(QGraphicsItem *parent) : MApplicationPage(parent)
 {
 }
 
@@ -41,7 +41,7 @@ void Ut_MainWindow::initTestCase()
 {
     static int argc = 1;
     static char *app_name = (char *)"./ut_mainwindow";
-    app = new DuiApplication(argc, &app_name);
+    app = new MApplication(argc, &app_name);
 
     mainWindow = MainWindow::instance(true);
 

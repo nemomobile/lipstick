@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -20,20 +20,20 @@
 #ifndef QUICKLAUNCHBARSTYLE_H_
 #define QUICKLAUNCHBARSTYLE_H_
 
-#include <DuiWidgetStyle>
+#include <MWidgetStyle>
 
 /*!
  * A style class for the QuickLaunchBar widget.
  */
-class QuickLaunchBarStyle : public DuiWidgetStyle
+class QuickLaunchBarStyle : public MWidgetStyle
 {
     Q_OBJECT
-    DUI_STYLE(QuickLaunchBarStyle)
+    M_STYLE(QuickLaunchBarStyle)
 };
 
-class QuickLaunchBarStyleContainer : public DuiWidgetStyleContainer
+class QuickLaunchBarStyleContainer : public MWidgetStyleContainer
 {
-    DUI_STYLE_CONTAINER(QuickLaunchBarStyle)
+    M_STYLE_CONTAINER(QuickLaunchBarStyle)
 };
 
 #endif /* QUICKLAUNCHBARSTYLE_H_ */

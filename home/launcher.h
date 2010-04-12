@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -23,12 +23,12 @@
 #include <QObject>
 #include <QList>
 #include <QFileSystemWatcher>
-#include <DuiWidgetController>
+#include <MWidgetController>
 #include "launchermodel.h"
 
-class DuiDesktopEntry;
+class MDesktopEntry;
 class LauncherDataStore;
-class DuiDataStore;
+class MDataStore;
 
 /*!
  * Widget for launching and browsing installed applications.
@@ -48,10 +48,10 @@ class DuiDataStore;
  * Icon=my_app_icon_id
  * \endcode
  */
-class Launcher : public DuiWidgetController
+class Launcher : public MWidgetController
 {
     Q_OBJECT
-    DUI_CONTROLLER(Launcher)
+    M_CONTROLLER(Launcher)
 
 public:
     /*!
@@ -59,7 +59,7 @@ public:
      *
      * \param parent Parent for the widget, defaults to NULL
      */
-    Launcher(DuiWidget *parent = NULL);
+    Launcher(MWidget *parent = NULL);
 
     /*!
      * Destroys the Launcher.
@@ -82,12 +82,12 @@ public:
     static bool startApplication(const QString &application);
 
     /*!
-     * Starts a DUI application.
+     * Starts a M application.
      *
      * \param serviceName the service name of the application to be started
      * \return \c true if starting succeeded, \c false otherwise
      */
-    static bool startDuiApplication(const QString &serviceName);
+    static bool startMApplication(const QString &serviceName);
 
 signals:
     /*!
@@ -110,9 +110,9 @@ private slots:
     void launchApplication(const QString &application);
 
     /*!
-     * \brief Launches a DUI application.
+     * \brief Launches a M application.
      */
-    void launchDuiApplication(const QString &service);
+    void launchMApplication(const QString &service);
 
 private:
     //! A file system watcher for the desktop entry file directory
@@ -145,12 +145,12 @@ private:
     void updateButtonList();
 
     /*!
-     * Creates a launcher button instance from a DuiDesktopEntry.
+     * Creates a launcher button instance from a MDesktopEntry.
      *
-     * \param entry the DuiDesktopEntry to create a launcher button from
-     * \return a LauncherButton representing the DuiDesktopEntry
+     * \param entry the MDesktopEntry to create a launcher button from
+     * \return a LauncherButton representing the MDesktopEntry
      */
-    LauncherButton *createLauncherButton(const DuiDesktopEntry &entry);
+    LauncherButton *createLauncherButton(const MDesktopEntry &entry);
 
     /*!
      * Connects the necessary signal so that when the laucher button is clicked
@@ -195,7 +195,7 @@ private:
      * Adds a new button to launcher
      * \param entry Desktop entry from which to create the button
      */
-    void addNewLauncherButton(const DuiDesktopEntry &entry);
+    void addNewLauncherButton(const MDesktopEntry &entry);
 
     /*!
      * Checks if desktop entry is valid for launcher
@@ -203,7 +203,7 @@ private:
      * \param acceptedTypes List of accepted entry types
      * \return is desktop entry valid
      */
-    bool isDesktopEntryValid(const DuiDesktopEntry &entry, const QStringList &acceptedTypes);
+    bool isDesktopEntryValid(const MDesktopEntry &entry, const QStringList &acceptedTypes);
 };
 
 #endif /* LAUNCHER_H */

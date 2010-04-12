@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -19,21 +19,21 @@
 #ifndef QUICKLAUNCHBARVIEW_H
 #define QUICKLAUNCHBARVIEW_H
 
-#include <DuiWidgetView>
+#include <MWidgetView>
 #include "quicklaunchbarmodel.h"
 #include "quicklaunchbarstyle.h"
 
 class QuickLaunchBar;
 class QGraphicsLinearLayout;
-class DuiButton;
+class MButton;
 
 /*!
  * A view class for the QuickLaunchBar.
  */
-class QuickLaunchBarView : public DuiWidgetView
+class QuickLaunchBarView : public MWidgetView
 {
     Q_OBJECT
-    DUI_VIEW(QuickLaunchBarModel, QuickLaunchBarStyle)
+    M_VIEW(QuickLaunchBarModel, QuickLaunchBarStyle)
 
 public:
     /*!
@@ -63,7 +63,7 @@ private:
     QGraphicsLinearLayout *launcherButtonLayout;
 
     //! The button to open the launcher
-    DuiButton *toggleLauncherButton;
+    MButton *toggleLauncherButton;
 };
 
 #endif

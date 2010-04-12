@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -28,13 +28,13 @@
 class AppletSpaceStub : public StubBase
 {
 public:
-    virtual void AppletSpaceConstructor(DuiWidget *parent);
+    virtual void AppletSpaceConstructor(MWidget *parent);
     virtual void AppletSpaceDestructor();
     virtual void setEnabled(bool enabled);
 };
 
 // 2. IMPLEMENT STUB
-void AppletSpaceStub::AppletSpaceConstructor(DuiWidget *parent)
+void AppletSpaceStub::AppletSpaceConstructor(MWidget *parent)
 {
     Q_UNUSED(parent);
 
@@ -58,7 +58,7 @@ AppletSpaceStub *gAppletSpaceStub = &gDefaultAppletSpaceStub;
 
 
 // 4. CREATE A PROXY WHICH CALLS THE STUB
-AppletSpace::AppletSpace(DuiWidget *parent)
+AppletSpace::AppletSpace(MWidget *parent)
 {
     gAppletSpaceStub->AppletSpaceConstructor(parent);
 }

@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -17,8 +17,8 @@
 **
 ****************************************************************************/
 
-#include <DuiApplication>
-#include <DuiDesktopEntry>
+#include <MApplication>
+#include <MDesktopEntry>
 #include "launcherdatastore.h"
 #include "launcherpage.h"
 #include "ut_launcherdatastore.h"
@@ -88,7 +88,7 @@ void Ut_LauncherDataStore::initTestCase()
 {
     static int argc = 1;
     static char *app_name[1] = { (char *) "./ut_launcherdatastore" };
-    app = new DuiApplication(argc, app_name);
+    app = new MApplication(argc, app_name);
 }
 
 void Ut_LauncherDataStore::cleanupTestCase()
@@ -234,11 +234,11 @@ void Ut_LauncherDataStore::testLaucherButtonLocation()
     QList< QSharedPointer<LauncherPage> > pages;
     createSimpleTestData(pages);
     m_subject->updateLauncherButtons(pages);
-    const DuiDesktopEntry entry("/path/entry.desktop");
+    const MDesktopEntry entry("/path/entry.desktop");
     LauncherDataStore::EntryLocation location = m_subject->location(entry);
     QCOMPARE(location, LauncherDataStore::LauncherGrid);
 
-    const DuiDesktopEntry unknownEntry("/path/to-an-unknown-entry.desktop");
+    const MDesktopEntry unknownEntry("/path/to-an-unknown-entry.desktop");
     location = m_subject->location(unknownEntry);
     QCOMPARE(location, LauncherDataStore::Unknown);
 }
@@ -286,7 +286,7 @@ static QSharedPointer<LauncherPage> createLauncherPage(const QStringList entries
 
 static QSharedPointer<LauncherButton> createLauncherButton(const QString path)
 {
-    const DuiDesktopEntry de(path);
+    const MDesktopEntry de(path);
     QSharedPointer<LauncherButton> button = QSharedPointer<LauncherButton>(new LauncherButton(de));
     return button;
 }

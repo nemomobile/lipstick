@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -20,7 +20,7 @@
 #ifndef DESKTOPVIEW_H
 #define DESKTOPVIEW_H
 
-#include <DuiWidgetView>
+#include <MWidgetView>
 #include "desktopmodel.h"
 #include "desktopstyle.h"
 #include "contextframeworkcontext.h"
@@ -34,9 +34,9 @@ class StatusIndicator;
 class QGraphicsLinearLayout;
 class QTimeLine;
 class AppletSpace;
-class DuiModalSceneWindow;
-class DuiPannableViewport;
-class DuiOverlay;
+class MModalSceneWindow;
+class MPannableViewport;
+class MOverlay;
 
 /*!
  * The desktop view draws a background for the desktop and manages layouts
@@ -44,10 +44,10 @@ class DuiOverlay;
  * turn is inside a main layout. In addition to this the main layout
  * contains a button for displaying the applet inventory.
  */
-class DesktopView : public DuiWidgetView
+class DesktopView : public MWidgetView
 {
     Q_OBJECT
-    DUI_VIEW(DesktopModel, DesktopStyle)
+    M_VIEW(DesktopModel, DesktopStyle)
 
 public:
     /*!
@@ -105,13 +105,13 @@ private:
     QuickLaunchBar *quickLaunchBar;
 
     //! Scene window for the quick launch bar
-    DuiOverlay *quickLaunchBarWindow;
+    MOverlay *quickLaunchBarWindow;
 
     //! Application launcher
     Launcher *launcher;
 
     //! scene window for the launcher
-    DuiModalSceneWindow *launcherWindow;
+    MModalSceneWindow *launcherWindow;
 
     //! Phone network indicator
     StatusIndicator *phoneNetworkIndicator;
@@ -123,10 +123,10 @@ private:
     AppletSpace *appletSpace;
 
     //! Scene window for the applet space
-    DuiModalSceneWindow *appletSpaceWindow;
+    MModalSceneWindow *appletSpaceWindow;
 
     //! Pannable viewport in which the applet space is displayed
-    DuiPannableViewport *appletSpaceViewport;
+    MPannableViewport *appletSpaceViewport;
 
 #ifdef UNIT_TEST
     friend class Ut_DesktopView;

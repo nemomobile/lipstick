@@ -1,12 +1,12 @@
 MOC_DIR = .moc
-DUIGEN_OUTDIR = .gen
+MGEN_OUTDIR = .gen
 OBJECTS_DIR = .obj
 
-include(../../duiconfig.pri)
+include(../../mconfig.pri)
 
 TEMPLATE      = lib
-CONFIG       += plugin gui dui
-INCLUDEPATH  += $$DUI_INSTALL_HEADERS
+CONFIG       += plugin gui meegotouch
+INCLUDEPATH  += $$M_INSTALL_HEADERS
 
 MODEL_HEADERS = weathermodel.h \
     weatherbuttonmodel.h
@@ -31,7 +31,7 @@ SOURCES = \
 TARGET        = $$qtLibraryTarget(weatherapplet)
 DESTDIR       = ../../lib
 
-target.path += $$DUI_APPLET_DIR
+target.path += $$M_APPLET_DIR
 
 INSTALLS += \
     target \
@@ -42,17 +42,17 @@ INSTALLS += \
     svg \
     images
 
-desktop_entry.path = $$DUI_APPLET_DATA_DIR
+desktop_entry.path = $$M_APPLET_DATA_DIR
 desktop_entry.files = *.desktop
-settings.path = $$DUI_APPLET_SETTINGS_DIR
+settings.path = $$M_APPLET_SETTINGS_DIR
 settings.files = *.xml
-style.path = $$DUI_THEME_DIR/base/dui/weatherappletres/style
+style.path = $$M_THEME_DIR/base/meegotouch/weatherappletres/style
 style.files = *.css
-view_conf.path = $$DUI_THEME_DIR/base/dui/weatherappletres
+view_conf.path = $$M_THEME_DIR/base/meegotouch/weatherappletres
 view_conf.files = *.conf
-svg.path = $$DUI_THEME_DIR/base/dui/weatherappletres/svg
+svg.path = $$M_THEME_DIR/base/meegotouch/weatherappletres/svg
 svg.files = images/*.svg
-images.path = $$DUI_THEME_DIR/base/dui/weatherappletres/images
+images.path = $$M_THEME_DIR/base/meegotouch/weatherappletres/images
 images.files = images/*.png
 
 include(../check.pri)

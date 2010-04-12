@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of mhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -18,9 +18,9 @@
 ****************************************************************************/
 
 #include "launcherdatastore.h"
-#include "duidatastore.h"
+#include "mdatastore.h"
 
-#include <DuiDesktopEntry>
+#include <MDesktopEntry>
 #include "launcherpage.h"
 #include "launcherbutton.h"
 
@@ -29,7 +29,7 @@ static const QString QUICKLAUNCHBAR_PLACEMENT = "quicklaunchbar";
 static const char SECTION_SEPARATOR = '/';
 static const QString KEY_PREFIX = "DesktopEntries";
 
-LauncherDataStore::LauncherDataStore(DuiDataStore* dataStore)
+LauncherDataStore::LauncherDataStore(MDataStore* dataStore)
 {
     store = dataStore;
 }
@@ -121,7 +121,7 @@ QList< QSharedPointer<LauncherPage> > LauncherDataStore::launcherButtons()
             newPage = QSharedPointer<LauncherPage>(new LauncherPage());
             pages.append(newPage);
         }
-        DuiDesktopEntry entry(entryFile);
+        MDesktopEntry entry(entryFile);
         QSharedPointer<LauncherButton> button = QSharedPointer<LauncherButton> (new LauncherButton(entry));
         newPage->insertButton(button, buttonPositionOnPage);
     }
@@ -129,7 +129,7 @@ QList< QSharedPointer<LauncherPage> > LauncherDataStore::launcherButtons()
     return pages;
 }
 
-LauncherDataStore::EntryLocation LauncherDataStore::location(const DuiDesktopEntry &entry)
+LauncherDataStore::EntryLocation LauncherDataStore::location(const MDesktopEntry &entry)
 {
     EntryLocation location = Unknown;
     QString key(entryPathToKey(entry.fileName()));
