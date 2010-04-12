@@ -64,14 +64,14 @@ private slots:
 
     // Test that the launcher initialization creates items for all desktop entries
     void testInitialization();
-    // Test that the launcher includes an entry that is supposed to be shown in M
-    void testOnlyShowInM();
-    // Test that the launcher doesn't include an entry that isn't supposed to be shown in M
-    void testOnlyShowInNotM();
-    // Test that the launcher doesn't include an entry that is not supposed to be shown in M
-    void testNotShowInM();
-    // Test that the launcher includes an entry that is not supposed to be shown in some other environment than M
-    void testNotShowInNotM();
+    // Test that the launcher includes an entry that is supposed to be shown in DUI
+    void testOnlyShowInDUI();
+    // Test that the launcher doesn't include an entry that isn't supposed to be shown in DUI
+    void testOnlyShowInNotDUI();
+    // Test that the launcher doesn't include an entry that is not supposed to be shown in DUI
+    void testNotShowInDUI();
+    // Test that the launcher includes an entry that is not supposed to be shown in some other environment than DUI
+    void testNotShowInNotDUI();
     // Test that adding a new desktop entry to root adds a new widget
     void testDesktopEntryAdd();
     // Test that invalid files are not added

@@ -196,11 +196,11 @@ void Ut_Launcher::initTestCase()
     desktopEntryName.insert(QString(APPLICATIONS_DIRECTORY) + "directoryInApplicationsDirectory.desktop", "Test3");
     desktopEntryType.insert(QString(APPLICATIONS_DIRECTORY) + "directoryInApplicationsDirectory.desktop", "Directory");
     desktopEntryIcon.insert(QString(APPLICATIONS_DIRECTORY) + "directoryInApplicationsDirectory.desktop", "Icon-camera");
-    desktopEntryName.insert(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInM.desktop", "Only show in M");
-    desktopEntryType.insert(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInM.desktop", "Application");
-    desktopEntryIcon.insert(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInM.desktop", "Icon-m-application");
-    desktopEntryExec.insert(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInM.desktop", "m-application");
-    desktopEntryOnlyShowIn.insert(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInM.desktop", QStringList() << "X-M" << "KDE" << "GNOME");
+    desktopEntryName.insert(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInDUI.desktop", "Only show in M");
+    desktopEntryType.insert(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInDUI.desktop", "Application");
+    desktopEntryIcon.insert(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInDUI.desktop", "Icon-m-application");
+    desktopEntryExec.insert(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInDUI.desktop", "m-application");
+    desktopEntryOnlyShowIn.insert(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInDUI.desktop", QStringList() << "X-DUI" << "KDE" << "GNOME");
     desktopEntryName.insert(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInDesktops.desktop", "Only show in desktops");
     desktopEntryType.insert(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInDesktops.desktop", "Application");
     desktopEntryIcon.insert(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInDesktops.desktop", "Icon-camera");
@@ -210,7 +210,7 @@ void Ut_Launcher::initTestCase()
     desktopEntryType.insert(QString(APPLICATIONS_DIRECTORY) + "applicationNotShowInM.desktop", "Application");
     desktopEntryIcon.insert(QString(APPLICATIONS_DIRECTORY) + "applicationNotShowInM.desktop", "Icon-camera");
     desktopEntryExec.insert(QString(APPLICATIONS_DIRECTORY) + "applicationNotShowInM.desktop", "noshow-application");
-    desktopEntryNotShowIn.insert(QString(APPLICATIONS_DIRECTORY) + "applicationNotShowInM.desktop", QStringList() << "X-M" << "KDE" << "GNOME");
+    desktopEntryNotShowIn.insert(QString(APPLICATIONS_DIRECTORY) + "applicationNotShowInM.desktop", QStringList() << "X-DUI" << "KDE" << "GNOME");
     desktopEntryName.insert(QString(APPLICATIONS_DIRECTORY) + "applicationNotShowInDesktop.desktop", "Not show in desktops");
     desktopEntryType.insert(QString(APPLICATIONS_DIRECTORY) + "applicationNotShowInDesktop.desktop", "Application");
     desktopEntryIcon.insert(QString(APPLICATIONS_DIRECTORY) + "applicationNotShowInDesktop.desktop", "Icon-camera");
@@ -318,10 +318,10 @@ void Ut_Launcher::testInitialization()
     }
 }
 
-void Ut_Launcher::testOnlyShowInM()
+void Ut_Launcher::testOnlyShowInDUI()
 {
     // Add some desktop files in the root category
-    desktopFileInfoList.append(QFileInfo(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInM.desktop"));
+    desktopFileInfoList.append(QFileInfo(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInDUI.desktop"));
 
     // Process events to make sure all notifications are done
     QCoreApplication::processEvents(QEventLoop::AllEvents, 1000);
@@ -342,7 +342,7 @@ void Ut_Launcher::testOnlyShowInM()
     QCOMPARE(b->target(), QString("m-application"));
 }
 
-void Ut_Launcher::testOnlyShowInNotM()
+void Ut_Launcher::testOnlyShowInNotDUI()
 {
     // Add some desktop files in the root category
     desktopFileInfoList.append(QFileInfo(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInDesktop.desktop"));
@@ -357,7 +357,7 @@ void Ut_Launcher::testOnlyShowInNotM()
     QCOMPARE(buttonsCount(), 0);
 }
 
-void Ut_Launcher::testNotShowInM()
+void Ut_Launcher::testNotShowInDUI()
 {
     // Add some desktop files in the root category
     desktopFileInfoList.append(QFileInfo(QString(APPLICATIONS_DIRECTORY) + "applicationNotShowInM.desktop"));
@@ -372,7 +372,7 @@ void Ut_Launcher::testNotShowInM()
     QCOMPARE(buttonsCount(), 0);
 }
 
-void Ut_Launcher::testNotShowInNotM()
+void Ut_Launcher::testNotShowInNotDUI()
 {
     // Add some desktop files in the root category
     desktopFileInfoList.append(QFileInfo(QString(APPLICATIONS_DIRECTORY) + "applicationNotShowInDesktop.desktop"));
