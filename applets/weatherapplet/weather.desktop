@@ -1,9 +1,9 @@
 [Desktop Entry]
-Type=DUIApplet
+Type=X-MeeGoApplet
 Name=Weather
 Icon=icon-m-notification-temperature
-Exec=duiappletrunner
+Exec=mappletrunner
 
-[DUI]
-X-DUIApplet-Applet=libweatherapplet.so
-X-DUIApplet-Identifier=weatherappletres
+[X-MeeGoApplet]
+Applet=libweatherapplet.so
+Identifier=weatherappletres

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=X-MeeGoApplet
+Name=Applet Game Demo
+Icon=icon-l-games
+Exec=mappletrunner
+
+[X-MeeGoApplet]
+Applet=libimageapplet.so
+ImageLandscape=game_landscape
+ImagePortrait=game_portrait

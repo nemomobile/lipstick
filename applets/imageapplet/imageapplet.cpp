@@ -27,12 +27,12 @@ Q_EXPORT_PLUGIN2(imageapplet, ImageApplet)
 
 MWidget *ImageApplet::constructWidget(const MAppletMetaData &metadata, MDataStore &, MDataAccess &)
 {
-    if (!metadata.contains("M/X-MApplet-ImageLandscape") || !metadata.contains("M/X-MApplet-ImagePortrait")) {
+    if (!metadata.contains("X-MeeGoApplet/ImageLandscape") || !metadata.contains("X-MeeGoApplet/ImagePortrait")) {
         return NULL;
     }
 
-    ImageWidget *widget = new ImageWidget(metadata.value("M/X-MApplet-ImageLandscape"),
-                                          metadata.value("M/X-MApplet-ImagePortrait"));
+    ImageWidget *widget = new ImageWidget(metadata.value("X-MeeGoApplet/ImageLandscape"),
+                                          metadata.value("X-MeeGoApplet/ImagePortrait"));
 
     return widget;
 }

@@ -25,13 +25,13 @@ INSTALLS += target \
 
 desktop_entry.path = $$M_APPLET_DATA_DIR
 desktop_entry.files = *.desktop
-style.path = $$M_THEME_DIR/../imageapplet/themes/style
+style.path = $$M_THEME_DIR/base/meegotouch/imageapplet/style
 style.files = *.css
-view_conf.path = $$M_THEME_DIR/../imageapplet/themes
+view_conf.path = $$M_THEME_DIR/base/meegotouch/imageapplet
 view_conf.files = *.conf
-svg.path = $$M_THEME_DIR/../imageapplet/themes/svg
+svg.path = $$M_THEME_DIR/base/meegotouch/imageapplet/svg
 svg.files = images/*.svg
-images.path = $$M_THEME_DIR/../imageapplet/themes/images
+images.path = $$M_THEME_DIR/base/meegotouch/imageapplet/images
 images.files = images/*.png
 
 include(../check.pri)
