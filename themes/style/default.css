@@ -38,14 +38,6 @@ DesktopStyle {
     preferred-size: 100% -1;
     maximum-size: 100% -1;
 }
-DesktopStyle.Landscape {
-    /* The image to draw the desktop background with */
-    desktop-background-image: HomeWallpaperLandscape -1 -1;
-}
-DesktopStyle.Portrait {
-    /* The image to draw the desktop background with */
-    desktop-background-image: HomeWallpaperPortrait -1 -1;
-}
 
 MOverlayStyle#QuickLaunchBarOverlay {
     minimum-size: 100% -1;

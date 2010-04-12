@@ -25,7 +25,6 @@
 #include <QFileSystemWatcher>
 #include <QDir>
 #endif
-#include <QDebug>
 
 #include "launcher.h"
 #include "desktopview.h"
@@ -36,7 +35,7 @@
 #include "contextframeworkcontext.h"
 #include "appletspace.h"
 #include "quicklaunchbar.h"
-#include "desktopbackground.h"
+#include "mdesktopbackgroundextensioninterface.h"
 
 #include <MViewCreator>
 #include <MDeviceProfile>
@@ -45,6 +44,7 @@
 #include <MPannableViewport>
 #include <MApplication>
 #include <MOverlay>
+#include <MApplicationExtensionArea>
 #include <QGraphicsLinearLayout>
 
 #ifdef BENCHMARKS_ON
@@ -111,7 +111,8 @@ DesktopView::DesktopView(Desktop *desktop) :
     quickLaunchBarWindow(new MOverlay),
     appletSpace(new AppletSpace),
     appletSpaceWindow(new MModalSceneWindow),
-    appletSpaceViewport(new MPannableViewport(appletSpaceWindow))
+    appletSpaceViewport(new MPannableViewport(appletSpaceWindow)),
+    backgroundExtensionArea(new MApplicationExtensionArea("com.meego.core.MDesktopBackgroundExtensionInterface/1.0"))
 {
     // Create the main layout that contains the switcher etc.
     QGraphicsLinearLayout *mainLayout = new QGraphicsLinearLayout(Qt::Vertical);
@@ -175,14 +176,17 @@ DesktopView::DesktopView(Desktop *desktop) :
     appletSpaceWindow->setLayout(windowLayout);
     appletSpaceWindow->setObjectName("AppletSpaceWindow");
     MainWindow::instance()->sceneManager()->disappearSceneWindowNow(appletSpaceWindow);
-    desktopBackground = new DesktopBackground(this);
-    connect(desktopBackground, SIGNAL(backgroundImageChanged()),
-            this, SLOT(updateBackground()));
 
 #ifdef BENCHMARKS_ON
     connect(MApplication::instance(), SIGNAL(startBenchmarking()), this, SLOT(startBenchmarking()));
     connect(MApplication::instance(), SIGNAL(stopBenchmarking()), this, SLOT(stopBenchmarking()));
 #endif
+
+    // Connect the desktop background extension signals
+    connect(backgroundExtensionArea, SIGNAL(extensionInstantiated(MApplicationExtensionInterface*)),
+            this, SLOT(addExtension(MApplicationExtensionInterface*)));
+    connect(backgroundExtensionArea, SIGNAL(extensionRemoved(MApplicationExtensionInterface*)),
+            this, SLOT(removeExtension(MApplicationExtensionInterface*)));
 }
 
 DesktopView::~DesktopView()
@@ -190,6 +194,7 @@ DesktopView::~DesktopView()
     delete launcherWindow;
     delete quickLaunchBarWindow;
     delete appletSpaceWindow;
+    delete backgroundExtensionArea;
 }
 
 #ifdef BENCHMARKS_ON
@@ -216,10 +221,8 @@ void DesktopView::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 
 void DesktopView::drawBackground(QPainter *painter, const QStyleOptionGraphicsItem *) const
 {
-    // Draw the background image
-    QPixmap pixmap = desktopBackground->backgroundImage(style());
-    if (!pixmap.isNull()) {
-        painter->drawTiledPixmap(boundingRect(), pixmap, QPointF());
+    foreach (MDesktopBackgroundExtensionInterface *backgroundExtension, backgroundExtensions) {
+        backgroundExtension->drawBackground(painter, boundingRect());
     }
 }
 
@@ -272,17 +275,35 @@ void DesktopView::toggleAppletSpace()
     }
 }
 
-void DesktopView::updateBackground()
-{
-    update();
-}
-
 void DesktopView::setGeometry(const QRectF &rect)
 {
     MWidgetView::setGeometry(rect);
     // Set the viewports to the size of the desktop
     appletSpaceViewport->setMinimumSize(rect.size());
     appletSpaceViewport->setMaximumSize(rect.size());
+}
+
+void DesktopView::update()
+{
+    MWidgetView::update();
+}
+
+M::OrientationAngle DesktopView::orientationAngle()
+{
+    return MainWindow::instance()->sceneManager()->orientationAngle();
+}
+
+void DesktopView::addExtension(MApplicationExtensionInterface *extension)
+{
+    MDesktopBackgroundExtensionInterface *backgroundExtension = static_cast<MDesktopBackgroundExtensionInterface *>(extension);
+    backgroundExtension->setDesktopInterface(*this);
+    backgroundExtensions.append(backgroundExtension);
+}
+
+void DesktopView::removeExtension(MApplicationExtensionInterface *extension)
+{
+    MDesktopBackgroundExtensionInterface *backgroundExtension = static_cast<MDesktopBackgroundExtensionInterface *>(extension);
+    backgroundExtensions.removeOne(backgroundExtension);
 }
 
 M_REGISTER_VIEW_NEW(DesktopView, Desktop)

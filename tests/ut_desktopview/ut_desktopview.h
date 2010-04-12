@@ -29,8 +29,19 @@ class MainWindow;
 class Desktop;
 class QPainter;
 class QPixmap;
-class MockPaintDevice;
 class MButton;
+
+class TestDesktopBackgroundExtension : public MDesktopBackgroundExtensionInterface
+{
+public:
+    TestDesktopBackgroundExtension();
+    ~TestDesktopBackgroundExtension();
+
+    mutable QRectF boundingRect;
+    virtual bool initialize(const QString &);
+    virtual void setDesktopInterface(MDesktopInterface &desktopInterface);
+    virtual void drawBackground(QPainter *painter, const QRectF &boundingRect) const;
+};
 
 class TestDesktopView : public DesktopView
 {
@@ -68,8 +79,6 @@ private slots:
     void testShowingHidingLauncher();
 
 public:
-    static QRectF paintArea;
-
     // The main window
     static MainWindow *mainWindow;
 
@@ -85,8 +94,6 @@ private:
     Desktop *desktop;
     // Painter for painting
     QPainter *painter;
-    // Mock paint device for painting
-    MockPaintDevice *paintDevice;
     // Images
     QPixmap *backgroundImage;
     QPixmap *backgroundTopImage;

@@ -24,6 +24,7 @@
 #include "desktopmodel.h"
 #include "desktopstyle.h"
 #include "contextframeworkcontext.h"
+#include "mdesktopbackgroundextensioninterface.h"
 
 class Desktop;
 class Switcher;
@@ -32,12 +33,13 @@ class Launcher;
 class NotificationArea;
 class StatusIndicator;
 class QGraphicsLinearLayout;
-class QTimeLine;
 class AppletSpace;
 class MModalSceneWindow;
 class MPannableViewport;
 class MOverlay;
-class DesktopBackground;
+class MApplicationExtensionArea;
+class MApplicationExtensionInterface;
+class MDesktopBackgroundExtensionInterface;
 
 /*!
  * The desktop view draws a background for the desktop and manages layouts
@@ -45,7 +47,7 @@ class DesktopBackground;
  * turn is inside a main layout. In addition to this the main layout
  * contains a button for displaying the applet inventory.
  */
-class DesktopView : public MWidgetView
+class DesktopView : public MWidgetView, public MDesktopInterface
 {
     Q_OBJECT
     M_VIEW(DesktopModel, DesktopStyle)
@@ -69,6 +71,8 @@ public:
 #endif
     virtual void drawBackground(QPainter *painter, const QStyleOptionGraphicsItem *option) const;
     virtual void setGeometry(const QRectF &rect);
+    virtual void update();
+    virtual M::OrientationAngle orientationAngle();
     //! \reimp_end
 
 private slots:
@@ -78,8 +82,19 @@ private slots:
     //! Shows the applet space if it is not visible, hides it otherwise
     void toggleAppletSpace();
 
-    //! Updates the background when it changes
-    void updateBackground();
+    /*!
+     * Registers a desktop background extension.
+     *
+     * \param an extension to be registered.
+     */
+    void addExtension(MApplicationExtensionInterface *extension);
+
+    /*!
+     * Unregisters a desktop background extension.
+     *
+     * \param an extension to be unregistered.
+     */
+    void removeExtension(MApplicationExtensionInterface *extension);
 
 #ifdef BENCHMARKS_ON
 private slots:
@@ -132,8 +147,11 @@ private:
     //! Pannable viewport in which the applet space is displayed
     MPannableViewport *appletSpaceViewport;
 
-    //! Background image handler
-    DesktopBackground* desktopBackground;
+    //! Application extension support for desktop background drawing
+    MApplicationExtensionArea *backgroundExtensionArea;
+
+    //! A list of desktop background extensions
+    QList<MDesktopBackgroundExtensionInterface*> backgroundExtensions;
 
 #ifdef UNIT_TEST
     friend class Ut_DesktopView;

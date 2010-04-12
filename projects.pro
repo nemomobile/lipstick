@@ -11,6 +11,7 @@ SUBDIRS = \
     home \
     themes \
     applets \
+    extensions \
     tests \
     translations
 

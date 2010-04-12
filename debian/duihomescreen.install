@@ -4,3 +4,6 @@ usr/share/themes/base/meegotouch/duihome/*.conf
 usr/share/themes/base/meegotouch/duihome/images/*.png
 usr/share/themes/base/meegotouch/duihome/style/*.css
 usr/share/themes/base/meegotouch/duihome/svg/*.svg
+usr/lib/meegotouch/applicationextensions/*.so
+usr/share/meegotouch/applicationextensions/*.desktop
+usr/share/themes/base/meegotouch/libduihome-plaindesktopbackgroundextension/style/*.css

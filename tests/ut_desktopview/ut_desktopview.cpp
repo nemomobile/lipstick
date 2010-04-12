@@ -44,69 +44,6 @@
 #include "statusindicator_stub.h"
 #include "appletspace_stub.h"
 
-// Mock Paint Engine
-class MockPaintEngine : public QPaintEngine
-{
-    bool begin(QPaintDevice *pdev) {
-        Q_UNUSED(pdev);
-        return true;
-    }
-    bool end() {
-        return true;
-    }
-    void updateState(const QPaintEngineState &state) {
-        Q_UNUSED(state);
-    }
-    void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr);
-    Type type() const {
-        return QPaintEngine::User;
-    }
-};
-
-void MockPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
-{
-    Q_UNUSED(pm);
-    Q_UNUSED(sr);
-    Ut_DesktopView::paintArea = Ut_DesktopView::paintArea.united(r);
-}
-
-// Mock Paint Device
-class MockPaintDevice : public QPaintDevice
-{
-public:
-    MockPaintDevice() : engine(new MockPaintEngine) {}
-    ~MockPaintDevice();
-
-    QPaintEngine *paintEngine() const {
-        return engine;
-    }
-
-    int metric(PaintDeviceMetric metric) const;
-private:
-    QPaintEngine *engine;
-};
-
-MockPaintDevice::~MockPaintDevice()
-{
-    delete engine;
-}
-
-int MockPaintDevice::metric(PaintDeviceMetric metric) const
-{
-    switch (metric) {
-    case QPaintDevice::PdmWidth:
-        return 1000;
-    case QPaintDevice::PdmHeight:
-        return 1000;
-    case QPaintDevice::PdmDpiY:
-    case QPaintDevice::PdmDpiX:
-        return 300;
-    default:
-        return 0;
-    }
-    return 0;
-}
-
 // MSceneManager stubs
 void MSceneManager::appearSceneWindow(MSceneWindow *window, MSceneWindow::DeletionPolicy)
 {
@@ -143,13 +80,34 @@ Desktop::~Desktop()
 {
 }
 
+TestDesktopBackgroundExtension::TestDesktopBackgroundExtension()
+{
+}
+
+TestDesktopBackgroundExtension::~TestDesktopBackgroundExtension()
+{
+}
+
+bool TestDesktopBackgroundExtension::initialize(const QString &)
+{
+    return true;
+}
+
+void TestDesktopBackgroundExtension::setDesktopInterface(MDesktopInterface &)
+{
+}
+
+void TestDesktopBackgroundExtension::drawBackground(QPainter *, const QRectF &boundingRect) const
+{
+    this->boundingRect = boundingRect;
+}
+
 // Test desktop view implementation
 TestDesktopView::TestDesktopView(Desktop *desktop) : DesktopView(desktop)
 {
 }
 
 // Tests
-QRectF Ut_DesktopView::paintArea;
 MainWindow *Ut_DesktopView::mainWindow;
 
 void Ut_DesktopView::initTestCase()
@@ -161,9 +119,6 @@ void Ut_DesktopView::initTestCase()
     mainWindow = MainWindow::instance(true);
     gHomeApplicationStub->stubSetReturnValue("mainWindow", mainWindow);
 
-    paintDevice = new MockPaintDevice;
-    painter = new QPainter(paintDevice);
-
     backgroundImage = new QPixmap(50, 50);
     backgroundTopImage = new QPixmap(25, 25);
     backgroundBottomImage = new QPixmap(35, 35);
@@ -171,8 +126,6 @@ void Ut_DesktopView::initTestCase()
 
 void Ut_DesktopView::cleanupTestCase()
 {
-    delete painter;
-    delete paintDevice;
     delete mainWindow;
 
     // Destroy the MApplication
@@ -185,7 +138,6 @@ void Ut_DesktopView::init()
     desktopView = new TestDesktopView(desktop);
     desktop->setView(desktopView);
     desktopView->modifiableStyle()->setDesktopBackgroundImage(backgroundImage);
-    paintArea = QRectF();
     connect(this, SIGNAL(launcherButtonClicked()), desktopView, SLOT(toggleLauncher()));
 }
 
@@ -196,11 +148,18 @@ void Ut_DesktopView::cleanup()
 
 void Ut_DesktopView::testBoundingRectAndDrawBackground()
 {
-    QRectF br = desktopView->boundingRect();
+    // Add two extensions to the registered list of extensions
+    TestDesktopBackgroundExtension extension1;
+    TestDesktopBackgroundExtension extension2;
+    desktopView->addExtension(&extension1);
+    desktopView->addExtension(&extension2);
 
-    // Check that the view doesn't draw outside the bounding rectangle
-    desktopView->drawBackground(painter, NULL);
-    QVERIFY(br == paintArea || br.contains(paintArea) || paintArea.isEmpty());
+    // Check that the drawBackground function of all extensions is called
+    QPainter painter;
+    QRectF br = desktopView->boundingRect();
+    desktopView->drawBackground(&painter, NULL);
+    QCOMPARE(extension1.boundingRect, br);
+    QCOMPARE(extension2.boundingRect, br);
 }
 
 void Ut_DesktopView::testShowingHidingLauncher()

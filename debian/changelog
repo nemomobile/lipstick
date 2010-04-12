@@ -11,6 +11,7 @@ duihome (0.21.0~16) unstable; urgency=low
   * Moved the functional tests and benchmarks to a separate repository
   * Removed TESTABILITY ifdefs from launcher and quicklauncher
   * Implemented: SWP#DUI-2208 Possibility to change the wallpaper of homescreen.
+  * Implemented: SWP#DUI-2407 Blurring effect on wallpaper when switcher thumbnails are on
 
  -- Vesa Halttunen <vesa.halttunen@nokia.com>  Thu, 01 Apr 2010 15:52:01 +0200
 

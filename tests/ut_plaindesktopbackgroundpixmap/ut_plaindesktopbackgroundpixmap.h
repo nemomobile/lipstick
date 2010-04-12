@@ -17,16 +17,12 @@
 **
 ****************************************************************************/
 
-#ifndef UT_DESKTOPBACKGROUND_H
-#define UT_DESKTOPBACKGROUND_H
+#ifndef UT_PLAINDESKTOPBACKGROUNDEXTENSION_H
+#define UT_PLAINDESKTOPBACKGROUNDEXTENSION_H
 
-#include <QtTest/QtTest>
 #include <QObject>
 
-class DesktopBackground;
-class DesktopStyleContainer;
-class MApplication;
-class Ut_DesktopBackground : public QObject
+class Ut_PlainDesktopBackgroundPixmap : public QObject
 {
     Q_OBJECT
 
@@ -40,26 +36,11 @@ private slots:
     // Called after every testfunction
     void cleanup();
 
-    // test functions
-    void testConstructionWithCorrectPixmaps();
-    void testConstructionWithCorrectPixmapsWithCurrentOrientationChanging();
-    void testConstructionWithIncorrectPortraitPixmap();
-    void testConstructionWithIncorrectLandscapePixmap();
-    void testConstructionWithIncorrectPixmaps();
-    void testOrientationChangeAfterConstruction();
-    void testPortraitImageModification();
-    void testLandscapeImageModification();
-    void testPortraitImageModifications();
-    void testLandscapeImageModifications();
-    void testGConfValueChanges();
-
-signals:
-    void portraitImageChanged();
-    void landscapeImageChanged();
-private:
-    DesktopBackground* subject_;
-    DesktopStyleContainer* style_;
-    MApplication *app_;
+    // Test cases
+    void testConstructingFromFile();
+    void testConstructingFromFileFails();
+    void testConstructingFromTheme();
+    void testConstructingFromEmptyName();
 };
 
 #endif

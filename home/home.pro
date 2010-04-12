@@ -17,7 +17,7 @@ QT += network \
     dbus \
     xml
 exists($$[QT_INSTALL_LIBS]/libQtOpenGL.so):QT += opengl
-INCLUDEPATH += $$M_INSTALL_HEADERS
+INCLUDEPATH += ../libmeegotouchhome
 
 # For setting the coverage flag ON
 contains(COV_OPTION, on) {

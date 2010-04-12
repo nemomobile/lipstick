@@ -4,7 +4,6 @@ SUBDIRS = \
     ut_appletspaceview \
     ut_desktop \
     ut_desktopview \
-    ut_desktopbackground \
     ut_home \
     ut_homeapplication \
     ut_launcher \
@@ -15,6 +14,8 @@ SUBDIRS = \
     ut_mainwindow \
     ut_pagedpanning \
     ut_pagedviewport \
+    ut_plaindesktopbackgroundextension \
+    ut_plaindesktopbackgroundpixmap \
     ut_quicklaunchbar \
     ut_quicklaunchbarview \
     ut_statusindicator \

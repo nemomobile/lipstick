@@ -1,0 +1,13 @@
+PlainDesktopBackgroundStyle {
+    blur-radius: 10;
+    blur-duration: 1000;
+    blur-update-interval: 100;
+}
+PlainDesktopBackgroundStyle.Landscape {
+    /* The name of the default background image */
+    default-background-image: "HomeWallpaperLandscape";
+}
+PlainDesktopBackgroundStyle.Portrait {
+    /* The name of the default background image */
+    default-background-image: "HomeWallpaperPortrait";
+}
