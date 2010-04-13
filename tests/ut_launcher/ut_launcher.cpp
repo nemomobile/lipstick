@@ -200,7 +200,7 @@ void Ut_Launcher::initTestCase()
     desktopEntryType.insert(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInDUI.desktop", "Application");
     desktopEntryIcon.insert(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInDUI.desktop", "Icon-m-application");
     desktopEntryExec.insert(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInDUI.desktop", "m-application");
-    desktopEntryOnlyShowIn.insert(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInDUI.desktop", QStringList() << "X-DUI" << "KDE" << "GNOME");
+    desktopEntryOnlyShowIn.insert(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInDUI.desktop", QStringList() << "X-MeeGo" << "KDE" << "GNOME");
     desktopEntryName.insert(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInDesktops.desktop", "Only show in desktops");
     desktopEntryType.insert(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInDesktops.desktop", "Application");
     desktopEntryIcon.insert(QString(APPLICATIONS_DIRECTORY) + "applicationOnlyShowInDesktops.desktop", "Icon-camera");
@@ -210,7 +210,7 @@ void Ut_Launcher::initTestCase()
     desktopEntryType.insert(QString(APPLICATIONS_DIRECTORY) + "applicationNotShowInM.desktop", "Application");
     desktopEntryIcon.insert(QString(APPLICATIONS_DIRECTORY) + "applicationNotShowInM.desktop", "Icon-camera");
     desktopEntryExec.insert(QString(APPLICATIONS_DIRECTORY) + "applicationNotShowInM.desktop", "noshow-application");
-    desktopEntryNotShowIn.insert(QString(APPLICATIONS_DIRECTORY) + "applicationNotShowInM.desktop", QStringList() << "X-DUI" << "KDE" << "GNOME");
+    desktopEntryNotShowIn.insert(QString(APPLICATIONS_DIRECTORY) + "applicationNotShowInM.desktop", QStringList() << "X-MeeGo" << "KDE" << "GNOME");
     desktopEntryName.insert(QString(APPLICATIONS_DIRECTORY) + "applicationNotShowInDesktop.desktop", "Not show in desktops");
     desktopEntryType.insert(QString(APPLICATIONS_DIRECTORY) + "applicationNotShowInDesktop.desktop", "Application");
     desktopEntryIcon.insert(QString(APPLICATIONS_DIRECTORY) + "applicationNotShowInDesktop.desktop", "Icon-camera");
