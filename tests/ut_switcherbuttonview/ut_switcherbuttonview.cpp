@@ -375,6 +375,7 @@ void Ut_SwitcherButtonView::testClosingWithoutTimeout()
 void Ut_SwitcherButtonView::testXWindow()
 {
     // Setting an X window ID when the switcher button is not displayed should allocate a new Pixmap but not create Damage
+    button->emitDisplayExited();
     button->model()->setXWindow(1);
     QCOMPARE(allocatedPixmaps.count(), 1);
 
@@ -427,10 +428,6 @@ void Ut_SwitcherButtonView::testDamageEventForKnownDamage()
 {
     // Create a known damage handle
     button->model()->setXWindow(1);
-
-    // Entering the display should cause a view update
-    button->emitDisplayEntered();
-    QVERIFY(viewUpdateCalled);
 
     // Known damage events while being displayed should cause a view update
     viewUpdateCalled = false;

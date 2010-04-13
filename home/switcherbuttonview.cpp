@@ -39,7 +39,7 @@ SwitcherButtonView::SwitcherButtonView(SwitcherButton *button) :
     controller(button),
     xWindowPixmap(0),
     xWindowPixmapDamage(0),
-    onDisplay(false)
+    onDisplay(true)
 {
     // Connect to the windowVisibilityChanged signal of the HomeApplication to get information about window visiblity changes
     connect(qApp, SIGNAL(windowVisibilityChanged(Window)), this, SLOT(windowVisibilityChanged(Window)));
