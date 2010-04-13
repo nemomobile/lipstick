@@ -38,7 +38,8 @@ SwitcherButtonView::SwitcherButtonView(SwitcherButton *button) :
     MButtonView(button),
     controller(button),
     xWindowPixmap(0),
-    xWindowPixmapDamage(0)
+    xWindowPixmapDamage(0),
+    onDisplay(false)
 {
     // Connect to the windowVisibilityChanged signal of the HomeApplication to get information about window visiblity changes
     connect(qApp, SIGNAL(windowVisibilityChanged(Window)), this, SLOT(windowVisibilityChanged(Window)));
@@ -46,19 +47,21 @@ SwitcherButtonView::SwitcherButtonView(SwitcherButton *button) :
     // Show interest in X pixmap change signals
     connect(qApp, SIGNAL(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)), this, SLOT(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)));
 
+    // Create a close button for the window
     closeButton = new MButton(controller);
     closeButton->setViewType(MButton::iconType);
-
     connect(closeButton, SIGNAL(clicked()), controller, SLOT(close()));
+
+    // Enable or disable reception of damage events based on whether the switcher button is on the screen or not
+    connect(button, SIGNAL(displayEntered()), this, SLOT(setOnDisplay()));
+    connect(button, SIGNAL(displayExited()), this, SLOT(unsetOnDisplay()));
 }
 
 SwitcherButtonView::~SwitcherButtonView()
 {
 #ifdef Q_WS_X11
-    if (xWindowPixmapDamage != 0) {
-        // Unregister the pixmap from XDamage events
-        X11Wrapper::XDamageDestroy(QX11Info::display(), xWindowPixmapDamage);
-    }
+    // Unregister the pixmap from XDamage events
+    destroyDamage();
 
     if (xWindowPixmap != 0) {
         // Dereference the old pixmap ID
@@ -81,7 +84,6 @@ void SwitcherButtonView::drawBackground(QPainter *painter, const QStyleOptionGra
 
     // Rotate the thumbnails and adjust their size if the screen
     // has been rotated
-
     MSceneManager *manager = MainWindow::instance()->sceneManager();
     QPoint pos = style()->iconPosition().toPoint();
     QSize size = style()->iconSize();
@@ -219,14 +221,14 @@ void SwitcherButtonView::updateViewMode()
 {
     switch (model()->viewMode()) {
     case SwitcherButtonModel::Small:
-	style().setModeSmall();
-	break;
+        style().setModeSmall();
+        break;
     case SwitcherButtonModel::Medium:
-	style().setModeMedium();
-	break;
+        style().setModeMedium();
+        break;
     case SwitcherButtonModel::Large:
-	style().setModeLarge();
-	break;
+        style().setModeLarge();
+        break;
     }
 
     // When the style mode changes, the style is not automatically applied -> call it explicitly
@@ -243,20 +245,17 @@ void SwitcherButtonView::updateData(const QList<const char *>& modifications)
             updateThumbnail();
         }
 
-	if (member == SwitcherButtonModel::ViewMode) {
-	    updateViewMode();
-	}
+        if (member == SwitcherButtonModel::ViewMode) {
+            updateViewMode();
+        }
     }
 }
 
 void SwitcherButtonView::updateXWindowPixmap()
 {
 #ifdef Q_WS_X11
-    if (xWindowPixmapDamage != 0) {
-        // Unregister the old pixmap from XDamage events
-        X11Wrapper::XDamageDestroy(QX11Info::display(), xWindowPixmapDamage);
-        xWindowPixmapDamage = 0;
-    }
+    // Unregister the old pixmap from XDamage events
+    destroyDamage();
 
     if (xWindowPixmap != 0) {
         // Dereference the old pixmap ID
@@ -280,12 +279,8 @@ void SwitcherButtonView::updateXWindowPixmap()
     // Reset the error handler
     X11Wrapper::XSetErrorHandler(errh);
 
-    if (xWindowPixmap != 0) {
-        // Register the pixmap for XDamage events
-      xWindowPixmapDamage = X11Wrapper::XDamageCreate(QX11Info::display(), model()->xWindow(), XDamageReportNonEmpty);
-
-        backendSpecificUpdateXWindowPixmap();
-    }
+    // Register the pixmap for XDamage events
+    createDamage();
 #endif
 }
 
@@ -326,6 +321,40 @@ void SwitcherButtonView::damageEvent(Qt::HANDLE &damage, short &x, short &y, uns
     if (xWindowPixmapDamage == damage) {
         update();
     }
+}
+
+void SwitcherButtonView::setOnDisplay()
+{
+    onDisplay = true;
+    createDamage();
+    update();
+}
+
+void SwitcherButtonView::unsetOnDisplay()
+{
+    onDisplay = false;
+    destroyDamage();
+}
+
+void SwitcherButtonView::createDamage()
+{
+#ifdef Q_WS_X11
+    if (onDisplay && xWindowPixmap != 0) {
+        // Register the pixmap for XDamage events
+        xWindowPixmapDamage = X11Wrapper::XDamageCreate(QX11Info::display(), model()->xWindow(), XDamageReportNonEmpty);
+        backendSpecificUpdateXWindowPixmap();
+    }
+#endif
+}
+
+void SwitcherButtonView::destroyDamage()
+{
+#ifdef Q_WS_X11
+    if (xWindowPixmapDamage != 0) {
+        X11Wrapper::XDamageDestroy(QX11Info::display(), xWindowPixmapDamage);
+        xWindowPixmapDamage = 0;
+    }
+#endif
 }
 
 M_REGISTER_VIEW_NEW(SwitcherButtonView, SwitcherButton)

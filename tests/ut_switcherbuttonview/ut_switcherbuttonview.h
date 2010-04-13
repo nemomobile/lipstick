@@ -29,7 +29,7 @@
 
 class MScalableImage;
 class MainWindow;
-class HomeApplication;
+class TestHomeApplication;
 
 class Ut_SwitcherButtonStyle : public SwitcherButtonStyle
 {
@@ -82,6 +82,8 @@ public:
     TestSwitcherButton(const QString &title, MWidget *parent = NULL, Window window = 0);
 
     TestSwitcherButtonView *getView();
+    void emitDisplayEntered();
+    void emitDisplayExited();
 
 private:
     TestSwitcherButtonView *view;
@@ -123,8 +125,11 @@ public:
     // Opacity for the previous QPainter text
     static qreal painterTextOpacity;
 
+    // To see whether update() was called for the view
+    static bool viewUpdateCalled;
+
 private:
-    HomeApplication *app;
+    TestHomeApplication *app;
 
     // SwitcherButton instance under testing
     TestSwitcherButton *button;
@@ -136,6 +141,7 @@ signals:
     // Signal for notifying about window visibility changed
     void windowVisibilityChanged(Window window);
 
+    // Signal for notifying about close button presses
     void closeButtonPressed();
 
 private slots:
@@ -150,6 +156,9 @@ private slots:
     void testXWindowWithXError();
     void testTextOpacity();
     void testViewModeChange();
+    void testDamageEventForKnownDamage();
+    void testDamageEventForUnknownDamage();
+    void testEnterExitDisplay();
 };
 
 #endif //_UT_SWITCHERBUTTONVIEW_

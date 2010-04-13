@@ -122,15 +122,19 @@ int X11Wrapper::XFreePixmap(Display *, Pixmap pixmap)
     return Ut_SwitcherButtonView::allocatedPixmaps.removeOne(pixmap) ? 0 : BadPixmap;
 }
 
-Damage X11Wrapper::XDamageCreate(Display *, Drawable damage, int)
+Damage X11Wrapper::XDamageCreate(Display *, Drawable drawable, int)
 {
     Ut_SwitcherButtonView::damageCreated = true;
-    Ut_SwitcherButtonView::damageHandle = damage;
-    return 0;
+    Ut_SwitcherButtonView::damageHandle = drawable;
+    return Ut_SwitcherButtonView::damageHandle;
 }
 
-void X11Wrapper::XDamageDestroy(Display *, Damage)
+void X11Wrapper::XDamageDestroy(Display *, Damage damage)
 {
+    if (damage == Ut_SwitcherButtonView::damageHandle) {
+        Ut_SwitcherButtonView::damageCreated = false;
+        Ut_SwitcherButtonView::damageHandle = 0;
+    }
 }
 
 int X11Wrapper::XSync(Display *, Bool)
@@ -170,6 +174,12 @@ void QPainter::drawText(const QRectF &, int, const QString &text, QRectF *)
     Ut_SwitcherButtonView::painterTextOpacity = Ut_SwitcherButtonView::painterOpacity;
 }
 
+bool Ut_SwitcherButtonView::viewUpdateCalled;
+void MWidgetView::update(const QRectF &)
+{
+    Ut_SwitcherButtonView::viewUpdateCalled = true;
+}
+
 // Test switcher button implementation
 TestSwitcherButton::TestSwitcherButton(const QString &title, MWidget *parent, Window window) :
     SwitcherButton(title, parent, window)
@@ -181,6 +191,16 @@ TestSwitcherButton::TestSwitcherButton(const QString &title, MWidget *parent, Wi
 TestSwitcherButtonView *TestSwitcherButton::getView()
 {
     return dynamic_cast<TestSwitcherButtonView *>(view);
+}
+
+void TestSwitcherButton::emitDisplayEntered()
+{
+    emit displayEntered();
+}
+
+void TestSwitcherButton::emitDisplayExited()
+{
+    emit displayExited();
 }
 
 // Test switcher button view implementation
@@ -207,6 +227,24 @@ void TestSwitcherButtonView::emulateButtonClick()
 void TestSwitcherButtonView::drawContents(QPainter *painter, const QStyleOptionGraphicsItem *item) const
 {
     SwitcherButtonView::drawContents(painter, item);
+}
+
+// Test home application
+class TestHomeApplication : public HomeApplication
+{
+public:
+    TestHomeApplication(int &argc, char **argv);
+
+    void emitDamageEvent(Qt::HANDLE damage, short x, short y, unsigned short width, unsigned short height);
+};
+
+TestHomeApplication::TestHomeApplication(int &argc, char **argv) : HomeApplication(argc, argv)
+{
+}
+
+void TestHomeApplication::emitDamageEvent(Qt::HANDLE damage, short x, short y, unsigned short width, unsigned short height)
+{
+    emit damageEvent(damage, x, y, width, height);
 }
 
 // QTimer stubs (used by Ut_SwitcherButtonView)
@@ -258,6 +296,7 @@ void Ut_SwitcherButtonView::init()
     painterOpacity = 0;
     painterText.clear();
     painterTextOpacity = 0;
+    viewUpdateCalled = false;
 }
 
 void Ut_SwitcherButtonView::cleanup()
@@ -273,7 +312,7 @@ void Ut_SwitcherButtonView::initTestCase()
 {
     static int argc = 1;
     static char *app_name = (char *)"./ut_switcherbutton";
-    app = new HomeApplication(argc, &app_name);
+    app = new TestHomeApplication(argc, &app_name);
     mainWindow = MainWindow::instance(true);
     gHomeApplicationStub->stubSetReturnValue("mainWindow", mainWindow);
 }
@@ -335,20 +374,20 @@ void Ut_SwitcherButtonView::testClosingWithoutTimeout()
 
 void Ut_SwitcherButtonView::testXWindow()
 {
-    // Setting an X window ID should allocate a new Pixmap and create Damage
+    // Setting an X window ID when the switcher button is not displayed should allocate a new Pixmap but not create Damage
     button->model()->setXWindow(1);
     QCOMPARE(allocatedPixmaps.count(), 1);
 
     Pixmap oldPixmap = allocatedPixmaps.at(0);
     QCOMPARE(oldPixmap, (Pixmap)1);
-    QCOMPARE(damageCreated, true);
-    // check that the damage is tracked with the underlying window
-    QCOMPARE(damageHandle, button->model()->xWindow());
+    QCOMPARE(damageCreated, false);
 
-    // Setting another X window ID should free the previously allocated Pixmap and allocate a new one
+    // Setting another X window ID should free the previously allocated Pixmap and allocate a new one and create Damage
+    button->emitDisplayEntered();
     button->model()->setXWindow(2);
     QCOMPARE(allocatedPixmaps.count(), 1);
     QVERIFY(allocatedPixmaps.at(0) != oldPixmap);
+    QCOMPARE(damageCreated, true);
 }
 
 void Ut_SwitcherButtonView::testXWindowWithXError()
@@ -382,6 +421,52 @@ void Ut_SwitcherButtonView::testViewModeChange()
         button->model()->setViewMode(SwitcherButtonModel::Large);
         QCOMPARE(m_subject->styleContainer().currentMode(), QString("large"));
     }
+}
+
+void Ut_SwitcherButtonView::testDamageEventForKnownDamage()
+{
+    // Create a known damage handle
+    button->model()->setXWindow(1);
+
+    // Entering the display should cause a view update
+    button->emitDisplayEntered();
+    QVERIFY(viewUpdateCalled);
+
+    // Known damage events while being displayed should cause a view update
+    viewUpdateCalled = false;
+    app->emitDamageEvent(damageHandle, 0, 0, 0, 0);
+    QVERIFY(viewUpdateCalled);
+}
+
+void Ut_SwitcherButtonView::testDamageEventForUnknownDamage()
+{
+    // Create a known damage handle
+    button->model()->setXWindow(1);
+
+    // Unknown damage events should not cause a view update
+    viewUpdateCalled = false;
+    app->emitDamageEvent(damageHandle + 1, 0, 0, 0, 0);
+    QVERIFY(!viewUpdateCalled);
+}
+
+void Ut_SwitcherButtonView::testEnterExitDisplay()
+{
+    // The damage is not created unless there is a window
+    button->model()->setXWindow(1);
+
+    // Entering the display should cause a view update and damage creation
+    viewUpdateCalled = false;
+    button->emitDisplayEntered();
+    QVERIFY(viewUpdateCalled);
+
+    // Check that the damage is tracked with the underlying window
+    QVERIFY(damageCreated);
+    QCOMPARE(damageHandle, button->model()->xWindow());
+
+    // Exiting the display should cause the destruction of the damage
+    button->emitDisplayExited();
+    QVERIFY(!damageCreated);
+    QCOMPARE(damageHandle, (unsigned long)0);
 }
 
 QTEST_APPLESS_MAIN(Ut_SwitcherButtonView)

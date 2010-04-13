@@ -2,6 +2,7 @@ duihome (0.21.0~13) unstable; urgency=low
   * Fixes: NB#159568 - Switcher thumbnails content doesn't display how the app
     really looks like.
   * Fixes: NB#162716 - Missing close applet space icon
+  * Fixes: NB#163810 - duihome updates application thumbnails even when not visible
   * Fixed launcher panning in portrait mode
   * Fixed example image applet
   * Adapted to libdui 0.20.0 API changes and renaming libdui to libmeegotouch

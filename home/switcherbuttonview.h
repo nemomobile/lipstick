@@ -73,7 +73,27 @@ protected slots:
      */
     virtual void windowVisibilityChanged(Window window);
 
+    /*!
+     * \brief Starts getting damage events for the current X window.
+     */
+    void setOnDisplay();
+
+    /*!
+     * \brief Stops getting damage events for the current X window.
+     */
+    void unsetOnDisplay();
+
 protected:
+    /*!
+     * Creates an X damage structure based on the current X window pixmap.
+     */
+    void createDamage();
+
+    /*!
+     * Destroys the current X damage structure.
+     */
+    void destroyDamage();
+
     //! \reimp
     virtual void setupModel();
     //! \reimp_end
@@ -132,7 +152,11 @@ protected:
     //! The point where dragging started
     QPointF dragStartPos;
 
+    //! Button for closing the window
     MButton *closeButton;
+
+    //! Whether the button is being displayed or not
+    bool onDisplay;
 
     Q_DISABLE_COPY(SwitcherButtonView);
 };
