@@ -8,6 +8,7 @@ duihome (0.21.0~16) unstable; urgency=low
   * Adapted to libdui 0.20.0 API changes and renaming libdui to libmeegotouch
   * Moved the functional tests and benchmarks to a separate repository
   * Removed TESTABILITY ifdefs from launcher and quicklauncher
+  * Implemented: SWP#DUI-2208 Possibility to change the wallpaper of homescreen.
 
  -- Vesa Halttunen <vesa.halttunen@nokia.com>  Thu, 01 Apr 2010 15:52:01 +0200
 

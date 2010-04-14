@@ -37,6 +37,7 @@ class AppletSpace;
 class MModalSceneWindow;
 class MPannableViewport;
 class MOverlay;
+class DesktopBackground;
 
 /*!
  * The desktop view draws a background for the desktop and manages layouts
@@ -76,6 +77,9 @@ private slots:
 
     //! Shows the applet space if it is not visible, hides it otherwise
     void toggleAppletSpace();
+
+    //! Updates the background when it changes
+    void updateBackground();
 
 #ifdef BENCHMARKS_ON
 private slots:
@@ -127,6 +131,9 @@ private:
 
     //! Pannable viewport in which the applet space is displayed
     MPannableViewport *appletSpaceViewport;
+
+    //! Background image handler
+    DesktopBackground* desktopBackground;
 
 #ifdef UNIT_TEST
     friend class Ut_DesktopView;

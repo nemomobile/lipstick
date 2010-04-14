@@ -4,6 +4,7 @@ SUBDIRS = \
     ut_appletspaceview \
     ut_desktop \
     ut_desktopview \
+    ut_desktopbackground \
     ut_home \
     ut_homeapplication \
     ut_launcher \

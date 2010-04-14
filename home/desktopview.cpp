@@ -36,6 +36,7 @@
 #include "contextframeworkcontext.h"
 #include "appletspace.h"
 #include "quicklaunchbar.h"
+#include "desktopbackground.h"
 
 #include <MViewCreator>
 #include <MDeviceProfile>
@@ -174,6 +175,9 @@ DesktopView::DesktopView(Desktop *desktop) :
     appletSpaceWindow->setLayout(windowLayout);
     appletSpaceWindow->setObjectName("AppletSpaceWindow");
     MainWindow::instance()->sceneManager()->disappearSceneWindowNow(appletSpaceWindow);
+    desktopBackground = new DesktopBackground(this);
+    connect(desktopBackground, SIGNAL(backgroundImageChanged()),
+            this, SLOT(updateBackground()));
 
 #ifdef BENCHMARKS_ON
     connect(MApplication::instance(), SIGNAL(startBenchmarking()), this, SLOT(startBenchmarking()));
@@ -213,9 +217,9 @@ void DesktopView::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 void DesktopView::drawBackground(QPainter *painter, const QStyleOptionGraphicsItem *) const
 {
     // Draw the background image
-    const QPixmap *pixmap = style()->desktopBackgroundImage();
-    if (pixmap != NULL) {
-        painter->drawTiledPixmap(boundingRect(), *pixmap, QPointF());
+    QPixmap pixmap = desktopBackground->backgroundImage(style());
+    if (!pixmap.isNull()) {
+        painter->drawTiledPixmap(boundingRect(), pixmap, QPointF());
     }
 }
 
@@ -266,6 +270,11 @@ void DesktopView::toggleAppletSpace()
         appletSpaceWindow->appear();
         appletSpace->setEnabled(true);
     }
+}
+
+void DesktopView::updateBackground()
+{
+    update();
 }
 
 void DesktopView::setGeometry(const QRectF &rect)

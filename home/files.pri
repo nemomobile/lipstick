@@ -12,6 +12,7 @@ HEADERS += homeapplication.h \
     desktopmodel.h \
     desktopview.h \
     desktopstyle.h \
+    desktopbackground.h \
     mainwindow.h \
     launcher.h \
     launcherview.h \
@@ -53,6 +54,7 @@ SOURCES += homeapplication.cpp \
     contextframeworkcontext.cpp \
     desktop.cpp \
     desktopview.cpp \
+    desktopbackground.cpp \
     mainwindow.cpp \
     launcher.cpp \
     launcherview.cpp \
