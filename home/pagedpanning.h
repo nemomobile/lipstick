@@ -45,7 +45,9 @@ public:
     virtual ~PagedPanning();
     
     /*!
-     * Sets the width of the page. The paging will be done with this interval
+     * Sets the width of the page. The paging will be done with this interval. This will 
+     * automatically adjust the viewport so that the current page reamins visible.
+     *
      * \param pageWidth The width of the page
      */
     void setPageWidth(uint pageWidth);

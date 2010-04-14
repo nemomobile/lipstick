@@ -45,25 +45,25 @@ private slots:
      * Tests small movement from left to right that should snap back to
      * its original position
      */
-    void testMovementSmallerThenSnapIntervalLeftToRight();
+    void testMovementSmallerThenPageWidthLeftToRight();
 
     /*! 
      * Tests big enough movement from left to right that should snap to the previous 
      * snap position
      */
-    void testMovementGreaterThenSnapIntervalLeftToRight();
+    void testMovementGreaterThenPageWidthLeftToRight();
 
     /*! 
      * Tests big enough movement from right to left that should snap to the previous 
      * snap position
      */
-    void testMovementGreaterThenSnapIntervalRightToLeft();
+    void testMovementGreaterThenPageWidthRightToLeft();
 
     /*! 
      * Tests small movement from right to left that should snap back to
      * its original position
      */
-    void testMovementSmallerThenSnapIntervalRightToLeft();
+    void testMovementSmallerThenPageWidthRightToLeft();
 
     /*!
      * Tests huge movement that should snap to the first snap position
@@ -79,13 +79,24 @@ private slots:
      * Tests movent that is exctly the threshold and it should advance to the next
      * snap position
      */
-    void testMovementExcatlySnapInterval();
+    void testMovementExcatlyPageWidth();
 
     /*!
      * Tests movent that is exctly the threshold and it should advance to the next
      * snap position
      */
     void testAutoPanning();
+
+    /*!
+     * Tests that the current page stays the same when the page width is changed. 
+     * Note this test also tests the case where a rotation occurs.
+     */
+    void testCurrentPageRemainsSameWhenPageWidthChanges();
+
+    /*!
+     * Tests the setting of the page width
+     */
+    void testSetPageWidth();
 
 private:
     // MApplication
@@ -111,7 +122,7 @@ private:
 			 qreal &pointerSpring,
 			 qreal &acceleration);
 
-    void fillDefaultIntegrationParameters(PagedPanning* pagedPanning, qreal rangeStart, qreal rangeEnd);
+    void fillDefaultIntegrationParameters(PagedPanning* pagedPanning, qreal newPageWidth, qreal rangeStart, qreal rangeEnd);
 
 };
 

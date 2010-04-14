@@ -19,34 +19,33 @@
 #include <algorithm>
 
 PagedPanning::PagedPanning(QObject* parent) : MPhysics2DPanning(parent),
-					      pageWidth_(0),
-					      currentPage(0),
-					      autoIntegrateMode(false),
-					      autoIntegrateTargetPage(0)
+                                              pageWidth_(0),
+                                              currentPage(0),
+                                              autoIntegrateMode(false),
+                                              autoIntegrateTargetPage(0)
 {
-
+  
 }
 
 PagedPanning::~PagedPanning()
 {
-
+  
 }
 
 void PagedPanning::integrateAxis(Qt::Orientation orientation,
-				 qreal &position,
-				 qreal &velocity,
-				 qreal &acceleration,
-				 qreal &pointerDifference,
-				 bool pointerPressed)
+                                 qreal &position,
+                                 qreal &velocity,
+                                 qreal &acceleration,
+                                 qreal &pointerDifference,
+                                 bool pointerPressed)
 {
     if (orientation == Qt::Vertical) {
-	return;
+        return;
     }
-    // If we are not vertical we are horizontal
+    
     qreal rangeStart = range().left();
     qreal rangeEnd = range().right();
     qreal force;
-
 
     // Damping
     if (position >= rangeStart && position <= rangeEnd) {
@@ -68,56 +67,58 @@ void PagedPanning::integrateAxis(Qt::Orientation orientation,
 
     if (pageWidth_ > 0 && !pointerPressed) {
 
-	int targetPage;
+        int targetPage;
 
-	if (autoIntegrateMode) {
-	    targetPage = autoIntegrateTargetPage;
-	} else {
-	    /*
-	      The window that we should be snapping to, 
-	      the 0.5 is simple integer rounding before casting to int
-	    */	
-	    targetPage = (int)((position / (qreal)pageWidth_) + 0.5);       
-	}
-	/* 
-	   The target page must be inside the panning range, this is to make sure 
-	   that we do not go out side the range
-	*/	
-	int maxTargetPage = (rangeEnd - rangeStart) / pageWidth_;
-	targetPage = qBound(0, targetPage, maxTargetPage);
+        if (autoIntegrateMode) {
+            targetPage = autoIntegrateTargetPage;
+        } else {
+            /*
+              The page that we should be paging to, 
+              the 0.5 is simple integer rounding before casting to int
+            */ 
+            targetPage = (int)((position / (qreal)pageWidth_) + 0.5);       
+        }
+        /* 
+           The target page must be inside the panning range, this is to make sure 
+           that we do not go out side the range
+        */ 
+        int maxTargetPage = (rangeEnd - rangeStart) / pageWidth_;
+        targetPage = qBound(0, targetPage, maxTargetPage);
 
-	force += borderSpringK() * (targetPage * (qreal)pageWidth_ - position);
+        force += borderSpringK() * (targetPage * (qreal)pageWidth_ - position);
 
-	qreal closeEnough = position - (pageWidth_ * targetPage);
+        qreal closeEnough = position - (pageWidth_ * targetPage);
 
-	if (abs(closeEnough) < 1 && abs(force) < 1) {
-	    // Setting these to zero should stop the integration process
-	    force = 0;
-	    velocity = 0;
-	    acceleration = 0;
-	    // Make the position exactly the snap position
-	    position = pageWidth_ * targetPage;
+        if (abs(closeEnough) < 1 && abs(force) < 1) {
+            // Setting these to zero should stop the integration process
+            force = 0;
+            velocity = 0;
+            acceleration = 0;
+            // Make the position exactly the right one
+            position = pageWidth_ * targetPage;
 
-	    autoIntegrateMode = false;
+            currentPage = targetPage;
+            autoIntegrateMode = false;
 
-	    emit pageChanged(targetPage);    
-	} else {
-	    acceleration   = force;
-	    velocity      += acceleration;
-	    position      += velocity;
-	    pointerDifference += velocity;	    
-	}
+            emit pageChanged(currentPage);
+        } else {
+            acceleration   = force;
+            velocity      += acceleration;
+            position      += velocity;
+            pointerDifference += velocity;     
+        }
     } else {
-	acceleration   = force;
-	velocity      += acceleration;
-	position      += velocity;
-	pointerDifference += velocity;
+        acceleration   = force;
+        velocity      += acceleration;
+        position      += velocity;
+        pointerDifference += velocity;
     }
 }
 
 void PagedPanning::setPageWidth(uint newPageWidth)
 {
     pageWidth_ = newPageWidth;
+    panToPage(currentPage);
 }
 
 uint PagedPanning::pageWidth() const
