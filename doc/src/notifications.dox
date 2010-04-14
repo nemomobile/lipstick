@@ -76,10 +76,6 @@ Execution model of %Notification Manager and sources and sinks is yet to be deci
 
 Another execution model would be to run the sources and/or sinks in isolated processes or threads. Running the sinks and sources in separate process would prevent 3rd party sinks and sources to access %Notification Manager process context and would thus be more secure. Running the sinks and sources in a separate thread would allow %Notification Manager to react to malfunctioning plug-ins. This execution model would have less security and stability issues than the previous execution model. However, the performance would be lower which could be unacceptable on such a time-critical functionality.
 
-\section links Links
-
-- <a href="https://cwiki.nokia.com/DirectUIFramework">Direct UI wiki</a>
-
 \see
 
 - NotificationSource
