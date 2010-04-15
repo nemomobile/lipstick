@@ -29,7 +29,7 @@
 class QuickLaunchBarStub : public StubBase {
   public:
   virtual void QuickLaunchBarConstructor(QGraphicsItem *parent);
-  virtual void QuickLaunchBarConstructor(MDataStore* configuration, QGraphicsItem *parent);
+  virtual void QuickLaunchBarConstructor(LauncherDataStore* configuration, QGraphicsItem *parent);
   virtual void QuickLaunchBarDestructor();
   virtual void launchApplication(const QString &application);
   virtual void launchMApplication(const QString &service);
@@ -42,7 +42,7 @@ void QuickLaunchBarStub::QuickLaunchBarConstructor(QGraphicsItem *parent) {
   Q_UNUSED(parent);
 }
 
-void QuickLaunchBarStub::QuickLaunchBarConstructor(MDataStore *configuration, QGraphicsItem *parent) {
+void QuickLaunchBarStub::QuickLaunchBarConstructor(LauncherDataStore *configuration, QGraphicsItem *parent) {
     Q_UNUSED(configuration);
     Q_UNUSED(parent);
 }
@@ -82,7 +82,7 @@ QuickLaunchBar::QuickLaunchBar(QGraphicsItem *parent) {
   gQuickLaunchBarStub->QuickLaunchBarConstructor(parent);
 }
 
-QuickLaunchBar::QuickLaunchBar(MDataStore *configuration, QGraphicsItem *parent) {
+QuickLaunchBar::QuickLaunchBar(LauncherDataStore *configuration, QGraphicsItem *parent) {
   gQuickLaunchBarStub->QuickLaunchBarConstructor(configuration, parent);
 }
 

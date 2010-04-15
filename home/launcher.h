@@ -89,6 +89,11 @@ public:
      */
     static bool startMApplication(const QString &serviceName);
 
+    /*!
+     * Returns a pointer to the launcher data store
+     */
+    LauncherDataStore *dataStore();
+
 signals:
     /*!
      * Signal sent when a launcher button was clicked.
@@ -114,12 +119,17 @@ private slots:
      */
     void launchMApplication(const QString &service);
 
+    /*!
+     * Restores buttons list data from data store.
+     */
+    void restoreButtonsFromDataStore();
+
 private:
     //! A file system watcher for the desktop entry file directory
     QFileSystemWatcher watcher;
 
     //! DataStore handle for storing launcher button positions and entries
-    LauncherDataStore *dataStore;
+    LauncherDataStore *dataStore_;
 
     //! Paths that can contain desktop entries. If testability is
     //! enabled, this list will contain more than one item.
@@ -172,11 +182,6 @@ private:
      * Updates buttons list data in data store.
      */
     void updateButtonsInDataStore();
-
-    /*!
-     * Restores buttons list data from data store.
-     */
-    void restoreButtonsFromDataStore();
 
     /*!
      * Updates buttons list from specific entry files in a directory.

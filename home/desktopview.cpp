@@ -105,10 +105,10 @@ void DesktopView::stopBenchmarking()
 DesktopView::DesktopView(Desktop *desktop) :
     MWidgetView(desktop),
     switcher(new Switcher),
-    quickLaunchBar(new QuickLaunchBar),
-    quickLaunchBarWindow(new MOverlay),
     launcher(new Launcher),
     launcherWindow(new MModalSceneWindow),
+    quickLaunchBar(new QuickLaunchBar(launcher->dataStore())),
+    quickLaunchBarWindow(new MOverlay),
     appletSpace(new AppletSpace),
     appletSpaceWindow(new MModalSceneWindow),
     appletSpaceViewport(new MPannableViewport(appletSpaceWindow))

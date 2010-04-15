@@ -31,7 +31,7 @@ static const char* const FILE_FILTER = "*.desktop";
 
 Launcher::Launcher(MWidget *parent) :
     MWidgetController(new LauncherModel, parent),
-    dataStore(NULL),
+    dataStore_(NULL),
     initialized(false)
 {
     pathsForDesktopEntries << APPLICATIONS_DIRECTORY;
@@ -40,26 +40,20 @@ Launcher::Launcher(MWidget *parent) :
 
 Launcher::~Launcher()
 {
-    delete dataStore;
+    delete dataStore_;
 }
 
 void Launcher::activateLauncher()
 {
     if (!initialized) {
-
-        if (!QDir::root().exists(QDir::homePath() + "/.config/duihome")) {
-            QDir::root().mkpath(QDir::homePath() + "/.config/duihome");
-        }
-
-	MFileDataStore* backendStore = new MFileDataStore(QDir::homePath() + "/.config/duihome/launcherbuttons.data");
-
-        dataStore = new LauncherDataStore(backendStore);
-
         // restore previous button order from datastore
         restoreButtonsFromDataStore();
 
         // Update the button list according to watched directories
         updateButtonList();
+
+        // Listen for changes in ordering data
+        connect(dataStore_, SIGNAL(dataStoreChanged()), this, SLOT(restoreButtonsFromDataStore()));
 
         // Start watching the applications directory for changes
         connect(&watcher, SIGNAL(directoryChanged(const QString)), this, SLOT(updateButtonListFromDirectory(const QString)));
@@ -70,6 +64,22 @@ void Launcher::activateLauncher()
         initialized = true;
     }
 }
+
+LauncherDataStore *Launcher::dataStore()
+{
+    if(dataStore_ == NULL) {
+        if (!QDir::root().exists(QDir::homePath() + "/.config/duihome")) {
+            QDir::root().mkpath(QDir::homePath() + "/.config/duihome");
+        }
+
+        MFileDataStore* backendStore = new MFileDataStore(QDir::homePath() + "/.config/duihome/launcherbuttons.data");
+
+        dataStore_ = new LauncherDataStore(backendStore);
+    }
+
+    return dataStore_;
+}
+
 
 void Launcher::updateButtonList()
 {
@@ -111,7 +121,7 @@ void Launcher::updateButtonListFromEntries(const QStringList &modifiedPaths,
                     // go by default into the laucher grid or
                     // if the data store already says that it goes into the grid, then lets put it there
                     LauncherDataStore::EntryLocation entryLocationInDataStore =
-                        dataStore->location(e);
+                        dataStore()->location(e);
                     if (entryLocationInDataStore == LauncherDataStore::Unknown
                         || entryLocationInDataStore ==
                         LauncherDataStore::LauncherGrid) {
@@ -233,13 +243,12 @@ bool Launcher::startMApplication(const QString &serviceName)
 
 void Launcher::updateButtonsInDataStore()
 {
-    dataStore->updateLauncherButtons(model()->launcherPages());
+    dataStore()->updateLauncherButtons(model()->launcherPages());
 }
 
 void Launcher::restoreButtonsFromDataStore()
 {
-    QStringList acceptedTypes = (QStringList() << "Application");
-    QList< QSharedPointer<LauncherPage> > restoredPages(dataStore->launcherButtons());
+    QList< QSharedPointer<LauncherPage> > restoredPages(dataStore()->launcherButtons());
 
     foreach (QSharedPointer<LauncherPage> page, restoredPages) {
 	foreach (QSharedPointer<LauncherButton> button, page->model()->launcherButtons()) {

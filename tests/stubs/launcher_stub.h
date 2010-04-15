@@ -11,6 +11,7 @@ class LauncherStub : public StubBase {
   public:
   virtual void LauncherConstructor(MWidget *parent);
   virtual void LauncherDestructor();
+  virtual LauncherDataStore *dataStore();
   virtual void setEnabled(bool enabled);
   virtual bool startApplication(const QString &application);
   virtual bool startMApplication(const QString &serviceName);
@@ -37,6 +38,12 @@ void LauncherStub::LauncherConstructor(MWidget *parent) {
 void LauncherStub::LauncherDestructor() {
 
 }
+
+LauncherDataStore *LauncherStub::dataStore() {
+  stubMethodEntered("dataStore");
+  return stubReturnValue<LauncherDataStore*>("dataStore");
+}
+
 void LauncherStub::setEnabled(bool enabled) {
   QList<ParameterBase*> params;
   params.append( new Parameter<bool >(enabled));
@@ -148,6 +155,11 @@ Launcher::Launcher(MWidget* parent) : MWidgetController(parent) {
 
 Launcher::~Launcher() {
   gLauncherStub->LauncherDestructor();
+}
+
+LauncherDataStore *Launcher::dataStore()
+{
+  return gLauncherStub->dataStore();
 }
 
 void Launcher::setEnabled(bool enabled) {

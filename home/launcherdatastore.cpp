@@ -29,16 +29,37 @@ static const QString QUICKLAUNCHBAR_PLACEMENT = "quicklaunchbar";
 static const char SECTION_SEPARATOR = '/';
 static const QString KEY_PREFIX = "DesktopEntries";
 
+LauncherDataStore::Placement::Placement(const QString &placement) : location(LauncherDataStore::Unknown), page(0), position(0) {
+    QString loc = placement.section(SECTION_SEPARATOR, 0, 0);
+    if(loc == LAUNCHER_PLACEMENT) {
+        location = LauncherDataStore::LauncherGrid;
+        page     = placement.section(SECTION_SEPARATOR, 1, 1).toInt();
+        position = placement.section(SECTION_SEPARATOR, 2, 2).toInt();
+    } else if(loc == QUICKLAUNCHBAR_PLACEMENT) {
+        location = LauncherDataStore::QuickLaunchBar;
+        position = placement.section(SECTION_SEPARATOR, 1, 1).toInt();
+    }
+}
+
+inline bool operator<(const LauncherDataStore::Placement &p1, const LauncherDataStore::Placement &p2)
+{
+    if(p1.page != p2.page) {
+        return p1.page < p2.page;
+    }
+
+    return p1.position < p2.position;
+}
+
 LauncherDataStore::LauncherDataStore(MDataStore* dataStore)
 {
     store = dataStore;
+    connect(store, SIGNAL(valueChanged(QString,QVariant)), this, SIGNAL(dataStoreChanged()));
 }
 
 LauncherDataStore::~LauncherDataStore()
 {
     delete store;
 }
-
 
 void LauncherDataStore::updateLauncherButtons(const QList< QSharedPointer<LauncherPage> > &pages)
 {
@@ -89,44 +110,77 @@ void LauncherDataStore::updateLauncherButtons(const QList< QSharedPointer<Launch
     }
 }
 
-QList< QSharedPointer<LauncherPage> > LauncherDataStore::launcherButtons()
+
+QMap<LauncherDataStore::Placement, QString> LauncherDataStore::entryPlacementMap(LauncherDataStore::EntryLocation location)
 {
     QStringList entryKeys(store->allKeys());
-    QList< QSharedPointer<LauncherPage> > pages;
+    QMap<Placement, QString> map;
 
-    // Collect a map of the entries and locations so that entries can be sorted by location before adding to pages.
-    // This is done as buttons doesn't know/maintain their positions and empty spaces in pages are not supported.
-    // So when adding multiple buttons to pages we need to do it in order.
-    QMap<QString, QString> entryLocationMap;
     foreach(QString key, entryKeys) {
-        QString placement(store->value(key).toString());
+        Placement p(store->value(key).toString());
 
-        QString place(placement.section(SECTION_SEPARATOR, 0, 0));
-        if(place == LAUNCHER_PLACEMENT){
-            entryLocationMap.insert(placement, keyToEntryPath(key));
+        if(p.location == location) {
+            map.insert(p, keyToEntryPath(key));
         }
     }
 
-    QMapIterator<QString, QString> iterator(entryLocationMap);
+    return map;
+}
+
+QList< QSharedPointer<LauncherPage> > LauncherDataStore::launcherButtons()
+{
+    QList< QSharedPointer<LauncherPage> > pages;
+    // Collect a map of the entries and locations so that entries can be sorted by location before adding to pages.
+    // This is done as buttons doesn't know/maintain their positions and empty spaces in pages are not supported.
+    // So when adding multiple buttons to pages we need to do it in order.
+    QMap<Placement, QString> entryPlaces = entryPlacementMap(LauncherGrid);
+    QMapIterator<Placement, QString> iterator(entryPlaces);
+
     while (iterator.hasNext()) {
         iterator.next();
-        QString placement(iterator.key());
+        Placement placement(iterator.key());
         QString entryFile(iterator.value());
-        int pageIndex = placement.section(SECTION_SEPARATOR, 1, 1).toInt();
-        int buttonPositionOnPage = placement.section(SECTION_SEPARATOR, 2, 2).toInt();
         QSharedPointer<LauncherPage> newPage;
-        if (pageIndex < pages.count()) {
-            newPage = pages.at(pageIndex);
+        if (placement.page < pages.count()) {
+            newPage = pages.at(placement.page);
         } else {
             newPage = QSharedPointer<LauncherPage>(new LauncherPage());
             pages.append(newPage);
         }
         MDesktopEntry entry(entryFile);
         QSharedPointer<LauncherButton> button = QSharedPointer<LauncherButton> (new LauncherButton(entry));
-        newPage->insertButton(button, buttonPositionOnPage);
+        newPage->insertButton(button, placement.position);
     }
 
     return pages;
+}
+
+QList<LauncherButton*> LauncherDataStore::quickLaunchBarButtons()
+{
+    QList<LauncherButton*> buttons;
+    QMap<Placement, QString> entryPlaces = this->entryPlacementMap(QuickLaunchBar);
+    QMapIterator<Placement, QString> iterator(entryPlaces);
+
+    while (iterator.hasNext()) {
+        iterator.next();
+        Placement placement(iterator.key());
+        QString entryFile(iterator.value());
+
+        MDesktopEntry entry(entryFile);
+        if(entry.isValid()) {
+            LauncherButton *button = new LauncherButton(entry);
+            // allow empty places
+            while(placement.position >= buttons.size()) {
+                buttons.append(NULL);
+            }
+            buttons.replace(placement.position, button);
+        } else {
+            // remove from datastore
+            store->remove(entryPathToKey(entryFile));
+        }
+    }
+
+    return buttons;
 }
 
 LauncherDataStore::EntryLocation LauncherDataStore::location(const MDesktopEntry &entry)
@@ -134,12 +188,8 @@ LauncherDataStore::EntryLocation LauncherDataStore::location(const MDesktopEntry
     EntryLocation location = Unknown;
     QString key(entryPathToKey(entry.fileName()));
     if (store->contains(key)) {
-        QString placement = store->value(key).toString();
-        if (placement.section(SECTION_SEPARATOR, 0, 0) == LAUNCHER_PLACEMENT) {
-            location = LauncherGrid;
-        } else if (placement.section(SECTION_SEPARATOR, 0, 0) == QUICKLAUNCHBAR_PLACEMENT) {
-            location = QuickLaunchBar;
-	}
+        Placement p(store->value(key).toString());
+        location = p.location;
     }
     return location;
 }

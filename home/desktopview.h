@@ -105,17 +105,17 @@ private:
     //! The switcher widget
     Switcher *switcher;
 
-    //! The quick launch bar
-    QuickLaunchBar *quickLaunchBar;
-
-    //! Scene window for the quick launch bar
-    MOverlay *quickLaunchBarWindow;
-
     //! Application launcher
     Launcher *launcher;
 
     //! scene window for the launcher
     MModalSceneWindow *launcherWindow;
+
+    //! The quick launch bar
+    QuickLaunchBar *quickLaunchBar;
+
+    //! Scene window for the quick launch bar
+    MOverlay *quickLaunchBarWindow;
 
     //! Phone network indicator
     StatusIndicator *phoneNetworkIndicator;

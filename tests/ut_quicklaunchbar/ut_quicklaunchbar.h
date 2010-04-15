@@ -23,6 +23,8 @@
 #include "mdatastore.h"
 
 class QuickLaunchBar;
+class LauncherButton;
+class LauncherDataStore;
 
 class TestDataStore : public MDataStore
 {
@@ -52,6 +54,7 @@ signals:
     void updateWidgetList();
     void applicationLaunched(const QString &application);
     void mApplicationLaunched(const QString &serviceName);
+    void launcherDataStoreChanged();
 
 private slots:
     // Called before the first testfunction is executed
@@ -63,12 +66,8 @@ private slots:
     // Called after every testfunction
     void cleanup();
 
-    void setupTestSubject(MDataStore *configuration);
-
     // Test cases
     void testInitialization();
-    void testInitializationWithoutDataStore();
-    void testRemoveOneApplicationFromFileSystem();
     void testLaunchApplication();
     void testLaunchMApplication();
     void testExternalConfigurationChangeIsNoticed();
@@ -78,6 +77,10 @@ private:
     QuickLaunchBar *m_subject;
     // The configuration object used by the test subject
     MDataStore *m_configuration;
+    // The datastore object used by the test subject
+    LauncherDataStore *launcherDataStore;
+    // The buttons returned from the datastore
+    QList<LauncherButton*> launcherDataStoreButtons;
 };
 
 #endif

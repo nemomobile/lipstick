@@ -84,6 +84,14 @@ bool TestDataStore::contains(const QString& key) const
     return testData.contains(key);
 }
 
+// MDesktopEntry stubs
+QList<QString> gValidDesktopFiles;
+bool MDesktopEntry::isValid() const
+{
+    return gValidDesktopFiles.contains(fileName());
+}
+
+
 void Ut_LauncherDataStore::initTestCase()
 {
     static int argc = 1;
@@ -101,6 +109,7 @@ void Ut_LauncherDataStore::init()
     testStore = new TestDataStore;
     m_subject = new LauncherDataStore(testStore);
     testData.clear();
+    gValidDesktopFiles.clear();
 }
 
 void Ut_LauncherDataStore::cleanup()
@@ -229,7 +238,7 @@ void Ut_LauncherDataStore::testGettingLauncherButtonsFromDataStore()
     QCOMPARE(button.data()->desktopEntry(), pathFromKey(existingEntryList[7]));
 }
 
-void Ut_LauncherDataStore::testLaucherButtonLocation()
+void Ut_LauncherDataStore::testLauncherButtonLocation()
 {
     QList< QSharedPointer<LauncherPage> > pages;
     createSimpleTestData(pages);
@@ -241,6 +250,45 @@ void Ut_LauncherDataStore::testLaucherButtonLocation()
     const MDesktopEntry unknownEntry("/path/to-an-unknown-entry.desktop");
     location = m_subject->location(unknownEntry);
     QCOMPARE(location, LauncherDataStore::Unknown);
+}
+
+void Ut_LauncherDataStore::testGettingQuickLaunchBarButtonsWithInvalidDesktopEntries()
+{
+    testData.insert(QString(KEY_PREFIX + "/path/entry1.desktop"), QString("quicklaunchbar/0"));
+    testData.insert(QString(KEY_PREFIX + "/path/entry2.desktop"), QString("quicklaunchbar/1"));
+
+    // none of the desktop entries are valid:
+    QList<LauncherButton*> buttons = m_subject->quickLaunchBarButtons();
+    QCOMPARE(buttons.count(), 0);
+    // invalid entries were removed:
+    QCOMPARE(testData.count(), 0);
+}
+
+void Ut_LauncherDataStore::testGettingQuickLaunchBarButtonsWithOneValidDesktopEntry()
+{
+    testData.insert(QString(KEY_PREFIX + "/path/entry1.desktop"), QString("quicklaunchbar/0"));
+    testData.insert(QString(KEY_PREFIX + "/path/entry2.desktop"), QString("quicklaunchbar/1"));
+
+    // make one desktop entry valid:
+    gValidDesktopFiles.append("/path/entry1.desktop");
+    QList<LauncherButton*> buttons = m_subject->quickLaunchBarButtons();
+    QCOMPARE(buttons.count(), 1);
+    QVERIFY(dynamic_cast<LauncherButton *>(buttons[0]) != NULL);
+    // invalid entries were removed:
+    QCOMPARE(testData.count(), 1);
+}
+
+void Ut_LauncherDataStore::testGettingQuickLaunchBarButtonsWithEmptyPlaces()
+{
+    // there can be empty places in the quick launch bar list
+    testData.insert(QString(KEY_PREFIX + "/path/entry1.desktop"), QString("quicklaunchbar/3"));
+    gValidDesktopFiles.append("/path/entry1.desktop");
+    QList<LauncherButton*> buttons = m_subject->quickLaunchBarButtons();
+    QCOMPARE(buttons.count(), 4);
+    QVERIFY(buttons[0] == NULL);
+    QVERIFY(buttons[1] == NULL);
+    QVERIFY(buttons[2] == NULL);
+    QVERIFY(dynamic_cast<LauncherButton *>(buttons[3]) != NULL);
 }
 
 static void createSimpleTestData(QList< QSharedPointer<LauncherPage> > &pages)

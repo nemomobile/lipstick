@@ -22,6 +22,7 @@
 #include "launcher.h"
 #include <MDesktopEntry>
 #include <mfiledatastore.h>
+#include "launcherdatastore.h"
 #include <QDir>
 
 const int QuickLaunchBar::NUMBER_OF_LAUNCHER_BUTTONS = 4;
@@ -32,7 +33,7 @@ QuickLaunchBar::QuickLaunchBar(QGraphicsItem *parent) : MWidgetController(new Qu
     init();
 }
 
-QuickLaunchBar::QuickLaunchBar(MDataStore* configuration, QGraphicsItem *parent) :
+QuickLaunchBar::QuickLaunchBar(LauncherDataStore *configuration, QGraphicsItem *parent) :
         MWidgetController(new QuickLaunchBarModel, parent),
         configurationDataStore(configuration)
 {
@@ -51,20 +52,11 @@ void QuickLaunchBar::init()
 
 QuickLaunchBar::~QuickLaunchBar()
 {
-    delete configurationDataStore;
 }
 
 void QuickLaunchBar::initializeDataStore()
 {
-    if (configurationDataStore == NULL) {
-        if (!QDir::root().exists(QDir::homePath() + "/.config/duihome")) {
-            QDir::root().mkpath(QDir::homePath() + "/.config/duihome");
-        }
-
-        configurationDataStore = new MFileDataStore(QDir::homePath() + "/.config/duihome/quicklaunchbar.data");
-    }
-
-    connect(configurationDataStore, SIGNAL(valueChanged(QString, QVariant)), this, SLOT(updateWidgetList()));
+    connect(configurationDataStore, SIGNAL(dataStoreChanged()), this, SLOT(updateWidgetList()));
 }
 
 void QuickLaunchBar::updateWidgetList()
@@ -74,34 +66,23 @@ void QuickLaunchBar::updateWidgetList()
 
     // Construct a list of new widgets
     QList<MWidget *> newWidgets;
-    for (int i = 1; i <= NUMBER_OF_LAUNCHER_BUTTONS; i++) {
+
+    // Temporarily disable the listening of the change signals from the configuration to prevent a recursive call to this method
+    configurationDataStore->disconnect(this);
+    QList<LauncherButton*> buttons = configurationDataStore->quickLaunchBarButtons();
+    connect(configurationDataStore, SIGNAL(dataStoreChanged()), this, SLOT(updateWidgetList()));
+
+    for(int i = 0; i < NUMBER_OF_LAUNCHER_BUTTONS; i++) {
         MWidget *widget = NULL;
-
-        QString key;
-        key.sprintf("%d/desktopFile", i);
-        if (configurationDataStore->contains(key)) {
-            MDesktopEntry desktopEntry(configurationDataStore->value(key).toString());
-            if (desktopEntry.isValid()) {
-                widget = new LauncherButton(desktopEntry);
-
-                connect(widget, SIGNAL(applicationLaunched(const QString &)), this, SLOT(launchApplication(const QString &)), Qt::QueuedConnection);
-                connect(widget, SIGNAL(mApplicationLaunched(const QString &)), this, SLOT(launchMApplication(const QString &)), Qt::QueuedConnection);
-            } else {
-                // The desktop file is no longer valid so we'll remove the configuration
-                // Temporarily disable the listening of the change signals from the configuration to prevent a recursive call to this method
-                disconnect(configurationDataStore, SIGNAL(valueChanged(QString, QVariant)), this, SLOT(updateWidgetList()));
-                configurationDataStore->remove(key);
-                connect(configurationDataStore, SIGNAL(valueChanged(QString, QVariant)), this, SLOT(updateWidgetList()));
-            }
-        }
-
-        if (widget == NULL) {
-            // Use an empty widget if the entry was not valid
+        if(i >= buttons.size() || buttons[i] == NULL) {
             widget = new MWidget;
+        } else {
+            widget = buttons[i];
+            connect(widget, SIGNAL(applicationLaunched(const QString &)), this, SLOT(launchApplication(const QString &)), Qt::QueuedConnection);
+            connect(widget, SIGNAL(mApplicationLaunched(const QString &)), this, SLOT(launchMApplication(const QString &)), Qt::QueuedConnection);
         }
 
         widget->setObjectName("QuickLaunchBarButton");
-
         newWidgets.append(widget);
     }
 

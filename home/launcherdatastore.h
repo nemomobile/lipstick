@@ -21,9 +21,11 @@
 #define LAUNCHERBUTTONDATASTORE_H
 
 #include <QSharedPointer>
+#include <QMap>
 
 class MDataStore;
 class LauncherPage;
+class LauncherButton;
 class MDesktopEntry;
 
 /*!
@@ -34,16 +36,18 @@ class MDesktopEntry;
  *
  * The data is stored as key-value pairs. Key is entry file path relative to root.
  * (eg. "usr/share/applications/deskentry.desktop").
- * Value consists of location info: location, page index and position on page (eg. "launcher/1/1").
+ * Value consists of location info. When the entry is for launcher:
+ *   location, page index and position on page (eg. "launcher/1/1")
+ * and when it's for quick launch bar:
+ *   location, position on quick launch bar (eg. "quicklaunchbar/3").
  *
  * The LauncherDataStore uses a MDataStore as a backend to actually store the 
  * the data. The ownership of the MDataStore is transferred to the LauncherDataStore.
  *
- * Currently only launcher grid is supported.
  */
-class LauncherDataStore
+class LauncherDataStore : public QObject
 {
-
+    Q_OBJECT
 public:
 
     //! The location of the desktop entry
@@ -55,7 +59,17 @@ public:
 	//! The entry is defined to be in the quick launch bar
 	QuickLaunchBar
     };
-    
+
+    //! A class for storing, parsing and ordering the placement information of the items
+    class Placement {
+    public:
+        Placement(const QString &placement);
+
+        EntryLocation location;
+        int page;
+        int position;
+    };
+
     /*!
      * Constructs LauncherDataStore. The ownership of the MDataStore is transferred
      * to this LauncherDataStore.
@@ -76,13 +90,20 @@ public:
     void updateLauncherButtons(const QList< QSharedPointer<LauncherPage> > &pages);
 
     /*!
-     * Get launcher button data from data store. The loaded pages contain launcer buttons
-     * and their respective DesktopEntries. However the actions of the laucher buttons are not
+     * Get launcher button data from data store. The loaded pages contain launcher buttons
+     * and their respective DesktopEntries. However the actions of the launcher buttons are not
      * connected anywhere.
      *
-     * return A list of pages consisting of the stored buttons.
+     * \return A list of pages consisting of the stored buttons.
      */
     QList< QSharedPointer<LauncherPage> > launcherButtons();
+
+    /*!
+     * Get quick launch bar data from data store. The actions of the launcher buttons are not
+     * connected anywhere.
+     * \return A list of launcher buttons. The list may contain NULL values, to indicate an empty place.
+     */
+    QList<LauncherButton*> quickLaunchBarButtons();
 
     /*!
      * Returns where this entry is located at. By default the entries are in the launcher grid
@@ -91,7 +112,17 @@ public:
      */
     EntryLocation location(const MDesktopEntry &entry);
 
+signals:
+    void dataStoreChanged();
+
 private:
+    /*!
+     * Makes a map of placements of all the entries at specific entry location
+     * \param location the location of the entries
+     * \return a map of placement to the entry
+     */
+    QMap<Placement, QString> entryPlacementMap(EntryLocation location);
+
     /*!
       * This helper method gets a key from entry path by adding key prefix to the path.
       *

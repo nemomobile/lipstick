@@ -21,6 +21,7 @@ HEADERS += \
 HEADERS += \
     $$SRCDIR/quicklaunchbarmodel.h \
     $$SRCDIR/launcherbutton.h \
+    $$SRCDIR/launcherdatastore.h \
     $$SRCDIR/launcher.h
 
 DEFINES += APPLICATIONS_DIRECTORY=\'$$quote(\"/tmp/ut_launcher/applications/\")\'

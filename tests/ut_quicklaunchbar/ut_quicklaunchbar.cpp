@@ -21,29 +21,11 @@
 #include "quicklaunchbar.h"
 #include "launcher_stub.h"
 #include "launcherbutton_stub.h"
+#include "launcherdatastore_stub.h"
 
 #include <QtTest/QtTest>
 #include <QDir>
 #include <MDesktopEntry>
-
-// QDir stubs
-bool QDir::exists(const QString &) const
-{
-    return false;
-}
-
-bool QDir::mkpath(const QString &) const
-{
-    Ut_QuickLaunchBar::mkpathCalled = true;
-    return true;
-}
-
-// MDesktopEntry stubs
-QList<QString> gValidDesktopFiles;
-bool MDesktopEntry::isValid() const
-{
-    return gValidDesktopFiles.contains(fileName());
-}
 
 QVariant TestDataStore::value(const QString &key) const
 {
@@ -84,8 +66,6 @@ void TestDataStore::clear()
 
 }
 
-bool Ut_QuickLaunchBar::mkpathCalled = false;
-
 void Ut_QuickLaunchBar::initTestCase()
 {
     m_configuration = NULL;
@@ -98,31 +78,30 @@ void Ut_QuickLaunchBar::cleanupTestCase()
 
 void Ut_QuickLaunchBar::init()
 {
-    mkpathCalled = false;
-
-    gValidDesktopFiles.clear();
-    gValidDesktopFiles << "/tmp/existing.desktop";
-
     MDataStore *configuration = new TestDataStore;
-    configuration->setValue("2/desktopFile", "/tmp/existing.desktop");
-    configuration->setValue("4/desktopFile", "/tmp/inexisting.desktop");
-    setupTestSubject(configuration);
+
+    launcherDataStore = new LauncherDataStore(configuration);
+    launcherDataStoreButtons.clear();
+    launcherDataStoreButtons.append(NULL);
+    launcherDataStoreButtons.append(new LauncherButton);
+    launcherDataStoreButtons.append(NULL);
+    launcherDataStoreButtons.append(NULL);
+    gLauncherDataStoreStub->stubSetReturnValue("quickLaunchBarButtons", launcherDataStoreButtons);
+
+    m_subject = new QuickLaunchBar(launcherDataStore);
+    connect(this, SIGNAL(updateWidgetList()), m_subject, SLOT(updateWidgetList()));
+    connect(this, SIGNAL(applicationLaunched(const QString &)), m_subject, SLOT(launchApplication(const QString &)));
+    connect(this, SIGNAL(mApplicationLaunched(const QString &)), m_subject, SLOT(launchMApplication(const QString &)));
+    connect(this, SIGNAL(launcherDataStoreChanged()), launcherDataStore, SIGNAL(dataStoreChanged()));
+
 }
 
 void Ut_QuickLaunchBar::cleanup()
 {
+    delete launcherDataStore;
+    launcherDataStore = NULL;
     delete m_subject;
     m_subject = NULL;
-}
-
-void Ut_QuickLaunchBar::setupTestSubject(MDataStore *configuration)
-{
-    delete m_subject;
-    m_configuration = configuration;
-    m_subject = new QuickLaunchBar(configuration);
-    connect(this, SIGNAL(updateWidgetList()), m_subject, SLOT(updateWidgetList()));
-    connect(this, SIGNAL(applicationLaunched(const QString &)), m_subject, SLOT(launchApplication(const QString &)));
-    connect(this, SIGNAL(mApplicationLaunched(const QString &)), m_subject, SLOT(launchMApplication(const QString &)));
 }
 
 void Ut_QuickLaunchBar::testInitialization()
@@ -133,26 +112,6 @@ void Ut_QuickLaunchBar::testInitialization()
     QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(1)) != NULL);
     QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(2)) == NULL);
     QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(3)) == NULL);
-}
-
-void Ut_QuickLaunchBar::testInitializationWithoutDataStore()
-{
-    setupTestSubject(NULL);
-    // QDir::exists returns false so mkpath should be called
-    QVERIFY(mkpathCalled);
-}
-
-void Ut_QuickLaunchBar::testRemoveOneApplicationFromFileSystem()
-{
-    // "Remove" one application from file system
-    gValidDesktopFiles.removeAll("/tmp/existing.desktop");
-    emit updateWidgetList();
-    QCOMPARE(m_subject->model()->widgets().count(), 4);
-    QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(0)) == NULL);
-    QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(1)) == NULL);
-    QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(2)) == NULL);
-    QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(3)) == NULL);
-    QCOMPARE(m_configuration->contains("2/desktopFile"), false);
 }
 
 void Ut_QuickLaunchBar::testLaunchApplication()
@@ -171,7 +130,9 @@ void Ut_QuickLaunchBar::testLaunchMApplication()
 
 void Ut_QuickLaunchBar::testExternalConfigurationChangeIsNoticed()
 {
-    m_configuration->remove("2/desktopFile");
+    launcherDataStoreButtons[1] = NULL;
+    gLauncherDataStoreStub->stubSetReturnValue("quickLaunchBarButtons", launcherDataStoreButtons);
+    emit launcherDataStoreChanged();
     QCOMPARE(m_subject->model()->widgets().count(), 4);
     QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(0)) == NULL);
     QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(1)) == NULL);

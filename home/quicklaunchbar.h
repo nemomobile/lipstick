@@ -25,6 +25,7 @@
 #include "quicklaunchbarmodel.h"
 
 class MDataStore;
+class LauncherDataStore;
 
 /*!
  * A widget for showing a quick launch bar.
@@ -43,10 +44,10 @@ public:
 
     /*!
      * Constructs a new QuickLaunchBar.
-     * \param configuration an object that is used for configuration. This object takes the ownership of the configuration data store.
+     * \param configuration an object that is used for configuration.
      * \param parent the parent object for this object if any.
      */
-    explicit QuickLaunchBar(MDataStore* configuration, QGraphicsItem *parent = NULL);
+    explicit QuickLaunchBar(LauncherDataStore* configuration, QGraphicsItem *parent = NULL);
 
     /*!
      * Destroys the QuickLaunchBar.
@@ -90,7 +91,7 @@ private:
     static const int NUMBER_OF_LAUNCHER_BUTTONS;
 
     //! The data store for quick launch bar configuration
-    MDataStore *configurationDataStore;
+    LauncherDataStore *configurationDataStore;
 
     /*!
      * An initialization helper function that should be called once from any constructor.

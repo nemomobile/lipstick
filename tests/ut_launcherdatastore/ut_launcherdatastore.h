@@ -64,7 +64,10 @@ private slots:
     void testAddingLauncherItemsToNonEmptyStore();
     void testGettingLauncherButtonsFromAnEmptyDataStore();
     void testGettingLauncherButtonsFromDataStore();
-    void testLaucherButtonLocation();
+    void testLauncherButtonLocation();
+    void testGettingQuickLaunchBarButtonsWithInvalidDesktopEntries();
+    void testGettingQuickLaunchBarButtonsWithOneValidDesktopEntry();
+    void testGettingQuickLaunchBarButtonsWithEmptyPlaces();
 
 private:
     // MApplication
