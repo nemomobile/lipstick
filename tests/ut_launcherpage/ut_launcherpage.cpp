@@ -112,9 +112,9 @@ void Ut_LauncherPage::testPruning()
     entryList << "/my/dir/my-entry-name"
               << "/my/dir/my-entry-name1"
               << "/my/dir/my-entry-name2"
-              << "/another-my/dir/my-entry-name3"
+              << "/my/dir/my-entry-name3"
               << "/my/dir/my-entry-name4"
-              << "/not-my/dir/my-entry-name5";
+              << "/my/dir/my-entry-name5";
     m_subject->model()->setMaxButtons(6);
     foreach (QString entry, entryList) {
 	QSharedPointer<LauncherButton> button = createLauncherButton(entry);
@@ -123,37 +123,20 @@ void Ut_LauncherPage::testPruning()
     }
 
     entryList.takeAt(2);
-    const QString dir("/my/dir");
-    const QString dir2("/another-my/dir");
-    QVERIFY(m_subject->prune(entryList, QStringList() << dir << dir2));
+    QVERIFY(m_subject->prune(entryList));
 
     /*
-      Check that the directory /another-my/dir is not pruned away
-      from this page, but /not-my/dir is
+      Check that the removed entry is pruned away
      */
-    QCOMPARE(m_subject->model()->launcherButtons().count(), 4);
+    QCOMPARE(m_subject->model()->launcherButtons().count(), 5);
     foreach (QSharedPointer<LauncherButton> button, m_subject->model()->launcherButtons()) {
 	QVERIFY(entryList.contains(button.data()->model()->desktopEntryFile()));
     }
 
     entryList.clear();
-    entryList << "/another-my/dir/my-entry-name3";
-    QVERIFY(m_subject->prune(entryList, QStringList() << dir << dir2));
 
-    /*
-      Check that the "/another-my/dir" named directory is not pruned away from this page
-     */
-    QCOMPARE(m_subject->model()->launcherButtons().count(), 1);
-    foreach (QSharedPointer<LauncherButton> button, m_subject->model()->launcherButtons()) {
-	QVERIFY(entryList.contains(button.data()->model()->desktopEntryFile()));
-    }
-
-    entryList.clear();
-    entryList << "/my/dir/does-not-matter";
-
-    const QString lastDir("/not-my/dir");
     // verify that empty page returns false on pruning
-    QVERIFY(!m_subject->prune(entryList, QStringList() << lastDir));
+    QVERIFY(!m_subject->prune(entryList));
     QCOMPARE(m_subject->model()->launcherButtons().count(), 0);
 }
 

@@ -251,7 +251,7 @@ void Ut_Launcher::init()
 {
     // Create a launcher and connect the signals
     launcher = new Launcher();
-    connect(this, SIGNAL(directoryChanged(const QString)), launcher, SLOT(updateButtonListFromDirectory(const QString)));
+    connect(this, SIGNAL(directoryChanged(const QString)), launcher, SLOT(updateButtonList()));
     connect(this, SIGNAL(applicationLaunched(const QString)), launcher, SLOT(launchApplication(const QString)));
     connect(this, SIGNAL(mApplicationLaunched(const QString)), launcher, SLOT(launchMApplication(const QString)));
 

@@ -15,7 +15,6 @@ class LauncherStub : public StubBase {
   virtual void setEnabled(bool enabled);
   virtual bool startApplication(const QString &application);
   virtual bool startMApplication(const QString &serviceName);
-  virtual void updateButtonListFromDirectory(const QString &path);
   virtual void launchApplication(const QString &application);
   virtual void launchMApplication(const QString &service);
   virtual void activateLauncher();
@@ -25,7 +24,6 @@ class LauncherStub : public StubBase {
   virtual bool contains(const QString &desktopEntryFile);
   virtual void updateButtonsInDataStore();
   virtual void restoreButtonsFromDataStore();
-  virtual void updateButtonListFromEntries(const QStringList &modifiedPaths, const QStringList &allPaths, const QString &nameFilter, const QStringList &acceptedTypes);
   virtual void addNewLauncherButton(const MDesktopEntry &entry);
   virtual bool isDesktopEntryValid(const MDesktopEntry &entry, const QStringList &acceptedTypes);
 }; 
@@ -62,12 +60,6 @@ bool LauncherStub::startMApplication(const QString &serviceName) {
   params.append( new Parameter<QString >(serviceName));
   stubMethodEntered("startMApplication",params);
   return stubReturnValue<bool>("startMApplication");
-}
-
-void LauncherStub::updateButtonListFromDirectory(const QString &path) {
-  QList<ParameterBase*> params;
-  params.append( new Parameter<const QString & >(path));
-  stubMethodEntered("updateButtonListFromDirectory",params);
 }
 
 void LauncherStub::launchApplication(const QString &application) {
@@ -118,15 +110,6 @@ void LauncherStub::restoreButtonsFromDataStore() {
   stubMethodEntered("restoreButtonsFromDataStore");
 }
 
-void LauncherStub::updateButtonListFromEntries(const QStringList &modifiedPaths, const QStringList &allPaths, const QString &nameFilter, const QStringList &acceptedTypes) {
-  QList<ParameterBase*> params;
-  params.append( new Parameter<const QStringList & >(modifiedPaths));
-  params.append( new Parameter<const QStringList & >(allPaths));
-  params.append( new Parameter<const QString & >(nameFilter));
-  params.append( new Parameter<const QStringList & >(acceptedTypes));
-  stubMethodEntered("updateButtonListFromEntries",params);
-}
-
 void LauncherStub::addNewLauncherButton(const MDesktopEntry &entry) {
   QList<ParameterBase*> params;
   params.append( new Parameter<const MDesktopEntry & >(entry));
@@ -174,10 +157,6 @@ bool Launcher::startMApplication(const QString &serviceName) {
   return gLauncherStub->startMApplication(serviceName);
 }
 
-void Launcher::updateButtonListFromDirectory(const QString &path) {
-  gLauncherStub->updateButtonListFromDirectory(path);
-}
-
 void Launcher::launchApplication(const QString &application) {
   gLauncherStub->launchApplication(application);
 }
@@ -212,10 +191,6 @@ void Launcher::updateButtonsInDataStore() {
 
 void Launcher::restoreButtonsFromDataStore() {
   gLauncherStub->restoreButtonsFromDataStore();
-}
-
-void Launcher::updateButtonListFromEntries(const QStringList &modifiedPaths, const QStringList &allPaths, const QString &nameFilter, const QStringList &acceptedTypes) {
-  gLauncherStub->updateButtonListFromEntries(modifiedPaths, allPaths, nameFilter, acceptedTypes);
 }
 
 void Launcher::addNewLauncherButton(const MDesktopEntry &entry) {

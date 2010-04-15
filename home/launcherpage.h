@@ -85,7 +85,7 @@ public:
      * are pruned.
      * \return true if page still contais buttons after pruning
      */
-    bool prune(QStringList entryList, QStringList directories);
+    bool prune(QStringList entryList);
 };
 
 #endif

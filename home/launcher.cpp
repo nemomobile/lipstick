@@ -34,7 +34,6 @@ Launcher::Launcher(MWidget *parent) :
     dataStore_(NULL),
     initialized(false)
 {
-    pathsForDesktopEntries << APPLICATIONS_DIRECTORY;
     supportedDesktopEntryFileTypes << "Application";
 }
 
@@ -56,10 +55,9 @@ void Launcher::activateLauncher()
         connect(dataStore_, SIGNAL(dataStoreChanged()), this, SLOT(restoreButtonsFromDataStore()));
 
         // Start watching the applications directory for changes
-        connect(&watcher, SIGNAL(directoryChanged(const QString)), this, SLOT(updateButtonListFromDirectory(const QString)));
-        foreach (const QString& dir, pathsForDesktopEntries) {
-            watcher.addPath(dir);
-        }
+        connect(&watcher, SIGNAL(directoryChanged(const QString)), this, SLOT(updateButtonList()));
+        watcher.addPath(APPLICATIONS_DIRECTORY);
+
         // The launcher has now been initialized
         initialized = true;
     }
@@ -93,61 +91,36 @@ LauncherDataStore *Launcher::dataStore()
 
 void Launcher::updateButtonList()
 {
-    // this updates for all paths
-    updateButtonListFromEntries(pathsForDesktopEntries,
-                                pathsForDesktopEntries,
-                                FILE_FILTER,
-                                supportedDesktopEntryFileTypes
-                                );
-}
-
-void Launcher::updateButtonListFromDirectory(const QString &path)
-{
-    // this updates for path whose directory changed
-    updateButtonListFromEntries(QStringList() << path,
-                                pathsForDesktopEntries,
-                                FILE_FILTER,
-                                supportedDesktopEntryFileTypes);
-}
-
-void Launcher::updateButtonListFromEntries(const QStringList &modifiedPaths,
-                                           const QStringList &allPaths,
-                                           const QString &nameFilter,
-                                           const QStringList &acceptedTypes)
-{
     QStringList desktopEntryFiles;
     // Update buttons according to the new desktop entries
-    foreach(const QString& path, modifiedPaths) {
-        foreach(QFileInfo fileInfo, QDir(path, nameFilter).entryInfoList(QDir::Files)) {
-            QString filePath(fileInfo.absoluteFilePath());
-            // If the entry is not in the launcher we might need to add it
-            if (!contains(filePath)) {
-                MDesktopEntry e(filePath);
-                if (isDesktopEntryValid(e, acceptedTypes)) {
-                    desktopEntryFiles.append(filePath);
-
-
-                    // If the data store does not know the item, we put it in the laucher grid as the items
-                    // go by default into the laucher grid or
-                    // if the data store already says that it goes into the grid, then lets put it there
-                    LauncherDataStore::EntryLocation entryLocationInDataStore =
-                        dataStore()->location(e);
-                    if (entryLocationInDataStore == LauncherDataStore::Unknown
-                        || entryLocationInDataStore ==
-                        LauncherDataStore::LauncherGrid) {
-                        addNewLauncherButton(e);
-                    }
-                }
-            } else {
+    foreach(QFileInfo fileInfo, QDir(APPLICATIONS_DIRECTORY, FILE_FILTER).entryInfoList(QDir::Files)) {
+        QString filePath(fileInfo.absoluteFilePath());
+        // If the entry is not in the launcher we might need to add it
+        if (!contains(filePath)) {
+            MDesktopEntry e(filePath);
+            if (isDesktopEntryValid(e, supportedDesktopEntryFileTypes)) {
                 desktopEntryFiles.append(filePath);
+
+                // If the data store does not know the item, we put it in the laucher grid as the items
+                // go by default into the laucher grid or
+                // if the data store already says that it goes into the grid, then lets put it there
+                LauncherDataStore::EntryLocation entryLocationInDataStore =
+                    dataStore()->location(e);
+                if (entryLocationInDataStore == LauncherDataStore::Unknown
+                    || entryLocationInDataStore ==
+                    LauncherDataStore::LauncherGrid) {
+                    addNewLauncherButton(e);
+                }
             }
+        } else {
+            desktopEntryFiles.append(filePath);
         }
     }
 
     QList< QSharedPointer<LauncherPage> > pages(model()->launcherPages());
     foreach (QSharedPointer<LauncherPage> page, pages) {
         // prune pages and remove empty pages
-        if (!page->prune(desktopEntryFiles, allPaths)) {
+        if (!page->prune(desktopEntryFiles)) {
             pages.removeOne(page);
         }
     }
@@ -155,7 +128,6 @@ void Launcher::updateButtonListFromEntries(const QStringList &modifiedPaths,
 
     updateButtonsInDataStore();
 }
-
 
 bool Launcher::contains(const QString &desktopEntryFile)
 {

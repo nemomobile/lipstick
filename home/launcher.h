@@ -104,10 +104,8 @@ private slots:
 
     /*!
      * Updates buttons list according to a desktop entry directory.
-     * Removes buttons representing non-existing entries and adds new buttons for new entries.
-     * \param path the file path that gets searched for desktop entry files.
      */
-    void updateButtonListFromDirectory(const QString &path);
+    void updateButtonList();
 
     /*!
      * \brief Launches an application.
@@ -131,10 +129,6 @@ private:
     //! DataStore handle for storing launcher button positions and entries
     LauncherDataStore *dataStore_;
 
-    //! Paths that can contain desktop entries. If testability is
-    //! enabled, this list will contain more than one item.
-    QStringList pathsForDesktopEntries;
-
     //! List of file types to support for desktop entries.
     QStringList supportedDesktopEntryFileTypes;
 
@@ -148,11 +142,6 @@ private:
      * entry directories.
      */
     void activateLauncher();
-
-    /*!
-     * Updates the list of buttons based on the watched desktop entry directories.
-     */
-    void updateButtonList();
 
     /*!
      * Creates a launcher button instance from a MDesktopEntry.
@@ -182,19 +171,6 @@ private:
      * Updates buttons list data in data store.
      */
     void updateButtonsInDataStore();
-
-    /*!
-     * Updates buttons list from specific entry files in a directory.
-     * Checks if some desktop entries should be included in the launcher or not.
-     * \param modifiedPaths the file paths that get searched for desktop entry files.
-     * \param allPaths the file paths that can contain desktop entry files.
-     * \param nameFilter a filter for the desktop entry files. E.g. "*.desktop".
-     * \param acceptedTypes the types that should be accepted. This list is checked against the desktop files' Type value.
-     */
-    void updateButtonListFromEntries(const QStringList &modifiedPaths,
-                                     const QStringList &allPaths,
-                                     const QString &nameFilter,
-                                     const QStringList &acceptedTypes);
 
     /*!
      * Adds a new button to launcher
