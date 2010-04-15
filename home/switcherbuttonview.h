@@ -104,11 +104,6 @@ protected:
     virtual void updateXWindowPixmap();
 
     /*!
-     * \brief Updates the thumbnail pixmap.
-     */
-    virtual void updateThumbnail();
-
-    /*!
      * \brief Draws the backend specific parts of the background
      */
     virtual void backendSpecificDrawBackground(QPainter *painter, const QStyleOptionGraphicsItem *option, const QRect& target) const;

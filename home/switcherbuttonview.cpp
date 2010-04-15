@@ -187,7 +187,7 @@ QRectF SwitcherButtonView::boundingRect() const
 
 void SwitcherButtonView::applyStyle()
 {
-    updateThumbnail();
+    MWidgetView::applyStyle();
 
     // Apply style to close button
     if (controller->objectName() == "DetailviewButton") {
@@ -203,7 +203,7 @@ void SwitcherButtonView::applyStyle()
     }
     closeButton->setIconID(style()->closeIcon());
 
-    MWidgetView::applyStyle();
+    update();
 }
 
 void SwitcherButtonView::setupModel()
@@ -212,7 +212,7 @@ void SwitcherButtonView::setupModel()
 
     if (model()->xWindow() != 0) {
         updateXWindowPixmap();
-        updateThumbnail();
+        update();
     }
     updateViewMode();
 }
@@ -242,7 +242,7 @@ void SwitcherButtonView::updateData(const QList<const char *>& modifications)
     foreach(member, modifications) {
         if (member == SwitcherButtonModel::XWindow && model()->xWindow() != 0) {
             updateXWindowPixmap();
-            updateThumbnail();
+            update();
         }
 
         if (member == SwitcherButtonModel::ViewMode) {
@@ -281,17 +281,15 @@ void SwitcherButtonView::updateXWindowPixmap()
 
     // Register the pixmap for XDamage events
     createDamage();
+
+    if (xWindowPixmap != 0) {
+        backendSpecificUpdateXWindowPixmap();
+    }
 #endif
 }
 
 void SwitcherButtonView::backendSpecificUpdateXWindowPixmap()
 {
-}
-
-void SwitcherButtonView::updateThumbnail()
-{
-    // Redraw
-    update();
 }
 
 #ifdef Q_WS_X11
@@ -308,7 +306,7 @@ void SwitcherButtonView::windowVisibilityChanged(Window window)
 {
     if (window == model()->xWindow()) {
         updateXWindowPixmap();
-        updateThumbnail();
+        update();
     }
 }
 
@@ -342,7 +340,6 @@ void SwitcherButtonView::createDamage()
     if (onDisplay && xWindowPixmap != 0) {
         // Register the pixmap for XDamage events
         xWindowPixmapDamage = X11Wrapper::XDamageCreate(QX11Info::display(), model()->xWindow(), XDamageReportNonEmpty);
-        backendSpecificUpdateXWindowPixmap();
     }
 #endif
 }
