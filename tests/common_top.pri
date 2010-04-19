@@ -25,6 +25,8 @@ QMAKE_CXXFLAGS += -ftest-coverage \
 # Support for deprecated DuiValueSpace. Remove this define when new ContextSubscriber is used.
 DEFINES += MVALUESPACE_USE_DEPRECATED
 
+DEFINES += M_XDG_DIR=\\\"\"$$M_XDG_DIR\"\\\"
+
 # install tests
 target.path = $$[QT_INSTALL_LIBS]/duihomescreen-tests
 INSTALLS += target

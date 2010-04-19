@@ -72,7 +72,17 @@ LauncherDataStore *Launcher::dataStore()
             QDir::root().mkpath(QDir::homePath() + "/.config/duihome");
         }
 
-        MFileDataStore* backendStore = new MFileDataStore(QDir::homePath() + "/.config/duihome/launcherbuttons.data");
+        QString dataStoreFileName = QDir::homePath() + "/.config/duihome/launcherbuttons.data";
+
+        if (!QFile::exists(dataStoreFileName)) {
+            QString defaultDataStoreFileName = M_XDG_DIR "/duihome/launcherbuttons.data";
+            // Copy the default datastore only if it exists
+            if (QFile::exists(defaultDataStoreFileName)) {
+                QFile::copy(defaultDataStoreFileName, dataStoreFileName);
+            }
+        }
+
+        MFileDataStore* backendStore = new MFileDataStore(dataStoreFileName);
 
         dataStore_ = new LauncherDataStore(backendStore);
     }
