@@ -69,16 +69,7 @@ SwitcherView::SwitcherView(Switcher *switcher) :
     detailPolicy->setSpacing(0);
     detailPolicy->setObjectName("DetailviewPolicy");
 
-    MWidget* verticalCenterer = new MWidget;
-    MLayout* verticalLayout = new MLayout(verticalCenterer);
-    verticalLayout->setContentsMargins(0, 0, 0, 0);
-    MLinearLayoutPolicy* verticalLayoutPolicy = new MLinearLayoutPolicy(verticalLayout, Qt::Vertical);
-
-    verticalLayoutPolicy->addStretch();
-    verticalLayoutPolicy->addItem(pannedWidget);
-    verticalLayoutPolicy->addStretch();
-
-    viewport->setWidget(verticalCenterer);
+    viewport->setWidget(pannedWidget);
 
     focusedSwitcherButton = 0;
     firstButtonPriority = WindowInfo::Normal;
