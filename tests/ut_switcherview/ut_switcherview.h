@@ -62,7 +62,7 @@ private:
     void appendMoreButtonsToList(int newButtons, QList< QSharedPointer<SwitcherButton> > &buttonList);
 
 signals:
-    void snapIndexChanged(int newPosition);
+    void pageChanged(int newPosition);
     void panningStopped();
 
 private:

@@ -30,8 +30,7 @@ class MLayout;
 class MLinearLayoutPolicy;
 class MGridLayoutPolicy;
 class QGraphicsLinearLayout;
-class MPannableViewport;
-class PagedPanning;
+class PagedViewport;
 
 /*!
  * The switcher view draws a background for the switcher.
@@ -77,8 +76,8 @@ private slots:
     /*! Monitors the movement of the pannable viewport */
     void animateDetailView(const QPointF &pannedPos);
 
-    /*! Listens for changes in the physics integrator */
-    void snapIndexChanged(int newPosition);
+    /*! Listens for page change in the paged viewport */
+    void updateFocusedButton(int currentPage);
 
     /*! Listens when the pannig has stopped in the viewport */
     void panningStopped();
@@ -121,9 +120,6 @@ private:
     MGridLayoutPolicy* overviewPolicy;
     MLinearLayoutPolicy* detailPolicy;
 
-    /*! The custom physics that does the paged panning */
-    PagedPanning* pagedPanning;
-
     /*! The current focused switcher button */
     int focusedSwitcherButton;
 
@@ -136,7 +132,7 @@ private:
 #endif
 
     /*! The viewport that shows the switcher buttons */
-    MPannableViewport *viewport;
+    PagedViewport *viewport;
 };
 
 #endif // SWITCHERVIEW_H

@@ -259,15 +259,15 @@ void Ut_SwitcherView::testSnapIndexChangedInDetailView()
 
     // test that snap index changes only when the new
     // snap index is within the button range
-    connect(this, SIGNAL(snapIndexChanged(int)),
-            m_subject, SLOT(snapIndexChanged(int)));
-    emit snapIndexChanged(3);
+    connect(this, SIGNAL(pageChanged(int)),
+            m_subject, SLOT(updateFocusedButton(int)));
+    emit pageChanged(3);
     QCOMPARE(m_subject->focusedSwitcherButton, 3);
-    emit snapIndexChanged(0);
+    emit pageChanged(0);
     QCOMPARE(m_subject->focusedSwitcherButton, 0);
-    emit snapIndexChanged(-1);
+    emit pageChanged(-1);
     QCOMPARE(m_subject->focusedSwitcherButton, 0);
-    emit snapIndexChanged(9999);
+    emit pageChanged(9999);
     QCOMPARE(m_subject->focusedSwitcherButton, 0);
 }
 
@@ -278,12 +278,12 @@ void Ut_SwitcherView::testPanningStoppedInDetailView()
     g_switcherModel->setButtons(createButtonList(4));
 
     // test that correct button is emphasized when panning stops
-    connect(this, SIGNAL(snapIndexChanged(int)),
-            m_subject, SLOT(snapIndexChanged(int)));
+    connect(this, SIGNAL(pageChanged(int)),
+            m_subject, SLOT(updateFocusedButton(int)));
     connect(this, SIGNAL(panningStopped()),
             m_subject, SLOT(panningStopped()));
-    emit snapIndexChanged(3);
-    emit snapIndexChanged(2);
+    emit pageChanged(3);
+    emit pageChanged(2);
     emit panningStopped();
 
     QCOMPARE(m_subject->focusedSwitcherButton, 2);
@@ -292,9 +292,9 @@ void Ut_SwitcherView::testPanningStoppedInDetailView()
     QCOMPARE(g_switcherModel->buttons().at(2).data()->model()->viewMode(), SwitcherButtonModel::Large);
     QCOMPARE(g_switcherModel->buttons().at(3).data()->model()->viewMode(), SwitcherButtonModel::Medium);
 
-    emit snapIndexChanged(1);
-    emit snapIndexChanged(2);
-    emit snapIndexChanged(3);
+    emit pageChanged(1);
+    emit pageChanged(2);
+    emit pageChanged(3);
     emit panningStopped();
 
     QCOMPARE(m_subject->focusedSwitcherButton, 3);
@@ -373,24 +373,24 @@ void Ut_SwitcherView::testPanningStoppedInOverView()
     g_switcherModel->setButtons(createButtonList(15));
 
     // test that correct button is emphasized when panning stops
-    connect(this, SIGNAL(snapIndexChanged(int)),
-            m_subject, SLOT(snapIndexChanged(int)));
+    connect(this, SIGNAL(pageChanged(int)),
+            m_subject, SLOT(updateFocusedButton(int)));
     connect(this, SIGNAL(panningStopped()),
             m_subject, SLOT(panningStopped()));
-    emit snapIndexChanged(1);
-    emit snapIndexChanged(2);
+    emit pageChanged(1);
+    emit pageChanged(2);
     emit panningStopped();
     // Focused on 1st button of last page
     QCOMPARE(m_subject->focusedSwitcherButton, 12);
 
-    emit snapIndexChanged(1);
+    emit pageChanged(1);
     emit panningStopped();
     // Focused on 1st button of 2nd page
     QCOMPARE(m_subject->focusedSwitcherButton, 6);
 
-    emit snapIndexChanged(2);
-    emit snapIndexChanged(1);
-    emit snapIndexChanged(0);
+    emit pageChanged(2);
+    emit pageChanged(1);
+    emit pageChanged(0);
     emit panningStopped();
     // Focused on 1st button of first page
     QCOMPARE(m_subject->focusedSwitcherButton, 0);

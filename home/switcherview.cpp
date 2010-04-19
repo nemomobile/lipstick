@@ -31,7 +31,6 @@
 #include <MWindow>
 #include <MFlowLayoutPolicy>
 #include <MAbstractLayoutPolicyStyle>
-#include <MPannableViewport>
 #include <MLinearLayoutPolicy>
 #include <MGridLayoutPolicy>
 #include <MDeviceProfile>
@@ -39,26 +38,23 @@
 #include <QGraphicsLinearLayout>
 #include <math.h>
 #include <algorithm>
+#include "pagedviewport.h"
 
 static qreal calculateCenterCorrection(qreal value, qreal scaleFactor);
 static const qreal HALF_PI = M_PI / 2.0;
 static const qreal MAX_Z_VALUE = 1.0;
 
 SwitcherView::SwitcherView(Switcher *switcher) :
-    MWidgetView(switcher), controller(switcher), mainLayout(new QGraphicsLinearLayout(Qt::Vertical)), pannedWidget(new MWidget), viewport(new MPannableViewport)
+    MWidgetView(switcher), controller(switcher), mainLayout(new QGraphicsLinearLayout(Qt::Vertical)), pannedWidget(new MWidget), viewport(new PagedViewport)
 {
     mainLayout->setContentsMargins(0, 0, 0, 0);
     switcher->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     switcher->setLayout(mainLayout);
 
-    // The panning gets deleted by the physics 
-    pagedPanning = new PagedPanning(viewport);
-    connect(pagedPanning, SIGNAL(pageChanged(int)), this, SLOT(snapIndexChanged(int)));
+    connect(viewport, SIGNAL(pageChanged(int)), this, SLOT(updateFocusedButton(int)));
 
     // We have custom values for this view port in the style
     viewport->setObjectName("SwitcherDetailsViewport");
-    viewport->setPhysics(pagedPanning);
-    viewport->setPanDirection(Qt::Horizontal);
 
     mainLayout->addItem(viewport);
 
@@ -231,7 +227,7 @@ void SwitcherView::updateData(const QList<const char*>& modifications)
 
                 // If the first button's priority has risen pan the view to show it
                 if (firstButton->windowPriority() < firstButtonPriority) {
-		    pagedPanning->panToPage(0);
+                    viewport->panToPage(0);
                 }
 
                 firstButtonPriority = firstButton->windowPriority();
@@ -296,18 +292,18 @@ void SwitcherView::updateButtonModes()
     updateContentsMarginsAndSpacings();
 }
 
-void SwitcherView::snapIndexChanged(int newPosition)
+void SwitcherView::updateFocusedButton(int currentPage)
 {
     if (model()->switcherMode() == SwitcherModel::Detailview) {
         // Just a sanity check that we don't requst a non-existent element
-        if (newPosition >= 0 && newPosition < model()->buttons().count()) {
-            focusedSwitcherButton = newPosition;
+        if (currentPage >= 0 && currentPage < model()->buttons().count()) {
+            focusedSwitcherButton = currentPage;
         }
     } else {
         // Focus on 1st button of the snapped page
-        int pos = newPosition * (style()->columnsPerPage() * style()->rowsPerPage());
+        int pos = currentPage * (style()->columnsPerPage() * style()->rowsPerPage());
         // Just a sanity check that we don't requst a non-existent element
-        if (newPosition >= 0 && pos < model()->buttons().count()) {
+        if (pos >= 0 && pos < model()->buttons().count()) {
             focusedSwitcherButton = pos;
         }
     }
@@ -325,12 +321,12 @@ void SwitcherView::updateSnapInterval()
              Practically we enable margins to the panned layout in order to
              align the centers of the switcher button and the mpannableviewport.
              */
-	    pagedPanning->setPageWidth(button->preferredSize().width());
+	    viewport->updatePageWidth(button->preferredSize().width());
         } else {
-	    pagedPanning->setPageWidth(geometry().width());
+	    viewport->updatePageWidth(geometry().width());
         }
     } else {
-	pagedPanning->setPageWidth(0);
+	viewport->updatePageWidth(0);
     }
 }
 

@@ -8,6 +8,7 @@ MODEL_HEADERS += $$SRCDIR/switchermodel.h \
 # unit test and unit
 SOURCES += \
     ut_switcherview.cpp \
+    $$SRCDIR/pagedviewport.cpp \
     $$SRCDIR/switcherview.cpp
 
 # unit test and unit
@@ -19,6 +20,7 @@ HEADERS += \
     $$SRCDIR/switcherbutton.h \
     $$SRCDIR/switcherbuttonmodel.h \
     $$SRCDIR/pagedpanning.h \
+    $$SRCDIR/pagedviewport.h \
     $$SRCDIR/switchermodel.h \
     $$SRCDIR/mainwindow.h
 
