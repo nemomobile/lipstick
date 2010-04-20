@@ -54,7 +54,7 @@ clean:
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp configure-stamp
-	qmake -recursive
+#	qmake -recursive
 	make clean
 
 	dh_clean 
