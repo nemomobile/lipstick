@@ -16,9 +16,10 @@
 ** of this file.
 **
 ****************************************************************************/
-
 #include <MApplication>
 #include <MApplicationPage>
+#include <MGridLayoutPolicy>
+#include <MLinearLayoutPolicy>
 #include "mwindow_stub.h"
 #include "ut_switcherview.h"
 #include "mainwindow_stub.h"
@@ -30,8 +31,12 @@
 #include "x11wrapper_stub.h"
 #include "pagedpanning.h"
 
+static void setSwitcherButtonSize(QList< QSharedPointer<SwitcherButton> > &buttonList, const QSizeF &size);
+static void verifyContentMarginValues(qreal top, qreal bottom, qreal target);
+
 SwitcherModel* g_switcherModel;
 QMap<SwitcherButton *, Window> g_windowButtonMap;
+QRectF g_switcherGeometry;
 
 class Ut_SwitcherStyle : public SwitcherStyle
 {
@@ -40,6 +45,10 @@ class Ut_SwitcherStyle : public SwitcherStyle
 class Ut_SwitcherStyleContainer : public SwitcherStyleContainer
 {
 };
+
+QRectF MWidgetView::geometry() const {
+    return g_switcherGeometry;
+}
 
 class TestSwitcherView : public SwitcherView
 {
@@ -57,6 +66,10 @@ public:
     }
     Ut_SwitcherStyleContainer& styleContainer() {
         return style();
+    }
+
+    void setGeometry(const QRectF &rect) {
+        g_switcherGeometry = rect;
     }
 };
 
@@ -103,7 +116,6 @@ void SwitcherButton::prepareGeometryChange()
 void SwitcherButton::setGeometry(const QRectF &)
 {
 }
-
 
 void SwitcherButton::updateIconGeometry()
 {
@@ -184,7 +196,7 @@ QList< QSharedPointer<SwitcherButton> > Ut_SwitcherView::createButtonList(int bu
 void Ut_SwitcherView::appendMoreButtonsToList(int newButtons, QList< QSharedPointer<SwitcherButton> > &buttonList)
 {
     int newCount = buttonList.count() + newButtons;
-    for(int i = buttonList.count(); i < newCount; i++){
+    for(int i = buttonList.count(); i < newCount; i++) {
         QSharedPointer<SwitcherButton> button(new SwitcherButton(QString("Title %1").arg(i), NULL, 1));
         button.data()->setModel(new SwitcherButtonModel());
         buttonList.append(button);
@@ -362,6 +374,87 @@ void Ut_SwitcherView::verifyButtonModesInOverviewMode(M::Orientation orientation
     verifyButtonModesInOverviewMode(buttonList);
 }
 
+void Ut_SwitcherView::testSwitcherButtonVerticalAlignment()
+{
+    g_switcherModel->setSwitcherMode(SwitcherModel::Overview);
+    gMSceneManagerStub->stubSetReturnValue("orientation", M::Landscape);
+    m_subject->modifiableStyle()->setRowsPerPage(2);
+    m_subject->modifiableStyle()->setColumnsPerPage(3);
+
+    qreal verticalSpacing = 10;
+    m_subject->modifiableStyle()->setButtonVerticalSpacing(verticalSpacing);
+
+    QList< QSharedPointer<SwitcherButton> > buttonList = createButtonList(1);
+    qreal buttonSize = 100;
+    QSizeF size(buttonSize, buttonSize);
+    setSwitcherButtonSize(buttonList, size);
+
+    qreal switcherHeight = 400.0;
+    qreal switcherWidth = 600.0;
+    m_subject->setGeometry(QRectF(0, 0, switcherWidth, switcherHeight));
+
+    // with 1 button
+    g_switcherModel->setButtons(buttonList);
+    verifyButtonModesInOverviewMode(buttonList);
+    verifyLayoutPolicyContentMargins(size);
+
+    //with 4 buttons
+    appendMoreButtonsToList(3, buttonList);
+    setSwitcherButtonSize(buttonList, size);
+    g_switcherModel->setButtons(buttonList);
+    verifyButtonModesInOverviewMode(buttonList);
+    verifyLayoutPolicyContentMargins(size);
+
+    // Change the orientation to portrait
+    gMSceneManagerStub->stubSetReturnValue("orientation", M::Portrait);
+
+    switcherHeight = 600.0;
+    switcherWidth = 400.0;
+    m_subject->setGeometry(QRectF(0, 0, switcherWidth, switcherHeight));
+
+    // Now with 6 buttons
+    appendMoreButtonsToList(2, buttonList);
+    setSwitcherButtonSize(buttonList, size);
+    g_switcherModel->setButtons(buttonList);
+    verifyButtonModesInOverviewMode(buttonList);
+    verifyLayoutPolicyContentMargins(size);
+
+    // with 0 buttons
+    QList< QSharedPointer<SwitcherButton> > emptyButtonList;
+    g_switcherModel->setButtons(emptyButtonList);
+    verifyButtonModesInOverviewMode(emptyButtonList);
+    QSize notSizeAtAll;
+    verifyLayoutPolicyContentMargins(notSizeAtAll);
+
+}
+
+void Ut_SwitcherView::verifyLayoutPolicyContentMargins(const QSizeF &buttonSize)
+{
+    qreal left, right, top, bottom;
+    if (g_switcherModel->buttons().size() > 0) {
+        // Test the overview policy margins
+        m_subject->overviewPolicy->getContentsMargins(&left, &top, &right, &bottom);
+        qreal numberOfRowSpacings = qMax(0, m_subject->overviewPolicy->rowCount() - 1);
+        qreal heightTakenByRowSpacings =  numberOfRowSpacings * m_subject->modifiableStyle()->buttonVerticalSpacing();
+        qreal verticalMargin = (m_subject->geometry().height() - (buttonSize.height() * m_subject->overviewPolicy->rowCount() + heightTakenByRowSpacings)) / 2;
+
+        verifyContentMarginValues(top, bottom, verticalMargin);
+
+        // Test the detail view policy margins
+        m_subject->detailPolicy->getContentsMargins(&left, &top, &right, &bottom);
+        verticalMargin = (m_subject->geometry().height() - buttonSize.height()) / 2;
+        verifyContentMarginValues(top, bottom, verticalMargin);
+    } else {
+        // Test the overview policy margins
+        m_subject->overviewPolicy->getContentsMargins(&left, &top, &right, &bottom);
+        verifyContentMarginValues(top, bottom, 0.0);
+        // Test the detail view policy margins
+        m_subject->detailPolicy->getContentsMargins(&left, &top, &right, &bottom);
+        verifyContentMarginValues(top, bottom, 0.0);
+    }
+}
+
+
 void Ut_SwitcherView::testPanningStoppedInOverView()
 {
     g_switcherModel->setSwitcherMode(SwitcherModel::Overview);
@@ -394,6 +487,19 @@ void Ut_SwitcherView::testPanningStoppedInOverView()
     emit panningStopped();
     // Focused on 1st button of first page
     QCOMPARE(m_subject->focusedSwitcherButton, 0);
+}
+
+void setSwitcherButtonSize(QList< QSharedPointer<SwitcherButton> > &buttonList, const QSizeF &size)
+{
+    for(int i = 0; i < buttonList.count(); i++) {
+        buttonList[i].data()->setPreferredSize(size);
+    }
+}
+
+void verifyContentMarginValues(qreal top, qreal bottom, qreal target)
+{
+    QCOMPARE(top, bottom);
+    QCOMPARE(top, target);
 }
 
 QTEST_APPLESS_MAIN(Ut_SwitcherView)

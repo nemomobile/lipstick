@@ -1,4 +1,5 @@
 duihome (0.21.0~16) unstable; urgency=low
+  * Fixes: NB#164107 - After rotating the device thumbnails are arranged in a wrong place
   * Fixes: NB#159568 - Switcher thumbnails content doesn't display how the app really looks like.
   * Fixes: NB#162716 - Missing close applet space icon
   * Fixes: NB#163754 - Launcher is not always on the same page after rotating the device

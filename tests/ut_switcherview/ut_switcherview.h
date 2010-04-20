@@ -54,9 +54,13 @@ private slots:
     void testButtonModesInOverviewMode();
     void testPanningStoppedInOverView();
 
+    // Test that the buttons are positioned correctly
+    void testSwitcherButtonVerticalAlignment();
+
 private:
     void verifyButtonModesInOverviewMode(M::Orientation orientation);
     void verifyButtonModesInOverviewMode(QList< QSharedPointer<SwitcherButton> > &buttonList);
+    void verifyLayoutPolicyContentMargins(const QSizeF &buttonSize);
 
     QList< QSharedPointer<SwitcherButton> > createButtonList(int buttons);
     void appendMoreButtonsToList(int newButtons, QList< QSharedPointer<SwitcherButton> > &buttonList);

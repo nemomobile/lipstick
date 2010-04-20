@@ -326,8 +326,11 @@ void SwitcherView::updateContentsMarginsAndSpacings()
     int colsPerPage = style()->columnsPerPage();
     int rows = style()->rowsPerPage();
 
-    if (buttonCount == 0 || colsPerPage == 0 || rows == 0)
+    if (buttonCount == 0 || colsPerPage == 0 || rows == 0) {
+        detailPolicy->setContentsMargins(0, 0, 0, 0);
+        overviewPolicy->setContentsMargins(0, 0, 0, 0);
         return;
+    }
 
     SwitcherButton* button = model()->buttons().first().data();
     qreal buttonWidth = button->preferredSize().width();
