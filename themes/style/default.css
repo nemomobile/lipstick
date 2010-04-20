@@ -318,7 +318,7 @@ SwitcherStyle {
 
 SwitcherStyle#OverviewSwitcher {
     button-horizontal-spacing: 3mm;
-    button-vertical-spacing: 3mm;
+    button-vertical-spacing: 2.1mm;
 }
 
 SwitcherStyle#OverviewSwitcher.Portrait {

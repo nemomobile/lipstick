@@ -5,6 +5,7 @@ duihome (0.21.0~16) unstable; urgency=low
   * Fixes: NB#163810 - duihome updates application thumbnails even when not visible
   * Fixed launcher panning in portrait mode
   * Fixed example image applet
+  * Fixed switcher button centering
   * Adapted to libdui 0.20.0 API changes and renaming libdui to libmeegotouch
   * Moved the functional tests and benchmarks to a separate repository
   * Removed TESTABILITY ifdefs from launcher and quicklauncher

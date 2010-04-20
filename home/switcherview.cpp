@@ -253,7 +253,6 @@ void SwitcherView::updateButtons()
 void SwitcherView::updateButtonModes()
 {
     int buttonCount = model()->buttons().count();
-
     if (model()->switcherMode() == SwitcherModel::Detailview) {
         foreach (QSharedPointer<SwitcherButton> button, model()->buttons()) {
             button.data()->setObjectName("DetailviewButton");
@@ -335,9 +334,10 @@ void SwitcherView::updateContentsMarginsAndSpacings()
     qreal buttonHeight = button->preferredSize().height();
 
     qreal detailMargin = (geometry().width() - buttonWidth) / 2;
-    qreal horizontalContentMargin = (geometry().height() - buttonHeight) / 2;
-    detailPolicy->setContentsMargins(detailMargin, horizontalContentMargin,
-                                     detailMargin, horizontalContentMargin);
+    qreal verticalContentMargin = (geometry().height() - buttonHeight) / 2;
+    detailPolicy->setContentsMargins(detailMargin, verticalContentMargin,
+                                     detailMargin, verticalContentMargin);
+
 
     int columns;
     if (overviewPolicy->columnCount() < style()->columnsPerPage()) {
@@ -346,10 +346,10 @@ void SwitcherView::updateContentsMarginsAndSpacings()
         columns = style()->columnsPerPage();
     }
     qreal effectiveButtonsWidth = (columns * buttonWidth) + ((columns - 1) * style()->buttonHorizontalSpacing());
-    qreal effectiveButtonsHeight = (rows * buttonHeight) + ((rows - 1) * style()->buttonVerticalSpacing());
+    qreal effectiveButtonsHeight = overviewPolicy->rowCount() * buttonHeight + qMax(0, overviewPolicy->rowCount() - 1) * style()->buttonVerticalSpacing();
     qreal leftContentMargin = (geometry().width() - effectiveButtonsWidth) / 2;
     qreal rightContentMargin = leftContentMargin;
-    horizontalContentMargin = (geometry().height() - effectiveButtonsHeight) / 2;
+    verticalContentMargin = (geometry().height() - effectiveButtonsHeight) / 2;
 
     /*
        If the last page is missing buttons i.e. it is not full, we add extra margins to it
@@ -366,8 +366,8 @@ void SwitcherView::updateContentsMarginsAndSpacings()
         }
     }
 
-    overviewPolicy->setContentsMargins(leftContentMargin, horizontalContentMargin,
-                                       rightContentMargin, horizontalContentMargin);
+    overviewPolicy->setContentsMargins(leftContentMargin, verticalContentMargin,
+                                       rightContentMargin, verticalContentMargin);
 
     for(int column = 0; column < overviewPolicy->columnCount(); column++) {
         if ((column % colsPerPage) == colsPerPage - 1) {
