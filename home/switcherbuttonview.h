@@ -108,13 +108,13 @@ protected:
      */
     void updateViewMode();
 
-    //! Returns the bounding rectangle of the button without the closing icon
-    QRectF buttonRect() const;
+    //! Returns the bounding rectangle of the icon (thumbnail)
+    QRectF iconRect() const;
 
-    //! Returns the bounding rectangle of the closing icon
+    //! Returns the bounding rectangle of the close button
     QRectF closeRect() const;
 
-    //! Returns the bounding rectangle of the title part of the button
+    //! Returns the bounding rectangle of the window title
     QRectF titleRect() const;
 
 #ifdef Q_WS_X11

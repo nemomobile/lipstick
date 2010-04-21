@@ -87,36 +87,47 @@ void SwitcherButtonView::drawBackground(QPainter *painter, const QStyleOptionGra
     // Rotate the thumbnails and adjust their size if the screen
     // has been rotated
     MSceneManager *manager = MainWindow::instance()->sceneManager();
-    QPoint pos = style()->iconPosition().toPoint();
-    QSize size = style()->iconSize();
+    painter->rotate(-manager->orientationAngle());
 
+    QSize size(style()->iconSize());
     if (manager->orientation() == M::Portrait) {
         size.transpose();
     }
 
+    QPoint pos;
+    QPoint iconPos = style()->iconPosition().toPoint();
+    QRect source(0, 0, qWindowPixmap.width(), qWindowPixmap.height());
     switch (manager->orientationAngle()) {
         case M::Angle90:
-            pos -= QPoint(size.width(), 0);
+            pos -= QPoint(iconPos.y() + size.width(), -iconPos.x());
+            if (qWindowPixmap.width() > NAVIGATION_BAR_HEIGHT) {
+                source.setWidth(qWindowPixmap.width() - NAVIGATION_BAR_HEIGHT);
+            }
             break;
         case M::Angle180:
-            pos -= QPoint(size.width(), size.height());
+            pos -= QPoint(iconPos.x() + size.width(), iconPos.y() + size.height());
+            if (qWindowPixmap.height() > NAVIGATION_BAR_HEIGHT) {
+                source.setHeight(qWindowPixmap.height() - NAVIGATION_BAR_HEIGHT);
+            }
             break;
         case M::Angle270:
-            pos -= QPoint(0, size.height());
+            pos -= QPoint(-iconPos.y(), iconPos.x() + size.height());
+            if (qWindowPixmap.width() > NAVIGATION_BAR_HEIGHT) {
+                source.setLeft(NAVIGATION_BAR_HEIGHT);
+                source.setWidth(qWindowPixmap.width() - NAVIGATION_BAR_HEIGHT);
+            }
             break;
         default:
+            pos += iconPos;
+            if (qWindowPixmap.height() > NAVIGATION_BAR_HEIGHT) {
+                source.setTop(NAVIGATION_BAR_HEIGHT);
+                source.setHeight(qWindowPixmap.height() - NAVIGATION_BAR_HEIGHT);
+            }
             break;
     }
 
-    painter->rotate(-manager->orientationAngle());
-
-    // Do the actual drawing so that the toolbar area is cropped out
-    QRect target(pos, size);
-    QRect source(target);
-    if (qWindowPixmap.height() > NAVIGATION_BAR_HEIGHT) {
-        source = QRect(0, NAVIGATION_BAR_HEIGHT, qWindowPixmap.width(), qWindowPixmap.height() - NAVIGATION_BAR_HEIGHT);
-    }
-    painter->drawPixmap(target, qWindowPixmap, source);
+    // Do the actual drawing
+    painter->drawPixmap(QRect(pos, size), qWindowPixmap, source);
 
     // Restore the painter state
     painter->restore();
@@ -147,19 +158,16 @@ void SwitcherButtonView::drawContents(QPainter *painter, const QStyleOptionGraph
     painter->restore();
 }
 
-QRectF SwitcherButtonView::buttonRect() const
+QRectF SwitcherButtonView::iconRect() const
 {
-    QRectF rect(QPointF(), size());
-
-    return rect;
+    return QRectF(style()->iconPosition(), style()->iconSize());
 }
 
 QRectF SwitcherButtonView::titleRect() const
 {
-    QRectF rect = buttonRect();
-    QRectF close = closeRect();
     QFontMetrics fm(style()->font());
-
+    QRectF close = closeRect();
+    QRectF rect = iconRect();
     rect.setTopLeft(rect.topLeft() - QPointF(0, fm.height()));
     rect.setBottomRight(rect.topRight() + QPointF(-(close.width() + 2 * style()->textMarginLeft()), fm.height()));
     rect.translate(style()->textMarginLeft(), -style()->textMarginBottom());
@@ -168,19 +176,17 @@ QRectF SwitcherButtonView::titleRect() const
 
 QRectF SwitcherButtonView::closeRect() const
 {
-    QRectF switchButtonRect = buttonRect();
+    QRectF icon = iconRect();
     QRectF rect;
-
-    rect.setX(switchButtonRect.right() - closeButton->preferredWidth());
-    rect.setY(switchButtonRect.top() + style()->closeButtonVerticalPosition());
+    rect.setX(icon.right() - closeButton->preferredWidth());
+    rect.setY(icon.top() + style()->closeButtonVerticalPosition());
     rect.setSize(closeButton->preferredSize());
-
     return rect;
 }
 
 QRectF SwitcherButtonView::boundingRect() const
 {
-    return buttonRect().united(closeRect());
+    return iconRect().united(titleRect()).united(closeRect());
 }
 
 void SwitcherButtonView::applyStyle()

@@ -402,7 +402,8 @@ SwitcherButtonStyle#OverviewButton.Portrait:small {
     preferred-size: 12.1mm 21.4mm;
     minimum-size: 12.1mm 21.4mm;
     maximum-size: 12.1mm 21.4mm;
-    icon-size: 12.1mm 21.4mm;
+    icon-position: 0 2.1mm;
+    icon-size: 12.1mm 19.3mm;
 }
 
 SwitcherButtonStyle#OverviewButton.Portrait:medium {
@@ -410,7 +411,8 @@ SwitcherButtonStyle#OverviewButton.Portrait:medium {
     preferred-size: 13.4mm 24.2mm;
     minimum-size: 13.4mm 24.2mm;
     maximum-size: 13.4mm 24.2mm;
-    icon-size: 13.4mm 24.2mm;
+    icon-position: 0 2.9mm;
+    icon-size: 13.4mm 21.3mm;
 }
 
 SwitcherButtonStyle#OverviewButton.Portrait:large {
@@ -418,7 +420,8 @@ SwitcherButtonStyle#OverviewButton.Portrait:large {
     preferred-size: 21mm 37.8mm;
     minimum-size: 21mm 37.8mm;
     maximum-size: 21mm 37.8mm;
-    icon-size: 21mm 37.8mm;
+    icon-position: 0 4.4mm;
+    icon-size: 21mm 33.4mm;
 }
 
 SwitcherButtonStyle#OverviewButton.Landscape:medium {
@@ -426,7 +429,8 @@ SwitcherButtonStyle#OverviewButton.Landscape:medium {
     preferred-size: 24.2mm 13.4mm;
     minimum-size: 24.2mm 13.4mm;
     maximum-size: 24.2mm 13.4mm;
-    icon-size: 24.2mm 13.4mm;
+    icon-position: 0 2.8mm;
+    icon-size: 24.2mm 10.6mm;
 }
 
 SwitcherButtonStyle#OverviewButton.Landscape:large {
@@ -434,7 +438,8 @@ SwitcherButtonStyle#OverviewButton.Landscape:large {
     preferred-size: 37.8mm 21mm;
     minimum-size: 37.8mm 21mm;
     maximum-size: 37.8mm 21mm;
-    icon-size: 37.8mm 21mm;
+    icon-position: 0 4.4mm;
+    icon-size: 37.8mm 16.6mm;
 }
 
 /*

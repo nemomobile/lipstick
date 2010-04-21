@@ -61,8 +61,8 @@ public:
         return SwitcherButtonView::closeRect();
     }
 
-    QRectF buttonRect() const {
-        return SwitcherButtonView::buttonRect();
+    QRectF iconRect() const {
+        return SwitcherButtonView::iconRect();
     }
 
     SwitcherButtonStyle *modifiableStyle() {

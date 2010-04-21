@@ -217,7 +217,7 @@ void TestSwitcherButtonView::emulateCloseButtonClick()
 void TestSwitcherButtonView::emulateButtonClick()
 {
     QGraphicsSceneMouseEvent event;
-    QPointF p = buttonRect().center();
+    QPointF p = iconRect().center();
     event.setPos(p);
     event.setScenePos(p);
     mousePressEvent(&event);
