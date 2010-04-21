@@ -36,7 +36,6 @@ HEADERS += homeapplication.h \
     switcherbutton.h \
     switcherbuttonmodel.h \
     switcherbuttonview.h \
-    switcherbuttonswview.h \
     switcherbuttonstyle.h \
     x11helper.h \
     x11wrapper.h \
@@ -67,7 +66,6 @@ SOURCES += homeapplication.cpp \
     switcherview.cpp \
     switcherbutton.cpp \
     switcherbuttonview.cpp \
-    switcherbuttonswview.cpp \
     x11helper.cpp \
     x11wrapper.cpp \
     launcherpage.cpp \

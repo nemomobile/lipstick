@@ -103,16 +103,6 @@ protected:
      */
     virtual void updateXWindowPixmap();
 
-    /*!
-     * \brief Draws the backend specific parts of the background
-     */
-    virtual void backendSpecificDrawBackground(QPainter *painter, const QStyleOptionGraphicsItem *option, const QRect& target) const;
-
-    /*!
-     * \brief Does the backend specific parts of updating the X Window pixmap
-     */
-    virtual void backendSpecificUpdateXWindowPixmap();
-
     /*! 
      * Updates the button style to reflect the current view mode.
      */
@@ -135,6 +125,9 @@ protected:
     static bool badMatchOccurred;
 #endif
 
+    // The height of the navigation bar for cropping the thumbnail
+    static const int NAVIGATION_BAR_HEIGHT;
+
     //! SwitcherButton controller
     SwitcherButton *controller;
 
@@ -143,6 +136,9 @@ protected:
 
     //! XDamage handle for the X window's pixmap
     Damage xWindowPixmapDamage;
+
+    //! The X window's pixmap as a shared QPixmap
+    QPixmap qWindowPixmap;
 
     //! The point where dragging started
     QPointF dragStartPos;

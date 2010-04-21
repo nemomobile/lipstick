@@ -34,6 +34,8 @@
 bool SwitcherButtonView::badMatchOccurred = false;
 #endif
 
+const int SwitcherButtonView::NAVIGATION_BAR_HEIGHT = 100;
+
 SwitcherButtonView::SwitcherButtonView(SwitcherButton *button) :
     MButtonView(button),
     controller(button),
@@ -77,7 +79,7 @@ void SwitcherButtonView::setGeometry(const QRectF &rect)
     closeButton->setGeometry(closeRect());
 }
 
-void SwitcherButtonView::drawBackground(QPainter *painter, const QStyleOptionGraphicsItem *option) const
+void SwitcherButtonView::drawBackground(QPainter *painter, const QStyleOptionGraphicsItem *) const
 {
     // Store the painter state
     painter->save();
@@ -108,20 +110,16 @@ void SwitcherButtonView::drawBackground(QPainter *painter, const QStyleOptionGra
 
     painter->rotate(-manager->orientationAngle());
 
+    // Do the actual drawing so that the toolbar area is cropped out
     QRect target(pos, size);
-
-    // Do the actual drawing
-    backendSpecificDrawBackground(painter, option, target);
+    QRect source(target);
+    if (qWindowPixmap.height() > NAVIGATION_BAR_HEIGHT) {
+        source = QRect(0, NAVIGATION_BAR_HEIGHT, qWindowPixmap.width(), qWindowPixmap.height() - NAVIGATION_BAR_HEIGHT);
+    }
+    painter->drawPixmap(target, qWindowPixmap, source);
 
     // Restore the painter state
     painter->restore();
-}
-
-void SwitcherButtonView::backendSpecificDrawBackground(QPainter *painter, const QStyleOptionGraphicsItem *option, const QRect& target) const
-{
-    Q_UNUSED(painter);
-    Q_UNUSED(option);
-    Q_UNUSED(target);
 }
 
 void SwitcherButtonView::drawContents(QPainter *painter, const QStyleOptionGraphicsItem *) const
@@ -283,13 +281,9 @@ void SwitcherButtonView::updateXWindowPixmap()
     createDamage();
 
     if (xWindowPixmap != 0) {
-        backendSpecificUpdateXWindowPixmap();
+        qWindowPixmap = QPixmap::fromX11Pixmap(xWindowPixmap, QPixmap::ExplicitlyShared);
     }
 #endif
-}
-
-void SwitcherButtonView::backendSpecificUpdateXWindowPixmap()
-{
 }
 
 #ifdef Q_WS_X11
