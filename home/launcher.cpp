@@ -166,8 +166,8 @@ void Launcher::addNewLauncherButton(const MDesktopEntry &entry)
 bool Launcher::isDesktopEntryValid(const MDesktopEntry &entry, const QStringList &acceptedTypes)
 {
     return (entry.isValid() && acceptedTypes.contains(entry.type())) &&
-	(entry.onlyShowIn().count() == 0 || entry.onlyShowIn().contains("X-MeeGo")) &&
-	(entry.notShowIn().count() == 0 || !entry.notShowIn().contains("X-MeeGo"));
+	(entry.onlyShowIn().count() == 0 || entry.onlyShowIn().contains("X-DUI") || entry.onlyShowIn().contains("X-MeeGo")) &&
+	(entry.notShowIn().count() == 0 || !(entry.notShowIn().contains("X-DUI") || entry.notShowIn().contains("X-MeeGo")));
 }
 
 LauncherButton *Launcher::createLauncherButton(const MDesktopEntry &entry)
