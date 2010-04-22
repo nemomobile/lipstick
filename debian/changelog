@@ -1,4 +1,4 @@
-duihome (0.21.0~17) unstable; urgency=low
+duihome (0.21.0~18) unstable; urgency=low
   * Fixes: NB#164107 - After rotating the device thumbnails are arranged in a wrong place
   * Fixes: NB#159568 - Switcher thumbnails content doesn't display how the app really looks like.
   * Fixes: NB#162716 - Missing close applet space icon
@@ -12,6 +12,7 @@ duihome (0.21.0~17) unstable; urgency=low
   * Removed TESTABILITY ifdefs from launcher and quicklauncher
   * Implemented: SWP#DUI-2208 Possibility to change the wallpaper of homescreen.
   * Implemented: SWP#DUI-2407 Blurring effect on wallpaper when switcher thumbnails are on
+  * Implemented: SWP#DUI-2616 Move the rendering of status bar to shared pixmap
 
  -- Vesa Halttunen <vesa.halttunen@nokia.com>  Thu, 01 Apr 2010 15:52:01 +0200
 
