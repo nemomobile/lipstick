@@ -1,20 +1,25 @@
-duihome (0.21.0~19) unstable; urgency=low
+duihome (0.21.1~1) unstable; urgency=low
   * Fixes: NB#164107 - After rotating the device thumbnails are arranged in a wrong place
-  * Fixes: NB#159568 - Switcher thumbnails content doesn't display how the app really looks like.
-  * Fixes: NB#162716 - Missing close applet space icon
-  * Fixes: NB#163754 - Launcher is not always on the same page after rotating the device
-  * Fixes: NB#163810 - duihome updates application thumbnails even when not visible
   * Fixes: NB#163814 - In Launcher, SystemSettings Option is missing
-  * Fixed example image applet
   * Fixed switcher button centering
-  * Adapted to libdui 0.20.0 API changes and renaming libdui to libmeegotouch
-  * Moved the functional tests and benchmarks to a separate repository
-  * Removed TESTABILITY ifdefs from launcher and quicklauncher
   * Implemented: SWP#DUI-2208 Possibility to change the wallpaper of homescreen.
   * Implemented: SWP#DUI-2407 Blurring effect on wallpaper when switcher thumbnails are on
   * Implemented: SWP#DUI-2616 Move the rendering of status bar to shared pixmap
 
- -- Vesa Halttunen <vesa.halttunen@nokia.com>  Thu, 01 Apr 2010 15:52:01 +0200
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Thu, 22 Apr 2010 17:45:01 +0200
+
+duihome (0.21.0-1) unstable; urgency=low
+  * Fixes: NB#159568 - Switcher thumbnails content doesn't display how the app really looks like.
+  * Fixes: NB#162716 - Missing close applet space icon
+  * Fixes: NB#163754 - Launcher is not always on the same page after rotating the device
+  * Fixes: NB#163810 - duihome updates application thumbnails even when not visible
+  * Fixed launcher panning in portrait mode
+  * Fixed example image applet
+  * Adapted to libdui 0.20.0 API changes and renaming libdui to libmeegotouch
+  * Moved the functional tests and benchmarks to a separate repository
+  * Removed TESTABILITY ifdefs from launcher and quicklauncher
+
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Thu, 22 Apr 2010 17:42:01 +0200
 
 duihome (0.20.2-1) unstable; urgency=low
 
