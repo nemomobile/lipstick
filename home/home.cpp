@@ -20,22 +20,18 @@
 #include "home.h"
 #include "desktop.h"
 #include "mainwindow.h"
-
-#include <MApplicationPage>
-#include <MModalSceneWindow>
-#include <MOverlay>
-#include <MPannableViewport>
-#include <MButton>
-#include <MSceneManager>
-#include <MApplication>
+#include <mstatusbar.h>
 #include <QGraphicsLinearLayout>
-#include "homeapplication.h"
 
 Home::Home(QGraphicsItem *parent) :
     MSceneWindow(parent),
-    desktop(new Desktop(this))
+    statusBar(new MStatusBar),
+    desktop(new Desktop)
 {
     setObjectName("Home");
+
+    // Show the status bar
+    statusBar->appear();
 
     // Use the desktop as the central widget
     QGraphicsLinearLayout *layout = new QGraphicsLinearLayout(Qt::Vertical);

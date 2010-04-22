@@ -20,11 +20,9 @@
 #ifndef HOME_H
 #define HOME_H
 
-#include <QTimeLine>
-#include <MWidget>
-#include <MDeviceProfile>
 #include <MSceneWindow>
 
+class MStatusBar;
 class Desktop;
 
 /*!
@@ -53,6 +51,9 @@ public:
     //! \reimp_end
 
 private:
+    //! The status bar
+    QSharedPointer<MStatusBar> statusBar;
+
     //! The desktop
     Desktop *desktop;
 
