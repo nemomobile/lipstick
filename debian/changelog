@@ -1,4 +1,5 @@
 duihome (0.21.1~1) unstable; urgency=low
+  * Fixes: NB#165315 -  Opening launcher is very slow
   * Fixes: NB#164107 - After rotating the device thumbnails are arranged in a wrong place
   * Fixes: NB#163814 - In Launcher, SystemSettings Option is missing
   * Fixed switcher button centering

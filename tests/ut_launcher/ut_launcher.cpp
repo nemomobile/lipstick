@@ -32,13 +32,36 @@ QFileInfoList Ut_Launcher::desktopFileInfoList;
 QFileInfoList Ut_Launcher::directoryFileInfoList;
 bool          Ut_Launcher::mApplicationIfProxyLaunchCalled;
 QString       Ut_Launcher::applicationStarted;
-
+static bool gConcurrentRunCalled = false;
+static const int DATASTORE_WRITE_TIMEOUT = 500;
+static bool gTimerActive = false;
+static int gTimerTimeout = 0;
+static QTimer* gButtonTimer;
 // QCoreApplication stubs to avoid crashing in processEvents()
 QStringList QCoreApplication::arguments()
 {
     return QStringList();
 }
 
+// QTimer stubs
+
+void QTimer::start(int interval)
+{
+    if (this == gButtonTimer) {
+        gTimerActive = true;
+        gTimerTimeout = interval;
+    }
+}
+
+// QtConcurrent stubs
+namespace QtConcurrent {
+    template<>
+    QFuture<void> RunFunctionTaskBase<void>::start()
+    {
+        gConcurrentRunCalled = true;
+        return QFuture<void>();
+    }
+}
 // MDesktopEntry stubs (used by Launcher)
 QMap<const MDesktopEntry *, QString> desktopEntryFileName;
 QMap<QString, QStringList> desktopEntryCategories;
@@ -141,7 +164,7 @@ LauncherDataStore::LauncherDataStore(MDataStore* dataStore)
 LauncherDataStore::~LauncherDataStore() { }
 
 void LauncherDataStore::updateLauncherButtons(const QList< QSharedPointer<LauncherPage> > &pages)
-{ 
+{
     Q_UNUSED(pages)
 }
 
@@ -178,6 +201,11 @@ bool QDBusConnection::isConnected() const
 // Tests
 void Ut_Launcher::initTestCase()
 {
+    // clear timer data
+    gTimerActive = false;
+    gTimerTimeout = 0;
+    // clear concurrent run status
+    gConcurrentRunCalled = false;
     // Create a MAapplication
     static int argc = 1;
     static char *app_name = (char *)"./ut_launcher";
@@ -251,9 +279,11 @@ void Ut_Launcher::init()
 {
     // Create a launcher and connect the signals
     launcher = new Launcher();
+    gButtonTimer = &(launcher->updateButtonsTimer);
     connect(this, SIGNAL(directoryChanged(const QString)), launcher, SLOT(updateButtonList()));
     connect(this, SIGNAL(applicationLaunched(const QString)), launcher, SLOT(launchApplication(const QString)));
     connect(this, SIGNAL(mApplicationLaunched(const QString)), launcher, SLOT(launchMApplication(const QString)));
+    connect(this, SIGNAL(timerTimedOut()), launcher, SLOT(startButtonStoreThread()));
 
     // No files by default
     desktopFileInfoList.clear();
@@ -316,6 +346,18 @@ void Ut_Launcher::testInitialization()
             break;
         }
     }
+}
+
+void Ut_Launcher::testButtonStoreTimerAndThread()
+{
+    // Initalize launcher
+    launcher->setEnabled(true);
+    // Fake a directory change notification
+    emit directoryChanged(APPLICATIONS_DIRECTORY);
+    QCOMPARE(gTimerActive, true);
+    QCOMPARE(gTimerTimeout, DATASTORE_WRITE_TIMEOUT);
+    emit timerTimedOut();
+    QCOMPARE(gConcurrentRunCalled, true);
 }
 
 void Ut_Launcher::testOnlyShowInDUI()
