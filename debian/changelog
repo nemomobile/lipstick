@@ -1,4 +1,4 @@
-duihome (0.21.1~1) unstable; urgency=low
+duihome (0.21.1-1) unstable; urgency=low
   * Fixes: NB#165315 -  Opening launcher is very slow
   * Fixes: NB#164107 - After rotating the device thumbnails are arranged in a wrong place
   * Fixes: NB#163814 - In Launcher, SystemSettings Option is missing
@@ -7,7 +7,7 @@ duihome (0.21.1~1) unstable; urgency=low
   * Implemented: SWP#DUI-2407 Blurring effect on wallpaper when switcher thumbnails are on
   * Implemented: SWP#DUI-2616 Move the rendering of status bar to shared pixmap
 
- -- Vesa Halttunen <vesa.halttunen@nokia.com>  Thu, 22 Apr 2010 17:45:01 +0200
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Fri, 23 Apr 2010 15:06:01 +0200
 
 duihome (0.21.0-1) unstable; urgency=low
   * Fixes: NB#159568 - Switcher thumbnails content doesn't display how the app really looks like.
