@@ -21,9 +21,7 @@
 #define LAUNCHER_H
 
 #include <QObject>
-#include <QTimer>
 #include <QList>
-#include <QMutex>
 #include <QFileSystemWatcher>
 #include <MWidgetController>
 #include "launchermodel.h"
@@ -124,12 +122,6 @@ private slots:
      */
     void restoreButtonsFromDataStore();
 
-    /*!
-     * Starts a thread to updates button list data in data store.
-     */
-    void startButtonStoreThread();
-
-
 private:
     //! A file system watcher for the desktop entry file directory
     QFileSystemWatcher watcher;
@@ -142,12 +134,6 @@ private:
 
     //! Whether the launcher has been initialized or not
     bool initialized;
-
-    //! Timer used for updating datastore
-    QTimer updateButtonsTimer;
-
-    //! Mutex used for updating datastore in a thread
-    QMutex updateButtonsMutex;
 
     /*!
      * Activates launcher by initializing the Launcher if necessary and by updating the buttons.
@@ -199,11 +185,6 @@ private:
      * \return is desktop entry valid
      */
     bool isDesktopEntryValid(const MDesktopEntry &entry, const QStringList &acceptedTypes);
-
-#ifdef UNIT_TEST
-    friend class Ut_Launcher;
-#endif
-
 };
 
 #endif /* LAUNCHER_H */

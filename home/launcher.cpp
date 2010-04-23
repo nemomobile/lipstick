@@ -19,8 +19,6 @@
 
 #include <QFlags>
 #include <QDir>
-#include <QMutexLocker>
-#include <QtConcurrentRun>
 #include <MApplicationIfProxy>
 #include <MDesktopEntry>
 #include "mfiledatastore.h"
@@ -30,13 +28,11 @@
 #include "launcherbutton.h"
 
 static const char* const FILE_FILTER = "*.desktop";
-static const int DATASTORE_WRITE_TIMEOUT = 500;
 
 Launcher::Launcher(MWidget *parent) :
     MWidgetController(new LauncherModel, parent),
     dataStore_(NULL),
-    initialized(false),
-    updateButtonsMutex(QMutex::Recursive)
+    initialized(false)
 {
     supportedDesktopEntryFileTypes << "Application";
 }
@@ -55,12 +51,13 @@ void Launcher::activateLauncher()
         // Update the button list according to watched directories
         updateButtonList();
 
+        // Listen for changes in ordering data
+        connect(dataStore_, SIGNAL(dataStoreChanged()), this, SLOT(restoreButtonsFromDataStore()));
 
         // Start watching the applications directory for changes
         connect(&watcher, SIGNAL(directoryChanged(const QString)), this, SLOT(updateButtonList()));
         watcher.addPath(APPLICATIONS_DIRECTORY);
-        connect(&updateButtonsTimer, SIGNAL(timeout()),
-                this, SLOT(startButtonStoreThread()));
+
         // The launcher has now been initialized
         initialized = true;
     }
@@ -128,8 +125,8 @@ void Launcher::updateButtonList()
         }
     }
     model()->setLauncherPages(pages);
-    updateButtonsTimer.setSingleShot(true);
-    updateButtonsTimer.start(DATASTORE_WRITE_TIMEOUT);
+
+    updateButtonsInDataStore();
 }
 
 bool Launcher::contains(const QString &desktopEntryFile)
@@ -228,15 +225,7 @@ bool Launcher::startMApplication(const QString &serviceName)
 
 void Launcher::updateButtonsInDataStore()
 {
-    QMutexLocker guard(&updateButtonsMutex);
-    // disconnect the signal first so that change notifications don't
-    // happen when updating
-    disconnect(dataStore_, SIGNAL(dataStoreChanged()),
-               this, SLOT(restoreButtonsFromDataStore()));
     dataStore()->updateLauncherButtons(model()->launcherPages());
-    // Listen for changes in ordering data
-    connect(dataStore_, SIGNAL(dataStoreChanged()),
-            this, SLOT(restoreButtonsFromDataStore()));
 }
 
 void Launcher::restoreButtonsFromDataStore()
@@ -249,11 +238,6 @@ void Launcher::restoreButtonsFromDataStore()
 	}
     }
     model()->setLauncherPages(restoredPages);
-}
-
-void Launcher::startButtonStoreThread()
-{
-    QtConcurrent::run(this, &Launcher::updateButtonsInDataStore);
 }
 
 void Launcher::connectLauncherButton(LauncherButton* launcherButton)

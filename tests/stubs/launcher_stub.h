@@ -24,7 +24,6 @@ class LauncherStub : public StubBase {
   virtual bool contains(const QString &desktopEntryFile);
   virtual void updateButtonsInDataStore();
   virtual void restoreButtonsFromDataStore();
-  virtual void startButtonStoreThread();
   virtual void addNewLauncherButton(const MDesktopEntry &entry);
   virtual bool isDesktopEntryValid(const MDesktopEntry &entry, const QStringList &acceptedTypes);
 }; 
@@ -111,10 +110,6 @@ void LauncherStub::restoreButtonsFromDataStore() {
   stubMethodEntered("restoreButtonsFromDataStore");
 }
 
-void LauncherStub::startButtonStoreThread() {
-  stubMethodEntered("startButtonStoreThread");
-}
-
 void LauncherStub::addNewLauncherButton(const MDesktopEntry &entry) {
   QList<ParameterBase*> params;
   params.append( new Parameter<const MDesktopEntry & >(entry));
@@ -198,9 +193,6 @@ void Launcher::restoreButtonsFromDataStore() {
   gLauncherStub->restoreButtonsFromDataStore();
 }
 
-void Launcher::startButtonStoreThread() {
-  gLauncherStub->startButtonStoreThread();
-}
 void Launcher::addNewLauncherButton(const MDesktopEntry &entry) {
   gLauncherStub->addNewLauncherButton(entry);
 }

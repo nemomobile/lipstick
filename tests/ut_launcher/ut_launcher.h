@@ -51,7 +51,7 @@ signals:
     void applicationLaunched(const QString &service);
     void mApplicationLaunched(const QString &service);
     void buttonClicked();
-    void timerTimedOut();
+
 private slots:
     // Executed once before every test case
     void init();
@@ -64,9 +64,6 @@ private slots:
 
     // Test that the launcher initialization creates items for all desktop entries
     void testInitialization();
-    // Test that the timer for button storing is started and
-    // that the thread for button storing is also started
-    void testButtonStoreTimerAndThread();
     // Test that the launcher includes an entry that is supposed to be shown in DUI
     void testOnlyShowInDUI();
     // Test that the launcher doesn't include an entry that isn't supposed to be shown in DUI
