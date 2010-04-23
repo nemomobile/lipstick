@@ -1,9 +1,46 @@
 /*! \page news What's New in DirectUI Homescreen
 
-\section v0194 0.19.4
+\section v0211 0.21.1
+
+\subsection New
+- Possibility to change the wallpaper of homescreen
+- Blurring effect on wallpaper when switcher thumbnails are on
+- Move the rendering of status bar to shared pixmap
+
+\subsection bugs Bugs fixed
+- Opening the launcher took a long time
+- After rotating the device thumbnails were arranged in a wrong place
+- SystemSettings Option was missing from the launcher
+- Switcher buttons were not properly centered
+
+\section v0210 0.21.0
+
+\subsection New
+- Adapted to libdui 0.20.0 API changes and renaming libdui to libmeegotouch
+
+\subsection bugs Bugs fixed
+- Launcher panning in portrait mode didn't work properly
+- Switcher thumbnails didn't display how the applications really look like
+- Close applet space icon was missing
+- Launcher was not always on the same page after rotating the device
+- Application thumbnails were updated even when the switcher was not visible
+
+\section v0202 0.20.2
+
+\subsection New
+- The launcher is closed when a launcher button is clicked
+
+\section v0201 0.20.1
+
+\subsection bugs Bugs fixed
+- Launcher button was drawn as a red square
+- The home screen window's type was incorrect
+
+\section v0200 0.20.0
 
 \subsection New
 - First version of the new UI simplified launcher, no edit mode implemented yet.
+- Notifications are now in the Status Indicator Menu
 
 \section v0193 0.19.3
 
