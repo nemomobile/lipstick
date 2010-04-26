@@ -74,7 +74,7 @@ private slots:
     void updateLandscapePixmap();
 
     /*!
-     * Updates the landscape pixmap.
+     * Updates the portrait pixmap.
      */
     void updatePortraitPixmap();
 
