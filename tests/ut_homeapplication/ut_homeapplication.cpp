@@ -290,25 +290,32 @@ int X11Wrapper::XFree(void *data)
 
 Status X11Wrapper::XGetWMName(Display *, Window w, XTextProperty *text_prop_return)
 {
+    QString textValue;
+
     switch (w) {
     case(WINDOW_ATTRIBUTE_TEST_WINDOWS + 0):
-        text_prop_return->value = new unsigned char[15];
-        strcpy((char *)text_prop_return->value, "plain_x_window");
-        return 1;
+        textValue = "plain_x_window";
+        break;
     case(WINDOW_ATTRIBUTE_TEST_WINDOWS + 4):
-        text_prop_return->value = new unsigned char[5];
-        strcpy((char *)text_prop_return->value, "Test");
-        return 1;
+        textValue = "Test";
+        break;
     case(WINDOW_ATTRIBUTE_TEST_WINDOWS + 8):
-        text_prop_return->value = new unsigned char[5];
-        strcpy((char *)text_prop_return->value, "Tzzt");
-        return 1;
+        textValue = "Tzzt";
+        break;
     case(WINDOW_ATTRIBUTE_TEST_WINDOWS + 9):
-        text_prop_return->value = new unsigned char[8];
-        strcpy((char *)text_prop_return->value, "Call_ui");
-        return 1;
+        textValue = "Call_ui";
+        break;
     default:
+        break;
+    }
+
+    if (textValue.isEmpty()) {
         return 0;
+    } else {
+        std::string::size_type strSize = textValue.toStdString().length();
+        text_prop_return->value = new unsigned char[strSize + 1];
+        strncpy((char *)text_prop_return->value, textValue.toStdString().c_str(), strSize + 1);
+        return 1;
     }
 }
 
@@ -348,24 +355,6 @@ QVector<Atom> X11Helper::getNetWmState(Display *display, Window window)
 void XSetWMProperties(Display *, Window, XTextProperty *, XTextProperty *, char **, int, XSizeHints *, XWMHints *, XClassHint *)
 {
 }
-
-/* MServiceFwBaseIf stubs (used by StatusArea through service framework)
-QString MServiceFwBaseIf::resolveServiceName(const QString &ifName, const QString &preferredService)
-{
-    Q_UNUSED(preferredService);
-    Ut_HomeApplication::serviceInterfaces.append(ifName);
-    return "";
-}
-
-bool MServiceFwBaseIf::isValid() const
-{
-    
-    if (Ut_HomeApplication::validInterfaces.contains(interfaceName())) {
-        return true;
-    }
-    return false;
-}
-*/
 
 // QDBusAbstractInterface stubs (used by HomeApplication through service framework)
 QDBusPendingCall QDBusAbstractInterface::asyncCallWithArgumentList(const QString &method, const QList<QVariant> & args)
