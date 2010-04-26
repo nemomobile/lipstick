@@ -32,8 +32,8 @@ Q_EXPORT_PLUGIN2(plaindesktopbackgroundextension, PlainDesktopBackgroundExtensio
 
 PlainDesktopBackgroundExtension::PlainDesktopBackgroundExtension() :
     desktop(NULL),
-    landscapeGConfItem("/desktop/meego/background/landscape"),
-    portraitGConfItem("/desktop/meego/background/portrait"),
+    landscapeGConfItem("/desktop/meego/background/landscape/picture_filename"),
+    portraitGConfItem("/desktop/meego/background/portrait/picture_filename"),
     blurFactor(0),
     blurRadius(0),
     pixmapBeingUpdated(false)

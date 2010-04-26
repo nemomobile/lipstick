@@ -333,8 +333,8 @@ void Ut_PlainDesktopBackgroundExtension::testUpdatePixmaps()
     // Set up GConf values
     QString landscapeName("landscape");
     QString portraitName("landscape");
-    MGConfItemValueForKey.insert("/desktop/meego/background/landscape", landscapeName);
-    MGConfItemValueForKey.insert("/desktop/meego/background/portrait", portraitName);
+    MGConfItemValueForKey.insert("/desktop/meego/background/landscape/picture_filename", landscapeName);
+    MGConfItemValueForKey.insert("/desktop/meego/background/portrait/picture_filename", portraitName);
     QCOMPARE(extension->initialize(""), true);
 
     // Set up the pixmaps
@@ -375,17 +375,17 @@ void Ut_PlainDesktopBackgroundExtension::testUpdatePixmapsFails()
     emit updateLandscapePixmap();
 
     // Check that the GConf key was set to the previous value
-    QCOMPARE(MGConfItemValueForKey.value("/desktop/meego/background/landscape"), QVariant("testPixmap"));
+    QCOMPARE(MGConfItemValueForKey.value("/desktop/meego/background/landscape/picture_filename"), QVariant("testPixmap"));
 
     // Set up the pixmaps again using an empty name (which is valid and should use the default)
-    MGConfItemValueForKey.insert("/desktop/meego/background/landscape", QString());
+    MGConfItemValueForKey.insert("/desktop/meego/background/landscape/picture_filename", QString());
     PlainDesktopBackgroundPixmapConstructorPixmapName = QString();
     PlainDesktopBackgroundPixmapConstructorPixmap = new QPixmap(1, 1);
     PlainDesktopBackgroundPixmapConstructorBlurredPixmap = new QPixmap(1, 1);
     emit updateLandscapePixmap();
 
     // Check that the GConf key was not set to the previous value
-    QCOMPARE(MGConfItemValueForKey.value("/desktop/meego/background/landscape"), QVariant(QString()));
+    QCOMPARE(MGConfItemValueForKey.value("/desktop/meego/background/landscape/picture_filename"), QVariant(QString()));
 }
 
 void Ut_PlainDesktopBackgroundExtension::testSetBlurFactor()
