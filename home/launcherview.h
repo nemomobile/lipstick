@@ -69,8 +69,6 @@ protected slots:
     //! \reimp_end
 
 private:
-    //! The Launcher controller
-    Launcher *controller;
     //! A layout for the widgets
     QGraphicsLinearLayout *layout;
     //! The widget that be inside the paged viewport. This will contain all of the launcher items
