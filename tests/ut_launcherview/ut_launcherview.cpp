@@ -48,17 +48,15 @@ void MSceneWindow::disappear()
     hideWindowCount++;
 }
 
-PagedViewport::PagedViewport(QGraphicsItem *parent) : MPannableViewport(parent)
-{   
-
+//PagedViewport stubs
+PagedViewport::PagedViewport(QGraphicsItem *parent) : MPannableViewport(parent),
+        pagedPanning(NULL)
+{
 }
 
 PagedViewport::~PagedViewport() {
-
 }
 
-
-//PagedViewport stubs
 void PagedViewport::panToPage(uint page)
 {
     Q_UNUSED(page)
@@ -107,7 +105,7 @@ void Ut_LauncherView::cleanup()
 void Ut_LauncherView::testSetPageWidthUpdateWhenGeometryChanges()
 {
     QRectF rect(0, 0, 100, 100);
-    view->setGeometry(rect);    
+    view->setGeometry(rect);
     QCOMPARE(pageWidth, 100);
 }
 
@@ -131,10 +129,10 @@ void Ut_LauncherView::testSetButtons()
 
     PagedViewport *viewport = dynamic_cast<PagedViewport *>(controller->childItems().at(0));
     QVERIFY(viewport != NULL);
-    
+
     QGraphicsWidget* pannedWidget = viewport->widget();
     QVERIFY(pannedWidget != NULL);
-    
+
     QGraphicsLayout* layout = pannedWidget->layout();
 
     QCOMPARE(layout->count(), 1);
