@@ -35,7 +35,8 @@ QString PlainDesktopBackgroundPixmapConstructorName;
 QString PlainDesktopBackgroundPixmapConstructorDefaultName;
 int PlainDesktopBackgroundPixmapConstructorBlurRadius;
 QString PlainDesktopBackgroundPixmapConstructorPixmapName;
-PlainDesktopBackgroundPixmap::PlainDesktopBackgroundPixmap(const QString &name, const QString &defaultName, int blurRadius)
+PlainDesktopBackgroundPixmap::PlainDesktopBackgroundPixmap(const QString &name, const QString &defaultName, int blurRadius) :
+        pixmapFromTheme_(NULL)
 {
     PlainDesktopBackgroundPixmapConstructorName = name;
     PlainDesktopBackgroundPixmapConstructorDefaultName = defaultName;
