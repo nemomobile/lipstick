@@ -45,7 +45,8 @@ void Ut_MainWindow::initTestCase()
 
     mainWindow = MainWindow::instance(true);
 
-    QCOMPARE(true, (bool)(gX11WrapperStub->stubLastCallTo("XSelectInput").parameter<long>(2) | VisibilityChangeMask));
+    // Check that receiving of VisibilityChange events was requested
+    QCOMPARE(true, (bool)(gX11WrapperStub->stubLastCallTo("XSelectInput").parameter<long>(2) & VisibilityChangeMask));
 
     Atom netWmStateAtom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_WM_STATE", FALSE);
     Atom skipTaskbarAtom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_WM_STATE_SKIP_TASKBAR", False);
