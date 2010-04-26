@@ -21,25 +21,25 @@
 #define LAUNCHERBUTTONDATASTORE_H
 
 #include <QSharedPointer>
-#include <QMap>
+#include <QHash>
+#include <QStringList>
+#include <QFileSystemWatcher>
 
 class MDataStore;
 class LauncherPage;
 class LauncherButton;
 class MDesktopEntry;
+class MDataStore;
 
 /*!
  * \class LauncherDataStore
- * \brief LauncherDataStore provides a way for the launcher and the quick lauch 
- * bar to store the locations of their item so that the setup can be restored
- * after a reboot
+ * \brief LauncherDataStore provides a way to store .desktop entry file
+ * related data such as the location of the .desktop entry in the user
+ * interface.
  *
  * The data is stored as key-value pairs. Key is entry file path relative to root.
  * (eg. "usr/share/applications/deskentry.desktop").
- * Value consists of location info. When the entry is for launcher:
- *   location, page index and position on page (eg. "launcher/1/1")
- * and when it's for quick launch bar:
- *   location, position on quick launch bar (eg. "quicklaunchbar/3").
+ * The value is user specific data.
  *
  * The LauncherDataStore uses a MDataStore as a backend to actually store the 
  * the data. The ownership of the MDataStore is transferred to the LauncherDataStore.
@@ -48,28 +48,8 @@ class MDesktopEntry;
 class LauncherDataStore : public QObject
 {
     Q_OBJECT
+
 public:
-
-    //! The location of the desktop entry
-    enum EntryLocation {
-        //! The entry location is unknow to the data store
-        Unknown,
-	//! The entry is defined to be in the launcher grid
-	LauncherGrid,
-	//! The entry is defined to be in the quick launch bar
-	QuickLaunchBar
-    };
-
-    //! A class for storing, parsing and ordering the placement information of the items
-    class Placement {
-    public:
-        Placement(const QString &placement);
-
-        EntryLocation location;
-        int page;
-        int position;
-    };
-
     /*!
      * Constructs LauncherDataStore. The ownership of the MDataStore is transferred
      * to this LauncherDataStore.
@@ -84,44 +64,43 @@ public:
     virtual ~LauncherDataStore();
 
     /*!
-     * Update launcher button data in data store
-     * \param pages List of launcher pages containing the buttons that are stored
+     * Returns the data for all desktop entries stored in the data store.
      */
-    void updateLauncherButtons(const QList< QSharedPointer<LauncherPage> > &pages);
+    QHash<QString, QVariant> dataForAllDesktopEntries();
 
     /*!
-     * Get launcher button data from data store. The loaded pages contain launcher buttons
-     * and their respective DesktopEntries. However the actions of the launcher buttons are not
-     * connected anywhere.
+     * Updates the data for a desktop entry in the data store.
      *
-     * \return A list of pages consisting of the stored buttons.
+     * \param entryPath the path of the desktop entry to update
+     * \param data the data to update the desktop entry with
+     * \return \c true if the update was successful, \c false otherwise
      */
-    QList< QSharedPointer<LauncherPage> > launcherButtons();
-
-    /*!
-     * Get quick launch bar data from data store. The actions of the launcher buttons are not
-     * connected anywhere.
-     * \return A list of launcher buttons. The list may contain NULL values, to indicate an empty place.
-     */
-    QList<LauncherButton*> quickLaunchBarButtons();
-
-    /*!
-     * Returns where this entry is located at. By default the entries are in the launcher grid
-     * \param entry The entry whos location is returned.
-     * \return The location of the entry
-     */
-    EntryLocation location(const MDesktopEntry &entry);
+    bool updateDataForDesktopEntry(const QString &entryPath, const QVariant &data);
 
 signals:
+    /*!
+     * \brief A signal for informing that the contents of the data store have changed.
+     */
     void dataStoreChanged();
+
+private slots:
+    /*!
+     * Updates the contents of the data store from the desktop entries.
+     * New .desktop files are added to the data store with no associated data.
+     * .desktop files that do not exist anymore are removed from the data store.
+     * The dataStoreChanged() signal is emitted after changes are made.
+     */
+    void updateDataFromDesktopEntryFiles();
 
 private:
     /*!
-     * Makes a map of placements of all the entries at specific entry location
-     * \param location the location of the entries
-     * \return a map of placement to the entry
+     * Checks if desktop entry is valid.
+     *
+     * \param entry Desktop entry to be validated
+     * \param acceptedTypes List of accepted entry types
+     * \return is desktop entry valid
      */
-    QMap<Placement, QString> entryPlacementMap(EntryLocation location);
+    bool isDesktopEntryValid(const MDesktopEntry &entry, const QStringList &acceptedTypes);
 
     /*!
       * This helper method gets a key from entry path by adding key prefix to the path.
@@ -140,13 +119,19 @@ private:
       * Due QSettings MFileDataStore removes preceding forward slash from key.
       * To overcome this we need to use a key prefix in the key.
       *
-      * \param key The key as key prefix and entry path (eg. "KEY_PREFIX/usr/shareapplications/deskentry.desktop").
+      * \param key The key as key prefix and entry path (eg. "KEY_PREFIX/usr/share/applications/deskentry.desktop").
       * \return The entry path.
       */
     QString keyToEntryPath(QString key);
 
+    //! A file system watcher for the desktop entry file directory
+    QFileSystemWatcher watcher;
+
+    //! List of file types to support for desktop entries.
+    QStringList supportedDesktopEntryFileTypes;
+
     //! The actual data store where the data is stored.
-    MDataStore* store;
+    MDataStore *store;
 };
 
 #endif

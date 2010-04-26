@@ -23,10 +23,11 @@
 #include <QTimer>
 #include <QTime>
 #include <QFileSystemWatcher>
-#include <QDir>
 #endif
+#include <QDir>
 
 #include "launcher.h"
+#include "launcherdatastore.h"
 #include "desktopview.h"
 #include "desktop.h"
 #include "mainwindow.h"
@@ -36,6 +37,7 @@
 #include "appletspace.h"
 #include "quicklaunchbar.h"
 #include "mdesktopbackgroundextensioninterface.h"
+#include "mfiledatastore.h"
 
 #include <MViewCreator>
 #include <MDeviceProfile>
@@ -105,15 +107,19 @@ void DesktopView::stopBenchmarking()
 DesktopView::DesktopView(Desktop *desktop) :
     MWidgetView(desktop),
     switcher(new Switcher),
-    launcher(new Launcher),
+    launcherDataStore(NULL),
+    launcher(NULL),
     launcherWindow(new MModalSceneWindow),
-    quickLaunchBar(new QuickLaunchBar(launcher->dataStore())),
+    quickLaunchBar(NULL),
     quickLaunchBarWindow(new MOverlay),
     appletSpace(new AppletSpace),
     appletSpaceWindow(new MModalSceneWindow),
     appletSpaceViewport(new MPannableViewport(appletSpaceWindow)),
     backgroundExtensionArea(new MApplicationExtensionArea("com.meego.core.MDesktopBackgroundExtensionInterface/1.0"))
 {
+    // Create the launcher data store
+    launcherDataStore = createLauncherDataStore();
+
     // Create the main layout that contains the switcher etc.
     QGraphicsLinearLayout *mainLayout = new QGraphicsLinearLayout(Qt::Vertical);
     mainLayout->setContentsMargins(0, 0, 0, 0);
@@ -143,6 +149,7 @@ DesktopView::DesktopView(Desktop *desktop) :
     mainLayout->addItem(widget);
 
     // Create a quick launch bar and put it in a scene window
+    quickLaunchBar = new QuickLaunchBar(launcherDataStore);
     connect(quickLaunchBar, SIGNAL(toggleLauncherButtonClicked()), this, SLOT(toggleLauncher()));
     connect(quickLaunchBar, SIGNAL(toggleAppletSpaceButtonClicked()), this, SLOT(toggleAppletSpace()));
     QGraphicsLinearLayout *windowLayout = new QGraphicsLinearLayout();
@@ -156,6 +163,7 @@ DesktopView::DesktopView(Desktop *desktop) :
     windowLayout->setContentsMargins(0, 0, 0, 0);
 
     // The launcher is added into a modal scene window
+    launcher = new Launcher(launcherDataStore);
     connect(launcher, SIGNAL(launcherButtonClicked()), this, SLOT(toggleLauncher()));
     launcherWindow->setLayout(windowLayout);
     launcherWindow->setObjectName("LauncherWindow");
@@ -195,6 +203,7 @@ DesktopView::~DesktopView()
     delete quickLaunchBarWindow;
     delete appletSpaceWindow;
     delete backgroundExtensionArea;
+    delete launcherDataStore;
 }
 
 #ifdef BENCHMARKS_ON
@@ -304,6 +313,25 @@ void DesktopView::removeExtension(MApplicationExtensionInterface *extension)
 {
     MDesktopBackgroundExtensionInterface *backgroundExtension = static_cast<MDesktopBackgroundExtensionInterface *>(extension);
     backgroundExtensions.removeOne(backgroundExtension);
+}
+
+LauncherDataStore *DesktopView::createLauncherDataStore()
+{
+    if (!QDir::root().exists(QDir::homePath() + "/.config/duihome")) {
+        QDir::root().mkpath(QDir::homePath() + "/.config/duihome");
+    }
+
+    QString dataStoreFileName = QDir::homePath() + "/.config/duihome/launcherbuttons.data";
+
+    if (!QFile::exists(dataStoreFileName)) {
+        QString defaultDataStoreFileName = M_XDG_DIR "/duihome/launcherbuttons.data";
+        // Copy the default datastore only if it exists
+        if (QFile::exists(defaultDataStoreFileName)) {
+            QFile::copy(defaultDataStoreFileName, dataStoreFileName);
+        }
+    }
+
+    return new LauncherDataStore(new MFileDataStore(dataStoreFileName));
 }
 
 M_REGISTER_VIEW_NEW(DesktopView, Desktop)

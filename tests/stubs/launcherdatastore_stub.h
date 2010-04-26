@@ -1,95 +1,128 @@
-#ifndef LAUNCHERDATASTORE_STUB_H
-#define LAUNCHERDATASTORE_STUB_H
+/***************************************************************************
+**
+** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
+** All rights reserved.
+** Contact: Nokia Corporation (directui@nokia.com)
+**
+** This file is part of mhome.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at directui@nokia.com.
+**
+** This library is free software; you can redistribute it and/or
+** modify it under the terms of the GNU Lesser General Public
+** License version 2.1 as published by the Free Software Foundation
+** and appearing in the file LICENSE.LGPL included in the packaging
+** of this file.
+**
+****************************************************************************/
+#ifndef LAUNCHERDATASTORE_STUB
+#define LAUNCHERDATASTORE_STUB
 
-#include <stubbase.h>
 #include "launcherdatastore.h"
+#include <stubbase.h>
 
 
 // 1. DECLARE STUB
-class LauncherDataStoreStub : public StubBase
-{
-public:
-    virtual void LauncherDataStoreConstructor(MDataStore* dataStore);
-    virtual void LauncherDataStoreDestructor();
-    virtual void updateLauncherButtons(const QList< QSharedPointer<LauncherPage> > &pages);
-    virtual QList< QSharedPointer<LauncherPage> > launcherButtons();
-    virtual QList<LauncherButton*> quickLaunchBarButtons();
-    virtual LauncherDataStore::EntryLocation location(const MDesktopEntry &entry);
-};
+// FIXME - stubgen is not yet finished
+class LauncherDataStoreStub : public StubBase {
+  public:
+  virtual void LauncherDataStoreConstructor(MDataStore *dataStore);
+  virtual void LauncherDataStoreDestructor();
+  virtual QHash<QString, QVariant> dataForAllDesktopEntries();
+  virtual bool updateDataForDesktopEntry(const QString &entryPath, const QVariant &data);
+  virtual void updateDataFromDesktopEntryFiles();
+  virtual bool isDesktopEntryValid(const MDesktopEntry &entry, const QStringList &acceptedTypes);
+  virtual QString entryPathToKey(QString entryPath);
+  virtual QString keyToEntryPath(QString key);
+}; 
 
 // 2. IMPLEMENT STUB
+void LauncherDataStoreStub::LauncherDataStoreConstructor(MDataStore *dataStore) {
+  Q_UNUSED(dataStore);
 
-void LauncherDataStoreStub::LauncherDataStoreConstructor(MDataStore* dataStore)
-{
-    QList<ParameterBase*> params;
-    params.append(new Parameter<MDataStore*>(dataStore));
-    stubMethodEntered("LauncherDataStoreConstructor", params);
+}
+void LauncherDataStoreStub::LauncherDataStoreDestructor() {
+
+}
+QHash<QString, QVariant> LauncherDataStoreStub::dataForAllDesktopEntries() {
+  stubMethodEntered("dataForAllDesktopEntries");
+  return stubReturnValue<QHash<QString, QVariant> >("dataForAllDesktopEntries");
 }
 
-void LauncherDataStoreStub::LauncherDataStoreDestructor()
-{
-    stubMethodEntered("LauncherDataStoreDestructor");
+bool LauncherDataStoreStub::updateDataForDesktopEntry(const QString &entryPath, const QVariant &data) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<const QString & >(entryPath));
+  params.append( new Parameter<const QVariant & >(data));
+  stubMethodEntered("updateDataForDesktopEntry",params);
+  return stubReturnValue<bool>("updateDataForDesktopEntry");
 }
 
-void LauncherDataStoreStub::updateLauncherButtons(const QList< QSharedPointer<LauncherPage> > &pages)
-{
-    QList<ParameterBase*> params;
-    params.append(new Parameter<const QList< QSharedPointer<LauncherPage> > >(pages));
-    stubMethodEntered("updateLauncherButtons", params);
+void LauncherDataStoreStub::updateDataFromDesktopEntryFiles() {
+  stubMethodEntered("updateDataFromDesktopEntryFiles");
 }
 
-QList< QSharedPointer<LauncherPage> > LauncherDataStoreStub::launcherButtons()
-{
-    return stubReturnValue<QList< QSharedPointer<LauncherPage> > >("launcherButtons");
+bool LauncherDataStoreStub::isDesktopEntryValid(const MDesktopEntry &entry, const QStringList &acceptedTypes) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<const MDesktopEntry & >(entry));
+  params.append( new Parameter<const QStringList & >(acceptedTypes));
+  stubMethodEntered("isDesktopEntryValid",params);
+  return stubReturnValue<bool>("isDesktopEntryValid");
 }
 
-QList<LauncherButton*> LauncherDataStoreStub::quickLaunchBarButtons()
-{
-    return stubReturnValue<QList<LauncherButton*> >("quickLaunchBarButtons");
+QString LauncherDataStoreStub::entryPathToKey(QString entryPath) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<QString >(entryPath));
+  stubMethodEntered("entryPathToKey",params);
+  return stubReturnValue<QString>("entryPathToKey");
 }
 
-LauncherDataStore::EntryLocation LauncherDataStoreStub::location(const MDesktopEntry &entry)
-{
-    QList<ParameterBase*> params;
-    params.append(new Parameter<const MDesktopEntry*>(&entry));
-    stubMethodEntered("location", params);
-    return stubReturnValue<LauncherDataStore::EntryLocation>("location");
+QString LauncherDataStoreStub::keyToEntryPath(QString key) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<QString >(key));
+  stubMethodEntered("keyToEntryPath",params);
+  return stubReturnValue<QString>("keyToEntryPath");
 }
+
+
 
 // 3. CREATE A STUB INSTANCE
 LauncherDataStoreStub gDefaultLauncherDataStoreStub;
 LauncherDataStoreStub* gLauncherDataStoreStub = &gDefaultLauncherDataStoreStub;
 
+
 // 4. CREATE A PROXY WHICH CALLS THE STUB
-
-LauncherDataStore::LauncherDataStore(MDataStore* dataStore)
-{
-    gLauncherDataStoreStub->LauncherDataStoreConstructor(dataStore);
+LauncherDataStore::LauncherDataStore(MDataStore *dataStore) {
+  gLauncherDataStoreStub->LauncherDataStoreConstructor(dataStore);
 }
 
-LauncherDataStore::~LauncherDataStore()
-{
-    gLauncherDataStoreStub->LauncherDataStoreDestructor();
+LauncherDataStore::~LauncherDataStore() {
+  gLauncherDataStoreStub->LauncherDataStoreDestructor();
 }
 
-void LauncherDataStore::updateLauncherButtons(const QList< QSharedPointer<LauncherPage> > &pages)
-{
-    gLauncherDataStoreStub->updateLauncherButtons(pages);
+QHash<QString, QVariant> LauncherDataStore::dataForAllDesktopEntries() {
+  return gLauncherDataStoreStub->dataForAllDesktopEntries();
 }
 
-QList< QSharedPointer<LauncherPage> > LauncherDataStore::launcherButtons()
-{
-    return gLauncherDataStoreStub->launcherButtons();
+bool LauncherDataStore::updateDataForDesktopEntry(const QString &entryPath, const QVariant &data) {
+  return gLauncherDataStoreStub->updateDataForDesktopEntry(entryPath, data);
 }
 
-QList<LauncherButton*> LauncherDataStore::quickLaunchBarButtons()
-{
-    return gLauncherDataStoreStub->quickLaunchBarButtons();
+void LauncherDataStore::updateDataFromDesktopEntryFiles() {
+  gLauncherDataStoreStub->updateDataFromDesktopEntryFiles();
 }
 
-LauncherDataStore::EntryLocation LauncherDataStore::location(const MDesktopEntry &entry)
-{
-    return gLauncherDataStoreStub->location(entry);
+bool LauncherDataStore::isDesktopEntryValid(const MDesktopEntry &entry, const QStringList &acceptedTypes) {
+  return gLauncherDataStoreStub->isDesktopEntryValid(entry, acceptedTypes);
 }
 
-#endif // LAUNCHERDATASTORE_STUB_H
+QString LauncherDataStore::entryPathToKey(QString entryPath) {
+  return gLauncherDataStoreStub->entryPathToKey(entryPath);
+}
+
+QString LauncherDataStore::keyToEntryPath(QString key) {
+  return gLauncherDataStoreStub->keyToEntryPath(key);
+}
+
+
+#endif

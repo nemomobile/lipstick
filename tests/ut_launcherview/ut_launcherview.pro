@@ -14,7 +14,6 @@ SOURCES += \
     ut_launcherview.cpp \
     $$SRCDIR/launcherview.cpp \
     $$SRCDIR/launcher.cpp \
-    $$SRCDIR/launcherdatastore.cpp \
     $$SRCDIR/launcherpage.cpp
 
 # service classes

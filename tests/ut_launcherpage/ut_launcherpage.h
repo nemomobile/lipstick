@@ -43,10 +43,7 @@ private slots:
     // Test cases
     void testAddButtonWhenPageNotFull();
     void testAddButtonWhenPageIsFull();
-    void testContainsDesktopEntry();
     void testRemoveButton();
-    void testPruning();
-  
   
 private:
     // MApplication

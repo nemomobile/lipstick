@@ -24,6 +24,7 @@
 #include "launcherbutton_stub.h"
 #include "launcher_stub.h"
 #include "launcherdatastore_stub.h"
+#include "mockdatastore.h"
 #include <QGraphicsLinearLayout>
 
 void Ut_QuickLaunchBarView::initTestCase()
@@ -40,7 +41,8 @@ void Ut_QuickLaunchBarView::cleanupTestCase()
 
 void Ut_QuickLaunchBarView::init()
 {
-    controller = new QuickLaunchBar();
+    launcherDataStore = new LauncherDataStore(new MockDataStore);
+    controller = new QuickLaunchBar(launcherDataStore);
     m_subject = new QuickLaunchBarView(controller);
     connect(this, SIGNAL(updateData(const QList<const char *>&)), m_subject, SLOT(updateData(const QList<const char *>&)));
 }
@@ -48,6 +50,7 @@ void Ut_QuickLaunchBarView::init()
 void Ut_QuickLaunchBarView::cleanup()
 {
     delete controller;
+    delete launcherDataStore;
 }
 
 void Ut_QuickLaunchBarView::testUpdateData()

@@ -17,80 +17,100 @@
 **
 ****************************************************************************/
 
+#include <QtTest/QtTest>
 #include <MApplication>
 #include <MDesktopEntry>
 #include "launcherdatastore.h"
 #include "launcherpage.h"
+#include "mockdatastore.h"
 #include "ut_launcherdatastore.h"
 
-static const QString KEY_PREFIX = "DesktopEntries";
+// MDesktopEntry stubs (used by Launcher)
+QMap<const MDesktopEntry *, QString> desktopEntryFileName;
+QMap<QString, QStringList> desktopEntryCategories;
+QMap<QString, QStringList> desktopEntryOnlyShowIn;
+QMap<QString, QStringList> desktopEntryNotShowIn;
+QMap<QString, QString> desktopEntryType;
+QMap<QString, QString> desktopEntryXMaemoService;
+QMap<QString, QString> desktopEntryName;
+QMap<QString, QString> desktopEntryIcon;
+QMap<QString, QString> desktopEntryExec;
+QMap<QString, QString> desktopEntryUrl;
+QMap<QString, QString> desktopEntryNameUnlocalized;
 
-static QSharedPointer<LauncherButton> createLauncherButton(const QString path);
-
-static void comparePageLocations(QList< QSharedPointer<LauncherPage> > pages);
-
-static void compareEntryPageLocations(QSharedPointer<LauncherPage> pageToCompare, int page);
-
-static void createSimpleTestData(QList< QSharedPointer<LauncherPage> > &pages);
-
-static QSharedPointer<LauncherPage> createLauncherPage(const QStringList entries);
-
-static QString pathFromKey(QString key);
-static QString keyFromPath(QString path);
-
-static QHash<QString, QVariant> testData;
-
-static QString formatter("launcher/%1/%2");
-
-bool TestDataStore::createValue (const QString &key, const QVariant &value)
+MDesktopEntry::MDesktopEntry(const QString &fileName) :
+    d_ptr(NULL)
 {
-    testData.insert(key, value);
+    desktopEntryFileName.insert(this, fileName);
+}
+
+QString MDesktopEntry::fileName() const
+{
+    return desktopEntryFileName[this];
+}
+
+
+bool MDesktopEntry::isValid() const
+{
     return true;
 }
 
-void TestDataStore::remove (const QString &key)
+QStringList MDesktopEntry::onlyShowIn() const
 {
-    testData.take(key);
+    return desktopEntryOnlyShowIn.value(desktopEntryFileName.value(this));
 }
 
-void TestDataStore::clear()
+QStringList MDesktopEntry::notShowIn() const
 {
-    testData.clear();
+    return desktopEntryNotShowIn.value(desktopEntryFileName.value(this));
 }
 
-
-QVariant TestDataStore::value(const QString& key) const
+QString MDesktopEntry::type() const
 {
-    return testData.value(key);
+    return desktopEntryType.value(desktopEntryFileName.value(this));
 }
 
-bool TestDataStore::setValue(const QString& key, const QVariant& value)
+QString MDesktopEntry::xMaemoService() const
 {
-    bool ok = testData.contains(key);
-    if (ok) {
-	testData[key] = value;
-    }
-    return ok;
+    return desktopEntryXMaemoService.value(desktopEntryFileName.value(this));
 }
 
-QStringList TestDataStore::allKeys() const
+QString MDesktopEntry::name() const
 {
-    const QStringList list(testData.keys());
-    return list;
+    return desktopEntryName.value(desktopEntryFileName.value(this));
 }
 
-bool TestDataStore::contains(const QString& key) const
+QString MDesktopEntry::icon() const
 {
-    return testData.contains(key);
+    return desktopEntryIcon.value(desktopEntryFileName.value(this));
 }
 
-// MDesktopEntry stubs
-QList<QString> gValidDesktopFiles;
-bool MDesktopEntry::isValid() const
+QString MDesktopEntry::exec() const
 {
-    return gValidDesktopFiles.contains(fileName());
+    return desktopEntryExec.value(desktopEntryFileName.value(this));
 }
 
+QString MDesktopEntry::url() const
+{
+    return desktopEntryUrl.value(desktopEntryFileName.value(this));
+}
+
+QString MDesktopEntry::nameUnlocalized() const
+{
+    return desktopEntryNameUnlocalized.value(desktopEntryFileName.value(this));
+}
+
+// QDir stubs
+QFileInfoList desktopFileInfoList;
+QFileInfoList QDir::entryInfoList(Filters, SortFlags) const
+{
+    return desktopFileInfoList;
+}
+
+// QFileSystemWatcher stubs
+void QFileSystemWatcher::addPath(const QString &)
+{
+}
 
 void Ut_LauncherDataStore::initTestCase()
 {
@@ -106,249 +126,117 @@ void Ut_LauncherDataStore::cleanupTestCase()
 
 void Ut_LauncherDataStore::init()
 {
-    testStore = new TestDataStore;
-    m_subject = new LauncherDataStore(testStore);
-    testData.clear();
-    gValidDesktopFiles.clear();
+    mockStore = new MockDataStore;
+    mockStore->clear();
+    desktopEntryFileName.clear();
+    desktopEntryCategories.clear();
+    desktopEntryOnlyShowIn.clear();
+    desktopEntryNotShowIn.clear();
+    desktopEntryType.clear();
+    desktopEntryXMaemoService.clear();
+    desktopEntryName.clear();
+    desktopEntryIcon.clear();
+    desktopEntryExec.clear();
+    desktopEntryUrl.clear();
+    desktopEntryNameUnlocalized.clear();
+    desktopFileInfoList.clear();
 }
 
 void Ut_LauncherDataStore::cleanup()
 {    
-    delete m_subject;
 }
 
-void Ut_LauncherDataStore::testAddingLauncherItemsToAnEmptyStore()
+QString fileNameWithPath(const QString &fileName)
 {
-    QCOMPARE(testData.count(), 0);
-    QList< QSharedPointer<LauncherPage> > pages;
-    createSimpleTestData(pages);
-
-    m_subject->updateLauncherButtons(pages);
-
-    QCOMPARE(testData.count(), 5);
-
-    comparePageLocations(pages);
+    return QString(APPLICATIONS_DIRECTORY) + fileName;
 }
 
-void Ut_LauncherDataStore::testAddingLauncherItemsToNonEmptyStore()
+void addDesktopEntry(const QString &fileName, const QString &name, const QString &type, const QString &icon, const QString &exec)
 {
-    QCOMPARE(testData.count(), 0);
-
-    QStringList existingEntryList;
-    existingEntryList << QString(KEY_PREFIX + "/path/old-entry.desktop") << QString(KEY_PREFIX + "/path/old-entry-1.desktop");
-    existingEntryList << QString(KEY_PREFIX + "/path/old-entry-2.desktop")<< QString(KEY_PREFIX + "/path/old-entry-3.desktop");
-
-    for (int i = 0; i < existingEntryList.count(); i++) {
-        QString value(formatter.arg(i).arg(0));
-	testData.insert(existingEntryList[i], value);
-    }
-
-    QCOMPARE(testData.count(), existingEntryList.count());
-
-    QStringList pageOneEntries;
-    pageOneEntries << QString("/path/new-entry.desktop") << QString("/path/new-entry-1.desktop");
-
-    QStringList pageTwoEntries;
-    pageTwoEntries << QString("/path/new-entry-2.desktop") << QString("/path/new-entry-3.desktop") << QString("/path/new-entry-4.desktop");
-
-    QSharedPointer<LauncherPage> pageOne = createLauncherPage(pageOneEntries);
-    QSharedPointer<LauncherPage> pageTwo = createLauncherPage(pageTwoEntries);
-
-    QList< QSharedPointer<LauncherPage> > pages;
-    pages.append(pageOne);
-    pages.append(pageTwo);
-
-    m_subject->updateLauncherButtons(pages);
-
-    QCOMPARE(testData.count(), 5);
-
-    comparePageLocations(pages);
+    QString fullFileName = fileNameWithPath(fileName);
+    desktopEntryName.insert(fullFileName, name);
+    desktopEntryType.insert(fullFileName, type);
+    desktopEntryIcon.insert(fullFileName, icon);
+    desktopEntryExec.insert(fullFileName, exec);
+    desktopFileInfoList.append(fullFileName);
 }
 
-void Ut_LauncherDataStore::testGettingLauncherButtonsFromAnEmptyDataStore()
+void removeDesktopEntries()
 {
-    QList< QSharedPointer<LauncherPage> > pages(m_subject->launcherButtons());
-    QCOMPARE(pages.count(), 0);
+    desktopEntryName.clear();
+    desktopEntryType.clear();
+    desktopEntryIcon.clear();
+    desktopEntryExec.clear();
+    desktopFileInfoList.clear();
 }
 
-void Ut_LauncherDataStore::testGettingLauncherButtonsFromDataStore()
+void Ut_LauncherDataStore::testUpdatingFromDesktopEntryFiles()
 {
-    QCOMPARE(testData.count(), 0);
+    // Test applications: two valid and one invalid
+    addDesktopEntry("onlyShowInMeeGoApplication.desktop", "Test0", "Application", "Icon-camera", "test0");
+    addDesktopEntry("onlyShowInInvalidApplication.desktop", "Test1", "Application", "Icon-camera", "test1");
+    addDesktopEntry("notShowInMeeGoApplication.desktop", "Test2", "Application", "Icon-camera", "test2");
+    addDesktopEntry("invalidApplication.desktop", "Test3", "Invalid", "Icon-camera", "test3");
+    addDesktopEntry("regularApplication.desktop", "Test4", "Application", "Icon-camera", "test4");
+    desktopEntryOnlyShowIn.insert(fileNameWithPath("onlyShowInMeeGoApplication.desktop"), QStringList() << "X-MeeGo");
+    desktopEntryOnlyShowIn.insert(fileNameWithPath("onlyShowInInvalidApplication.desktop"), QStringList() << "X-Invalid");
+    desktopEntryNotShowIn.insert(fileNameWithPath("notShowInMeeGoApplication.desktop"), QStringList() << "X-MeeGo");
 
-    QStringList existingEntryList;
-    existingEntryList << QString(KEY_PREFIX + "/path/old-entry.desktop") << QString(KEY_PREFIX + "/path/old-entry-1.desktop");
-    existingEntryList << QString(KEY_PREFIX + "/path/old-entry-2.desktop")<< QString(KEY_PREFIX + "/path/old-entry-3.desktop");
+    LauncherDataStore dataStore(mockStore);
+    connect(this, SIGNAL(directoryChanged()), &dataStore, SLOT(updateDataFromDesktopEntryFiles()));
 
-    for (int i = 0; i < existingEntryList.count(); i++) {
-        QString value(formatter.arg(i).arg(0));
-	// Every button goes into its own page.
-	testData.insert(existingEntryList[i], value);
-    }
+    // The data store should contain two entries and the default value should be empty
+    QHash<QString, QVariant> data = dataStore.dataForAllDesktopEntries();
+    QCOMPARE(data.count(), 2);
+    QCOMPARE(data.contains(fileNameWithPath("regularApplication.desktop")), true);
+    QCOMPARE(data.contains(fileNameWithPath("invalidApplication.desktop")), false);
+    QCOMPARE(data.contains(fileNameWithPath("onlyShowInMeeGoApplication.desktop")), true);
+    QCOMPARE(data.value(fileNameWithPath("regularApplication.desktop")), QVariant());
+    QCOMPARE(data.value(fileNameWithPath("onlyShowInMeeGoApplication.desktop")), QVariant());
 
-    //Right now we have four pages in the data store, lets add some more
-
-    existingEntryList << QString(KEY_PREFIX + "/path/old-entry-4.desktop") << QString(KEY_PREFIX + "/path/old-entry-5.desktop");
-    existingEntryList << QString(KEY_PREFIX + "/path/old-entry-6.desktop") << QString(KEY_PREFIX + "/path/old-entry-7.desktop");
-    // First, second and third pages get some extra data
-    testData.insert(existingEntryList[4], QString("launcher/0/1"));
-    testData.insert(existingEntryList[5], QString("launcher/1/1"));
-    testData.insert(existingEntryList[6], QString("launcher/3/1"));
-    testData.insert(existingEntryList[7], QString("launcher/3/2"));
-
-    // Check that the test data count is ok
-    QCOMPARE(testData.count(), existingEntryList.count());
-
-    // Now start checking that the result read from the data store is correct
-
-    // We should have four pages in total
-    QList< QSharedPointer<LauncherPage> > pages(m_subject->launcherButtons());
-    QCOMPARE(pages.count(), 4);
-
-    // the first page should have 2 items
-    QSharedPointer<LauncherPage> page = pages.at(0);
-    QList<QSharedPointer<LauncherButton> > pageButtons = page.data()->model()->launcherButtons();
-    QCOMPARE(pageButtons.count(), 2);
-    QSharedPointer<LauncherButton> button = pageButtons.at(0);
-    QCOMPARE(button.data()->desktopEntry(), pathFromKey(existingEntryList[0]));
-    button = pageButtons.at(1);
-    QCOMPARE(button.data()->desktopEntry(), pathFromKey(existingEntryList[4]));
-
-    // the second page should have 2 items
-    page = pages.at(1);
-    pageButtons = page.data()->model()->launcherButtons();
-    QCOMPARE(pageButtons.count(), 2);
-    button = pageButtons.at(0);
-    QCOMPARE(button.data()->desktopEntry(), pathFromKey(existingEntryList[1]));
-    button = pageButtons.at(1);
-    QCOMPARE(button.data()->desktopEntry(), pathFromKey(existingEntryList[5]));
-
-    // The third page should have only one item
-    page = pages.at(2);
-    QCOMPARE(page.data()->model()->launcherButtons().count(), 1);
-
-    // The last page should have three items
-    page = pages.at(3);
-    pageButtons = page.data()->model()->launcherButtons();
-    QCOMPARE(pageButtons.count(), 3);
-    button = pageButtons.at(0);
-    QCOMPARE(button.data()->desktopEntry(), pathFromKey(existingEntryList[3]));
-    button = pageButtons.at(1);
-    QCOMPARE(button.data()->desktopEntry(), pathFromKey(existingEntryList[6]));
-    button = pageButtons.at(2);
-    QCOMPARE(button.data()->desktopEntry(), pathFromKey(existingEntryList[7]));
+    // Updating the desktop entry directory should be reflected in the data
+    removeDesktopEntries();
+    addDesktopEntry("testApplication.desktop", "Test", "Application", "Icon-camera", "test");
+    QSignalSpy spy(&dataStore, SIGNAL(dataStoreChanged()));
+    emit directoryChanged();
+    data = dataStore.dataForAllDesktopEntries();
+    QCOMPARE(data.count(), 1);
+    QCOMPARE(data.contains(fileNameWithPath("testApplication.desktop")), true);
+    QCOMPARE(spy.count(), 1);
 }
 
-void Ut_LauncherDataStore::testLauncherButtonLocation()
+void Ut_LauncherDataStore::testUpdatingDataForDesktopEntry()
 {
-    QList< QSharedPointer<LauncherPage> > pages;
-    createSimpleTestData(pages);
-    m_subject->updateLauncherButtons(pages);
-    const MDesktopEntry entry("/path/entry.desktop");
-    LauncherDataStore::EntryLocation location = m_subject->location(entry);
-    QCOMPARE(location, LauncherDataStore::LauncherGrid);
+    // Test application
+    addDesktopEntry("regularApplication.desktop", "Test0", "Application", "Icon-camera", "test0");
 
-    const MDesktopEntry unknownEntry("/path/to-an-unknown-entry.desktop");
-    location = m_subject->location(unknownEntry);
-    QCOMPARE(location, LauncherDataStore::Unknown);
-}
+    LauncherDataStore dataStore(mockStore);
+    QHash<QString, QVariant> data = dataStore.dataForAllDesktopEntries();
+    QCOMPARE(data.count(), 1);
+    QSignalSpy spy(&dataStore, SIGNAL(dataStoreChanged()));
 
-void Ut_LauncherDataStore::testGettingQuickLaunchBarButtonsWithInvalidDesktopEntries()
-{
-    testData.insert(QString(KEY_PREFIX + "/path/entry1.desktop"), QString("quicklaunchbar/0"));
-    testData.insert(QString(KEY_PREFIX + "/path/entry2.desktop"), QString("quicklaunchbar/1"));
+    // Updating an inexisting entry should fail
+    QCOMPARE(dataStore.updateDataForDesktopEntry("/dev/null", "test"), false);
+    data = dataStore.dataForAllDesktopEntries();
+    QCOMPARE(data.count(), 1);
+    QCOMPARE(data.contains(fileNameWithPath("regularApplication.desktop")), true);
+    QCOMPARE(spy.count(), 0);
 
-    // none of the desktop entries are valid:
-    QList<LauncherButton*> buttons = m_subject->quickLaunchBarButtons();
-    QCOMPARE(buttons.count(), 0);
-    // invalid entries were removed:
-    QCOMPARE(testData.count(), 0);
-}
+    // Updating an existing entry should succeed but not send any signals
+    QCOMPARE(dataStore.updateDataForDesktopEntry(fileNameWithPath("regularApplication.desktop"), "test"), true);
+    data = dataStore.dataForAllDesktopEntries();
+    QCOMPARE(data.count(), 1);
+    QCOMPARE(data.contains(fileNameWithPath("regularApplication.desktop")), true);
+    QCOMPARE(data.value(fileNameWithPath("regularApplication.desktop")), QVariant("test"));
+    QCOMPARE(spy.count(), 0);
 
-void Ut_LauncherDataStore::testGettingQuickLaunchBarButtonsWithOneValidDesktopEntry()
-{
-    testData.insert(QString(KEY_PREFIX + "/path/entry1.desktop"), QString("quicklaunchbar/0"));
-    testData.insert(QString(KEY_PREFIX + "/path/entry2.desktop"), QString("quicklaunchbar/1"));
-
-    // make one desktop entry valid:
-    gValidDesktopFiles.append("/path/entry1.desktop");
-    QList<LauncherButton*> buttons = m_subject->quickLaunchBarButtons();
-    QCOMPARE(buttons.count(), 1);
-    QVERIFY(dynamic_cast<LauncherButton *>(buttons[0]) != NULL);
-    // invalid entries were removed:
-    QCOMPARE(testData.count(), 1);
-}
-
-void Ut_LauncherDataStore::testGettingQuickLaunchBarButtonsWithEmptyPlaces()
-{
-    // there can be empty places in the quick launch bar list
-    testData.insert(QString(KEY_PREFIX + "/path/entry1.desktop"), QString("quicklaunchbar/3"));
-    gValidDesktopFiles.append("/path/entry1.desktop");
-    QList<LauncherButton*> buttons = m_subject->quickLaunchBarButtons();
-    QCOMPARE(buttons.count(), 4);
-    QVERIFY(buttons[0] == NULL);
-    QVERIFY(buttons[1] == NULL);
-    QVERIFY(buttons[2] == NULL);
-    QVERIFY(dynamic_cast<LauncherButton *>(buttons[3]) != NULL);
-}
-
-static void createSimpleTestData(QList< QSharedPointer<LauncherPage> > &pages)
-{
-    QStringList pageOneEntries;
-    pageOneEntries << QString("/path/entry.desktop") << QString("/path/entry-1.desktop");
-
-    QStringList pageTwoEntries;
-    pageTwoEntries << QString("/path/entry-2.desktop") << QString("/path/entry-3.desktop") << QString("/path/entry-4.desktop");
-
-    QSharedPointer<LauncherPage> pageOne = createLauncherPage(pageOneEntries);
-    QSharedPointer<LauncherPage> pageTwo = createLauncherPage(pageTwoEntries);
-    pages.append(pageOne);
-    pages.append(pageTwo);
-}
-
-static void comparePageLocations(QList< QSharedPointer<LauncherPage> > pages)
-{
-    foreach (QSharedPointer<LauncherPage> page, pages) {
-	compareEntryPageLocations(page, pages.indexOf(page));
-    }
-}
-
-static void compareEntryPageLocations(QSharedPointer<LauncherPage> pageToCompare, int page)
-{
-    int positionOnPage = 0;
-    foreach (QSharedPointer<LauncherButton> button, pageToCompare.data()->model()->launcherButtons()) {
-        QString position(formatter.arg(page).arg(positionOnPage));
-        QCOMPARE(testData.value(keyFromPath(button.data()->desktopEntry())).toString(), position);
-        positionOnPage++;
-    }
-}
-
-static QSharedPointer<LauncherPage> createLauncherPage(const QStringList entries)
-{
-    const QSharedPointer<LauncherPage> page = QSharedPointer<LauncherPage>(new LauncherPage());
-    foreach (QString entry, entries) {
-	QSharedPointer<LauncherButton> button = QSharedPointer<LauncherButton>(createLauncherButton(entry));
-	page.data()->appendButton(button);
-    }
-    return page;
-}
-
-static QSharedPointer<LauncherButton> createLauncherButton(const QString path)
-{
-    const MDesktopEntry de(path);
-    QSharedPointer<LauncherButton> button = QSharedPointer<LauncherButton>(new LauncherButton(de));
-    return button;
-}
-
-static QString pathFromKey(QString key)
-{
-    key.replace(0, KEY_PREFIX.length(), "");
-    return key;
-}
-
-static QString keyFromPath(QString path)
-{
-    path.insert(0, KEY_PREFIX);
-    return path;
+    // Updating the data store directly should reflect in changed data
+    mockStore->setValue("DesktopEntries" + fileNameWithPath("regularApplication.desktop"), QVariant("modifiedTest"));
+    data = dataStore.dataForAllDesktopEntries();
+    QCOMPARE(data.count(), 1);
+    QCOMPARE(data.contains(fileNameWithPath("regularApplication.desktop")), true);
+    QCOMPARE(data.value(fileNameWithPath("regularApplication.desktop")), QVariant("modifiedTest"));
+    QCOMPARE(spy.count(), 1);
 }
 
 QTEST_APPLESS_MAIN(Ut_LauncherDataStore)

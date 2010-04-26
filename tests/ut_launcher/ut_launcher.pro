@@ -12,7 +12,8 @@ SOURCES += \
 
 # service classes
 SOURCES += \
-    $$SRCDIR/launcherbutton.cpp
+    $$SRCDIR/launcherbutton.cpp \
+    $$STUBSDIR\stubbase.cpp
 
 # unit test and unit classes
 HEADERS += \

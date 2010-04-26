@@ -1,3 +1,21 @@
+/***************************************************************************
+**
+** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
+** All rights reserved.
+** Contact: Nokia Corporation (directui@nokia.com)
+**
+** This file is part of mhome.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at directui@nokia.com.
+**
+** This library is free software; you can redistribute it and/or
+** modify it under the terms of the GNU Lesser General Public
+** License version 2.1 as published by the Free Software Foundation
+** and appearing in the file LICENSE.LGPL included in the packaging
+** of this file.
+**
+****************************************************************************/
 #ifndef LAUNCHER_STUB
 #define LAUNCHER_STUB
 
@@ -9,39 +27,28 @@
 // FIXME - stubgen is not yet finished
 class LauncherStub : public StubBase {
   public:
-  virtual void LauncherConstructor(MWidget *parent);
+  virtual void LauncherConstructor(LauncherDataStore *dataStore, QGraphicsItem *parent);
   virtual void LauncherDestructor();
-  virtual LauncherDataStore *dataStore();
   virtual void setEnabled(bool enabled);
   virtual bool startApplication(const QString &application);
   virtual bool startMApplication(const QString &serviceName);
+  virtual void updatePagesFromDataStore();
   virtual void launchApplication(const QString &application);
   virtual void launchMApplication(const QString &service);
   virtual void activateLauncher();
-  virtual void updateButtonList();
-  virtual LauncherButton * createLauncherButton(const MDesktopEntry &entry);
-  virtual void connectLauncherButton(LauncherButton *launcherButton);
-  virtual bool contains(const QString &desktopEntryFile);
-  virtual void updateButtonsInDataStore();
-  virtual void restoreButtonsFromDataStore();
-  virtual void addNewLauncherButton(const MDesktopEntry &entry);
-  virtual bool isDesktopEntryValid(const MDesktopEntry &entry, const QStringList &acceptedTypes);
+  virtual QSharedPointer<LauncherButton> createLauncherButton(const QString &desktopEntryPath);
+  virtual QMap<Launcher::Placement, QString> createPlacementMap(const QHash<QString, QVariant> &desktopEntryPlacements);
 }; 
 
 // 2. IMPLEMENT STUB
-void LauncherStub::LauncherConstructor(MWidget *parent) {
+void LauncherStub::LauncherConstructor(LauncherDataStore *dataStore, QGraphicsItem *parent) {
+  Q_UNUSED(dataStore);
   Q_UNUSED(parent);
-}
 
+}
 void LauncherStub::LauncherDestructor() {
 
 }
-
-LauncherDataStore *LauncherStub::dataStore() {
-  stubMethodEntered("dataStore");
-  return stubReturnValue<LauncherDataStore*>("dataStore");
-}
-
 void LauncherStub::setEnabled(bool enabled) {
   QList<ParameterBase*> params;
   params.append( new Parameter<bool >(enabled));
@@ -50,27 +57,31 @@ void LauncherStub::setEnabled(bool enabled) {
 
 bool LauncherStub::startApplication(const QString &application) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<QString >(application));
+  params.append( new Parameter<QString>(application));
   stubMethodEntered("startApplication",params);
   return stubReturnValue<bool>("startApplication");
 }
 
 bool LauncherStub::startMApplication(const QString &serviceName) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<QString >(serviceName));
+  params.append( new Parameter<QString>(serviceName));
   stubMethodEntered("startMApplication",params);
   return stubReturnValue<bool>("startMApplication");
 }
 
+void LauncherStub::updatePagesFromDataStore() {
+  stubMethodEntered("updatePagesFromDataStore");
+}
+
 void LauncherStub::launchApplication(const QString &application) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const QString & >(application));
+  params.append( new Parameter<QString>(application));
   stubMethodEntered("launchApplication",params);
 }
 
 void LauncherStub::launchMApplication(const QString &service) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const QString & >(service));
+  params.append( new Parameter<QString>(service));
   stubMethodEntered("launchMApplication",params);
 }
 
@@ -78,50 +89,18 @@ void LauncherStub::activateLauncher() {
   stubMethodEntered("activateLauncher");
 }
 
-void LauncherStub::updateButtonList() {
-  stubMethodEntered("updateButtonList");
-}
-
-LauncherButton * LauncherStub::createLauncherButton(const MDesktopEntry &entry) {
+QSharedPointer<LauncherButton> LauncherStub::createLauncherButton(const QString &desktopEntryPath) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const MDesktopEntry & >(entry));
+  params.append( new Parameter<QString>(desktopEntryPath));
   stubMethodEntered("createLauncherButton",params);
-  return stubReturnValue<LauncherButton *>("createLauncherButton");
+  return stubReturnValue<QSharedPointer<LauncherButton> >("createLauncherButton");
 }
 
-void LauncherStub::connectLauncherButton(LauncherButton *launcherButton) {
+QMap<Launcher::Placement, QString> LauncherStub::createPlacementMap(const QHash<QString, QVariant> &desktopEntryPlacements) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<LauncherButton * >(launcherButton));
-  stubMethodEntered("connectLauncherButton",params);
-}
-
-bool LauncherStub::contains(const QString &desktopEntryFile) {
-  QList<ParameterBase*> params;
-  params.append( new Parameter<const QString& >(desktopEntryFile));
-  stubMethodEntered("contains",params);
-  return stubReturnValue<bool>("contains");
-}
-
-void LauncherStub::updateButtonsInDataStore() {
-  stubMethodEntered("updateButtonsInDataStore");
-}
-
-void LauncherStub::restoreButtonsFromDataStore() {
-  stubMethodEntered("restoreButtonsFromDataStore");
-}
-
-void LauncherStub::addNewLauncherButton(const MDesktopEntry &entry) {
-  QList<ParameterBase*> params;
-  params.append( new Parameter<const MDesktopEntry & >(entry));
-  stubMethodEntered("addNewLauncherButton",params);
-}
-
-bool LauncherStub::isDesktopEntryValid(const MDesktopEntry &entry, const QStringList &acceptedTypes) {
-  QList<ParameterBase*> params;
-  params.append( new Parameter<const MDesktopEntry & >(entry));
-  params.append( new Parameter<const QStringList & >(acceptedTypes));
-  stubMethodEntered("isDesktopEntryValid",params);
-  return stubReturnValue<bool>("isDesktopEntryValid");
+  params.append( new Parameter<const QHash<QString, QVariant> & >(desktopEntryPlacements));
+  stubMethodEntered("createPlacementMap",params);
+  return stubReturnValue<QMap<Launcher::Placement, QString> >("createPlacementMap");
 }
 
 
@@ -132,17 +111,12 @@ LauncherStub* gLauncherStub = &gDefaultLauncherStub;
 
 
 // 4. CREATE A PROXY WHICH CALLS THE STUB
-Launcher::Launcher(MWidget* parent) : MWidgetController(parent) {
-  gLauncherStub->LauncherConstructor(parent);
+Launcher::Launcher(LauncherDataStore *dataStore, QGraphicsItem *parent) {
+  gLauncherStub->LauncherConstructor(dataStore, parent);
 }
 
 Launcher::~Launcher() {
   gLauncherStub->LauncherDestructor();
-}
-
-LauncherDataStore *Launcher::dataStore()
-{
-  return gLauncherStub->dataStore();
 }
 
 void Launcher::setEnabled(bool enabled) {
@@ -157,6 +131,10 @@ bool Launcher::startMApplication(const QString &serviceName) {
   return gLauncherStub->startMApplication(serviceName);
 }
 
+void Launcher::updatePagesFromDataStore() {
+  gLauncherStub->updatePagesFromDataStore();
+}
+
 void Launcher::launchApplication(const QString &application) {
   gLauncherStub->launchApplication(application);
 }
@@ -169,36 +147,12 @@ void Launcher::activateLauncher() {
   gLauncherStub->activateLauncher();
 }
 
-void Launcher::updateButtonList() {
-  gLauncherStub->updateButtonList();
+QSharedPointer<LauncherButton> Launcher::createLauncherButton(const QString &desktopEntryPath) {
+  return gLauncherStub->createLauncherButton(desktopEntryPath);
 }
 
-LauncherButton * Launcher::createLauncherButton(const MDesktopEntry &entry) {
-  return gLauncherStub->createLauncherButton(entry);
-}
-
-void Launcher::connectLauncherButton(LauncherButton *launcherButton) {
-  gLauncherStub->connectLauncherButton(launcherButton);
-}
-
-bool Launcher::contains(const QString &desktopEntryFile) {
-  return gLauncherStub->contains(desktopEntryFile);
-}
-
-void Launcher::updateButtonsInDataStore() {
-  gLauncherStub->updateButtonsInDataStore();
-}
-
-void Launcher::restoreButtonsFromDataStore() {
-  gLauncherStub->restoreButtonsFromDataStore();
-}
-
-void Launcher::addNewLauncherButton(const MDesktopEntry &entry) {
-  gLauncherStub->addNewLauncherButton(entry);
-}
-
-bool Launcher::isDesktopEntryValid(const MDesktopEntry &entry, const QStringList &acceptedTypes) {
-  return gLauncherStub->isDesktopEntryValid(entry, acceptedTypes);
+QMap<Launcher::Placement, QString> Launcher::createPlacementMap(const QHash<QString, QVariant> &desktopEntryPlacements) {
+  return gLauncherStub->createPlacementMap(desktopEntryPlacements);
 }
 
 

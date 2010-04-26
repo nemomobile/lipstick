@@ -22,13 +22,11 @@
 
 #include <QObject>
 #include <QList>
-#include <QFileSystemWatcher>
 #include <MWidgetController>
 #include "launchermodel.h"
 
 class MDesktopEntry;
 class LauncherDataStore;
-class MDataStore;
 
 /*!
  * Widget for launching and browsing installed applications.
@@ -54,12 +52,23 @@ class Launcher : public MWidgetController
     M_CONTROLLER(Launcher)
 
 public:
+    //! A class for storing, parsing and ordering the placement information of the items
+    class Placement {
+    public:
+        Placement(const QString &placement);
+
+        QString location;
+        int page;
+        int position;
+    };
+
     /*!
      * Constructs a Launcher widget.
      *
+     * \param dataStore LauncherDataStore for storing launcher button positions and entries
      * \param parent Parent for the widget, defaults to NULL
      */
-    Launcher(MWidget *parent = NULL);
+    Launcher(LauncherDataStore *dataStore, QGraphicsItem *parent = NULL);
 
     /*!
      * Destroys the Launcher.
@@ -89,11 +98,6 @@ public:
      */
     static bool startMApplication(const QString &serviceName);
 
-    /*!
-     * Returns a pointer to the launcher data store
-     */
-    LauncherDataStore *dataStore();
-
 signals:
     /*!
      * Signal sent when a launcher button was clicked.
@@ -101,11 +105,10 @@ signals:
     void launcherButtonClicked();
 
 private slots:
-
     /*!
-     * Updates buttons list according to a desktop entry directory.
+     * Updates pages according to the contents of the data store.
      */
-    void updateButtonList();
+    void updatePagesFromDataStore();
 
     /*!
      * \brief Launches an application.
@@ -117,24 +120,7 @@ private slots:
      */
     void launchMApplication(const QString &service);
 
-    /*!
-     * Restores buttons list data from data store.
-     */
-    void restoreButtonsFromDataStore();
-
 private:
-    //! A file system watcher for the desktop entry file directory
-    QFileSystemWatcher watcher;
-
-    //! DataStore handle for storing launcher button positions and entries
-    LauncherDataStore *dataStore_;
-
-    //! List of file types to support for desktop entries.
-    QStringList supportedDesktopEntryFileTypes;
-
-    //! Whether the launcher has been initialized or not
-    bool initialized;
-
     /*!
      * Activates launcher by initializing the Launcher if necessary and by updating the buttons.
      * Initialization restores launcher content from data store, reads the contents of the desktop
@@ -144,47 +130,61 @@ private:
     void activateLauncher();
 
     /*!
-     * Creates a launcher button instance from a MDesktopEntry.
+     * Update the given pages list by putting the desktop entries with known
+     * placements in the desired pages. Pages are created as necessary.
+     * There may be empty pages in the page list after calling this.
      *
-     * \param entry the MDesktopEntry to create a launcher button from
-     * \return a LauncherButton representing the MDesktopEntry
+     * \param pages the page list to be updated
      */
-    LauncherButton *createLauncherButton(const MDesktopEntry &entry);
+    void addDesktopEntriesWithKnownPlacements(QList<QSharedPointer<LauncherPage> > &pages);
 
     /*!
-     * Connects the necessary signal so that when the laucher button is clicked
-     * the correct actions are taken.
+     * Update the given pages list by putting the desktop entries with no known
+     * placements on the last page. Pages are created as necessary.
      *
-     * \param launcherButton The laucher button to connect
+     * \param pages the page list to be updated
      */
-    void connectLauncherButton(LauncherButton* launcherButton);
+    void addDesktopEntriesWithUnknownPlacements(QList<QSharedPointer<LauncherPage> > &pages);
 
     /*!
-     * Checks if launcher contains a button representing specific desktop entry
+     * Remove empty pages from the given page list.
      *
-     * \param desktopEntryFile Path of a desktop entry to be checked
-     * \return true if the launcher contains button representing the given desktop entry
+     * \param pages the page list to be updated
      */
-    bool contains(const QString &desktopEntryFile);
+    void removeEmptyPages(QList<QSharedPointer<LauncherPage> > &pages);
 
     /*!
-     * Updates buttons list data in data store.
+     * Creates a launcher button instance from a .desktop entry file.
+     *
+     * \param entry the path of the .desktop entry file to create a launcher button from
+     * \return a LauncherButton representing the .desktop entry file
      */
-    void updateButtonsInDataStore();
+    QSharedPointer<LauncherButton> createLauncherButton(const QString &desktopEntryPath);
 
     /*!
-     * Adds a new button to launcher
-     * \param entry Desktop entry from which to create the button
+     * Creates a map that contains the placement of each given desktop entry in the launcher.
+     * Only the items that have a recognized placement are included in the map.
+     * The placement is recognized when it is in the launcher/page/position format
+     * (for example "launcher/1/3").
+     *
+     * \return map containing the placement of each given desktop entry in the launcher
      */
-    void addNewLauncherButton(const MDesktopEntry &entry);
+    QMap<Launcher::Placement, QString> createPlacementMap(const QHash<QString, QVariant> &desktopEntryPlacements);
 
-    /*!
-     * Checks if desktop entry is valid for launcher
-     * \param entry Desktop entry to be validated
-     * \param acceptedTypes List of accepted entry types
-     * \return is desktop entry valid
-     */
-    bool isDesktopEntryValid(const MDesktopEntry &entry, const QStringList &acceptedTypes);
+    //! A string used for identifying content to be placed in the launcher
+    static const QString LOCATION_IDENTIFIER;
+
+    //! Separator character for the launcher data store values
+    static const char SECTION_SEPARATOR;
+
+    //! A template for the launcher content placement string in the data store
+    static const QString PLACEMENT_TEMPLATE;
+
+    //! LauncherDataStore for storing launcher button positions and entries
+    LauncherDataStore *dataStore;
+
+    //! Whether the launcher has been initialized or not
+    bool initialized;
 };
 
 #endif /* LAUNCHER_H */

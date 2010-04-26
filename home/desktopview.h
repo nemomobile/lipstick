@@ -29,6 +29,7 @@
 class Desktop;
 class Switcher;
 class QuickLaunchBar;
+class LauncherDataStore;
 class Launcher;
 class NotificationArea;
 class StatusIndicator;
@@ -114,11 +115,21 @@ private:
      */
     void hideLauncher();
 
+    /*!
+     * Creates a launcher data store.
+     *
+     * \return an initialized launcher data store
+     */
+    LauncherDataStore *createLauncherDataStore();
+
     //! The controller
     Desktop *desktop;
 
     //! The switcher widget
     Switcher *switcher;
+
+    //! Data store to store the launcher and quick launch bar item locations to
+    LauncherDataStore *launcherDataStore;
 
     //! Application launcher
     Launcher *launcher;

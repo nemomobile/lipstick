@@ -19,11 +19,11 @@
 #ifndef _UT_LAUNCHER_
 #define _UT_LAUNCHER_
 
-#include <QtTest/QtTest>
 #include <QObject>
 #include <QVector>
 
 class Launcher;
+class LauncherDataStore;
 class MApplication;
 class MWidget;
 
@@ -31,15 +31,9 @@ class Ut_Launcher : public QObject
 {
     Q_OBJECT
 
-public:
-    static QFileInfoList desktopFileInfoList;
-    static QFileInfoList directoryFileInfoList;
-    static QString       applicationStarted;
-    static bool          mApplicationIfProxyLaunchCalled;
-
 private:
-    //TestLauncher *launcher;
     Launcher *launcher;
+    LauncherDataStore *launcherDataStore;
     MApplication *app;
 
     void writeDesktopFile(QString fileName, QString type, QString name, QString iconName, QString exec);
@@ -62,22 +56,6 @@ private slots:
     // Executed once after last test case
     void cleanupTestCase();
 
-    // Test that the launcher initialization creates items for all desktop entries
-    void testInitialization();
-    // Test that the launcher includes an entry that is supposed to be shown in DUI
-    void testOnlyShowInDUI();
-    // Test that the launcher doesn't include an entry that isn't supposed to be shown in DUI
-    void testOnlyShowInNotDUI();
-    // Test that the launcher doesn't include an entry that is not supposed to be shown in DUI
-    void testNotShowInDUI();
-    // Test that the launcher includes an entry that is not supposed to be shown in some other environment than DUI
-    void testNotShowInNotDUI();
-    // Test that adding a new desktop entry to root adds a new widget
-    void testDesktopEntryAdd();
-    // Test that invalid files are not added
-    void testInvalidFiles();
-    // Test that removing a new desktop entry removes the widget
-    void testDesktopEntryRemove();
     // Test that launching an Application is attempted
     void testApplicationLaunched();
     // Test that launching a MApplication is attempted
@@ -86,7 +64,5 @@ private slots:
     void testPaging();
     // Test that empty page is removed from launcher
     void testEmptyPage();
-    // Test that with multiple pages buttons are added correctly and remain correct when buttons removed
-    void testAddingAndRemovingButtonsWithMultiplePages();
 };
 #endif //_UT_LAUNCHER_

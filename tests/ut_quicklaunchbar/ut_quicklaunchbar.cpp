@@ -22,54 +22,12 @@
 #include "launcher_stub.h"
 #include "launcherbutton_stub.h"
 #include "launcherdatastore_stub.h"
+#include "mockdatastore.h"
 
 #include <QtTest/QtTest>
-#include <QDir>
-#include <MDesktopEntry>
-
-QVariant TestDataStore::value(const QString &key) const
-{
-    return values[key];
-}
-
-bool TestDataStore::setValue(const QString &key, const QVariant &value)
-{
-    values[key] = value;
-    return true;
-}
-
-QStringList TestDataStore::allKeys() const
-{
-    return QStringList();
-}
-
-bool TestDataStore::contains(const QString &key) const
-{
-    return values.contains(key);
-}
-
-bool TestDataStore::createValue(const QString&, const QVariant&)
-{
-    return true;
-}
-
-void TestDataStore::remove(const QString &key)
-{
-    if (contains(key)) {
-        QVariant value = values.take(key);
-        emit valueChanged(key, value);
-    }
-}
-
-void TestDataStore::clear()
-{
-
-}
 
 void Ut_QuickLaunchBar::initTestCase()
 {
-    m_configuration = NULL;
-    m_subject = NULL;
 }
 
 void Ut_QuickLaunchBar::cleanupTestCase()
@@ -78,22 +36,19 @@ void Ut_QuickLaunchBar::cleanupTestCase()
 
 void Ut_QuickLaunchBar::init()
 {
-    MDataStore *configuration = new TestDataStore;
+    launcherDataStore = new LauncherDataStore(new MockDataStore);
 
-    launcherDataStore = new LauncherDataStore(configuration);
-    launcherDataStoreButtons.clear();
-    launcherDataStoreButtons.append(NULL);
-    launcherDataStoreButtons.append(new LauncherButton);
-    launcherDataStoreButtons.append(NULL);
-    launcherDataStoreButtons.append(NULL);
-    gLauncherDataStoreStub->stubSetReturnValue("quickLaunchBarButtons", launcherDataStoreButtons);
+    QHash<QString, QVariant> dataForAllDesktopEntries;
+    dataForAllDesktopEntries.insert("noPlacement", QVariant());
+    dataForAllDesktopEntries.insert("unknownPlacement", QVariant("unknown"));
+    dataForAllDesktopEntries.insert("validPlacement", QVariant("quicklaunchbar/1"));
+    gLauncherDataStoreStub->stubSetReturnValue("dataForAllDesktopEntries", dataForAllDesktopEntries);
 
     m_subject = new QuickLaunchBar(launcherDataStore);
     connect(this, SIGNAL(updateWidgetList()), m_subject, SLOT(updateWidgetList()));
     connect(this, SIGNAL(applicationLaunched(const QString &)), m_subject, SLOT(launchApplication(const QString &)));
     connect(this, SIGNAL(mApplicationLaunched(const QString &)), m_subject, SLOT(launchMApplication(const QString &)));
     connect(this, SIGNAL(launcherDataStoreChanged()), launcherDataStore, SIGNAL(dataStoreChanged()));
-
 }
 
 void Ut_QuickLaunchBar::cleanup()
@@ -130,14 +85,15 @@ void Ut_QuickLaunchBar::testLaunchMApplication()
 
 void Ut_QuickLaunchBar::testExternalConfigurationChangeIsNoticed()
 {
-    launcherDataStoreButtons[1] = NULL;
-    gLauncherDataStoreStub->stubSetReturnValue("quickLaunchBarButtons", launcherDataStoreButtons);
+    QHash<QString, QVariant> dataForAllDesktopEntries;
+    dataForAllDesktopEntries.insert("validPlacement", QVariant("quicklaunchbar/3"));
+    gLauncherDataStoreStub->stubSetReturnValue("dataForAllDesktopEntries", dataForAllDesktopEntries);
     emit launcherDataStoreChanged();
     QCOMPARE(m_subject->model()->widgets().count(), 4);
     QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(0)) == NULL);
     QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(1)) == NULL);
     QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(2)) == NULL);
-    QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(3)) == NULL);
+    QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(3)) != NULL);
 }
 
 QTEST_MAIN(Ut_QuickLaunchBar)

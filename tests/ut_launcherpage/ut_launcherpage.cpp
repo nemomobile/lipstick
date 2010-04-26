@@ -76,20 +76,6 @@ void Ut_LauncherPage::testAddButtonWhenPageIsFull()
     QCOMPARE(m_subject->model()->launcherButtons().count(), 1);
 }
 
-void Ut_LauncherPage::testContainsDesktopEntry()
-{
-    QSharedPointer<LauncherButton> button = createLauncherButton("my-entry-name");
-    bool added = m_subject->appendButton(button);
-    QVERIFY(added);
-
-    bool contains = m_subject->contains("my-entry-name");
-    QVERIFY(contains);
-
-    contains = m_subject->contains("bad-entry-name");
-    QVERIFY(!contains);
-
-}
-
 void Ut_LauncherPage::testRemoveButton()
 {
     m_subject->model()->setMaxButtons(1);
@@ -103,40 +89,6 @@ void Ut_LauncherPage::testRemoveButton()
 
     // Try to remove the same button again
     m_subject->removeButton(button);
-    QCOMPARE(m_subject->model()->launcherButtons().count(), 0);
-}
-
-void Ut_LauncherPage::testPruning()
-{
-    QStringList entryList;
-    entryList << "/my/dir/my-entry-name"
-              << "/my/dir/my-entry-name1"
-              << "/my/dir/my-entry-name2"
-              << "/my/dir/my-entry-name3"
-              << "/my/dir/my-entry-name4"
-              << "/my/dir/my-entry-name5";
-    m_subject->model()->setMaxButtons(6);
-    foreach (QString entry, entryList) {
-	QSharedPointer<LauncherButton> button = createLauncherButton(entry);
-	bool added = m_subject->appendButton(button);
-	QVERIFY(added);
-    }
-
-    entryList.takeAt(2);
-    QVERIFY(m_subject->prune(entryList));
-
-    /*
-      Check that the removed entry is pruned away
-     */
-    QCOMPARE(m_subject->model()->launcherButtons().count(), 5);
-    foreach (QSharedPointer<LauncherButton> button, m_subject->model()->launcherButtons()) {
-	QVERIFY(entryList.contains(button.data()->model()->desktopEntryFile()));
-    }
-
-    entryList.clear();
-
-    // verify that empty page returns false on pruning
-    QVERIFY(!m_subject->prune(entryList));
     QCOMPARE(m_subject->model()->launcherButtons().count(), 0);
 }
 

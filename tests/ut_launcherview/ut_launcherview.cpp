@@ -25,10 +25,12 @@
 #include "launcherpage.h"
 #include "launcherbuttonmodel.h"
 #include "launcherbutton_stub.h"
+#include "launcherdatastore_stub.h"
 #include "homeapplication_stub.h"
 #include "mainwindow_stub.h"
 #include "launcherview.h"
 #include "pagedviewport.h"
+#include "mockdatastore.h"
 
 #include "mwidgetcreator.h"
 M_REGISTER_WIDGET(PagedViewport)
@@ -89,7 +91,8 @@ void Ut_LauncherView::cleanupTestCase()
 
 void Ut_LauncherView::init()
 {
-    controller = new Launcher;
+    launcherDataStore = new LauncherDataStore(new MockDataStore);
+    controller = new Launcher(launcherDataStore);
     view = new LauncherView(controller);
     controller->setView(view);
     showWindowCount = 0;
@@ -99,8 +102,8 @@ void Ut_LauncherView::init()
 void Ut_LauncherView::cleanup()
 {
     delete controller;
+    delete launcherDataStore;
 }
-
 
 void Ut_LauncherView::testSetPageWidthUpdateWhenGeometryChanges()
 {

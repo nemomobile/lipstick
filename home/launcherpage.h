@@ -67,25 +67,6 @@ public:
      * \param button Button to be removed.
      */
     void removeButton(QSharedPointer<LauncherButton> button);
-
-    /*!
-     * Checks if this page contains a button representing specific desktop entry
-     * \param desktopEntryFile Path of a desktop entry to be checked
-     * \return true if the page contains a button representing desktop entry
-     */
-    bool contains(const QString &desktopEntryFile) const;
-
-     /*!
-     * Removes non-existing buttons from this page.
-     * \param entryList List of entries to compare against
-     * \param directories Directory paths for which pruning is done. If there
-     * are entries that are not in the paths used by the launcher,
-     * those entries are pruned. For entries that are in the paths used,
-     * stale entries (for which a desktop entry is no longer in place)
-     * are pruned.
-     * \return true if page still contais buttons after pruning
-     */
-    bool prune(QStringList entryList);
 };
 
 #endif

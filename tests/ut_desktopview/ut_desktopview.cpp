@@ -34,6 +34,7 @@
 #include "switcher_stub.h"
 #include "quicklaunchbar_stub.h"
 #include "launcher_stub.h"
+#include "launcherdatastore_stub.h"
 #include "windowinfo_stub.h"
 #include "homeapplication_stub.h"
 #include "mainwindow_stub.h"

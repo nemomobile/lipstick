@@ -51,30 +51,3 @@ void LauncherPage::removeButton(QSharedPointer<LauncherButton> button)
    buttons.removeOne(button);
    model()->setLauncherButtons(buttons);
 }
-
-bool LauncherPage::contains(const QString &desktopEntryFile) const
-{
-    bool containsButton = false;
-    foreach (QSharedPointer<LauncherButton> button, model()->launcherButtons()) {
-       containsButton = desktopEntryFile == button->model()->desktopEntryFile();
-       if (containsButton) {
-           break;
-       }
-    }
-    return containsButton;
-}
-
-bool LauncherPage::prune(QStringList entryList)
-{
-    QList< QSharedPointer<LauncherButton> > newButtons(model()->launcherButtons());
-    foreach (QSharedPointer<LauncherButton> button, newButtons) {
-        QString fileName = button->model()->desktopEntryFile();
-
-        if (!entryList.contains(fileName)) {
-            newButtons.removeOne(button);
-        }
-    }
-    model()->setLauncherButtons(newButtons);
-
-    return !newButtons.isEmpty();
-}

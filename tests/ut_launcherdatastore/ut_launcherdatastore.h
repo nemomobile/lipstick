@@ -20,30 +20,11 @@
 #ifndef UT_LAUNCHERDATASTORE_H
 #define UT_LAUNCHERDATASTORE_H
 
-#include <QtTest/QtTest>
 #include <QObject>
-#include <MDataStore>
 
 class MApplication;
 class LauncherDataStore;
-
-class TestDataStore : public MDataStore
-{
-    //! \reimp
-    // From MDataAccess
-    virtual QVariant value(const QString &key) const;
-    virtual bool setValue(const QString &key, const QVariant& value);
-    virtual QStringList allKeys() const;
-    virtual bool contains(const QString &key) const;
-
-    // From MDataStore
-    virtual bool createValue (const QString &key, const QVariant &value);
-    virtual void remove (const QString &key);
-    virtual void clear();
-    //! \reimp_end
-    
-};
-
+class MockDataStore;
 
 class Ut_LauncherDataStore : public QObject
 {
@@ -60,21 +41,17 @@ private slots:
     void cleanup();
 
     // Test cases
-    void testAddingLauncherItemsToAnEmptyStore();
-    void testAddingLauncherItemsToNonEmptyStore();
-    void testGettingLauncherButtonsFromAnEmptyDataStore();
-    void testGettingLauncherButtonsFromDataStore();
-    void testLauncherButtonLocation();
-    void testGettingQuickLaunchBarButtonsWithInvalidDesktopEntries();
-    void testGettingQuickLaunchBarButtonsWithOneValidDesktopEntry();
-    void testGettingQuickLaunchBarButtonsWithEmptyPlaces();
+    void testUpdatingFromDesktopEntryFiles();
+    void testUpdatingDataForDesktopEntry();
+
+signals:
+    void directoryChanged();
 
 private:
     // MApplication
     MApplication *app;
-    // The object being tested
-    LauncherDataStore *m_subject;
-    TestDataStore* testStore;
+    // Data store for testing
+    MockDataStore* mockStore;
 };
 
 #endif

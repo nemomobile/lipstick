@@ -16,7 +16,6 @@
 ** of this file.
 **
 ****************************************************************************/
-
 #ifndef QUICKLAUNCHBAR_STUB
 #define QUICKLAUNCHBAR_STUB
 
@@ -28,25 +27,21 @@
 // FIXME - stubgen is not yet finished
 class QuickLaunchBarStub : public StubBase {
   public:
-  virtual void QuickLaunchBarConstructor(QGraphicsItem *parent);
-  virtual void QuickLaunchBarConstructor(LauncherDataStore* configuration, QGraphicsItem *parent);
+  virtual void QuickLaunchBarConstructor(LauncherDataStore *configuration, QGraphicsItem *parent);
   virtual void QuickLaunchBarDestructor();
   virtual void launchApplication(const QString &application);
   virtual void launchMApplication(const QString &service);
-  virtual void initializeDataStore();
   virtual void updateWidgetList();
-};
+  virtual LauncherButton * createLauncherButton(const QString &desktopEntryPath);
+  virtual QMap<QuickLaunchBar::Placement, QString> createPlacementMap(const QHash<QString, QVariant> &desktopEntryPlacements);
+}; 
 
 // 2. IMPLEMENT STUB
-void QuickLaunchBarStub::QuickLaunchBarConstructor(QGraphicsItem *parent) {
-  Q_UNUSED(parent);
-}
-
 void QuickLaunchBarStub::QuickLaunchBarConstructor(LauncherDataStore *configuration, QGraphicsItem *parent) {
-    Q_UNUSED(configuration);
-    Q_UNUSED(parent);
-}
+  Q_UNUSED(configuration);
+  Q_UNUSED(parent);
 
+}
 void QuickLaunchBarStub::QuickLaunchBarDestructor() {
 
 }
@@ -62,12 +57,22 @@ void QuickLaunchBarStub::launchMApplication(const QString &service) {
   stubMethodEntered("launchMApplication",params);
 }
 
-void QuickLaunchBarStub::initializeDataStore() {
-  stubMethodEntered("initializeDataStore");
-}
-
 void QuickLaunchBarStub::updateWidgetList() {
   stubMethodEntered("updateWidgetList");
+}
+
+LauncherButton * QuickLaunchBarStub::createLauncherButton(const QString &desktopEntryPath) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<const QString & >(desktopEntryPath));
+  stubMethodEntered("createLauncherButton",params);
+  return stubReturnValue<LauncherButton *>("createLauncherButton");
+}
+
+QMap<QuickLaunchBar::Placement, QString> QuickLaunchBarStub::createPlacementMap(const QHash<QString, QVariant> &desktopEntryPlacements) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<const QHash<QString, QVariant> & >(desktopEntryPlacements));
+  stubMethodEntered("createPlacementMap",params);
+  return stubReturnValue<QMap<QuickLaunchBar::Placement, QString> >("createPlacementMap");
 }
 
 
@@ -78,10 +83,6 @@ QuickLaunchBarStub* gQuickLaunchBarStub = &gDefaultQuickLaunchBarStub;
 
 
 // 4. CREATE A PROXY WHICH CALLS THE STUB
-QuickLaunchBar::QuickLaunchBar(QGraphicsItem *parent) {
-  gQuickLaunchBarStub->QuickLaunchBarConstructor(parent);
-}
-
 QuickLaunchBar::QuickLaunchBar(LauncherDataStore *configuration, QGraphicsItem *parent) {
   gQuickLaunchBarStub->QuickLaunchBarConstructor(configuration, parent);
 }
@@ -98,12 +99,16 @@ void QuickLaunchBar::launchMApplication(const QString &service) {
   gQuickLaunchBarStub->launchMApplication(service);
 }
 
-void QuickLaunchBar::initializeDataStore() {
-  gQuickLaunchBarStub->initializeDataStore();
-}
-
 void QuickLaunchBar::updateWidgetList() {
   gQuickLaunchBarStub->updateWidgetList();
+}
+
+LauncherButton * QuickLaunchBar::createLauncherButton(const QString &desktopEntryPath) {
+  return gQuickLaunchBarStub->createLauncherButton(desktopEntryPath);
+}
+
+QMap<QuickLaunchBar::Placement, QString> QuickLaunchBar::createPlacementMap(const QHash<QString, QVariant> &desktopEntryPlacements) {
+  return gQuickLaunchBarStub->createPlacementMap(desktopEntryPlacements);
 }
 
 

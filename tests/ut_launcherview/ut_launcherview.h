@@ -27,6 +27,7 @@
 class MApplication;
 class MApplicationWindow;
 class Launcher;
+class LauncherDataStore;
 
 class Ut_LauncherView : public QObject
 {
@@ -55,6 +56,7 @@ private:
     MApplicationWindow* appWindow;
     // The object being tested
     Launcher *controller;
+    LauncherDataStore *launcherDataStore;
     LauncherView *view;
 };
 

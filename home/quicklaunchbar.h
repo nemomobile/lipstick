@@ -21,11 +21,10 @@
 #define QUICKLAUNCHBAR_H
 
 #include <MWidgetController>
-#include <QFileSystemWatcher>
 #include "quicklaunchbarmodel.h"
 
-class MDataStore;
 class LauncherDataStore;
+class LauncherButton;
 
 /*!
  * A widget for showing a quick launch bar.
@@ -36,11 +35,13 @@ class QuickLaunchBar : public MWidgetController
     M_CONTROLLER(QuickLaunchBar)
 
 public:
-    /*!
-     * Constructs a new QuickLaunchBar.
-     * \param parent the parent object for this object if any.
-     */
-    explicit QuickLaunchBar(QGraphicsItem *parent = NULL);
+    //! A class for storing, parsing and ordering the placement information of the items
+    class Placement {
+    public:
+        Placement(const QString &placement);
+
+        int position;
+    };
 
     /*!
      * Constructs a new QuickLaunchBar.
@@ -80,26 +81,41 @@ private slots:
      */
     void launchMApplication(const QString &service);
 
-    //! Updates the widget list based on the contents of the data store
+    /*!
+     * \brief Updates the widget list based on the contents of the data store
+     */
     void updateWidgetList();
 
 private:
-    //! Initializes the configuration data store
-    void initializeDataStore();
+    /*!
+     * Creates a launcher button instance from a .desktop entry file.
+     *
+     * \param entry the path of the .desktop entry file to create a launcher button from
+     * \return a LauncherButton representing the .desktop entry file
+     */
+    LauncherButton *createLauncherButton(const QString &desktopEntryPath);
+
+    /*!
+     * Creates a map that contains the placement of each given desktop entry in the launcher.
+     * Only the items that have a recognized placement are included in the map.
+     * The placement is recognized when it is in the quicklaunchbar/position format
+     * (for example "quicklaunchbar/3").
+     *
+     * \return map containing the placement of each given desktop entry in the quick launch bar
+     */
+    QMap<QuickLaunchBar::Placement, QString> createPlacementMap(const QHash<QString, QVariant> &desktopEntryPlacements);
 
     //! The number of launcher buttons in the quick launch bar
     static const int NUMBER_OF_LAUNCHER_BUTTONS;
 
+    //! A string used for identifying content to be placed in the quick launch bar
+    static const QString LOCATION_IDENTIFIER;
+
+    //! Separator character for the launcher data store values
+    static const char SECTION_SEPARATOR;
+
     //! The data store for quick launch bar configuration
-    LauncherDataStore *configurationDataStore;
-
-    /*!
-     * An initialization helper function that should be called once from any constructor.
-     */
-    void init();
-
-    //! A file system watcher for the desktop entry file directory
-    QFileSystemWatcher desktopDirectoryWatcher;
+    LauncherDataStore *dataStore;
 };
 
 #endif

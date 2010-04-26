@@ -26,6 +26,7 @@
 class MApplication;
 class QuickLaunchBar;
 class QuickLaunchBarView;
+class LauncherDataStore;
 
 class Ut_QuickLaunchBarView : public QObject
 {
@@ -53,6 +54,8 @@ private:
     QuickLaunchBar *controller;
     // The object being tested
     QuickLaunchBarView *m_subject;
+    // Launcher data store
+    LauncherDataStore *launcherDataStore;
 };
 
 #endif
