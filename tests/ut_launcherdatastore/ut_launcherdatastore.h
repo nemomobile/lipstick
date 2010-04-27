@@ -41,11 +41,22 @@ private slots:
     void cleanup();
 
     // Test cases
-    void testUpdatingFromDesktopEntryFiles();
+    void testUpdateStartedDuringInitializationWhenApplicationsDirectoryNotEmpty();
+    void testUpdateNotStartedDuringInitializationWhenApplicationsDirectoryEmpty();
+    void testUpdateStartedWhenApplicationsDirectoryChanges();
+    void testUpdateNotStartedWhenApplicationsDirectoryEmpty();
+    void testUpdateNotStartedWhenInProgress();
+    void testProcessUpdateQueueDoesNothingWhenQueueEmpty();
+    void testProcessUpdateQueueProcessesNFilesAtATime();
+    void testProcessUpdateQueueFinishesProcessingCorrectly();
+    void testProcessUpdateQueueRemovesDeletedFilesWhenDone();
+    void testProcessUpdateQueueRestartsIfRequested();
+    void testProcessUpdateQueueFiltersDesktopFiles();
     void testUpdatingDataForDesktopEntry();
 
 signals:
     void directoryChanged();
+    void timeout();
 
 private:
     // MApplication

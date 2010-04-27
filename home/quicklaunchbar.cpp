@@ -31,7 +31,15 @@ QuickLaunchBar::QuickLaunchBar(LauncherDataStore *configuration, QGraphicsItem *
         MWidgetController(new QuickLaunchBarModel, parent),
         dataStore(configuration)
 {
-    updateWidgetList();
+    // Fill in the model with empty widgets
+    QList<MWidget *> widgets;
+    for (int i = 0; i < NUMBER_OF_LAUNCHER_BUTTONS; i++) {
+        widgets.append(new MWidget);
+    }
+    model()->setWidgets(widgets);
+
+    // Listen to changes in data store contents
+    connect(dataStore, SIGNAL(dataStoreChanged()), this, SLOT(updateWidgetList()));
 }
 
 QuickLaunchBar::~QuickLaunchBar()

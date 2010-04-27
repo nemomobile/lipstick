@@ -27,10 +27,16 @@
 
 static const QString KEY_PREFIX = "DesktopEntries";
 static const char* const FILE_FILTER = "*.desktop";
+static const int FILES_PROCESSED_AT_ONCE = 3;
 
 LauncherDataStore::LauncherDataStore(MDataStore* dataStore) :
-        store(dataStore)
+        store(dataStore),
+        updatePending(false)
 {
+    connect(&processUpdateQueueTimer, SIGNAL(timeout()), this, SLOT(processUpdateQueue()));
+    processUpdateQueueTimer.setSingleShot(true);
+    processUpdateQueueTimer.setInterval(0);
+
     supportedDesktopEntryFileTypes << "Application";
     updateDataFromDesktopEntryFiles();
 
@@ -73,11 +79,37 @@ bool LauncherDataStore::updateDataForDesktopEntry(const QString &entryPath, cons
 
 void LauncherDataStore::updateDataFromDesktopEntryFiles()
 {
+    if (updateQueue.isEmpty()) {
+        // Only start an update if one isn't already in progress
+        startProcessingUpdateQueue();
+    } else {
+        // An update is already in progress but a new one has been requested: raise the update pending flag
+        updatePending = true;
+    }
+}
+
+void LauncherDataStore::startProcessingUpdateQueue()
+{
+    updatePending = false;
+    updateQueue = QDir(APPLICATIONS_DIRECTORY, FILE_FILTER).entryInfoList(QDir::Files);
+    updateValidKeys.clear();
+    if (!updateQueue.isEmpty()) {
+        processUpdateQueueTimer.start();
+    }
+}
+
+void LauncherDataStore::processUpdateQueue()
+{
+    if (updateQueue.isEmpty()) {
+        // If the update queue is empty do nothing
+        return;
+    }
+
     // Disconnect the dataStoreChanged() signal connection during updates
     store->disconnect(this);
 
-    QStringList validKeys;
-    foreach(QFileInfo fileInfo, QDir(APPLICATIONS_DIRECTORY, FILE_FILTER).entryInfoList(QDir::Files)) {
+    for (int i = 0; i < FILES_PROCESSED_AT_ONCE && !updateQueue.isEmpty(); i++) {
+        QFileInfo fileInfo = updateQueue.takeFirst();
         QString desktopEntryPath(fileInfo.absoluteFilePath());
         QString key = entryPathToKey(desktopEntryPath);
 
@@ -88,24 +120,34 @@ void LauncherDataStore::updateDataFromDesktopEntryFiles()
                 store->createValue(key, QVariant());
 
                 // Keep track of all valid desktop entries
-                validKeys.append(key);
+                updateValidKeys.append(key);
             }
         } else {
             // Keep track of all valid desktop entries (consider already added desktop entries to be valid)
-            validKeys.append(key);
+            updateValidKeys.append(key);
         }
     }
 
-    QStringList allKeys(store->allKeys());
-    foreach (const QString &key, allKeys) {
-        if (!validKeys.contains(key)) {
-            // Remove all desktop entries that are not valid
-            store->remove(key);
+    if (updateQueue.isEmpty()) {
+        // When the update queue has been processed remove all desktop entries that are not valid
+        QStringList allKeys(store->allKeys());
+        foreach (const QString &key, allKeys) {
+            if (!updateValidKeys.contains(key)) {
+                store->remove(key);
+            }
         }
-    }
 
-    // Emit a dataStoreChanged() signal since the contents have changed
-    emit dataStoreChanged();
+        // Emit a dataStoreChanged() signal since the contents have changed
+        emit dataStoreChanged();
+
+        if (updatePending) {
+            // If another update is pending start processing the queue again
+            startProcessingUpdateQueue();
+        }
+    } else {
+        // There are still files in the queue: restart the timer
+        processUpdateQueueTimer.start();
+    }
 
     // Emit a dataStoreChanged() signal if something changes in the data store during runtime
     connect(store, SIGNAL(valueChanged(QString, QVariant)), this, SIGNAL(dataStoreChanged()));

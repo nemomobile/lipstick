@@ -49,7 +49,7 @@ private slots:
     void testInitialization();
     void testLaunchApplication();
     void testLaunchMApplication();
-    void testExternalConfigurationChangeIsNoticed();
+    void testLauncherDataStoreChanged();
 
 private:
     // The object being tested

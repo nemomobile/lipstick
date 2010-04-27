@@ -38,12 +38,6 @@ void Ut_QuickLaunchBar::init()
 {
     launcherDataStore = new LauncherDataStore(new MockDataStore);
 
-    QHash<QString, QVariant> dataForAllDesktopEntries;
-    dataForAllDesktopEntries.insert("noPlacement", QVariant());
-    dataForAllDesktopEntries.insert("unknownPlacement", QVariant("unknown"));
-    dataForAllDesktopEntries.insert("validPlacement", QVariant("quicklaunchbar/1"));
-    gLauncherDataStoreStub->stubSetReturnValue("dataForAllDesktopEntries", dataForAllDesktopEntries);
-
     m_subject = new QuickLaunchBar(launcherDataStore);
     connect(this, SIGNAL(updateWidgetList()), m_subject, SLOT(updateWidgetList()));
     connect(this, SIGNAL(applicationLaunched(const QString &)), m_subject, SLOT(launchApplication(const QString &)));
@@ -61,10 +55,10 @@ void Ut_QuickLaunchBar::cleanup()
 
 void Ut_QuickLaunchBar::testInitialization()
 {
-    // There should be 4 widgets; second should be a LauncherButton
+    // Initially there should be 4 widgets but no LauncherButtons
     QCOMPARE(m_subject->model()->widgets().count(), 4);
     QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(0)) == NULL);
-    QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(1)) != NULL);
+    QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(1)) == NULL);
     QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(2)) == NULL);
     QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(3)) == NULL);
 }
@@ -83,7 +77,7 @@ void Ut_QuickLaunchBar::testLaunchMApplication()
     QCOMPARE(gLauncherStub->stubLastCallTo("startMApplication").parameter<QString>(0), QString("testService"));
 }
 
-void Ut_QuickLaunchBar::testExternalConfigurationChangeIsNoticed()
+void Ut_QuickLaunchBar::testLauncherDataStoreChanged()
 {
     QHash<QString, QVariant> dataForAllDesktopEntries;
     dataForAllDesktopEntries.insert("validPlacement", QVariant("quicklaunchbar/3"));

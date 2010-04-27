@@ -29,24 +29,14 @@ const QString Launcher::PLACEMENT_TEMPLATE = LOCATION_IDENTIFIER + SECTION_SEPAR
 
 Launcher::Launcher(LauncherDataStore *dataStore, QGraphicsItem *parent) :
     MWidgetController(new LauncherModel, parent),
-    dataStore(dataStore),
-    initialized(false)
+    dataStore(dataStore)
 {
+    // Listen to changes in data store contents
+    connect(dataStore, SIGNAL(dataStoreChanged()), this, SLOT(updatePagesFromDataStore()));
 }
 
 Launcher::~Launcher()
 {
-}
-
-void Launcher::activateLauncher()
-{
-    if (!initialized) {
-        // Restore previous button order from datastore
-        updatePagesFromDataStore();
-
-        // The launcher has now been initialized
-        initialized = true;
-    }
 }
 
 void Launcher::launchApplication(const QString &application)
@@ -57,14 +47,6 @@ void Launcher::launchApplication(const QString &application)
 void Launcher::launchMApplication(const QString &serviceName)
 {
     startMApplication(serviceName);
-}
-
-void Launcher::setEnabled(bool enabled)
-{
-    QGraphicsItem::setEnabled(enabled);
-    if (enabled) {
-        activateLauncher();
-    }
 }
 
 bool Launcher::startApplication(const QString &application)
@@ -103,7 +85,7 @@ void Launcher::updatePagesFromDataStore()
     removeEmptyPages(pages);
     model()->setLauncherPages(pages);
 
-    // Listen for changes in ordering data
+    // Reconnect signals
     connect(dataStore, SIGNAL(dataStoreChanged()), this, SLOT(updatePagesFromDataStore()));
 }
 

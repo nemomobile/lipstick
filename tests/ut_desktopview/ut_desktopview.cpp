@@ -170,12 +170,12 @@ void Ut_DesktopView::testShowingHidingLauncher()
     // Show launcher
     emit launcherButtonClicked();
     QCOMPARE(desktopView->launcherWindow->isVisible(), true);
-    QCOMPARE(gLauncherStub->stubLastCallTo("setEnabled").parameter<bool>(0), true);
+    QCOMPARE(desktopView->launcher->isEnabled(), true);
 
     // Hide launcher
     emit launcherButtonClicked();
     QCOMPARE(desktopView->launcherWindow->isVisible(), false);
-    QCOMPARE(gLauncherStub->stubLastCallTo("setEnabled").parameter<bool>(0), false);
+    QCOMPARE(desktopView->launcher->isEnabled(), false);
 }
 
 QTEST_APPLESS_MAIN(Ut_DesktopView)

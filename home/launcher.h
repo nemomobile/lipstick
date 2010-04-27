@@ -76,13 +76,6 @@ public:
     virtual ~Launcher();
 
     /*!
-     * If enabled is true, the launcher is activated (Launcher::activateLauncher()) and enabled (items can be clicked, button is visible); otherwise, it is disabled.
-     *
-     * \param enabled if true, the launcher is enabled; otherwise, it is disabled
-     */
-    void setEnabled(bool enabled);
-
-    /*!
      * Starts an application.
      *
      * \param application the application to be started
@@ -121,14 +114,6 @@ private slots:
     void launchMApplication(const QString &service);
 
 private:
-    /*!
-     * Activates launcher by initializing the Launcher if necessary and by updating the buttons.
-     * Initialization restores launcher content from data store, reads the contents of the desktop
-     * entry file directories, update buttons according to entries and starts to monitor desktop
-     * entry directories.
-     */
-    void activateLauncher();
-
     /*!
      * Update the given pages list by putting the desktop entries with known
      * placements in the desired pages. Pages are created as necessary.

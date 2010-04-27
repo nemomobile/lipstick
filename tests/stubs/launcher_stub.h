@@ -29,13 +29,11 @@ class LauncherStub : public StubBase {
   public:
   virtual void LauncherConstructor(LauncherDataStore *dataStore, QGraphicsItem *parent);
   virtual void LauncherDestructor();
-  virtual void setEnabled(bool enabled);
   virtual bool startApplication(const QString &application);
   virtual bool startMApplication(const QString &serviceName);
   virtual void updatePagesFromDataStore();
   virtual void launchApplication(const QString &application);
   virtual void launchMApplication(const QString &service);
-  virtual void activateLauncher();
   virtual QSharedPointer<LauncherButton> createLauncherButton(const QString &desktopEntryPath);
   virtual QMap<Launcher::Placement, QString> createPlacementMap(const QHash<QString, QVariant> &desktopEntryPlacements);
 }; 
@@ -49,12 +47,6 @@ void LauncherStub::LauncherConstructor(LauncherDataStore *dataStore, QGraphicsIt
 void LauncherStub::LauncherDestructor() {
 
 }
-void LauncherStub::setEnabled(bool enabled) {
-  QList<ParameterBase*> params;
-  params.append( new Parameter<bool >(enabled));
-  stubMethodEntered("setEnabled",params);
-}
-
 bool LauncherStub::startApplication(const QString &application) {
   QList<ParameterBase*> params;
   params.append( new Parameter<QString>(application));
@@ -83,10 +75,6 @@ void LauncherStub::launchMApplication(const QString &service) {
   QList<ParameterBase*> params;
   params.append( new Parameter<QString>(service));
   stubMethodEntered("launchMApplication",params);
-}
-
-void LauncherStub::activateLauncher() {
-  stubMethodEntered("activateLauncher");
 }
 
 QSharedPointer<LauncherButton> LauncherStub::createLauncherButton(const QString &desktopEntryPath) {
@@ -119,10 +107,6 @@ Launcher::~Launcher() {
   gLauncherStub->LauncherDestructor();
 }
 
-void Launcher::setEnabled(bool enabled) {
-  gLauncherStub->setEnabled(enabled);
-}
-
 bool Launcher::startApplication(const QString &application) {
   return gLauncherStub->startApplication(application);
 }
@@ -141,10 +125,6 @@ void Launcher::launchApplication(const QString &application) {
 
 void Launcher::launchMApplication(const QString &service) {
   gLauncherStub->launchMApplication(service);
-}
-
-void Launcher::activateLauncher() {
-  gLauncherStub->activateLauncher();
 }
 
 QSharedPointer<LauncherButton> Launcher::createLauncherButton(const QString &desktopEntryPath) {

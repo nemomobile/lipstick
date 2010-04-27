@@ -32,6 +32,8 @@ class LauncherDataStoreStub : public StubBase {
   virtual QHash<QString, QVariant> dataForAllDesktopEntries();
   virtual bool updateDataForDesktopEntry(const QString &entryPath, const QVariant &data);
   virtual void updateDataFromDesktopEntryFiles();
+  virtual void processUpdateQueue();
+  virtual void startProcessingUpdateQueue();
   virtual bool isDesktopEntryValid(const MDesktopEntry &entry, const QStringList &acceptedTypes);
   virtual QString entryPathToKey(QString entryPath);
   virtual QString keyToEntryPath(QString key);
@@ -60,6 +62,14 @@ bool LauncherDataStoreStub::updateDataForDesktopEntry(const QString &entryPath, 
 
 void LauncherDataStoreStub::updateDataFromDesktopEntryFiles() {
   stubMethodEntered("updateDataFromDesktopEntryFiles");
+}
+
+void LauncherDataStoreStub::processUpdateQueue() {
+  stubMethodEntered("processUpdateQueue");
+}
+
+void LauncherDataStoreStub::startProcessingUpdateQueue() {
+  stubMethodEntered("startProcessingUpdateQueue");
 }
 
 bool LauncherDataStoreStub::isDesktopEntryValid(const MDesktopEntry &entry, const QStringList &acceptedTypes) {
@@ -110,6 +120,14 @@ bool LauncherDataStore::updateDataForDesktopEntry(const QString &entryPath, cons
 
 void LauncherDataStore::updateDataFromDesktopEntryFiles() {
   gLauncherDataStoreStub->updateDataFromDesktopEntryFiles();
+}
+
+void LauncherDataStore::processUpdateQueue() {
+  gLauncherDataStoreStub->processUpdateQueue();
+}
+
+void LauncherDataStore::startProcessingUpdateQueue() {
+  gLauncherDataStoreStub->startProcessingUpdateQueue();
 }
 
 bool LauncherDataStore::isDesktopEntryValid(const MDesktopEntry &entry, const QStringList &acceptedTypes) {

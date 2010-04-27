@@ -167,8 +167,10 @@ DesktopView::DesktopView(Desktop *desktop) :
     connect(launcher, SIGNAL(launcherButtonClicked()), this, SLOT(toggleLauncher()));
     launcherWindow->setLayout(windowLayout);
     launcherWindow->setObjectName("LauncherWindow");
-
     windowLayout->addItem(launcher);
+
+    // Register the launcher window into the scene manager to make sure launcher page styling works in both orientations
+    MainWindow::instance()->sceneManager()->appearSceneWindowNow(launcherWindow);
     MainWindow::instance()->sceneManager()->disappearSceneWindowNow(launcherWindow);
 
     // Put the applet space inside a pannable viewport

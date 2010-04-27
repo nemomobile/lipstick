@@ -24,6 +24,8 @@
 #include <QHash>
 #include <QStringList>
 #include <QFileSystemWatcher>
+#include <QTimer>
+#include <QFileInfoList>
 
 class MDataStore;
 class LauncherPage;
@@ -85,14 +87,30 @@ signals:
 
 private slots:
     /*!
-     * Updates the contents of the data store from the desktop entries.
+     * Updates the contents of the data store from the desktop entries in
+     * APPLICATIONS_DIRECTORY. If no update is currently in progress the
+     * .desktop entry file list is added to the update queue and the
+     * update queue processing timer is started. If an update is already
+     * in progress the updatePending flag is raised to indicate that
+     * another update should be done.
+     */
+    void updateDataFromDesktopEntryFiles();
+
+    /*!
+     * Updates the contents of the data store from the desktop entries in
+     * the update queue.
      * New .desktop files are added to the data store with no associated data.
      * .desktop files that do not exist anymore are removed from the data store.
      * The dataStoreChanged() signal is emitted after changes are made.
      */
-    void updateDataFromDesktopEntryFiles();
+    void processUpdateQueue();
 
 private:
+    /*!
+     * Starts processing of the update queue.
+     */
+    void startProcessingUpdateQueue();
+
     /*!
      * Checks if desktop entry is valid.
      *
@@ -132,6 +150,18 @@ private:
 
     //! The actual data store where the data is stored.
     MDataStore *store;
+
+    //! Whether an update is pending
+    bool updatePending;
+
+    //! A timer for processing the update queue
+    QTimer processUpdateQueueTimer;
+
+    //! The update queue
+    QFileInfoList updateQueue;
+
+    //! Valid keys found during the update
+    QStringList updateValidKeys;
 };
 
 #endif
