@@ -173,12 +173,6 @@ void SwitcherView::animateDetailView(const QPointF &pannedPos)
     }
 }
 
-void SwitcherView::setGeometry(const QRectF &rect)
-{
-    MWidgetView::setGeometry(rect);
-    updateSnapInterval();
-}
-
 void SwitcherView::setupModel()
 {
     MWidgetView::setupModel();
@@ -196,12 +190,13 @@ void SwitcherView::applySwitcherMode()
     } else {
         disconnect(viewport, 0, this, 0);
         connect(MainWindow::instance()->sceneManager(), SIGNAL(orientationChangeFinished(M::Orientation)), this, SLOT(updateButtons()));
+        connect(MainWindow::instance()->sceneManager(), SIGNAL(orientationAboutToChange(M::Orientation)), this, SLOT(hideButtons()));
 
         pannedLayout->setPolicy(overviewPolicy);
         controller->setObjectName("OverviewSwitcher");
     }
 
-    updateButtonModes();
+    updateButtonModesAndPageCount();
 }
 
 void SwitcherView::updateData(const QList<const char*>& modifications)
@@ -233,31 +228,63 @@ void SwitcherView::updateData(const QList<const char*>& modifications)
     }
 }
 
-void SwitcherView::updateButtons()
+void SwitcherView::hideButtons()
 {
-    focusedSwitcherButton = std::min(focusedSwitcherButton, model()->buttons().size() - 1);
-    focusedSwitcherButton = std::max(focusedSwitcherButton, 0);
+    foreach (QSharedPointer<SwitcherButton> button, model()->buttons()) {
+        button.data()->setVisible(false);
+    }
+
     // Remove all widgets from the layout (do not destroy them)
     while (pannedLayout->count() > 0) {
         pannedLayout->removeAt(0);
     }
+}
+
+void SwitcherView::updateButtons()
+{
+    focusedSwitcherButton = std::min(focusedSwitcherButton, model()->buttons().size() - 1);
+    focusedSwitcherButton = std::max(focusedSwitcherButton, 0);
+
+    while (pannedLayout->count() > 0) {
+        pannedLayout->removeAt(0);
+    }
+
+    /* Recreate the GridLayoutPolicy to keep the pannedWidget's size correct.
+       TODO: Can hopefully be removed, pending on bug 165683 */
+    MGridLayoutPolicy* tmp;
+
+    tmp = overviewPolicy;
+
+    overviewPolicy = new MGridLayoutPolicy(pannedLayout);
+    overviewPolicy->setSpacing(0);
+    overviewPolicy->setObjectName("OverviewPolicy");
+
+    delete tmp;
+
     // Add widgets from the model to the layout
     foreach (QSharedPointer<SwitcherButton> button, model()->buttons()) {
         detailPolicy->addItem(button.data());
         addButtonInOverviewPolicy(button);
     }
 
-    updateButtonModes();
+    updateButtonModesAndPageCount();
+
+    foreach (QSharedPointer<SwitcherButton> button, model()->buttons()) {
+        button.data()->setVisible(true);
+    }
 }
 
-void SwitcherView::updateButtonModes()
+void SwitcherView::updateButtonModesAndPageCount()
 {
+    int pages;
+
     int buttonCount = model()->buttons().count();
     if (model()->switcherMode() == SwitcherModel::Detailview) {
         foreach (QSharedPointer<SwitcherButton> button, model()->buttons()) {
             button.data()->setObjectName("DetailviewButton");
             button.data()->model()->setViewMode(SwitcherButtonModel::Medium);
         }
+        pages = model()->buttons().count();
     } else {
         foreach (QSharedPointer<SwitcherButton> button, model()->buttons()) {
             button.data()->setObjectName("OverviewButton");
@@ -277,7 +304,10 @@ void SwitcherView::updateButtonModes()
                 }
             }
         }
+        pages = ceilf((qreal)model()->buttons().count()/(style()->columnsPerPage()*style()->rowsPerPage()));
     }
+
+    viewport->updatePageCount(pages);
 
     updateContentsMarginsAndSpacings();
 }
@@ -296,27 +326,6 @@ void SwitcherView::updateFocusedButton(int currentPage)
         if (pos >= 0 && pos < model()->buttons().count()) {
             focusedSwitcherButton = pos;
         }
-    }
-}
-
-void SwitcherView::updateSnapInterval()
-{
-    if (!model()->buttons().empty()) {
-        // For simplicity we assume that 
-        // 1. every button is of constant size and
-        // 2. preferred == minimum size == maximum size
-        SwitcherButton* button = model()->buttons().first().data();
-        if (model()->switcherMode() == SwitcherModel::Detailview) {
-            /*
-             Practically we enable margins to the panned layout in order to
-             align the centers of the switcher button and the mpannableviewport.
-             */
-	    viewport->updatePageWidth(button->preferredSize().width());
-        } else {
-	    viewport->updatePageWidth(geometry().width());
-        }
-    } else {
-	viewport->updatePageWidth(0);
     }
 }
 
@@ -342,12 +351,8 @@ void SwitcherView::updateContentsMarginsAndSpacings()
                                      detailMargin, verticalContentMargin);
 
 
-    int columns;
-    if (overviewPolicy->columnCount() < style()->columnsPerPage()) {
-        columns = overviewPolicy->columnCount();
-    } else {
-        columns = style()->columnsPerPage();
-    }
+    int columns = qMin(overviewPolicy->columnCount(), style()->columnsPerPage());
+
     qreal effectiveButtonsWidth = (columns * buttonWidth) + ((columns - 1) * style()->buttonHorizontalSpacing());
     qreal effectiveButtonsHeight = overviewPolicy->rowCount() * buttonHeight + qMax(0, overviewPolicy->rowCount() - 1) * style()->buttonVerticalSpacing();
     qreal leftContentMargin = (geometry().width() - effectiveButtonsWidth) / 2;
@@ -386,6 +391,7 @@ void SwitcherView::updateContentsMarginsAndSpacings()
             overviewPolicy->setRowSpacing(row, style()->buttonVerticalSpacing());
         }
     }
+
 }
 
 void SwitcherView::addButtonInOverviewPolicy(QSharedPointer<SwitcherButton> button)

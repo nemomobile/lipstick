@@ -64,6 +64,13 @@ public:
     void setPanDirection(const Qt::Orientations &panDirection);
     //! \reimp_end
 
+    /*!
+     * Set the number of pages.
+     *
+     * \param pages The number of pages.
+     */
+    void updatePageCount(int pages);
+
 Q_SIGNALS:
 
     /*!
@@ -73,6 +80,13 @@ Q_SIGNALS:
      * \param newPage the page that the viewport is currently showing
      */
     void pageChanged(int newPage);
+
+    /*!
+     * This signal is sent when the page count is changed.
+     *
+     * \param newPage the page new page count
+     */
+    void pageCountChanged(int newPageCount);
 
 public Q_SLOTS:
 
@@ -84,18 +98,13 @@ public Q_SLOTS:
      */
     void panToPage(uint page);
 
-    /*!
-     * Informs the viewport the width of the page. The viewport needs to know the width
-     * of a page so that it can pan them correctly.
-     *
-     * \param width The width of the page in pixels.
-     */
-    void updatePageWidth(int width);
-
 private:
 
     //! Our custom phyics implementation
     PagedPanning* pagedPanning;
+
+    //! Number of pages
+    int pages_;
 };
 
 #endif

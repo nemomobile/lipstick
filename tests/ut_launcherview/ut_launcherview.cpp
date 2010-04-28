@@ -38,6 +38,7 @@ M_REGISTER_WIDGET(PagedViewport)
 // MSceneWindow stubs
 int showWindowCount = 0;
 int pageWidth = 0;
+int pageCount = 0;
 
 void MSceneWindow::appear(MSceneWindow::DeletionPolicy)
 {
@@ -64,9 +65,16 @@ void PagedViewport::panToPage(uint page)
     Q_UNUSED(page)
 }
 
+/*
 void PagedViewport::updatePageWidth(int width)
 {
     pageWidth = width;
+}
+*/
+
+void PagedViewport::updatePageCount(int pages)
+{
+    pageCount = pages;
 }
 
 void PagedViewport::setPanDirection(const Qt::Orientations &panDirection)
@@ -103,13 +111,6 @@ void Ut_LauncherView::cleanup()
 {
     delete controller;
     delete launcherDataStore;
-}
-
-void Ut_LauncherView::testSetPageWidthUpdateWhenGeometryChanges()
-{
-    QRectF rect(0, 0, 100, 100);
-    view->setGeometry(rect);
-    QCOMPARE(pageWidth, 100);
 }
 
 void Ut_LauncherView::testPagedViewportObjectName()

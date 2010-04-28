@@ -46,14 +46,14 @@ void Ut_PagedPanning::cleanup()
 // Test cases
 void Ut_PagedPanning::testCreation()
 {
-    QCOMPARE((int)m_subject->pageWidth(), 0);
+    QCOMPARE((int)m_subject->pageCount(), 1);
 }
 
 void Ut_PagedPanning::testMovementSmallerThenPageWidthRightToLeft()
 {
     qreal currentPosition = 500.0;
     testMovement(m_subject,
-                 100,              // Snap interval
+                 11,               // Page count
                  currentPosition,  // The position where the movement starts
                  10.0,             // Move amount
                  500.0,            // Where the current position should end up after movement
@@ -65,7 +65,7 @@ void Ut_PagedPanning::testMovementGreaterThenPageWidthRightToLeft()
 {
     qreal currentPosition = 500.0;
     testMovement(m_subject,
-                 100,              // Page interval
+                 11,               // Page count
                  currentPosition,  // The position where the movement starts
                  120.0,            // Move amount
                  600.0,            // Where the current position should end up after movement
@@ -79,7 +79,7 @@ void Ut_PagedPanning::testMovementSmallerThenPageWidthLeftToRight()
 {
     qreal currentPosition = 200.0;
     testMovement(m_subject,
-                 100,              // Page interval
+                 11,               // Page count
                  currentPosition,  // The position where the movement starts
                  10.0,             // Move amount
                  200.0,            // Where the current position should end up after movement
@@ -91,9 +91,9 @@ void Ut_PagedPanning::testMovementGreaterThenPageWidthLeftToRight()
 {
     qreal currentPosition = 200.0;
     testMovement(m_subject,
-                 100,              // Page interval
+                 11,               // Page count
                  currentPosition,  // The position where the movement starts
-                 120.0,             // Move amount
+                 120.0,            // Move amount
                  100.0,            // Where the current position should end up after movement
                  true,             // Left to right
                  1);               // Target page index after move
@@ -101,7 +101,6 @@ void Ut_PagedPanning::testMovementGreaterThenPageWidthLeftToRight()
 
 void Ut_PagedPanning::testHugeMovementLeftToRight()
 {
-    //    m_subject->setPageWidth(100);
     qreal position = 400;
     qreal velocity = 0;
     qreal pointerSpring = 0;
@@ -109,7 +108,7 @@ void Ut_PagedPanning::testHugeMovementLeftToRight()
     qreal rangeStart = 0;
     qreal rangeEnd = 1000;
 
-    fillDefaultIntegrationParameters(m_subject, 100, rangeStart, rangeEnd);
+    fillDefaultIntegrationParameters(m_subject, 11, rangeStart, rangeEnd);
 
     /*
       To fully test this movement direction, specifically the signal emission
@@ -145,7 +144,7 @@ void Ut_PagedPanning::testHugeMovementRightToLeft()
 {
     qreal currentPosition = 400.0;
     testMovement(m_subject,
-                 100,              // Page interval
+                 11,              // Page count
                  currentPosition,  // The position where the movement starts
                  1000.0,           // Move amount
                  1000.0,           // Where the current position should end up after movement
@@ -158,7 +157,7 @@ void Ut_PagedPanning::testMovementExcatlyPageWidth()
 {
     qreal currentPosition = 200.0;
     testMovement(m_subject,
-                 100,              // Page interval
+                 11,              // Page count
                  currentPosition,  // The position where the movement starts
                  100.0,            // Move amount
                  100.0 ,           // Where the current position should end up after movement
@@ -173,7 +172,7 @@ void Ut_PagedPanning::testAutoPanning()
     // Do the initial movement so that the subject internal state has some meaning. In this
     // case is we want the currentPage to be non zero
     testMovement(m_subject,
-                 100.0,            // Page width
+                 11,            // Page count
                  currentPosition,  // The position where the movement starts
                  0.0,              // Move amount
                  300.0 ,           // Where the current position should end up after movement
@@ -216,15 +215,14 @@ void Ut_PagedPanning::testAutoPanning()
 
 }
 
-void Ut_PagedPanning::testCurrentPageRemainsSameWhenPageWidthChanges()
+void Ut_PagedPanning::testCurrentPageRemainsSameWhenPageCountChanges()
 {
     qreal currentPosition = 300.0;
     qreal velocity = 0;
     qreal pointerSpring = 0;
     qreal acceleration = 0;
 
-    m_subject->setPageWidth(100);
-    fillDefaultIntegrationParameters(m_subject, 100, 0, 1000);
+    fillDefaultIntegrationParameters(m_subject, 11, 0, 1000);
 
     performMovement(m_subject,
                     0, // amount to move
@@ -257,10 +255,10 @@ void Ut_PagedPanning::testCurrentPageRemainsSameWhenPageWidthChanges()
     pointerSpring = 0;
     spy.clear();
 
-    m_subject->setPageWidth(50);
+    m_subject->setPageCount(21);
 
     /*
-      When the page width is set the pager requests start from its parent class.
+      When the page count is set the pager requests start from its parent class.
       As the QTimeline is not running here we simulate the behaviour be calling the 
       integrator our selves with a zero move amount.
     */
@@ -277,19 +275,18 @@ void Ut_PagedPanning::testCurrentPageRemainsSameWhenPageWidthChanges()
     QVERIFY(arguments.at(0).toInt() == targetPage);  // Make sure that we are still on the same page
 }
 
-void Ut_PagedPanning::testSetPageWidth()
+void Ut_PagedPanning::testSetPageCount()
 {
     QSignalSpy spy(m_subject, SIGNAL(pageChanged(int)));
     
-    fillDefaultIntegrationParameters(m_subject, 100.0, 0, 1000);
+    fillDefaultIntegrationParameters(m_subject, 11, 0, 1000);
     QCOMPARE(spy.count(), 1); // make sure the signal was emitted exactly one time
     QList<QVariant> arguments = spy.takeFirst(); // take the first signal
     QVERIFY(arguments.at(0).toInt() == 0);
-    
 }
 
 void Ut_PagedPanning::testMovement(PagedPanning* pagedPanning,
-                                   int pageWidth,
+                                   int pageCount,
                                    qreal currentPosition,
                                    qreal moveAmount,
                                    qreal targetPosition,
@@ -303,7 +300,7 @@ void Ut_PagedPanning::testMovement(PagedPanning* pagedPanning,
     qreal acceleration = 0;
 
 
-    fillDefaultIntegrationParameters(pagedPanning, pageWidth, rangeStart, rangeEnd);
+    fillDefaultIntegrationParameters(pagedPanning, pageCount, rangeStart, rangeEnd);
 
     velocity = 0;
     pointerSpring = 0;
@@ -351,7 +348,7 @@ void Ut_PagedPanning::performMovement(PagedPanning* pagedPanning,
     }
 }
 
-void Ut_PagedPanning::fillDefaultIntegrationParameters(PagedPanning* pagedPanning, qreal newPageWidth, qreal rangeStart, qreal rangeEnd)
+void Ut_PagedPanning::fillDefaultIntegrationParameters(PagedPanning* pagedPanning, qreal newPageCount, qreal rangeStart, qreal rangeEnd)
 {
     pagedPanning->setPointerSpringK(0.6);
     pagedPanning->setFriction(0.9);
@@ -360,7 +357,7 @@ void Ut_PagedPanning::fillDefaultIntegrationParameters(PagedPanning* pagedPannin
     pagedPanning->setBorderFriction(0.9);
     pagedPanning->setRange(QRectF(rangeStart, 0, rangeEnd, 0));
 
-    m_subject->setPageWidth(newPageWidth);
+    m_subject->setPageCount(newPageCount);
 
     qreal currentPosition = 0.0;
     qreal velocity = 0;

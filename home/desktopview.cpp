@@ -252,9 +252,7 @@ void DesktopView::showLauncher()
     // @todo TODO get rid of the hardcoded value when MSceneManager enables dynamic allocation of Z values
     launcherWindow->parentItem()->setZValue(300);
 
-    // Needed to update the panned page width in case the orientation has changed
     launcher->setEnabled(true);
-    launcher->resize(geometry().size());
 
     // TODO : does this have to be animated??
     switcher->setVisible(false);

@@ -57,12 +57,6 @@ public:
      */
     virtual ~LauncherView();
 
-    /*! \reimp
-     * Re-implemented here to adjust the paging page size when the geometry changes
-     */
-    virtual void setGeometry(const QRectF &rect);
-    //! \reimp_end
-
 protected slots:
     //! \reimp
     virtual void updateData(const QList<const char *>& modifications);

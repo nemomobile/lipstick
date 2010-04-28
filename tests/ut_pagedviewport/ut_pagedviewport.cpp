@@ -22,11 +22,11 @@
 #include "pagedviewport.h"
 #include "pagedpanning.h"
 
-static uint checkPageWidth = 0;
+static uint checkPageCount = 0;
 static uint testPanTargetPage = 0;
 
 PagedPanning::PagedPanning(QObject* parent) : MPhysics2DPanning(parent),
-					      pageWidth_(0),
+					      pageCount_(1),
 					      currentPage(0),
 					      autoIntegrateMode(false),
 					      autoIntegrateTargetPage(0)
@@ -38,7 +38,7 @@ PagedPanning::~PagedPanning()
 {
 }
 
-void PagedPanning::panToPage(uint page)
+void PagedPanning::panToPage(int page)
 {
     testPanTargetPage = page;
     autoIntegrateTargetPage = page;
@@ -52,14 +52,14 @@ void PagedPanning::integrateAxis(Qt::Orientation, qreal &, qreal &, qreal &, qre
 }
 
 
-void PagedPanning::setPageWidth(uint pageWidth)
+void PagedPanning::setPageCount(int pageCount)
 {
-    checkPageWidth = pageWidth;
+    checkPageCount = pageCount;
 }
 
-uint PagedPanning::pageWidth() const
+int PagedPanning::pageCount() const
 {
-    return checkPageWidth;
+    return checkPageCount;
 }
 
 void Ut_PagedViewport::initTestCase()
@@ -84,13 +84,13 @@ void Ut_PagedViewport::cleanup()
     delete m_subject;
 }
 
-void Ut_PagedViewport::test_updatePageWidth()
+void Ut_PagedViewport::test_updatePageCount()
 {
-    checkPageWidth = 0;
+    checkPageCount = 0;
     uint target = 12;
-    m_subject->updatePageWidth(target);
+    m_subject->updatePageCount(target);
 
-    QCOMPARE(target, checkPageWidth);
+    QCOMPARE(target, checkPageCount);
 }
 
 void Ut_PagedViewport::test_panToPage()
@@ -101,7 +101,7 @@ void Ut_PagedViewport::test_panToPage()
     widget->setMaximumSize(QSize(100, 1000));
 
     m_subject->setWidget(widget);
-    m_subject->updatePageWidth(100);
+    m_subject->updatePageCount(10);
 
     m_subject->panToPage(1);
 

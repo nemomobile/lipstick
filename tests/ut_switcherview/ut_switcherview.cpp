@@ -143,14 +143,14 @@ Window SwitcherButton::xWindow()
 bool g_panRequested;
 uint g_panRequestIndex;
 
-void PagedPanning::panToPage(uint itemIndex) {
+void PagedPanning::panToPage(int itemIndex) {
     g_panRequested = true;
     g_panRequestIndex = itemIndex;
     emit pageChanged(itemIndex);
 }
 
 PagedPanning::PagedPanning(QObject* parent) : MPhysics2DPanning(parent),
-					      pageWidth_(0),
+					      pageCount_(1),
 					      currentPage(0),
 					      autoIntegrateMode(false),
 					      autoIntegrateTargetPage(0)
@@ -165,11 +165,11 @@ void PagedPanning::integrateAxis(Qt::Orientation, qreal &, qreal &, qreal &, qre
 
 }
 
-void PagedPanning::setPageWidth(uint) {
+void PagedPanning::setPageCount(int) {
 }
 
-uint PagedPanning::pageWidth() const {
-    return 0;
+int PagedPanning::pageCount() const {
+    return 1;
 }
 
 void Ut_SwitcherView::initTestCase()

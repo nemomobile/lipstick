@@ -298,14 +298,7 @@ SwitcherStyle {
     item-rotation: 15;
     /* The amoun the items will overlap when stationary */
     item-over-lap: 3mm;
-    /* Defines horizontal spacing between switcher buttons. */
-    button-horizontal-spacing: 3mm;
-    /* Defines vertical spacing between switcher buttons. */
-    button-vertical-spacing: 3mm;
-    /* Defines amount of rows in switcher view. */
-    rows-per-page: 2;
-    /* Defines amount of columns in switcher view. */
-    columns-per-page: 3;
+
 }
 
 SwitcherStyle#OverviewSwitcher {

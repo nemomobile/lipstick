@@ -45,22 +45,21 @@ public:
     virtual ~PagedPanning();
     
     /*!
-     * Sets the width of the page. The paging will be done with this interval. This will 
-     * automatically adjust the viewport so that the current page reamins visible.
+     * Sets the number of pages.
      *
-     * \param pageWidth The width of the page
+     * \param pageCount The page count
      */
-    void setPageWidth(uint pageWidth);
+    void setPageCount(int pageCount);
 
     /*!
-     * \return the current page width
+     * \return the current page count
      */
-    uint pageWidth() const;
+    int pageCount() const;
 
     /*!
      * Pans the view automatically to the given item index
      */
-    void panToPage(uint page);
+    void panToPage(int page);
 
 protected:
 
@@ -84,8 +83,8 @@ signals:
 
 private:
 
-    //! The width of the page
-    uint pageWidth_;
+    //! The number of pages
+    int pageCount_;
 
     //! The current index
     int currentPage;
@@ -95,6 +94,9 @@ private:
 
     //! The target page of the automatic integration
     int autoIntegrateTargetPage;
+
+    //! The range during the previous integration step
+    QRectF previousRange;
 
 #ifdef UNIT_TEST
     //! Test unit is defined as a friend of production code to access private members

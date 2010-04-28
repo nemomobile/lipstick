@@ -47,7 +47,6 @@ private slots:
     void testPagedViewportObjectName();
     void testSetButtons();
     void testAddAndRemovePages();
-    void testSetPageWidthUpdateWhenGeometryChanges();
 
 private:
     // MApplication

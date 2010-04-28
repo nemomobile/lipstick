@@ -19,7 +19,7 @@
 #include "pagedviewport.h"
 #include "pagedpanning.h"
 
-PagedViewport::PagedViewport(QGraphicsItem *parent) : MPannableViewport(parent)
+PagedViewport::PagedViewport(QGraphicsItem *parent) : MPannableViewport(parent), pages_(0)
 {
     // The strategy will be deleted by the pannable viewport
     pagedPanning = new PagedPanning(this);
@@ -28,8 +28,8 @@ PagedViewport::PagedViewport(QGraphicsItem *parent) : MPannableViewport(parent)
     setPanDirection(Qt::Horizontal);
 }
 
-PagedViewport::~PagedViewport() {
-
+PagedViewport::~PagedViewport()
+{
 }
 
 void PagedViewport::setPanDirection(const Qt::Orientations &)
@@ -42,7 +42,9 @@ void PagedViewport::panToPage(uint page)
     pagedPanning->panToPage(page);
 }
 
-void PagedViewport::updatePageWidth(int width)
+void PagedViewport::updatePageCount(int pages)
 {
-    pagedPanning->setPageWidth(width);
+    pages_ = pages;
+    pagedPanning->setPageCount(pages);
+    emit pageCountChanged(pages);
 }

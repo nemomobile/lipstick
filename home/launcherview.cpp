@@ -48,12 +48,6 @@ LauncherView::~LauncherView()
 {
 }
 
-void LauncherView::setGeometry(const QRectF &rect)
-{
-    MWidgetView::setGeometry(rect);
-    pagedViewport->updatePageWidth(rect.width());
-}
-
 void LauncherView::updateData(const QList<const char *>& modifications)
 {
     MWidgetView::updateData(modifications);
@@ -69,6 +63,8 @@ void LauncherView::updateData(const QList<const char *>& modifications)
             foreach(QSharedPointer< LauncherPage > page, model()->launcherPages()) {
                 layout->addItem(page.data());
             }
+
+            pagedViewport->updatePageCount(model()->launcherPages().count());
         }
     }
 }

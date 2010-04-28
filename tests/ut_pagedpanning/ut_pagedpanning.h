@@ -91,12 +91,12 @@ private slots:
      * Tests that the current page stays the same when the page width is changed. 
      * Note this test also tests the case where a rotation occurs.
      */
-    void testCurrentPageRemainsSameWhenPageWidthChanges();
+    void testCurrentPageRemainsSameWhenPageCountChanges();
 
     /*!
      * Tests the setting of the page width
      */
-    void testSetPageWidth();
+    void testSetPageCount();
 
 private:
     // MApplication

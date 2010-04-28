@@ -19,7 +19,7 @@
 #include <algorithm>
 
 PagedPanning::PagedPanning(QObject* parent) : MPhysics2DPanning(parent),
-                                              pageWidth_(0),
+                                              pageCount_(1),
                                               currentPage(0),
                                               autoIntegrateMode(false),
                                               autoIntegrateTargetPage(0)
@@ -42,10 +42,12 @@ void PagedPanning::integrateAxis(Qt::Orientation orientation,
     if (orientation == Qt::Vertical) {
         return;
     }
-    
+
     qreal rangeStart = range().left();
     qreal rangeEnd = range().right();
     qreal force;
+
+    qreal pageWidth = (rangeEnd - rangeStart) / qMax(1, pageCount_-1);
 
     // Damping
     if (position >= rangeStart && position <= rangeEnd) {
@@ -63,31 +65,43 @@ void PagedPanning::integrateAxis(Qt::Orientation orientation,
     // Pointer spring
     if (pointerPressed) {
         force += -pointerSpringK() * pointerDifference;
+        // Stop the automatic panning when the pointer comes down
+        autoIntegrateMode = false;
     }
 
-    if (pageWidth_ > 0 && !pointerPressed) {
+    if (!pointerPressed) {
 
-        int targetPage;
+        int targetPage = 0;
+
+        if (previousRange != range()) {
+            /*
+             Pan the viewport to the correct page
+             in case the underlying widget's size and
+             therefore page width has changed.
+             */
+            autoIntegrateMode = true;
+            autoIntegrateTargetPage = currentPage;
+            previousRange = range();
+        }
 
         if (autoIntegrateMode) {
             targetPage = autoIntegrateTargetPage;
-        } else {
+        } else if (pageWidth > 0) {
             /*
               The page that we should be paging to, 
               the 0.5 is simple integer rounding before casting to int
             */ 
-            targetPage = (int)((position / (qreal)pageWidth_) + 0.5);       
+            targetPage = (int)((position / (qreal)pageWidth) + 0.5);
         }
         /* 
            The target page must be inside the panning range, this is to make sure 
            that we do not go out side the range
         */ 
-        int maxTargetPage = (rangeEnd - rangeStart) / pageWidth_;
-        targetPage = qBound(0, targetPage, maxTargetPage);
+        targetPage = qBound(0, targetPage, pageCount_-1);
 
-        force += borderSpringK() * (targetPage * (qreal)pageWidth_ - position);
+        force += borderSpringK() * (targetPage * (qreal)pageWidth - position);
 
-        qreal closeEnough = position - (pageWidth_ * targetPage);
+        qreal closeEnough = position - (pageWidth * targetPage);
 
         if (abs(closeEnough) < 1 && abs(force) < 1) {
             // Setting these to zero should stop the integration process
@@ -95,7 +109,7 @@ void PagedPanning::integrateAxis(Qt::Orientation orientation,
             velocity = 0;
             acceleration = 0;
             // Make the position exactly the right one
-            position = pageWidth_ * targetPage;
+            position = pageWidth * targetPage;
 
             currentPage = targetPage;
             autoIntegrateMode = false;
@@ -115,18 +129,18 @@ void PagedPanning::integrateAxis(Qt::Orientation orientation,
     }
 }
 
-void PagedPanning::setPageWidth(uint newPageWidth)
+void PagedPanning::setPageCount(int newPageCount)
 {
-    pageWidth_ = newPageWidth;
-    panToPage(currentPage);
+    pageCount_ = qMax(1, newPageCount);
+    panToPage(qMin(newPageCount, currentPage));
 }
 
-uint PagedPanning::pageWidth() const
+int PagedPanning::pageCount() const
 {
-    return pageWidth_;
+    return pageCount_;
 }
 
-void PagedPanning::panToPage(uint page)
+void PagedPanning::panToPage(int page)
 {
     autoIntegrateTargetPage = page;
     autoIntegrateMode = true;

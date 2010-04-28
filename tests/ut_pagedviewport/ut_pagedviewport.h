@@ -43,7 +43,7 @@ private slots:
     // Test cases
 
     // Tests updatePageWidth method
-    void test_updatePageWidth();
+    void test_updatePageCount();
     // Tests that pageChanged signal is emitted when panToPage
     // is called
     void test_panToPage();

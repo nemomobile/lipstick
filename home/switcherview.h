@@ -53,13 +53,6 @@ public:
      */
     virtual ~SwitcherView();
 
-    /*! \reimp
-     *
-     * Reimplemented here to react to the switcher orientation change
-     */ 
-    virtual void setGeometry(const QRectF &rect);
-    //! reimp_end
-
 protected:
     /*! \reimp
      * Re-implemented here to get an update when the model is set
@@ -85,10 +78,10 @@ private slots:
     /*! Update all buttons in the layout policies */
     void updateButtons();
 
-private:
+    /*! Remove all buttons from the layout and set them invisible */
+    void hideButtons();
 
-    /*! Convenience function to update the panning parameters */
-    void updateSnapInterval();
+private:
 
     /*! Adds a button in the correct position in the overview layout policy */
     void addButtonInOverviewPolicy(QSharedPointer<SwitcherButton> button);
@@ -96,8 +89,8 @@ private:
     /*! Updates the content margin and spacings of the layout policies */
     void updateContentsMarginsAndSpacings();
 
-    /*! Updates the modes of the buttons according to the switcher mode */
-    void updateButtonModes();
+    /*! Updates the modes of the buttons and the page count according to the switcher mode */
+    void updateButtonModesAndPageCount();
 
     /*! Selects the layout policy and sets up switcher mode dependent signals */
     void applySwitcherMode();
