@@ -107,7 +107,7 @@ void PlainDesktopBackgroundExtension::drawBackground(QPainter *painter, const QR
         }
 
         if (pixmap->blurredPixmap() != NULL && blurFactor > 0) {
-            // The blurred background pixmap needs to be drawn if the background should be blurred at all
+            // The blurred background pixmap needs to be drawn if the background should be blurred at all
             painter->setOpacity(blurFactor);
             drawPixmap(painter, *pixmap->blurredPixmap(), boundingRect);
         }
@@ -133,6 +133,8 @@ void PlainDesktopBackgroundExtension::setBlurFactor(qreal blurFactor)
     if (this->blurFactor != blurFactor) {
         this->blurFactor = blurFactor;
         desktop->update();
+        // Set a property with the blur factor to make functional testing possible
+        qApp->setProperty("plainDesktopBackgroundExtensionBlurFactor", QVariant(blurFactor));
     }
 }
 
