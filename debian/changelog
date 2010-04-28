@@ -1,9 +1,8 @@
-duihome (0.21.3~1) unstable; urgency=low
+duihome (0.21.3-1) unstable; urgency=low
 
-  * New version [UNRELEASED]
   * Fixes: NB#165315 - Opening launcher is very slow
 
- -- Vesa Halttunen <vesa.halttunen@nokia.com>  Tue, 27 Apr 2010 19:35:57 +0300
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Wed, 28 Apr 2010 16:28:57 +0300
 
 duihome (0.21.2-1) unstable; urgency=low
   * Fixes: NB#164107 - After rotating the device thumbnails are arranged in a wrong place

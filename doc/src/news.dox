@@ -1,6 +1,11 @@
 /*! \page news What's New in DirectUI Homescreen
 
-\section v0211 0.21.1
+\section v0213 0.21.3
+
+\subsection bugs Bugs fixed
+- Opening the launcher took a long time
+
+\section v0212 0.21.2
 
 \subsection New
 - Possibility to change the wallpaper of homescreen
@@ -8,7 +13,6 @@
 - Move the rendering of status bar to shared pixmap
 
 \subsection bugs Bugs fixed
-- Opening the launcher took a long time
 - After rotating the device thumbnails were arranged in a wrong place
 - SystemSettings Option was missing from the launcher
 - Switcher buttons were not properly centered
