@@ -36,6 +36,8 @@
 #include <MDeviceProfile>
 #include <QTimeLine>
 #include <QGraphicsLinearLayout>
+#include <MPositionIndicator>
+#include "pagepositionindicatorview.h"
 #include <math.h>
 #include <algorithm>
 #include "pagedviewport.h"
@@ -57,7 +59,6 @@ SwitcherView::SwitcherView(Switcher *switcher) :
     viewport->setObjectName("SwitcherDetailsViewport");
 
     mainLayout->addItem(viewport);
-
     pannedLayout = new MLayout(pannedWidget);
     pannedLayout->setContentsMargins(0, 0, 0, 0);
 
@@ -70,6 +71,8 @@ SwitcherView::SwitcherView(Switcher *switcher) :
     detailPolicy->setObjectName("DetailviewPolicy");
 
     viewport->setWidget(pannedWidget);
+
+    viewport->positionIndicator()->setObjectName("SwitcherOverviewPageIndicator");
 
     focusedSwitcherButton = 0;
     firstButtonPriority = WindowInfo::Normal;

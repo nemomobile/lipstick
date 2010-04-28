@@ -2,12 +2,14 @@ include(../common_top.pri)
 TARGET = ut_launcherview
 
 STYLE_HEADERS += \
-    $$SRCDIR/launcherstyle.h
+    $$SRCDIR/launcherstyle.h \
+    $$SRCDIR/pagepositionindicatorstyle.h
 
 MODEL_HEADERS += \
     $$SRCDIR/launchermodel.h \
     $$SRCDIR/launcherpagemodel.h \
-    $$SRCDIR/launcherbuttonmodel.h
+    $$SRCDIR/launcherbuttonmodel.h \
+    $$SRCDIR/pagepositionindicatormodel.h
 
 # unit test and unit
 SOURCES += \
@@ -19,7 +21,9 @@ SOURCES += \
 # service classes
 SOURCES += ../stubs/stubbase.cpp \
     $$SRCDIR/windowinfo.cpp \
-    $$SRCDIR/pagedpanning.cpp
+    $$SRCDIR/pagedpanning.cpp \
+    $$SRCDIR/pagepositionindicator.cpp \
+    $$SRCDIR/pagepositionindicatorview.cpp
 
 # unit test and unit
 HEADERS += \
@@ -36,7 +40,11 @@ HEADERS += \
     $$SRCDIR/homeapplication.h \
     $$SRCDIR/mainwindow.h \
     $$SRCDIR/pagedviewport.h \
-    $$SRCDIR/pagedpanning.h
+    $$SRCDIR/pagedpanning.h \
+    $$SRCDIR/pagepositionindicator.h \
+    $$SRCDIR/pagepositionindicatorview.h \
+    $$SRCDIR/pagepositionindicatorstyle.h \
+    $$SRCDIR/pagepositionindicatormodel.h
 
 DEFINES += APPLICATIONS_DIRECTORY=\'$$quote(\"/tmp/ut_launcherview/applications/\")\'
 

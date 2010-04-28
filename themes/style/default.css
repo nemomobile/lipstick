@@ -137,6 +137,21 @@ MButtonStyle#SearchButton.Portrait {
     minimum-size: 88 88;
 }
 
+PagePositionIndicatorStyle {
+    spacing: 5;
+    icon-size: 10 10;
+    focused-indicator-image: icon-s-current-page;
+    unfocused-indicator-image: icon-s-unselected-page;
+}
+
+PagePositionIndicatorStyle#LauncherPageIndicator {
+    margin-top: 41;  /* status are + margin: 28 + 13 */
+}
+
+PagePositionIndicatorStyle#SwitcherOverviewPageIndicator {
+    margin-top: 0;
+}
+
 LauncherStyle {
     background-image: "main-menu-background" 0 0 0 15;
     margin-left: 0;
@@ -162,14 +177,16 @@ LauncherPageStyle {
 LauncherPageStyle.Portrait {
     padding-left: 5.1mm;
     padding-right: 5.1mm;
-    padding-top: 5.7mm;
+    /* need to count the status area to padding too: 28px + 5.7mm */
+    padding-top: 118;
     padding-bottom: 5.7mm;
 }
 
 LauncherPageStyle.Landscape {
     padding-left: 5.0mm;
     padding-right: 5.0mm;
-    padding-top: 3.9mm;
+    /* need to count the status area to padding too: 28px + 3.9mm */
+    padding-top: 74;
     padding-bottom: 3.9mm;
 }
 
@@ -276,7 +293,6 @@ MButtonIconStyle#QuickLaunchBarButton {
     release-feedback: release;
 }
 
-
 SwitcherStyle {
     minimum-size: 100% -1;
     preferred-size: 100% -1;
@@ -287,7 +303,7 @@ SwitcherStyle {
     margin-bottom: 0;
     padding-left: 0;
     padding-right: 0;
-    padding-top: 0;
+    padding-top: 5;
     padding-bottom: 0;
 
     /* how much to down scale the non emphasizzed items */

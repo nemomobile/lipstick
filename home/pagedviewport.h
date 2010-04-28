@@ -99,7 +99,6 @@ public Q_SLOTS:
     void panToPage(uint page);
 
 private:
-
     //! Our custom phyics implementation
     PagedPanning* pagedPanning;
 

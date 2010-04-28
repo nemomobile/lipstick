@@ -21,6 +21,7 @@
 #include "ut_pagedviewport.h"
 #include "pagedviewport.h"
 #include "pagedpanning.h"
+#include "pagepositionindicator.h"
 
 static uint checkPageCount = 0;
 static uint testPanTargetPage = 0;

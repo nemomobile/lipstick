@@ -18,6 +18,8 @@
 ****************************************************************************/
 #include "pagedviewport.h"
 #include "pagedpanning.h"
+#include "mpositionindicator.h"
+#include "pagepositionindicator.h"
 
 PagedViewport::PagedViewport(QGraphicsItem *parent) : MPannableViewport(parent), pages_(0)
 {
@@ -26,6 +28,13 @@ PagedViewport::PagedViewport(QGraphicsItem *parent) : MPannableViewport(parent),
     setPhysics(pagedPanning);
     connect(pagedPanning, SIGNAL(pageChanged(int)), this, SIGNAL(pageChanged(int)));
     setPanDirection(Qt::Horizontal);
+
+    PagePositionIndicator *positionIndicator = new PagePositionIndicator();
+    connect(this, SIGNAL(pageCountChanged(int)), positionIndicator, SLOT(setPageCount(int)));
+    connect(this, SIGNAL(pageChanged(int)), positionIndicator, SLOT(setFocusedPage(int)));
+    setPositionIndicator(positionIndicator);
+
+    emit pageChanged(0);
 }
 
 PagedViewport::~PagedViewport()

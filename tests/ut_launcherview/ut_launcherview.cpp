@@ -31,6 +31,8 @@
 #include "launcherview.h"
 #include "pagedviewport.h"
 #include "mockdatastore.h"
+#include "pagepositionindicatorview.h"
+#include "mpositionindicator.h"
 
 #include "mwidgetcreator.h"
 M_REGISTER_WIDGET(PagedViewport)

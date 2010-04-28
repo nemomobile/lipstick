@@ -43,7 +43,11 @@ HEADERS += homeapplication.h \
     launcherpageview.h \
     launcherpagestyle.h \
     launcherpagemodel.h \
-    launcherdatastore.h
+    launcherdatastore.h \
+    pagepositionindicatorview.h \
+    pagepositionindicatorstyle.h \
+    pagepositionindicatormodel.h \
+    pagepositionindicator.h
 SOURCES += homeapplication.cpp \
     windowinfo.cpp \
     home.cpp \
@@ -70,7 +74,9 @@ SOURCES += homeapplication.cpp \
     x11wrapper.cpp \
     launcherpage.cpp \
     launcherpageview.cpp \
-    launcherdatastore.cpp
+    launcherdatastore.cpp \
+    pagepositionindicatorview.cpp \
+    pagepositionindicator.cpp
 MODEL_HEADERS += appletspacemodel.h \
     appletspacemodel.h \
     desktopmodel.h \
@@ -80,7 +86,8 @@ MODEL_HEADERS += appletspacemodel.h \
     statusindicatormodel.h \
     switcherbuttonmodel.h \
     switchermodel.h \
-    launcherpagemodel.h
+    launcherpagemodel.h \
+    pagepositionindicatormodel.h
 STYLE_HEADERS += appletspacestyle.h \
     appletspacestyle.h \
     desktopstyle.h \
@@ -89,5 +96,5 @@ STYLE_HEADERS += appletspacestyle.h \
     quicklaunchbarstyle.h \
     statusindicatorlabelstyle.h \
     switcherbuttonstyle.h \
-    switcherstyle.h
-
+    switcherstyle.h \
+    pagepositionindicatorstyle.h

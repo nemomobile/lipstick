@@ -22,6 +22,8 @@
 #include "launcherbutton.h"
 #include "pagedviewport.h"
 #include "mainwindow.h"
+#include "mpositionindicator.h"
+#include "pagepositionindicatorview.h"
 #include <QGraphicsLinearLayout>
 #include <MFlowLayoutPolicy>
 #include <MOverlay>
@@ -39,6 +41,9 @@ LauncherView::LauncherView(Launcher *controller) :
     pannedWidget->setLayout(layout);
 
     pagedViewport = new PagedViewport(controller);
+
+    pagedViewport->positionIndicator()->setObjectName("LauncherPageIndicator");
+
     pagedViewport->setWidget(pannedWidget);
     pagedViewport->setObjectName("LauncherPagedViewport");
     pagedViewport->setPanDirection(Qt::Horizontal);
