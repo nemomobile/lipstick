@@ -75,6 +75,11 @@ void QuickLaunchBar::updateWidgetList()
         newWidgets.append(new MWidget);
     }
 
+    // Set the object names
+    foreach(MWidget *widget, newWidgets) {
+        widget->setObjectName("QuickLaunchBarButton");
+    }
+
     // Take the new widgets into use
     model()->setWidgets(newWidgets);
 
@@ -99,7 +104,6 @@ LauncherButton *QuickLaunchBar::createLauncherButton(const QString &desktopEntry
 {
     MDesktopEntry desktopEntry(desktopEntryPath);
     LauncherButton *button = new LauncherButton(desktopEntry);
-    button->setObjectName("QuickLaunchBarButton");
     connect(button, SIGNAL(applicationLaunched(const QString &)), this, SLOT(launchApplication(const QString &)), Qt::QueuedConnection);
     connect(button, SIGNAL(mApplicationLaunched(const QString &)), this, SLOT(launchMApplication(const QString &)), Qt::QueuedConnection);
     return button;
