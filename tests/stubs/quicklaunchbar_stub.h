@@ -29,8 +29,6 @@ class QuickLaunchBarStub : public StubBase {
   public:
   virtual void QuickLaunchBarConstructor(LauncherDataStore *configuration, QGraphicsItem *parent);
   virtual void QuickLaunchBarDestructor();
-  virtual void launchApplication(const QString &application);
-  virtual void launchMApplication(const QString &service);
   virtual void updateWidgetList();
   virtual LauncherButton * createLauncherButton(const QString &desktopEntryPath);
   virtual QMap<QuickLaunchBar::Placement, QString> createPlacementMap(const QHash<QString, QVariant> &desktopEntryPlacements);
@@ -44,17 +42,6 @@ void QuickLaunchBarStub::QuickLaunchBarConstructor(LauncherDataStore *configurat
 }
 void QuickLaunchBarStub::QuickLaunchBarDestructor() {
 
-}
-void QuickLaunchBarStub::launchApplication(const QString &application) {
-  QList<ParameterBase*> params;
-  params.append( new Parameter<const QString & >(application));
-  stubMethodEntered("launchApplication",params);
-}
-
-void QuickLaunchBarStub::launchMApplication(const QString &service) {
-  QList<ParameterBase*> params;
-  params.append( new Parameter<const QString & >(service));
-  stubMethodEntered("launchMApplication",params);
 }
 
 void QuickLaunchBarStub::updateWidgetList() {
@@ -89,14 +76,6 @@ QuickLaunchBar::QuickLaunchBar(LauncherDataStore *configuration, QGraphicsItem *
 
 QuickLaunchBar::~QuickLaunchBar() {
   gQuickLaunchBarStub->QuickLaunchBarDestructor();
-}
-
-void QuickLaunchBar::launchApplication(const QString &application) {
-  gQuickLaunchBarStub->launchApplication(application);
-}
-
-void QuickLaunchBar::launchMApplication(const QString &service) {
-  gQuickLaunchBarStub->launchMApplication(service);
 }
 
 void QuickLaunchBar::updateWidgetList() {

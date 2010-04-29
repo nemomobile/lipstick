@@ -20,7 +20,6 @@
 #ifndef UT_MKUTCLASSNAME_H
 #define UT_MKUTCLASSNAME_H
 
-#include <QtTest/QtTest>
 #include <QObject>
 
 class MApplication;

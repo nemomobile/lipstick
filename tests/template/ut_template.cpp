@@ -17,6 +17,7 @@
 **
 ****************************************************************************/
 
+#include <QtTest/QtTest>
 #include <MApplication>
 #include "ut_mkutclassname.h"
 mkutclassinclude

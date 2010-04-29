@@ -39,16 +39,6 @@ Launcher::~Launcher()
 {
 }
 
-void Launcher::launchApplication(const QString &application)
-{
-    startApplication(application);
-}
-
-void Launcher::launchMApplication(const QString &serviceName)
-{
-    startMApplication(serviceName);
-}
-
 bool Launcher::startApplication(const QString &application)
 {
     if (!QProcess::startDetached(application)) {
@@ -174,8 +164,6 @@ QSharedPointer<LauncherButton> Launcher::createLauncherButton(const QString &des
     MDesktopEntry desktopEntry(desktopEntryPath);
     QSharedPointer<LauncherButton> button = QSharedPointer<LauncherButton> (new LauncherButton(desktopEntry));
     button->setObjectName("LauncherButton");
-    connect(button.data(), SIGNAL(applicationLaunched(const QString &)), this, SLOT(launchApplication(const QString &)), Qt::QueuedConnection);
-    connect(button.data(), SIGNAL(mApplicationLaunched(const QString &)), this, SLOT(launchMApplication(const QString &)), Qt::QueuedConnection);
     connect(button.data(), SIGNAL(clicked()), this, SIGNAL(launcherButtonClicked()));
     return button;
 }

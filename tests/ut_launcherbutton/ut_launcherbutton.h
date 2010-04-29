@@ -17,21 +17,17 @@
 **
 ****************************************************************************/
 
-#ifndef UT_QUICKLAUNCHBAR_H
-#define UT_QUICKLAUNCHBAR_H
+#ifndef UT_LAUNCHERBUTTON_H
+#define UT_LAUNCHERBUTTON_H
 
 #include <QObject>
 
-class QuickLaunchBar;
-class LauncherDataStore;
+class MApplication;
+class LauncherButton;
 
-class Ut_QuickLaunchBar : public QObject
+class Ut_LauncherButton : public QObject
 {
     Q_OBJECT
-
-signals:
-    void updateWidgetList();
-    void launcherDataStoreChanged();
 
 private slots:
     // Called before the first testfunction is executed
@@ -44,14 +40,17 @@ private slots:
     void cleanup();
 
     // Test cases
-    void testInitialization();
-    void testLauncherDataStoreChanged();
+    void testLaunchApplication();
+    void testLaunchMApplication();
+
+signals:
+    void clicked();
 
 private:
+    // MApplication
+    MApplication *app;
     // The object being tested
-    QuickLaunchBar *m_subject;
-    // The datastore object used by the test subject
-    LauncherDataStore *launcherDataStore;
+    LauncherButton *m_subject;
 };
 
 #endif

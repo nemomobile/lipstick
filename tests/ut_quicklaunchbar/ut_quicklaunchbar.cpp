@@ -40,8 +40,6 @@ void Ut_QuickLaunchBar::init()
 
     m_subject = new QuickLaunchBar(launcherDataStore);
     connect(this, SIGNAL(updateWidgetList()), m_subject, SLOT(updateWidgetList()));
-    connect(this, SIGNAL(applicationLaunched(const QString &)), m_subject, SLOT(launchApplication(const QString &)));
-    connect(this, SIGNAL(mApplicationLaunched(const QString &)), m_subject, SLOT(launchMApplication(const QString &)));
     connect(this, SIGNAL(launcherDataStoreChanged()), launcherDataStore, SIGNAL(dataStoreChanged()));
 }
 
@@ -61,20 +59,6 @@ void Ut_QuickLaunchBar::testInitialization()
     QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(1)) == NULL);
     QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(2)) == NULL);
     QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(3)) == NULL);
-}
-
-void Ut_QuickLaunchBar::testLaunchApplication()
-{
-    emit applicationLaunched("testApplication");
-    QCOMPARE(gLauncherStub->stubCallCount("startApplication"), 1);
-    QCOMPARE(gLauncherStub->stubLastCallTo("startApplication").parameter<QString>(0), QString("testApplication"));
-}
-
-void Ut_QuickLaunchBar::testLaunchMApplication()
-{
-    emit mApplicationLaunched("testService");
-    QCOMPARE(gLauncherStub->stubCallCount("startMApplication"), 1);
-    QCOMPARE(gLauncherStub->stubLastCallTo("startMApplication").parameter<QString>(0), QString("testService"));
 }
 
 void Ut_QuickLaunchBar::testLauncherDataStoreChanged()

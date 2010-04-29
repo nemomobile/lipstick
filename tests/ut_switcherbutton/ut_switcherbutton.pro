@@ -1,7 +1,6 @@
 include(../common_top.pri)
 TARGET = ut_switcherbutton
 
-STYLE_HEADERS += $$SRCDIR/switcherbuttonstyle.h
 MODEL_HEADERS += $$SRCDIR/switcherbuttonmodel.h
 
 SOURCES += \
@@ -14,7 +13,6 @@ HEADERS += \
     ut_switcherbutton.h \
     $$SRCDIR/switcherbutton.h \
     $$SRCDIR/switcherbuttonmodel.h \
-    $$SRCDIR/switcherbuttonstyle.h \
     $$SRCDIR/homeapplication.h \
     $$SRCDIR/mainwindow.h
 

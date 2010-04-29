@@ -42,8 +42,6 @@ private:
 signals:
     void directoryLaunched(const QString &directory, const QString &title = QString(), const QString &iconId = QString());
     void directoryChanged(const QString path);
-    void applicationLaunched(const QString &service);
-    void mApplicationLaunched(const QString &service);
     void buttonClicked();
 
 private slots:

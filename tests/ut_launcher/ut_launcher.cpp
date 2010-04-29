@@ -95,14 +95,14 @@ int Ut_Launcher::buttonsCount()
 
 void Ut_Launcher::testApplicationLaunched()
 {
-    emit applicationLaunched("test0");
+    launcher->startApplication("test0");
 
     QCOMPARE(qProcessProgramStarted, QString("test0"));
 }
 
 void Ut_Launcher::testMApplicationLaunched()
 {
-    emit mApplicationLaunched("com.nokia.test1");
+    launcher->startMApplication("com.nokia.test1");
 
     QCOMPARE(mApplicationIfProxyLaunchCalled, true);
 }

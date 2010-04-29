@@ -7,6 +7,7 @@ SUBDIRS = \
     ut_home \
     ut_homeapplication \
     ut_launcher \
+    ut_launcherbutton \
     ut_launcherdatastore \
     ut_launcherpage \
     ut_launcherpageview \

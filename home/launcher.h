@@ -103,16 +103,6 @@ private slots:
      */
     void updatePagesFromDataStore();
 
-    /*!
-     * \brief Launches an application.
-     */
-    void launchApplication(const QString &application);
-
-    /*!
-     * \brief Launches a M application.
-     */
-    void launchMApplication(const QString &service);
-
 private:
     /*!
      * Update the given pages list by putting the desktop entries with known

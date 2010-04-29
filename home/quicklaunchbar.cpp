@@ -20,7 +20,6 @@
 #include "quicklaunchbar.h"
 #include "launcherdatastore.h"
 #include "launcherbutton.h"
-#include "launcher.h"
 #include <MDesktopEntry>
 
 const int QuickLaunchBar::NUMBER_OF_LAUNCHER_BUTTONS = 4;
@@ -90,22 +89,11 @@ void QuickLaunchBar::updateWidgetList()
     connect(dataStore, SIGNAL(dataStoreChanged()), this, SLOT(updateWidgetList()));
 }
 
-void QuickLaunchBar::launchApplication(const QString &application)
-{
-    Launcher::startApplication(application);
-}
-
-void QuickLaunchBar::launchMApplication(const QString &serviceName)
-{
-    Launcher::startMApplication(serviceName);
-}
-
 LauncherButton *QuickLaunchBar::createLauncherButton(const QString &desktopEntryPath)
 {
     MDesktopEntry desktopEntry(desktopEntryPath);
     LauncherButton *button = new LauncherButton(desktopEntry);
-    connect(button, SIGNAL(applicationLaunched(const QString &)), this, SLOT(launchApplication(const QString &)), Qt::QueuedConnection);
-    connect(button, SIGNAL(mApplicationLaunched(const QString &)), this, SLOT(launchMApplication(const QString &)), Qt::QueuedConnection);
+    button->setObjectName("QuickLaunchBarButton");
     return button;
 }
 

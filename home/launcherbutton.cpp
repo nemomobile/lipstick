@@ -18,6 +18,7 @@
 ****************************************************************************/
 
 #include "launcherbutton.h"
+#include "launcher.h"
 #include <MDesktopEntry>
 
 LauncherButton::LauncherButton(MWidget *parent) : MButton(parent, new LauncherButtonModel)
@@ -89,10 +90,9 @@ QString LauncherButton::desktopEntry() const
 
 void LauncherButton::launch()
 {
-    // Emit a signal based on the object type
     if (targetType() == "Application") {
-        emit applicationLaunched(target());
+        Launcher::startApplication(target());
     } else if (targetType() == "Service") {
-        emit mApplicationLaunched(target());
+        Launcher::startMApplication(target());
     }
 }

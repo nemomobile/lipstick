@@ -68,20 +68,6 @@ signals:
 
 private slots:
     /*!
-     * \brief Launches an application
-     *
-     * \param application the full path of the application to be launched
-     */
-    void launchApplication(const QString &application);
-
-    /*!
-     * \brief Launches a M application
-     *
-     * \param service the service framework service name of the application to be launched
-     */
-    void launchMApplication(const QString &service);
-
-    /*!
      * \brief Updates the widget list based on the contents of the data store
      */
     void updateWidgetList();
