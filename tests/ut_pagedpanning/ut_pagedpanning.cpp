@@ -107,8 +107,9 @@ void Ut_PagedPanning::testHugeMovementLeftToRight()
     qreal acceleration = 0;
     qreal rangeStart = 0;
     qreal rangeEnd = 1000;
+    int pageCount = 11;
 
-    fillDefaultIntegrationParameters(m_subject, 11, rangeStart, rangeEnd);
+    fillDefaultIntegrationParameters(m_subject, pageCount, rangeStart, rangeEnd);
 
     /*
       To fully test this movement direction, specifically the signal emission
@@ -135,8 +136,11 @@ void Ut_PagedPanning::testHugeMovementLeftToRight()
                     acceleration);
 
     QCOMPARE(position, 0.0);
-    QCOMPARE(spy.count(), 1); // make sure the signal was emitted exactly one time
-    QList<QVariant> arguments = spy.takeFirst(); // take the first signal
+
+    // Panning from position 500 to 0 with page width of 100
+    // results in 5 page changes
+    QCOMPARE(spy.count(), 5);
+    QList<QVariant> arguments = spy.takeLast();
     QVERIFY(arguments.at(0).toInt() == 0); // the page index should be one
 }
 
@@ -246,9 +250,7 @@ void Ut_PagedPanning::testCurrentPageRemainsSameWhenPageCountChanges()
 
 
     QCOMPARE(currentPosition , 300.0);
-    QCOMPARE(spy.count(), 1); // make sure the signal was emitted exactly one time
-    QList<QVariant> arguments = spy.takeFirst(); // take the first signal
-    QVERIFY(arguments.at(0).toInt() == targetPage); // Make sure that we are on the right page
+    QCOMPARE(spy.count(), 0); // make sure the signal was not emitted
 
     velocity = 0;
     acceleration = 0;
@@ -270,19 +272,40 @@ void Ut_PagedPanning::testCurrentPageRemainsSameWhenPageCountChanges()
 
     //Now the position should have changed, but the page info signal should reflect the original state
     QCOMPARE(currentPosition , 150.0);
-    QCOMPARE(spy.count(), 1); // make sure the signal was emitted exactly one time
-    arguments = spy.takeFirst(); // take the first signal
-    QVERIFY(arguments.at(0).toInt() == targetPage);  // Make sure that we are still on the same page
+    QCOMPARE(spy.count(), 0); // make sure the signal was emitted exactly one time
 }
 
 void Ut_PagedPanning::testSetPageCount()
 {
-    QSignalSpy spy(m_subject, SIGNAL(pageChanged(int)));
-    
+    qreal currentPosition = 0.0;
+    qreal velocity = 0;
+    qreal pointerSpring = 0;
+    qreal acceleration = 0;
+
     fillDefaultIntegrationParameters(m_subject, 11, 0, 1000);
+
+    m_subject->panToPage(10);
+
+
+    performMovement(m_subject,
+                    0, // amount to move
+                    true, // left-to-right
+                    currentPosition, velocity, pointerSpring,
+                    acceleration);
+
+    QSignalSpy spy(m_subject, SIGNAL(pageChanged(int)));
+
+    m_subject->setPageCount(8);
+
+    performMovement(m_subject,
+                    0, // amount to move
+                    true, // left-to-right
+                    currentPosition, velocity, pointerSpring,
+                    acceleration);
+
     QCOMPARE(spy.count(), 1); // make sure the signal was emitted exactly one time
-    QList<QVariant> arguments = spy.takeFirst(); // take the first signal
-    QVERIFY(arguments.at(0).toInt() == 0);
+    QList<QVariant> arguments = spy.takeLast();
+    QCOMPARE(arguments.at(0).toInt(), 7);
 }
 
 void Ut_PagedPanning::testMovement(PagedPanning* pagedPanning,
@@ -299,6 +322,16 @@ void Ut_PagedPanning::testMovement(PagedPanning* pagedPanning,
     qreal pointerSpring = 0;
     qreal acceleration = 0;
 
+    qreal pageWidth = (rangeEnd-rangeStart)/(pageCount-1);
+
+    if ((moveAmount+currentPosition) > rangeEnd)
+        moveAmount = rangeEnd-currentPosition;
+
+    int pageChangeSignalCount = moveAmount/pageWidth+0.5;
+
+    // Moving to the currentPosition might emit a signal
+    if (currentPosition > pageWidth/2)
+        pageChangeSignalCount++;
 
     fillDefaultIntegrationParameters(pagedPanning, pageCount, rangeStart, rangeEnd);
 
@@ -316,8 +349,9 @@ void Ut_PagedPanning::testMovement(PagedPanning* pagedPanning,
     QCOMPARE(velocity, 0.0);
     QCOMPARE(acceleration, 0.0);
     QCOMPARE(currentPosition, targetPosition);
-    QCOMPARE(spy.count(), 1); // make sure the signal was emitted exactly one time
-    QList<QVariant> arguments = spy.takeFirst(); // take the first signal
+
+    QCOMPARE(spy.count(), pageChangeSignalCount);
+    QList<QVariant> arguments = spy.takeLast();
     QVERIFY(arguments.at(0).toInt() == targetPage);
 }
 
