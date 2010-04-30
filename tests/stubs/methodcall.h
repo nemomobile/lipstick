@@ -48,12 +48,12 @@ public:
     T parameter(int number) {
         if (number >= _params.count()) {
             QString msg = QString("MethodCall::") + __func__ + ": method " + _name + " does not have parameter #" + QString::number(number) + ". Check your test code.";
-            qFatal(msg.toStdString().c_str());
+            qFatal(qPrintable(msg));
         }
         Parameter<T>* param = dynamic_cast<Parameter<T>* >(_params[number]);
         if (!param) {
             QString msg = QString("MethodCall::") + __func__ + ": failed dynamic_cast, check that parameter type matches parameter number";
-            qFatal(msg.toStdString().c_str());
+            qFatal(qPrintable(msg));
         }
         return param->data;
     }
@@ -64,7 +64,7 @@ public:
 
         if (!value) {
             QString msg = QString("MethodCall::") + __func__ + ": failed dynamic_cast, check that type matches return value";
-            qFatal(msg.toStdString().c_str());
+            qFatal(qPrintable(msg));
         }
         return value->data;
     }
