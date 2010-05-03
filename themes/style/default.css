@@ -509,3 +509,6 @@ MLabelStyle#StatusIndicatorLabel {
     font: $FONT_XSMALL;
     color: #FFFFFF;
 }
+
+@import "mashupcanvas.css";
+

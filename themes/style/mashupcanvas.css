@@ -1,0 +1,110 @@
+MAppletHandleStyle {
+}
+
+MWidgetStyle#MAppletHandleSettingsWidget {
+    background-image: "duicontainer" 20 20 20 20;
+    padding-left: 6;
+    padding-right: 6;
+    padding-top: 6;
+    padding-bottom: 6;
+    margin-left: 6;
+    margin-right: 6;
+    margin-top: 6;
+    margin-bottom: 6;
+}
+MAbstractLayoutPolicyStyle#MAppletInventoryFlowLayoutPolicy {
+    margin-left: 14;
+    margin-top: 14;
+    margin-right: 14;
+    margin-bottom: 14;
+}
+MAbstractLayoutPolicyStyle#MAppletInventoryFlowLayoutPolicy.Landscape {
+    vertical-spacing: 12;
+    horizontal-spacing: 12;
+}
+MAbstractLayoutPolicyStyle#MAppletInventoryFlowLayoutPolicy.Portrait {
+    vertical-spacing: 8;
+    horizontal-spacing: 8;
+}
+
+MButtonStyle#MAppletButton {
+    font: $FONT_SMALL;
+    text-color: $COLOR_FOREGROUND;
+    icon-size: 64 64;
+}
+MButtonStyle#MAppletButton.Landscape {
+    preferred-size: 172 123;
+    minimum-size: 172 123;
+    maximum-size: 172 123;
+}
+MButtonStyle#MAppletButton.Portrait {
+    preferred-size: 94 123;
+    minimum-size: 94 123;
+    maximum-size: 94 123;
+}
+
+MSceneWindowStyle#MAppletInventoryWindow {
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    minimum-size: 100% -1;
+    preferred-size: 100% -1;
+    maximum-size: 100% -1;
+}
+
+MAppletInventoryStyle {
+    background-image: ;
+    minimum-size: 100% -1;
+    preferred-size: 100% -1;
+    maximum-size: 100% -1;
+    margin-top: 30;
+    margin-bottom: 88;
+}
+
+MButtonStyle#MAppletInventoryCloseButton {
+    icon-size: 40 40;
+    preferred-size: 64 64;
+    minimum-size: 64 64;
+    maximum-size: 64 64;
+}
+
+MOverlayStyle#MAppletInventoryCloseButtonOverlay {
+    minimum-size: 64 64;
+    preferred-size: 64 64;
+    maximum-size: 64 64;
+    offset: 0 0;
+}
+
+MMashupCanvasStyle {
+    /* Whether the applets on this mashup canvas should be inside containers or not */
+    container-mode: true;
+}
+
+MContainerStyle#MExtensionAreaInvisibleContainer {
+    margin-left:   0;
+    margin-top:    0;
+    margin-right:  0;
+    margin-bottom: 0;
+    
+    padding-left:   0;
+    padding-top:    0;
+    padding-right:  0;
+    padding-bottom: 0;
+
+    background-opacity: 0.0;
+    background-image:;
+}
+
+MButtonStyle#MAppletInventoryButton {
+    preferred-size: 328 86;
+    minimum-size: 328 86;
+    maximum-size: 328 86;
+    margin-top: 12;
+    margin-bottom: 76;
+    font: $FONT_DEFAULT;
+}
