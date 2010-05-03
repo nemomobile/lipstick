@@ -25,6 +25,7 @@
 #include "plaindesktopbackgroundpixmap.h"
 
 PlainDesktopBackgroundPixmap::PlainDesktopBackgroundPixmap(const QString &name, const QString &defaultName, int blurRadius) :
+        blurRadius_(blurRadius),
         pixmapFromTheme_(NULL)
 {
     if (name.startsWith('/')) {
@@ -52,13 +53,27 @@ PlainDesktopBackgroundPixmap::PlainDesktopBackgroundPixmap(const QString &name, 
     }
 
     // Create a blurred version
-    blurredPixmap_ = QSharedPointer<QPixmap>(createBlurredPixmap(*pixmap(), blurRadius));
+    createBlurredPixmap();
 }
 
 PlainDesktopBackgroundPixmap::~PlainDesktopBackgroundPixmap()
 {
     if (pixmapFromTheme_ != NULL) {
         MTheme::releasePixmap(pixmapFromTheme_);
+    }
+}
+
+void PlainDesktopBackgroundPixmap::createBlurredPixmap()
+{
+    // Disconnect previous pixmapRequestsFinished() connections if any
+    disconnect(MTheme::instance(), SIGNAL(pixmapRequestsFinished()), this, SLOT(createBlurredPixmap()));
+
+    if (pixmapFromFile_.isNull() && pixmapFromTheme_ != NULL && pixmapFromTheme_->isNull()) {
+        // A pixmap from the theme is being used but it is not available yet: listen to pixmapRequestsFinished() signals
+        connect(MTheme::instance(), SIGNAL(pixmapRequestsFinished()), this, SLOT(createBlurredPixmap()));
+    } else {
+        // A pixmap from a file is being used or a pixmap from the theme is being used and it is available
+        blurredPixmap_ = QSharedPointer<QPixmap>(createBlurredPixmap(*pixmap(), blurRadius_));
     }
 }
 

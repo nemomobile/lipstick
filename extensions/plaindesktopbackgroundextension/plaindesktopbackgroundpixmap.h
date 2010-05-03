@@ -20,13 +20,18 @@
 #ifndef PLAINDESKTOPBACKGROUNDPIXMAP_H_
 #define PLAINDESKTOPBACKGROUNDPIXMAP_H_
 
+#include <QObject>
+#include <QSharedPointer>
+
 class QPixmap;
 
 /*!
  * A helper class representing a background pixmap.
  */
-class PlainDesktopBackgroundPixmap
+class PlainDesktopBackgroundPixmap : public QObject
 {
+    Q_OBJECT
+
 public:
     /*!
      * Loads a background pixmap by a given name. If the name begins with a /
@@ -65,7 +70,20 @@ public:
      */
     QString pixmapName() const;
 
+private slots:
+    /*!
+     * Creates a blurred pixmap from the pixmap if the pixmap is loaded from
+     * a file or if it is loaded from the theme and it is already available.
+     * If the pixmap is loaded from the theme and is not yet available starts
+     * listening to pixmapRequestsFinished() signals to blur the pixmap when
+     * it is available.
+     */
+    void createBlurredPixmap();
+
 private:
+    // The blur radius for the pixmap
+    int blurRadius_;
+
     // The pixmap if read from the theme
     const QPixmap *pixmapFromTheme_;
 

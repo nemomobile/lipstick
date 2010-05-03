@@ -16,6 +16,7 @@ HEADERS += \
     ut_plaindesktopbackgroundextension.h \
     $$EXTDIR/plaindesktopbackgroundextension.h \
     $$EXTDIR/plaindesktopbackgroundstyle.h \
+    $$EXTDIR/plaindesktopbackgroundpixmap.h \
     $$SRCDIR/windowinfo.h
 
 STYLE_HEADERS += $$EXTDIR/plaindesktopbackgroundstyle.h

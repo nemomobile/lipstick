@@ -40,7 +40,11 @@ private slots:
     void testConstructingFromFile();
     void testConstructingFromFileFails();
     void testConstructingFromTheme();
+    void testConstructingFromThemeIsDelayed();
     void testConstructingFromEmptyName();
+
+signals:
+    void pixmapRequestsFinished();
 };
 
 #endif

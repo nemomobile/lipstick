@@ -52,6 +52,10 @@ PlainDesktopBackgroundPixmap::~PlainDesktopBackgroundPixmap()
     PlainDesktopBackgroundPixmapConstructorBlurredPixmap = NULL;
 }
 
+void PlainDesktopBackgroundPixmap::createBlurredPixmap()
+{
+}
+
 QPixmap *PlainDesktopBackgroundPixmap::createBlurredPixmap(const QPixmap &, int)
 {
     return NULL;

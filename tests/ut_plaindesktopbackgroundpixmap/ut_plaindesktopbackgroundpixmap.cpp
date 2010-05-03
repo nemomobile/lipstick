@@ -83,7 +83,7 @@ void Ut_PlainDesktopBackgroundPixmap::testConstructingFromFile()
 void Ut_PlainDesktopBackgroundPixmap::testConstructingFromFileFails()
 {
     QString expectedName("test");
-    QPixmap expectedPixmap;
+    QPixmap expectedPixmap(50, 50);
     MThemePixmapReturnValue = &expectedPixmap;
     QPixmapLoadReturnValue = false;
 
@@ -99,7 +99,7 @@ void Ut_PlainDesktopBackgroundPixmap::testConstructingFromFileFails()
 void Ut_PlainDesktopBackgroundPixmap::testConstructingFromTheme()
 {
     QString expectedName("test");
-    QPixmap expectedPixmap;
+    QPixmap expectedPixmap(50, 50);
     MThemePixmapReturnValue = &expectedPixmap;
 
     PlainDesktopBackgroundPixmap pixmap(expectedName, "default", 0);
@@ -108,13 +108,33 @@ void Ut_PlainDesktopBackgroundPixmap::testConstructingFromTheme()
     QCOMPARE(MThemePixmapId, expectedName);
     QCOMPARE(pixmap.pixmap(), pixmap.pixmapFromTheme_);
 
+    // The blurred pixmap creation should have succeeded so pixmapRequestsFinished() signals should not be listened
+    QCOMPARE(disconnect(MTheme::instance(), SIGNAL(pixmapRequestsFinished()), &pixmap, SLOT(createBlurredPixmap())), false);
+    checkBlurredPixmap(pixmap);
+}
+
+void Ut_PlainDesktopBackgroundPixmap::testConstructingFromThemeIsDelayed()
+{
+    QPixmap brokenPixmap(-1, -1);
+    MThemePixmapReturnValue = &brokenPixmap;
+    PlainDesktopBackgroundPixmap pixmap("test", "default", 0);
+
+    // The blurred pixmap creation should have failed so pixmapRequestsFinished() signals should be listened
+    QCOMPARE(disconnect(MTheme::instance(), SIGNAL(pixmapRequestsFinished()), &pixmap, SLOT(createBlurredPixmap())), true);
+    QCOMPARE(pixmap.blurredPixmap(), (QPixmap *)NULL);
+
+    // If the pixmap becomes available the blur should be executed
+    QPixmap validPixmap(50, 50);
+    pixmap.pixmapFromTheme_ = &validPixmap;
+    connect(this, SIGNAL(pixmapRequestsFinished()), &pixmap, SLOT(createBlurredPixmap()));
+    emit pixmapRequestsFinished();
     checkBlurredPixmap(pixmap);
 }
 
 void Ut_PlainDesktopBackgroundPixmap::testConstructingFromEmptyName()
 {
     QString expectedName("test");
-    QPixmap expectedPixmap;
+    QPixmap expectedPixmap(50, 50);
     MThemePixmapReturnValue = &expectedPixmap;
 
     PlainDesktopBackgroundPixmap pixmap("", expectedName, 0);
