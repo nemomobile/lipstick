@@ -118,16 +118,19 @@ void Ut_PlainDesktopBackgroundPixmap::testConstructingFromThemeIsDelayed()
     QPixmap brokenPixmap(-1, -1);
     MThemePixmapReturnValue = &brokenPixmap;
     PlainDesktopBackgroundPixmap pixmap("test", "default", 0);
+    QSignalSpy spy(&pixmap, SIGNAL(pixmapUpdated()));
 
     // The blurred pixmap creation should have failed so pixmapRequestsFinished() signals should be listened
     QCOMPARE(disconnect(MTheme::instance(), SIGNAL(pixmapRequestsFinished()), &pixmap, SLOT(createBlurredPixmap())), true);
     QCOMPARE(pixmap.blurredPixmap(), (QPixmap *)NULL);
+    QCOMPARE(spy.count(), 0);
 
     // If the pixmap becomes available the blur should be executed
     QPixmap validPixmap(50, 50);
     pixmap.pixmapFromTheme_ = &validPixmap;
     connect(this, SIGNAL(pixmapRequestsFinished()), &pixmap, SLOT(createBlurredPixmap()));
     emit pixmapRequestsFinished();
+    QCOMPARE(spy.count(), 1);
     checkBlurredPixmap(pixmap);
 }
 

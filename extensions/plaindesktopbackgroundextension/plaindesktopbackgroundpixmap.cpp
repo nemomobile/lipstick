@@ -74,6 +74,7 @@ void PlainDesktopBackgroundPixmap::createBlurredPixmap()
     } else {
         // A pixmap from a file is being used or a pixmap from the theme is being used and it is available
         blurredPixmap_ = QSharedPointer<QPixmap>(createBlurredPixmap(*pixmap(), blurRadius_));
+        emit pixmapUpdated();
     }
 }
 

@@ -170,6 +170,13 @@ void PlainDesktopBackgroundExtension::updatePixmap(QSharedPointer<PlainDesktopBa
         }
 
         if (desktop != NULL) {
+            QObject *desktopObject = dynamic_cast<QObject *>(desktop);
+            if (desktopObject->metaObject()->indexOfSlot(SLOT(update())) >= 0) {
+                // Redraw the desktop if the blurred pixmap becomes available later
+                connect((*pixmap).data(), SIGNAL(pixmapUpdated()), desktopObject, SLOT(update()));
+            }
+
+            // Redraw the desktop immediately
             desktop->update();
         }
     }

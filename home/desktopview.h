@@ -72,11 +72,14 @@ public:
 #endif
     virtual void drawBackground(QPainter *painter, const QStyleOptionGraphicsItem *option) const;
     virtual void setGeometry(const QRectF &rect);
-    virtual void update();
     virtual M::OrientationAngle orientationAngle();
     //! \reimp_end
 
 private slots:
+    //! \reimp
+    virtual void update();
+    //! \reimp_end
+
     //! Shows the launcher if it is not visible, hides it otherwise
     void toggleLauncher();
 

@@ -80,6 +80,12 @@ private slots:
      */
     void createBlurredPixmap();
 
+signals:
+    /*!
+     * Signaled when the pixmap is updated (blurred pixmap becomes available).
+     */
+    void pixmapUpdated();
+
 private:
     // The blur radius for the pixmap
     int blurRadius_;
