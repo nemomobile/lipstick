@@ -1,3 +1,10 @@
+duihome (0.21.4-1) unstable; urgency=low
+
+  * Fixes: NB#165707 Duihome application launch event latency on order of 100 ms
+  * Fixes: NB#166167 The launcher and switcher page indicators do not always show the current page
+
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Fri, 30 Apr 2010 11:38:14 +0300
+
 duihome (0.21.3-1) unstable; urgency=low
 
   * Fixes: NB#165315 - Opening launcher is very slow

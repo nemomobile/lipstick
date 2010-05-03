@@ -4,6 +4,7 @@
 
 \subsection bugs Bugs fixed
 - There was an unnecessary delay before an application was launched after a launcher button was tapped
+- The launcher and switcher position indicators were not always updated correctly
 
 \section v0213 0.21.3
 
