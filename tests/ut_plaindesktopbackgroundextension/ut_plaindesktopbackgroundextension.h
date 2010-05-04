@@ -52,12 +52,15 @@ private slots:
     void testUpdatePixmapsFails();
     void testSetBlurFactor();
     void testSetBlurTimeLineDirection();
+    void testUpdateDesktop();
+    void testUpdateDesktopNoDesktop();
 
 signals:
     void setBlurTimeLineDirection(const QList<WindowInfo> &windowList);
     void setBlurFactor(qreal blurFactor);
     void updateLandscapePixmap();
     void updatePortraitPixmap();
+    void pixmapUpdated();
 
 private:
     // MApplication

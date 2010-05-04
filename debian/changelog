@@ -1,6 +1,6 @@
 duihome (0.21.6~1) unstable; urgency=low
 
-  * New version [UNRELEASED]
+  * Fixes: NB#166958 Home screen crashes when changing the desktop wallpaper
 
  -- Vesa Halttunen <vesa.halttunen@nokia.com>  Tue, 04 May 2010 14:46:54 +0300
 

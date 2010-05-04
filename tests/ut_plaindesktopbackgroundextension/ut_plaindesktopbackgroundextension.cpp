@@ -263,6 +263,7 @@ void Ut_PlainDesktopBackgroundExtension::init()
     connect(this, SIGNAL(setBlurFactor(qreal)), extension, SLOT(setBlurFactor(qreal)));
     connect(this, SIGNAL(updateLandscapePixmap()), extension, SLOT(updateLandscapePixmap()));
     connect(this, SIGNAL(updatePortraitPixmap()), extension, SLOT(updatePortraitPixmap()));
+    connect(this, SIGNAL(pixmapUpdated()), extension, SLOT(updateDesktop()));
     connect(this, SIGNAL(setBlurTimeLineDirection(const QList<WindowInfo> &)), extension, SLOT(setBlurTimeLineDirection(const QList<WindowInfo> &)));
 }
 
@@ -340,6 +341,7 @@ void Ut_PlainDesktopBackgroundExtension::testUpdatePixmaps()
     MGConfItemValueForKey.insert("/desktop/meego/background/landscape/picture_filename", landscapeName);
     MGConfItemValueForKey.insert("/desktop/meego/background/portrait/picture_filename", portraitName);
     QCOMPARE(extension->initialize(""), true);
+    extension->setDesktopInterface(*this);
 
     // Set up the pixmaps
     PlainDesktopBackgroundPixmapConstructorPixmap = new QPixmap(1, 1);
@@ -348,14 +350,16 @@ void Ut_PlainDesktopBackgroundExtension::testUpdatePixmaps()
     QCOMPARE(PlainDesktopBackgroundPixmapConstructorName, landscapeName);
     QCOMPARE(PlainDesktopBackgroundPixmapConstructorDefaultName, landscapeStyle->defaultBackgroundImage());
     QCOMPARE(PlainDesktopBackgroundPixmapConstructorBlurRadius, landscapeStyle->blurRadius());
+    QVERIFY(updateCalled);
 
+    updateCalled = false;
     PlainDesktopBackgroundPixmapConstructorPixmap = new QPixmap(1, 1);
     PlainDesktopBackgroundPixmapConstructorBlurredPixmap = new QPixmap(1, 1);
     emit updatePortraitPixmap();
-
     QCOMPARE(PlainDesktopBackgroundPixmapConstructorName, portraitName);
     QCOMPARE(PlainDesktopBackgroundPixmapConstructorDefaultName, portraitStyle->defaultBackgroundImage());
     QCOMPARE(PlainDesktopBackgroundPixmapConstructorBlurRadius, landscapeStyle->blurRadius());
+    QVERIFY(updateCalled);
 
     MTheme::releaseStyle(landscapeStyle);
     MTheme::releaseStyle(portraitStyle);
@@ -443,6 +447,21 @@ void Ut_PlainDesktopBackgroundExtension::testSetBlurTimeLineDirection()
     emit setBlurTimeLineDirection(emptyWindowList);
     QCOMPARE(QTimeLineDirection, QTimeLine::Backward);
     QCOMPARE(QTimeLineState, QTimeLine::Running);
+}
+
+void Ut_PlainDesktopBackgroundExtension::testUpdateDesktop()
+{
+    QCOMPARE(extension->initialize(""), true);
+    extension->setDesktopInterface(*this);
+    emit pixmapUpdated();
+    QVERIFY(updateCalled);
+}
+
+void Ut_PlainDesktopBackgroundExtension::testUpdateDesktopNoDesktop()
+{
+    QCOMPARE(extension->initialize(""), true);
+    emit pixmapUpdated();
+    QVERIFY(!updateCalled);
 }
 
 void Ut_PlainDesktopBackgroundExtension::update()

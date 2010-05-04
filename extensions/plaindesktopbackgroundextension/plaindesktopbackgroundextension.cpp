@@ -152,6 +152,13 @@ void PlainDesktopBackgroundExtension::updatePortraitPixmap()
     }
 }
 
+void PlainDesktopBackgroundExtension::updateDesktop()
+{
+    if (desktop != NULL) {
+        desktop->update();
+    }
+}
+
 void PlainDesktopBackgroundExtension::updatePixmap(QSharedPointer<PlainDesktopBackgroundPixmap> *pixmap, MGConfItem &gConfItem, const QString &defaultName)
 {
     if (pixmap != NULL) {
@@ -167,18 +174,13 @@ void PlainDesktopBackgroundExtension::updatePixmap(QSharedPointer<PlainDesktopBa
             gConfItem.set(oldName);
             *pixmap = QSharedPointer<PlainDesktopBackgroundPixmap>(new PlainDesktopBackgroundPixmap(oldName, defaultName, blurRadius));
             pixmapBeingUpdated = false;
+
+            // Redraw the desktop if the blurred pixmap becomes available later
+            connect((*pixmap).data(), SIGNAL(pixmapUpdated()), this, SLOT(updateDesktop()));
         }
 
-        if (desktop != NULL) {
-            QObject *desktopObject = dynamic_cast<QObject *>(desktop);
-            if (desktopObject->metaObject()->indexOfSlot(SLOT(update())) >= 0) {
-                // Redraw the desktop if the blurred pixmap becomes available later
-                connect((*pixmap).data(), SIGNAL(pixmapUpdated()), desktopObject, SLOT(update()));
-            }
-
-            // Redraw the desktop immediately
-            desktop->update();
-        }
+        // Redraw the desktop
+        updateDesktop();
     }
 }
 

@@ -78,6 +78,11 @@ private slots:
      */
     void updatePortraitPixmap();
 
+    /*!
+     * Updates the desktop.
+     */
+    void updateDesktop();
+
 private:
     /*!
      * Updates a pixmap.
