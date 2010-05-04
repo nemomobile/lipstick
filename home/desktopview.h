@@ -23,7 +23,6 @@
 #include <MWidgetView>
 #include "desktopmodel.h"
 #include "desktopstyle.h"
-#include "contextframeworkcontext.h"
 #include "mdesktopbackgroundextensioninterface.h"
 
 class Desktop;
@@ -32,7 +31,6 @@ class QuickLaunchBar;
 class LauncherDataStore;
 class Launcher;
 class NotificationArea;
-class StatusIndicator;
 class QGraphicsLinearLayout;
 class AppletSpace;
 class MModalSceneWindow;
@@ -145,12 +143,6 @@ private:
 
     //! Scene window for the quick launch bar
     MOverlay *quickLaunchBarWindow;
-
-    //! Phone network indicator
-    StatusIndicator *phoneNetworkIndicator;
-
-    //! Context framework application context for the indicators
-    ContextFrameworkContext contextFrameworkContext;
 
     //! The applet space
     AppletSpace *appletSpace;

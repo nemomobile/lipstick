@@ -30,14 +30,12 @@ HEADERS += \
     $$SRCDIR/desktop.h \
     $$SRCDIR/desktopmodel.h \
     $$SRCDIR/desktopstyle.h \
-    $$SRCDIR/applicationcontext.h \
     $$SRCDIR/homeapplication.h \
     $$SRCDIR/mainwindow.h \
     $$SRCDIR/switcher.h \
     $$SRCDIR/quicklaunchbar.h \
     $$SRCDIR/launcher.h \
     $$SRCDIR/launcherdatastore.h \
-    $$SRCDIR/statusindicator.h \
     $$SRCDIR/appletspace.h
 
 include(../common_bot.pri)

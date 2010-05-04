@@ -23,7 +23,6 @@
 #include <QtTest/QtTest>
 #include <QtGui>
 #include "windowinfo.h"
-#include "contextframeworkcontext.h"
 
 class TestHomeApplication;
 

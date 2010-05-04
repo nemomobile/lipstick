@@ -32,8 +32,6 @@
 #include "desktop.h"
 #include "mainwindow.h"
 #include "switcher.h"
-#include "statusindicator.h"
-#include "contextframeworkcontext.h"
 #include "appletspace.h"
 #include "quicklaunchbar.h"
 #include "mdesktopbackgroundextensioninterface.h"
@@ -131,10 +129,6 @@ DesktopView::DesktopView(Desktop *desktop) :
     widget->setMinimumHeight(28);
     widget->setMaximumHeight(28);
     mainLayout->addItem(widget);
-
-    // Create phone network status indicator and put it in a scene window
-    phoneNetworkIndicator = new PhoneNetworkStatusIndicator(contextFrameworkContext);
-    mainLayout->addItem(phoneNetworkIndicator);
 
     // Create switcher
     switcher->setObjectName("OverviewSwitcher");

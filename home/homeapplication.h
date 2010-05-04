@@ -23,7 +23,6 @@
 #include <MApplication>
 //#include <contentsearchif.h>
 #include "windowinfo.h"
-#include "applicationcontext.h"
 #include <QTimer>
 
 class MainWindow;

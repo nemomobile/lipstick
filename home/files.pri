@@ -6,8 +6,6 @@ HEADERS += homeapplication.h \
     appletspaceview.h \
     appletspacemodel.h \
     appletspacestyle.h \
-    applicationcontext.h \
-    contextframeworkcontext.h \
     desktop.h \
     desktopmodel.h \
     desktopview.h \
@@ -25,10 +23,6 @@ HEADERS += homeapplication.h \
     quicklaunchbarmodel.h \
     quicklaunchbarview.h \
     quicklaunchbarstyle.h \
-    statusindicator.h \
-    statusindicatormodel.h \
-    statusindicatorlabelview.h \
-    statusindicatorlabelstyle.h \
     switcher.h \
     switchermodel.h \
     switcherview.h \
@@ -53,7 +47,6 @@ SOURCES += homeapplication.cpp \
     home.cpp \
     appletspace.cpp \
     appletspaceview.cpp \
-    contextframeworkcontext.cpp \
     desktop.cpp \
     desktopview.cpp \
     mainwindow.cpp \
@@ -64,8 +57,6 @@ SOURCES += homeapplication.cpp \
     pagedviewport.cpp \
     quicklaunchbar.cpp \
     quicklaunchbarview.cpp \
-    statusindicator.cpp \
-    statusindicatorlabelview.cpp \
     switcher.cpp \
     switcherview.cpp \
     switcherbutton.cpp \
@@ -83,7 +74,6 @@ MODEL_HEADERS += appletspacemodel.h \
     launcherbuttonmodel.h \
     launchermodel.h \
     quicklaunchbarmodel.h \
-    statusindicatormodel.h \
     switcherbuttonmodel.h \
     switchermodel.h \
     launcherpagemodel.h \
@@ -94,7 +84,6 @@ STYLE_HEADERS += appletspacestyle.h \
     launcherstyle.h \
     launcherpagestyle.h \
     quicklaunchbarstyle.h \
-    statusindicatorlabelstyle.h \
     switcherbuttonstyle.h \
     switcherstyle.h \
     pagepositionindicatorstyle.h

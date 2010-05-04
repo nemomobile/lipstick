@@ -38,11 +38,7 @@
 #include "windowinfo_stub.h"
 #include "homeapplication_stub.h"
 #include "mainwindow_stub.h"
-#include "applicationcontext.h"
 #include <QDBusConnection>
-#include "contextframeworkcontext_stub.h"
-#include "phonenetworkstatusindicator_stub.h"
-#include "statusindicator_stub.h"
 #include "appletspace_stub.h"
 
 // MSceneManager stubs
