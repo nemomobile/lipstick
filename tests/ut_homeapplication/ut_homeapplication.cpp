@@ -44,7 +44,9 @@
 #define ATOM_CLIENT_LIST 0x00020000
 #define ATOM_CLOSE_WINDOW 0x00030000
 #define ATOM_WM_STATE_SKIP_TASKBAR 0x00040001
-#define NET_WM_STATE 0x00040002
+#define NET_WM_STATE 0x00050001
+#define ATOM_NET_WM_NAME 0x00060001
+#define ATOM_WM_NAME 0x00070001
 #define WINDOW_ATTRIBUTE_TEST_WINDOWS 16
 #define WINDOW_TYPE_TEST_WINDOWS 10
 #define NET_WM_STATE_WINDOWS 1
@@ -83,8 +85,11 @@ Atom X11Wrapper::XInternAtom(Display *, const char *atom_name, Bool)
         return ATOM_WM_STATE_SKIP_TASKBAR;
     } else if (strcmp(atom_name, "_NET_WM_STATE") == 0) {
         return NET_WM_STATE;
+    } else if (strcmp(atom_name, "_NET_WM_NAME") == 0) {
+        return ATOM_NET_WM_NAME;
+    } else if (strcmp(atom_name, "WM_NAME") == 0) {
+        return ATOM_WM_NAME;
     }
-
 
     return 0;
 }
@@ -336,6 +341,28 @@ XWMHints *X11Wrapper::XGetWMHints(Display *, Window w)
     }
 
     return wmhints;
+}
+
+Status X11Wrapper::XGetTextProperty(Display *, Window w, XTextProperty *text_prop_return, Atom /*property*/)
+{
+    QString textValue;
+
+    switch (w) {
+    case(WINDOW_ATTRIBUTE_TEST_WINDOWS + 0):
+        textValue = "Window 0 _NET_WM_NAME changed title";
+        break;
+    default:
+        break;
+    }
+
+    if (textValue.isEmpty()) {
+        return 0;
+    } else {
+        std::string::size_type strSize = textValue.toStdString().length();
+        text_prop_return->value = new unsigned char[strSize + 1];
+        strncpy((char *)text_prop_return->value, textValue.toStdString().c_str(), strSize + 1);
+        return 1;
+    }
 }
 
 bool isSkipTaskbarWindow = false;
@@ -759,6 +786,37 @@ void Ut_HomeApplication::testUpdateWindowList()
 
     // Make sure the window list change signal was emitted
     QCOMPARE(r.count, 1);
+}
+
+void Ut_HomeApplication::testX11EventWindowNameChange_data()
+{
+    QTest::addColumn<Window>("window");
+    QTest::addColumn<QString>("property");
+    QTest::addColumn<QString>("title");
+
+    QTest::newRow("_NET_WM_NAME")
+            << (Window)WINDOW_ATTRIBUTE_TEST_WINDOWS + 0 << "_NET_WM_NAME" << "Window 0 _NET_WM_NAME changed title";
+    QTest::newRow("WM_NAME")
+            << (Window)WINDOW_ATTRIBUTE_TEST_WINDOWS + 4 << "WM_NAME" << "Test";
+}
+
+void Ut_HomeApplication::testX11EventWindowNameChange()
+{
+    QFETCH(Window, window);
+    QFETCH(QString, property);
+    QFETCH(QString, title);
+
+    WindowListReceiver r;
+    connect(m_subject, SIGNAL(windowTitleChanged(Window, QString)), &r, SLOT(changeWindowTitle(Window, QString)));
+
+    XEvent event;
+    event.xproperty.atom = X11Wrapper::XInternAtom(QX11Info::display(), property.toUtf8(), False);
+    event.type = PropertyNotify;
+    event.xproperty.window = window;
+    QVERIFY(m_subject->testX11EventFilter(&event));
+
+    QCOMPARE(r.changedTitle.first, window);
+    QCOMPARE(r.changedTitle.second, title);
 }
 
 QTEST_APPLESS_MAIN(Ut_HomeApplication)

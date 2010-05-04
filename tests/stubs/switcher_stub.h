@@ -32,6 +32,7 @@ public:
     virtual void windowToFront(Window window);
     virtual void closeWindow(Window window);
     virtual void viewportSizePosChanged(const QSizeF &viewportSize, const QRectF &pannedRange, const QPointF &pannedPos);
+    virtual void changeWindowTitle(Window window,  const QString &title);
 };
 
 void SwitcherStub::switcherConstructor(MWidget *parent)
@@ -76,6 +77,13 @@ void SwitcherStub::viewportSizePosChanged(const QSizeF &viewportSize, const QRec
     stubMethodEntered("viewportSizePosChanged", params);
 }
 
+void SwitcherStub::changeWindowTitle(Window window,  const QString &title)
+{
+    QList<ParameterBase *> params;
+    params.append(new Parameter<Window>(window));
+    params.append(new Parameter<QString>(title));
+    stubMethodEntered("changeWindowTitle", params);
+}
 
 SwitcherStub gDefaultSwitcherStub;
 SwitcherStub *gSwitcherStub = &gDefaultSwitcherStub;
@@ -108,6 +116,11 @@ void Switcher::closeWindow(Window window)
 void Switcher::viewportSizePosChanged(const QSizeF &viewportSize, const QRectF &pannedRange, const QPointF &pannedPos)
 {
     gSwitcherStub->viewportSizePosChanged(viewportSize, pannedRange, pannedPos);
+}
+
+void Switcher::changeWindowTitle(Window window,  const QString &title)
+{
+    gSwitcherStub->changeWindowTitle(window, title);
 }
 
 #endif

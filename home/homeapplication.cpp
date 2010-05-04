@@ -85,6 +85,8 @@ HomeApplication::HomeApplication(int &argc, char **argv) :
     closeWindowAtom = X11Wrapper::XInternAtom(dpy, "_NET_CLOSE_WINDOW", False);
     skipTaskbarAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_STATE_SKIP_TASKBAR", False);
     windowStateAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_STATE", False);
+    netWindowNameAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_NAME", False);
+    windowNameAtom = X11Wrapper::XInternAtom(dpy, "WM_NAME", False);
 
     // launch a timer for sending a dbus-signal upstart when home is ready
     // and on screen
@@ -162,9 +164,30 @@ bool HomeApplication::x11EventFilter(XEvent *event)
         // Window types changed so update the window list
         updateWindowList();
         return true;
+    } else if (event->type == PropertyNotify &&
+               (event->xproperty.atom == windowNameAtom || event->xproperty.atom == netWindowNameAtom)) {
+        updateWindowTitle(event->xproperty.window);
+        return true;
     }
 
     return MApplication::x11EventFilter(event);
+}
+
+void HomeApplication::updateWindowTitle(Window window)
+{
+    Display *dpy = QX11Info::display();
+    XTextProperty windowTitleDataProperty;
+
+    int result = X11Wrapper::XGetTextProperty(dpy, window, &windowTitleDataProperty, netWindowNameAtom);
+
+    if (result == 0) {
+        result = X11Wrapper::XGetWMName(dpy, window, &windowTitleDataProperty);
+    }
+
+    if (result != 0) {
+        QString title(QString::fromUtf8((const char *)windowTitleDataProperty.value));
+        emit windowTitleChanged(window, title);
+    }
 }
 
 void HomeApplication::updateWindowList()

@@ -49,6 +49,11 @@ Status X11Wrapper::XGetWMName(Display *display, Window w, XTextProperty *text_pr
     return ::XGetWMName(display, w, text_prop_return);
 }
 
+Status X11Wrapper::XGetTextProperty(Display *display, Window w, XTextProperty *text_prop_return, Atom property)
+{
+    return ::XGetTextProperty(display, w, text_prop_return, property);
+}
+
 XWMHints *X11Wrapper::XGetWMHints(Display *display, Window w)
 {
     return ::XGetWMHints(display, w);

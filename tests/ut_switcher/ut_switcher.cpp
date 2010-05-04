@@ -111,6 +111,7 @@ void Ut_Switcher::init()
 
     // Connect widget add/remove signals
     connect(this, SIGNAL(windowListUpdated(const QList<WindowInfo> &)), switcher, SLOT(windowListUpdated(const QList<WindowInfo> &)));
+    connect(this, SIGNAL(windowTitleChanged(Window, QString)), switcher, SLOT(changeWindowTitle(Window, QString)));
     connect(this, SIGNAL(sizePosChanged(const QSizeF &, const QRectF &, const QPointF &)), switcher, SLOT(viewportSizePosChanged(const QSizeF &, const QRectF &, const QPointF &)));
 }
 
@@ -184,7 +185,7 @@ void Ut_Switcher::testWindowRemoving()
     }
 }
 
-void Ut_Switcher::testWindowTitleChange()
+void Ut_Switcher::testWindowTitleChangeWhenWindowListIsUpdated()
 {
     // Add three test windows to the window list
     QList<WindowInfo> l = createWindowList(3);
@@ -209,6 +210,28 @@ void Ut_Switcher::testWindowTitleChange()
         // The button titles should match the window names (Test0, Test3, Test2)
         SwitcherButton *b = switcher->model()->buttons().at(i).data();
         QString title = QString().sprintf("Test%d", i == 1 ? 3 : i);
+        QCOMPARE(b->text(), title);
+    }
+}
+
+void Ut_Switcher::testWindowTitleChange()
+{
+    // Add three test windows to the window list
+    QList<WindowInfo> windows = createWindowList(3);
+
+    // Let the Switcher know about the updated window list
+    emit windowListUpdated(windows);
+
+    emit windowTitleChanged(windows[0].window(), QString("Test3"));
+
+    // There should be three items in the switcher model
+    QCOMPARE(switcher->model()->buttons().count(), 3);
+
+    // See that three SwitcherButtons are added to the model with the correct names
+    for (int i = 1; i < 3; i++) {
+        // The button titles should match the window names (Test0, Test3, Test2)
+        SwitcherButton *b = switcher->model()->buttons().at(i).data();
+        QString title = QString().sprintf("Test%d", i == 0 ? 3 : i);
         QCOMPARE(b->text(), title);
     }
 }

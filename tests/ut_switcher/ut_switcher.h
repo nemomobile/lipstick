@@ -50,6 +50,8 @@ signals:
     // Signal for panning
     void sizePosChanged(const QSizeF &viewportSize, const QRectF &pannedRange, const QPointF &pannedPos);
 
+    void windowTitleChanged(Window window, const QString &title);
+
 private slots:
     // Executed once before every test case
     void init();
@@ -68,6 +70,8 @@ private slots:
 
     // Test removing windows
     void testWindowRemoving();
+
+    void testWindowTitleChangeWhenWindowListIsUpdated();
 
     // Test changing window title
     void testWindowTitleChange();

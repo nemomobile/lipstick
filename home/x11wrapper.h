@@ -35,6 +35,7 @@ public:
     static int XGetWindowProperty(Display *display, Window w, Atom property, long long_offset, long long_length, Bool del, Atom req_type, Atom *actual_type_return, int *actual_format_return, unsigned long *nitems_return, unsigned long *bytes_after_return, unsigned char **prop_return);
     static int XFree(void *data);
     static Status XGetWMName(Display *display, Window w, XTextProperty *text_prop_return);
+    static Status XGetTextProperty(Display *display, Window w, XTextProperty *text_prop_return, Atom property);
     static XWMHints *XGetWMHints(Display *display, Window w);
     static int XFreePixmap(Display *display, Pixmap pixmap);
     static Pixmap XCompositeNameWindowPixmap(Display *dpy, Window window);

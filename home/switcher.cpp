@@ -31,6 +31,7 @@ Switcher::Switcher(MWidget *parent) :
 {
     // Connect to the windowListUpdated signal of the HomeApplication to get information about window list changes
     connect(qApp, SIGNAL(windowListUpdated(const QList<WindowInfo> &)), this, SLOT(windowListUpdated(const QList<WindowInfo> &)));
+    connect(qApp, SIGNAL(windowTitleChanged(Window, QString)), this, SLOT(changeWindowTitle(Window, QString)));
 
     // Get the X11 Atoms for closing and activating a window
     closeWindowAtom  = XInternAtom(QX11Info::display(), "_NET_CLOSE_WINDOW",  False);
@@ -150,5 +151,13 @@ void Switcher::viewportSizePosChanged(const QSizeF &, const QRectF &, const QPoi
     foreach(QSharedPointer<SwitcherButton> b, model()->buttons()) {
         // Update the icon geometry of each button when the viewport is panned
         b->updateIconGeometry();
+    }
+}
+
+void Switcher::changeWindowTitle(Window window,  const QString &title)
+{
+    if (windowMap.contains(window)) {
+        windowMap.value(window)->setText(title);
+        windowMap.value(window)->update();
     }
 }

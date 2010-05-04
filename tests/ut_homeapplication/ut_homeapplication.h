@@ -35,10 +35,18 @@ public:
     QList<WindowInfo> windowList;
     int count;
 
+    QPair<Window, QString> changedTitle;
+
 private slots:
     void windowListUpdated(const QList<WindowInfo> &windowList) {
         this->windowList = windowList;
         this->count++;
+    }
+
+    void changeWindowTitle(Window w, const QString &title)
+    {
+        changedTitle.first = w;
+        changedTitle.second = title;
     }
 };
 
@@ -98,6 +106,10 @@ private slots:
     //void testContentSearchLaunchWithoutServiceFW();
     // Test updating windows list
     void testUpdateWindowList();
+    // Test data for test testX11EventWindowNameChange
+    void testX11EventWindowNameChange_data();
+    // Test that title change signal is emitted when X window property changes
+    void testX11EventWindowNameChange();
 
 private:
     // The object being tested

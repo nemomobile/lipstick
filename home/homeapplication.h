@@ -66,6 +66,11 @@ signals:
      */
     void windowVisibilityChanged(Window window);
 
+    /*!
+     * \brief A signal for notifying that the title of a window has changed
+     */
+    void windowTitleChanged(Window window, const QString &title);
+
 #ifdef BENCHMARKS_ON
     void startBenchmarking();
     void stopBenchmarking();
@@ -98,12 +103,20 @@ private:
     Atom closeWindowAtom;
     Atom skipTaskbarAtom;
     Atom windowStateAtom;
+    Atom netWindowNameAtom;
+    Atom windowNameAtom;
 
     //! Content search service interface. Used to launch the content search service.
     //ContentSearchIf contentSearchIf;
 
     //! A list of windows that are being closed
     QList<Window> windowsBeingClosed;
+
+
+    /*!
+     * Update the title of the given window from X.
+     */
+    void updateWindowTitle(Window window);
 
     /*!
      * Gets the current client window list from X and filters it.

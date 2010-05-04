@@ -68,6 +68,11 @@ private slots:
      */
     void viewportSizePosChanged(const QSizeF &viewportSize, const QRectF &pannedRange, const QPointF &pannedPos);
 
+    /*!
+     * \brief A slot for changing a window title of a switcher button
+     */
+    void changeWindowTitle(Window window,  const QString &title);
+
 private:
     //! X11 Atom for the close window message type
     Atom closeWindowAtom;
