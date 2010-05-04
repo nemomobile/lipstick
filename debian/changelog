@@ -1,4 +1,4 @@
-duihome (0.21.6-1) unstable; urgency=low
+duihome (0.21.6-2) unstable; urgency=low
 
   * Fixes: NB#166958 Home screen crashes when changing the desktop wallpaper
 
