@@ -1,6 +1,7 @@
 duihome (0.21.7~1) unstable; urgency=low
 
   * New version [UNRELEASED]
+  * Implemented: SWP#DUI-2787 Name of the switcher thumbnail should change when window title is changed.
 
  -- Vesa Halttunen <vesa.halttunen@nokia.com>  Wed, 05 May 2010 10:45:33 +0300
 
