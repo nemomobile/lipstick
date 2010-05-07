@@ -2,8 +2,8 @@
 
 \section v0217 0.21.7
 
-\subsection bugs Bugs fixed
-- Switcher thumbnail title did not change when the window title changed
+\subsection New
+- Switcher thumbnail title changes when the window title changes
 
 \section v0216 0.21.6
 
