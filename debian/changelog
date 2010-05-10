@@ -1,3 +1,9 @@
+duihome (0.21.8-1) unstable; urgency=low
+
+  * Disabled the Applet Space 
+
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Mon, 10 May 2010 11:52:48 +0300
+
 duihome (0.21.7-1) unstable; urgency=low
 
   * Implemented: SWP#DUI-2787 Name of the switcher thumbnail should change when window title is changed.
