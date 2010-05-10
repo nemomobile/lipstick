@@ -98,6 +98,11 @@ private slots:
      */
     void testSetPageCount();
 
+    void testDragThreshold();
+    void testVelocityThreshold();
+
+    void testSlide();
+
 private:
     // MApplication
     MApplication *app;
@@ -120,10 +125,15 @@ private:
 			 qreal &position,
 			 qreal &velocity,
 			 qreal &pointerSpring,
-			 qreal &acceleration);
+			 qreal &acceleration,
+                         qreal speed = 1.0);
 
     void fillDefaultIntegrationParameters(PagedPanning* pagedPanning, qreal newPageWidth, qreal rangeStart, qreal rangeEnd);
 
+    void performIntegration(PagedPanning* pagedPanning,
+                            qreal &position,
+                            qreal &velocity,
+                            qreal &acceleration);
 };
 
 #endif

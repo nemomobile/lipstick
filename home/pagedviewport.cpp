@@ -16,10 +16,13 @@
 ** of this file.
 **
 ****************************************************************************/
+#include <mwidgetview.h>
 #include "pagedviewport.h"
 #include "pagedpanning.h"
+#include "pagedviewportstyle.h"
 #include "mpositionindicator.h"
 #include "pagepositionindicator.h"
+#include "pagedviewportview.h"
 
 PagedViewport::PagedViewport(QGraphicsItem *parent) : MPannableViewport(parent), pages_(0)
 {

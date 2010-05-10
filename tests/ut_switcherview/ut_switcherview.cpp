@@ -140,6 +140,26 @@ Window SwitcherButton::xWindow()
     return g_windowButtonMap[this];
 }
 
+
+PagedPanning::PagedPanning(QObject* parent) : MPhysics2DPanning(parent),
+                                              pageCount_(1),
+                                              currentPage(0),
+                                              snapMode(false),
+                                              velocityThreshold_(7.0),
+                                              dragThreshold_(0.5),
+                                              pageSnapSpringK_(0.7),
+                                              pageSnapFriction_(0.7),
+                                              previousPointerPressed(false),
+                                              previousPosition(0),
+                                              targetPage(0),
+                                              pageWidth(0)
+{
+}
+
+PagedPanning::~PagedPanning()
+{
+}
+
 bool g_panRequested;
 uint g_panRequestIndex;
 
@@ -149,20 +169,13 @@ void PagedPanning::panToPage(int itemIndex) {
     emit pageChanged(itemIndex);
 }
 
-PagedPanning::PagedPanning(QObject* parent) : MPhysics2DPanning(parent),
-					      pageCount_(1),
-					      currentPage(0),
-					      autoIntegrateMode(false),
-					      autoIntegrateTargetPage(0)
+void PagedPanning::panToCurrentPage()
 {
-
-}
-PagedPanning::~PagedPanning() {
+    emit pageChanged(currentPage);
 }
 
 void PagedPanning::integrateAxis(Qt::Orientation, qreal &, qreal &, qreal &, qreal &, bool)
 {
-
 }
 
 void PagedPanning::setPageCount(int) {
@@ -170,6 +183,26 @@ void PagedPanning::setPageCount(int) {
 
 int PagedPanning::pageCount() const {
     return 1;
+}
+
+void PagedPanning::setVelocityThreshold(qreal)
+{
+}
+
+void PagedPanning::setDragThreshold(qreal)
+{
+}
+
+void PagedPanning::setSlideLimit(int)
+{
+}
+
+void PagedPanning::setPageSnapSpringK(qreal)
+{
+}
+
+void PagedPanning::setPageSnapFriction(qreal)
+{
 }
 
 void Ut_SwitcherView::initTestCase()

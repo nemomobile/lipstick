@@ -22,7 +22,7 @@
 /*!
  * \class PagedPanning
  *
- * \brief This class extends the \c MPhysics2DPanning to provide 
+ * \brief This class extends the \c MPhysics2DPanning to provide
  * a paged effect to the viewport
  *
  * The paging is only supported in the horizontal direction.
@@ -31,19 +31,19 @@
 class PagedPanning : public MPhysics2DPanning
 {
     Q_OBJECT
-    
+
 public:
-    /*! 
+    /*!
      * Constructs a PagedPanning
      * \param parent The parent object
      */
     PagedPanning(QObject* parent);
-    
+
     /*!
      * Destroys a PagedPanning
      */
     virtual ~PagedPanning();
-    
+
     /*!
      * Sets the number of pages.
      *
@@ -60,6 +60,32 @@ public:
      * Pans the view automatically to the given item index
      */
     void panToPage(int page);
+
+    /*!
+     * Sets the snap activation velocity threshold
+     */
+    void setVelocityThreshold(qreal value);
+
+    /*!
+     * Sets the snap activation drag threshold
+     */
+    void setDragThreshold(qreal value);
+
+    /*!
+     * Sets the maximum number of pages to change per gesture
+     */
+    void setSlideLimit(int value);
+
+    /*!
+     * Sets the page snapping spring stiffness factor
+     */
+    void setPageSnapSpringK(qreal value);
+
+    /*!
+     * Sets the page snapping spring damping friction factor
+     */
+    void setPageSnapFriction(qreal value);
+
 
 protected:
 
@@ -81,22 +107,61 @@ signals:
      */
     void pageChanged(int page);
 
+private slots:
+
+    /*!
+     * Pan to the current page if not already on it
+     */
+    void panToCurrentPage();
+
 private:
 
     //! The number of pages
     int pageCount_;
 
-    //! The current index
+    //! The current page index
     int currentPage;
 
-    //! Indicates if the panning is automatically targeting a specific page
-    bool autoIntegrateMode;
-
-    //! The target page of the automatic integration
-    int autoIntegrateTargetPage;
+    //! True when snapping to pages
+    bool snapMode;
 
     //! The range during the previous integration step
     QRectF previousRange;
+
+    //! Snap activation velocity threshold
+    qreal velocityThreshold_;
+
+    //! Snap activation drag threshold
+    qreal dragThreshold_;
+
+    //! Maximum number of pages to change per gesture
+    int slideLimit_;
+
+    //! Page snapping spring stiffness factor
+    qreal pageSnapSpringK_;
+
+    //! Page snapping spring damping friction factor
+    qreal pageSnapFriction_;
+
+    //! The pointer press state during the previous integration step
+    bool previousPointerPressed;
+
+    //! The view position during the previous integration step
+    qreal previousPosition;
+
+    //! Target page index
+    int targetPage;
+
+    //! Page on which the pointer first came down
+    int initialPage;
+
+    //! Current page width
+    qreal pageWidth;
+
+    /*! Calculate the sliding distance with the given
+     *  initial velocity and friction factor.
+     */
+    qreal slideDistance(qreal initialVelocity, qreal friction);
 
 #ifdef UNIT_TEST
     //! Test unit is defined as a friend of production code to access private members

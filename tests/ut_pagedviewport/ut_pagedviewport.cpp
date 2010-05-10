@@ -20,6 +20,7 @@
 #include <MApplication>
 #include "ut_pagedviewport.h"
 #include "pagedviewport.h"
+#include "pagedviewportview.h"
 #include "pagedpanning.h"
 #include "pagepositionindicator.h"
 
@@ -27,12 +28,18 @@ static uint checkPageCount = 0;
 static uint testPanTargetPage = 0;
 
 PagedPanning::PagedPanning(QObject* parent) : MPhysics2DPanning(parent),
-					      pageCount_(1),
-					      currentPage(0),
-					      autoIntegrateMode(false),
-					      autoIntegrateTargetPage(0)
+                                              pageCount_(1),
+                                              currentPage(0),
+                                              snapMode(false),
+                                              velocityThreshold_(7.0),
+                                              dragThreshold_(0.5),
+                                              pageSnapSpringK_(0.7),
+                                              pageSnapFriction_(0.7),
+                                              previousPointerPressed(false),
+                                              previousPosition(0),
+                                              targetPage(0),
+                                              pageWidth(0)
 {
-
 }
 
 PagedPanning::~PagedPanning()
@@ -42,9 +49,14 @@ PagedPanning::~PagedPanning()
 void PagedPanning::panToPage(int page)
 {
     testPanTargetPage = page;
-    autoIntegrateTargetPage = page;
-    autoIntegrateMode = true;
+    targetPage = page;
+    snapMode = true;
     emit pageChanged(page);
+}
+
+void PagedPanning::panToCurrentPage()
+{
+    emit pageChanged(currentPage);
 }
 
 void PagedPanning::integrateAxis(Qt::Orientation, qreal &, qreal &, qreal &, qreal &, bool)
@@ -61,6 +73,26 @@ void PagedPanning::setPageCount(int pageCount)
 int PagedPanning::pageCount() const
 {
     return checkPageCount;
+}
+
+void PagedPanning::setVelocityThreshold(qreal)
+{
+}
+
+void PagedPanning::setDragThreshold(qreal)
+{
+}
+
+void PagedPanning::setSlideLimit(int)
+{
+}
+
+void PagedPanning::setPageSnapSpringK(qreal)
+{
+}
+
+void PagedPanning::setPageSnapFriction(qreal)
+{
 }
 
 void Ut_PagedViewport::initTestCase()
@@ -105,8 +137,6 @@ void Ut_PagedViewport::test_panToPage()
     m_subject->updatePageCount(10);
 
     m_subject->panToPage(1);
-
-    QCoreApplication::processEvents(QEventLoop::AllEvents, 1000);
 
     QCOMPARE(spy.count(), 1);
     QList<QVariant> arguments = spy.takeFirst();

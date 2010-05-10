@@ -19,6 +19,8 @@ HEADERS += homeapplication.h \
     launcherbuttonmodel.h \
     pagedpanning.h \
     pagedviewport.h \
+    pagedviewportstyle.h \
+    pagedviewportview.h \
     quicklaunchbar.h \
     quicklaunchbarmodel.h \
     quicklaunchbarview.h \
@@ -55,6 +57,7 @@ SOURCES += homeapplication.cpp \
     launcherbutton.cpp \
     pagedpanning.cpp \
     pagedviewport.cpp \
+    pagedviewportview.cpp \
     quicklaunchbar.cpp \
     quicklaunchbarview.cpp \
     switcher.cpp \
@@ -86,4 +89,5 @@ STYLE_HEADERS += appletspacestyle.h \
     quicklaunchbarstyle.h \
     switcherbuttonstyle.h \
     switcherstyle.h \
-    pagepositionindicatorstyle.h
+    pagepositionindicatorstyle.h \
+    pagedviewportstyle.h

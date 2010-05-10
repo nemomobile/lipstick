@@ -3,7 +3,8 @@ TARGET = ut_switcher
 
 STYLE_HEADERS += $$SRCDIR/switcherstyle.h \
                  $$SRCDIR/switcherbuttonstyle.h \
-                 $$SRCDIR/pagepositionindicatorstyle.h
+                 $$SRCDIR/pagepositionindicatorstyle.h \
+                 $$SRCDIR/pagedviewportstyle.h
 MODEL_HEADERS += $$SRCDIR/switchermodel.h \
                  $$SRCDIR/switcherbuttonmodel.h \
                  $$SRCDIR/pagepositionindicatormodel.h
@@ -13,6 +14,7 @@ SOURCES += \
     ut_switcher.cpp \
     $$SRCDIR/switcher.cpp \
     $$SRCDIR/pagedviewport.cpp \
+    $$SRCDIR/pagedviewportview.cpp \
     $$SRCDIR/pagedpanning.cpp
 
 # service classes
@@ -38,6 +40,8 @@ HEADERS += \
     $$SRCDIR/switcherbuttonstyle.h \
     $$SRCDIR/switcherbuttonmodel.h \
     $$SRCDIR/pagedviewport.h \
+    $$SRCDIR/pagedviewportstyle.h \
+    $$SRCDIR/pagedviewportview.h \
     $$SRCDIR/pagedpanning.h \
     $$SRCDIR/windowinfo.h \
     $$SRCDIR/mainwindow.h \

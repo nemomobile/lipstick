@@ -190,14 +190,7 @@ LauncherPageStyle.Landscape {
     padding-bottom: 3.9mm;
 }
 
-MPannableWidgetStyle#LauncherPagedViewport {
-    pan-threshold: 15.0;
-    pan-click-threshold: 0.2;
-    pointer-spring-k: 0.6;
-    friction-c: 0.9;
-    sliding-friction-c: 0.9;
-    border-spring-k: 0.9;
-    border-friction-c: 0.9;
+PagedViewportStyle#LauncherPagedViewport {
     background-opacity: 0;
     margin-left: 0;
     margin-right: 0;
@@ -332,14 +325,20 @@ SwitcherStyle#OverviewSwitcher.Landscape {
     columns-per-page: 3;
 }
 
-MPannableWidgetStyle#SwitcherDetailsViewport {
+PagedViewportStyle {
     pan-threshold: 15.0;
     pan-click-threshold: 0.2;
     pointer-spring-k: 0.6;
     friction-c: 0.9;
-    sliding-friction-c: 0.9;
+    sliding-friction-c: 0.08;
     border-spring-k: 0.9;
     border-friction-c: 0.9;
+
+    page-snap-spring-k: 0.3;
+    page-snap-friction-c: 0.7;
+    velocity-threshold: 7.0;
+    drag-threshold: 0.2;
+    slide-limit: 0;
 }
 
 SwitcherButtonStyle {
