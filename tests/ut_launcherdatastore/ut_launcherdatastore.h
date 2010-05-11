@@ -53,6 +53,7 @@ private slots:
     void testProcessUpdateQueueRestartsIfRequested();
     void testProcessUpdateQueueFiltersDesktopFiles();
     void testUpdatingDataForDesktopEntry();
+    void testOnlyPrefixedKeys();
 
 signals:
     void directoryChanged();

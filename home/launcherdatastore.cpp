@@ -54,6 +54,9 @@ QHash<QString, QVariant> LauncherDataStore::dataForAllDesktopEntries()
 {
     QHash<QString, QVariant> data;
     foreach (const QString &key, store->allKeys()) {
+        // Ignore any entries not withing the "DesktopEntries" section
+        if (key.indexOf(KEY_PREFIX) != 0)
+            continue;
         data.insert(keyToEntryPath(key), store->value(key));
     }
     return data;
@@ -168,6 +171,10 @@ QString LauncherDataStore::entryPathToKey(QString entryPath)
 
 QString LauncherDataStore::keyToEntryPath(QString key)
 {
-    // remove key prefix from the key
-    return key.replace(0, KEY_PREFIX.length(), "");
+    // remove key prefix from the key if if is found
+    if (key.indexOf(KEY_PREFIX) == 0) {
+        return key.replace(0, KEY_PREFIX.length(), "");
+    }
+
+    return key;
 }

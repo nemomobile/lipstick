@@ -378,4 +378,21 @@ void Ut_LauncherDataStore::testUpdatingDataForDesktopEntry()
     QCOMPARE(spy.count(), 1);
 }
 
+void Ut_LauncherDataStore::testOnlyPrefixedKeys()
+{
+    // Test applications
+    mockStore->createValue("DesktopEntries" + fileNameWithPath("regularApplication.desktop"), QVariant("data0"));
+    mockStore->createValue("OtherPrefix" + fileNameWithPath("otherApplication1.desktop"), QVariant("data1"));
+    mockStore->createValue(fileNameWithPath("otherApplication2.desktop"), QVariant("data2"));
+
+    LauncherDataStore dataStore(mockStore);
+
+    // Launcher data store should only list entries prefixed with the
+    // "DesktopEntries" prefix and ignore all others
+    QHash<QString, QVariant> data = dataStore.dataForAllDesktopEntries();
+    QCOMPARE(data.count(), 1);
+    QCOMPARE(data.contains(fileNameWithPath("regularApplication.desktop")), true);
+    QCOMPARE(data.value(fileNameWithPath("regularApplication.desktop")), QVariant("data0"));
+}
+
 QTEST_APPLESS_MAIN(Ut_LauncherDataStore)
