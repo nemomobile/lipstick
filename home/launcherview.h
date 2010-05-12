@@ -62,6 +62,14 @@ protected slots:
     virtual void updateData(const QList<const char *>& modifications);
     //! \reimp_end
 
+private slots:
+
+    /*! Pans launcher to requested page.
+     *
+     * \param page number of requested page
+     */
+    void panToPage(uint page);
+
 private:
     //! A layout for the widgets
     QGraphicsLinearLayout *layout;

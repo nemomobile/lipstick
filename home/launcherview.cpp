@@ -47,6 +47,8 @@ LauncherView::LauncherView(Launcher *controller) :
     pagedViewport->setWidget(pannedWidget);
     pagedViewport->setObjectName("LauncherPagedViewport");
     pagedViewport->setPanDirection(Qt::Horizontal);
+
+    connect(controller, SIGNAL(panningRequested(uint)), this, SLOT(panToPage(uint)));
 }
 
 LauncherView::~LauncherView()
@@ -72,6 +74,11 @@ void LauncherView::updateData(const QList<const char *>& modifications)
             pagedViewport->updatePageCount(model()->launcherPages().count());
         }
     }
+}
+
+void LauncherView::panToPage(uint page)
+{
+    pagedViewport->panToPage(page);
 }
 
 M_REGISTER_VIEW_NEW(LauncherView, Launcher)

@@ -10,7 +10,9 @@ SOURCES += \
 # helper classes
 SOURCES += \
     windowinfo.cpp \
-    $$STUBSDIR/stubbase.cpp
+    $$STUBSDIR/stubbase.cpp \
+    $$SRCDIR/homescreenservice.cpp \
+    $$SRCDIR/homescreenadaptor.cpp
 
 # unit test and unit
 HEADERS += \
@@ -20,7 +22,9 @@ HEADERS += \
 # helper classes
 HEADERS += \
     windowinfo.h \
-    $$SRCDIR/mainwindow.h
+    $$SRCDIR/mainwindow.h \
+    $$SRCDIR/homescreenservice.h \
+    $$SRCDIR/homescreenadaptor.h
 
 SOURCES +=
 include(../common_bot.pri)

@@ -26,6 +26,7 @@
 #include <QTimer>
 
 class MainWindow;
+class HomeScreenService;
 
 
 /*!
@@ -56,6 +57,12 @@ public slots:
     void launchContentSearchService();
 
 signals:
+
+    /*!
+     * \brief A Signal to request launcher focus on specific launcher application
+     */
+     void focusToLauncherAppRequested(const QString &fileEntryPath);
+
     /*!
      * \brief A signal for notifying that the window list has been updated
      */
@@ -132,6 +139,9 @@ private:
 
     //! Timer used for sending startup notifications
     QTimer startupNotificationTimer;
+
+    //! Implementations for com.meego.core.HomeScreen interface.
+    HomeScreenService *homeScreenService;
 };
 
 #endif /* HOMEAPPLICATION_H_ */

@@ -21,6 +21,7 @@
 
 #include <QObject>
 #include <QVector>
+#include <QSignalSpy>
 
 class Launcher;
 class LauncherDataStore;
@@ -38,11 +39,16 @@ private:
 
     void writeDesktopFile(QString fileName, QString type, QString name, QString iconName, QString exec);
     int buttonsCount();
+    // Create default set of desktop file entries for panToPage tests
+    void createdDefaultSetOfDesktopEntries();
+    // Convience function for pantToPage tests to check that signal has correct page as an argument
+    void comparePageNumberArgument(QSignalSpy &spy, int page);
 
 signals:
     void directoryLaunched(const QString &directory, const QString &title = QString(), const QString &iconId = QString());
     void directoryChanged(const QString path);
     void buttonClicked();
+    void testPanToPageSignal(const QString &filePath);
 
 private slots:
     // Executed once before every test case
@@ -62,5 +68,18 @@ private slots:
     void testPaging();
     // Test that empty page is removed from launcher
     void testEmptyPage();
+    // Test that launcher sends a request to pan to correct page
+    // when absolute filepath is given
+    void testPanToPageWithAbsoluteFilePathEntry();
+    // Test that launcher sends a request to pan to correct page
+    // when only desktop file name is given
+    void testPanToPageWithOnlyDesktopFileName();
+    // Test that launcher sends a request to pan to correct page
+    // multiple times a row
+    void testPanToPageMultipleTimes();
+    // Test that no pan request is send when bad desktop filename is given
+    void testPanToPageWithNonExistentFileName();
+    // Test that no pan request is send when empty string is given
+    void testPanToPageWithEmptyFileName();
 };
 #endif //_UT_LAUNCHER_

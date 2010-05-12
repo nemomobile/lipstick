@@ -73,6 +73,7 @@ void Ut_Launcher::init()
     connect(this, SIGNAL(directoryChanged(const QString)), launcher, SLOT(updatePagesFromDataStore()));
     connect(this, SIGNAL(applicationLaunched(const QString)), launcher, SLOT(launchApplication(const QString)));
     connect(this, SIGNAL(mApplicationLaunched(const QString)), launcher, SLOT(launchMApplication(const QString)));
+    connect(this, SIGNAL(testPanToPageSignal(const QString &)), launcher, SLOT(panToPage(const QString &)));
 
     qProcessProgramStarted.clear();
     mApplicationIfProxyLaunchCalled = false;
@@ -91,6 +92,28 @@ int Ut_Launcher::buttonsCount()
         count += page.data()->model()->launcherButtons().count();
     }
     return count;
+}
+
+void Ut_Launcher::createdDefaultSetOfDesktopEntries()
+{
+    QHash<QString, QVariant> dataForAllDesktopEntries;
+    dataForAllDesktopEntries.insert(QString(APPLICATIONS_DIRECTORY) + "testApp00.desktop", QVariant("launcher/0/0"));
+    dataForAllDesktopEntries.insert(QString(APPLICATIONS_DIRECTORY) + "testApp10.desktop", QVariant("launcher/1/0"));
+    dataForAllDesktopEntries.insert(QString(APPLICATIONS_DIRECTORY) + "testApp20.desktop", QVariant("launcher/2/0"));
+    dataForAllDesktopEntries.insert(QString(APPLICATIONS_DIRECTORY) + "testApp21.desktop", QVariant("launcher/2/1"));
+    dataForAllDesktopEntries.insert(QString(APPLICATIONS_DIRECTORY) + "testApp22.desktop", QVariant("launcher/2/2"));
+    dataForAllDesktopEntries.insert(QString(APPLICATIONS_DIRECTORY) + "testApp30.desktop", QVariant("launcher/3/0"));
+    dataForAllDesktopEntries.insert(QString(APPLICATIONS_DIRECTORY) + "testApp40.desktop", QVariant("launcher/4/0"));
+    dataForAllDesktopEntries.insert(QString(APPLICATIONS_DIRECTORY) + "testApp41.desktop", QVariant("launcher/4/1"));
+    dataForAllDesktopEntries.insert(QString(APPLICATIONS_DIRECTORY) + "testApp50.desktop", QVariant("launcher/5/0"));
+    gLauncherDataStoreStub->stubSetReturnValue("dataForAllDesktopEntries", dataForAllDesktopEntries);
+}
+
+void Ut_Launcher::comparePageNumberArgument(QSignalSpy &spy, int page)
+{
+    QCOMPARE(spy.count(), 1);
+    QList<QVariant> arguments = spy.takeFirst();
+    QCOMPARE(arguments.at(0).toInt(), page);
 }
 
 void Ut_Launcher::testApplicationLaunched()
@@ -169,6 +192,73 @@ void Ut_Launcher::testEmptyPage()
     QCOMPARE(launcher->model()->launcherPages().count(), 2);
     QCOMPARE(launcher->model()->launcherPages().at(0)->model()->launcherButtons().count(), 12);
     QCOMPARE(launcher->model()->launcherPages().at(1)->model()->launcherButtons().count(), 1);
+}
+
+void Ut_Launcher::testPanToPageWithAbsoluteFilePathEntry()
+{
+    QSignalSpy spyPanToReqPage(launcher, SIGNAL(panningRequested(uint)));
+
+    createdDefaultSetOfDesktopEntries();
+
+    emit testPanToPageSignal(QString(APPLICATIONS_DIRECTORY) + "testApp20.desktop");
+
+    comparePageNumberArgument(spyPanToReqPage, 2);
+}
+
+void Ut_Launcher::testPanToPageWithOnlyDesktopFileName()
+{
+    QSignalSpy spyPanToReqPage(launcher, SIGNAL(panningRequested(uint)));
+
+    createdDefaultSetOfDesktopEntries();
+
+    emit testPanToPageSignal("testApp30.desktop");
+
+    comparePageNumberArgument(spyPanToReqPage, 3);
+}
+
+void Ut_Launcher::testPanToPageMultipleTimes()
+{
+    QSignalSpy spyPanToReqPage(launcher, SIGNAL(panningRequested(uint)));
+
+    createdDefaultSetOfDesktopEntries();
+
+    emit testPanToPageSignal("testApp00.desktop");
+
+    comparePageNumberArgument(spyPanToReqPage, 0);
+
+    emit testPanToPageSignal("testApp21.desktop");
+
+    comparePageNumberArgument(spyPanToReqPage, 2);
+
+    emit testPanToPageSignal("testApp50.desktop");
+
+    comparePageNumberArgument(spyPanToReqPage, 5);
+
+    emit testPanToPageSignal("testApp22.desktop");
+
+    comparePageNumberArgument(spyPanToReqPage, 2);
+}
+
+void Ut_Launcher::testPanToPageWithNonExistentFileName()
+{
+    QSignalSpy spyPanToReqPage(launcher, SIGNAL(panningRequested(uint)));
+
+    createdDefaultSetOfDesktopEntries();
+
+    emit testPanToPageSignal("testApp30");
+
+    QCOMPARE(spyPanToReqPage.count(), 0);
+}
+
+void Ut_Launcher::testPanToPageWithEmptyFileName()
+{
+    QSignalSpy spyPanToReqPage(launcher, SIGNAL(panningRequested(uint)));
+
+    createdDefaultSetOfDesktopEntries();
+
+    emit testPanToPageSignal("");
+
+    QCOMPARE(spyPanToReqPage.count(), 0);
 }
 
 QTEST_MAIN(Ut_Launcher)

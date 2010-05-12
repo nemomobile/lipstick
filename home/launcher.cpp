@@ -182,6 +182,34 @@ QMap<Launcher::Placement, QString> Launcher::createPlacementMap(const QHash<QStr
     return placementMap;
 }
 
+int Launcher::panToPage(const QString &desktopFileEntry)
+{
+    int page = pageNumber(desktopFileEntry);
+    if (page >= 0) {
+        emit panningRequested((uint)page);
+    }
+    return page;
+}
+
+int Launcher::pageNumber(const QString &desktopFileEntry)
+{
+    QString desktopFile = QString(desktopFileEntry);
+    if(!QFileInfo(desktopFileEntry).isAbsolute()) {
+        desktopFile = QString(desktopFileEntry).prepend(APPLICATIONS_DIRECTORY);
+    }
+
+    int page = -1;
+
+    QHash<QString, QVariant> allDesktopEntries = dataStore->dataForAllDesktopEntries();
+    if(allDesktopEntries.contains(desktopFile)) {
+        Placement placement(allDesktopEntries.value(desktopFile).toString());
+        page = placement.page;
+    }
+
+    return page;
+}
+
+
 Launcher::Placement::Placement(const QString &placement) : page(-1), position(-1) {
     location = placement.section(SECTION_SEPARATOR, 0, 0);
     if (location == LOCATION_IDENTIFIER) {

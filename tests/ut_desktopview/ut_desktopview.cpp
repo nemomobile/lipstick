@@ -41,6 +41,21 @@
 #include <QDBusConnection>
 #include "appletspace_stub.h"
 
+
+// QWidget stubs
+bool windowActivated = false;
+bool windowRaised = false;
+
+void QWidget::activateWindow()
+{
+    windowActivated = true;
+}
+
+void QWidget::raise()
+{
+     windowRaised = true;
+}
+
 // MSceneManager stubs
 void MSceneManager::appearSceneWindow(MSceneWindow *window, MSceneWindow::DeletionPolicy)
 {
@@ -136,6 +151,10 @@ void Ut_DesktopView::init()
     desktop->setView(desktopView);
     desktopView->modifiableStyle()->setDesktopBackgroundImage(backgroundImage);
     connect(this, SIGNAL(launcherButtonClicked()), desktopView, SLOT(toggleLauncher()));
+
+    // For QWidget activateWindow() and raise() stubs
+    windowRaised = false;
+    windowActivated = false;
 }
 
 void Ut_DesktopView::cleanup()
@@ -172,6 +191,59 @@ void Ut_DesktopView::testShowingHidingLauncher()
     emit launcherButtonClicked();
     QCOMPARE(desktopView->launcherWindow->isVisible(), false);
     QCOMPARE(desktopView->launcher->isEnabled(), false);
+}
+
+
+void Ut_DesktopView::testShowLauncherAndPanToPageWithCorrectDesktopFile()
+{
+    gLauncherStub->stubSetReturnValue("panToPage", 1);
+
+    desktopView->launcher->setEnabled(false);
+
+    QCOMPARE(desktopView->launcherWindow->isVisible(), false);
+    QCOMPARE(desktopView->launcher->isEnabled(), false);
+
+    desktopView->showLauncherAndPanToPage("correctFileName");
+
+    QCOMPARE(windowActivated, true);
+    QCOMPARE(windowRaised, true);
+    QCOMPARE(desktopView->launcherWindow->isVisible(), true);
+    QCOMPARE(desktopView->launcher->isEnabled(), true);
+}
+
+void Ut_DesktopView::testShowLauncherAndPanToPageWithBadDesktopFile()
+{
+    gLauncherStub->stubSetReturnValue("panToPage", -1);
+
+    desktopView->launcher->setEnabled(false);
+
+    QCOMPARE(desktopView->launcherWindow->isVisible(), false);
+    QCOMPARE(desktopView->launcher->isEnabled(), false);
+
+    desktopView->showLauncherAndPanToPage("badFileName");
+
+    QCOMPARE(windowActivated, false);
+    QCOMPARE(windowRaised, false);
+    QCOMPARE(desktopView->launcherWindow->isVisible(), false);
+    QCOMPARE(desktopView->launcher->isEnabled(), false);
+}
+
+void Ut_DesktopView::testShowLauncherAndPanToPageWithEmptyDesktopFile()
+{
+    gLauncherStub->stubSetReturnValue("panToPage", -1);
+
+    desktopView->launcher->setEnabled(false);
+
+    QCOMPARE(desktopView->launcherWindow->isVisible(), false);
+    QCOMPARE(desktopView->launcher->isEnabled(), false);
+
+    //emit focusToLauncherAppRequested("asd");
+    desktopView->showLauncherAndPanToPage("");
+
+    QCOMPARE(windowActivated, true);
+    QCOMPARE(windowRaised, true);
+    QCOMPARE(desktopView->launcherWindow->isVisible(), true);
+    QCOMPARE(desktopView->launcher->isEnabled(), true);
 }
 
 QTEST_APPLESS_MAIN(Ut_DesktopView)

@@ -37,6 +37,19 @@ Icon=my_app_icon_id
 OnlyShowIn=X-MeeGo;
 \endverbatim
 
+\subsection dbusinterface D-Bus interface for opening launcher to a page where a certain application is located
+
+%Launcher provides a D-Bus API, through which user can be transferred to a launcher page where download or installation of a certain application commences. The desktop entry file of this application is given as an argument in format "filename.desktop" or as an absolute path to the file.
+
+D-Bus interface:
+\verbatim
+<interface name="com.meego.core.HomeScreen">
+    <method name="showLauncher">
+        <arg name="desktopFileEntry" type="s" direction="in"/>
+    </method>
+</interface>
+\endverbatim
+
 \see
 
 - The <a href="http://standards.freedesktop.org/desktop-entry-spec/latest/">freedesktop.org desktop entry standard</a>

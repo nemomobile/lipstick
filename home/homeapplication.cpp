@@ -17,6 +17,9 @@
 **
 ****************************************************************************/
 
+#include "homescreenservice.h"
+#include "homescreenadaptor.h"
+
 #include <sys/types.h>
 #include <signal.h>
 #include <unistd.h>
@@ -27,6 +30,9 @@
 #include "mainwindow.h"
 #include "x11wrapper.h"
 #include "x11helper.h"
+
+static const QString MEEGO_CORE_HOME_SCREEN_SERVICE_NAME="com.meego.core.HomeScreen";
+static const QString MEEGO_CORE_HOME_SCREEN_OBJECT_PATH ="/homescreen";
 
 /*!
  * D-Bus names for the notification that's sent when home is ready
@@ -71,7 +77,8 @@ static bool isUpstartMode(int argc, char *argv[])
 }
 
 HomeApplication::HomeApplication(int &argc, char **argv) :
-    MApplication(argc, argv)
+    MApplication(argc, argv),
+    homeScreenService(new HomeScreenService)
 {
     // Get X11 Atoms for different window types
     Display *dpy = QX11Info::display();
@@ -96,10 +103,20 @@ HomeApplication::HomeApplication(int &argc, char **argv) :
     startupNotificationTimer.setSingleShot(true);
     startupNotificationTimer.setInterval(0);
     startupNotificationTimer.start();
+
+    new HomeScreenAdaptor(homeScreenService);
+
+    QDBusConnection connection = QDBusConnection::sessionBus();
+
+    connection.registerService(MEEGO_CORE_HOME_SCREEN_SERVICE_NAME);
+    connection.registerObject(MEEGO_CORE_HOME_SCREEN_OBJECT_PATH, homeScreenService);
+
+    connect(homeScreenService, SIGNAL(focusToLauncherApp(const QString&)), this, SIGNAL(focusToLauncherAppRequested(const QString &)));
 }
 
 HomeApplication::~HomeApplication()
 {
+    delete homeScreenService;
 }
 
 void HomeApplication::sendStartupNotifications()

@@ -97,6 +97,27 @@ signals:
      */
     void launcherButtonClicked();
 
+    /*!
+     *  Signal to request panning to specific page
+     *
+     * \param page number of page to pan to
+     */
+    void panningRequested(uint page);
+
+public slots:
+
+    /*!
+     * Open launcher and pan to page where launcher button of requested application is placed
+     *
+     * \param desktopFileEntry is application's desktop file.
+     * Name should be given in format "filename.desktop" or in absolute path.
+     * Default applications directory path is used if only file name given.
+     *
+     * \return number of page that contains application. Returns -1 if .desktop
+     * file is not found.
+     */
+    int panToPage(const QString &desktopFileEntry);
+
 private slots:
     /*!
      * Updates pages according to the contents of the data store.
@@ -104,6 +125,17 @@ private slots:
     void updatePagesFromDataStore();
 
 private:
+
+    /*!
+     * Returns page number of requested application by searching application's
+     * desktop file entry path from launcher's datastorage.
+     *
+     * \param desktopFileEntry is application's desktop file.
+     * Name should be given in format "filename.desktop" or in absolute path.
+     * Default applications directory path is used if only file name is given.
+     */
+    int pageNumber(const QString &desktopFileEntry);
+
     /*!
      * Update the given pages list by putting the desktop entries with known
      * placements in the desired pages. Pages are created as necessary.

@@ -3,6 +3,8 @@ MOC_DIR = .moc
 MGEN_OUTDIR = .gen
 OBJECTS_DIR = .obj
 
+system(m-servicefwgen -a com.meego.core.HomeScreen)
+
 include(../m_targets.pri)
 include(../mconfig.pri)
 include(files.pri)

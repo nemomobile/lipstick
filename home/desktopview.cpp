@@ -24,6 +24,7 @@
 #include <QTime>
 #include <QFileSystemWatcher>
 #endif
+
 #include <QDir>
 
 #include "launcher.h"
@@ -159,6 +160,7 @@ DesktopView::DesktopView(Desktop *desktop) :
     // The launcher is added into a modal scene window
     launcher = new Launcher(launcherDataStore);
     connect(launcher, SIGNAL(launcherButtonClicked()), this, SLOT(toggleLauncher()));
+    connect(qApp, SIGNAL(focusToLauncherAppRequested(const QString &)), this, SLOT(showLauncherAndPanToPage(const QString &)));
     launcherWindow->setLayout(windowLayout);
     launcherWindow->setObjectName("LauncherWindow");
     windowLayout->addItem(launcher);
@@ -240,6 +242,15 @@ void DesktopView::toggleLauncher()
     }
 }
 
+void DesktopView::showLauncherAndPanToPage(const QString &desktopFileEntry)
+{
+    if(launcher->panToPage(desktopFileEntry) >= 0 || desktopFileEntry.isEmpty()) {
+        showLauncher();
+        MainWindow::instance()->activateWindow();
+        MainWindow::instance()->raise();
+    }
+}
+
 void DesktopView::showLauncher()
 {
     MainWindow::instance()->sceneManager()->appearSceneWindow(launcherWindow);
@@ -262,7 +273,7 @@ void DesktopView::hideLauncher()
 
     // Scroll the launcher above the screen
     MainWindow::instance()->sceneManager()->disappearSceneWindow(launcherWindow);
-    
+
     // TODO : does this have to be animated??
     switcher->setVisible(true);
 }

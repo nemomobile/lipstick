@@ -39,6 +39,7 @@ class MOverlay;
 class MApplicationExtensionArea;
 class MApplicationExtensionInterface;
 class MDesktopBackgroundExtensionInterface;
+class HomeScreenService;
 
 /*!
  * The desktop view draws a background for the desktop and manages layouts
@@ -95,6 +96,14 @@ private slots:
      */
     void removeExtension(MApplicationExtensionInterface *extension);
 
+    /*!
+     * Shows launcher and pans to page that has launcher application specified
+     * with .desktop file
+     *
+     * \param desktop file or file path of application
+     */
+    void showLauncherAndPanToPage(const QString &desktopFileEntry = QString());
+
 #ifdef BENCHMARKS_ON
 private slots:
     void startBenchmarking();
@@ -103,7 +112,8 @@ private slots:
 #endif
 
 private:
-    /*!
+
+     /*!
      * \brief Shows the application launcher
      */
     void showLauncher();

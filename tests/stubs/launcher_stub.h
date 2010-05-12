@@ -32,6 +32,7 @@ class LauncherStub : public StubBase {
   virtual bool startApplication(const QString &application);
   virtual bool startMApplication(const QString &serviceName);
   virtual void updatePagesFromDataStore();
+  virtual int panToPage(const QString &fileEntryPath);
   virtual QSharedPointer<LauncherButton> createLauncherButton(const QString &desktopEntryPath);
   virtual QMap<Launcher::Placement, QString> createPlacementMap(const QHash<QString, QVariant> &desktopEntryPlacements);
 }; 
@@ -77,7 +78,12 @@ QMap<Launcher::Placement, QString> LauncherStub::createPlacementMap(const QHash<
   return stubReturnValue<QMap<Launcher::Placement, QString> >("createPlacementMap");
 }
 
-
+int LauncherStub::panToPage(const QString &fileEntryPath) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<QString>(fileEntryPath));
+  stubMethodEntered("panToPage",params);
+  return stubReturnValue<int>("panToPage");
+}
 
 // 3. CREATE A STUB INSTANCE
 LauncherStub gDefaultLauncherStub;
@@ -113,5 +119,8 @@ QMap<Launcher::Placement, QString> Launcher::createPlacementMap(const QHash<QStr
   return gLauncherStub->createPlacementMap(desktopEntryPlacements);
 }
 
+int Launcher::panToPage(const QString &fileEntryPath) {
+  return gLauncherStub->panToPage(fileEntryPath);
+}
 
 #endif

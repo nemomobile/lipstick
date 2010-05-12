@@ -43,7 +43,9 @@ HEADERS += homeapplication.h \
     pagepositionindicatorview.h \
     pagepositionindicatorstyle.h \
     pagepositionindicatormodel.h \
-    pagepositionindicator.h
+    pagepositionindicator.h \
+    homescreenservice.h \
+    homescreenadaptor.h
 SOURCES += homeapplication.cpp \
     windowinfo.cpp \
     home.cpp \
@@ -70,7 +72,9 @@ SOURCES += homeapplication.cpp \
     launcherpageview.cpp \
     launcherdatastore.cpp \
     pagepositionindicatorview.cpp \
-    pagepositionindicator.cpp
+    pagepositionindicator.cpp \
+    homescreenservice.cpp \
+    homescreenadaptor.cpp
 MODEL_HEADERS += appletspacemodel.h \
     appletspacemodel.h \
     desktopmodel.h \
