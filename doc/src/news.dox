@@ -1,5 +1,10 @@
 /*! \page news What's New in DirectUI Homescreen
 
+\section v0219 0.21.9
+
+\subsection New
+- Support to open launcher at a page where launcher item with certain application icon is displayed using com.meego.core.HomeScreen dbus service.
+
 \section v0218 0.21.8
 
 \subsection New

@@ -1,3 +1,10 @@
+duihome (0.21.9~1) unstable; urgency=low
+
+  * New version [UNRELEASED]
+  * Implemented: SWP#DUI-2724 Support to open launcher at a page where launcher item with certain application icon is displayed.
+
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Tue, 18 May 2010 10:00:00 +0300
+
 duihome (0.21.8-1) unstable; urgency=low
 
   * Disabled the Applet Space 
