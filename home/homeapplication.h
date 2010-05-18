@@ -105,6 +105,7 @@ private:
     Atom windowTypeDesktopAtom;
     Atom windowTypeNotificationAtom;
     Atom windowTypeDockAtom;
+    Atom windowTypeDialogAtom;
     Atom windowTypeCallAtom;
     Atom clientListAtom;
     Atom closeWindowAtom;
