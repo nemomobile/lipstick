@@ -37,5 +37,5 @@ QGraphicsWidget *WeatherApplet::constructWidget(const MAppletMetaData &metaData,
         }
     }
 
-    return new Weather(instanceData, settings);
+    return new Weather(metaData, instanceData, settings);
 }

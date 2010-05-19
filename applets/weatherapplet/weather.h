@@ -25,6 +25,7 @@
 
 class MDataStore;
 class MDataAccess;
+class MAppletMetaData;
 
 /*!
  * The weather applet is only for demonstration purposes.
@@ -39,10 +40,11 @@ class Weather : public MWidgetController
 public:
     /*!
      * Constructs an Weather widget.
+     * \param metaData the metadata object for the applet.
      * \param instanceData the instance data object for the applet.
      * \param settings the settings object for the applet.
      */
-    Weather(MDataStore &instanceData, MDataAccess &settings);
+    Weather(const MAppletMetaData &metaData, MDataStore &instanceData, MDataAccess &settings);
 
     /*!
      * Destroys the Weather.

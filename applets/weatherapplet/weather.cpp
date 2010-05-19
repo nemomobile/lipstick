@@ -20,10 +20,11 @@
 #include "weather.h"
 #include <MDataAccess>
 #include <MDataStore>
+#include <MAppletMetaData>
 #include <QDebug>
 
 
-Weather::Weather(MDataStore &instanceData, MDataAccess &settings) :
+Weather::Weather(const MAppletMetaData &metaData, MDataStore &instanceData, MDataAccess &settings) :
     MWidgetController(new WeatherModel, NULL),
     instanceData(instanceData),
     appletTitle(qtTrId("xx_weathertoday"))
@@ -56,13 +57,17 @@ Weather::Weather(MDataStore &instanceData, MDataAccess &settings) :
     settingChanged("localtemperature", settings.value("localtemperature"));
     connect(&settings, SIGNAL(valueChanged(const QString &, const QVariant &)), this, SLOT(settingChanged(const QString &, const QVariant &)));
 
-    // Read the instance data if the number of buttons is stored there
-    if (instanceData.contains("numMonitoredCities")) {
-        bool ok = false;
-        int storedNumButtons = instanceData.value("numMonitoredCities").toInt(&ok);
-        if (ok && storedNumButtons >= 1 && storedNumButtons <= 10) {
-            model()->setNumMonitoredCities(storedNumButtons);
-        }
+    // Get the number of monitored cities. The value defined in metadata overrides the value in instanceData
+    bool ok = false;
+    uint initialMonitoredCities = 0;
+    if (metaData.contains("X-Additional", "NumMonitoredCities")) {
+        initialMonitoredCities = metaData.value("X-Additional", "NumMonitoredCities").toUInt(&ok);
+    } else if (instanceData.contains("numMonitoredCities")) {
+        initialMonitoredCities = instanceData.value("numMonitoredCities").toInt(&ok);
+    }
+
+    if (ok && initialMonitoredCities >= 1 && initialMonitoredCities <= 10) {
+        model()->setNumMonitoredCities(initialMonitoredCities);
     }
 }
 
