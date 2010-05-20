@@ -149,7 +149,7 @@ PagePositionIndicatorStyle#LauncherPageIndicator {
 }
 
 PagePositionIndicatorStyle#SwitcherOverviewPageIndicator {
-    margin-top: 0;
+    margin-top: 13;
 }
 
 LauncherStyle {
@@ -296,7 +296,7 @@ SwitcherStyle {
     margin-bottom: 0;
     padding-left: 0;
     padding-right: 0;
-    padding-top: 5;
+    padding-top: 0;
     padding-bottom: 0;
 
     /* how much to down scale the non emphasizzed items */
@@ -308,21 +308,33 @@ SwitcherStyle {
     /* The amoun the items will overlap when stationary */
     item-over-lap: 3mm;
 
+    button-horizontal-spacing: 0;
+    button-vertical-spacing: 0;
 }
+
 
 SwitcherStyle#OverviewSwitcher {
     button-horizontal-spacing: 3mm;
-    button-vertical-spacing: 2.1mm;
+    button-vertical-spacing: 3mm;
 }
 
 SwitcherStyle#OverviewSwitcher.Portrait {
-    rows-per-page: 3;
+    button-horizontal-spacing: 3mm;
+    button-vertical-spacing: 3mm;
+    rows-per-page: 2;
     columns-per-page: 2;
 }
 
 SwitcherStyle#OverviewSwitcher.Landscape {
+    button-horizontal-spacing: 3mm;
+    button-vertical-spacing: 3mm;
     rows-per-page: 2;
-    columns-per-page: 3;
+    columns-per-page: 2;
+}
+
+MAbstractLayoutPolicyStyle#OverviewPolicy {
+    margin-top: 6.4mm;
+    margin-bottom: 3mm;
 }
 
 PagedViewportStyle {
@@ -366,6 +378,7 @@ SwitcherButtonStyle {
     close-button-vertical-position: 0.0;
 }
 
+
 MButtonIconStyle#CloseButtonOverview
 {
     minimum-size: 48 48;
@@ -377,6 +390,11 @@ MButtonIconStyle#CloseButtonOverview
     /* icon aligned to right (48-18=30) */
     /* icon-align: right; doesn't do the trick.. */
     padding-left: 30;
+
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    margin-right: 3;
 }
 
 MButtonIconStyle#CloseButtonDetailview
@@ -401,53 +419,75 @@ SwitcherButtonStyle#OverviewButton {
 
     text-opacity: 1.0;
 
-    close-button-vertical-position: -30;
+    margin-bottom: 0;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+
+    padding-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+
+    /* -48/2 - (18 / 2) - 2 */
+    close-button-vertical-position: -35;
     close-icon: "icon-s-framework-close-thumbnail";
 }
 
-SwitcherButtonStyle#OverviewButton.Portrait:small {
-    font: $FONT_XXSMALL;
-    preferred-size: 12.1mm 21.4mm;
-    minimum-size: 12.1mm 21.4mm;
-    maximum-size: 12.1mm 21.4mm;
-    icon-position: 0 2.1mm;
-    icon-size: 12.1mm 19.3mm;
-}
-
 SwitcherButtonStyle#OverviewButton.Portrait:medium {
-    font: $FONT_XXSMALL;
-    preferred-size: 13.4mm 24.2mm;
-    minimum-size: 13.4mm 24.2mm;
-    maximum-size: 13.4mm 24.2mm;
-    icon-position: 0 2.9mm;
-    icon-size: 13.4mm 21.3mm;
+    font: $FONT_MSMALL;
+
+    preferred-size: 17.4mm 31.3mm;
+    minimum-size: 17.4mm 31.3mm;
+    maximum-size: 17.4mm 31.3mm;
+    icon-position: 0 3.2mm;
+    icon-size: 17.4mm 28.0mm;
+
+    text-margin-top: 0.7mm;
+    text-margin-bottom: 0.7mm;
+    close-button-vertical-position: -40;
 }
 
 SwitcherButtonStyle#OverviewButton.Portrait:large {
-    font: $FONT_XSMALL;
+    font: $FONT_MSMALL;
+
     preferred-size: 21mm 37.8mm;
     minimum-size: 21mm 37.8mm;
     maximum-size: 21mm 37.8mm;
-    icon-position: 0 4.4mm;
+    icon-position: 0 3.2mm;
     icon-size: 21mm 33.4mm;
+
+    text-margin-top: 0.7mm;
+    text-margin-bottom: 0.7mm;
+    close-button-vertical-position: -40;
 }
 
 SwitcherButtonStyle#OverviewButton.Landscape:medium {
-    font: $FONT_XXSMALL;
-    preferred-size: 24.2mm 13.4mm;
-    minimum-size: 24.2mm 13.4mm;
-    maximum-size: 24.2mm 13.4mm;
-    icon-position: 0 2.8mm;
-    icon-size: 24.2mm 10.6mm;
+    font: $FONT_MSMALL;
+
+    preferred-size: 21.8mm 12.1mm;
+    minimum-size: 21.8mm 12.1mm;
+    maximum-size: 21.8mm 12.1mm;
+    icon-position: 0 2.3mm;
+    icon-size: 21.8mm 9.8mm;
+
+    text-margin-top: 0.25mm;
+    text-margin-bottom: 0.25mm;
+    close-button-vertical-position: -35;
 }
 
 SwitcherButtonStyle#OverviewButton.Landscape:large {
-    font: $FONT_XSMALL;
+    font: $FONT_MSMALL;
+
     preferred-size: 37.8mm 21mm;
     minimum-size: 37.8mm 21mm;
     maximum-size: 37.8mm 21mm;
-    icon-position: 0 4.4mm;
+    icon-position: 0 2.3mm;
     icon-size: 37.8mm 16.6mm;
+
+    text-margin-top: 0.25mm;
+    text-margin-bottom: 0.25mm;
+    close-button-vertical-position: -35;
 }
 
 /*

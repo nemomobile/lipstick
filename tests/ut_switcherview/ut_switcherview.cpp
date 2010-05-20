@@ -257,6 +257,15 @@ void Ut_SwitcherView::cleanup()
 void Ut_SwitcherView::verifyButtonModesInOverviewMode(QList< QSharedPointer<SwitcherButton> > &buttonList)
 {
     int buttons = buttonList.count();
+    for(int i = 0; i < buttons; i++){
+        if (buttons < 3) {
+            QCOMPARE(buttonList[i].data()->model()->viewMode(), SwitcherButtonModel::Large);
+        } else {
+            QCOMPARE(buttonList[i].data()->model()->viewMode(), SwitcherButtonModel::Medium);
+        }
+    }
+    /*
+    int buttons = buttonList.count();
     if (gMSceneManagerStub->orientation() == M::Landscape){
         for(int i = 0; i < buttons; i++){
             if (buttons < 3) {
@@ -276,7 +285,84 @@ void Ut_SwitcherView::verifyButtonModesInOverviewMode(QList< QSharedPointer<Swit
             }
         }
     }
+    */
 }
+
+void Ut_SwitcherView::verifyButtonModesInOverviewMode(M::Orientation orientation)
+{
+    g_switcherModel->setSwitcherMode(SwitcherModel::Overview);
+    gMSceneManagerStub->stubSetReturnValue("orientation", orientation);
+
+    QList< QSharedPointer<SwitcherButton> > buttonList = createButtonList(1);
+
+    // with 1 button
+    g_switcherModel->setButtons(buttonList);
+    verifyButtonModesInOverviewMode(buttonList);
+
+    appendMoreButtonsToList(1, buttonList);
+    // with 2 buttons
+    g_switcherModel->setButtons(buttonList);
+    verifyButtonModesInOverviewMode(buttonList);
+
+    appendMoreButtonsToList(1, buttonList);
+    // with 3 buttons
+    g_switcherModel->setButtons(buttonList);
+    verifyButtonModesInOverviewMode(buttonList);
+
+    appendMoreButtonsToList(2, buttonList);
+    // with 4 buttons
+    g_switcherModel->setButtons(buttonList);
+    verifyButtonModesInOverviewMode(buttonList);
+}
+
+void Ut_SwitcherView::verifyLayoutPolicyContentMargins(const QSizeF &buttonSize)
+{
+    qreal left, right, top, bottom;
+    if (g_switcherModel->buttons().size() == 0) {
+        // Test the overview policy margins
+        m_subject->overviewPolicy->getContentsMargins(&left, &top, &right, &bottom);
+        verifyContentMarginValues(top, bottom, 0.0);
+        // Test the detail view policy margins
+        m_subject->detailPolicy->getContentsMargins(&left, &top, &right, &bottom);
+        verifyContentMarginValues(top, bottom, 0.0);
+    } else if (g_switcherModel->buttons().size() < 3) {
+        // Test the overview policy margins
+        m_subject->overviewPolicy->getContentsMargins(&left, &top, &right, &bottom);
+        qreal numberOfRowSpacings = qMax(0, m_subject->overviewPolicy->rowCount() - 1);
+        qreal heightTakenByRowSpacings =  numberOfRowSpacings * m_subject->modifiableStyle()->buttonVerticalSpacing();
+        qreal verticalMargin = (m_subject->geometry().height() - (buttonSize.height() * m_subject->overviewPolicy->rowCount() + heightTakenByRowSpacings)) / 2;
+
+        verifyContentMarginValues(top, bottom, verticalMargin);
+
+        // Test the detail view policy margins
+        m_subject->detailPolicy->getContentsMargins(&left, &top, &right, &bottom);
+        verticalMargin = (m_subject->geometry().height() - buttonSize.height()) / 2;
+        verifyContentMarginValues(top, bottom, verticalMargin);
+    } else {
+        // Overview policy margins are determined by the style,
+        // just test the detail view policy margins
+        m_subject->detailPolicy->getContentsMargins(&left, &top, &right, &bottom);
+        qreal verticalMargin = (m_subject->geometry().height() - buttonSize.height()) / 2;
+        verifyContentMarginValues(top, bottom, verticalMargin);
+    }
+}
+
+void setSwitcherButtonSize(QList< QSharedPointer<SwitcherButton> > &buttonList, const QSizeF &size)
+{
+    for(int i = 0; i < buttonList.count(); i++) {
+        buttonList[i].data()->setPreferredSize(size);
+    }
+}
+
+void verifyContentMarginValues(qreal top, qreal bottom, qreal target)
+{
+    QCOMPARE(top, bottom);
+    QCOMPARE(top, target);
+}
+
+/*
+ * Switcher detail view tests
+ */
 
 void Ut_SwitcherView::testAutoPanningInDetailView()
 {
@@ -350,11 +436,15 @@ void Ut_SwitcherView::testPanningStoppedInDetailView()
     QCOMPARE(g_switcherModel->buttons().at(3).data()->model()->viewMode(), SwitcherButtonModel::Large);
 }
 
+/*
+ * Switcher overview tests
+ */
+
 void Ut_SwitcherView::testAutoPanningInOverView()
 {
     QCOMPARE(g_panRequested, false);
 
-    QList< QSharedPointer<SwitcherButton> > buttonList = createButtonList(8);
+    QList< QSharedPointer<SwitcherButton> > buttonList = createButtonList(6);
     g_switcherModel->setSwitcherMode(SwitcherModel::Overview);
 
     // Change the first button's priority to
@@ -370,41 +460,48 @@ void Ut_SwitcherView::testAutoPanningInOverView()
 void Ut_SwitcherView::testButtonModesInOverviewMode()
 {
     m_subject->modifiableStyle()->setRowsPerPage(2);
-    m_subject->modifiableStyle()->setColumnsPerPage(3);
+    m_subject->modifiableStyle()->setColumnsPerPage(2);
     gMSceneManagerStub->stubSetReturnValue("orientation", M::Landscape);
     verifyButtonModesInOverviewMode(M::Landscape);
 
-    m_subject->modifiableStyle()->setRowsPerPage(3);
+    m_subject->modifiableStyle()->setRowsPerPage(2);
     m_subject->modifiableStyle()->setColumnsPerPage(2);
     gMSceneManagerStub->stubSetReturnValue("orientation", M::Portrait);
     verifyButtonModesInOverviewMode(M::Portrait);
 }
 
-void Ut_SwitcherView::verifyButtonModesInOverviewMode(M::Orientation orientation)
+void Ut_SwitcherView::testPanningStoppedInOverView()
 {
     g_switcherModel->setSwitcherMode(SwitcherModel::Overview);
-    gMSceneManagerStub->stubSetReturnValue("orientation", orientation);
+    gMSceneManagerStub->stubSetReturnValue("orientation", M::Landscape);
+    m_subject->modifiableStyle()->setRowsPerPage(2);
+    m_subject->modifiableStyle()->setColumnsPerPage(2);
 
-    QList< QSharedPointer<SwitcherButton> > buttonList = createButtonList(1);
+    // fill 2 and a half pages
+    g_switcherModel->setButtons(createButtonList(10));
 
-    // with 1 button
-    g_switcherModel->setButtons(buttonList);
-    verifyButtonModesInOverviewMode(buttonList);
+    // test that correct button is emphasized when panning stops
+    connect(this, SIGNAL(pageChanged(int)),
+            m_subject, SLOT(updateFocusedButton(int)));
+    connect(this, SIGNAL(panningStopped()),
+            m_subject, SLOT(panningStopped()));
+    emit pageChanged(1);
+    emit pageChanged(2);
+    emit panningStopped();
+    // Focused on 1st button of last page
+    QCOMPARE(m_subject->focusedSwitcherButton, 8);
 
-    appendMoreButtonsToList(1, buttonList);
-    // with 2 buttons
-    g_switcherModel->setButtons(buttonList);
-    verifyButtonModesInOverviewMode(buttonList);
+    emit pageChanged(1);
+    emit panningStopped();
+    // Focused on 1st button of 2nd page
+    QCOMPARE(m_subject->focusedSwitcherButton, 4);
 
-    appendMoreButtonsToList(2, buttonList);
-    // with 4 buttons
-    g_switcherModel->setButtons(buttonList);
-    verifyButtonModesInOverviewMode(buttonList);
-
-    // with 7 buttons
-    appendMoreButtonsToList(3, buttonList);
-    g_switcherModel->setButtons(buttonList);
-    verifyButtonModesInOverviewMode(buttonList);
+    emit pageChanged(2);
+    emit pageChanged(1);
+    emit pageChanged(0);
+    emit panningStopped();
+    // Focused on 1st button of first page
+    QCOMPARE(m_subject->focusedSwitcherButton, 0);
 }
 
 void Ut_SwitcherView::testSwitcherButtonVerticalAlignment()
@@ -412,7 +509,7 @@ void Ut_SwitcherView::testSwitcherButtonVerticalAlignment()
     g_switcherModel->setSwitcherMode(SwitcherModel::Overview);
     gMSceneManagerStub->stubSetReturnValue("orientation", M::Landscape);
     m_subject->modifiableStyle()->setRowsPerPage(2);
-    m_subject->modifiableStyle()->setColumnsPerPage(3);
+    m_subject->modifiableStyle()->setColumnsPerPage(2);
 
     qreal verticalSpacing = 10;
     m_subject->modifiableStyle()->setButtonVerticalSpacing(verticalSpacing);
@@ -431,8 +528,15 @@ void Ut_SwitcherView::testSwitcherButtonVerticalAlignment()
     verifyButtonModesInOverviewMode(buttonList);
     verifyLayoutPolicyContentMargins(size);
 
+    //with 3 buttons
+    appendMoreButtonsToList(2, buttonList);
+    setSwitcherButtonSize(buttonList, size);
+    g_switcherModel->setButtons(buttonList);
+    verifyButtonModesInOverviewMode(buttonList);
+    verifyLayoutPolicyContentMargins(size);
+
     //with 4 buttons
-    appendMoreButtonsToList(3, buttonList);
+    appendMoreButtonsToList(1, buttonList);
     setSwitcherButtonSize(buttonList, size);
     g_switcherModel->setButtons(buttonList);
     verifyButtonModesInOverviewMode(buttonList);
@@ -445,11 +549,6 @@ void Ut_SwitcherView::testSwitcherButtonVerticalAlignment()
     switcherWidth = 400.0;
     m_subject->setGeometry(QRectF(0, 0, switcherWidth, switcherHeight));
 
-    // Now with 6 buttons
-    appendMoreButtonsToList(2, buttonList);
-    setSwitcherButtonSize(buttonList, size);
-    g_switcherModel->setButtons(buttonList);
-    verifyButtonModesInOverviewMode(buttonList);
     verifyLayoutPolicyContentMargins(size);
 
     // with 0 buttons
@@ -458,81 +557,7 @@ void Ut_SwitcherView::testSwitcherButtonVerticalAlignment()
     verifyButtonModesInOverviewMode(emptyButtonList);
     QSize notSizeAtAll;
     verifyLayoutPolicyContentMargins(notSizeAtAll);
-
 }
 
-void Ut_SwitcherView::verifyLayoutPolicyContentMargins(const QSizeF &buttonSize)
-{
-    qreal left, right, top, bottom;
-    if (g_switcherModel->buttons().size() > 0) {
-        // Test the overview policy margins
-        m_subject->overviewPolicy->getContentsMargins(&left, &top, &right, &bottom);
-        qreal numberOfRowSpacings = qMax(0, m_subject->overviewPolicy->rowCount() - 1);
-        qreal heightTakenByRowSpacings =  numberOfRowSpacings * m_subject->modifiableStyle()->buttonVerticalSpacing();
-        qreal verticalMargin = (m_subject->geometry().height() - (buttonSize.height() * m_subject->overviewPolicy->rowCount() + heightTakenByRowSpacings)) / 2;
-
-        verifyContentMarginValues(top, bottom, verticalMargin);
-
-        // Test the detail view policy margins
-        m_subject->detailPolicy->getContentsMargins(&left, &top, &right, &bottom);
-        verticalMargin = (m_subject->geometry().height() - buttonSize.height()) / 2;
-        verifyContentMarginValues(top, bottom, verticalMargin);
-    } else {
-        // Test the overview policy margins
-        m_subject->overviewPolicy->getContentsMargins(&left, &top, &right, &bottom);
-        verifyContentMarginValues(top, bottom, 0.0);
-        // Test the detail view policy margins
-        m_subject->detailPolicy->getContentsMargins(&left, &top, &right, &bottom);
-        verifyContentMarginValues(top, bottom, 0.0);
-    }
-}
-
-
-void Ut_SwitcherView::testPanningStoppedInOverView()
-{
-    g_switcherModel->setSwitcherMode(SwitcherModel::Overview);
-    gMSceneManagerStub->stubSetReturnValue("orientation", M::Landscape);
-    m_subject->modifiableStyle()->setRowsPerPage(2);
-    m_subject->modifiableStyle()->setColumnsPerPage(3);
-
-    // fill 2 and a half pages
-    g_switcherModel->setButtons(createButtonList(15));
-
-    // test that correct button is emphasized when panning stops
-    connect(this, SIGNAL(pageChanged(int)),
-            m_subject, SLOT(updateFocusedButton(int)));
-    connect(this, SIGNAL(panningStopped()),
-            m_subject, SLOT(panningStopped()));
-    emit pageChanged(1);
-    emit pageChanged(2);
-    emit panningStopped();
-    // Focused on 1st button of last page
-    QCOMPARE(m_subject->focusedSwitcherButton, 12);
-
-    emit pageChanged(1);
-    emit panningStopped();
-    // Focused on 1st button of 2nd page
-    QCOMPARE(m_subject->focusedSwitcherButton, 6);
-
-    emit pageChanged(2);
-    emit pageChanged(1);
-    emit pageChanged(0);
-    emit panningStopped();
-    // Focused on 1st button of first page
-    QCOMPARE(m_subject->focusedSwitcherButton, 0);
-}
-
-void setSwitcherButtonSize(QList< QSharedPointer<SwitcherButton> > &buttonList, const QSizeF &size)
-{
-    for(int i = 0; i < buttonList.count(); i++) {
-        buttonList[i].data()->setPreferredSize(size);
-    }
-}
-
-void verifyContentMarginValues(qreal top, qreal bottom, qreal target)
-{
-    QCOMPARE(top, bottom);
-    QCOMPARE(top, target);
-}
 
 QTEST_APPLESS_MAIN(Ut_SwitcherView)

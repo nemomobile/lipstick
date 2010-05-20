@@ -56,7 +56,7 @@ SwitcherView::SwitcherView(Switcher *switcher) :
     connect(viewport, SIGNAL(pageChanged(int)), this, SLOT(updateFocusedButton(int)));
 
     // We have custom values for this view port in the style
-    viewport->setObjectName("SwitcherDetailsViewport");
+    viewport->setObjectName("SwitcherViewport");
 
     mainLayout->addItem(viewport);
     pannedLayout = new MLayout(pannedWidget);
@@ -291,20 +291,10 @@ void SwitcherView::updateButtonModesAndPageCount()
     } else {
         foreach (QSharedPointer<SwitcherButton> button, model()->buttons()) {
             button.data()->setObjectName("OverviewButton");
-            if (MainWindow::instance()->sceneManager()->orientation() == M::Portrait) {
-                if (buttonCount < 3) {
-                    button.data()->model()->setViewMode(SwitcherButtonModel::Large);
-                } else if (buttonCount < 5) {
-                    button.data()->model()->setViewMode(SwitcherButtonModel::Medium);
-                } else {
-                    button.data()->model()->setViewMode(SwitcherButtonModel::Small);
-                }
+            if (buttonCount < 3) {
+                button.data()->model()->setViewMode(SwitcherButtonModel::Large);
             } else {
-                if (buttonCount < 3) {
-                    button.data()->model()->setViewMode(SwitcherButtonModel::Large);
-                } else {
-                    button.data()->model()->setViewMode(SwitcherButtonModel::Medium);
-                }
+                button.data()->model()->setViewMode(SwitcherButtonModel::Medium);
             }
         }
         pages = ceilf((qreal)model()->buttons().count()/(style()->columnsPerPage()*style()->rowsPerPage()));
@@ -338,6 +328,8 @@ void SwitcherView::updateContentsMarginsAndSpacings()
     int colsPerPage = style()->columnsPerPage();
     int rows = style()->rowsPerPage();
 
+    qreal topMargin, bottomMargin, leftMargin, rightMargin;
+
     if (buttonCount == 0 || colsPerPage == 0 || rows == 0) {
         detailPolicy->setContentsMargins(0, 0, 0, 0);
         overviewPolicy->setContentsMargins(0, 0, 0, 0);
@@ -349,18 +341,21 @@ void SwitcherView::updateContentsMarginsAndSpacings()
     qreal buttonHeight = button->preferredSize().height();
 
     qreal detailMargin = (geometry().width() - buttonWidth) / 2;
+
+    // The margin for centering vertically
     qreal verticalContentMargin = (geometry().height() - buttonHeight) / 2;
+
     detailPolicy->setContentsMargins(detailMargin, verticalContentMargin,
                                      detailMargin, verticalContentMargin);
 
+    overviewPolicy->getContentsMargins(&leftMargin, &topMargin,
+                                       &rightMargin, &bottomMargin);
 
     int columns = qMin(overviewPolicy->columnCount(), style()->columnsPerPage());
-
     qreal effectiveButtonsWidth = (columns * buttonWidth) + ((columns - 1) * style()->buttonHorizontalSpacing());
-    qreal effectiveButtonsHeight = overviewPolicy->rowCount() * buttonHeight + qMax(0, overviewPolicy->rowCount() - 1) * style()->buttonVerticalSpacing();
-    qreal leftContentMargin = (geometry().width() - effectiveButtonsWidth) / 2;
-    qreal rightContentMargin = leftContentMargin;
-    verticalContentMargin = (geometry().height() - effectiveButtonsHeight) / 2;
+
+    leftMargin = (geometry().width() - effectiveButtonsWidth) / 2;
+    rightMargin = leftMargin;
 
     /*
        If the last page is missing buttons i.e. it is not full, we add extra margins to it
@@ -371,18 +366,23 @@ void SwitcherView::updateContentsMarginsAndSpacings()
         if (lastPageButtonCount > 0 && lastPageButtonCount < style()->columnsPerPage()) {
             // Compensate the missing buttons
             int missingButtonCount = style()->columnsPerPage() - lastPageButtonCount;
-            rightContentMargin = leftContentMargin + buttonWidth * missingButtonCount;
+            rightMargin = leftMargin + buttonWidth * missingButtonCount;
             // Also add the spacings
-            rightContentMargin += missingButtonCount * style()->buttonHorizontalSpacing();
+            rightMargin += missingButtonCount * style()->buttonHorizontalSpacing();
         }
     }
 
-    overviewPolicy->setContentsMargins(leftContentMargin, verticalContentMargin,
-                                       rightContentMargin, verticalContentMargin);
+    if( buttonCount < 3 ) {
+        topMargin = verticalContentMargin;
+        bottomMargin = verticalContentMargin;
+    }
+
+    overviewPolicy->setContentsMargins(leftMargin, topMargin,
+                                       rightMargin, bottomMargin);
 
     for(int column = 0; column < overviewPolicy->columnCount(); column++) {
         if ((column % colsPerPage) == colsPerPage - 1) {
-            overviewPolicy->setColumnSpacing(column, leftContentMargin * 2);
+            overviewPolicy->setColumnSpacing(column, leftMargin * 2);
         } else {
             overviewPolicy->setColumnSpacing(column, style()->buttonHorizontalSpacing());
         }
