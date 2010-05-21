@@ -90,6 +90,7 @@ HomeApplication::HomeApplication(int &argc, char **argv) :
     windowTypeDockAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_DOCK", False);
     windowTypeDialogAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_DIALOG", False);
     clientListAtom = X11Wrapper::XInternAtom(dpy, "_NET_CLIENT_LIST", False);
+    stackedClientListAtom = X11Wrapper::XInternAtom(dpy, "_NET_CLIENT_LIST_STACKING", False);
     closeWindowAtom = X11Wrapper::XInternAtom(dpy, "_NET_CLOSE_WINDOW", False);
     skipTaskbarAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_STATE_SKIP_TASKBAR", False);
     windowStateAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_STATE", False);
@@ -146,11 +147,16 @@ void HomeApplication::launchContentSearchService()
 bool HomeApplication::x11EventFilter(XEvent *event)
 {
     if (event->type == PropertyNotify &&
-            event->xproperty.window == DefaultRootWindow(QX11Info::display()) &&
-            event->xproperty.atom == clientListAtom) {
-        // The _NET_CLIENT_LIST property of the root window has changed so update the window list
-        updateWindowList();
-        return true;
+        event->xproperty.window == DefaultRootWindow(QX11Info::display())) {
+        if (event->xproperty.atom == clientListAtom) {
+            // The _NET_CLIENT_LIST property of the root window has changed so update the window list
+            updateWindowList();
+            return true;
+        } else if (event->xproperty.atom == stackedClientListAtom) {
+            QList<WindowInfo> windowList = filterWindows(stackedClientListAtom);
+            emit windowStackingChanged(windowList);
+            return true;
+        }
     } else if (event->type == VisibilityNotify) {
         if (event->xvisibility.state == VisibilityFullyObscured) {
             // A window was obscured: was it a homescreen window?
@@ -210,6 +216,13 @@ void HomeApplication::updateWindowTitle(Window window)
 
 void HomeApplication::updateWindowList()
 {
+    QList<WindowInfo> windowList = filterWindows(clientListAtom);
+    // Signal listeners that the window list has changed
+    emit windowListUpdated(windowList);
+}
+
+QList<WindowInfo> HomeApplication::filterWindows(Atom clientListAtom)
+{
     // Get a list of all windows
     Display *dpy = QX11Info::display();
     XWindowAttributes wAttributes;
@@ -217,13 +230,13 @@ void HomeApplication::updateWindowList()
     int actualFormat;
     unsigned long numWindowItems, bytesLeft;
     unsigned char *windowData = NULL;
-    int result = X11Wrapper::XGetWindowProperty(dpy, DefaultRootWindow(dpy), clientListAtom, 0, 0x7fffffff, False, XA_WINDOW,
-                 &actualType, &actualFormat, &numWindowItems, &bytesLeft, &windowData);
-
+    int result = X11Wrapper::XGetWindowProperty(dpy, DefaultRootWindow(dpy), clientListAtom,
+                                                0, 0x7fffffff, False, XA_WINDOW,
+                                                &actualType, &actualFormat, &numWindowItems, &bytesLeft, &windowData);
+    QList<WindowInfo> windowList;
     if (result == Success && windowData != None) {
         // Go through the list of all windows
         QList<Window> windowsStillBeingClosed;
-        QList<WindowInfo> windowList;
         Window *wins = (Window *)windowData;
         for (unsigned int i = 0; i < numWindowItems; i++) {
             // The windows that are bigger than 0x0, are Input/Output windows and are not unmapped are interesting
@@ -316,8 +329,6 @@ void HomeApplication::updateWindowList()
                 windowsBeingClosed.removeAt(i);
             }
         }
-
-        // Signal listeners that the window list has changed
-        emit windowListUpdated(windowList);
     }
+    return windowList;
 }

@@ -31,9 +31,10 @@ class WindowListReceiver : public QObject
     Q_OBJECT
 
 public:
-    WindowListReceiver() : count(0) { }
+    WindowListReceiver() : count(0), stackCount(0) { }
     QList<WindowInfo> windowList;
     int count;
+    int stackCount;
 
     QPair<Window, QString> changedTitle;
 
@@ -41,6 +42,10 @@ private slots:
     void windowListUpdated(const QList<WindowInfo> &windowList) {
         this->windowList = windowList;
         this->count++;
+    }
+
+    void windowStackingChanged(const QList<WindowInfo> &windowList) {
+        this->stackCount++;
     }
 
     void changeWindowTitle(Window w, const QString &title)

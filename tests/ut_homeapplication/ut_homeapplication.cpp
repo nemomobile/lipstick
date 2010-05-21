@@ -27,12 +27,13 @@
 #include <MSceneManager>
 #include <MLocale>
 #include "homeapplication.h"
-#include "x11wrapper.h"
-#include "x11helper.h"
 #include "mainwindow_stub.h"
 #include "mwindow_stub.h"
 #include "mapplication_stub.h"
 #include <signal.h>
+
+#include "x11wrapper.h"
+#include "x11helper.h"
 
 #define ATOM_TYPE 0x00010000
 #define ATOM_TYPE_NORMAL 0x00010001
@@ -43,11 +44,13 @@
 #define ATOM_TYPE_DIALOG 0x00010006
 #define ATOM_TYPE_SOMETHING_ELSE 0x00010007
 #define ATOM_CLIENT_LIST 0x00020000
-#define ATOM_CLOSE_WINDOW 0x00030000
-#define ATOM_WM_STATE_SKIP_TASKBAR 0x00040001
-#define NET_WM_STATE 0x00050001
-#define ATOM_NET_WM_NAME 0x00060001
-#define ATOM_WM_NAME 0x00070001
+#define ATOM_CLIENT_LIST_STACKING 0x00030000
+#define ATOM_CLOSE_WINDOW 0x00040000
+#define ATOM_WM_STATE_SKIP_TASKBAR 0x00050001
+
+#define NET_WM_STATE 0x00060001
+#define ATOM_NET_WM_NAME 0x00070001
+#define ATOM_WM_NAME 0x00080001
 #define WINDOW_ATTRIBUTE_TEST_WINDOWS 16
 #define WINDOW_TYPE_TEST_WINDOWS 11
 #define NET_WM_STATE_WINDOWS 1
@@ -82,6 +85,8 @@ Atom X11Wrapper::XInternAtom(Display *, const char *atom_name, Bool)
         return ATOM_TYPE_DIALOG;
     } else if (strcmp(atom_name, "_NET_CLIENT_LIST") == 0) {
         return ATOM_CLIENT_LIST;
+    } else if (strcmp(atom_name, "_NET_CLIENT_LIST_STACKING") == 0) {
+        return ATOM_CLIENT_LIST_STACKING;
     } else if (strcmp(atom_name, "_NET_CLOSE_WINDOW") == 0) {
         return ATOM_CLOSE_WINDOW;
     } else if (strcmp(atom_name, "_NET_WM_STATE_SKIP_TASKBAR") == 0) {
@@ -603,17 +608,28 @@ void Ut_HomeApplication::testX11EventFilterWithPropertyNotify()
     QVERIFY(!m_subject->testX11EventFilter(&event));
     event.type = 0;
     QVERIFY(!m_subject->testX11EventFilter(&event));
+
     event.xproperty.atom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_CLIENT_LIST", False);
     QVERIFY(!m_subject->testX11EventFilter(&event));
+
     event.xproperty.window = 0;
     QVERIFY(!m_subject->testX11EventFilter(&event));
     event.type = PropertyNotify;
     QVERIFY(!m_subject->testX11EventFilter(&event));
+
     event.xproperty.window = DefaultRootWindow(QX11Info::display());
     QVERIFY(m_subject->testX11EventFilter(&event));
 
     // Make sure the window list change signal was emitted
     QCOMPARE(r.count, 1);
+
+    WindowListReceiver stackingReceiver;
+    connect(m_subject, SIGNAL(windowStackingChanged(const QList<WindowInfo> &)),
+            &stackingReceiver, SLOT(windowStackingChanged(const QList<WindowInfo> &)));
+
+    event.xproperty.atom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_CLIENT_LIST_STACKING", False);
+    QVERIFY(m_subject->testX11EventFilter(&event));
+    QCOMPARE(stackingReceiver.stackCount, 1);
 
     // There should be 3 windows in the window list and their information should be correct
     QCOMPARE(r.windowList.count(), 4);

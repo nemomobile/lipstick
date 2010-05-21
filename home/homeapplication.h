@@ -78,6 +78,14 @@ signals:
      */
     void windowTitleChanged(Window window, const QString &title);
 
+    /*!
+     * \brief A signal to indicate that the window stacking order has changed.
+     * the window list will only contain windows that the homeapplication is
+     * interrested in, as an example it will not contain desktop or
+     * notification windows
+     */
+    void windowStackingChanged(const QList<WindowInfo> &windowList);
+
 #ifdef BENCHMARKS_ON
     void startBenchmarking();
     void stopBenchmarking();
@@ -108,6 +116,7 @@ private:
     Atom windowTypeDialogAtom;
     Atom windowTypeCallAtom;
     Atom clientListAtom;
+    Atom stackedClientListAtom;
     Atom closeWindowAtom;
     Atom skipTaskbarAtom;
     Atom windowStateAtom;
@@ -127,13 +136,22 @@ private:
     void updateWindowTitle(Window window);
 
     /*!
-     * Gets the current client window list from X and filters it.
-     * - Windows that are bigger than 0x0, are Input/Output windows, are not unmapped and type includes Normal are included. Additionally:
-     *   - Windows that have a type Notification or Desktop are not included.
-     *   - Windows that have the "skip taskbar" state flag set, are not included.
-     * Emits windowListUpdated with the current window list as the parameter.
+     * Retreives the filtered window list (see HomeApplication::filterWindows)
+     * and emits the windowListUpdated with the current window list as the
+     * parameter.
      */
     void updateWindowList();
+
+    /*!
+     * Gets the current client window list from X and filters it based on
+     *  - The given \c Atom
+     *  - Windows that are bigger than 0x0, are Input/Output windows, are not unmapped and type includes Normal are included. Additionally:
+     *  - Windows that have a type Notification or Desktop are not included.
+     *  - Windows that have the "skip taskbar" state flag set, are not included.
+     * \param atom The atom that fill be used to filter teh window list
+     * \return The filtered window list
+     */
+    QList<WindowInfo> filterWindows(Atom atom);
 
     //! Flag that indicates whether duihome was started by upstart or not
     bool upstartMode;
