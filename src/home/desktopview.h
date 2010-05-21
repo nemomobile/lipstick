@@ -24,6 +24,7 @@
 #include "desktopmodel.h"
 #include "desktopstyle.h"
 #include "mdesktopbackgroundextensioninterface.h"
+#include "windowinfo.h"
 
 class Desktop;
 class Switcher;
@@ -76,11 +77,14 @@ public:
     //! \reimp_end
 
 private slots:
-    //! Shows the launcher if it is not visible, hides it otherwise
-    void toggleLauncher();
-
     //! Shows the applet space if it is not visible, hides it otherwise
     void toggleAppletSpace();
+
+    //! Hides the launcher if applicable, based on the top most window
+    void updateLauncherVisiblity(const QList<WindowInfo> &windowList);
+
+    //! Toggles the launcher visibility
+    void toggleLauncher();
 
     /*!
      * Registers a desktop background extension.
@@ -165,6 +169,11 @@ private:
 
     //! A list of desktop background extensions
     QList<MDesktopBackgroundExtensionInterface*> backgroundExtensions;
+    
+    /*!
+     * The laucher should be closed when the application window count changes.
+     */
+    int appWindowCount;
 
 #ifdef UNIT_TEST
     friend class Ut_DesktopView;

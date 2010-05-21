@@ -76,7 +76,11 @@ private slots:
     // Test bounding rectangle and background drawing
     void testBoundingRectAndDrawBackground();
     // Test showing and hiding launcher
-    void testShowingHidingLauncher();
+    void testUpdatingLauncherVisibilityWithApplicationOnTop();
+    void testUpdatingLauncherVisibilityWithNotificationOnTop();
+    void testUpdatingLauncherVisibilityWithStatusIndicatorMenuOnTop();
+    void testUpdatingLauncherVisibilityWithDialogOnTop();
+    void verifyLauncherVisibility(int topMostWindowId, bool shouldBeVisible);
     // Test showing launcher when showLauncherAndPanToPage is called
     void testShowLauncherAndPanToPageWithCorrectDesktopFile();
     // Test that launcher is not shown when bad desktop file is given
@@ -89,7 +93,9 @@ public:
     static MainWindow *mainWindow;
 
 signals:
-    void launcherButtonClicked();
+
+    void windowListUpdated(const QList<WindowInfo> &);
+
 
 private:
     // The mapp

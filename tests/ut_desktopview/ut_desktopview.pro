@@ -8,7 +8,8 @@ STYLE_HEADERS += $$SRCDIR/desktopstyle.h
 # unit test and unit
 SOURCES += \
     ut_desktopview.cpp \
-    $$SRCDIR/desktopview.cpp
+    $$SRCDIR/desktopview.cpp \
+    $$SRCDIR/windowinfo.cpp
 
 # base classes
 SOURCES += \
@@ -27,6 +28,7 @@ SOURCES += ../stubs/stubbase.cpp
 
 # service classes
 HEADERS += \
+    $$SRCDIR/windowinfo.h \
     $$SRCDIR/desktop.h \
     $$SRCDIR/desktopmodel.h \
     $$SRCDIR/desktopstyle.h \

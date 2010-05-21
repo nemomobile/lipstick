@@ -158,8 +158,9 @@ DesktopView::DesktopView(Desktop *desktop) :
 
     // The launcher is added into a modal scene window
     launcher = new Launcher(launcherDataStore);
-    connect(launcher, SIGNAL(launcherButtonClicked()), this, SLOT(toggleLauncher()));
+
     connect(qApp, SIGNAL(focusToLauncherAppRequested(const QString &)), this, SLOT(showLauncherAndPanToPage(const QString &)));
+    connect(qApp, SIGNAL(windowListUpdated(const QList<WindowInfo> &)), this, SLOT(updateLauncherVisiblity(const QList<WindowInfo> &)));
     launcherWindow->setLayout(windowLayout);
     launcherWindow->setObjectName("LauncherWindow");
     windowLayout->addItem(launcher);
@@ -193,6 +194,8 @@ DesktopView::DesktopView(Desktop *desktop) :
     connect(backgroundExtensionArea, SIGNAL(extensionRemoved(MApplicationExtensionInterface*)),
             this, SLOT(removeExtension(MApplicationExtensionInterface*)));
     backgroundExtensionArea->init();
+
+    appWindowCount = 0;
 }
 
 DesktopView::~DesktopView()
@@ -233,21 +236,31 @@ void DesktopView::drawBackground(QPainter *painter, const QStyleOptionGraphicsIt
     }
 }
 
-void DesktopView::toggleLauncher()
-{
-    if (launcherWindow->isVisible()) {
-        hideLauncher();
-    } else {
-        showLauncher();
-    }
-}
-
 void DesktopView::showLauncherAndPanToPage(const QString &desktopFileEntry)
 {
     if(launcher->panToPage(desktopFileEntry) >= 0 || desktopFileEntry.isEmpty()) {
         showLauncher();
         MainWindow::instance()->activateWindow();
         MainWindow::instance()->raise();
+    }
+}
+
+void DesktopView::updateLauncherVisiblity(const QList<WindowInfo> &windowList)
+{
+    if (launcher->isEnabled() && !windowList.isEmpty()) {
+        if (windowList.count() > appWindowCount) {
+            hideLauncher();
+        }
+    }
+    appWindowCount = windowList.count();
+}
+
+void DesktopView::toggleLauncher()
+{
+    if (launcherWindow->isVisible()) {
+        hideLauncher();
+    } else {
+        showLauncher();
     }
 }
 
