@@ -545,9 +545,15 @@ void Ut_SwitcherView::testSwitcherButtonVerticalAlignment()
     // Change the orientation to portrait
     gMSceneManagerStub->stubSetReturnValue("orientation", M::Portrait);
 
+    // Called by the SceneManager when orientation is about to change
+    m_subject->hideButtons();
+
     switcherHeight = 600.0;
     switcherWidth = 400.0;
     m_subject->setGeometry(QRectF(0, 0, switcherWidth, switcherHeight));
+
+    // Called by the SceneManager after orientation has changed
+    m_subject->updateButtons();
 
     verifyLayoutPolicyContentMargins(size);
 
