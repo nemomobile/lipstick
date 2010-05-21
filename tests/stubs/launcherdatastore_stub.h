@@ -37,7 +37,9 @@ class LauncherDataStoreStub : public StubBase {
   virtual bool isDesktopEntryValid(const MDesktopEntry &entry, const QStringList &acceptedTypes);
   virtual QString entryPathToKey(QString entryPath);
   virtual QString keyToEntryPath(QString key);
-}; 
+  virtual void updateDesktopEntry(const QString &desktopEntryPath);
+  bool isInQueue(const QString &key);
+};
 
 // 2. IMPLEMENT STUB
 void LauncherDataStoreStub::LauncherDataStoreConstructor(MDataStore *dataStore) {
@@ -94,7 +96,17 @@ QString LauncherDataStoreStub::keyToEntryPath(QString key) {
   return stubReturnValue<QString>("keyToEntryPath");
 }
 
+void LauncherDataStoreStub::updateDesktopEntry(const QString &desktopEntryPath) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<const QString >(desktopEntryPath));
+  stubMethodEntered("updateDesktopEntry",params);
+}
 
+bool LauncherDataStoreStub::isInQueue(const QString &key) {
+    QList<ParameterBase*> params;
+    params.append( new Parameter<const QString >(key));
+    stubMethodEntered("isInQueue",params);
+}
 
 // 3. CREATE A STUB INSTANCE
 LauncherDataStoreStub gDefaultLauncherDataStoreStub;
@@ -142,5 +154,12 @@ QString LauncherDataStore::keyToEntryPath(QString key) {
   return gLauncherDataStoreStub->keyToEntryPath(key);
 }
 
+void LauncherDataStore::updateDesktopEntry(const QString &desktopEntryPath) {
+    gLauncherDataStoreStub->updateDesktopEntry(desktopEntryPath);
+}
+
+bool LauncherDataStore::isInQueue(const QString &key) {
+    return gLauncherDataStoreStub->isInQueue(key);
+}
 
 #endif

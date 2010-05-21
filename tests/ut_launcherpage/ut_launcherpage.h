@@ -44,6 +44,7 @@ private slots:
     void testAddButtonWhenPageNotFull();
     void testAddButtonWhenPageIsFull();
     void testRemoveButton();
+    void testUpdateButton();
   
 private:
     // MApplication

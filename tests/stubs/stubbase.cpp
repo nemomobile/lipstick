@@ -65,7 +65,6 @@ ParameterBase *StubBase::stubReturnValue(const QString &methodName) const
 
     if (_stubReturnValues.contains(methodName))
         retVal = _stubReturnValues[methodName];
-
     return retVal;
 }
 

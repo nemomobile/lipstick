@@ -29,6 +29,26 @@
 #include "launcherpagemodel.h"
 #include "mockdatastore.h"
 
+// LauncherButton stubs
+LauncherButton::LauncherButton(MWidget *parent) : MButton(parent, new LauncherButtonModel) {}
+LauncherButton::LauncherButton(const QString&, MWidget*parent) : MButton(parent, new LauncherButtonModel) {}
+LauncherButton::~LauncherButton(){}
+
+QString LauncherButton::desktopEntry() const
+{
+    return objectName();
+}
+
+int updateFromDesktopEntryCallCount = 0;
+void LauncherButton::updateFromDesktopEntry(const QString &)
+{
+    updateFromDesktopEntryCallCount++;
+}
+
+void LauncherButton::launch()
+{
+}
+
 void QDBusPendingReplyData::setMetaTypes(int, int const *)
 {
 }
@@ -77,6 +97,8 @@ void Ut_Launcher::init()
 
     qProcessProgramStarted.clear();
     mApplicationIfProxyLaunchCalled = false;
+
+    updateFromDesktopEntryCallCount = 0;
 }
 
 void Ut_Launcher::cleanup()
@@ -259,6 +281,23 @@ void Ut_Launcher::testPanToPageWithEmptyFileName()
     emit testPanToPageSignal("");
 
     QCOMPARE(spyPanToReqPage.count(), 0);
+}
+
+void Ut_Launcher::testUpdatingLauncherButton()
+{
+    createdDefaultSetOfDesktopEntries();
+    // Fake a directory change notification
+    emit directoryChanged(APPLICATIONS_DIRECTORY);
+
+    connect(this, SIGNAL(updateButton(QString)), launcher, SLOT(updateLauncherButton(QString)));
+
+    QString updateButtonEntry = QString(APPLICATIONS_DIRECTORY) + "testApp20.desktop";
+    // Make one specific button to "simulate" updated button
+    // (Update is checked from button so that we don't have to stub LauncherPage just for this)
+    launcher->model()->launcherPages().at(2).data()->model()->launcherButtons().at(0)->setObjectName(updateButtonEntry);
+    emit updateButton(updateButtonEntry);
+
+    QCOMPARE(updateFromDesktopEntryCallCount, 1);
 }
 
 QTEST_MAIN(Ut_Launcher)

@@ -118,6 +118,13 @@ public slots:
      */
     int panToPage(const QString &desktopFileEntry);
 
+    /*!
+     * Updates a launcher button from a .desktop entry file.
+     *
+     * \param desktopEntryPath Entry the path of the .desktop entry file to update the launcher button from
+     */
+    void updateLauncherButton(const QString &desktopEntryPath);
+
 private slots:
     /*!
      * Updates pages according to the contents of the data store.

@@ -38,6 +38,8 @@ QMap<QString, QString> desktopEntryExec;
 QMap<QString, QString> desktopEntryUrl;
 QMap<QString, QString> desktopEntryNameUnlocalized;
 
+QStringList addedWatcherPathCalls;
+
 MDesktopEntry::MDesktopEntry(const QString &fileName) :
     d_ptr(NULL)
 {
@@ -108,8 +110,14 @@ QFileInfoList QDir::entryInfoList(Filters, SortFlags) const
 }
 
 // QFileSystemWatcher stubs
-void QFileSystemWatcher::addPath(const QString &)
+void QFileSystemWatcher::addPath(const QString &path)
 {
+    addedWatcherPathCalls.append(path);
+}
+
+QStringList QFileSystemWatcher::files() const
+{
+    return addedWatcherPathCalls;
 }
 
 // QTimer stubs
@@ -147,6 +155,7 @@ void Ut_LauncherDataStore::init()
     desktopEntryUrl.clear();
     desktopEntryNameUnlocalized.clear();
     desktopFileInfoList.clear();
+    addedWatcherPathCalls.clear();
     qTimerStarted = false;
 }
 
@@ -393,6 +402,37 @@ void Ut_LauncherDataStore::testOnlyPrefixedKeys()
     QCOMPARE(data.count(), 1);
     QCOMPARE(data.contains(fileNameWithPath("regularApplication.desktop")), true);
     QCOMPARE(data.value(fileNameWithPath("regularApplication.desktop")), QVariant("data0"));
+}
+
+void Ut_LauncherDataStore::testAddingWatcherDesktopEntryPaths()
+{
+    // Test applications
+    addDesktopEntry("testApplication1.desktop", "Test1", "Application", "Icon-camera", "test1");
+    addDesktopEntry("testApplication2.desktop", "Test2", "Application", "Icon-camera", "test2");
+
+    LauncherDataStore dataStore(mockStore);
+    connect(this, SIGNAL(directoryChanged()), &dataStore, SLOT(updateDataFromDesktopEntryFiles()));
+    connect(this, SIGNAL(timeout()), &dataStore, SLOT(processUpdateQueue()));
+
+    emit timeout();
+
+    QCOMPARE(addedWatcherPathCalls.count(), 3);
+    // APPLICATIONS_DIRECTORY is 1st path
+    QCOMPARE(addedWatcherPathCalls.at(0), fileNameWithPath(""));
+    QCOMPARE(addedWatcherPathCalls.at(1), fileNameWithPath("testApplication1.desktop"));
+    QCOMPARE(addedWatcherPathCalls.at(2), fileNameWithPath("testApplication2.desktop"));
+
+    addDesktopEntry("testApplication3.desktop", "Test3", "Application", "Icon-camera", "test3");
+
+    emit directoryChanged();
+    emit timeout();
+
+    QCOMPARE(addedWatcherPathCalls.count(), 4);
+    // APPLICATIONS_DIRECTORY is 1st path
+    QCOMPARE(addedWatcherPathCalls.at(0), fileNameWithPath(""));
+    QCOMPARE(addedWatcherPathCalls.at(1), fileNameWithPath("testApplication1.desktop"));
+    QCOMPARE(addedWatcherPathCalls.at(2), fileNameWithPath("testApplication2.desktop"));
+    QCOMPARE(addedWatcherPathCalls.at(3), fileNameWithPath("testApplication3.desktop"));
 }
 
 QTEST_APPLESS_MAIN(Ut_LauncherDataStore)

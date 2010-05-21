@@ -33,6 +33,7 @@ Launcher::Launcher(LauncherDataStore *dataStore, QGraphicsItem *parent) :
 {
     // Listen to changes in data store contents
     connect(dataStore, SIGNAL(dataStoreChanged()), this, SLOT(updatePagesFromDataStore()));
+    connect(dataStore, SIGNAL(desktopEntryChanged(QString)), this, SLOT(updateLauncherButton(QString)));
 }
 
 Launcher::~Launcher()
@@ -77,6 +78,7 @@ void Launcher::updatePagesFromDataStore()
 
     // Reconnect signals
     connect(dataStore, SIGNAL(dataStoreChanged()), this, SLOT(updatePagesFromDataStore()));
+    connect(dataStore, SIGNAL(desktopEntryChanged(QString)), this, SLOT(updateLauncherButton(QString)));
 }
 
 void Launcher::addDesktopEntriesWithKnownPlacements(QList<QSharedPointer<LauncherPage> > &pages)
@@ -161,11 +163,17 @@ void Launcher::removeEmptyPages(QList<QSharedPointer<LauncherPage> > &pages)
 
 QSharedPointer<LauncherButton> Launcher::createLauncherButton(const QString &desktopEntryPath)
 {
-    MDesktopEntry desktopEntry(desktopEntryPath);
-    QSharedPointer<LauncherButton> button = QSharedPointer<LauncherButton> (new LauncherButton(desktopEntry));
+    QSharedPointer<LauncherButton> button = QSharedPointer<LauncherButton> (new LauncherButton(desktopEntryPath));
     button->setObjectName("LauncherButton");
     connect(button.data(), SIGNAL(clicked()), this, SIGNAL(launcherButtonClicked()));
     return button;
+}
+
+void Launcher::updateLauncherButton(const QString &desktopEntryPath)
+{
+    foreach (QSharedPointer<LauncherPage> page, model()->launcherPages()) {
+        if (page->updateButton(desktopEntryPath)) break;
+    }
 }
 
 QMap<Launcher::Placement, QString> Launcher::createPlacementMap(const QHash<QString, QVariant> &desktopEntryPlacements)

@@ -26,6 +26,7 @@
 #include <QFileSystemWatcher>
 #include <QTimer>
 #include <QFileInfoList>
+#include <QSet>
 
 class MDataStore;
 class LauncherPage;
@@ -85,6 +86,11 @@ signals:
      */
     void dataStoreChanged();
 
+    /*!
+     * \brief A signal for informing that the contents of a desktop entry have changed.
+     */
+    void desktopEntryChanged(const QString &);
+
 private slots:
     /*!
      * Updates the contents of the data store from the desktop entries in
@@ -104,6 +110,14 @@ private slots:
      * The dataStoreChanged() signal is emitted after changes are made.
      */
     void processUpdateQueue();
+
+    /*!
+     * Updates a desktop entry.
+     * If file exists, sends a signal about the change. If file does NOT exist, removes path from watcher.
+     *
+     * \param desktopEntryPath Path to desktop entry that has changed
+     */
+    void updateDesktopEntry(const QString &desktopEntryPath);
 
 private:
     /*!
@@ -142,6 +156,23 @@ private:
       */
     QString keyToEntryPath(QString key);
 
+    /*!
+      * Add path to watcher, if path isn't already watched.
+      *
+      * This helper method is need as QFileSystemWatcher produces some very annoying
+      * debug messages when trying to add already existing paths.
+      *
+      * \param filePath File path to add to watcher
+      */
+    void addFilePathToWatcher(const QString &filePath);
+
+    /*!
+     * Checks if given key is in desktop entry queue.
+     *
+     * \param key Key to be checked
+     */
+    bool isInQueue(const QString &key);
+
     //! A file system watcher for the desktop entry file directory
     QFileSystemWatcher watcher;
 
@@ -161,7 +192,7 @@ private:
     QFileInfoList updateQueue;
 
     //! Valid keys found during the update
-    QStringList updateValidKeys;
+    QSet<QString> updateValidKeys;
 };
 
 #endif

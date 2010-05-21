@@ -49,6 +49,7 @@ signals:
     void directoryChanged(const QString path);
     void buttonClicked();
     void testPanToPageSignal(const QString &filePath);
+    void updateButton(const QString &filePath);
 
 private slots:
     // Executed once before every test case
@@ -81,5 +82,7 @@ private slots:
     void testPanToPageWithNonExistentFileName();
     // Test that no pan request is send when empty string is given
     void testPanToPageWithEmptyFileName();
+    // Test that launcher button is updated when signal received
+    void testUpdatingLauncherButton();
 };
 #endif //_UT_LAUNCHER_

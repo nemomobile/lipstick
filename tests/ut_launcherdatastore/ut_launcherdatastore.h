@@ -54,10 +54,12 @@ private slots:
     void testProcessUpdateQueueFiltersDesktopFiles();
     void testUpdatingDataForDesktopEntry();
     void testOnlyPrefixedKeys();
+    void testAddingWatcherDesktopEntryPaths();
 
 signals:
     void directoryChanged();
     void timeout();
+    void fileChanged(QString);
 
 private:
     // MApplication

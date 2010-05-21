@@ -91,8 +91,7 @@ void QuickLaunchBar::updateWidgetList()
 
 LauncherButton *QuickLaunchBar::createLauncherButton(const QString &desktopEntryPath)
 {
-    MDesktopEntry desktopEntry(desktopEntryPath);
-    LauncherButton *button = new LauncherButton(desktopEntry);
+    LauncherButton *button = new LauncherButton(desktopEntryPath);
     button->setObjectName("QuickLaunchBarButton");
     return button;
 }

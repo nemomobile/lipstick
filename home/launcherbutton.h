@@ -39,7 +39,7 @@ class LauncherButton : public MButton
     Q_OBJECT
     M_CONTROLLER(LauncherButton)
 
-    Q_PROPERTY(QString desktopEntry READ desktopEntry)
+    Q_PROPERTY(QString desktopEntryPath READ desktopEntry)
 
 public:
     /*!
@@ -52,10 +52,10 @@ public:
     /*!
      * Creates a launcher button instance from a MDesktopEntry.
      *
-     * \param entry the MDesktopEntry to create a launcher button from
+     * \param desktopEntryPath Path to the desktop entry to create a launcher button from
      * \param parent the parent widget, defaults to NULL
      */
-    LauncherButton(const MDesktopEntry &entry, MWidget *parent = 0);
+    LauncherButton(const QString &desktopEntryPath, MWidget *parent = 0);
 
     /*!
      * Destroys the Launcher.
@@ -97,6 +97,12 @@ public:
      * \return the desktop entry file name.
      */
     QString desktopEntry() const;
+
+    /*!
+     * Updates button from given desktop entry.
+     * \param desktopEntryPath Path to the desktop entry to update the button from.
+     */
+    void updateFromDesktopEntry(const QString &desktopEntryPath);
 
 private slots:
     /*!

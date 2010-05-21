@@ -35,6 +35,7 @@ class LauncherStub : public StubBase {
   virtual int panToPage(const QString &fileEntryPath);
   virtual QSharedPointer<LauncherButton> createLauncherButton(const QString &desktopEntryPath);
   virtual QMap<Launcher::Placement, QString> createPlacementMap(const QHash<QString, QVariant> &desktopEntryPlacements);
+  virtual void updateLauncherButton(const QString &desktopEntryPath);
 }; 
 
 // 2. IMPLEMENT STUB
@@ -85,6 +86,12 @@ int LauncherStub::panToPage(const QString &fileEntryPath) {
   return stubReturnValue<int>("panToPage");
 }
 
+void LauncherStub::updateLauncherButton(const QString &fileEntryPath) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<QString>(fileEntryPath));
+  stubMethodEntered("updateLauncherButton",params);
+}
+
 // 3. CREATE A STUB INSTANCE
 LauncherStub gDefaultLauncherStub;
 LauncherStub* gLauncherStub = &gDefaultLauncherStub;
@@ -123,4 +130,7 @@ int Launcher::panToPage(const QString &fileEntryPath) {
   return gLauncherStub->panToPage(fileEntryPath);
 }
 
+void Launcher::updateLauncherButton(const QString &fileEntryPath) {
+  return gLauncherStub->updateLauncherButton(fileEntryPath);
+}
 #endif

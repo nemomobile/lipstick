@@ -47,7 +47,22 @@ bool LauncherPage::appendButton(QSharedPointer<LauncherButton> button)
 
 void LauncherPage::removeButton(QSharedPointer<LauncherButton> button)
 {
-   QList< QSharedPointer<LauncherButton> > buttons(model()->launcherButtons());
-   buttons.removeOne(button);
-   model()->setLauncherButtons(buttons);
+    QList< QSharedPointer<LauncherButton> > buttons(model()->launcherButtons());
+    buttons.removeOne(button);
+    model()->setLauncherButtons(buttons);
+}
+
+
+bool LauncherPage::updateButton(const QString &desktopEntryPath)
+{
+    bool contains = false;
+    foreach(QSharedPointer<LauncherButton> button, model()->launcherButtons()) {
+        if (button->desktopEntry() == desktopEntryPath) {
+            button->updateFromDesktopEntry(desktopEntryPath);
+            contains = true;
+            break;
+        }
+    }
+
+    return contains;
 }

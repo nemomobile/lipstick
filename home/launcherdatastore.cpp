@@ -17,8 +17,8 @@
 **
 ****************************************************************************/
 
-#include <QDebug>
 #include <QDir>
+#include <QFile>
 #include <MDesktopEntry>
 #include <MDataStore>
 #include "launcherpage.h"
@@ -42,6 +42,7 @@ LauncherDataStore::LauncherDataStore(MDataStore* dataStore) :
 
     // Start watching the applications directory for changes
     connect(&watcher, SIGNAL(directoryChanged(const QString)), this, SLOT(updateDataFromDesktopEntryFiles()));
+    connect(&watcher, SIGNAL(fileChanged(QString)), this, SLOT(updateDesktopEntry(QString)));
     watcher.addPath(APPLICATIONS_DIRECTORY);
 }
 
@@ -123,12 +124,14 @@ void LauncherDataStore::processUpdateQueue()
                 store->createValue(key, QVariant());
 
                 // Keep track of all valid desktop entries
-                updateValidKeys.append(key);
+                updateValidKeys.insert(key);
             }
         } else {
             // Keep track of all valid desktop entries (consider already added desktop entries to be valid)
-            updateValidKeys.append(key);
+            updateValidKeys.insert(key);
         }
+
+        addFilePathToWatcher(desktopEntryPath);
     }
 
     if (updateQueue.isEmpty()) {
@@ -177,4 +180,48 @@ QString LauncherDataStore::keyToEntryPath(QString key)
     }
 
     return key;
+}
+
+void LauncherDataStore::addFilePathToWatcher(const QString &filePath)
+{
+    if (!watcher.files().contains(filePath)) {
+        watcher.addPath(filePath);
+    }
+}
+
+void LauncherDataStore::updateDesktopEntry(const QString &desktopEntryPath)
+{
+    if (QFile::exists(desktopEntryPath)) {
+        QString key = entryPathToKey(desktopEntryPath);
+
+        if (store->contains(key)) {
+            MDesktopEntry desktopEntry(desktopEntryPath);
+            if (isDesktopEntryValid(desktopEntry, supportedDesktopEntryFileTypes)) {
+                // update valid & existing entry
+                emit desktopEntryChanged(desktopEntryPath);
+            } else {
+                // remove existing but now invalid entry
+                updateValidKeys.remove(key);
+                store->remove(key);
+            }
+        } else if (!isInQueue(key)) {
+            MDesktopEntry desktopEntry(desktopEntryPath);
+            if (isDesktopEntryValid(desktopEntry, supportedDesktopEntryFileTypes)) {
+                // if entry has been invalid before, but is now valid, add entry as a new entry
+                store->createValue(key, QVariant());
+                updateValidKeys.insert(key);
+            }
+        }
+    }
+}
+
+bool LauncherDataStore::isInQueue(const QString &key)
+{
+    bool contains = false;
+    foreach (const QFileInfo &fileInfo, updateQueue) {
+        contains = (fileInfo.absolutePath() == keyToEntryPath(key));
+        if (contains)
+            break;
+    }
+    return contains;
 }

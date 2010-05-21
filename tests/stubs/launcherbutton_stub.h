@@ -10,7 +10,7 @@
 class LauncherButtonStub : public StubBase {
   public:
   virtual void LauncherButtonConstructor(MWidget *parent);
-  virtual void LauncherButtonConstructor(const MDesktopEntry &entry, MWidget *parent);
+  virtual void LauncherButtonConstructor(const QString &entry, MWidget *parent);
   virtual void LauncherButtonDestructor();
   virtual void setTargetType(const QString &type);
   virtual QString targetType() const;
@@ -18,6 +18,7 @@ class LauncherButtonStub : public StubBase {
   virtual QString target() const;
   virtual QString desktopEntry() const;
   virtual void launch();
+  virtual void updateFromDesktopEntry(const QString &entry);
 }; 
 
 // 2. IMPLEMENT STUB
@@ -25,7 +26,7 @@ void LauncherButtonStub::LauncherButtonConstructor(MWidget *parent) {
   Q_UNUSED(parent);
 
 }
-void LauncherButtonStub::LauncherButtonConstructor(const MDesktopEntry &entry, MWidget *parent) {
+void LauncherButtonStub::LauncherButtonConstructor(const QString &entry, MWidget *parent) {
   Q_UNUSED(entry);
   Q_UNUSED(parent);
 
@@ -64,6 +65,11 @@ void LauncherButtonStub::launch() {
   stubMethodEntered("launch");
 }
 
+void LauncherButtonStub::updateFromDesktopEntry(const QString &entry) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<const QString &>(entry));
+  stubMethodEntered("updateFromDesktopEntry",params);
+}
 
 
 // 3. CREATE A STUB INSTANCE
@@ -76,7 +82,7 @@ LauncherButton::LauncherButton(MWidget *parent) {
   gLauncherButtonStub->LauncherButtonConstructor(parent);
 }
 
-LauncherButton::LauncherButton(const MDesktopEntry &entry, MWidget *parent) {
+LauncherButton::LauncherButton(const QString &entry, MWidget *parent) {
   gLauncherButtonStub->LauncherButtonConstructor(entry, parent);
 }
 
@@ -108,5 +114,8 @@ void LauncherButton::launch() {
   gLauncherButtonStub->launch();
 }
 
+void LauncherButton::updateFromDesktopEntry(const QString &entry) {
+    gLauncherButtonStub->updateFromDesktopEntry(entry);
+}
 
 #endif

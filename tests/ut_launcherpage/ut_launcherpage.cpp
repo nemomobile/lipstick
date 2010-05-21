@@ -21,10 +21,29 @@
 #include <MDesktopEntry>
 #include "ut_launcherpage.h"
 #include "launcherpage.h"
-#include "launcherbutton_stub.h"
+#include "launcherbutton.h"
 
+static QSharedPointer<LauncherButton> createLauncherButton(QString desktopFileName = QString());
 
-static const QSharedPointer<LauncherButton> createLauncherButton(QString desktopFileName = QString());
+// LauncherButton stubs
+LauncherButton::LauncherButton(MWidget *parent) : MButton(parent, new LauncherButtonModel) {}
+LauncherButton::LauncherButton(const QString&, MWidget*parent) : MButton(parent, new LauncherButtonModel) {}
+LauncherButton::~LauncherButton(){}
+
+QString LauncherButton::desktopEntry() const
+{
+    return objectName();
+}
+
+int updateFromDesktopEntryCallCount = 0;
+void LauncherButton::updateFromDesktopEntry(const QString &)
+{
+    updateFromDesktopEntryCallCount++;
+}
+
+void LauncherButton::launch()
+{
+}
 
 void Ut_LauncherPage::initTestCase()
 {
@@ -41,6 +60,7 @@ void Ut_LauncherPage::cleanupTestCase()
 void Ut_LauncherPage::init()
 {
     m_subject = new LauncherPage();
+    updateFromDesktopEntryCallCount = 0;
 }
 
 void Ut_LauncherPage::cleanup()
@@ -92,12 +112,21 @@ void Ut_LauncherPage::testRemoveButton()
     QCOMPARE(m_subject->model()->launcherButtons().count(), 0);
 }
 
-static const QSharedPointer<LauncherButton> createLauncherButton(QString desktopFileName)
+void Ut_LauncherPage::testUpdateButton()
+{
+    QSharedPointer<LauncherButton> button1 = createLauncherButton("my-entry-name-1");
+    QSharedPointer<LauncherButton> button2 = createLauncherButton("my-entry-name-updated");
+    m_subject->appendButton(button1);
+    m_subject->appendButton(button2);
+    m_subject->updateButton("my-entry-name-updated");
+
+    QCOMPARE(updateFromDesktopEntryCallCount, 1);
+}
+
+static QSharedPointer<LauncherButton> createLauncherButton(QString desktopFileName)
 {
     QSharedPointer<LauncherButton> button(new LauncherButton);
-    LauncherButtonModel *buttonModel = new LauncherButtonModel;
-    button.data()->setModel(buttonModel);
-    button.data()->model()->setDesktopEntryFile(desktopFileName);
+    button.data()->setObjectName(desktopFileName);
     return button;
 }
 

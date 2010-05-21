@@ -64,9 +64,19 @@ public:
 
     /*!
      * Remove button from page.
+     *
      * \param button Button to be removed.
      */
     void removeButton(QSharedPointer<LauncherButton> button);
+
+    /*!
+     * Updates a button if button representing the given desktop entry is found from page.
+     *
+     * \param desktopEntryPath Desktop entry path to check
+     *
+     * \return desktopEntryPath Whether button representing the given desktop entry was found on page
+     */
+    bool updateButton(const QString &desktopEntryPath);
 };
 
 #endif
