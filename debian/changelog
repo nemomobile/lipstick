@@ -2,6 +2,7 @@ duihome (0.21.9~1) unstable; urgency=low
 
   * New version [UNRELEASED]
   * Implemented: SWP#DUI-2724 Support to open launcher at a page where launcher item with certain application icon is displayed.
+  * Implemented: SWP#DUI-3019 Switcher overview mode should have no more than 4 thumbnails at one time.
   * Fixes: NB#168077 - launcherbuttons.data keys that do not belong to [DesktopEntries] group result in broken entries in the launcher
   * Fixes: NB#168422 - System modal dialog windows are shown in the switcher
 
