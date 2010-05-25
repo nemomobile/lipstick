@@ -34,7 +34,7 @@ class ImageApplet : public QObject, public MAppletInterface
 
 public: // methods derived from MAppletInterface
 
-    virtual MWidget *constructWidget(const MAppletMetaData &metadata, MDataStore &instanceData, MDataAccess &appletSettings);
+    virtual QGraphicsWidget *constructWidget(const MAppletMetaData &metadata, MDataStore &instanceData, MDataAccess &appletSettings);
 };
 
 #endif // IMAGEAPPLET_H

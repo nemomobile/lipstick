@@ -25,7 +25,7 @@
 M_LIBRARY
 Q_EXPORT_PLUGIN2(imageapplet, ImageApplet)
 
-MWidget *ImageApplet::constructWidget(const MAppletMetaData &metadata, MDataStore &, MDataAccess &)
+QGraphicsWidget *ImageApplet::constructWidget(const MAppletMetaData &metadata, MDataStore &, MDataAccess &)
 {
     if (!metadata.contains("X-MeeGoApplet/ImageLandscape") || !metadata.contains("X-MeeGoApplet/ImagePortrait")) {
         return NULL;
