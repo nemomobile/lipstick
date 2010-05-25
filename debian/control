@@ -2,7 +2,7 @@ Source: duihome
 Section: x11
 Priority: extra
 Maintainer: Tuomas Järvensivu <tuomas.jarvensivu@nokia.com>
-Build-Depends: debhelper (>= 5), doxygen (>=1.5.9), libmeegotouch-dev (>= 0.20.1), libqt4-dev (>= 4.6), libqt4-opengl-dev, libxcomposite-dev, libxext-dev, libcontextsubscriber-dev, maemo-services-dev
+Build-Depends: debhelper (>= 5), doxygen (>=1.5.9), libmeegotouch-dev (>> 0.20.11), libqt4-dev (>= 4.6), libqt4-opengl-dev, libxcomposite-dev, libxext-dev, libcontextsubscriber-dev, maemo-services-dev
 Standards-Version: 3.7.2
 
 Package: duihomescreen
