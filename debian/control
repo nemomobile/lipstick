@@ -11,9 +11,8 @@ Standards-Version: 3.7.2
 
 Package: duihomescreen
 Architecture: any
-Depends: libxcomposite1, ui-fonts,
-  libmeegotouchcore0, libmeegotouchextensions0, libmeegotouchsettings0, libmeegotouchviews0,
-  libduihome0, libcontextsubscriber0, ${shlibs:Depends},
+Depends: ${shlibs:Depends},
+  ui-fonts,
   dsme,
   duihomescreen-l10n-engineering-english (= ${Source-Version})
 Description: Direct UI Home screen
@@ -87,7 +86,7 @@ Description: Direct UI Home screen plugins debug info
 Package: libduihome0
 Architecture: any
 Section: devel
-Depends: libmeegotouchcore0, ${shlibs:Depends}
+Depends: ${shlibs:Depends}
 Description: Direct UI Home library
  Direct UI Home library
 
