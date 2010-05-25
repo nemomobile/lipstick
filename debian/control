@@ -2,12 +2,20 @@ Source: duihome
 Section: x11
 Priority: extra
 Maintainer: Tuomas Järvensivu <tuomas.jarvensivu@nokia.com>
-Build-Depends: debhelper (>= 5), doxygen (>=1.5.9), libmeegotouch-dev (>= 0.20.1), libqt4-dev (>= 4.6), libqt4-opengl-dev, libxcomposite-dev, libxext-dev, libcontextsubscriber-dev, maemo-services-dev
+Build-Depends: debhelper (>= 5), doxygen (>=1.5.9),
+  libmeegotouch-dev (>= 0.20.1),
+  libqt4-dev (>= 4.6), libqt4-opengl-dev,
+  libxcomposite-dev, libxext-dev,
+  libcontextsubscriber-dev, maemo-services-dev
 Standards-Version: 3.7.2
 
 Package: duihomescreen
 Architecture: any
-Depends: libxcomposite1, ui-fonts, libmeegotouchcore0, libmeegotouchextensions0, libmeegotouchsettings0, libmeegotouchviews0, libduihome0, libcontextsubscriber0, ${shlibs:Depends}, dsme, duihomescreen-l10n-engineering-english (= ${Source-Version})
+Depends: libxcomposite1, ui-fonts,
+  libmeegotouchcore0, libmeegotouchextensions0, libmeegotouchsettings0, libmeegotouchviews0,
+  libduihome0, libcontextsubscriber0, ${shlibs:Depends},
+  dsme,
+  duihomescreen-l10n-engineering-english (= ${Source-Version})
 Description: Direct UI Home screen
  Direct UI Home screen
 
