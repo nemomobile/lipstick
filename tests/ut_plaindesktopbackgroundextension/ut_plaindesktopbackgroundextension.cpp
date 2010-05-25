@@ -285,7 +285,7 @@ void Ut_PlainDesktopBackgroundExtension::testInitialize()
 
 void Ut_PlainDesktopBackgroundExtension::testWidget()
 {
-    QCOMPARE(extension->widget(), (MWidget *)NULL);
+    QCOMPARE(extension->widget(), (QGraphicsWidget *)NULL);
 }
 
 void Ut_PlainDesktopBackgroundExtension::testDrawBackground()

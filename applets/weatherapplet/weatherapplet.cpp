@@ -26,7 +26,7 @@
 M_LIBRARY
 Q_EXPORT_PLUGIN2(weatherapplet, WeatherApplet)
 
-MWidget *WeatherApplet::constructWidget(const MAppletMetaData &metaData, MDataStore &instanceData, MDataAccess &settings)
+QGraphicsWidget *WeatherApplet::constructWidget(const MAppletMetaData &metaData, MDataStore &instanceData, MDataAccess &settings)
 {
     if (metaData.contains("X-Additional", "StartupDelay")) {
         QString delayStr = metaData.value("X-Additional", "StartupDelay");

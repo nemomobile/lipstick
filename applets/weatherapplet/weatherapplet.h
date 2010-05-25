@@ -31,7 +31,7 @@ class WeatherApplet : public QObject, public MAppletInterface
 
 public:
     // methods derived from MAppletInterface
-    virtual MWidget *constructWidget(const MAppletMetaData &metaData, MDataStore &instanceData, MDataAccess &settings);
+    virtual QGraphicsWidget *constructWidget(const MAppletMetaData &metaData, MDataStore &instanceData, MDataAccess &settings);
 };
 
 #endif // WEATHERAPPLET_H

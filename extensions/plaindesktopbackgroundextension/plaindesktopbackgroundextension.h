@@ -52,7 +52,7 @@ public:
     virtual void setDesktopInterface(MDesktopInterface &desktopInterface);
     virtual void drawBackground(QPainter *painter, const QRectF &boundingRect) const;
     virtual bool initialize(const QString &interface);
-    virtual MWidget *widget();
+    virtual QGraphicsWidget *widget();
     //! \reimp_end
 
 private slots:

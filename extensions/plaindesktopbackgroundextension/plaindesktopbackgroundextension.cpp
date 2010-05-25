@@ -84,7 +84,7 @@ bool PlainDesktopBackgroundExtension::initialize(const QString &)
     return true;
 }
 
-MWidget *PlainDesktopBackgroundExtension::widget()
+QGraphicsWidget *PlainDesktopBackgroundExtension::widget()
 {
     return NULL;
 }
