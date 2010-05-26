@@ -89,6 +89,7 @@ HomeApplication::HomeApplication(int &argc, char **argv) :
     windowTypeCallAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_CALL", False);
     windowTypeDockAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_DOCK", False);
     windowTypeDialogAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_DIALOG", False);
+    windowTypeMenuAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_MENU", False);
     clientListAtom = X11Wrapper::XInternAtom(dpy, "_NET_CLIENT_LIST", False);
     stackedClientListAtom = X11Wrapper::XInternAtom(dpy, "_NET_CLIENT_LIST_STACKING", False);
     closeWindowAtom = X11Wrapper::XInternAtom(dpy, "_NET_CLOSE_WINDOW", False);
@@ -262,8 +263,8 @@ QList<WindowInfo> HomeApplication::filterWindows(Atom clientListAtom)
                         includeInWindowList = true;
                     }
                     for (unsigned int n = 0; n < numTypeItems; n++) {
-                        // "Desktop", "Notification", "Dock" and "Dialog" windows should never be included in the window list
-                        if (type[n] == windowTypeDesktopAtom || type[n] == windowTypeNotificationAtom || type[n] == windowTypeDockAtom || type[n] == windowTypeDialogAtom) {
+                        // "Desktop", "Notification", "Dock", "Dialog" and "Menu" windows should never be included in the window list
+                        if (type[n] == windowTypeDesktopAtom || type[n] == windowTypeNotificationAtom || type[n] == windowTypeDockAtom || type[n] == windowTypeDialogAtom || type[n] == windowTypeMenuAtom) {
                             includeInWindowList = false;
                             break;
                         }

@@ -114,6 +114,7 @@ private:
     Atom windowTypeNotificationAtom;
     Atom windowTypeDockAtom;
     Atom windowTypeDialogAtom;
+    Atom windowTypeMenuAtom;
     Atom windowTypeCallAtom;
     Atom clientListAtom;
     Atom stackedClientListAtom;

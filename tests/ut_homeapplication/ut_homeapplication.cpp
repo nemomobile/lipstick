@@ -42,7 +42,8 @@
 #define ATOM_TYPE_DOCK 0x00010004
 #define ATOM_TYPE_CALL 0x00010005
 #define ATOM_TYPE_DIALOG 0x00010006
-#define ATOM_TYPE_SOMETHING_ELSE 0x00010007
+#define ATOM_TYPE_MENU 0x00010007
+#define ATOM_TYPE_SOMETHING_ELSE 0x00010008
 #define ATOM_CLIENT_LIST 0x00020000
 #define ATOM_CLIENT_LIST_STACKING 0x00030000
 #define ATOM_CLOSE_WINDOW 0x00040000
@@ -52,7 +53,7 @@
 #define ATOM_NET_WM_NAME 0x00070001
 #define ATOM_WM_NAME 0x00080001
 #define WINDOW_ATTRIBUTE_TEST_WINDOWS 16
-#define WINDOW_TYPE_TEST_WINDOWS 11
+#define WINDOW_TYPE_TEST_WINDOWS 12
 #define NET_WM_STATE_WINDOWS 1
 #define NUMBER_OF_WINDOWS (WINDOW_ATTRIBUTE_TEST_WINDOWS + WINDOW_TYPE_TEST_WINDOWS + NET_WM_STATE_WINDOWS)
 
@@ -83,6 +84,8 @@ Atom X11Wrapper::XInternAtom(Display *, const char *atom_name, Bool)
         return ATOM_TYPE_CALL;
     } else if (strcmp(atom_name, "_NET_WM_WINDOW_TYPE_DIALOG") == 0) {
         return ATOM_TYPE_DIALOG;
+    } else if (strcmp(atom_name, "_NET_WM_WINDOW_TYPE_MENU") == 0) {
+        return ATOM_TYPE_MENU;
     } else if (strcmp(atom_name, "_NET_CLIENT_LIST") == 0) {
         return ATOM_CLIENT_LIST;
     } else if (strcmp(atom_name, "_NET_CLIENT_LIST_STACKING") == 0) {
@@ -280,6 +283,12 @@ int X11Wrapper::XGetWindowProperty(Display *dpy, Window w, Atom property, long l
             *prop_return = new unsigned char[sizeof(Atom)];
             atom = (Atom *) * prop_return;
             atom[0] = ATOM_TYPE_DIALOG;
+            break;
+        case(WINDOW_ATTRIBUTE_TEST_WINDOWS + 11):
+            *nitems_return = 1;
+            *prop_return = new unsigned char[sizeof(Atom)];
+            atom = (Atom *) * prop_return;
+            atom[0] = ATOM_TYPE_MENU;
             break;
         case(WINDOW_ATTRIBUTE_TEST_WINDOWS + WINDOW_TYPE_TEST_WINDOWS):
             *nitems_return = 1;
