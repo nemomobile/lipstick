@@ -193,6 +193,7 @@ DesktopView::DesktopView(Desktop *desktop) :
             this, SLOT(addExtension(MApplicationExtensionInterface*)));
     connect(backgroundExtensionArea, SIGNAL(extensionRemoved(MApplicationExtensionInterface*)),
             this, SLOT(removeExtension(MApplicationExtensionInterface*)));
+    backgroundExtensionArea->init();
 }
 
 DesktopView::~DesktopView()
