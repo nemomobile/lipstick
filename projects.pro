@@ -7,13 +7,9 @@ include(mconfig.pri)
 CONFIG += ordered
 TEMPLATE = subdirs
 SUBDIRS = \
-    libmeegotouchhome \
-    home \
+    src \
     themes \
-    applets \
-    extensions \
-    tests \
-    translations
+    tests
 
 QMAKE_CLEAN += \
     build-stamp \
@@ -27,7 +23,6 @@ QMAKE_CLEAN += \
 QMAKE_DISTCLEAN += \
     build-stamp \
     configure-stamp \
-    artifacts/*.deb \
     tests/*/*.log.xml \
     tests/*/*.log \
     *.log.xml \

@@ -1,7 +1,7 @@
 include(../common_top.pri)
 TARGET = ut_plaindesktopbackgroundpixmap
 
-EXTDIR = ../../extensions/plaindesktopbackgroundextension
+EXTDIR = ../../src/extensions/plaindesktopbackgroundextension
 INCLUDEPATH += $$EXTDIR
 
 # unit test and unit

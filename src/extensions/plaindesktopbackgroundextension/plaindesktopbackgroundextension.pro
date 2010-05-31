@@ -18,7 +18,7 @@ SOURCES = plaindesktopbackgroundextension.cpp \
 STYLE_HEADERS += plaindesktopbackgroundstyle.h
 
 TARGET = $$qtLibraryTarget(duihome-plaindesktopbackgroundextension)
-DESTDIR = ../../lib
+DESTDIR = ../../../lib
 target.path += $$M_APPLICATION_EXTENSION_DIR
 INSTALLS += target desktop_entry style
 

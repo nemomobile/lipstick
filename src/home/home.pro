@@ -5,15 +5,15 @@ OBJECTS_DIR = .obj
 
 system(m-servicefwgen -a com.meego.core.HomeScreen)
 
-include(../m_targets.pri)
-include(../mconfig.pri)
+include(../../m_targets.pri)
+include(../../mconfig.pri)
 include(files.pri)
 
 SOURCES += main.cpp
 
 TEMPLATE = app
 TARGET = duihome
-DESTDIR = ../
+DESTDIR = ../../
 QT += network \
     svg \
     dbus \

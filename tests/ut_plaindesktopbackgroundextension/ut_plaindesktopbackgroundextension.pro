@@ -1,7 +1,7 @@
 include(../common_top.pri)
 TARGET = ut_plaindesktopbackgroundextension
 
-EXTDIR = ../../extensions/plaindesktopbackgroundextension
+EXTDIR = ../../src/extensions/plaindesktopbackgroundextension
 INCLUDEPATH += $$EXTDIR
 DEFINES += M_LIBRARY=
 

@@ -2,7 +2,7 @@ MOC_DIR = .moc
 MGEN_OUTDIR = .gen
 OBJECTS_DIR = .obj
 
-include(../../mconfig.pri)
+include(../../../mconfig.pri)
 
 TEMPLATE = lib
 CONFIG += plugin \
@@ -14,7 +14,7 @@ HEADERS = imageapplet.h \
 SOURCES = imageapplet.cpp \
     imagewidget.cpp
 TARGET = $$qtLibraryTarget(imageapplet)
-DESTDIR = ../../lib
+DESTDIR = ../../../lib
 target.path += $$M_APPLET_DIR
 INSTALLS += target \
     desktop_entry \

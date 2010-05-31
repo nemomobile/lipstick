@@ -2,7 +2,7 @@ MOC_DIR = .moc
 MGEN_OUTDIR = .gen
 OBJECTS_DIR = .obj
 
-include(../../mconfig.pri)
+include(../../../mconfig.pri)
 
 TEMPLATE      = lib
 CONFIG       += plugin gui meegotouch
@@ -29,7 +29,7 @@ SOURCES = \
     weatherbuttonview.cpp
 
 TARGET        = $$qtLibraryTarget(weatherapplet)
-DESTDIR       = ../../lib
+DESTDIR       = ../../../lib
 
 target.path += $$M_APPLET_DIR
 

@@ -1,7 +1,7 @@
 include(../check.pri)
 include(../../mconfig.pri)
-SRCDIR = ../../home
-HOMELIBDIR = ../../libmeegotouchhome
+SRCDIR = ../../src/home
+HOMELIBDIR = ../../src/libmeegotouchhome
 STUBSDIR = ../stubs
 INCLUDEPATH += $$SRCDIR $$HOMELIBDIR $$STUBSDIR $$M_INSTALL_HEADERS
 DEPENDPATH = $$INCLUDEPATH
