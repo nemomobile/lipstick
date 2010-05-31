@@ -106,6 +106,7 @@ bool LauncherDataStoreStub::isInQueue(const QString &key) {
     QList<ParameterBase*> params;
     params.append( new Parameter<const QString >(key));
     stubMethodEntered("isInQueue",params);
+    return stubReturnValue<bool>("isInQueue");
 }
 
 // 3. CREATE A STUB INSTANCE

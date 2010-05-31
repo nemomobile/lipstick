@@ -131,6 +131,6 @@ int Launcher::panToPage(const QString &fileEntryPath) {
 }
 
 void Launcher::updateLauncherButton(const QString &fileEntryPath) {
-  return gLauncherStub->updateLauncherButton(fileEntryPath);
+  gLauncherStub->updateLauncherButton(fileEntryPath);
 }
 #endif
