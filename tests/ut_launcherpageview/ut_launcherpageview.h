@@ -43,6 +43,8 @@ private slots:
 
     // Test cases
     void testAddButtonsToPage();
+    void testRemovingButtonFromLayout();
+    void testRemovingButtonFromLayoutInDestructor();
 
 private:
     // MApplication

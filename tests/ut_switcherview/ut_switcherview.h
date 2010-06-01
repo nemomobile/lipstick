@@ -57,6 +57,9 @@ private slots:
     // Test that the buttons are positioned correctly
     void testSwitcherButtonVerticalAlignment();
 
+    // Test that buttons are removed correctly
+    void testRemovingButtons();
+
 private:
     void verifyButtonModesInOverviewMode(M::Orientation orientation);
     void verifyButtonModesInOverviewMode(QList< QSharedPointer<SwitcherButton> > &buttonList);

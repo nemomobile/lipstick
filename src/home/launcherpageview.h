@@ -65,9 +65,19 @@ private:
      *
      * Adds new buttons and removes non-exitent.
      */
-    void updateLayoutFromButtonList();
+    void updateLayoutFromModel();
 
-    //! A layout for the buttons 
+    /*!
+     * Removes a button from layout and sets its parent to null.
+     *
+     * View or layout are not responsible for deleting the button after this.
+     *
+     * \param button Button to be removed.
+     */
+    void removeButtonFromLayout(LauncherButton *button);
+
+
+    //! A layout for the buttons
     MLayout *layout;
     //! A flow layout policy for the widgets
     MFlowLayoutPolicy *policy;

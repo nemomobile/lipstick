@@ -113,7 +113,10 @@ void Ut_LauncherView::init()
 
 void Ut_LauncherView::cleanup()
 {
-    delete controller;
+    if (controller == NULL) {
+        delete controller;
+        controller = NULL;
+    }
     delete launcherDataStore;
 }
 
@@ -147,7 +150,7 @@ void Ut_LauncherView::testSetButtons()
     QCOMPARE(layout->itemAt(0), page.data());
 }
 
-void Ut_LauncherView::testAddAndRemovePages()
+void Ut_LauncherView::testAddPages()
 {
     // add two pages
     QList< QSharedPointer<LauncherPage> > pages;
@@ -170,11 +173,37 @@ void Ut_LauncherView::testAddAndRemovePages()
     QGraphicsLayout* layout = pannedWidget->layout();
 
     QCOMPARE(layout->count(), 2);
+}
 
-    pages.removeAt(1);
+void Ut_LauncherView::testRemovingPages()
+{
+    QList< QSharedPointer<LauncherPage> > pages;
+    QSharedPointer<LauncherPage> page1(new LauncherPage());
+    QSharedPointer<LauncherPage> page2(new LauncherPage());
+    pages.append(page1);
+    pages.append(page2);
     controller->model()->setLauncherPages(pages);
 
+    pages.removeOne(page1);
+    controller->model()->setLauncherPages(pages);
+
+    QGraphicsLayout* layout = dynamic_cast<PagedViewport *>(controller->childItems().at(0))->widget()->layout();
     QCOMPARE(layout->count(), 1);
+    // verify that page is not deleted when there is still ref in QSharedPointer
+    QVERIFY(!page1.isNull());
+}
+
+void Ut_LauncherView::testRemovingPagesFromLayoutInDestructor()
+{
+    QSharedPointer<LauncherPage> page(new LauncherPage);
+    LauncherModel::LauncherPageList pages;
+    pages.append(page);
+    controller->model()->setLauncherPages(pages);
+
+    delete controller;
+    controller == NULL;
+    // verify that page is not deleted when there is still ref in QSharedPointer
+    QVERIFY(!page.isNull());
 }
 
 QTEST_APPLESS_MAIN(Ut_LauncherView)

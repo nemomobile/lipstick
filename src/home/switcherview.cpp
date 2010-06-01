@@ -80,6 +80,7 @@ SwitcherView::SwitcherView(Switcher *switcher) :
 
 SwitcherView::~SwitcherView()
 {
+    removeButtonsFromLayout();
 }
 
 void SwitcherView::panningStopped()
@@ -236,11 +237,7 @@ void SwitcherView::hideButtons()
     foreach (QSharedPointer<SwitcherButton> button, model()->buttons()) {
         button.data()->setVisible(false);
     }
-
-    // Remove all widgets from the layout (do not destroy them)
-    while (pannedLayout->count() > 0) {
-        pannedLayout->removeAt(0);
-    }
+    removeButtonsFromLayout();
 }
 
 void SwitcherView::updateButtons()
@@ -248,9 +245,7 @@ void SwitcherView::updateButtons()
     focusedSwitcherButton = std::min(focusedSwitcherButton, model()->buttons().size() - 1);
     focusedSwitcherButton = std::max(focusedSwitcherButton, 0);
 
-    while (pannedLayout->count() > 0) {
-        pannedLayout->removeAt(0);
-    }
+    removeButtonsFromLayout();
 
     /* Recreate the GridLayoutPolicy to keep the pannedWidget's size correct.
        TODO: Can hopefully be removed, pending on bug 165683 */
@@ -413,10 +408,17 @@ void SwitcherView::addButtonInOverviewPolicy(QSharedPointer<SwitcherButton> butt
     overviewPolicy->addItem(button.data(), row, column);
 }
 
+void SwitcherView::removeButtonsFromLayout()
+{
+    // Remove all buttons from the layout and set parents to null (do not destroy them)
+    for (int i = 0, count = pannedLayout->count(); i < count; i++) {
+        static_cast<SwitcherButton *>(pannedLayout->takeAt(0))->setParentItem(0);
+    }
+}
+
 static qreal calculateCenterCorrection(qreal value, qreal scaleFactor)
 {
     return (value * (scaleFactor - 1)) / 2.0;
 }
-
 
 M_REGISTER_VIEW_NEW(SwitcherView, Switcher)

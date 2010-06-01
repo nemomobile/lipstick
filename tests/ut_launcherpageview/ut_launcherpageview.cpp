@@ -73,7 +73,11 @@ void Ut_LauncherPageView::init()
 
 void Ut_LauncherPageView::cleanup()
 {
-    delete controller;
+    if (controller == NULL) {
+        delete controller;
+        controller = NULL;
+    }
+    gLauncherButtonStub->stubReset();
 }
 
 void Ut_LauncherPageView::testAddButtonsToPage()
@@ -82,6 +86,8 @@ void Ut_LauncherPageView::testAddButtonsToPage()
     QSharedPointer<LauncherButton> widget2(new LauncherButton);
     LauncherPageModel::LauncherButtonList widgets;
     widgets.append(widget1);
+    controller->model()->setLauncherButtons(widgets);
+
     widgets.append(widget2);
     controller->model()->setLauncherButtons(widgets);
 
@@ -91,6 +97,40 @@ void Ut_LauncherPageView::testAddButtonsToPage()
     QCOMPARE(mainLayout->count(), 2);
     QCOMPARE(mainLayout->itemAt(0), widget1.data());
     QCOMPARE(mainLayout->itemAt(1), widget2.data());
+}
+
+void Ut_LauncherPageView::testRemovingButtonFromLayout()
+{
+    QSharedPointer<LauncherButton> widget1(new LauncherButton);
+    QSharedPointer<LauncherButton> widget2(new LauncherButton);
+    LauncherPageModel::LauncherButtonList widgets;
+    widgets.append(widget1);
+    widgets.append(widget2);
+    controller->model()->setLauncherButtons(widgets);
+
+    MLayout* mainLayout = dynamic_cast<MLayout *>(controller->layout());
+
+    widgets.removeOne(widget1);
+    controller->model()->setLauncherButtons(widgets);
+
+    QCOMPARE(mainLayout->count(), 1);
+    QCOMPARE(mainLayout->itemAt(0), widget2.data());
+    // verify that button destructor has not been called when there is still ref in QSharedPointer
+    QCOMPARE(gLauncherButtonStub->stubCallCount("~LauncherButton"), 0);
+}
+
+void Ut_LauncherPageView::testRemovingButtonFromLayoutInDestructor()
+{
+    QSharedPointer<LauncherButton> widget(new LauncherButton);
+    LauncherPageModel::LauncherButtonList widgets;
+    widgets.append(widget);
+    controller->model()->setLauncherButtons(widgets);
+
+    delete controller;
+    controller = NULL;
+
+    // verify that button destructor has not been called when there is still ref in QSharedPointer
+    QCOMPARE(gLauncherButtonStub->stubCallCount("~LauncherButton"), 0);
 }
 
 QTEST_APPLESS_MAIN(Ut_LauncherPageView)

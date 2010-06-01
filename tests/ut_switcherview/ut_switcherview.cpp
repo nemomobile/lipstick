@@ -20,6 +20,7 @@
 #include <MApplicationPage>
 #include <MGridLayoutPolicy>
 #include <MLinearLayoutPolicy>
+#include <QGraphicsLayout>
 #include "mwindow_stub.h"
 #include "ut_switcherview.h"
 #include "mainwindow_stub.h"
@@ -31,6 +32,7 @@
 #include "x11wrapper_stub.h"
 #include "windowinfo_stub.h"
 #include "pagedpanning.h"
+#include "pagedviewport.h"
 
 static void setSwitcherButtonSize(QList< QSharedPointer<SwitcherButton> > &buttonList, const QSizeF &size);
 static void verifyContentMarginValues(qreal top, qreal bottom, qreal target);
@@ -206,20 +208,6 @@ void PagedPanning::setPageSnapFriction(qreal)
 {
 }
 
-void Ut_SwitcherView::initTestCase()
-{
-    static int argc = 1;
-    static char *app_name = (char *)"./ut_switcherview";
-    app = new MApplication(argc, &app_name);
-    mSceneManager = new MSceneManager(NULL, NULL);
-    gMWindowStub->stubSetReturnValue("sceneManager", mSceneManager);
-}
-
-void Ut_SwitcherView::cleanupTestCase()
-{
-    delete app;
-}
-
 QList< QSharedPointer<SwitcherButton> > Ut_SwitcherView::createButtonList(int buttons)
 {
     QList< QSharedPointer<SwitcherButton> > buttonList;
@@ -235,24 +223,6 @@ void Ut_SwitcherView::appendMoreButtonsToList(int newButtons, QList< QSharedPoin
         button.data()->setModel(new SwitcherButtonModel());
         buttonList.append(button);
     }
-}
-
-void Ut_SwitcherView::init()
-{
-    g_panRequested = false;
-    // Create test switcher
-    switcher = new Switcher();
-    g_switcherModel = new SwitcherModel;
-    switcher->setModel(g_switcherModel);
-    m_subject = new TestSwitcherView(switcher);
-    switcher->setView(m_subject);
-    gSwitcherStub->stubReset();
-}
-
-void Ut_SwitcherView::cleanup()
-{
-    delete m_subject;
-    delete g_switcherModel;
 }
 
 void Ut_SwitcherView::verifyButtonModesInOverviewMode(QList< QSharedPointer<SwitcherButton> > &buttonList)
@@ -364,6 +334,38 @@ void verifyContentMarginValues(qreal top, qreal bottom, qreal target)
 /*
  * Switcher detail view tests
  */
+
+void Ut_SwitcherView::initTestCase()
+{
+    static int argc = 1;
+    static char *app_name = (char *)"./ut_switcherview";
+    app = new MApplication(argc, &app_name);
+    mSceneManager = new MSceneManager(NULL, NULL);
+    gMWindowStub->stubSetReturnValue("sceneManager", mSceneManager);
+}
+
+void Ut_SwitcherView::cleanupTestCase()
+{
+    delete app;
+}
+
+void Ut_SwitcherView::init()
+{
+    g_panRequested = false;
+    // Create test switcher
+    switcher = new Switcher();
+    g_switcherModel = new SwitcherModel;
+    switcher->setModel(g_switcherModel);
+    m_subject = new TestSwitcherView(switcher);
+    switcher->setView(m_subject);
+    gSwitcherStub->stubReset();
+}
+
+void Ut_SwitcherView::cleanup()
+{
+    delete m_subject;
+    delete g_switcherModel;
+}
 
 void Ut_SwitcherView::testAutoPanningInDetailView()
 {
@@ -566,5 +568,20 @@ void Ut_SwitcherView::testSwitcherButtonVerticalAlignment()
     verifyLayoutPolicyContentMargins(notSizeAtAll);
 }
 
+void Ut_SwitcherView::testRemovingButtons()
+{
+    QList< QSharedPointer<SwitcherButton> > list(createButtonList(2));
+    QSharedPointer<SwitcherButton> removedButton = list.at(0);
+    g_switcherModel->setButtons(list);
+    QGraphicsLayout *layout = dynamic_cast<PagedViewport *>(switcher->layout()->itemAt(0))->widget()->layout();
+    QCOMPARE(layout->count(), 2);
+
+    list.removeAt(0);
+    g_switcherModel->setButtons(list);
+
+    QCOMPARE(layout->count(), 1);
+    // verify that removed button was not deleted while there is still ref in QSharedPointer
+    QVERIFY(!removedButton.isNull());
+}
 
 QTEST_APPLESS_MAIN(Ut_SwitcherView)

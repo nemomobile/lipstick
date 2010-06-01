@@ -95,6 +95,11 @@ private:
     /*! Selects the layout policy and sets up switcher mode dependent signals */
     void applySwitcherMode();
 
+    /*! Remove all buttons from layout and set parents to NULL
+     * Parents are set to NULL to avoid double deletion as buttons are QSharedPointer's in model
+     */
+    void removeButtonsFromLayout();
+
     /*! The switcher controller */
     Switcher *controller;
 

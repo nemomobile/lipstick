@@ -23,6 +23,7 @@
 #include "launcherbutton.h"
 #include <MLayout>
 #include <MFlowLayoutPolicy>
+#include <QSet>
 
 LauncherPageView::LauncherPageView(LauncherPage *controller) :
     MWidgetView(controller),
@@ -35,6 +36,10 @@ LauncherPageView::LauncherPageView(LauncherPage *controller) :
 
 LauncherPageView::~LauncherPageView()
 {
+    // remove buttons from layout to avoid multi deletion (buttons are in model as QSharedPointer's)
+    foreach (QSharedPointer<LauncherButton> button, model()->launcherButtons()) {
+        removeButtonFromLayout(button.data());
+    }
 }
 
 void LauncherPageView::updateData(const QList<const char *>& modifications)
@@ -43,45 +48,37 @@ void LauncherPageView::updateData(const QList<const char *>& modifications)
     const char *member;
     foreach(member, modifications) {
         if (member == LauncherPageModel::LauncherButtons) {
-            updateLayoutFromButtonList();
+            updateLayoutFromModel();
         }
     }
 }
 
-void LauncherPageView::updateLayoutFromButtonList()
+void LauncherPageView::updateLayoutFromModel()
 {
-    QList<QSharedPointer<LauncherButton> > buttons = model()->launcherButtons();
-
-    // Add new buttons (buttons that are found from button list but not from layout)
-    foreach(QSharedPointer<LauncherButton> listButton, buttons) {
-        bool contains = false;
-        for (int i = 0; i < layout->count(); i++) {
-            LauncherButton *layoutButton = dynamic_cast<LauncherButton *> (layout->itemAt(i));
-            if (listButton.data() == layoutButton) {
-                contains = true;
-                break;
-            }
-        }
-
-        if (!contains) {
-            policy->addItem(listButton.data());
-        }
+    // Set of buttons in layout
+    QSet<LauncherButton *> layoutButtons;
+    for (int i = 0; i < layout->count(); i++) {
+        layoutButtons.insert(static_cast<LauncherButton *>(layout->itemAt(i)));
     }
 
-    // Remove non-existent pages (pages that are in layout but not in page list)
-    for (int i = 0; i < layout->count(); i++) {
-        LauncherButton *layoutButton = dynamic_cast<LauncherButton *> (layout->itemAt(i));
-        bool contains = false;
-        foreach(QSharedPointer<LauncherButton> listButton, buttons) {
-            if (listButton.data() == layoutButton) {
-                contains = true;
-                break;
-            }
-        }
+    // List of buttons in model (list needed to assure the order of buttons)
+    QList<LauncherButton *> modelButtonsList;
+    foreach(QSharedPointer<LauncherButton> modelButton, model()->launcherButtons()) {
+        modelButtonsList.append(modelButton.data());
+    }
+    // Set of buttons in model
+    QSet<LauncherButton *> modelButtonsSet(modelButtonsList.toSet());
 
-        if (!contains) {
-            layout->removeItem(layoutButton);
-        }
+    // Remove from layout the buttons that doesn't exists any more in model
+    QSet<LauncherButton *> deletedButtons = layoutButtons - modelButtonsSet;
+    foreach (LauncherButton *deletedButton, deletedButtons) {
+        removeButtonFromLayout(deletedButton);
+    }
+
+    // Add to layout the buttons that are new in model
+    QSet<LauncherButton *> newButtons = modelButtonsSet - layoutButtons;
+    foreach (LauncherButton *addedButton, newButtons) {
+        policy->insertItem(modelButtonsList.indexOf(addedButton), addedButton);
     }
 }
 
@@ -92,6 +89,13 @@ void LauncherPageView::setupModel()
     QList<const char *> modifications;
     modifications << LauncherPageModel::LauncherButtons;
     updateData(modifications);
+}
+
+void LauncherPageView::removeButtonFromLayout(LauncherButton *button)
+{
+    layout->removeItem(button);
+    // set parent to NULL to avoid double deletion as items are as QSharedPointers in model
+    button->setParentItem(0);
 }
 
 M_REGISTER_VIEW_NEW(LauncherPageView, LauncherPage)

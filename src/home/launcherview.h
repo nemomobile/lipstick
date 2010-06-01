@@ -79,7 +79,16 @@ private:
      *
      * Adds new pages and removes non-exitent.
      */
-    void updateLayoutFromPageList();
+    void updateLayoutFromModel();
+
+    /*!
+     * Removes a page from layout and sets its parent to null.
+     *
+     * View or layout are not responsible for deleting the page after this.
+     *
+     * \param page Page to be removed.
+     */
+    void removePageFromLayout(LauncherPage *page);
 
     //! A layout for the widgets
     MLayout *layout;

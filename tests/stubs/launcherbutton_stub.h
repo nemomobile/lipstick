@@ -32,7 +32,7 @@ void LauncherButtonStub::LauncherButtonConstructor(const QString &entry, MWidget
 
 }
 void LauncherButtonStub::LauncherButtonDestructor() {
-
+  stubMethodEntered("~LauncherButton");
 }
 void LauncherButtonStub::setTargetType(const QString &type) {
   QList<ParameterBase*> params;

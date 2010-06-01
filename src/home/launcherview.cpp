@@ -54,6 +54,10 @@ LauncherView::LauncherView(Launcher *controller) :
 
 LauncherView::~LauncherView()
 {
+    // remove pages from layout to avoid multi deletion (pages are in model as QSharedPointer's)
+    foreach (QSharedPointer<LauncherPage> page, model()->launcherPages()) {
+        removePageFromLayout(page.data());
+    }
 }
 
 void LauncherView::updateData(const QList<const char *>& modifications)
@@ -62,53 +66,53 @@ void LauncherView::updateData(const QList<const char *>& modifications)
     const char *member;
     foreach(member, modifications) {
         if (member == LauncherModel::LauncherPages) {
-            updateLayoutFromPageList();
+            updateLayoutFromModel();
 
             pagedViewport->updatePageCount(model()->launcherPages().count());
         }
     }
 }
 
-void LauncherView::updateLayoutFromPageList()
+void LauncherView::updateLayoutFromModel()
 {
-    QList<QSharedPointer<LauncherPage> > pages = model()->launcherPages();
-
-    // Add new pages (pages that are found from page list but not from layout)
-    foreach(QSharedPointer<LauncherPage> listPage, pages) {
-        bool contains = false;
-        for (int i = 0; i < layout->count(); i++) {
-            LauncherPage *layoutPage = dynamic_cast<LauncherPage *> (layout->itemAt(i));
-            if (listPage.data() == layoutPage) {
-                contains = true;
-                break;
-            }
-        }
-
-        if (!contains) {
-            policy->addItem(listPage.data());
-        }
+    // Set of pages in layout
+    QSet<LauncherPage *> layoutPages;
+    for (int i = 0; i < layout->count(); i++) {
+        layoutPages.insert(static_cast<LauncherPage *>(layout->itemAt(i)));
     }
 
-    // Remove pages that doesn't exist anymore
-    for (int i = 0; i < layout->count(); i++) {
-        bool contains = false;
-        LauncherPage *layoutPage = dynamic_cast<LauncherPage *> (layout->itemAt(i));
-        foreach(QSharedPointer<LauncherPage> listPage, pages) {
-            if (listPage.data() == layoutPage) {
-                contains = true;
-                break;
-            }
-        }
+    // List of pages in model (list needed for the order of pages)
+    QList<LauncherPage *> modelPagesList;
+    foreach(QSharedPointer<LauncherPage> modelPage, model()->launcherPages()) {
+        modelPagesList.append(modelPage.data());
+    }
+    // Set of pages in model
+    QSet<LauncherPage *> modelPagesSet(modelPagesList.toSet());
 
-        if (!contains) {
-            layout->removeItem(layoutPage);
-        }
+    // Remove from layout the pages that doesn't exists any more in model
+    QSet<LauncherPage *> deletedPages = layoutPages - modelPagesSet;
+    foreach (LauncherPage *deletedPage, deletedPages) {
+        removePageFromLayout(deletedPage);
+    }
+
+    // Add to layout the pages that are new in model
+    QSet<LauncherPage *> newPages = modelPagesSet - layoutPages;
+    foreach (LauncherPage *addedPage, newPages) {
+        // Insert page to same index as in model's list
+        policy->insertItem(modelPagesList.indexOf(addedPage), addedPage);
     }
 }
 
 void LauncherView::panToPage(uint page)
 {
     pagedViewport->panToPage(page);
+}
+
+void LauncherView::removePageFromLayout(LauncherPage *page)
+{
+    layout->removeItem(page);
+    // set parent to NULL to avoid double deletion as items are as QSharedPointers in model
+    page->setParentItem(0);
 }
 
 M_REGISTER_VIEW_NEW(LauncherView, Launcher)

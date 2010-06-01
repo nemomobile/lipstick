@@ -46,7 +46,9 @@ private slots:
     // Test cases
     void testPagedViewportObjectName();
     void testSetButtons();
-    void testAddAndRemovePages();
+    void testAddPages();
+    void testRemovingPages();
+    void testRemovingPagesFromLayoutInDestructor();
 
 private:
     // MApplication
