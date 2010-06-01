@@ -27,22 +27,34 @@ LauncherPage::LauncherPage(MWidget *parent) : MWidgetController(new LauncherPage
 {
 }
 
-bool LauncherPage::insertButton(QSharedPointer<LauncherButton> button, int positionIndex)
+int LauncherPage::insertButton(QSharedPointer<LauncherButton> button, int positionIndex)
 {
     QList< QSharedPointer<LauncherButton> > buttons(model()->launcherButtons());
-    bool canBeAdded = false;
+    int insertIndex = -1;
+    int buttonsCount = buttons.count();
     // button can be added if page is not full and the index is sane
-    if (buttons.count() < model()->maxButtons() && positionIndex < model()->maxButtons()) {
-        canBeAdded = true;
-	buttons.insert(positionIndex, button);
+    if (buttonsCount < model()->maxButtons() && positionIndex < model()->maxButtons()) {
+        buttons.insert(positionIndex, button);
+
+        if (positionIndex < buttonsCount) {
+            insertIndex = positionIndex;
+        } else {
+            insertIndex = buttonsCount;
+        }
+
         model()->setLauncherButtons(buttons);
     }
-    return canBeAdded;
+    return insertIndex;
 }
 
 bool LauncherPage::appendButton(QSharedPointer<LauncherButton> button)
 {
-    return insertButton(button, model()->launcherButtons().size());
+    bool canBeAdded = false;
+    if (insertButton(button, model()->launcherButtons().size()) >= 0) {
+        canBeAdded = true;
+    }
+
+    return canBeAdded;
 }
 
 void LauncherPage::removeButton(QSharedPointer<LauncherButton> button)
@@ -52,6 +64,19 @@ void LauncherPage::removeButton(QSharedPointer<LauncherButton> button)
     model()->setLauncherButtons(buttons);
 }
 
+bool LauncherPage::removeButton(const QString &desktopEntryPath)
+{
+    bool contains = false;
+    foreach(QSharedPointer<LauncherButton> button, model()->launcherButtons()) {
+        if (button->desktopEntry() == desktopEntryPath) {
+            removeButton(button);
+            contains = true;
+            break;
+        }
+    }
+
+    return contains;
+}
 
 bool LauncherPage::updateButton(const QString &desktopEntryPath)
 {

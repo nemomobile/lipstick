@@ -33,6 +33,10 @@ class LauncherDataStore;
  * The widget monitors a desktop file entry directory and creates buttons
  * that represent the applications that can be launched.
  *
+ * For updating the launcher first time from launcher data store, we listen to dataStoreChanged() signal.
+ * After the first initialization we disconnect from dataStoreChanged signal and rely on
+ * signals for individual updates to provide the changes in desktop entries.
+ *
  * Each application .desktop file must define the Name, Type and Icon keys where type is Application. The Exec key must define the application binary to be launched when the icon is selected.
  *
  * Example my_application.desktop file:
@@ -118,6 +122,22 @@ public slots:
      */
     int panToPage(const QString &desktopFileEntry);
 
+private slots:
+
+    /*!
+     * Add a launcher button to launcher.
+     *
+     * \param desktopEntryPath Path to desktop entry that button should represent
+     */
+    void addLauncherButton(const QString &desktopEntryPath);
+
+    /*!
+     * Remove a launcher button from launcher.
+     *
+     * \param desktopEntryPath Path to desktop entry that button to be removed represents
+     */
+    void removeLauncherButton(const QString &desktopEntryPath);
+
     /*!
      * Updates a launcher button from a .desktop entry file.
      *
@@ -125,13 +145,22 @@ public slots:
      */
     void updateLauncherButton(const QString &desktopEntryPath);
 
-private slots:
     /*!
      * Updates pages according to the contents of the data store.
      */
     void updatePagesFromDataStore();
 
 private:
+
+    /*!
+     * Add a launcher button to given pages.
+     *
+     * Finds first available space from last page or adds a new page if last page doesn't have space.
+     *
+     * \param desktopEntryPath Path to desktop entry that button should represent
+     * \param pages List of pages where button is to be added
+     */
+    void addLauncherButtonToPages(const QString &desktopEntryPath, QList<QSharedPointer<LauncherPage> > &pages);
 
     /*!
      * Returns page number of requested application by searching application's

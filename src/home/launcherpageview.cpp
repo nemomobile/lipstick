@@ -43,15 +43,44 @@ void LauncherPageView::updateData(const QList<const char *>& modifications)
     const char *member;
     foreach(member, modifications) {
         if (member == LauncherPageModel::LauncherButtons) {
-            // Remove all widgets from the layout (do not destroy them)
-            while (layout->count() > 0) {
-                layout->removeAt(0);
-            }
+            updateLayoutFromButtonList();
+        }
+    }
+}
 
-            // Add widgets from the model to the layout
-            foreach(QSharedPointer< LauncherButton > button, model()->launcherButtons()) {
-                policy->addItem(button.data());
+void LauncherPageView::updateLayoutFromButtonList()
+{
+    QList<QSharedPointer<LauncherButton> > buttons = model()->launcherButtons();
+
+    // Add new buttons (buttons that are found from button list but not from layout)
+    foreach(QSharedPointer<LauncherButton> listButton, buttons) {
+        bool contains = false;
+        for (int i = 0; i < layout->count(); i++) {
+            LauncherButton *layoutButton = dynamic_cast<LauncherButton *> (layout->itemAt(i));
+            if (listButton.data() == layoutButton) {
+                contains = true;
+                break;
             }
+        }
+
+        if (!contains) {
+            policy->addItem(listButton.data());
+        }
+    }
+
+    // Remove non-existent pages (pages that are in layout but not in page list)
+    for (int i = 0; i < layout->count(); i++) {
+        LauncherButton *layoutButton = dynamic_cast<LauncherButton *> (layout->itemAt(i));
+        bool contains = false;
+        foreach(QSharedPointer<LauncherButton> listButton, buttons) {
+            if (listButton.data() == layoutButton) {
+                contains = true;
+                break;
+            }
+        }
+
+        if (!contains) {
+            layout->removeItem(layoutButton);
         }
     }
 }

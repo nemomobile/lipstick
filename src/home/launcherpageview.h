@@ -59,6 +59,14 @@ protected slots:
     //! \reimp_end
 
 private:
+
+    /*!
+     * Updates layout from models button list.
+     *
+     * Adds new buttons and removes non-exitent.
+     */
+    void updateLayoutFromButtonList();
+
     //! A layout for the buttons 
     MLayout *layout;
     //! A flow layout policy for the widgets

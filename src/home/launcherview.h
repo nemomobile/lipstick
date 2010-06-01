@@ -33,6 +33,8 @@ class MOverlay;
 class MButton;
 class MWidget;
 class PagedViewport;
+class MLayout;
+class MLinearLayoutPolicy;
 
 /*!
  * The launcher view draws a background for the container and
@@ -71,8 +73,18 @@ private slots:
     void panToPage(uint page);
 
 private:
+
+    /*!
+     * Updates layout from models page list.
+     *
+     * Adds new pages and removes non-exitent.
+     */
+    void updateLayoutFromPageList();
+
     //! A layout for the widgets
-    QGraphicsLinearLayout *layout;
+    MLayout *layout;
+    //! A layout policy for page
+    MLinearLayoutPolicy *policy;
     //! The widget that be inside the paged viewport. This will contain all of the launcher items
     MWidget* pannedWidget;
     //! The paged view port used to diaply the pannedWidget

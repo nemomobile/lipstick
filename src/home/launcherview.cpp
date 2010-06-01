@@ -16,6 +16,7 @@
 ** of this file.
 **
 ****************************************************************************/
+
 #include "launcherview.h"
 #include "launcher.h"
 #include "launchermodel.h"
@@ -24,8 +25,8 @@
 #include "mainwindow.h"
 #include "mpositionindicator.h"
 #include "pagepositionindicatorview.h"
-#include <QGraphicsLinearLayout>
-#include <MFlowLayoutPolicy>
+#include <MLayout>
+#include <MLinearLayoutPolicy>
 #include <MOverlay>
 #include <MButton>
 #include <MApplication>
@@ -33,10 +34,10 @@
 
 LauncherView::LauncherView(Launcher *controller) :
     MWidgetView(controller),
-    layout(new QGraphicsLinearLayout(Qt::Horizontal)),
+    layout(new MLayout),
+    policy(new MLinearLayoutPolicy(layout, Qt::Horizontal)),
     pannedWidget(new MWidget)
 {
-    layout->setSpacing(0);
     layout->setContentsMargins(0, 0, 0, 0);
     pannedWidget->setLayout(layout);
 
@@ -61,17 +62,46 @@ void LauncherView::updateData(const QList<const char *>& modifications)
     const char *member;
     foreach(member, modifications) {
         if (member == LauncherModel::LauncherPages) {
-            // Remove all pages from the layout (do not destroy them)
-            while (layout->count() > 0) {
-                layout->removeAt(0);
-            }
-
-            // Add pages from the model to the layout
-            foreach(QSharedPointer< LauncherPage > page, model()->launcherPages()) {
-                layout->addItem(page.data());
-            }
+            updateLayoutFromPageList();
 
             pagedViewport->updatePageCount(model()->launcherPages().count());
+        }
+    }
+}
+
+void LauncherView::updateLayoutFromPageList()
+{
+    QList<QSharedPointer<LauncherPage> > pages = model()->launcherPages();
+
+    // Add new pages (pages that are found from page list but not from layout)
+    foreach(QSharedPointer<LauncherPage> listPage, pages) {
+        bool contains = false;
+        for (int i = 0; i < layout->count(); i++) {
+            LauncherPage *layoutPage = dynamic_cast<LauncherPage *> (layout->itemAt(i));
+            if (listPage.data() == layoutPage) {
+                contains = true;
+                break;
+            }
+        }
+
+        if (!contains) {
+            policy->addItem(listPage.data());
+        }
+    }
+
+    // Remove pages that doesn't exist anymore
+    for (int i = 0; i < layout->count(); i++) {
+        bool contains = false;
+        LauncherPage *layoutPage = dynamic_cast<LauncherPage *> (layout->itemAt(i));
+        foreach(QSharedPointer<LauncherPage> listPage, pages) {
+            if (listPage.data() == layoutPage) {
+                contains = true;
+                break;
+            }
+        }
+
+        if (!contains) {
+            layout->removeItem(layoutPage);
         }
     }
 }

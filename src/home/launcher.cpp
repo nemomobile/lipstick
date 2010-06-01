@@ -31,9 +31,7 @@ Launcher::Launcher(LauncherDataStore *dataStore, QGraphicsItem *parent) :
     MWidgetController(new LauncherModel, parent),
     dataStore(dataStore)
 {
-    // Listen to changes in data store contents
     connect(dataStore, SIGNAL(dataStoreChanged()), this, SLOT(updatePagesFromDataStore()));
-    connect(dataStore, SIGNAL(desktopEntryChanged(QString)), this, SLOT(updateLauncherButton(QString)));
 }
 
 Launcher::~Launcher()
@@ -66,8 +64,11 @@ bool Launcher::startMApplication(const QString &serviceName)
 
 void Launcher::updatePagesFromDataStore()
 {
-    // Temporarily disable the listening of the change signals from the configuration to prevent a recursive call to this method
-    dataStore->disconnect(this);
+    // Stop listening to dataStoreChanged() and start listening to individual updates instead.
+    disconnect(dataStore, SIGNAL(dataStoreChanged()), this, SLOT(updatePagesFromDataStore()));
+    connect(dataStore, SIGNAL(desktopEntryAdded(QString)), this, SLOT(addLauncherButton(QString)), Qt::UniqueConnection);
+    connect(dataStore, SIGNAL(desktopEntryRemoved(QString)), this, SLOT(removeLauncherButton(QString)), Qt::UniqueConnection);
+    connect(dataStore, SIGNAL(desktopEntryChanged(QString)), this, SLOT(updateLauncherButton(QString)), Qt::UniqueConnection);
 
     // Update the pages
     QList<QSharedPointer<LauncherPage> > pages;
@@ -75,10 +76,6 @@ void Launcher::updatePagesFromDataStore()
     addDesktopEntriesWithUnknownPlacements(pages);
     removeEmptyPages(pages);
     model()->setLauncherPages(pages);
-
-    // Reconnect signals
-    connect(dataStore, SIGNAL(dataStoreChanged()), this, SLOT(updatePagesFromDataStore()));
-    connect(dataStore, SIGNAL(desktopEntryChanged(QString)), this, SLOT(updateLauncherButton(QString)));
 }
 
 void Launcher::addDesktopEntriesWithKnownPlacements(QList<QSharedPointer<LauncherPage> > &pages)
@@ -97,7 +94,12 @@ void Launcher::addDesktopEntriesWithKnownPlacements(QList<QSharedPointer<Launche
             }
 
             // Create a launcher button for the desktop entry
-            pages.at(placement.page)->insertButton(createLauncherButton(desktopEntryPath), placement.position);
+            int insertedIndex = pages.at(placement.page)->insertButton(createLauncherButton(desktopEntryPath), placement.position);
+
+            // If real button position is different than in store, update the new position to store
+            if (insertedIndex != placement.position) {
+                dataStore->updateDataForDesktopEntry(desktopEntryPath, PLACEMENT_TEMPLATE.arg(placement.page).arg(insertedIndex));
+            }
         }
     }
 }
@@ -109,26 +111,7 @@ void Launcher::addDesktopEntriesWithUnknownPlacements(QList<QSharedPointer<Launc
     foreach (const QString &desktopEntryPath, allDesktopEntryPlacements.keys()) {
         Placement placement(allDesktopEntryPlacements.value(desktopEntryPath).toString());
         if ((placement.location.isEmpty() || placement.location == LOCATION_IDENTIFIER) && placement.page < 0) {
-            // Create a launcher button for the desktop entry
-            QSharedPointer<LauncherButton> launcherButton = createLauncherButton(desktopEntryPath);
-            QSharedPointer<LauncherPage> page;
-
-            bool added = false;
-            if (!pages.isEmpty()) {
-                page = pages.last();
-                added = page->appendButton(launcherButton);
-            }
-
-            if (!added) {
-                page = QSharedPointer<LauncherPage>(new LauncherPage());
-                pages.append(page);
-                page->appendButton(launcherButton);
-            }
-
-            // Set the launcher button location in the data store
-            int pageIndex = pages.count() - 1;
-            int buttonIndex = page->model()->launcherButtons().count() - 1;
-            dataStore->updateDataForDesktopEntry(desktopEntryPath, PLACEMENT_TEMPLATE.arg(pageIndex).arg(buttonIndex));
+            addLauncherButtonToPages(desktopEntryPath, pages);
         }
     }
 }
@@ -167,6 +150,65 @@ QSharedPointer<LauncherButton> Launcher::createLauncherButton(const QString &des
     button->setObjectName("LauncherButton");
     connect(button.data(), SIGNAL(clicked()), this, SIGNAL(launcherButtonClicked()));
     return button;
+}
+
+void Launcher::addLauncherButton(const QString &desktopEntryPath)
+{
+    QList<QSharedPointer<LauncherPage> > pages = model()->launcherPages();
+
+    addLauncherButtonToPages(desktopEntryPath, pages);
+
+    model()->setLauncherPages(pages);
+}
+
+void Launcher::addLauncherButtonToPages(const QString &desktopEntryPath, QList<QSharedPointer<LauncherPage> > &pages)
+{
+    // Create a launcher button for the desktop entry
+    QSharedPointer<LauncherButton> launcherButton = createLauncherButton(desktopEntryPath);
+    QSharedPointer<LauncherPage> page;
+
+    bool added = false;
+    if (!pages.isEmpty()) {
+        page = pages.last();
+        added = page->appendButton(launcherButton);
+    }
+
+    if (!added) {
+        page = QSharedPointer<LauncherPage>(new LauncherPage());
+        pages.append(page);
+        page->appendButton(launcherButton);
+    }
+
+    // Set the launcher button location in the data store
+    int pageIndex = pages.count() - 1;
+    int buttonIndex = page->model()->launcherButtons().count() - 1;
+    dataStore->updateDataForDesktopEntry(desktopEntryPath, PLACEMENT_TEMPLATE.arg(pageIndex).arg(buttonIndex));
+}
+
+void Launcher::removeLauncherButton(const QString &desktopEntryPath)
+{
+    QList<QSharedPointer<LauncherPage> > pages = model()->launcherPages();
+
+    int pageIndex = 0;
+    foreach (QSharedPointer<LauncherPage> page, pages) {
+        if (page->removeButton(desktopEntryPath)) {
+
+            QList<QSharedPointer<LauncherButton> > buttons = page->model()->launcherButtons();
+            if (buttons.count() == 0) {
+                // remove empty page
+                pages.removeOne(page);
+                model()->setLauncherPages(pages);
+            } else {
+                // Update new locations for other launcher buttons on page (when button is removed other buttons get shifted)
+                int buttonIndex = 0;
+                foreach (QSharedPointer<LauncherButton> button, buttons) {
+                    dataStore->updateDataForDesktopEntry(button->desktopEntry(), PLACEMENT_TEMPLATE.arg(pageIndex).arg(buttonIndex++));
+                }
+            }
+            break;
+        }
+        pageIndex++;
+    }
 }
 
 void Launcher::updateLauncherButton(const QString &desktopEntryPath)

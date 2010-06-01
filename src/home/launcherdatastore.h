@@ -85,11 +85,25 @@ signals:
      * \brief A signal for informing that the contents of the data store have changed.
      */
     void dataStoreChanged();
-
+    
     /*!
      * \brief A signal for informing that the contents of a desktop entry have changed.
      */
     void desktopEntryChanged(const QString &);
+
+    /*!
+     * A signal for informing that the a new entry has been added.
+     *
+     * Added desktop entry path as parameter.
+     */
+    void desktopEntryAdded(const QString &);
+
+    /*!
+     * A signal for informing that the a entry has been removed.
+     *
+     * Removed desktop entry path as parameter.
+     */
+    void desktopEntryRemoved(const QString &);
 
 private slots:
     /*!

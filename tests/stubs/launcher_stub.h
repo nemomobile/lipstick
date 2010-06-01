@@ -36,6 +36,9 @@ class LauncherStub : public StubBase {
   virtual QSharedPointer<LauncherButton> createLauncherButton(const QString &desktopEntryPath);
   virtual QMap<Launcher::Placement, QString> createPlacementMap(const QHash<QString, QVariant> &desktopEntryPlacements);
   virtual void updateLauncherButton(const QString &desktopEntryPath);
+  virtual void addLauncherButton(const QString &desktopEntryPath);
+  virtual void addLauncherButtonToPages(const QString &desktopEntryPath, QList<QSharedPointer<LauncherPage> > &pages);
+  virtual void removeLauncherButton(const QString &desktopEntryPath);
 }; 
 
 // 2. IMPLEMENT STUB
@@ -92,6 +95,25 @@ void LauncherStub::updateLauncherButton(const QString &fileEntryPath) {
   stubMethodEntered("updateLauncherButton",params);
 }
 
+void LauncherStub::addLauncherButton(const QString &desktopEntryPath) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<QString>(desktopEntryPath));
+  stubMethodEntered("addLauncherButton",params);
+}
+
+void LauncherStub::addLauncherButtonToPages(const QString &desktopEntryPath, QList<QSharedPointer<LauncherPage> > &pages) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<QString>(desktopEntryPath));
+  params.append( new Parameter<QList<QSharedPointer<LauncherPage> > &>(pages));
+  stubMethodEntered("addLauncherButtonToPages",params);
+}
+
+void LauncherStub::removeLauncherButton(const QString &desktopEntryPath) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<QString>(desktopEntryPath));
+  stubMethodEntered("removeLauncherButton",params);
+}
+
 // 3. CREATE A STUB INSTANCE
 LauncherStub gDefaultLauncherStub;
 LauncherStub* gLauncherStub = &gDefaultLauncherStub;
@@ -133,4 +155,17 @@ int Launcher::panToPage(const QString &fileEntryPath) {
 void Launcher::updateLauncherButton(const QString &fileEntryPath) {
   gLauncherStub->updateLauncherButton(fileEntryPath);
 }
+
+void Launcher::addLauncherButton(const QString &desktopEntryPath) {
+  gLauncherStub->addLauncherButton(desktopEntryPath);
+}
+
+void Launcher::addLauncherButtonToPages(const QString &desktopEntryPath, QList<QSharedPointer<LauncherPage> > &pages) {
+  gLauncherStub->addLauncherButtonToPages(desktopEntryPath, pages);
+}
+
+void Launcher::removeLauncherButton(const QString &desktopEntryPath) {
+  gLauncherStub->removeLauncherButton(desktopEntryPath);
+}
+
 #endif

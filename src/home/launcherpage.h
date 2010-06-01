@@ -49,9 +49,9 @@ public:
      *
      * \param button Button to be added.
      * \param positionIndex Position where button is to be added.
-     * \return whether button was added to page. True if button was added, false if not (eg. if page is full).
+     * \return Page index on which buttons was added to. -1 if button was not inserted (eg. if page is full).
      */
-    bool insertButton(QSharedPointer<LauncherButton> button, int positionIndex);
+    int insertButton(QSharedPointer<LauncherButton> button, int positionIndex);
 
     /*!
      * Tries to appends a button to the end of this page. This is a convenience function for
@@ -70,11 +70,21 @@ public:
     void removeButton(QSharedPointer<LauncherButton> button);
 
     /*!
+     * Remove button from page.
+     * Removes a button only if button representing the given desktop entry is found on page.
+     *
+     * \param desktopEntryPath Desktop entry path specifying the button to remove
+     *
+     * \return True if button representing the given desktop entry was found from the page
+     */
+    bool removeButton(const QString &desktopEntryPath);
+
+    /*!
      * Updates a button if button representing the given desktop entry is found from page.
      *
      * \param desktopEntryPath Desktop entry path to check
      *
-     * \return desktopEntryPath Whether button representing the given desktop entry was found on page
+     * \return True if button representing the given desktop entry was found from the page
      */
     bool updateButton(const QString &desktopEntryPath);
 };
