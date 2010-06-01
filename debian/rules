@@ -73,8 +73,8 @@ install: build
 	mkdir -p ${CURDIR}/debian/tmp/usr/share/doc/libduihome/api
 	cp -r doc/html/*  ${CURDIR}/debian/tmp/usr/share/doc/libduihome/api/
 
-	install -m 644 -D -p translations/duihome.ts $(CURDIR)/debian/tmp/usr/share/doc/duihomescreen-l10n-engineering-english/duihome.ts
-	install -m 644 -D -p applets/weatherapplet/translations/weatherappletres.ts $(CURDIR)/debian/tmp/usr/share/doc/duihomescreen-plugins-weatherapplet-l10n-engineering-english/weatherappletres.ts
+	install -m 644 -D -p src/home/translations/duihome.ts $(CURDIR)/debian/tmp/usr/share/doc/duihomescreen-l10n-engineering-english/duihome.ts
+	install -m 644 -D -p src/applets/weatherapplet/translations/weatherappletres.ts $(CURDIR)/debian/tmp/usr/share/doc/duihomescreen-plugins-weatherapplet-l10n-engineering-english/weatherappletres.ts
 
 # Build architecture-independent files here.
 binary-indep: build install
