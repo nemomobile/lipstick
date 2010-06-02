@@ -1,4 +1,4 @@
-LANGUAGES = fi en
+LANGUAGES = fi
 CATALOGNAME = weatherappletres 
 SOURCEDIR = $$PWD/..
 TRANSLATIONDIR = $$PWD

@@ -45,6 +45,16 @@ Summary: MeeGo Touch Homescreen Demo Applets
 %description -n duihomescreen-applets
 MeeGo Touch Homescreen Demo Applets
 
+%package -n duihomescreen-applets-l10n-eng-en
+Summary: MeeGo Touch Homescreen Demo Applets engineering English messages
+%description -n duihomescreen-applets-l10n-eng-en
+MeeGo Touch Homescreen Demo Applets engineering English messages
+
+%package -n duihomescreen-applets-l10n-fi
+Summary: MeeGo Touch Homescreen Demo Applets Finnish messages
+%description -n duihomescreen-applets-l10n-fi
+MeeGo Touch Homescreen Demo Applets Fin messages
+
 %package -n duihomescreen-tests
 Summary: MeeGo Touch Homescreen unit tests
 %description -n duihomescreen-tests
@@ -77,18 +87,19 @@ make %{?_smp_mflags} doc
 %install
 rm -fR %{buildroot}
 make INSTALL_ROOT=%{buildroot} install
-#install -m 644 -D -p src/home/translations/duihome.ts %{buildroot}/usr/share/doc/duihomescreen-l10n-engineering-english/duihome.ts
-#install -m 644 -D -p src/applets/weatherapplet/translations/weatherappletres.ts %{buildroot}/usr/share/doc/duihomescreen-plugins-weatherapplet-l10n-engineering-english/weatherappletres.ts
 mkdir -p %{buildroot}/usr/share/doc/libduihome/api
 cp -r doc/html/* %{buildroot}/usr/share/doc/libduihome/api/
+rm -f %{buildroot}/usr/share/doc/libduihome/api/installdox
 install -m 644 -D -p LICENSE.LGPL %{buildroot}/usr/share/doc/packages/%{name}/LICENSE.LGPL
 
 %clean
 rm -fR %{buildroot}
 
-%post -p /sbin/ldconfig
+%post -n libmeegotouchhome
+/sbin/ldconfig
 
-%postun -p /sbin/ldconfig
+%postun -n libmeegotouchhome
+/sbin/ldconfig
 
 %files
 %defattr(-,root,root)
@@ -116,9 +127,7 @@ rm -fR %{buildroot}
 %files -n duihomescreen-l10n-eng-en
 %defattr(-,root,root)
 %dir /usr/share/l10n/meegotouch
-#%dir /usr/share/doc/duihomescreen-l10n-eng-en
 /usr/share/l10n/meegotouch/duihome.qm
-#/usr/share/doc/duihomescreen-l10n-eng-en/duihome.ts
 
 %files -n duihomescreen-l10n-fi
 %defattr(-,root,root)
@@ -128,7 +137,6 @@ rm -fR %{buildroot}
 %files -n duihomescreen-applets
 %defattr(-,root,root)
 %dir /usr/lib/meegotouch/applets
-%dir /usr/share/l10n/meegotouch
 %dir /usr/share/meegotouch/applets
 %dir /usr/share/meegotouch/applets/settings
 %dir /usr/share/themes/base/meegotouch/imageapplet
@@ -137,15 +145,23 @@ rm -fR %{buildroot}
 %dir /usr/share/themes/base/meegotouch/weatherappletres/images
 %dir /usr/share/themes/base/meegotouch/weatherappletres/style
 /usr/lib/meegotouch/applets/*.so
-/usr/share/l10n/meegotouch/weatherappletres.qm
-/usr/share/l10n/meegotouch/weatherappletres_en.qm
-/usr/share/l10n/meegotouch/weatherappletres_fi.qm
 /usr/share/meegotouch/applets/settings/*.xml
 /usr/share/meegotouch/applets/*.desktop
 /usr/share/themes/base/meegotouch/imageapplet/images/*.png
 /usr/share/themes/base/meegotouch/weatherappletres/images/*.png
 /usr/share/themes/base/meegotouch/weatherappletres/style/*.css
 /usr/share/themes/base/meegotouch/weatherappletres/*.conf
+
+%files -n duihomescreen-applets-l10n-eng-en
+%defattr(-,root,root)
+%dir /usr/share/l10n/meegotouch
+/usr/share/l10n/meegotouch/weatherappletres.qm
+/usr/share/l10n/meegotouch/weatherappletres_en.qm
+
+%files -n duihomescreen-applets-l10n-fi
+%defattr(-,root,root)
+%dir /usr/share/l10n/meegotouch
+/usr/share/l10n/meegotouch/weatherappletres_fi.qm
 
 %files -n duihomescreen-tests
 %defattr(-,root,root)
