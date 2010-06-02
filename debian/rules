@@ -72,7 +72,7 @@ install: build
 	make  $(PARALLEL_MAKEFLAGS) doc
 	mkdir -p ${CURDIR}/debian/tmp/usr/share/doc/libduihome/api
 	cp -r doc/html/* ${CURDIR}/debian/tmp/usr/share/doc/libduihome/api/
-        rm -f ${CURDIR}/debian/tmp/usr/share/doc/libduihome/api/installdox
+	rm -f ${CURDIR}/debian/tmp/usr/share/doc/libduihome/api/installdox
 
 # Build architecture-independent files here.
 binary-indep: build install
