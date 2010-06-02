@@ -80,6 +80,9 @@ HomeApplication::HomeApplication(int &argc, char **argv) :
     MApplication(argc, argv),
     homeScreenService(new HomeScreenService)
 {
+    // Enable prestart mode
+    MApplication::setPrestartMode(M::TerminateOnClose);
+
     // Get X11 Atoms for different window types
     Display *dpy = QX11Info::display();
     windowTypeAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_WINDOW_TYPE", False);

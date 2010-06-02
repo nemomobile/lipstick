@@ -5,6 +5,7 @@
 \subsection New
 - Support to open launcher at a page where launcher item with certain application icon is displayed using com.meego.core.HomeScreen dbus service.
 - Switcher overview mode changed to have only four buttons per page.
+- Support for -prestart parameter. With this parameter the window doesn't appear until the application receives a dbus signal.
 
 \subsection bugs Bugs fixed
 - System modal dialogs appeared in the switcher
