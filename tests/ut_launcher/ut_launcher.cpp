@@ -34,6 +34,9 @@ LauncherButton::LauncherButton(MWidget *parent) : MButton(parent, new LauncherBu
 LauncherButton::LauncherButton(const QString&, MWidget*parent) : MButton(parent, new LauncherButtonModel) {}
 LauncherButton::~LauncherButton(){}
 
+const static int BUTTONS_PER_PAGE = 12;
+
+
 QString LauncherButton::desktopEntry() const
 {
     return objectName();
@@ -74,6 +77,13 @@ bool QDBusConnection::isConnected() const
     return true;
 }
 
+void Ut_Launcher::addButtonsToLauncher(int amount)
+{
+    for (int i = 0; i < amount; i++) {
+        launcher->addLauncherButton(QString("testApp%1.desktop").arg(i));
+    }
+}
+
 // Tests
 void Ut_Launcher::initTestCase()
 {
@@ -91,8 +101,6 @@ void Ut_Launcher::init()
     // Create a launcher and connect the signals
     launcher = new Launcher(launcherDataStore);
     connect(this, SIGNAL(directoryChanged(const QString)), launcher, SLOT(updatePagesFromDataStore()));
-    connect(this, SIGNAL(applicationLaunched(const QString)), launcher, SLOT(launchApplication(const QString)));
-    connect(this, SIGNAL(mApplicationLaunched(const QString)), launcher, SLOT(launchMApplication(const QString)));
     connect(this, SIGNAL(testPanToPageSignal(const QString &)), launcher, SLOT(panToPage(const QString &)));
 
     qProcessProgramStarted.clear();
@@ -298,6 +306,77 @@ void Ut_Launcher::testUpdatingLauncherButton()
     emit updateButton(updateButtonEntry);
 
     QCOMPARE(updateFromDesktopEntryCallCount, 1);
+}
+
+void Ut_Launcher::testAddingButtons()
+{
+    launcher->setEnabled(true);
+
+    addButtonsToLauncher(BUTTONS_PER_PAGE);
+
+    QCOMPARE(launcher->model()->launcherPages().count(), 1);
+    QCOMPARE(launcher->model()->launcherPages().at(0)->model()->launcherButtons().count(), BUTTONS_PER_PAGE);
+}
+
+void Ut_Launcher::testAddingButtonsOnMultiplePages()
+{
+    launcher->setEnabled(true);
+
+    int buttonCountOnSecondPage = 3;
+    int addedButtons = BUTTONS_PER_PAGE + buttonCountOnSecondPage;
+    addButtonsToLauncher(addedButtons);
+
+    QCOMPARE(launcher->model()->launcherPages().count(), 2);
+    QCOMPARE(launcher->model()->launcherPages().at(0)->model()->launcherButtons().count(), BUTTONS_PER_PAGE);
+    QCOMPARE(launcher->model()->launcherPages().at(1)->model()->launcherButtons().count(), buttonCountOnSecondPage);
+}
+
+void Ut_Launcher::testAddingButtonsWithExistingButtons()
+{
+    launcher->setEnabled(true);
+
+    // Add some existing buttons
+    int initialButtons = BUTTONS_PER_PAGE/2;
+    QHash<QString, QVariant> dataForAllDesktopEntries;
+    for (int i = 0; i < initialButtons; i++) {
+        dataForAllDesktopEntries.insert(QString("noPlacement%1").arg(i), QVariant());
+    }
+
+    gLauncherDataStoreStub->stubSetReturnValue("dataForAllDesktopEntries", dataForAllDesktopEntries);
+    emit directoryChanged(APPLICATIONS_DIRECTORY);
+
+    // adding more buttons
+    int addedButtons = BUTTONS_PER_PAGE;
+    int buttonCountOnSecondPage = initialButtons;
+    addButtonsToLauncher(addedButtons);
+
+    QCOMPARE(launcher->model()->launcherPages().count(), 2);
+    QCOMPARE(launcher->model()->launcherPages().at(0)->model()->launcherButtons().count(), BUTTONS_PER_PAGE);
+    QCOMPARE(launcher->model()->launcherPages().at(1)->model()->launcherButtons().count(), buttonCountOnSecondPage);
+}
+
+void Ut_Launcher::testRemovingButtons()
+{
+    launcher->setEnabled(true);
+
+    // adding more than one page
+    int buttonCountOnFirstPage = BUTTONS_PER_PAGE;
+    int buttonCountOnSecondPage = 2;
+    int buttonCount = BUTTONS_PER_PAGE + buttonCountOnSecondPage;
+    addButtonsToLauncher(buttonCount);
+
+    // Make specific buttons to "simulate" removed buttons
+    launcher->model()->launcherPages().at(0).data()->model()->launcherButtons().at(3)->setObjectName("testApp2.desktop");
+    launcher->model()->launcherPages().at(0).data()->model()->launcherButtons().at(4)->setObjectName("testApp3.desktop");
+
+    // remove 2 buttons from 1st page
+    buttonCountOnFirstPage = BUTTONS_PER_PAGE - 2;
+    launcher->removeLauncherButton("testApp2.desktop");
+    launcher->removeLauncherButton("testApp3.desktop");
+
+    QCOMPARE(launcher->model()->launcherPages().count(), 2);
+    QCOMPARE(launcher->model()->launcherPages().at(0)->model()->launcherButtons().count(), buttonCountOnFirstPage);
+    QCOMPARE(launcher->model()->launcherPages().at(1)->model()->launcherButtons().count(), buttonCountOnSecondPage);
 }
 
 QTEST_MAIN(Ut_Launcher)

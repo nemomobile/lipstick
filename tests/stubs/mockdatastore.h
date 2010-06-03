@@ -73,6 +73,7 @@ QStringList MockDataStore::allKeys() const
 void MockDataStore::remove(const QString &key)
 {
     values.remove(key);
+    emit valueChanged(key, QVariant());
 }
 
 void MockDataStore::clear()

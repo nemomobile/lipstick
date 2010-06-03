@@ -228,6 +228,11 @@ private:
 
     //! Whether the launcher has been initialized or not
     bool initialized;
+
+
+#ifdef UNIT_TEST
+    friend class Ut_Launcher;
+#endif
 };
 
 #endif /* LAUNCHER_H */

@@ -43,6 +43,8 @@ private:
     void createdDefaultSetOfDesktopEntries();
     // Convience function for pantToPage tests to check that signal has correct page as an argument
     void comparePageNumberArgument(QSignalSpy &spy, int page);
+    // adds buttons to launcher
+    void addButtonsToLauncher(int amount);
 
 signals:
     void directoryLaunched(const QString &directory, const QString &title = QString(), const QString &iconId = QString());
@@ -84,5 +86,13 @@ private slots:
     void testPanToPageWithEmptyFileName();
     // Test that launcher button is updated when signal received
     void testUpdatingLauncherButton();
+    // Test adding buttons
+    void testAddingButtons();
+    // Test adding buttons on multiple pages
+    void testAddingButtonsOnMultiplePages();
+    // Test adding buttons test adding button when there are existing buttons
+    void testAddingButtonsWithExistingButtons();
+    // Test removing buttons
+    void testRemovingButtons();
 };
 #endif //_UT_LAUNCHER_

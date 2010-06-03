@@ -55,6 +55,8 @@ private slots:
     void testUpdatingDataForDesktopEntry();
     void testOnlyPrefixedKeys();
     void testAddingWatcherDesktopEntryPaths();
+    void testUpdatingDesktopEntry();
+    void testUpdatingInvalidEntry();
 
 signals:
     void directoryChanged();
