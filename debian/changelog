@@ -7,8 +7,6 @@ duihome (0.21.9-1) unstable; urgency=low
   * Fixes: NB#168077 - launcherbuttons.data keys that do not belong to [DesktopEntries] group result in broken entries in the launcher
   * Fixes: NB#168422 - System modal dialog windows are shown in the switcher
   * Fixes: NB#165454 - duihome must implement -prestart parameter
-  * Refactoring launcher to add/remove items just one by one, not listen
-    dataStoreChanged() signal and to update to layouts only really changed items.
 
  -- Aki Koskinen <aki.koskinen@nokia.com>  Thu, 03 Jun 2010 16:23:00 +0300
 
