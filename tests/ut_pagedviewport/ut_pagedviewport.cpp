@@ -27,6 +27,11 @@
 static uint checkPageCount = 0;
 static uint testPanTargetPage = 0;
 
+void MPannableViewport::setWidget(QGraphicsWidget*)
+{
+
+}
+
 PagedPanning::PagedPanning(QObject* parent) : MPhysics2DPanning(parent),
                                               pageCount_(1),
                                               currentPage(0),
