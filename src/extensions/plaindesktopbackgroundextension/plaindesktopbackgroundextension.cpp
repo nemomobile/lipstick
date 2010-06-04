@@ -132,7 +132,9 @@ void PlainDesktopBackgroundExtension::setBlurFactor(qreal blurFactor)
 {
     if (this->blurFactor != blurFactor) {
         this->blurFactor = blurFactor;
-        desktop->update();
+        if (desktop != NULL) {
+            desktop->update();
+        }
         // Set a property with the blur factor to make functional testing possible
         qApp->setProperty("plainDesktopBackgroundExtensionBlurFactor", QVariant(blurFactor));
     }
