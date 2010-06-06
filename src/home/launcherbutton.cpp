@@ -20,6 +20,7 @@
 #include "launcherbutton.h"
 #include "launcher.h"
 #include <MDesktopEntry>
+#include <QFileInfo>
 
 LauncherButton::LauncherButton(MWidget *parent) : MButton(parent, new LauncherButtonModel)
 {
@@ -82,7 +83,11 @@ void LauncherButton::updateFromDesktopEntry(const QString &desktopEntryPath)
         setText(entry.name());
 
         if (!entry.icon().isEmpty()) {
-            setIconID(entry.icon());
+            if (QFileInfo(entry.icon()).isAbsolute()) {
+                setIcon(QIcon(entry.icon()));
+            } else {
+                setIconID(entry.icon());
+            }
         } else {
             // FIXME: change to use correct default icon id when available
             // as incorrect id icon-Application-Default will load default icon

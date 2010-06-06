@@ -40,6 +40,9 @@ private slots:
     void cleanup();
 
     // Test cases
+    void testInitialization();
+    void testInitializationXMaemoService();
+    void testInitializationAbsoluteIcon();
     void testLaunchApplication();
     void testLaunchMApplication();
 

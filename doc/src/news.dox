@@ -1,5 +1,10 @@
 /*! \page news What's New in DirectUI Homescreen
 
+\section v02110 0.21.10
+
+\subsection New
+- Support for absolute icon paths in .desktop entry files.
+
 \section v0219 0.21.9
 
 \subsection New
