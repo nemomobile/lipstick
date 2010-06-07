@@ -4,6 +4,7 @@
 
 \subsection New
 - Support for absolute icon paths in .desktop entry files.
+- Home screen provides the corrent UI flow.
 
 \section v0219 0.21.9
 
