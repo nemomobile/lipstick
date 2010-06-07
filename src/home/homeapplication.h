@@ -24,6 +24,8 @@
 //#include <contentsearchif.h>
 #include "windowinfo.h"
 #include <QTimer>
+#include <QMap>
+#include <QSet>
 
 class MainWindow;
 class HomeScreenService;
@@ -69,6 +71,10 @@ signals:
     void windowListUpdated(const QList<WindowInfo> &windowList);
 
     /*!
+     * \brief A signal for notifying that the application window list has been updated
+     */
+    void applicationWindowListUpdated(const QList<WindowInfo> &appWindowList);
+    /*!
      * \brief A signal for notifying that the window visibility has changed
      */
     void windowVisibilityChanged(Window window);
@@ -77,14 +83,6 @@ signals:
      * \brief A signal for notifying that the title of a window has changed
      */
     void windowTitleChanged(Window window, const QString &title);
-
-    /*!
-     * \brief A signal to indicate that the window stacking order has changed.
-     * the window list will only contain windows that the homeapplication is
-     * interrested in, as an example it will not contain desktop or
-     * notification windows
-     */
-    void windowStackingChanged(const QList<WindowInfo> &windowList);
 
 #ifdef BENCHMARKS_ON
     void startBenchmarking();
@@ -107,19 +105,11 @@ private slots:
     void sendStartupNotifications();
 
 private:
-    // X11 Atoms for different window types
+    // X11 Atoms
     Atom windowTypeAtom;
-    Atom windowTypeNormalAtom;
-    Atom windowTypeDesktopAtom;
-    Atom windowTypeNotificationAtom;
-    Atom windowTypeDockAtom;
-    Atom windowTypeDialogAtom;
-    Atom windowTypeMenuAtom;
-    Atom windowTypeCallAtom;
     Atom clientListAtom;
     Atom stackedClientListAtom;
     Atom closeWindowAtom;
-    Atom skipTaskbarAtom;
     Atom windowStateAtom;
     Atom netWindowNameAtom;
     Atom windowNameAtom;
@@ -128,31 +118,47 @@ private:
     //ContentSearchIf contentSearchIf;
 
     //! A list of windows that are being closed
-    QList<Window> windowsBeingClosed;
-
+    QSet<Window> windowsBeingClosed;
 
     /*!
-     * Update the title of the given window from X.
+     * Gets the current client window list from X and filters it based on
+     *  - Windows that are bigger than 0x0, are Input/Output windows, are not unmapped and type includes Normal are included. Additionally:
+     *  - Windows that have a type Notification or Desktop are not included.
+     *  - Windows that have the "skip taskbar" state flag set, are not included.
+     *  - Windows that are non application windows, such as desktop, menu, notification.
+     */
+    void updateWindowMapping();
+
+    /*!
+     * Updates the window properties changes.
+     * \param window The window to update.
+     */
+    void updateWindowProperties(Window window);
+
+    /*!
+     * Helper method to create a \c WindowInfos into the current mapping
+     * \param openedWindowSet A set of new windows
+     * \return true if application windows were added
+     */
+    bool createWindowInfos(QSet<Window> openedWindowSet);
+    
+    /*!
+     * Update the title of the given window and emit \c windowTitleChanged
+     * \param window The X window to update
      */
     void updateWindowTitle(Window window);
 
     /*!
-     * Retreives the filtered window list (see HomeApplication::filterWindows)
-     * and emits the windowListUpdated with the current window list as the
-     * parameter.
+     * Helper method to remove a \c WindowInfos from the current mapping
+     * \param closedWindowSet A set of closed windows
+     * \return true if application windows were removed
      */
-    void updateWindowList();
+    bool removeWindowInfos(QSet<Window> closedWindowSet);
 
     /*!
-     * Gets the current client window list from X and filters it based on
-     *  - The given \c Atom
-     *  - Windows that are bigger than 0x0, are Input/Output windows, are not unmapped and type includes Normal are included. Additionally:
-     *  - Windows that have a type Notification or Desktop are not included.
-     *  - Windows that have the "skip taskbar" state flag set, are not included.
-     * \param atom The atom that fill be used to filter teh window list
-     * \return The filtered window list
+     * Helper method to check if the window is an applciation window
      */
-    QList<WindowInfo> filterWindows(Atom atom);
+    bool isApplicationWindow(const WindowInfo &window);
 
     //! Flag that indicates whether duihome was started by upstart or not
     bool upstartMode;
@@ -162,6 +168,16 @@ private:
 
     //! Implementations for com.meego.core.HomeScreen interface.
     HomeScreenService *homeScreenService;
+
+    //! Mapping of the current X windows
+    QMap<Window, WindowInfo> windowMap;
+
+    //! List of application windows
+    QList<WindowInfo> applicationWindows; 
+
+    //! A set of window type atoms that are used to finlter the application windows
+    QSet<Atom> excludeAtoms;
+
 };
 
 #endif /* HOMEAPPLICATION_H_ */

@@ -27,6 +27,7 @@
 #include "homeapplication_stub.h"
 #include "home.h"
 #include "desktop.h"
+#include "windowinfo_stub.h"
 #include "x11wrapper_stub.h"
 
 // X stubs to avoid crashes

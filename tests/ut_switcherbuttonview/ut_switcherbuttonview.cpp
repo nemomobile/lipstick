@@ -25,6 +25,7 @@
 #include <MScene>
 #include "mainwindow_stub.h"
 #include "homeapplication_stub.h"
+#include "windowinfo_stub.h"
 
 bool Ut_SwitcherButtonView::timerImmediateTimeout = false;
 MainWindow *Ut_SwitcherButtonView::mainWindow = NULL;

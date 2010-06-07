@@ -29,6 +29,7 @@
 #include "switcher_stub.h"
 #include "switcherbutton.h"
 #include "x11wrapper_stub.h"
+#include "windowinfo_stub.h"
 #include "pagedpanning.h"
 
 static void setSwitcherButtonSize(QList< QSharedPointer<SwitcherButton> > &buttonList, const QSizeF &size);

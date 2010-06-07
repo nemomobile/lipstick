@@ -9,10 +9,10 @@ SOURCES += \
 
 # helper classes
 SOURCES += \
-    windowinfo.cpp \
     $$STUBSDIR/stubbase.cpp \
     $$SRCDIR/homescreenservice.cpp \
-    $$SRCDIR/homescreenadaptor.cpp
+    $$SRCDIR/homescreenadaptor.cpp \
+    $$SRCDIR/windowinfo.cpp
 
 # unit test and unit
 HEADERS += \

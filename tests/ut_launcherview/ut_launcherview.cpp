@@ -33,6 +33,8 @@
 #include "mockdatastore.h"
 #include "pagepositionindicatorview.h"
 #include "mpositionindicator.h"
+#include "windowinfo_stub.h"
+#include "x11wrapper_stub.h"
 
 #include "mwidgetcreator.h"
 M_REGISTER_WIDGET(PagedViewport)

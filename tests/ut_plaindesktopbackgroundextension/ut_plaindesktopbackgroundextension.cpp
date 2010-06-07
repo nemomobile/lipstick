@@ -422,8 +422,8 @@ void Ut_PlainDesktopBackgroundExtension::testSetBlurTimeLineDirection()
 {
     QList<WindowInfo> emptyWindowList;
     QList<WindowInfo> fullWindowList;
-    QString title;
-    fullWindowList.append(WindowInfo(title, Window(), XWindowAttributes(), Pixmap()));
+
+    fullWindowList.append(WindowInfo(Window()));
 
     // Test that the timeline direction is set and the timeline is resumed
     emit setBlurTimeLineDirection(fullWindowList);

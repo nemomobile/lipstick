@@ -16,7 +16,6 @@
 ** of this file.
 **
 ****************************************************************************/
-
 #ifdef BENCHMARKS_ON
 #include <QTextStream>
 #include <QFile>

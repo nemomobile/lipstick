@@ -20,7 +20,6 @@ SOURCES += \
 # service classes
 SOURCES += \
     $$SRCDIR/switcherview.cpp \
-    $$SRCDIR/windowinfo.cpp \
     $$SRCDIR/mainwindow.cpp \
        ../stubs/stubbase.cpp \
     $$SRCDIR/pagepositionindicatorview.cpp \

@@ -17,16 +17,144 @@
 **
 ****************************************************************************/
 
+#include <string.h>
 #include "ut_windowinfo.h"
 #include "windowinfo.h"
+#include "x11wrapper.h"
 
+#define ATOM_TYPE 1
+#define ATOM_TYPE_NORMAL 2
+#define ATOM_TYPE_DESKTOP 3
+#define ATOM_TYPE_TEXT_PROPERTY 4
+#define ATOM_STATE 5
+
+Atom X11Wrapper::XInternAtom(Display *, const char* atom_name, Bool)
+{
+    if (strcmp(atom_name, "_NET_WM_WINDOW_TYPE") == 0) {
+        return ATOM_TYPE;
+    } else if (strcmp(atom_name, "_NET_WM_NAME") == 0) {
+        return ATOM_TYPE_TEXT_PROPERTY;
+    } else if (strcmp(atom_name, "_NET_WM_STATE") == 0) {
+        return ATOM_STATE;
+    }
+    return 0;
+}
+
+int X11Wrapper::XSelectInput(Display *, Window , long)
+{
+    return 0;
+}
+
+Status X11Wrapper::XGetWindowAttributes(Display *, Window, XWindowAttributes *)
+{
+    return 0;
+}
+
+int X11Wrapper::XGetWindowProperty(Display *, Window , Atom property, long , long , Bool , Atom , Atom *, int *, unsigned long *nitems_return, unsigned long *, unsigned char **prop_return)
+{
+    if (property == ATOM_TYPE) {
+        *nitems_return = 2;
+        *prop_return = new unsigned char[2 * sizeof(Atom)];
+        Atom* atom = (Atom *) * prop_return;
+        atom[0] = ATOM_TYPE_NORMAL;
+        atom[1] = ATOM_TYPE_DESKTOP;
+        return Success;
+    } else if (property == ATOM_STATE) {
+        *nitems_return = 1;
+        *prop_return = new unsigned char[1 * sizeof(Atom)];
+        Atom* atom = (Atom *) * prop_return;
+        atom[0] = ATOM_STATE;
+        return Success;
+    }
+    return BadAtom;
+}
+
+int X11Wrapper::XFree(void *data)
+{
+    if (data != NULL) {
+        delete [](unsigned char *)data;
+    }
+    return 0;
+}
+
+bool textValueFromGetTextProperty = true;
+Status X11Wrapper::XGetWMName(Display *, Window, XTextProperty *textProperty)
+{
+    if (textValueFromGetTextProperty) {
+        return 0;
+    }
+    QString textValue("WindowTitleXGetWMName");
+    std::string::size_type strSize = textValue.toStdString().length();
+    textProperty->value = new unsigned char[strSize + 1];
+    strncpy((char *)textProperty->value, textValue.toStdString().c_str(), strSize + 1);
+    return 1;
+}
+
+Status X11Wrapper::XGetTextProperty(Display *, Window , XTextProperty *text_prop_return, Atom atom)
+{
+    if (!textValueFromGetTextProperty || atom != ATOM_TYPE_TEXT_PROPERTY) {
+        return 0;
+    }
+    QString textValue("WindowTitleFromXGetTextProperty");
+    std::string::size_type strSize = textValue.toStdString().length();
+    text_prop_return->value = new unsigned char[strSize + 1];
+    strncpy((char *)text_prop_return->value, textValue.toStdString().c_str(), strSize + 1);
+    return 1;
+}
+
+XWMHints *X11Wrapper::XGetWMHints(Display *, Window)
+{
+    return 0;
+}
+
+int X11Wrapper::XFreePixmap(Display *, Pixmap)
+{
+    return 0;
+}
+
+Pixmap X11Wrapper::XCompositeNameWindowPixmap(Display *, Window)
+{
+    return 0;
+}
+
+Damage X11Wrapper::XDamageCreate(Display *, Drawable, int)
+{
+    return 0;
+}
+
+void X11Wrapper::XDamageDestroy(Display *, Damage)
+{
+
+}
+
+int X11Wrapper::XSync(Display *, Bool)
+{
+    return 0;
+}
+
+XErrorHandler X11Wrapper::XSetErrorHandler(XErrorHandler)
+{
+    return 0;
+}
+
+int X11Wrapper::XChangeProperty(Display *, Window, Atom, Atom, int, int, unsigned char *, int)
+{
+    return 0;
+}
+
+Status X11Wrapper::XSendEvent(Display *, Window, Bool, long, XEvent *)
+{
+    return 0;
+}
 
 void Ut_WindowInfo::initTestCase()
 {
+    windowInfo = new WindowInfo(1);
 }
 
 void Ut_WindowInfo::cleanupTestCase()
 {
+    delete windowInfo;
 }
 
 void Ut_WindowInfo::init()
@@ -39,28 +167,19 @@ void Ut_WindowInfo::cleanup()
 
 void Ut_WindowInfo::testGetters()
 {
-    // Title of the window
-    QString title = "Title";
-    // Window ID
-    Window window = 1;
-    // Window attributes
-    XWindowAttributes attributes;
-    memset(&attributes, 0, sizeof(XWindowAttributes));
-    attributes.depth = 16;
-    attributes.width = 320;
-    attributes.height = 256;
-    // Window pixmap ID
-    Pixmap pixmap = 3;
+    textValueFromGetTextProperty = true;
+    bool updated = windowInfo->updateWindowTitle();
+    QVERIFY(updated);
+    QCOMPARE(windowInfo->title(), QString("WindowTitleFromXGetTextProperty"));
+    updated = false;
+    textValueFromGetTextProperty = false;
+    updated = windowInfo->updateWindowTitle();
+    QVERIFY(updated);
+    QCOMPARE(windowInfo->title(), QString("WindowTitleXGetWMName"));
 
-    WindowInfo *info = new WindowInfo(title, window, attributes, pixmap);
-    QCOMPARE(info->title(), title);
-    QCOMPARE(info->window(), window);
-    QCOMPARE(info->windowAttributes().depth, 16);
-    QCOMPARE(info->windowAttributes().width, 320);
-    QCOMPARE(info->windowAttributes().height, 256);
-    QCOMPARE(info->icon(), pixmap);
+    QCOMPARE(windowInfo->types().count(), 2);
 
-    delete info;
+    QCOMPARE(windowInfo->states().count(), 1);
 }
 
 QTEST_MAIN(Ut_WindowInfo)

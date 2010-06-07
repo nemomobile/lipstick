@@ -6,10 +6,6 @@ SOURCES += \
     ut_windowinfo.cpp \
     $$SRCDIR/windowinfo.cpp
 
-# base classes
-SOURCES += \
-
-
 # unit test and unit
 HEADERS += \
     ut_windowinfo.h \

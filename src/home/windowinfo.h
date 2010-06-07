@@ -23,6 +23,7 @@
 #include <QString>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include <QVector>
 
 /*!
  * WindowInfo is a helper class for storing information about an open window.
@@ -39,15 +40,33 @@ public:
         Normal = 500
     };
 
+    // X11 atoms
+    static Atom TypeAtom;
+    static Atom StateAtom;
+    static Atom NormalAtom;
+    static Atom DesktopAtom;
+    static Atom NotificationAtom;
+    static Atom DialogAtom;
+    static Atom CallAtom;
+    static Atom DockAtom;
+    static Atom MenuAtom;
+    static Atom SkipTaskbarAtom;
+    static Atom NameAtom;
+
+
+    /*!
+     * Constructs a WindowInfo that contains information about an open window.
+     * This is needed to satisfy the Qt's defualt constructed value paradigm in 
+     * its containers.
+     */
+    WindowInfo();
+    
     /*!
      * Constructs a WindowInfo that contains information about an open window.
      *
-     * \param title the title of the window
-     * \param window the window
-     * \param windowAttributes the attributes of the window
-     * \param icon the icon of the window
+     * \param window The X window id
      */
-    WindowInfo(QString &title, Window window, XWindowAttributes windowAttributes, Pixmap icon, WindowPriority priority = WindowInfo::Normal);
+    WindowInfo(Window window);
 
     /*!
      * Destroys a WindowInfo object.
@@ -69,6 +88,18 @@ public:
     WindowPriority windowPriority() const;
 
     /*!
+     * Gets the types for this window \s WindowType
+     * \return the types
+     */
+    QList<Atom> types() const;
+
+    /*!
+     * Gets the states for this window \s WindowType
+     * \return the states
+     */
+    QList<Atom> states() const;
+
+    /*!
      * Gets the window.
      *
      * \return the Window
@@ -76,34 +107,34 @@ public:
     Window window() const;
 
     /*!
-     * Gets the attributes of the window.
-     *
-     * \return the attributes of the window
+     * Retrieves the window title. First the title is retrieved with atom _NET_WM_NAME,
+     * if this failes then XGetWMName will be used.
      */
-    XWindowAttributes windowAttributes() const;
-
+    bool updateWindowTitle();
+    
     /*!
-     * Gets the icon of the window.
-     *
-     * \return the icon of the window
+     * Updates the window types and window states from the window manager
      */
-    Pixmap icon() const;
+    void updateWindowProperties();
 
 private:
+    /*!
+     * Gets the atoms and places them into the list
+     */
+    QList<Atom> getWindowProperties(Window winId, Atom propertyAtom, long maxCount = 16L);
+
     //! The title of the window
     QString title_;
 
-    //! The priority of the window
-    WindowPriority windowPriority_;
-
-    //! The window
+    //! The X window id
     Window window_;
 
-    //! The attributes of the window
-    XWindowAttributes attributes_;
+    //! The window types associated with this window
+    QList<Atom> types_;
 
-    //! The icon of the window
-    Pixmap pixmap_;
+    //! The status atoms of this window
+    QList<Atom> states_;
+    
 };
 
 //! Comparison operator for WindowInfo objects

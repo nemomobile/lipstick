@@ -16,14 +16,49 @@
 ** of this file.
 **
 ****************************************************************************/
-
 #include <cstring>
 #include "windowinfo.h"
+#include "x11wrapper.h"
+#include <QX11Info>
 
-WindowInfo::WindowInfo(QString &title, Window window, XWindowAttributes windowAttributes,
-                       Pixmap icon, WindowPriority priority) :
-    title_(title), windowPriority_(priority), window_(window),
-    attributes_(windowAttributes), pixmap_(icon)
+
+static bool atomsInitialized;
+
+Atom WindowInfo::TypeAtom;
+Atom WindowInfo::StateAtom;
+Atom WindowInfo::NormalAtom;
+Atom WindowInfo::DesktopAtom;
+Atom WindowInfo::NotificationAtom;
+Atom WindowInfo::DialogAtom;
+Atom WindowInfo::CallAtom;
+Atom WindowInfo::DockAtom;
+Atom WindowInfo::MenuAtom;
+Atom WindowInfo::SkipTaskbarAtom;
+Atom WindowInfo::NameAtom;
+
+WindowInfo::WindowInfo(Window window) : window_(window)
+{    
+    if (!atomsInitialized) {
+        Display *dpy = QX11Info::display();
+        WindowInfo::TypeAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_WINDOW_TYPE", False);
+        WindowInfo::StateAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_STATE", False);
+        WindowInfo::NormalAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_NORMAL", False);    
+        WindowInfo::DesktopAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_DESKTOP", False);
+        WindowInfo::NotificationAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_NOTIFICATION", False);
+        WindowInfo::DialogAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_DIALOG", False);
+        WindowInfo::CallAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_CALL", False);
+        WindowInfo::DockAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_DOCK", False);
+        WindowInfo::MenuAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_MENU", False);
+        WindowInfo::SkipTaskbarAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_STATE_SKIP_TASKBAR", False);
+        WindowInfo::NameAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_NAME", False);
+        atomsInitialized = true;
+    }
+
+    updateWindowTitle();
+    updateWindowProperties();
+}
+
+WindowInfo::WindowInfo() : title_(QString()), window_(0)
 {
 }
 
@@ -31,14 +66,14 @@ WindowInfo::~WindowInfo()
 {
 }
 
-const QString &WindowInfo::title() const
+const QString& WindowInfo::title() const
 {
     return title_;
 }
 
 WindowInfo::WindowPriority WindowInfo::windowPriority() const
 {
-    return windowPriority_;
+    return types_.contains(WindowInfo::CallAtom) ? WindowInfo::Call : WindowInfo::Normal;
 }
 
 Window WindowInfo::window() const
@@ -46,14 +81,14 @@ Window WindowInfo::window() const
     return window_;
 }
 
-XWindowAttributes WindowInfo::windowAttributes() const
+QList<Atom> WindowInfo::types() const
 {
-    return attributes_;
+    return types_;
 }
 
-Pixmap WindowInfo::icon() const
+QList<Atom> WindowInfo::states() const
 {
-    return pixmap_;
+    return states_;
 }
 
 bool operator==(const WindowInfo &wi1, const WindowInfo &wi2)
@@ -61,3 +96,51 @@ bool operator==(const WindowInfo &wi1, const WindowInfo &wi2)
     return wi1.window() == wi2.window();
 }
 
+bool WindowInfo::updateWindowTitle()
+{
+    Display *dpy = QX11Info::display();
+    XTextProperty textProperty;
+    bool updated = false;
+    int result = X11Wrapper::XGetTextProperty(dpy, window_, &textProperty, WindowInfo::NameAtom);
+    if (result == 0) {
+        result = X11Wrapper::XGetWMName(dpy, window_, &textProperty);
+    }
+
+    if (result != 0) {
+        title_ = QString::fromUtf8((const char *)textProperty.value);
+        X11Wrapper::XFree(textProperty.value);
+        updated = true;
+    }
+    return updated;
+}
+
+void WindowInfo::updateWindowProperties()
+{
+    types_ = getWindowProperties(window_, WindowInfo::TypeAtom);
+    states_ = getWindowProperties(window_, WindowInfo::StateAtom);
+}
+
+QList<Atom> WindowInfo::getWindowProperties(Window winId, Atom propertyAtom, long maxCount)
+{
+    QList<Atom> to;
+    Display *dpy = QX11Info::display();
+
+    Atom actualType;
+    int actualFormat;
+    unsigned long numTypeItems, bytesLeft;
+    unsigned char *typeData = NULL;
+    
+    Status result = X11Wrapper::XGetWindowProperty(dpy, winId, propertyAtom, 0L, maxCount, False, XA_ATOM,
+                                                   &actualType, &actualFormat, 
+                                                   &numTypeItems, &bytesLeft, &typeData);
+
+    if (result == Success) {
+        to.clear();
+        Atom *type = (Atom *)typeData;
+        for (unsigned int n = 0; n < numTypeItems; n++) {
+            to.append(type[n]);
+        }
+        X11Wrapper::XFree(typeData);            
+    }
+    return to;
+}

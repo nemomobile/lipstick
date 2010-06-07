@@ -33,29 +33,41 @@
 #include <signal.h>
 
 #include "x11wrapper.h"
-#include "x11helper.h"
 
 #define ATOM_TYPE 0x00010000
 #define ATOM_TYPE_NORMAL 0x00010001
-#define ATOM_TYPE_DESKTOP 0x00010002
-#define ATOM_TYPE_NOTIFICATION 0x00010003
-#define ATOM_TYPE_DOCK 0x00010004
-#define ATOM_TYPE_CALL 0x00010005
-#define ATOM_TYPE_DIALOG 0x00010006
-#define ATOM_TYPE_MENU 0x00010007
-#define ATOM_TYPE_SOMETHING_ELSE 0x00010008
 #define ATOM_CLIENT_LIST 0x00020000
 #define ATOM_CLIENT_LIST_STACKING 0x00030000
 #define ATOM_CLOSE_WINDOW 0x00040000
-#define ATOM_WM_STATE_SKIP_TASKBAR 0x00050001
 
 #define NET_WM_STATE 0x00060001
 #define ATOM_NET_WM_NAME 0x00070001
 #define ATOM_WM_NAME 0x00080001
-#define WINDOW_ATTRIBUTE_TEST_WINDOWS 16
-#define WINDOW_TYPE_TEST_WINDOWS 12
-#define NET_WM_STATE_WINDOWS 1
-#define NUMBER_OF_WINDOWS (WINDOW_ATTRIBUTE_TEST_WINDOWS + WINDOW_TYPE_TEST_WINDOWS + NET_WM_STATE_WINDOWS)
+
+#define INVALID_WINDOWS 16
+#define APPLICATION_WINDOWS 2
+#define NON_APPLICATION_WINDOWS 5
+#define VALID_WINDOWS (NON_APPLICATION_WINDOWS + APPLICATION_WINDOWS)
+
+#define NUMBER_OF_WINDOWS (INVALID_WINDOWS + VALID_WINDOWS)
+
+#define ATOM_TYPE_DESKTOP 100
+#define ATOM_TYPE_NOTIFICATION 101
+#define ATOM_TYPE_DIALOG 102
+#define ATOM_TYPE_DOCK 103
+#define ATOM_TYPE_MENU 104
+#define ATOM_STATE_SKIP_TASKBAR 105
+
+#define ATOM_TYPE_INVALID 666
+
+WId QWidget::winId() const
+{
+    return 0xbadf00d;
+}
+
+static QMap<Window, QVector<Atom> > g_windowTypeMap;
+static QMap<Window, QVector<Atom> > g_windowStateMap;
+static bool g_windowName;
 
 // QCoreApplication stubs to avoid crashing in processEvents()
 QStringList QCoreApplication::arguments()
@@ -72,37 +84,30 @@ Atom X11Wrapper::XInternAtom(Display *, const char *atom_name, Bool)
 {
     if (strcmp(atom_name, "_NET_WM_WINDOW_TYPE") == 0) {
         return ATOM_TYPE;
-    } else if (strcmp(atom_name, "_NET_WM_WINDOW_TYPE_NORMAL") == 0) {
-        return ATOM_TYPE_NORMAL;
-    } else if (strcmp(atom_name, "_NET_WM_WINDOW_TYPE_DESKTOP") == 0) {
-        return ATOM_TYPE_DESKTOP;
-    } else if (strcmp(atom_name, "_NET_WM_WINDOW_TYPE_NOTIFICATION") == 0) {
-        return ATOM_TYPE_NOTIFICATION;
-    } else if (strcmp(atom_name, "_NET_WM_WINDOW_TYPE_DOCK") == 0) {
-        return ATOM_TYPE_DOCK;
-    } else if (strcmp(atom_name, "_NET_WM_WINDOW_TYPE_CALL") == 0) {
-        return ATOM_TYPE_CALL;
-    } else if (strcmp(atom_name, "_NET_WM_WINDOW_TYPE_DIALOG") == 0) {
-        return ATOM_TYPE_DIALOG;
-    } else if (strcmp(atom_name, "_NET_WM_WINDOW_TYPE_MENU") == 0) {
-        return ATOM_TYPE_MENU;
-    } else if (strcmp(atom_name, "_NET_CLIENT_LIST") == 0) {
-        return ATOM_CLIENT_LIST;
     } else if (strcmp(atom_name, "_NET_CLIENT_LIST_STACKING") == 0) {
         return ATOM_CLIENT_LIST_STACKING;
     } else if (strcmp(atom_name, "_NET_CLOSE_WINDOW") == 0) {
         return ATOM_CLOSE_WINDOW;
-    } else if (strcmp(atom_name, "_NET_WM_STATE_SKIP_TASKBAR") == 0) {
-        return ATOM_WM_STATE_SKIP_TASKBAR;
     } else if (strcmp(atom_name, "_NET_WM_STATE") == 0) {
         return NET_WM_STATE;
     } else if (strcmp(atom_name, "_NET_WM_NAME") == 0) {
         return ATOM_NET_WM_NAME;
     } else if (strcmp(atom_name, "WM_NAME") == 0) {
         return ATOM_WM_NAME;
+    } else if (strcmp(atom_name, "_NET_WM_STATE_SKIP_TASKBAR") == 0) {
+        return ATOM_STATE_SKIP_TASKBAR;
+    } else if (strcmp(atom_name, "_NET_WM_WINDOW_TYPE_DESKTOP") == 0) {
+        return ATOM_TYPE_DESKTOP;
+    } else if (strcmp(atom_name, "_NET_WM_WINDOW_TYPE_NOTIFICATION") == 0) {
+        return ATOM_TYPE_NOTIFICATION;
+    } else if (strcmp(atom_name, "_NET_WM_WINDOW_TYPE_DIALOG") == 0) {
+        return ATOM_TYPE_DIALOG;
+    } else if (strcmp(atom_name, "_NET_WM_WINDOW_TYPE_MENU") == 0) {
+        return  ATOM_TYPE_MENU;
+    } else if (strcmp(atom_name, "_NET_WM_WINDOW_TYPE_DOCK") == 0) {
+        return ATOM_TYPE_DOCK;
     }
-
-    return 0;
+    return ATOM_TYPE_INVALID;
 }
 
 int X11Wrapper::XSelectInput(Display *, Window window, long mask)
@@ -199,7 +204,7 @@ int X11Wrapper::XGetWindowProperty(Display *dpy, Window w, Atom property, long l
     Q_UNUSED(actual_format_return);
     Q_UNUSED(bytes_after_return);
 
-    if (property == ATOM_CLIENT_LIST) {
+    if (property == ATOM_CLIENT_LIST_STACKING) {
         if (w != DefaultRootWindow(dpy)) {
             return BadWindow;
         } else {
@@ -208,104 +213,29 @@ int X11Wrapper::XGetWindowProperty(Display *dpy, Window w, Atom property, long l
 
             Window *windows = (Window *) * prop_return;
             for (int i = 0; i < Ut_HomeApplication::clientListNumberOfWindows; i++)
-                windows[i] = i + 1;
+                windows[i] = i;
             return Success;
         }
     } else if (property == ATOM_TYPE) {
-        Atom *atom;
-
-        switch (w) {
-        case(WINDOW_ATTRIBUTE_TEST_WINDOWS + 0):
-            *nitems_return = 0;
-            *prop_return = new unsigned char[0];
-            break;
-        case(WINDOW_ATTRIBUTE_TEST_WINDOWS + 1):
-            *nitems_return = 1;
-            *prop_return = new unsigned char[sizeof(Atom)];
-            atom = (Atom *) * prop_return;
-            atom[0] = ATOM_TYPE_DESKTOP;
-            break;
-        case(WINDOW_ATTRIBUTE_TEST_WINDOWS + 2):
-            *nitems_return = 1;
-            *prop_return = new unsigned char[sizeof(Atom)];
-            atom = (Atom *) * prop_return;
-            atom[0] = ATOM_TYPE_NOTIFICATION;
-            break;
-        case(WINDOW_ATTRIBUTE_TEST_WINDOWS + 3):
-            *nitems_return = 1;
-            *prop_return = new unsigned char[sizeof(Atom)];
-            atom = (Atom *) * prop_return;
-            atom[0] = ATOM_TYPE_DOCK;
-            break;
-        case(WINDOW_ATTRIBUTE_TEST_WINDOWS + 4):
-            *nitems_return = 1;
-            *prop_return = new unsigned char[sizeof(Atom)];
-            atom = (Atom *) * prop_return;
-            atom[0] = ATOM_TYPE_NORMAL;
-            break;
-        case(WINDOW_ATTRIBUTE_TEST_WINDOWS + 5):
-            *nitems_return = 2;
-            *prop_return = new unsigned char[2 * sizeof(Atom)];
-            atom = (Atom *) * prop_return;
-            atom[0] = ATOM_TYPE_NORMAL;
-            atom[1] = ATOM_TYPE_DESKTOP;
-            break;
-        case(WINDOW_ATTRIBUTE_TEST_WINDOWS + 6):
-            *nitems_return = 2;
-            *prop_return = new unsigned char[2 * sizeof(Atom)];
-            atom = (Atom *) * prop_return;
-            atom[0] = ATOM_TYPE_NORMAL;
-            atom[1] = ATOM_TYPE_NOTIFICATION;
-            break;
-        case(WINDOW_ATTRIBUTE_TEST_WINDOWS + 7):
-            *nitems_return = 3;
-            *prop_return = new unsigned char[3 * sizeof(Atom)];
-            atom = (Atom *) * prop_return;
-            atom[0] = ATOM_TYPE_NORMAL;
-            atom[1] = ATOM_TYPE_DESKTOP;
-            atom[2] = ATOM_TYPE_NOTIFICATION;
-            break;
-        case(WINDOW_ATTRIBUTE_TEST_WINDOWS + 8):
-            *nitems_return = 2;
-            *prop_return = new unsigned char[2 * sizeof(Atom)];
-            atom = (Atom *) * prop_return;
-            atom[0] = ATOM_TYPE_NORMAL;
-            atom[1] = ATOM_TYPE_SOMETHING_ELSE;
-            break;
-        case(WINDOW_ATTRIBUTE_TEST_WINDOWS + 9):
-            *nitems_return = 1;
-            *prop_return = new unsigned char[sizeof(Atom)];
-            atom = (Atom *) * prop_return;
-            atom[0] = ATOM_TYPE_CALL;
-            break;
-        case(WINDOW_ATTRIBUTE_TEST_WINDOWS + 10):
-            *nitems_return = 1;
-            *prop_return = new unsigned char[sizeof(Atom)];
-            atom = (Atom *) * prop_return;
-            atom[0] = ATOM_TYPE_DIALOG;
-            break;
-        case(WINDOW_ATTRIBUTE_TEST_WINDOWS + 11):
-            *nitems_return = 1;
-            *prop_return = new unsigned char[sizeof(Atom)];
-            atom = (Atom *) * prop_return;
-            atom[0] = ATOM_TYPE_MENU;
-            break;
-        case(WINDOW_ATTRIBUTE_TEST_WINDOWS + WINDOW_TYPE_TEST_WINDOWS):
-            *nitems_return = 1;
-            *prop_return = new unsigned char[sizeof(Atom)];
-            atom = (Atom *) * prop_return;
-            atom[0] = NET_WM_STATE;
-            break;
-        default:
-            *nitems_return = 1;
-            *prop_return = new unsigned char[1 * sizeof(Atom)];
-            atom = (Atom *) * prop_return;
-            atom[0] = ATOM_TYPE_NORMAL;
-            break;
+        QVector<Atom> types = g_windowTypeMap[w];
+        *nitems_return = types.count();
+        *prop_return = new unsigned char[*nitems_return * sizeof(Atom)];
+        Atom *atom = (Atom*)*prop_return;
+        for (int i = 0; i < types.count(); i++) {
+            atom[i] = types[i];
         }
         return Success;
-    } else
-        return BadAtom;
+    } else if (property == NET_WM_STATE) {
+        QVector<Atom> states = g_windowStateMap[w];
+        *nitems_return = states.count();
+        *prop_return = new unsigned char[*nitems_return * sizeof(Atom)];
+        Atom *atom = (Atom*)*prop_return;
+        for (int i = 0; i < states.count(); i++) {
+            atom[i] = states[i];
+        }
+        return Success;
+    }
+    return BadAtom;
 }
 
 int X11Wrapper::XFree(void *data)
@@ -316,90 +246,27 @@ int X11Wrapper::XFree(void *data)
     return 0;
 }
 
-Status X11Wrapper::XGetWMName(Display *, Window w, XTextProperty *text_prop_return)
+Status X11Wrapper::XGetWMName(Display *, Window , XTextProperty* )
 {
-    QString textValue;
+    return g_windowName ? 1 : 0;
+}
 
-    switch (w) {
-    case(WINDOW_ATTRIBUTE_TEST_WINDOWS + 0):
-        textValue = "plain_x_window";
-        break;
-    case(WINDOW_ATTRIBUTE_TEST_WINDOWS + 4):
-        textValue = "Test";
-        break;
-    case(WINDOW_ATTRIBUTE_TEST_WINDOWS + 8):
-        textValue = "Tzzt";
-        break;
-    case(WINDOW_ATTRIBUTE_TEST_WINDOWS + 9):
-        textValue = "Call_ui";
-        break;
-    default:
-        break;
-    }
+XWMHints *X11Wrapper::XGetWMHints(Display *, Window)
+{
+    return NULL;
+}
 
-    if (textValue.isEmpty()) {
-        return 0;
-    } else {
+Status X11Wrapper::XGetTextProperty(Display *, Window, XTextProperty *text_prop_return, Atom)
+{
+    if (g_windowName) {
+        QString textValue("title");
         std::string::size_type strSize = textValue.toStdString().length();
         text_prop_return->value = new unsigned char[strSize + 1];
         strncpy((char *)text_prop_return->value, textValue.toStdString().c_str(), strSize + 1);
         return 1;
-    }
-}
-
-XWMHints *X11Wrapper::XGetWMHints(Display *, Window w)
-{
-    XWMHints *wmhints = NULL;
-    switch (w) {
-    case(WINDOW_ATTRIBUTE_TEST_WINDOWS + 4):
-        wmhints = (XWMHints *)new unsigned char[sizeof(XWMHints)];
-        wmhints->icon_pixmap = 202;
-        break;
-    case(WINDOW_ATTRIBUTE_TEST_WINDOWS + 8):
-        wmhints = (XWMHints *)new unsigned char[sizeof(XWMHints)];
-        wmhints->icon_pixmap = 303;
-        break;
-    default:
-        break;
-    }
-
-    return wmhints;
-}
-
-Status X11Wrapper::XGetTextProperty(Display *, Window w, XTextProperty *text_prop_return, Atom /*property*/)
-{
-    QString textValue;
-
-    switch (w) {
-    case(WINDOW_ATTRIBUTE_TEST_WINDOWS + 0):
-        textValue = "Window 0 _NET_WM_NAME changed title";
-        break;
-    default:
-        break;
-    }
-
-    if (textValue.isEmpty()) {
-        return 0;
     } else {
-        std::string::size_type strSize = textValue.toStdString().length();
-        text_prop_return->value = new unsigned char[strSize + 1];
-        strncpy((char *)text_prop_return->value, textValue.toStdString().c_str(), strSize + 1);
-        return 1;
+        return 0;
     }
-}
-
-bool isSkipTaskbarWindow = false;
-QVector<Atom> X11Helper::getNetWmState(Display *display, Window window)
-{
-    Q_UNUSED(display);
-
-    QVector<Atom> returnValue;
-
-    if (window == WINDOW_ATTRIBUTE_TEST_WINDOWS + WINDOW_TYPE_TEST_WINDOWS + 1 || (isSkipTaskbarWindow && window == WINDOW_ATTRIBUTE_TEST_WINDOWS + 4)) {
-        returnValue.append(ATOM_WM_STATE_SKIP_TASKBAR);
-    }
-
-    return returnValue;
 }
 
 void XSetWMProperties(Display *, Window, XTextProperty *, XTextProperty *, char **, int, XSizeHints *, XWMHints *, XClassHint *)
@@ -502,6 +369,7 @@ void Ut_HomeApplication::cleanupTestCase()
 {
 }
 
+
 void Ut_HomeApplication::init()
 {
     validInterfaces.clear();
@@ -509,12 +377,27 @@ void Ut_HomeApplication::init()
     asyncCallMethods.clear();
     asyncCallArguments.clear();
     clientListNumberOfWindows = NUMBER_OF_WINDOWS;
-    isSkipTaskbarWindow = false;
 
     static char *args[] = {(char *) "./ut_homeapplication"};
     static int argc = sizeof(args) / sizeof(char *);
     m_subject = new TestHomeApplication(argc, args);
     visibilityNotifyWindows.clear();
+
+    g_windowName = true;
+    g_windowTypeMap.clear();
+    for (int w = 0; w < clientListNumberOfWindows; w++) {
+        QVector<Atom> types(1);
+        types[0] = ATOM_TYPE_NORMAL;
+        g_windowTypeMap[w] = types;
+    }
+    // Add non-application windows
+    g_windowTypeMap[INVALID_WINDOWS + APPLICATION_WINDOWS + 0][0] = ATOM_TYPE_DESKTOP;
+    g_windowTypeMap[INVALID_WINDOWS + APPLICATION_WINDOWS + 1][0] = ATOM_TYPE_NOTIFICATION;
+    g_windowTypeMap[INVALID_WINDOWS + APPLICATION_WINDOWS + 2][0] = ATOM_TYPE_DIALOG;
+    g_windowTypeMap[INVALID_WINDOWS + APPLICATION_WINDOWS + 3][0] = ATOM_TYPE_DOCK;
+    g_windowTypeMap[INVALID_WINDOWS + APPLICATION_WINDOWS + 4][0] = ATOM_TYPE_MENU;
+
+    g_windowStateMap.clear();
 }
 
 void Ut_HomeApplication::cleanup()
@@ -581,23 +464,16 @@ void Ut_HomeApplication::testX11EventFilterWithWmStateChange()
     connect(m_subject, SIGNAL(windowListUpdated(const QList<WindowInfo> &)), &r, SLOT(windowListUpdated(const QList<WindowInfo> &)));
 
     XEvent event;
-    event.xproperty.atom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_CLIENT_LIST", False);
+    event.xproperty.atom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_CLIENT_LIST_STACKING", False);
     event.type = PropertyNotify;
     event.xproperty.window = DefaultRootWindow(QX11Info::display());
+
     QVERIFY(m_subject->testX11EventFilter(&event));
 
     // Make sure the window list change signal was emitted
     QCOMPARE(r.count, 1);
-    // There should be 4 windows in the window list
-    QCOMPARE(r.windowList.count(), 4);
 
-    event.type = PropertyNotify;
-    event.xproperty.window = WINDOW_ATTRIBUTE_TEST_WINDOWS + 4;
-    event.xproperty.atom = NET_WM_STATE;
-    isSkipTaskbarWindow = true;
-    QVERIFY(m_subject->testX11EventFilter(&event));
-    // There should be 3 windows in the window list
-    QCOMPARE(r.windowList.count(), 3);
+    QCOMPARE(r.windowList.count(), APPLICATION_WINDOWS);
 }
 
 void Ut_HomeApplication::testX11EventFilterWithPropertyNotify()
@@ -618,7 +494,7 @@ void Ut_HomeApplication::testX11EventFilterWithPropertyNotify()
     event.type = 0;
     QVERIFY(!m_subject->testX11EventFilter(&event));
 
-    event.xproperty.atom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_CLIENT_LIST", False);
+    event.xproperty.atom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_CLIENT_LIST_STACKING", False);
     QVERIFY(!m_subject->testX11EventFilter(&event));
 
     event.xproperty.window = 0;
@@ -631,46 +507,25 @@ void Ut_HomeApplication::testX11EventFilterWithPropertyNotify()
 
     // Make sure the window list change signal was emitted
     QCOMPARE(r.count, 1);
+    QCOMPARE(r.windowList.count(), APPLICATION_WINDOWS);
 
-    WindowListReceiver stackingReceiver;
-    connect(m_subject, SIGNAL(windowStackingChanged(const QList<WindowInfo> &)),
-            &stackingReceiver, SLOT(windowStackingChanged(const QList<WindowInfo> &)));
-
-    event.xproperty.atom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_CLIENT_LIST_STACKING", False);
+    // Update the state of a window that currently is an application window
+    QVector<Atom> states(1);
+    states[0] = ATOM_STATE_SKIP_TASKBAR;
+    g_windowStateMap[INVALID_WINDOWS] = states;
+    event.xproperty.window = INVALID_WINDOWS;
+    event.xproperty.atom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_WM_STATE", False);
     QVERIFY(m_subject->testX11EventFilter(&event));
-    QCOMPARE(stackingReceiver.stackCount, 1);
+    QCOMPARE(r.count, 2);
+    QCOMPARE(r.windowList.count(), APPLICATION_WINDOWS - 1);
 
-    // There should be 3 windows in the window list and their information should be correct
-    QCOMPARE(r.windowList.count(), 4);
-    QCOMPARE(r.windowList.at(0).title(), QString("plain_x_window"));
-    QCOMPARE(r.windowList.at(0).window(), (Window)(WINDOW_ATTRIBUTE_TEST_WINDOWS + 0));
-    QCOMPARE(r.windowList.at(0).windowPriority(), WindowInfo::Normal);
-    QCOMPARE(r.windowList.at(1).title(), QString("Test"));
-    QCOMPARE(r.windowList.at(1).window(), (Window)(WINDOW_ATTRIBUTE_TEST_WINDOWS + 4));
-    QCOMPARE(r.windowList.at(1).windowAttributes().width, 100 + (WINDOW_ATTRIBUTE_TEST_WINDOWS + 4));
-    QCOMPARE(r.windowList.at(1).windowAttributes().height, 200 + (WINDOW_ATTRIBUTE_TEST_WINDOWS + 4));
-    QCOMPARE(r.windowList.at(1).windowAttributes().c_class, InputOutput);
-    QVERIFY(r.windowList.at(1).windowAttributes().map_state != IsUnmapped);
-    QCOMPARE(r.windowList.at(1).icon(), (Pixmap)202);
-    QCOMPARE(r.windowList.at(1).windowPriority(), WindowInfo::Normal);
-    QCOMPARE(r.windowList.at(2).title(), QString("Tzzt"));
-    QCOMPARE(r.windowList.at(2).window(), (Window)(WINDOW_ATTRIBUTE_TEST_WINDOWS + 8));
-    QCOMPARE(r.windowList.at(2).windowAttributes().width, 100 + (WINDOW_ATTRIBUTE_TEST_WINDOWS + 8));
-    QCOMPARE(r.windowList.at(2).windowAttributes().height, 200 + (WINDOW_ATTRIBUTE_TEST_WINDOWS + 8));
-    QCOMPARE(r.windowList.at(2).windowAttributes().c_class, InputOutput);
-    QCOMPARE(r.windowList.at(2).icon(), (Pixmap)303);
-    QVERIFY(r.windowList.at(2).windowAttributes().map_state != IsUnmapped);
-    QCOMPARE(r.windowList.at(2).windowPriority(), WindowInfo::Normal);
-    QCOMPARE(r.windowList.at(3).window(), (Window)(WINDOW_ATTRIBUTE_TEST_WINDOWS + 9));
-    QCOMPARE(r.windowList.at(3).windowPriority(), WindowInfo::Call);
-    QCOMPARE(r.windowList.at(3).title(), QString("Call_ui"));
-
-    // HomeApplication should be interested in the windows' VisibilityNotifys
-    QCOMPARE(visibilityNotifyWindows.count(), 4);
-    QCOMPARE(visibilityNotifyWindows.at(0), r.windowList.at(0).window());
-    QCOMPARE(visibilityNotifyWindows.at(1), r.windowList.at(1).window());
-    QCOMPARE(visibilityNotifyWindows.at(2), r.windowList.at(2).window());
-    QCOMPARE(visibilityNotifyWindows.at(3), r.windowList.at(3).window());
+    // Update the type of a window that currently is an application window
+    g_windowTypeMap[INVALID_WINDOWS + 1][0] = ATOM_TYPE_MENU;
+    event.xproperty.window = INVALID_WINDOWS + 1;
+    event.xproperty.atom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_WM_WINDOW_TYPE", False);
+    QVERIFY(m_subject->testX11EventFilter(&event));
+    QCOMPARE(r.count, 3);
+    QCOMPARE(r.windowList.count(), 0);
 }
 
 void Ut_HomeApplication::testX11EventFilterWithVisibilityNotify()
@@ -734,49 +589,30 @@ void Ut_HomeApplication::testX11EventFilterWithClientMessage()
     clientEvent.xclient.message_type = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_CLOSE_WINDOW", False);
     QVERIFY(!m_subject->testX11EventFilter(&clientEvent));
     clientEvent.type = ClientMessage;
-    clientEvent.xclient.window = WINDOW_ATTRIBUTE_TEST_WINDOWS + 8;
+    clientEvent.xclient.window = INVALID_WINDOWS + 1; // This is the first application window id
     QVERIFY(m_subject->testX11EventFilter(&clientEvent));
 
     // Make sure the window list change signal was emitted
     QCOMPARE(r.count, 1);
-
-    // There should be 3 windows in the window list
-    QCOMPARE(r.windowList.count(), 3);
-    QCOMPARE(r.windowList.at(0).window(), (Window)(WINDOW_ATTRIBUTE_TEST_WINDOWS + 0));
-    QCOMPARE(r.windowList.at(1).window(), (Window)(WINDOW_ATTRIBUTE_TEST_WINDOWS + 4));
-    QCOMPARE(r.windowList.at(2).window(), (Window)(WINDOW_ATTRIBUTE_TEST_WINDOWS + 9));
+    // We have closed one window
+    QCOMPARE(r.windowList.count(), APPLICATION_WINDOWS - 1);
 
     // Change the client list so that the window being closed was actually closed
-    clientListNumberOfWindows = WINDOW_ATTRIBUTE_TEST_WINDOWS + 4;
     XEvent propertyEvent;
     propertyEvent.type = PropertyNotify;
     propertyEvent.xproperty.window = DefaultRootWindow(QX11Info::display());
-    propertyEvent.xproperty.atom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_CLIENT_LIST", False);
+    propertyEvent.xproperty.atom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_CLIENT_LIST_STACKING", False);
     QVERIFY(m_subject->testX11EventFilter(&propertyEvent));
 
-    // Make sure the window list change signal was emitted
-    QCOMPARE(r.count, 2);
-
+    // Make sure the window list change signal was not emitted
+    QCOMPARE(r.count, 1);
+    
     // There should be 2 windows in the window list
-    QCOMPARE(r.windowList.count(), 2);
-    QCOMPARE(r.windowList.at(0).window(), (Window)(WINDOW_ATTRIBUTE_TEST_WINDOWS + 0));
-    QCOMPARE(r.windowList.at(1).window(), (Window)(WINDOW_ATTRIBUTE_TEST_WINDOWS + 4));
+    QCOMPARE(r.windowList.count(), APPLICATION_WINDOWS - 1);
 
-    // Include all windows in the client list again and mark an inexisting window as a window being closed
-    clientListNumberOfWindows = NUMBER_OF_WINDOWS;
-    clientEvent.xclient.window = 0;
-    QVERIFY(m_subject->testX11EventFilter(&clientEvent));
-
-    // Make sure the window list change signal was emitted
-    QCOMPARE(r.count, 3);
-
-    // There should be 3 windows in the window list
-    QCOMPARE(r.windowList.count(), 4);
-    QCOMPARE(r.windowList.at(0).window(), (Window)(WINDOW_ATTRIBUTE_TEST_WINDOWS + 0));
-    QCOMPARE(r.windowList.at(1).window(), (Window)(WINDOW_ATTRIBUTE_TEST_WINDOWS + 4));
-    QCOMPARE(r.windowList.at(2).window(), (Window)(WINDOW_ATTRIBUTE_TEST_WINDOWS + 8));
-    QCOMPARE(r.windowList.at(3).window(), (Window)(WINDOW_ATTRIBUTE_TEST_WINDOWS + 9));
+    
 }
+
 /*
 void Ut_HomeApplication::testContentSearchLaunch()
 {
@@ -806,42 +642,25 @@ void Ut_HomeApplication::testContentSearchLaunchWithoutServiceFW()
     QCOMPARE(asyncCallMethods.count(), 0);
 }
 */
-void Ut_HomeApplication::testUpdateWindowList()
-{
-    WindowListReceiver r;
-    connect(m_subject, SIGNAL(windowListUpdated(const QList<WindowInfo> &)), &r, SLOT(windowListUpdated(const QList<WindowInfo> &)));
 
-    // Verify that a window list change was emitted when the application was visible.
-    XEvent event;
-    event.type = PropertyNotify;
-    event.xproperty.atom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_CLIENT_LIST", False);
-    event.xproperty.window = DefaultRootWindow(QX11Info::display());
-    QVERIFY(m_subject->testX11EventFilter(&event));
 
-    // Make sure the window list change signal was emitted
-    QCOMPARE(r.count, 1);
-}
 
 void Ut_HomeApplication::testX11EventWindowNameChange_data()
 {
     QTest::addColumn<Window>("window");
     QTest::addColumn<QString>("property");
-    QTest::addColumn<QString>("title");
 
-    QTest::newRow("_NET_WM_NAME")
-            << (Window)WINDOW_ATTRIBUTE_TEST_WINDOWS + 0 << "_NET_WM_NAME" << "Window 0 _NET_WM_NAME changed title";
-    QTest::newRow("WM_NAME")
-            << (Window)WINDOW_ATTRIBUTE_TEST_WINDOWS + 4 << "WM_NAME" << "Test";
+    QTest::newRow("_NET_WM_NAME") << (Window) INVALID_WINDOWS + 1 << "_NET_WM_NAME";
 }
 
 void Ut_HomeApplication::testX11EventWindowNameChange()
 {
+    //    gWindowInfoStub->stubSetReturnValue("updateWindowTitle", true);
+    g_windowName = true;
     QFETCH(Window, window);
     QFETCH(QString, property);
-    QFETCH(QString, title);
 
-    WindowListReceiver r;
-    connect(m_subject, SIGNAL(windowTitleChanged(Window, QString)), &r, SLOT(changeWindowTitle(Window, QString)));
+    QSignalSpy spy(m_subject, SIGNAL(windowTitleChanged(Window, QString)));
 
     XEvent event;
     event.xproperty.atom = X11Wrapper::XInternAtom(QX11Info::display(), property.toUtf8(), False);
@@ -849,8 +668,14 @@ void Ut_HomeApplication::testX11EventWindowNameChange()
     event.xproperty.window = window;
     QVERIFY(m_subject->testX11EventFilter(&event));
 
-    QCOMPARE(r.changedTitle.first, window);
-    QCOMPARE(r.changedTitle.second, title);
+    QCOMPARE(spy.count(), 1);
+    g_windowName = false;
+    //    gWindowInfoStub->stubSetReturnValue("updateWindowTitle", false);
+
+    // Check that the signal is not emitted when the window info can not get the title
+    spy.clear();
+    QVERIFY(m_subject->testX11EventFilter(&event));
+    QCOMPARE(spy.count(), 0);
 }
 
 QTEST_APPLESS_MAIN(Ut_HomeApplication)

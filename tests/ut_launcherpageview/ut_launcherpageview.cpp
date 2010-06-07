@@ -28,6 +28,8 @@
 #include "homeapplication_stub.h"
 #include "mainwindow_stub.h"
 #include "launcherpageview.h"
+#include "windowinfo_stub.h"
+#include "x11wrapper_stub.h"
 
 // MSceneWindow stubs
 int showWindowCount = 0;

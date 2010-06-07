@@ -22,33 +22,49 @@
 #include "windowinfo.h"
 #include <stubbase.h>
 
+Atom WindowInfo::TypeAtom;
+Atom WindowInfo::StateAtom;
+Atom WindowInfo::NormalAtom;
+Atom WindowInfo::DesktopAtom;
+Atom WindowInfo::NotificationAtom;
+Atom WindowInfo::DialogAtom;
+Atom WindowInfo::CallAtom;
+Atom WindowInfo::DockAtom;
+Atom WindowInfo::MenuAtom;
+Atom WindowInfo::SkipTaskbarAtom;
+Atom WindowInfo::NameAtom;
+
 
 // 1. DECLARE STUB
 // FIXME - stubgen is not yet finished
 class WindowInfoStub : public StubBase
 {
 public:
-    virtual void WindowInfoConstructor(QString &title, Window window, XWindowAttributes windowAttributes, Pixmap icon, WindowInfo::WindowPriority priority);
+    virtual void WindowInfoConstructor(Window window);
+    virtual void WindowInfoConstructor();
     virtual void WindowInfoDestructor();
     virtual const QString &title() const;
+    virtual QList<Atom> types() const;
+    virtual QList<Atom> states() const;
     virtual Window window() const;
-    virtual XWindowAttributes windowAttributes() const;
-    virtual Pixmap icon() const;
-    QString _title ;
-    Window _window ;
-    XWindowAttributes _attributes ;
-    Pixmap _pixmap ;
+    virtual bool updateWindowTitle();
+    virtual void updateWindowProperties();
+    virtual WindowInfo::WindowPriority windowPriority() const;
+    QString _title;
+    Window _window;
+    WindowInfo::WindowPriority _windowPriority;
 };
 
 // 2. IMPLEMENT STUB
-void WindowInfoStub::WindowInfoConstructor(QString &title, Window window, XWindowAttributes windowAttributes, Pixmap icon, WindowInfo::WindowPriority priority)
+void WindowInfoStub::WindowInfoConstructor(Window window)
 {
-    Q_UNUSED(title);
     Q_UNUSED(window);
-    Q_UNUSED(windowAttributes);
-    Q_UNUSED(icon);
-    Q_UNUSED(priority);
 }
+
+void WindowInfoStub::WindowInfoConstructor()
+{
+}
+
 void WindowInfoStub::WindowInfoDestructor()
 {
 
@@ -65,19 +81,34 @@ Window WindowInfoStub::window() const
     return stubReturnValue<Window>("window");
 }
 
-XWindowAttributes WindowInfoStub::windowAttributes() const
+QList<Atom> WindowInfoStub::types() const
 {
-    stubMethodEntered("windowAttributes");
-    return stubReturnValue<XWindowAttributes>("windowAttributes");
+    stubMethodEntered("types");
+    return stubReturnValue<QList<Atom> >("types");
 }
 
-Pixmap WindowInfoStub::icon() const
+QList<Atom> WindowInfoStub::states() const
 {
-    stubMethodEntered("icon");
-    return stubReturnValue<Pixmap>("icon");
+    stubMethodEntered("states");
+    return stubReturnValue<QList<Atom> >("states");
 }
 
+bool WindowInfoStub::updateWindowTitle()
+{
+    stubMethodEntered("updateWindowTitle");
+    return stubReturnValue<bool>("updateWindowTitle");
+}
+    
+void WindowInfoStub::updateWindowProperties()
+{
+    stubMethodEntered("updateWindowProperties");
+}
 
+WindowInfo::WindowPriority WindowInfoStub::windowPriority() const
+{
+    stubMethodEntered("windowPriority");
+    return stubReturnValue<WindowInfo::WindowPriority>("windowPriority");
+}
 
 // 3. CREATE A STUB INSTANCE
 WindowInfoStub gDefaultWindowInfoStub;
@@ -85,9 +116,14 @@ WindowInfoStub *gWindowInfoStub = &gDefaultWindowInfoStub;
 
 
 // 4. CREATE A PROXY WHICH CALLS THE STUB
-WindowInfo::WindowInfo(QString &title, Window window, XWindowAttributes windowAttributes, Pixmap icon, WindowInfo::WindowPriority priority)
+WindowInfo::WindowInfo(Window window)
 {
-    gWindowInfoStub->WindowInfoConstructor(title, window, windowAttributes, icon, priority);
+    gWindowInfoStub->WindowInfoConstructor(window);
+}
+
+WindowInfo::WindowInfo()
+{
+    gWindowInfoStub->WindowInfoConstructor();
 }
 
 WindowInfo::~WindowInfo()
@@ -105,15 +141,34 @@ Window WindowInfo::window() const
     return gWindowInfoStub->window();
 }
 
-XWindowAttributes WindowInfo::windowAttributes() const
+QList<Atom> WindowInfo::types() const
 {
-    return gWindowInfoStub->windowAttributes();
+    return gWindowInfoStub->types();
 }
 
-Pixmap WindowInfo::icon() const
+QList<Atom> WindowInfo::states() const
 {
-    return gWindowInfoStub->icon();
+    return gWindowInfoStub->states();
 }
 
+bool WindowInfo::updateWindowTitle()
+{
+    return gWindowInfoStub->updateWindowTitle();
+}
+    
+void WindowInfo::updateWindowProperties()
+{
+    gWindowInfoStub->updateWindowProperties();
+}
 
+WindowInfo::WindowPriority WindowInfo::windowPriority() const
+{
+    return gWindowInfoStub->windowPriority();
+}
+
+bool operator==(const WindowInfo &wi1, const WindowInfo &wi2)
+{
+    return wi1.window() == wi2.window();
+}
+    
 #endif

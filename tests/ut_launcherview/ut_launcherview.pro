@@ -20,7 +20,6 @@ SOURCES += \
 
 # service classes
 SOURCES += ../stubs/stubbase.cpp \
-    $$SRCDIR/windowinfo.cpp \
     $$SRCDIR/pagedpanning.cpp \
     $$SRCDIR/pagepositionindicator.cpp \
     $$SRCDIR/pagepositionindicatorview.cpp

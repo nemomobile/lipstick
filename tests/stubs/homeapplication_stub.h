@@ -33,7 +33,6 @@ public:
     virtual void windowListUpdated(QList<WindowInfo> &windowList);
     virtual void windowVisibilityChanged(Window window);
     virtual bool x11EventFilter(XEvent *event);
-    virtual void updateWindowList();
     virtual void sendStartupNotifications();
 };
 
@@ -76,11 +75,6 @@ bool HomeApplicationStub::x11EventFilter(XEvent *event)
     return stubReturnValue<bool>("x11EventFilter");
 }
 
-void HomeApplicationStub::updateWindowList()
-{
-    stubMethodEntered("updateWindowList");
-}
-
 void HomeApplicationStub::sendStartupNotifications()
 {
     stubMethodEntered("sendStartupNotifications");
@@ -110,11 +104,6 @@ void HomeApplication::launchContentSearchService()
 bool HomeApplication::x11EventFilter(XEvent *event)
 {
     return gHomeApplicationStub->x11EventFilter(event);
-}
-
-void HomeApplication::updateWindowList()
-{
-    gHomeApplicationStub->updateWindowList();
 }
 
 void HomeApplication::sendStartupNotifications()

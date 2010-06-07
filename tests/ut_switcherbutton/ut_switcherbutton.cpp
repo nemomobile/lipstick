@@ -24,6 +24,7 @@
 #include <MSceneManager>
 #include <cstring>
 #include <QSharedPointer>
+#include "windowinfo_stub.h"
 
 #define TEST_ANY_OTHER_ATOM 1
 #define TEST_NET_WM_ICON_GEOMETRY_ATOM 303

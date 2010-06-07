@@ -31,21 +31,17 @@ class WindowListReceiver : public QObject
     Q_OBJECT
 
 public:
-    WindowListReceiver() : count(0), stackCount(0) { }
+    WindowListReceiver() : count(0) { }
     QList<WindowInfo> windowList;
     int count;
-    int stackCount;
-
+    
     QPair<Window, QString> changedTitle;
 
 private slots:
+
     void windowListUpdated(const QList<WindowInfo> &windowList) {
         this->windowList = windowList;
         this->count++;
-    }
-
-    void windowStackingChanged(const QList<WindowInfo> &windowList) {
-        this->stackCount++;
     }
 
     void changeWindowTitle(Window w, const QString &title)
@@ -109,8 +105,7 @@ private slots:
     //void testContentSearchLaunch();
     // Test content search service launch without service framework
     //void testContentSearchLaunchWithoutServiceFW();
-    // Test updating windows list
-    void testUpdateWindowList();
+
     // Test data for test testX11EventWindowNameChange
     void testX11EventWindowNameChange_data();
     // Test that title change signal is emitted when X window property changes

@@ -14,10 +14,9 @@ SOURCES += \
     $$SRCDIR/launcherpageview.cpp \
     $$SRCDIR/launcherpage.cpp
 
-# service classes
-SOURCES += ../stubs/stubbase.cpp \
-    $$SRCDIR/windowinfo.cpp
 
+# service classes
+SOURCES += ../stubs/stubbase.cpp
 
 # unit test and unit
 HEADERS += \

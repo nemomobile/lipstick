@@ -23,6 +23,8 @@
 #include <QtTest/QtTest>
 #include <QObject>
 
+class WindowInfo;
+
 class Ut_WindowInfo : public QObject
 {
     Q_OBJECT
@@ -38,6 +40,9 @@ private slots:
     void cleanup();
     // Test getters
     void testGetters();
+
+private:
+    WindowInfo* windowInfo;
 };
 
 #endif

@@ -39,6 +39,5 @@ HEADERS += \
 
 # service classes
 SOURCES += ../stubs/stubbase.cpp \
-    $$SRCDIR/windowinfo.cpp
 
 include(../common_bot.pri)

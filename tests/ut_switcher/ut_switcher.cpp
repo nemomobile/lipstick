@@ -25,10 +25,101 @@
 #include "switcher.h"
 #include "switcherbutton.h"
 #include "switcherview.h"
-#include "windowinfo.h"
-#include "x11wrapper_stub.h"
+#include "windowinfo_stub.h"
+#include "x11wrapper.h"
 #include "mscenemanager_stub.h"
 #include "mwindow_stub.h"
+
+
+static QString gWindowInfoTitle;
+
+Atom X11Wrapper::XInternAtom(Display *, const char *, Bool)
+{
+    return 0;
+}
+
+int X11Wrapper::XSelectInput(Display *, Window, long)
+{
+    return 0;
+}
+
+Status X11Wrapper::XGetWindowAttributes(Display *, Window, XWindowAttributes *)
+{
+    return 0;
+}
+
+int X11Wrapper::XGetWindowProperty(Display *, Window, Atom, long, long, Bool, Atom , Atom *, int *, unsigned long *nitems_return, unsigned long *, unsigned char **prop_return)
+{
+    *nitems_return = 1;
+    *prop_return = (unsigned char*)strdup("1");
+    return Success;
+}
+
+int X11Wrapper::XFree(void *data)
+{
+    if (data != NULL) {
+        delete [](unsigned char *)data;
+    }
+    return 0;
+}
+
+Status X11Wrapper::XGetWMName(Display *, Window, XTextProperty *textProperty)
+{
+    std::string::size_type strSize = gWindowInfoTitle.toStdString().length();
+    textProperty->value = new unsigned char[strSize + 1];
+    strncpy((char *)textProperty->value, gWindowInfoTitle.toStdString().c_str(), strSize + 1);
+    return Success;
+}
+
+Status X11Wrapper::XGetTextProperty(Display *, Window, XTextProperty *, Atom)
+{
+    return 0;
+}
+
+XWMHints *X11Wrapper::XGetWMHints(Display *, Window)
+{
+    return 0;
+}
+
+int X11Wrapper::XFreePixmap(Display *, Pixmap)
+{
+    return 0;
+}
+
+Pixmap X11Wrapper::XCompositeNameWindowPixmap(Display *, Window)
+{
+    return 0;
+}
+
+Damage X11Wrapper::XDamageCreate(Display *, Drawable, int)
+{
+    return 0;
+}
+
+void X11Wrapper::XDamageDestroy(Display *, Damage)
+{
+
+}
+
+int X11Wrapper::XSync(Display *, Bool)
+{
+    return 0;
+}
+
+XErrorHandler X11Wrapper::XSetErrorHandler(XErrorHandler)
+{
+    return 0;
+}
+
+int X11Wrapper::XChangeProperty(Display *, Window, Atom, Atom, int, int, unsigned char *, int)
+{
+    return 0;
+}
+
+Status X11Wrapper::XSendEvent(Display *, Window , Bool, long, XEvent *)
+{
+    return 0;
+}
 
 QMap<SwitcherButton *, Window> g_windowButtonMap;
 
@@ -194,10 +285,8 @@ void Ut_Switcher::testWindowTitleChangeWhenWindowListIsUpdated()
     emit windowListUpdated(l);
 
     // Change the name of the second window
-    QString title("Test3");
-    XWindowAttributes a;
-    memset(&a, 0, sizeof(XWindowAttributes));
-    l[1] = WindowInfo(title, (Window)l[1].window(), a, (Pixmap)0);
+    gWindowInfoTitle = QString("Test3");
+    l[1] = WindowInfo((Window)l[1].window());
 
     // Let the Switcher know about the updated window list
     emit windowListUpdated(l);
@@ -260,14 +349,10 @@ void Ut_Switcher::testPanning()
 
 QList<WindowInfo> Ut_Switcher::createWindowList(int numWindows)
 {
-    XWindowAttributes a;
-    Pixmap p = 0;
-    memset(&a, 0, sizeof(XWindowAttributes));
-
     QList<WindowInfo> l;
     for (int i = 0; i < numWindows; i++) {
-        QString title = QString().sprintf("Test%d", i);
-        l.append(WindowInfo(title, (Window)i, a, p));
+        gWindowInfoTitle = QString().sprintf("Test%d", i);
+        l.append(WindowInfo((Window)i));
     }
     return l;
 }
@@ -331,14 +416,10 @@ void Ut_Switcher::testCallWindowAdding()
         QCOMPARE(b->text(), title);
     }
 
-    XWindowAttributes a;
-    memset(&a, 0, sizeof(XWindowAttributes));
-    Window w = 3;
-    Pixmap p = 0;
-    QString callTitle("Call");
+    gWindowInfoTitle = QString("Call");
 
     // Add a new call window
-    l.insert(1, WindowInfo(callTitle, w, a, p, WindowInfo::Call));
+    l.insert(1, WindowInfo(3));
 
     emit windowListUpdated(l);
 
@@ -367,8 +448,8 @@ void Ut_Switcher::testCallWindowFromExisistingWindow()
 
     // Take the last window and add it again as a call window
     WindowInfo lwi = l.takeAt(2);
-    QString title = lwi.title();
-    l.append(WindowInfo(title, lwi.window(), lwi.windowAttributes(), lwi.icon(), WindowInfo::Call));
+    gWindowInfoTitle = lwi.title();
+    l.append(WindowInfo(lwi.window()));
 
     emit windowListUpdated(l);
 
