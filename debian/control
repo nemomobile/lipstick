@@ -112,7 +112,8 @@ Description: API documentation for libduihome
 Package: duihomescreen-tests
 Section: devel
 Architecture: any
-Depends: ci-testing, testrunner, duihomescreen (= ${binary:Version}), duihomescreen-plugins (= ${binary:Version})
+Depends: ci-testing, testrunner, duihomescreen (= ${binary:Version}), duihomescreen-plugins (= ${binary:Version}),
+  meego-env-dimming
 XB-Maemo-CI-Packages: duihomescreen
 XB-Maemo-CI-Stage: fast, staging
 Description: Testsuite for Direct UI Home screen
