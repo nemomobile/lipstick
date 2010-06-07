@@ -20,8 +20,7 @@ SOURCES += \
 # service classes
 SOURCES += \
     $$SRCDIR/switcherview.cpp \
-    $$SRCDIR/mainwindow.cpp \
-       ../stubs/stubbase.cpp \
+    ../stubs/stubbase.cpp \
     $$SRCDIR/pagepositionindicatorview.cpp \
     $$SRCDIR/pagepositionindicator.cpp
 
@@ -43,7 +42,6 @@ HEADERS += \
     $$SRCDIR/pagedviewportview.h \
     $$SRCDIR/pagedpanning.h \
     $$SRCDIR/windowinfo.h \
-    $$SRCDIR/mainwindow.h \
     $$SRCDIR/pagepositionindicatorview.h \
     $$SRCDIR/pagepositionindicatorstyle.h \
     $$SRCDIR/pagepositionindicator.h \

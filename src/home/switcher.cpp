@@ -16,7 +16,6 @@
 ** of this file.
 **
 ****************************************************************************/
-
 #include <QX11Info>
 #include <QApplication>
 #include <MLayout>
@@ -25,12 +24,16 @@
 #include "switcher.h"
 #include "switcherbutton.h"
 #include "windowinfo.h"
+#include "mainwindow.h"
+
+// The time to wait until updating the model when a new application is started
+#define UPDATE_DELAY_MS 700
 
 Switcher::Switcher(MWidget *parent) :
-    MWidgetController(new SwitcherModel, parent)
+    MWidgetController(new SwitcherModel, parent), windowListUpdated(false)
 {
     // Connect to the windowListUpdated signal of the HomeApplication to get information about window list changes
-    connect(qApp, SIGNAL(windowListUpdated(const QList<WindowInfo> &)), this, SLOT(windowListUpdated(const QList<WindowInfo> &)));
+    connect(qApp, SIGNAL(windowListUpdated(const QList<WindowInfo> &)), this, SLOT(updateWindowList(const QList<WindowInfo> &)));
     connect(qApp, SIGNAL(windowTitleChanged(Window, QString)), this, SLOT(changeWindowTitle(Window, QString)));
 
     // Get the X11 Atoms for closing and activating a window
@@ -42,65 +45,20 @@ Switcher::~Switcher()
 {
 }
 
-void Switcher::windowListUpdated(const QList<WindowInfo> &windowList)
+void Switcher::updateWindowList(const QList<WindowInfo> &newList)
 {
-    QList< QSharedPointer<SwitcherButton> > oldButtons(model()->buttons());
+    int previousWindowCount = windowList.count();
+    windowList = newList;
 
-    // List of existing buttons for which a window still exists
-    QList< QSharedPointer<SwitcherButton> > currentButtons;
+    windowListUpdated = true;
 
-    // List of newly created buttons
-    QList< QSharedPointer<SwitcherButton> > newButtons;
-
-    // List to be set as the new list in the model
-    QList< QSharedPointer<SwitcherButton> > nextButtons;
-
-    // The new mapping of known windows to the buttons
-    QMap<Window, SwitcherButton *> newWindowMap;
-
-    // Go through the windows and create new buttons for new windows
-    foreach(WindowInfo wi, windowList) {
-        if (windowMap.contains(wi.window())) {
-            SwitcherButton *b = windowMap[wi.window()];
-
-            // Button already exists - set title and priority (as they may have changed)
-            b->setText(wi.title());
-            b->setWindowPriority(wi.windowPriority());
-
-            newWindowMap[wi.window()] = b;
-        } else {
-            QSharedPointer<SwitcherButton> b(new SwitcherButton(wi.title(), NULL, wi.window(), wi.windowPriority()));
-            connect(b.data(), SIGNAL(windowToFront(Window)), this, SLOT(windowToFront(Window)));
-            connect(b.data(), SIGNAL(closeWindow(Window)), this, SLOT(closeWindow(Window)));
-
-            // Put the new high priority buttons straight to the top
-            if (wi.windowPriority() == WindowInfo::Call) {
-                nextButtons.append(b);
-            } else {
-                newButtons.append(b);
-            }
-
-            newWindowMap[wi.window()] = b.data();
-        }
+    // If no new windows have appeared, i.e. an application is not currently
+    // starting, update the buttons immediately - otherwise, wait a bit
+    if( previousWindowCount >= newList.count() ) {
+        updateButtons();
+    } else {
+        QTimer::singleShot(UPDATE_DELAY_MS, this, SLOT(updateButtons()));
     }
-
-    foreach(QSharedPointer<SwitcherButton> b, oldButtons) {
-        // Keep only the buttons for which a window still exists
-        if (newWindowMap.contains(b.data()->xWindow())) {
-            if (b.data()->windowPriority() == WindowInfo::Call) {
-                currentButtons.prepend(b);
-            } else {
-                currentButtons.append(b);
-            }
-        }
-    }
-
-    windowMap = newWindowMap;
-    nextButtons.append(currentButtons);
-    nextButtons.append(newButtons);
-
-    // Take the new set of buttons into use
-    model()->setButtons(nextButtons);
 }
 
 void Switcher::windowToFront(Window window)
@@ -160,4 +118,75 @@ void Switcher::changeWindowTitle(Window window,  const QString &title)
         windowMap.value(window)->setText(title);
         windowMap.value(window)->update();
     }
+}
+
+
+void Switcher::updateButtons()
+{
+    if( windowListUpdated ) {
+
+        windowListUpdated = false;
+
+        QList< QSharedPointer<SwitcherButton> > oldButtons(model()->buttons());
+
+        // List of existing buttons for which a window still exists
+        QList< QSharedPointer<SwitcherButton> > currentButtons;
+
+        // List of newly created buttons
+        QList< QSharedPointer<SwitcherButton> > newButtons;
+
+        // List to be set as the new list in the model
+        QList< QSharedPointer<SwitcherButton> > nextButtons;
+
+        // The new mapping of known windows to the buttons
+        QMap<Window, SwitcherButton *> newWindowMap;
+
+        // Go through the windows and create new buttons for new windows
+        foreach(WindowInfo wi, windowList) {
+            if (windowMap.contains(wi.window())) {
+                SwitcherButton *b = windowMap[wi.window()];
+
+                // Button already exists - set title and priority (as they may have changed)
+                b->setText(wi.title());
+                b->setWindowPriority(wi.windowPriority());
+
+                newWindowMap[wi.window()] = b;
+            } else {
+                QSharedPointer<SwitcherButton> b(new SwitcherButton(wi.title(), NULL, wi.window(), wi.windowPriority()));
+                connect(b.data(), SIGNAL(windowToFront(Window)), this, SLOT(windowToFront(Window)));
+                connect(b.data(), SIGNAL(closeWindow(Window)), this, SLOT(closeWindow(Window)));
+
+                // Put the new high priority buttons straight to the top
+                if (wi.windowPriority() == WindowInfo::Call) {
+                    nextButtons.append(b);
+                } else {
+                    newButtons.append(b);
+                }
+
+                newWindowMap[wi.window()] = b.data();
+            }
+        }
+
+        foreach(QSharedPointer<SwitcherButton> b, oldButtons) {
+            // Keep only the buttons for which a window still exists
+            if (newWindowMap.contains(b.data()->xWindow())) {
+                if (b.data()->windowPriority() == WindowInfo::Call) {
+                    currentButtons.prepend(b);
+                } else {
+                    currentButtons.append(b);
+                }
+            }
+        }
+
+        windowMap = newWindowMap;
+        nextButtons.append(currentButtons);
+        nextButtons.append(newButtons);
+
+        // Take the new set of buttons into use
+        model()->setButtons(nextButtons);
+    }
+}
+
+void Switcher::scheduleUpdate() {
+    QTimer::singleShot(UPDATE_DELAY_MS, this, SLOT(updateButtons()));
 }

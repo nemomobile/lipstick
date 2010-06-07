@@ -30,6 +30,25 @@ class QSizeF;
 class QRectF;
 class QPointF;
 
+class MainWindow : public QObject
+{
+    Q_OBJECT
+
+public:
+
+    MainWindow();
+    ~MainWindow();
+
+    MainWindow *instance(bool);
+
+    void exitDisplay();
+
+signals:
+
+    void displayExited();
+};
+
+
 class Ut_Switcher : public QObject
 {
     Q_OBJECT
@@ -87,6 +106,9 @@ private slots:
 
     // Test call window priority
     void testCallWindowFromExisistingWindow();
+
+    // Test that the Switcher update is delayed when launching new applications
+    void testUpdateDelay();
 
 private:
     MSceneManager *mSceneManager;

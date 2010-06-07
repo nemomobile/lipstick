@@ -51,7 +51,7 @@ private slots:
     /*!
      * \brief A slot for notifying that the window list has been updated
      */
-    void windowListUpdated(const QList<WindowInfo> &windowList);
+    void updateWindowList(const QList<WindowInfo> &newList);
 
     /*!
      * \brief A slot for notifying that a window should be brought to front
@@ -73,7 +73,18 @@ private slots:
      */
     void changeWindowTitle(Window window,  const QString &title);
 
+    /*!
+     * \brief Updates the buttons in the model based on the new window list
+     */
+    void updateButtons();
+
 private:
+
+    /*!
+     * \brief Starts a timer which eventually calls updateButtons
+     */
+    void scheduleUpdate();
+
     //! X11 Atom for the close window message type
     Atom closeWindowAtom;
 
@@ -82,6 +93,16 @@ private:
 
     //! A mapping from known X Window ids to SwitcherButtons
     QMap<Window, SwitcherButton *> windowMap;
+
+    //! The latest window list supplied through updateWindowList
+    QList<WindowInfo> windowList;
+
+    //! True if the window list has been updated since the last updateButtons
+    bool windowListUpdated;
+
+#ifdef UNIT_TEST
+    friend class Ut_Switcher;
+#endif
 };
 
 #endif // SWITCHER_H

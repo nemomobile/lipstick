@@ -25,7 +25,6 @@
 #include "switcher.h"
 #include "switcherbutton.h"
 #include "switcherview.h"
-#include "windowinfo_stub.h"
 #include "x11wrapper.h"
 #include "mscenemanager_stub.h"
 #include "mwindow_stub.h"
@@ -122,6 +121,8 @@ Status X11Wrapper::XSendEvent(Display *, Window , Bool, long, XEvent *)
 }
 
 QMap<SwitcherButton *, Window> g_windowButtonMap;
+QString g_lastSingleShot;
+QString g_singleShotTarget;
 
 // Home stubs
 class Home : public MApplicationPage
@@ -134,6 +135,21 @@ Home::Home(QGraphicsItem *parent) : MApplicationPage(parent)
 {
 }
 
+
+MainWindow *g_testMainWindow;
+
+MainWindow::MainWindow()
+{
+}
+
+MainWindow::~MainWindow()
+{
+}
+
+MainWindow *MainWindow::instance(bool)
+{
+    return g_testMainWindow;
+}
 
 // SwitcherButton stubs (used by Switcher)
 SwitcherButton::SwitcherButton(const QString &title, MWidget *parent, Window window, WindowInfo::WindowPriority windowPriority) :
@@ -192,6 +208,72 @@ Window SwitcherButton::xWindow()
     return g_windowButtonMap[this];
 }
 
+QHash<Window, QString> g_windowTitles;
+
+WindowInfo::WindowInfo(Window window) : window_(window)
+{
+}
+
+WindowInfo::WindowInfo() : title_(QString()), window_(0)
+{
+}
+
+WindowInfo::~WindowInfo()
+{
+}
+
+const QString& WindowInfo::title() const
+{
+    return g_windowTitles[window_];
+}
+
+QMap<Window, WindowInfo::WindowPriority > g_windowPriorities;
+
+WindowInfo::WindowPriority WindowInfo::windowPriority() const
+{
+    return g_windowPriorities[window_];
+}
+
+Window WindowInfo::window() const
+{
+    return window_;
+}
+
+QList<Atom> WindowInfo::types() const
+{
+    return QList<Atom>();
+}
+
+QList<Atom> WindowInfo::states() const
+{
+    return QList<Atom>();
+}
+
+bool operator==(const WindowInfo &wi1, const WindowInfo &wi2)
+{
+    return wi1.window() == wi2.window();
+}
+
+bool WindowInfo::updateWindowTitle()
+{
+    return true;
+}
+
+void WindowInfo::updateWindowProperties()
+{
+}
+
+void QTimer::singleShot(int msec, QObject *receiver, const char *member)
+{
+    Q_UNUSED(msec);
+
+    if( !g_singleShotTarget.isEmpty() ) {
+        QMetaObject::invokeMethod(receiver, g_singleShotTarget.toAscii().data(), Qt::DirectConnection);
+    }
+
+    g_lastSingleShot = QString(member);
+}
+
 void Ut_Switcher::init()
 {
     Ut_Switcher::iconGeometryUpdated.clear();
@@ -201,9 +283,14 @@ void Ut_Switcher::init()
     switcher->setView(new SwitcherView(switcher));
 
     // Connect widget add/remove signals
-    connect(this, SIGNAL(windowListUpdated(const QList<WindowInfo> &)), switcher, SLOT(windowListUpdated(const QList<WindowInfo> &)));
+    connect(this, SIGNAL(windowListUpdated(const QList<WindowInfo> &)), switcher, SLOT(updateWindowList(const QList<WindowInfo> &)));
     connect(this, SIGNAL(windowTitleChanged(Window, QString)), switcher, SLOT(changeWindowTitle(Window, QString)));
     connect(this, SIGNAL(sizePosChanged(const QSizeF &, const QRectF &, const QPointF &)), switcher, SLOT(viewportSizePosChanged(const QSizeF &, const QRectF &, const QPointF &)));
+
+    g_lastSingleShot = QString();
+    g_windowTitles.clear();
+    g_windowPriorities.clear();
+    g_singleShotTarget = "updateButtons";
 }
 
 void Ut_Switcher::cleanup()
@@ -218,6 +305,8 @@ void Ut_Switcher::initTestCase()
     static int argc = 1;
     static char *app_name = (char *)"./ut_switcher";
     app = new MApplication(argc, &app_name);
+
+    g_testMainWindow = new MainWindow();
 
     mSceneManager = new MSceneManager(NULL, NULL);
     gMWindowStub->stubSetReturnValue("sceneManager", mSceneManager);
@@ -252,7 +341,7 @@ void Ut_Switcher::testWindowAdding()
 
 void Ut_Switcher::testWindowRemoving()
 {
-    // Add three test windows to the window list
+    // Add three test windows to the window list and the desktop window as the last
     QList<WindowInfo> l = createWindowList(3);
 
     // Let the Switcher know about the updated window list
@@ -285,10 +374,9 @@ void Ut_Switcher::testWindowTitleChangeWhenWindowListIsUpdated()
     emit windowListUpdated(l);
 
     // Change the name of the second window
-    gWindowInfoTitle = QString("Test3");
-    l[1] = WindowInfo((Window)l[1].window());
+    g_windowTitles[1] = QString("Test3");
 
-    // Let the Switcher know about the updated window list
+    // Bring home to foreground and update the window list
     emit windowListUpdated(l);
 
     // There should be three items in the switcher model
@@ -332,7 +420,11 @@ void Ut_Switcher::testPanning()
 
     // Let the Switcher know about the updated window list
     emit windowListUpdated(l);
+
     Ut_Switcher::iconGeometryUpdated.clear();
+
+    // There should be three items in the switcher model
+    QCOMPARE(switcher->model()->buttons().count(), 3);
 
     // Let the Switcher know about a change in panning
     QSizeF viewportSize;
@@ -350,12 +442,16 @@ void Ut_Switcher::testPanning()
 QList<WindowInfo> Ut_Switcher::createWindowList(int numWindows)
 {
     QList<WindowInfo> l;
+
     for (int i = 0; i < numWindows; i++) {
-        gWindowInfoTitle = QString().sprintf("Test%d", i);
-        l.append(WindowInfo((Window)i));
+        g_windowTitles[i] = QString().sprintf("Test%d", i);
+
+        l.append(WindowInfo(i));
     }
+
     return l;
 }
+
 
 void Ut_Switcher::testWindowOrder()
 {
@@ -378,7 +474,7 @@ void Ut_Switcher::testWindowOrder()
 
     // Create a new list and shuffle its order
     QList<WindowInfo> sl = createWindowList(3);
-    sl.swap(0, 1);
+    sl.swap(1, 2);
 
     // Let the Switcher know about the updated window list
     emit windowListUpdated(sl);
@@ -416,10 +512,12 @@ void Ut_Switcher::testCallWindowAdding()
         QCOMPARE(b->text(), title);
     }
 
-    gWindowInfoTitle = QString("Call");
+    QString callTitle("Call");
 
     // Add a new call window
-    l.insert(1, WindowInfo(3));
+    g_windowTitles[111] = callTitle;
+    g_windowPriorities[111] = WindowInfo::Call;
+    l.insert(1, WindowInfo(111));
 
     emit windowListUpdated(l);
 
@@ -446,10 +544,7 @@ void Ut_Switcher::testCallWindowFromExisistingWindow()
     // Let the Switcher know about the updated window list
     emit windowListUpdated(l);
 
-    // Take the last window and add it again as a call window
-    WindowInfo lwi = l.takeAt(2);
-    gWindowInfoTitle = lwi.title();
-    l.append(WindowInfo(lwi.window()));
+    g_windowPriorities[2] = WindowInfo::Call;
 
     emit windowListUpdated(l);
 
@@ -466,6 +561,24 @@ void Ut_Switcher::testCallWindowFromExisistingWindow()
         QString title = QString().sprintf("Test%d", i - 1);
         QCOMPARE(b->text(), title);
     }
+}
+
+void Ut_Switcher::testUpdateDelay()
+{
+    // Add three test windows to the window list
+    QList<WindowInfo> l = createWindowList(3);
+
+    // Prevent immediate update
+    g_singleShotTarget.clear();
+
+    // Let the Switcher know about the updated window list
+    emit windowListUpdated(l);
+
+    // There should be no items in the switcher model yet
+    QCOMPARE(switcher->model()->buttons().count(), 0);
+
+    // But the update should have been scheduled
+    QVERIFY(g_lastSingleShot.contains("updateButtons"));
 }
 
 QTEST_APPLESS_MAIN(Ut_Switcher)

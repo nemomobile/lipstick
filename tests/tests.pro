@@ -20,7 +20,7 @@ SUBDIRS = \
     ut_plaindesktopbackgroundpixmap \
     ut_quicklaunchbar \
     ut_quicklaunchbarview \
-#    ut_switcher \
+    ut_switcher \
     ut_switcherbutton \
     ut_switcherbuttonview \
     ut_switcherview \

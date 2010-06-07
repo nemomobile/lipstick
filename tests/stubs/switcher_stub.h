@@ -28,11 +28,13 @@ class SwitcherStub : public StubBase
 public:
     virtual void switcherConstructor(MWidget *parent = NULL);
     virtual void switcherDestructor();
-    virtual void windowListUpdated(const QList<WindowInfo> &windowList);
+    virtual void updateWindowList(const QList<WindowInfo> &windowList);
     virtual void windowToFront(Window window);
     virtual void closeWindow(Window window);
     virtual void viewportSizePosChanged(const QSizeF &viewportSize, const QRectF &pannedRange, const QPointF &pannedPos);
     virtual void changeWindowTitle(Window window,  const QString &title);
+    virtual void updateButtons();
+    virtual void scheduleUpdate();
 };
 
 void SwitcherStub::switcherConstructor(MWidget *parent)
@@ -47,11 +49,11 @@ void SwitcherStub::switcherDestructor()
     stubMethodEntered("switcherDestructor");
 }
 
-void SwitcherStub::windowListUpdated(const QList<WindowInfo> &windowList)
+void SwitcherStub::updateWindowList(const QList<WindowInfo> &windowList)
 {
     QList<ParameterBase *> params;
     params.append(new Parameter<QList<WindowInfo> >(windowList));
-    stubMethodEntered("windowListUpdated", params);
+    stubMethodEntered("updateWindowList", params);
 }
 
 void SwitcherStub::windowToFront(Window window)
@@ -85,6 +87,16 @@ void SwitcherStub::changeWindowTitle(Window window,  const QString &title)
     stubMethodEntered("changeWindowTitle", params);
 }
 
+void SwitcherStub::updateButtons()
+{
+    stubMethodEntered("updateButtons");
+}
+
+void SwitcherStub::scheduleUpdate()
+{
+    stubMethodEntered("scheduleUpdate");
+}
+
 SwitcherStub gDefaultSwitcherStub;
 SwitcherStub *gSwitcherStub = &gDefaultSwitcherStub;
 
@@ -98,9 +110,9 @@ Switcher::~Switcher()
     gSwitcherStub->switcherDestructor();
 }
 
-void Switcher::windowListUpdated(const QList<WindowInfo> &windowList)
+void Switcher::updateWindowList(const QList<WindowInfo> &windowList)
 {
-    gSwitcherStub->windowListUpdated(windowList);
+    gSwitcherStub->updateWindowList(windowList);
 }
 
 void Switcher::windowToFront(Window window)
@@ -121,6 +133,16 @@ void Switcher::viewportSizePosChanged(const QSizeF &viewportSize, const QRectF &
 void Switcher::changeWindowTitle(Window window,  const QString &title)
 {
     gSwitcherStub->changeWindowTitle(window, title);
+}
+
+void Switcher::updateButtons()
+{
+    gSwitcherStub->updateButtons();
+}
+
+void Switcher::scheduleUpdate()
+{
+    gSwitcherStub->scheduleUpdate();
 }
 
 #endif
