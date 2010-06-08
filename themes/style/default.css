@@ -329,17 +329,17 @@ MAbstractLayoutPolicyStyle#OverviewPolicy {
 
 PagedViewportStyle {
     pan-threshold: 15.0;
-    pan-click-threshold: 0.2;
+    pan-click-threshold: 0.1;
     pointer-spring-k: 0.6;
     friction-c: 0.9;
-    sliding-friction-c: 0.08;
+    sliding-friction-c: 1.2;
     border-spring-k: 0.9;
     border-friction-c: 0.9;
 
-    page-snap-spring-k: 0.3;
+    page-snap-spring-k: 0.15;
     page-snap-friction-c: 0.7;
     velocity-threshold: 7.0;
-    drag-threshold: 0.2;
+    drag-threshold: 0.3;
     slide-limit: 0;
 }
 
