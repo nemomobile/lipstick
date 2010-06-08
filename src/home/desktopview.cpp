@@ -160,7 +160,7 @@ DesktopView::DesktopView(Desktop *desktop) :
     launcher = new Launcher(launcherDataStore);
 
     connect(qApp, SIGNAL(focusToLauncherAppRequested(const QString &)), this, SLOT(showLauncherAndPanToPage(const QString &)));
-    connect(qApp, SIGNAL(windowListUpdated(const QList<WindowInfo> &)), this, SLOT(updateLauncherVisiblity(const QList<WindowInfo> &)));
+    connect(qApp, SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), this, SLOT(updateLauncherVisiblity(const QList<WindowInfo> &)));
     launcherWindow->setLayout(windowLayout);
     launcherWindow->setObjectName("LauncherWindow");
     windowLayout->addItem(launcher);
@@ -194,8 +194,6 @@ DesktopView::DesktopView(Desktop *desktop) :
     connect(backgroundExtensionArea, SIGNAL(extensionRemoved(MApplicationExtensionInterface*)),
             this, SLOT(removeExtension(MApplicationExtensionInterface*)));
     backgroundExtensionArea->init();
-
-    appWindowCount = 0;
 }
 
 DesktopView::~DesktopView()
@@ -248,11 +246,14 @@ void DesktopView::showLauncherAndPanToPage(const QString &desktopFileEntry)
 void DesktopView::updateLauncherVisiblity(const QList<WindowInfo> &windowList)
 {
     if (launcher->isEnabled() && !windowList.isEmpty()) {
-        if (windowList.count() > appWindowCount) {
+        const QList<Atom>& windowTypes = windowList.last().types();
+        if (!windowTypes.contains(WindowInfo::NotificationAtom) &&
+            !windowTypes.contains(WindowInfo::DesktopAtom) &&
+            !windowTypes.contains(WindowInfo::DialogAtom) &&
+            !windowTypes.contains(WindowInfo::MenuAtom)) {
             hideLauncher();
         }
     }
-    appWindowCount = windowList.count();
 }
 
 void DesktopView::toggleLauncher()

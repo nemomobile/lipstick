@@ -71,9 +71,10 @@ signals:
     void windowListUpdated(const QList<WindowInfo> &windowList);
 
     /*!
-     * \brief A signal for notifying that the application window list has been updated
+     * \brief A signal to indicate that the window ordering has changed
      */
-    void applicationWindowListUpdated(const QList<WindowInfo> &appWindowList);
+    void windowStackingOrderChanged(const QList<WindowInfo> &windowList);
+
     /*!
      * \brief A signal for notifying that the window visibility has changed
      */

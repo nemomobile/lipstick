@@ -67,6 +67,7 @@ WId QWidget::winId() const
 
 static QMap<Window, QVector<Atom> > g_windowTypeMap;
 static QMap<Window, QVector<Atom> > g_windowStateMap;
+static QVector<Window> g_windows;
 static bool g_windowName;
 
 // QCoreApplication stubs to avoid crashing in processEvents()
@@ -212,8 +213,11 @@ int X11Wrapper::XGetWindowProperty(Display *dpy, Window w, Atom property, long l
             *prop_return = new unsigned char[Ut_HomeApplication::clientListNumberOfWindows * sizeof(Window)];
 
             Window *windows = (Window *) * prop_return;
-            for (int i = 0; i < Ut_HomeApplication::clientListNumberOfWindows; i++)
-                windows[i] = i;
+            for (int w = 0; w < g_windows.count(); w++) {
+                windows[w] = g_windows[w];                                
+            }
+            //for (int i = 0; i < Ut_HomeApplication::clientListNumberOfWindows; i++)
+            //windows[i] = i;
             return Success;
         }
     } else if (property == ATOM_TYPE) {
@@ -385,10 +389,14 @@ void Ut_HomeApplication::init()
 
     g_windowName = true;
     g_windowTypeMap.clear();
+
+    g_windows = QVector<Window>(clientListNumberOfWindows);
     for (int w = 0; w < clientListNumberOfWindows; w++) {
         QVector<Atom> types(1);
         types[0] = ATOM_TYPE_NORMAL;
         g_windowTypeMap[w] = types;
+
+        g_windows[w] = w;
     }
     // Add non-application windows
     g_windowTypeMap[INVALID_WINDOWS + APPLICATION_WINDOWS + 0][0] = ATOM_TYPE_DESKTOP;
@@ -609,8 +617,38 @@ void Ut_HomeApplication::testX11EventFilterWithClientMessage()
     
     // There should be 2 windows in the window list
     QCOMPARE(r.windowList.count(), APPLICATION_WINDOWS - 1);
+}
 
-    
+void Ut_HomeApplication::testWindowStackingOrder()
+{
+    WindowListReceiver r;
+    connect(m_subject, SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), &r, SLOT(stackingWindowListUpdated(const QList<WindowInfo> &)));
+
+    XEvent event;
+    event.xproperty.atom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_CLIENT_LIST_STACKING", False);
+    event.xproperty.window = DefaultRootWindow(QX11Info::display());
+    event.type = PropertyNotify;
+    QVERIFY(m_subject->testX11EventFilter(&event));
+
+    QCOMPARE(r.stackingCount, 1);
+    QCOMPARE(r.stackingWindowList.count(), VALID_WINDOWS);
+
+    WindowInfo first = r.stackingWindowList.first();
+    WindowInfo last = r.stackingWindowList.last();
+
+    QCOMPARE(first.window(), (unsigned long)(INVALID_WINDOWS));
+    QCOMPARE(last.window(), (unsigned long)g_windows.count() - 1);
+
+    Window tmp = g_windows[INVALID_WINDOWS];
+    g_windows[INVALID_WINDOWS] = g_windows.last();
+    g_windows[g_windows.count() - 1] = tmp;
+
+    QVERIFY(m_subject->testX11EventFilter(&event));
+    QCOMPARE(r.stackingCount, 2);
+    QCOMPARE(r.stackingWindowList.count(), VALID_WINDOWS);
+
+    QCOMPARE(first.window(), r.stackingWindowList.last().window());
+    QCOMPARE(last.window(), r.stackingWindowList.first().window());
 }
 
 /*

@@ -80,6 +80,7 @@ private slots:
     void testUpdatingLauncherVisibilityWithNotificationOnTop();
     void testUpdatingLauncherVisibilityWithStatusIndicatorMenuOnTop();
     void testUpdatingLauncherVisibilityWithDialogOnTop();
+    void testUpdatingLauncherVisibilityWithDesktopOnTop();
     void verifyLauncherVisibility(int topMostWindowId, bool shouldBeVisible);
     // Test showing launcher when showLauncherAndPanToPage is called
     void testShowLauncherAndPanToPageWithCorrectDesktopFile();
@@ -94,7 +95,7 @@ public:
 
 signals:
 
-    void windowListUpdated(const QList<WindowInfo> &);
+    void windowStackingOrderChanged(const QList<WindowInfo> &);
 
 
 private:

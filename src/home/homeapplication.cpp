@@ -228,8 +228,8 @@ void HomeApplication::updateWindowMapping()
                                                 &actualType, &actualFormat, &numWindowItems, &bytesLeft, &windowData);
 
     if (result == Success && windowData != None) {
-        // We need to keep the stacking order of the windows-> hence the list
-        QSet<Window> newWindowSet;
+        // We need to keep the stacking order of the windows -> hence the list
+        QList<Window> newWindowList;
         Window *wins = (Window *)windowData;
         for (unsigned int i = 0; i < numWindowItems; i++) {
             result = X11Wrapper::XGetWindowAttributes(dpy, wins[i], &wAttributes);
@@ -238,10 +238,10 @@ void HomeApplication::updateWindowMapping()
                 wAttributes.width > 0 && wAttributes.height > 0 && 
                 wAttributes.c_class == InputOutput && 
                 wAttributes.map_state != IsUnmapped) {
-                newWindowSet.insert(wins[i]);
+                newWindowList.append(wins[i]);
             }
         }
-        newWindowSet -= windowsBeingClosed;
+        QSet<Window> newWindowSet = newWindowList.toSet() - windowsBeingClosed;
 
         QSet<Window> oldWindowSet = windowMap.keys().toSet();
 
@@ -256,6 +256,14 @@ void HomeApplication::updateWindowMapping()
             emit windowListUpdated(applicationWindows);
         }
         windowsBeingClosed -= closedWindowSet;
+
+        QList<WindowInfo> stackingWindowList;
+        foreach (Window w, newWindowList) {
+            if (!windowsBeingClosed.contains(w)) {
+                stackingWindowList.append(windowMap.value(w));
+            }
+        }
+        emit windowStackingOrderChanged(stackingWindowList);
     }
 }
 

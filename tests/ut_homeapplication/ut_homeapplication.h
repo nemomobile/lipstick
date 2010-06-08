@@ -31,9 +31,11 @@ class WindowListReceiver : public QObject
     Q_OBJECT
 
 public:
-    WindowListReceiver() : count(0) { }
+    WindowListReceiver() : count(0), stackingCount(0) { }
     QList<WindowInfo> windowList;
+    QList<WindowInfo> stackingWindowList;
     int count;
+    int stackingCount;
     
     QPair<Window, QString> changedTitle;
 
@@ -42,6 +44,11 @@ private slots:
     void windowListUpdated(const QList<WindowInfo> &windowList) {
         this->windowList = windowList;
         this->count++;
+    }
+
+    void stackingWindowListUpdated(const QList<WindowInfo> &windowList) {
+        this->stackingWindowList = windowList;
+        this->stackingCount++;
     }
 
     void changeWindowTitle(Window w, const QString &title)
@@ -101,6 +108,9 @@ private slots:
     void testX11EventFilterWithVisibilityNotify();
     // Test X11EventFilter with ClientMessage events
     void testX11EventFilterWithClientMessage();
+    // Test the stacking order signal
+    void testWindowStackingOrder();
+
     // Test content search service launch
     //void testContentSearchLaunch();
     // Test content search service launch without service framework

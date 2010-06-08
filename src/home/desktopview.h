@@ -169,11 +169,6 @@ private:
 
     //! A list of desktop background extensions
     QList<MDesktopBackgroundExtensionInterface*> backgroundExtensions;
-    
-    /*!
-     * The laucher should be closed when the application window count changes.
-     */
-    int appWindowCount;
 
 #ifdef UNIT_TEST
     friend class Ut_DesktopView;

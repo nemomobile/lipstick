@@ -64,7 +64,8 @@ Atom X11Wrapper::XInternAtom(Display *, const char *atom_name, Bool)
 #define ATOM_TYPE_NOTIFICATION 2
 #define ATOM_TYPE_MENU 3
 #define ATOM_TYPE_DIALOG 4
-#define ATOM_TYPE_DEFAULT 5
+#define ATOM_TYPE_DESKTOP 5
+#define ATOM_TYPE_DEFAULT 6
 
     if (strcmp(atom_name, "_NET_WM_WINDOW_TYPE_NORMAL") == 0) {
         return ATOM_TYPE_NORMAL;
@@ -74,6 +75,8 @@ Atom X11Wrapper::XInternAtom(Display *, const char *atom_name, Bool)
         return ATOM_TYPE_MENU;
     } else if (strcmp(atom_name, "_NET_WM_WINDOW_TYPE_DIALOG") == 0) {
         return ATOM_TYPE_DIALOG;
+    } else if (strcmp(atom_name, "_NET_WM_WINDOW_TYPE_DESKTOP") == 0) {
+        return ATOM_TYPE_DESKTOP;
     } else {
         return ATOM_TYPE_DEFAULT;
     }
@@ -324,7 +327,7 @@ void Ut_DesktopView::init()
     desktopView = new TestDesktopView(desktop);
     desktop->setView(desktopView);
     desktopView->modifiableStyle()->setDesktopBackgroundImage(backgroundImage);
-    connect(this, SIGNAL(windowListUpdated(const QList<WindowInfo> &)),
+    connect(this, SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)),
             desktopView, SLOT(updateLauncherVisiblity(const QList<WindowInfo> &)));
     // For QWidget activateWindow() and raise() stubs
     windowRaised = false;
@@ -376,6 +379,11 @@ void Ut_DesktopView::testUpdatingLauncherVisibilityWithDialogOnTop()
     verifyLauncherVisibility(4, true);
 }
 
+void Ut_DesktopView::testUpdatingLauncherVisibilityWithDesktopOnTop()
+{
+    verifyLauncherVisibility(0xfeedbeef, true);
+}
+
 void Ut_DesktopView::verifyLauncherVisibility(int topMostWindowId, bool shouldBeVisible)
 {
     desktopView->showLauncher();
@@ -385,7 +393,8 @@ void Ut_DesktopView::verifyLauncherVisibility(int topMostWindowId, bool shouldBe
 
     QList<WindowInfo> windowList;
     windowList.append(WindowInfo(topMostWindowId));
-    emit windowListUpdated(windowList);
+    emit windowStackingOrderChanged(windowList);
+
     if (!shouldBeVisible) {
         QVERIFY(!gQGraphicsItemIsEnabled);
         QCOMPARE(1, gMSceneManagerStub->stubCallCount("disappearSceneWindow"));
