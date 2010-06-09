@@ -83,6 +83,7 @@ void SwitcherButtonView::drawBackground(QPainter *painter, const QStyleOptionGra
 {
     // Store the painter state
     painter->save();
+    painter->setRenderHint(QPainter::SmoothPixmapTransform);
 
     // Rotate the thumbnails and adjust their size if the screen
     // has been rotated
