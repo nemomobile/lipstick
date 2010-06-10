@@ -28,7 +28,8 @@ LauncherButton::LauncherButton(MWidget *parent) : MButton(parent, new LauncherBu
     connect(this, SIGNAL(clicked()), this, SLOT(launch()));
 }
 
-LauncherButton::LauncherButton(const QString &desktopEntryPath, MWidget *parent) : MButton(parent, new LauncherButtonModel)
+LauncherButton::LauncherButton(const QString &desktopEntryPath, MWidget *parent) :
+        MButton(parent, new LauncherButtonModel)
 {
     // Connect the button clicked signal to launch application slot.
     connect(this, SIGNAL(clicked()), this, SLOT(launch()));
@@ -62,7 +63,7 @@ QString LauncherButton::target() const
 
 QString LauncherButton::desktopEntry() const
 {
-    return model()->desktopEntryFile();
+    return model()->desktopEntry()->fileName();
 }
 
 void LauncherButton::launch()
@@ -74,39 +75,57 @@ void LauncherButton::launch()
     }
 }
 
+void LauncherButton::retranslateUi()
+{
+    if (!model()->desktopEntry().isNull()) {
+        setText(model()->desktopEntry()->name());
+    }
+    MButton::retranslateUi();
+}
+
 void LauncherButton::updateFromDesktopEntry(const QString &desktopEntryPath)
 {
     // only update if not initialized yet or if from the same desktop entry
-    if (model()->desktopEntryFile().isEmpty() || desktopEntryPath == model()->desktopEntryFile()) {
-        MDesktopEntry entry(desktopEntryPath);
-        setTargetType(entry.type());
-        setText(entry.name());
+    if (model()->desktopEntry().isNull()
+        || desktopEntryPath == model()->desktopEntry()->fileName()) {
 
-        if (!entry.icon().isEmpty()) {
-            if (QFileInfo(entry.icon()).isAbsolute()) {
-                setIcon(QIcon(entry.icon()));
-            } else {
-                setIconID(entry.icon());
-            }
+        QSharedPointer<MDesktopEntry> entry(new MDesktopEntry(desktopEntryPath));
+
+        setTargetType(entry->type());
+        setText(entry->name());
+
+        updateIcon(entry);
+        updateTarget(entry);
+
+        model()->setDesktopEntry(entry);
+    }
+}
+
+void LauncherButton::updateIcon(QSharedPointer<MDesktopEntry> &entry)
+{
+    if (!entry->icon().isEmpty()) {
+        if (QFileInfo(entry->icon()).isAbsolute()) {
+            setIcon(QIcon(entry->icon()));
         } else {
-            // FIXME: change to use correct default icon id when available
-            // as incorrect id icon-Application-Default will load default icon
-            // (at the moment default icon seems to be icon-l-video)
-            setIconID("icon-Application-Default");
+            setIconID(entry->icon());
         }
+    } else {
+        // FIXME: change to use correct default icon id when available
+        // as incorrect id icon-Application-Default will load default icon
+        // (at the moment default icon seems to be icon-l-video)
+        setIconID("icon-Application-Default");
+    }
+}
 
-        // Set target based on type
-        if (entry.type() == "Application") {
-            QString thisXMaemoService = entry.xMaemoService();
-
-            if (thisXMaemoService.isEmpty()) {
-                setTarget(entry.exec());
-            } else {
-                setTarget(thisXMaemoService);
-                setTargetType("Service");
-            }
+void LauncherButton::updateTarget(QSharedPointer<MDesktopEntry> &entry)
+{
+    if (entry->type() == "Application") {
+        QString thisXMaemoService = entry->xMaemoService();
+        if (thisXMaemoService.isEmpty()) {
+            setTarget(entry->exec());
+        } else {
+            setTarget(thisXMaemoService);
+            setTargetType("Service");
         }
-
-        model()->setDesktopEntryFile(entry.fileName());
     }
 }

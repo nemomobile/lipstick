@@ -21,16 +21,18 @@
 #define LAUNCHERBUTTONMODEL_H_
 
 #include <mbuttonmodel.h>
+#include <MDesktopEntry>
 
 class LauncherButtonModel : public MButtonModel
 {
+private:
     Q_OBJECT
     M_MODEL(LauncherButtonModel)
     M_MODEL_PROPERTY(QString, targetType, TargetType, true, QString())
     M_MODEL_PROPERTY(QString, target, Target, true, QString())
 
-    //! Desktop entry file that launcher button is representing
-    M_MODEL_PROPERTY(QString, desktopEntryFile, DesktopEntryFile, true, QString())
+    //! Desktop entry that launcher button is representing
+    M_MODEL_PROPERTY(QSharedPointer<MDesktopEntry>, desktopEntry, DesktopEntry, true, QSharedPointer<MDesktopEntry>())
 };
 
 #endif /* LAUNCHERBUTTONMODEL_H_ */

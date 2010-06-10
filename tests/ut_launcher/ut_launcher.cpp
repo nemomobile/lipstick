@@ -29,6 +29,8 @@
 #include "launcherpagemodel.h"
 #include "mockdatastore.h"
 
+
+
 // LauncherButton stubs
 LauncherButton::LauncherButton(MWidget *parent) : MButton(parent, new LauncherButtonModel) {}
 LauncherButton::LauncherButton(const QString&, MWidget*parent) : MButton(parent, new LauncherButtonModel) {}
@@ -50,6 +52,11 @@ void LauncherButton::updateFromDesktopEntry(const QString &)
 
 void LauncherButton::launch()
 {
+}
+
+void LauncherButton::retranslateUi()
+{
+
 }
 
 void QDBusPendingReplyData::setMetaTypes(int, int const *)

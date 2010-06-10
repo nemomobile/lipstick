@@ -19,7 +19,9 @@ class LauncherButtonStub : public StubBase {
   virtual QString desktopEntry() const;
   virtual void launch();
   virtual void updateFromDesktopEntry(const QString &entry);
+  virtual void retranslateUi();
 }; 
+
 
 // 2. IMPLEMENT STUB
 void LauncherButtonStub::LauncherButtonConstructor(MWidget *parent) {
@@ -71,6 +73,11 @@ void LauncherButtonStub::updateFromDesktopEntry(const QString &entry) {
   stubMethodEntered("updateFromDesktopEntry",params);
 }
 
+void LauncherButtonStub::retranslateUi()
+{
+  stubMethodEntered("retranslateUi");
+}
+
 
 // 3. CREATE A STUB INSTANCE
 LauncherButtonStub gDefaultLauncherButtonStub;
@@ -116,6 +123,11 @@ void LauncherButton::launch() {
 
 void LauncherButton::updateFromDesktopEntry(const QString &entry) {
     gLauncherButtonStub->updateFromDesktopEntry(entry);
+}
+
+void LauncherButton::retranslateUi()
+{
+    gLauncherButtonStub->retranslateUi();
 }
 
 #endif

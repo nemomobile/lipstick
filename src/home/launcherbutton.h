@@ -104,6 +104,11 @@ public:
      */
     void updateFromDesktopEntry(const QString &desktopEntryPath);
 
+    /*!
+     * Handles the language change notification and propagets is to MButton.
+     */
+    void retranslateUi();
+
 private slots:
     /*!
      * Attempts to launch the configured application.
@@ -124,6 +129,10 @@ signals:
      * \param service the name of the dbus service to launch
      */
     void mApplicationLaunched(const QString &service);
+
+private:
+    void updateIcon(QSharedPointer<MDesktopEntry> &entry);
+    void updateTarget(QSharedPointer<MDesktopEntry> &entry);
 };
 
 #endif /* MLAUNCHAPPBUTTON_H */

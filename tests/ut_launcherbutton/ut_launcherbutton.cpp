@@ -29,8 +29,10 @@ QMap<const MDesktopEntry *, QString> desktopEntryFileName;
 QMap<QString, QString> desktopEntryType;
 QMap<QString, QString> desktopEntryXMaemoService;
 QMap<QString, QString> desktopEntryName;
+QMap<QString, QString> desktopEntryNameOtherLang;
 QMap<QString, QString> desktopEntryIcon;
 QMap<QString, QString> desktopEntryExec;
+QString language;
 
 MDesktopEntry::MDesktopEntry(const QString &fileName) :
     d_ptr(NULL)
@@ -61,7 +63,11 @@ QString MDesktopEntry::xMaemoService() const
 
 QString MDesktopEntry::name() const
 {
-    return desktopEntryName.value(desktopEntryFileName.value(this));
+    if ("english" == language) {
+        return desktopEntryName.value(desktopEntryFileName.value(this));
+    } else  {
+        return desktopEntryNameOtherLang.value(desktopEntryFileName.value(this));
+    }
 }
 
 QString MDesktopEntry::icon() const
@@ -99,6 +105,7 @@ void Ut_LauncherButton::cleanupTestCase()
 
 void Ut_LauncherButton::init()
 {
+    desktopEntryNameOtherLang.clear();
     desktopEntryFileName.clear();
     desktopEntryType.clear();
     desktopEntryXMaemoService.clear();
@@ -106,6 +113,7 @@ void Ut_LauncherButton::init()
     desktopEntryIcon.clear();
     desktopEntryExec.clear();
     iconFileName.clear();
+    language = "english";
     m_subject = new LauncherButton();
     connect(this, SIGNAL(clicked()), m_subject, SLOT(launch()));
 }
@@ -123,6 +131,7 @@ void Ut_LauncherButton::testInitialization()
     desktopEntryName.insert("/dev/null", "name");
     desktopEntryIcon.insert("/dev/null", "icon");
     desktopEntryExec.insert("/dev/null", "exec");
+
 
     m_subject = new LauncherButton("/dev/null");
     QCOMPARE(m_subject->targetType(), QString("Application"));
@@ -170,6 +179,29 @@ void Ut_LauncherButton::testLaunchMApplication()
     emit clicked();
     QCOMPARE(gLauncherStub->stubCallCount("startMApplication"), 1);
     QCOMPARE(gLauncherStub->stubLastCallTo("startMApplication").parameter<QString>(0), m_subject->target());
+}
+
+void Ut_LauncherButton::testLanguageChange()
+{
+    delete m_subject;
+
+    desktopEntryType.insert("/dev/null", "Application");
+    desktopEntryName.insert("/dev/null", "name");
+    desktopEntryNameOtherLang.insert("/dev/null", "other_lang_name");
+    desktopEntryIcon.insert("/dev/null", "icon");
+    desktopEntryExec.insert("/dev/null", "exec");
+
+    m_subject = new LauncherButton("/dev/null");
+    QCOMPARE(m_subject->targetType(), QString("Application"));
+    QCOMPARE(m_subject->text(), QString("name"));
+    QCOMPARE(m_subject->iconID(), QString("icon"));
+    QCOMPARE(m_subject->target(), QString("exec"));
+    language = "otherlang";
+    m_subject->retranslateUi();
+    QCOMPARE(m_subject->targetType(), QString("Application"));
+    QCOMPARE(m_subject->text(), QString("other_lang_name"));
+    QCOMPARE(m_subject->iconID(), QString("icon"));
+    QCOMPARE(m_subject->target(), QString("exec"));
 }
 
 QTEST_APPLESS_MAIN(Ut_LauncherButton)

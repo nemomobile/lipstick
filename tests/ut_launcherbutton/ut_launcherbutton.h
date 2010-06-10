@@ -45,6 +45,7 @@ private slots:
     void testInitializationAbsoluteIcon();
     void testLaunchApplication();
     void testLaunchMApplication();
+    void testLanguageChange();
 
 signals:
     void clicked();

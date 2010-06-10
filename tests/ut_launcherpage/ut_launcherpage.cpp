@@ -45,6 +45,11 @@ void LauncherButton::launch()
 {
 }
 
+void LauncherButton::retranslateUi()
+{
+    return;
+}
+
 void Ut_LauncherPage::initTestCase()
 {
     static int argc = 1;
@@ -126,7 +131,7 @@ void Ut_LauncherPage::testUpdateButton()
 static QSharedPointer<LauncherButton> createLauncherButton(QString desktopFileName)
 {
     QSharedPointer<LauncherButton> button(new LauncherButton);
-    button.data()->setObjectName(desktopFileName);
+    button->setObjectName(desktopFileName);
     return button;
 }
 
