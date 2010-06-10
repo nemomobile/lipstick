@@ -81,14 +81,27 @@ QString MDesktopEntry::exec() const
 }
 
 // QIcon stubs
-QString iconFileName;
+QString qIconFileName;
 QIcon::QIcon(const QString &fileName)
 {
-    iconFileName = fileName;
+    qIconFileName = fileName;
 }
 
 QIcon::~QIcon()
 {
+}
+
+bool qIconHasThemeIcon = false;
+bool QIcon::hasThemeIcon(const QString &name)
+{
+    return qIconHasThemeIcon;
+}
+
+QString qIconName;
+QIcon QIcon::fromTheme(const QString &name, const QIcon &fallback)
+{
+    qIconName = name;
+    return fallback;
 }
 
 void Ut_LauncherButton::initTestCase()
@@ -105,6 +118,7 @@ void Ut_LauncherButton::cleanupTestCase()
 
 void Ut_LauncherButton::init()
 {
+    language = "english";
     desktopEntryNameOtherLang.clear();
     desktopEntryFileName.clear();
     desktopEntryType.clear();
@@ -112,8 +126,9 @@ void Ut_LauncherButton::init()
     desktopEntryName.clear();
     desktopEntryIcon.clear();
     desktopEntryExec.clear();
-    iconFileName.clear();
-    language = "english";
+    qIconFileName.clear();
+    qIconName.clear();
+    qIconHasThemeIcon = false;
     m_subject = new LauncherButton();
     connect(this, SIGNAL(clicked()), m_subject, SLOT(launch()));
 }
@@ -160,7 +175,19 @@ void Ut_LauncherButton::testInitializationAbsoluteIcon()
 
     m_subject = new LauncherButton("/dev/null");
     QCOMPARE(m_subject->iconID(), QString());
-    QCOMPARE(iconFileName, QString("/icon"));
+    QCOMPARE(qIconFileName, QString("/icon"));
+}
+
+void Ut_LauncherButton::testInitializationFreeDesktopIcon()
+{
+    delete m_subject;
+
+    desktopEntryIcon.insert("/dev/null", "icon");
+    qIconHasThemeIcon = true;
+
+    m_subject = new LauncherButton("/dev/null");
+    QCOMPARE(m_subject->iconID(), QString());
+    QCOMPARE(qIconName, QString("icon"));
 }
 
 void Ut_LauncherButton::testLaunchApplication()

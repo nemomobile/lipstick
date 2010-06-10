@@ -43,6 +43,7 @@ private slots:
     void testInitialization();
     void testInitializationXMaemoService();
     void testInitializationAbsoluteIcon();
+    void testInitializationFreeDesktopIcon();
     void testLaunchApplication();
     void testLaunchMApplication();
     void testLanguageChange();

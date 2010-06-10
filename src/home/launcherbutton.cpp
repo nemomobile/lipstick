@@ -105,9 +105,13 @@ void LauncherButton::updateIcon(QSharedPointer<MDesktopEntry> &entry)
 {
     if (!entry->icon().isEmpty()) {
         if (QFileInfo(entry->icon()).isAbsolute()) {
-            setIcon(QIcon(entry->icon()));
+            setIcon(QIcon(entry.icon()));
         } else {
-            setIconID(entry->icon());
+            if (QIcon::hasThemeIcon(entry->icon())) {
+                setIcon(QIcon::fromTheme(entry->icon()));
+            } else {
+                setIconID(entry->icon());
+            }
         }
     } else {
         // FIXME: change to use correct default icon id when available
