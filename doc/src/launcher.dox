@@ -12,7 +12,7 @@ Each desktop entry file must define the \e Name, \e Type, \e Exec and \e Icon ke
 
 The \e Type must be set to \e Application.
 
-The \e Icon must specify an icon id that is used to represent the application in the main menu.
+The \e Icon must specify the absolute path or ID of the icon that is used to represent the application in the main menu. If an icon ID is used the icon will first be located as described in the <a href="http://freedesktop.org/wiki/Standards/icon-theme-spec">Icon Theme Specification</a>. If an icon with the given ID is not found from those locations the icon is taken from the MeeGo Touch theme with the given ID. 
 
 The \e Name must be set to the unlocalized application name. You can however also provide localized application names. See \c MDesktopEntry documentation how to define localized names.
 

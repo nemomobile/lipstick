@@ -263,17 +263,21 @@ QuickLaunchBarStyle {
 
 MButtonIconStyle#QuickLaunchBarButton {
     font: $FONT_SMALL;
-    text-color: #ffffff;
-    margin-left: 0.6mm;
-    margin-right: 0.6mm;
-    margin-top: 0.6mm;
-    margin-bottom: 0.6mm;
+    text-color: $COLOR_INVERTED_FOREGROUND;
+
+    margin-left: $MARGIN_DOUBLE;
+    margin-right: $MARGIN_DOUBLE;
+    margin-top: $MARGIN_DOUBLE;
+    margin-bottom: $MARGIN_DOUBLE;
+
     preferred-size: 6.4mm 12.6mm;
     minimum-size: 6.4mm 12.6mm;
     maximum-size: 6.4mm 12.6mm;
 
     press-feedback: press;
     release-feedback: release;
+
+    icon-size: $SIZE_ICON_LARGE $SIZE_ICON_LARGE;
 }
 
 SwitcherStyle {
