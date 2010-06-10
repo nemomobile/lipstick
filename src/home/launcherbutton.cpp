@@ -105,7 +105,7 @@ void LauncherButton::updateIcon(QSharedPointer<MDesktopEntry> &entry)
 {
     if (!entry->icon().isEmpty()) {
         if (QFileInfo(entry->icon()).isAbsolute()) {
-            setIcon(QIcon(entry.icon()));
+            setIcon(QIcon(entry->icon()));
         } else {
             if (QIcon::hasThemeIcon(entry->icon())) {
                 setIcon(QIcon::fromTheme(entry->icon()));
