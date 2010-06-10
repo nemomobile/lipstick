@@ -277,7 +277,7 @@ MButtonIconStyle#QuickLaunchBarButton {
     press-feedback: press;
     release-feedback: release;
 
-    icon-size: $SIZE_ICON_LARGE $SIZE_ICON_LARGE
+    icon-size: $SIZE_ICON_LARGE $SIZE_ICON_LARGE;
 }
 
 SwitcherStyle {
