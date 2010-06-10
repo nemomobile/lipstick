@@ -18,9 +18,22 @@
 ****************************************************************************/
 
 #include <QtTest/QtTest>
+#include <QImageReader>
 #include <MTheme>
 #include "ut_plaindesktopbackgroundpixmap.h"
 #include "plaindesktopbackgroundpixmap.h"
+
+bool qImageReaderCanRead;
+bool QImageReader::canRead() const
+{
+    return qImageReaderCanRead;
+}
+
+QSize qImageReaderSize;
+QSize QImageReader::size() const
+{
+    return qImageReaderSize;
+}
 
 QString QPixmapLoadFileName;
 bool QPixmapLoadReturnValue;
@@ -56,6 +69,8 @@ void Ut_PlainDesktopBackgroundPixmap::cleanupTestCase()
 void Ut_PlainDesktopBackgroundPixmap::init()
 {
     MThemePixmapReturnValue = MThemePixmapDefaultValue;
+    qImageReaderCanRead = true;
+    qImageReaderSize = QSize(50, 50);
 }
 
 void Ut_PlainDesktopBackgroundPixmap::cleanup()
@@ -86,6 +101,40 @@ void Ut_PlainDesktopBackgroundPixmap::testConstructingFromFileFails()
     QPixmap expectedPixmap(50, 50);
     MThemePixmapReturnValue = &expectedPixmap;
     QPixmapLoadReturnValue = false;
+
+    PlainDesktopBackgroundPixmap pixmap("/tmp/file.png", expectedName, 0);
+    QCOMPARE(pixmap.pixmapFromFile_.isNull(), true);
+    QCOMPARE(pixmap.pixmapFromTheme_, &expectedPixmap);
+    QCOMPARE(MThemePixmapId, expectedName);
+    QCOMPARE(pixmap.pixmap(), pixmap.pixmapFromTheme_);
+
+    checkBlurredPixmap(pixmap);
+}
+
+void Ut_PlainDesktopBackgroundPixmap::testConstructingFromFileFailsBecauseCantRead()
+{
+    QString expectedName("test");
+    QPixmap expectedPixmap(50, 50);
+    MThemePixmapReturnValue = &expectedPixmap;
+    QPixmapLoadReturnValue = true;
+    qImageReaderCanRead = false;
+
+    PlainDesktopBackgroundPixmap pixmap("/tmp/file.png", expectedName, 0);
+    QCOMPARE(pixmap.pixmapFromFile_.isNull(), true);
+    QCOMPARE(pixmap.pixmapFromTheme_, &expectedPixmap);
+    QCOMPARE(MThemePixmapId, expectedName);
+    QCOMPARE(pixmap.pixmap(), pixmap.pixmapFromTheme_);
+
+    checkBlurredPixmap(pixmap);
+}
+
+void Ut_PlainDesktopBackgroundPixmap::testConstructingFromFileFailsBecauseOfSize()
+{
+    QString expectedName("test");
+    QPixmap expectedPixmap(50, 50);
+    MThemePixmapReturnValue = &expectedPixmap;
+    QPixmapLoadReturnValue = true;
+    qImageReaderSize = QSize(5000, 5000);
 
     PlainDesktopBackgroundPixmap pixmap("/tmp/file.png", expectedName, 0);
     QCOMPARE(pixmap.pixmapFromFile_.isNull(), true);

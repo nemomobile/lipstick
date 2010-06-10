@@ -4,7 +4,8 @@ duihome (0.21.10~1) unstable; urgency=low
   * Implemented: SWP#DUI-2666 Verify the UI flow when exiting and re-entering homescreen views
   * Implemented: SWP#DUI-3013 Optimize switcher update when new windows are created, old ones are removed or windows update
   * Fixes: NB#173173 Launcher view switch needs too much panning. Panning paramteres have now been tuned as required by UI designers
-  * Fixes: NB#168403 -  Shared QObjects being deleted directly in launcher code.
+  * Fixes: NB#168403 - Shared QObjects being deleted directly in launcher code.
+  * Fixes: NB#173280 - Set wallpaper with large resolution image cause phone freeze
 
  -- Vesa Halttunen <vesa.halttunen@nokia.com>  Mon, 07 Jun 2010 11:11:00 +0300
 

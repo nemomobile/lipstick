@@ -7,6 +7,9 @@
 - Home screen provides the corrent UI flow.
 - New switcher buttons are added after a slight delay to speed up application startup.
 
+\subsection bugs Bugs fixed
+- Too large background images crashed the home screen
+
 \section v0219 0.21.9
 
 \subsection New

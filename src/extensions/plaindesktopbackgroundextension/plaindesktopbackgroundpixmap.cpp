@@ -18,11 +18,15 @@
 ****************************************************************************/
 
 #include <QPainter>
+#include <QImageReader>
 #include <QGraphicsScene>
 #include <QGraphicsPixmapItem>
 #include <QGraphicsBlurEffect>
 #include <MTheme>
 #include "plaindesktopbackgroundpixmap.h"
+
+static const int PIXMAP_WIDTH_MAX = 2048;
+static const int PIXMAP_HEIGHT_MAX = 2048;
 
 PlainDesktopBackgroundPixmap::PlainDesktopBackgroundPixmap(const QString &name, const QString &defaultName, int blurRadius) :
         blurRadius_(blurRadius),
@@ -30,8 +34,19 @@ PlainDesktopBackgroundPixmap::PlainDesktopBackgroundPixmap(const QString &name, 
 {
     if (name.startsWith('/')) {
         // Absolute path: Load from a file
-        pixmapFromFile_ = QSharedPointer<QPixmap>(new QPixmap);
-        if (pixmapFromFile_->load(name)) {
+        bool success = false;
+
+        QImageReader imageReader(name);
+        if (imageReader.canRead()) {
+            QSize size = imageReader.size();
+            if (size.height() <= PIXMAP_HEIGHT_MAX && size.width() <= PIXMAP_WIDTH_MAX) {
+                // Only load the pixmap if it's not too big
+                pixmapFromFile_ = QSharedPointer<QPixmap>(new QPixmap);
+                success = pixmapFromFile_->load(name);
+            }
+        }
+
+        if (success) {
             // Loading succeeded
             pixmapName_ = name;
         } else {

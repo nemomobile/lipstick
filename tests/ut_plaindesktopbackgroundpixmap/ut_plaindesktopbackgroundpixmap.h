@@ -39,6 +39,8 @@ private slots:
     // Test cases
     void testConstructingFromFile();
     void testConstructingFromFileFails();
+    void testConstructingFromFileFailsBecauseCantRead();
+    void testConstructingFromFileFailsBecauseOfSize();
     void testConstructingFromTheme();
     void testConstructingFromThemeIsDelayed();
     void testConstructingFromEmptyName();
