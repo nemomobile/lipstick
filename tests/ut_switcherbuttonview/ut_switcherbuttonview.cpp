@@ -97,6 +97,10 @@ bool Ut_SwitcherButtonView::xCompositeNameWindowPixmapCausesBadMatch = false;
 XErrorHandler Ut_SwitcherButtonView::xErrorHandler = NULL;
 bool Ut_SwitcherButtonView::damageCreated = false;
 unsigned long Ut_SwitcherButtonView::damageHandle = 0;
+Display *Ut_SwitcherButtonView::damageDisplay = NULL;
+bool Ut_SwitcherButtonView::damageSubtracted = false;
+unsigned long Ut_SwitcherButtonView::damageSubtractHandle = NULL;
+Display *Ut_SwitcherButtonView::damageSubtractDisplay = NULL;
 
 XErrorHandler X11Wrapper::XSetErrorHandler(XErrorHandler handler)
 {
@@ -123,10 +127,11 @@ int X11Wrapper::XFreePixmap(Display *, Pixmap pixmap)
     return Ut_SwitcherButtonView::allocatedPixmaps.removeOne(pixmap) ? 0 : BadPixmap;
 }
 
-Damage X11Wrapper::XDamageCreate(Display *, Drawable drawable, int)
+Damage X11Wrapper::XDamageCreate(Display *dpy, Drawable drawable, int)
 {
     Ut_SwitcherButtonView::damageCreated = true;
     Ut_SwitcherButtonView::damageHandle = drawable;
+    Ut_SwitcherButtonView::damageDisplay = dpy;
     return Ut_SwitcherButtonView::damageHandle;
 }
 
@@ -141,6 +146,13 @@ void X11Wrapper::XDamageDestroy(Display *, Damage damage)
 int X11Wrapper::XSync(Display *, Bool)
 {
     return 0;
+}
+
+void X11Wrapper::XDamageSubtract(Display *dpy, Damage damage, XserverRegion, XserverRegion)
+{
+    Ut_SwitcherButtonView::damageSubtracted = true;
+    Ut_SwitcherButtonView::damageSubtractHandle = damage;
+    Ut_SwitcherButtonView::damageSubtractDisplay = dpy;
 }
 
 // QTimeLine stubs (used by SwitcherButton)
@@ -298,6 +310,11 @@ void Ut_SwitcherButtonView::init()
     painterText.clear();
     painterTextOpacity = 0;
     viewUpdateCalled = false;
+    damageDisplay = NULL;
+    damageSubtracted = false;
+    damageSubtractHandle = NULL;
+    damageSubtractDisplay = NULL;
+
 }
 
 void Ut_SwitcherButtonView::cleanup()
@@ -392,15 +409,6 @@ void Ut_SwitcherButtonView::testXWindow()
     QCOMPARE(damageCreated, true);
 }
 
-void Ut_SwitcherButtonView::testXWindowWithXError()
-{
-    // When a composite error occurs setting an X window ID should cause the error handler to be called and no Damage created
-    xCompositeNameWindowPixmapCausesBadMatch = true;
-    button->model()->setXWindow(1);
-    QCOMPARE(allocatedPixmaps.count(), 0);
-    QCOMPARE(damageCreated, false);
-}
-
 void Ut_SwitcherButtonView::testTextOpacity()
 {
     QPainter painter;
@@ -465,6 +473,20 @@ void Ut_SwitcherButtonView::testEnterExitDisplay()
     button->emitDisplayExited();
     QVERIFY(!damageCreated);
     QCOMPARE(damageHandle, (unsigned long)0);
+}
+
+void Ut_SwitcherButtonView::testXDamageSubtractWhenDisplayEntered()
+{
+    // The damage is not created unless there is a window
+    button->model()->setXWindow(1);
+
+    button->emitDisplayEntered();
+
+    app->emitDamageEvent(damageHandle, 0, 0, 0, 0);
+
+    QVERIFY(damageSubtracted);
+    QCOMPARE(damageDisplay, damageSubtractDisplay);
+    QCOMPARE(damageHandle, damageSubtractHandle);
 }
 
 QTEST_APPLESS_MAIN(Ut_SwitcherButtonView)

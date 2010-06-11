@@ -98,3 +98,8 @@ Status X11Wrapper::XSendEvent(Display *display, Window w, Bool propagate, long e
 {
     return ::XSendEvent(display, w, propagate, event_mask, event_send);
 }
+
+void X11Wrapper::XDamageSubtract(Display *dpy, Damage damage, XserverRegion repair, XserverRegion parts)
+{
+    ::XDamageSubtract(dpy, damage, repair, parts);
+}

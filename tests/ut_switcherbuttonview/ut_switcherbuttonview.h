@@ -112,6 +112,12 @@ public:
     // Whether a Damage object has been created
     static bool damageCreated;
     static unsigned long damageHandle;
+    static Display *damageDisplay;
+
+    // Subtract parameters
+    static bool damageSubtracted;
+    static unsigned long damageSubtractHandle;
+    static Display *damageSubtractDisplay;
 
     // Main window
     static MainWindow *mainWindow;
@@ -153,12 +159,12 @@ private slots:
     void testClosingWithTimeout();
     void testClosingWithoutTimeout();
     void testXWindow();
-    void testXWindowWithXError();
     void testTextOpacity();
     void testViewModeChange();
     void testDamageEventForKnownDamage();
     void testDamageEventForUnknownDamage();
     void testEnterExitDisplay();
+    void testXDamageSubtractWhenDisplayEntered();
 };
 
 #endif //_UT_SWITCHERBUTTONVIEW_

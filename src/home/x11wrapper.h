@@ -45,6 +45,7 @@ public:
     static XErrorHandler XSetErrorHandler(XErrorHandler handler);
     static int XChangeProperty(Display *display, Window w, Atom property, Atom type, int format, int mode, unsigned char *data, int nelements);
     static Status XSendEvent(Display *display, Window w, Bool propagate, long event_mask, XEvent *event_send);
+    static void XDamageSubtract(Display *dpy, Damage damage, XserverRegion repair, XserverRegion parts);
 };
 
 #endif /* X11WRAPPER_H_ */
