@@ -317,10 +317,14 @@ void SwitcherButtonView::damageEvent(Qt::HANDLE &damage, short &x, short &y, uns
     Q_UNUSED(y);
     Q_UNUSED(width);
     Q_UNUSED(height);
+#ifdef Q_WS_X11
     if (xWindowPixmapDamage == damage) {
         X11Wrapper::XDamageSubtract(QX11Info::display(), xWindowPixmapDamage, NULL, NULL);
         update();
     }
+#else
+    Q_UNUSED(damage);
+#endif
 }
 
 void SwitcherButtonView::setOnDisplay()
@@ -339,7 +343,7 @@ void SwitcherButtonView::unsetOnDisplay()
 void SwitcherButtonView::createDamage()
 {
 #ifdef Q_WS_X11
-    if (onDisplay) {
+    if (onDisplay && model()->xWindow() != 0) {
         // Register the pixmap for XDamage events
         xWindowPixmapDamage = X11Wrapper::XDamageCreate(QX11Info::display(), model()->xWindow(), XDamageReportNonEmpty);
     }
