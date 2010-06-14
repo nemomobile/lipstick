@@ -105,7 +105,7 @@ void SwitcherView::animateDetailView(const QPointF &pannedPos)
     for (int i = 0; i < pannedLayout->count(); i++) {
         SwitcherButton* widget = dynamic_cast<SwitcherButton*> (pannedLayout->itemAt(i));
         widget->model()->setViewMode(SwitcherButtonModel::Medium);
-        QRectF widgetGeometry = widget->geometry();
+        QRectF widgetGeometry = widget->boundingRect();
 
         // Pre calculate some variables for speed and readability
         qreal center = pannedPos.x() + viewportWidthHalf;

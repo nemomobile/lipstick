@@ -26,6 +26,9 @@
 
 class SwitcherButton;
 class MButton;
+class MLayout;
+class MLinearLayoutPolicy;
+class MLabel;
 
 /*!
  * \class SwitcherButtonView
@@ -55,8 +58,10 @@ public:
     virtual void drawContents(QPainter *painter, const QStyleOptionGraphicsItem *option) const;
     virtual QRectF boundingRect() const;
     virtual void applyStyle();
-    void setGeometry(const QRectF &rect);
     //! \reimp_end
+
+    //! Returns the bounding rectangle of the thumbnail
+    QRectF thumbnailRect() const;
 
 protected slots:
     //! \reimp
@@ -103,16 +108,18 @@ protected:
      */
     virtual void updateXWindowPixmap();
 
+private:
+
+    //! Translates close button according to offset attributes in style.
+    void translateCloseButton();
+
+    //! Returns the thumbnail position in parent coordinates.
+    QPoint thumbnailPosition() const;
+
     /*! 
      * Updates the button style to reflect the current view mode.
      */
     void updateViewMode();
-
-    //! Returns the bounding rectangle of the icon (thumbnail)
-    QRectF iconRect() const;
-
-    //! Returns the bounding rectangle of the close button
-    QRectF closeRect() const;
 
     //! Returns the bounding rectangle of the window title
     QRectF titleRect() const;
@@ -146,8 +153,20 @@ protected:
     //! Button for closing the window
     MButton *closeButton;
 
+    //! Title label
+    MLabel *titleLabel;
+
     //! Whether the button is being displayed or not
     bool onDisplay;
+
+    //! Title bar layout
+    MLayout *titleBarLayout;
+    //! Policy for title bar layout
+    MLinearLayoutPolicy *titleBarPolicy;
+
+#ifdef UNIT_TEST
+    friend class Ut_SwitcherButtonView;
+#endif
 
     Q_DISABLE_COPY(SwitcherButtonView);
 };

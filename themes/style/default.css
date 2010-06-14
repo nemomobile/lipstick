@@ -369,23 +369,17 @@ SwitcherButtonStyle {
     padding-top: 0;
     padding-bottom: 0;
 
-    font: $FONT_DEFAULT;
-    text-color: #FFFFFF;
-
     press-feedback:;
     release-feedback:;
 
-    /* The opacity of the title */
-    text-opacity: 0;
-    /* The position of the icon relative to the top-left corner of the button */
-    icon-position: 0 0;
     /* The image to be drawn as the container for the button */
     container-image:;
 
     /* The close button icon */
     close-icon: ;
 
-    close-button-vertical-position: 0.0;
+    close-button-h-offset: 1.3mm;
+    close-button-v-offset: 1.3mm;
 }
 
 
@@ -397,14 +391,10 @@ MButtonIconStyle#CloseButtonOverview
 
     icon-size: 1.8mm 1.8mm;
 
-    /* icon aligned to right (48-18=30) */
-    /* icon-align: right; doesn't do the trick.. */
-    padding-left: 3.0mm;
-
     margin-top: 0;
     margin-bottom: 0;
     margin-left: 0;
-    margin-right: 0.3mm;
+    margin-right: 0;
 }
 
 MButtonIconStyle#CloseButtonDetailview
@@ -415,20 +405,14 @@ MButtonIconStyle#CloseButtonDetailview
 
     icon-size: $SIZE_ICON_DEFAULT $SIZE_ICON_DEFAULT;
 
-    /* icon aligned to right (48-32=16) */
-    /* icon-align: right; doesn't do the trick.. */
-    padding-left: 1.6mm;
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    margin-right: 0;
 }
 
 /* The default values for the switcher button in the overview mode */
 SwitcherButtonStyle#OverviewButton {
-    /* The amount of space around the label */
-    text-margin-bottom: 0.2mm;
-    text-margin-left: 0.1mm;
-    text-margin-right: 0.1mm;
-
-    text-opacity: 1.0;
-
     margin-bottom: 0;
     margin-left: 0;
     margin-right: 0;
@@ -439,77 +423,55 @@ SwitcherButtonStyle#OverviewButton {
     padding-right: 0;
     padding-top: 0;
 
-    /* -48/2 - (18 / 2) - 2 */
-    close-button-vertical-position: -3.5mm;
     close-icon: "icon-s-framework-close-thumbnail";
 }
 
 SwitcherButtonStyle#OverviewButton.Portrait:medium {
-    font: $FONT_XSMALL;
-
     preferred-size: 17.4mm 31.3mm;
     minimum-size: 17.4mm 31.3mm;
     maximum-size: 17.4mm 31.3mm;
-    icon-position: 0 3.2mm;
     icon-size: 17.4mm 28.0mm;
 
-    text-margin-top: 0.7mm;
-    text-margin-bottom: 0.7mm;
-    close-button-vertical-position: -4.0mm;
+    close-button-v-offset: 1.3mm;
+    close-button-h-offset: 1.3mm;
 }
 
 SwitcherButtonStyle#OverviewButton.Portrait:large {
-    font: $FONT_XSMALL;
-
     preferred-size: 21mm 37.8mm;
     minimum-size: 21mm 37.8mm;
     maximum-size: 21mm 37.8mm;
-    icon-position: 0 3.2mm;
     icon-size: 21mm 33.4mm;
 
-    text-margin-top: 0.7mm;
-    text-margin-bottom: 0.7mm;
-    close-button-vertical-position: -4.0mm;
+    close-button-v-offset: 1.3mm;
+    close-button-h-offset: 1.3mm;
 }
 
 SwitcherButtonStyle#OverviewButton.Landscape:medium {
-    font: $FONT_XSMALL;
-
     preferred-size: 21.8mm 12.1mm;
     minimum-size: 21.8mm 12.1mm;
     maximum-size: 21.8mm 12.1mm;
-    icon-position: 0 2.3mm;
     icon-size: 21.8mm 9.8mm;
 
-    text-margin-top: 0.25mm;
-    text-margin-bottom: 0.25mm;
-    close-button-vertical-position: -3.5mm;
+    close-button-v-offset: 1.3mm;
+    close-button-h-offset: 1.3mm;
 }
 
 SwitcherButtonStyle#OverviewButton.Landscape:large {
-    font: $FONT_XSMALL;
-
     preferred-size: 37.8mm 21mm;
     minimum-size: 37.8mm 21mm;
     maximum-size: 37.8mm 21mm;
-    icon-position: 0 2.3mm;
     icon-size: 37.8mm 16.6mm;
 
-    text-margin-top: 0.25mm;
-    text-margin-bottom: 0.25mm;
-    close-button-vertical-position: -3.5mm;
+    close-button-v-offset: 1.3mm;
+    close-button-h-offset: 1.3mm;
 }
 
 /*
   Switcher buttons in the detail viewmode
 */
 SwitcherButtonStyle#DetailviewButton {
-    /* The amount of space around the label */
-    text-margin-bottom: 0.5mm;
-    text-margin-left: 0.6mm;
-    text-margin-right: 0.6mm;
-
-    close-button-vertical-position: -3.6mm;
+    close-button-v-offset: 1.3mm;
+    close-button-h-offset: 1.3mm;
 }
 
 SwitcherButtonStyle#DetailviewButton.Portrait {
@@ -521,7 +483,6 @@ SwitcherButtonStyle#DetailviewButton.Portrait {
 }
 
 SwitcherButtonStyle#DetailviewButton.Portrait:large {
-    text-opacity: 1.0;
     close-icon: "icon-m-framework-close-thumbnail";
 }
 
@@ -534,9 +495,38 @@ SwitcherButtonStyle#DetailviewButton.Landscape {
 }
 
 SwitcherButtonStyle#DetailviewButton.Landscape:large {
-    text-opacity: 1.0;
     close-icon: "icon-m-framework-close-thumbnail";
 }
+
+MLabelStyle#SwitcherButtonTitleLabelDetailview {
+    font: $FONT_DEFAULT;
+    color: #FFFFFF;
+
+    preferred-size: -1 3mm;
+    minimum-size: -1 3mm;
+    maximum-size: -1 3mm;
+
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 0.6mm;
+    margin-right: 0.6mm;
+}
+
+MLabelStyle#SwitcherButtonTitleLabelOverview {
+    font: $FONT_XSMALL;
+    color: #FFFFFF;
+
+    preferred-size: -1 2.3mm;
+    minimum-size: -1 2.3mm;
+    maximum-size: -1 2.3mm;
+
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 0.1mm;
+    /* adjust to overlap the close button horizontal offset */
+    margin-right: -1.3mm;
+}
+
 /* switcher button detail view end */
 
 @import "mashupcanvas.css";

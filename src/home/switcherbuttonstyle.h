@@ -34,14 +34,11 @@ class SwitcherButtonStyle : public MButtonStyle
     Q_OBJECT
     M_STYLE(SwitcherButtonStyle)
 
-    //! The opacity of the title
-    M_STYLE_ATTRIBUTE(qreal, textOpacity, TextOpacity)
+    //! Close button vertical offset relative to top-right corner of switcher button
+    M_STYLE_ATTRIBUTE(qreal, closeButtonVOffset, CloseButtonVOffset)
 
-    //! The position of the icon relative to the top-left corner of the button
-    M_STYLE_ATTRIBUTE(QPointF, iconPosition, IconPosition)
-
-    //! The close button
-    M_STYLE_ATTRIBUTE(qreal, closeButtonVerticalPosition, CloseButtonVerticalPosition)
+    //! Close button horizontal offset relative to top-right corner of switcher button
+    M_STYLE_ATTRIBUTE(qreal, closeButtonHOffset, CloseButtonHOffset)
 
     //! The close button icon
     M_STYLE_ATTRIBUTE(QString, closeIcon, CloseIcon)

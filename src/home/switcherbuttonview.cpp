@@ -21,12 +21,15 @@
 #include <QTimer>
 #include <QGraphicsSceneMouseEvent>
 #include "mainwindow.h"
-#include <QApplication>
+#include <MApplication>
 #include <QX11Info>
 #include <QPainter>
 #include <MScalableImage>
 #include <MCancelEvent>
 #include <MSceneManager>
+#include <MLayout>
+#include <MLabel>
+#include <MLinearLayoutPolicy>
 #include "switcherbuttonview.h"
 #include "switcherbutton.h"
 
@@ -49,10 +52,22 @@ SwitcherButtonView::SwitcherButtonView(SwitcherButton *button) :
     // Show interest in X pixmap change signals
     connect(qApp, SIGNAL(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)), this, SLOT(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)));
 
-    // Create a close button for the window
-    closeButton = new MButton(controller);
+    titleBarLayout = new MLayout(controller);
+    titleBarLayout->setContentsMargins(0,0,0,0);
+    titleBarPolicy = new MLinearLayoutPolicy(titleBarLayout, Qt::Horizontal);
+
+    titleLabel = new MLabel(controller);
+    titleLabel->setContentsMargins(0,0,0,0);
+    titleLabel->setAlignment(Qt::AlignLeft);
+    titleLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    titleBarPolicy->addItem(titleLabel);
+
+    closeButton = new MButton();
     closeButton->setViewType(MButton::iconType);
     connect(closeButton, SIGNAL(clicked()), controller, SLOT(close()));
+    titleBarPolicy->addItem(closeButton);
+
+    controller->setLayout(titleBarLayout);
 
     // Enable or disable reception of damage events based on whether the switcher button is on the screen or not
     connect(button, SIGNAL(displayEntered()), this, SLOT(setOnDisplay()));
@@ -72,13 +87,6 @@ SwitcherButtonView::~SwitcherButtonView()
 #endif
 }
 
-void SwitcherButtonView::setGeometry(const QRectF &rect)
-{
-    MButtonView::setGeometry(rect);
-
-    closeButton->setGeometry(closeRect());
-}
-
 void SwitcherButtonView::drawBackground(QPainter *painter, const QStyleOptionGraphicsItem *) const
 {
     // Store the painter state
@@ -96,7 +104,7 @@ void SwitcherButtonView::drawBackground(QPainter *painter, const QStyleOptionGra
     }
 
     QPoint pos;
-    QPoint iconPos = style()->iconPosition().toPoint();
+    QPoint iconPos(thumbnailPosition());
     QRect source(0, 0, qWindowPixmap.width(), qWindowPixmap.height());
     switch (manager->orientationAngle()) {
         case M::Angle90:
@@ -126,7 +134,6 @@ void SwitcherButtonView::drawBackground(QPainter *painter, const QStyleOptionGra
             }
             break;
     }
-
     // Do the actual drawing
     painter->drawPixmap(QRect(pos, size), qWindowPixmap, source);
 
@@ -145,49 +152,31 @@ void SwitcherButtonView::drawContents(QPainter *painter, const QStyleOptionGraph
         container->draw(QRect(QPoint(0, 0), size().toSize()), painter);
     }
 
-    // Draw text
-    const QString text(controller->text());
-    if (!text.isEmpty() && controller->isTextVisible()) {
-        QFont font = style()->font();
-        painter->setFont(font);
-        painter->setPen(style()->textColor());
-        painter->setOpacity(style()->textOpacity());
-        painter->drawText(titleRect(), Qt::AlignLeft | Qt::ElideRight, text);
-    }
-
     // Restore the painter state
     painter->restore();
 }
 
-QRectF SwitcherButtonView::iconRect() const
+void SwitcherButtonView::translateCloseButton()
 {
-    return QRectF(style()->iconPosition(), style()->iconSize());
-}
-
-QRectF SwitcherButtonView::titleRect() const
-{
-    QFontMetrics fm(style()->font());
-    QRectF close = closeRect();
-    QRectF rect = iconRect();
-    rect.setTopLeft(rect.topLeft() - QPointF(0, fm.height()));
-    rect.setBottomRight(rect.topRight() + QPointF(-(close.width() + 2 * style()->textMarginLeft()), fm.height()));
-    rect.translate(style()->textMarginLeft(), -style()->textMarginBottom());
-    return rect;
-}
-
-QRectF SwitcherButtonView::closeRect() const
-{
-    QRectF icon = iconRect();
-    QRectF rect;
-    rect.setX(icon.right() - closeButton->preferredWidth());
-    rect.setY(icon.top() + style()->closeButtonVerticalPosition());
-    rect.setSize(closeButton->preferredSize());
-    return rect;
+    int verticalOffset = -style()->closeButtonVOffset();
+    int horizontalOffset = style()->closeButtonHOffset();
+    // Horizontal offset needs to be handled differently for different layout directions
+    if (MApplication::layoutDirection() == Qt::RightToLeft) {
+        horizontalOffset = -horizontalOffset;
+    }
+    closeButton->translate(horizontalOffset, verticalOffset);
 }
 
 QRectF SwitcherButtonView::boundingRect() const
 {
-    return iconRect().united(titleRect()).united(closeRect());
+    int titleLabelHeight = titleLabel->size().height();
+    int thumbnailHeight = style()->iconSize().height();
+    return QRectF(0, 0, style()->iconSize().width(), thumbnailHeight + titleLabelHeight);
+}
+
+QPoint SwitcherButtonView::thumbnailPosition() const
+{
+    return QPoint(0, titleLabel->size().height());
 }
 
 void SwitcherButtonView::applyStyle()
@@ -202,9 +191,12 @@ void SwitcherButtonView::applyStyle()
         } else {
             closeButton->hide();
         }
+        titleLabel->setObjectName("SwitcherButtonTitleLabelDetailview");
+
     } else {
         closeButton->setObjectName("CloseButtonOverview");
         closeButton->show();
+        titleLabel->setObjectName("SwitcherButtonTitleLabelOverview");
     }
     closeButton->setIconID(style()->closeIcon());
 
@@ -220,6 +212,10 @@ void SwitcherButtonView::setupModel()
         update();
     }
     updateViewMode();
+
+    translateCloseButton();
+
+    titleLabel->setText(model()->text());
 }
 
 void SwitcherButtonView::updateViewMode()
@@ -248,10 +244,10 @@ void SwitcherButtonView::updateData(const QList<const char *>& modifications)
         if (member == SwitcherButtonModel::XWindow && model()->xWindow() != 0) {
             updateXWindowPixmap();
             update();
-        }
-
-        if (member == SwitcherButtonModel::ViewMode) {
+        } else if (member == SwitcherButtonModel::ViewMode) {
             updateViewMode();
+        } else if(member == SwitcherButtonModel::Text) {
+            titleLabel->setText(model()->text());
         }
     }
 }

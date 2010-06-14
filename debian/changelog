@@ -1,6 +1,7 @@
 duihome (0.21.11-2~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Implemented: SWP#3148 Verify tappability of switcher thumbnail close button
 
  -- Aki Koskinen <aki.koskinen@nokia.com>  Fri, 18 Jun 2010 14:10:51 +0300
 

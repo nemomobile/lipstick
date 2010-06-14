@@ -21,14 +21,17 @@
 #include <QGLContext>
 #include <MScalableImage>
 #include <MCancelEvent>
-#include <MSceneManager>
+#include "mscenemanager_stub.h"
 #include <MScene>
+#include <MLabel>
 #include "mainwindow_stub.h"
 #include "homeapplication_stub.h"
 #include "windowinfo_stub.h"
 
 bool Ut_SwitcherButtonView::timerImmediateTimeout = false;
 MainWindow *Ut_SwitcherButtonView::mainWindow = NULL;
+
+const int NAVIGATION_BAR_HEIGHT = 100;
 
 // QCoreApplication stubs to avoid crashing in processEvents()
 QStringList QCoreApplication::arguments()
@@ -187,6 +190,26 @@ void QPainter::drawText(const QRectF &, int, const QString &text, QRectF *)
     Ut_SwitcherButtonView::painterTextOpacity = Ut_SwitcherButtonView::painterOpacity;
 }
 
+QRectF Ut_SwitcherButtonView::drawPixmapRect;
+QRectF Ut_SwitcherButtonView::drawPixmapSourceRect;
+void QPainter::drawPixmap(const QRectF &targetRect, const QPixmap &pixmap, const QRectF &sourceRect)
+{
+    Ut_SwitcherButtonView::drawPixmapRect = targetRect;
+    Ut_SwitcherButtonView::drawPixmapSourceRect = sourceRect;
+}
+
+int Ut_SwitcherButtonView::returnedPixmapWidth = 180;
+int QPixmap::width() const
+{
+    return Ut_SwitcherButtonView::returnedPixmapWidth;
+}
+
+int Ut_SwitcherButtonView::returnedPixmapHeight = 120;
+int QPixmap::height() const
+{
+    return Ut_SwitcherButtonView::returnedPixmapHeight;
+}
+
 bool Ut_SwitcherButtonView::viewUpdateCalled;
 void MWidgetView::update(const QRectF &)
 {
@@ -220,26 +243,6 @@ void TestSwitcherButton::emitDisplayExited()
 TestSwitcherButtonView::TestSwitcherButtonView(SwitcherButton &button) :
     SwitcherButtonView(&button)
 {
-}
-
-void TestSwitcherButtonView::emulateCloseButtonClick()
-{
-    controller->close();
- }
-
-void TestSwitcherButtonView::emulateButtonClick()
-{
-    QGraphicsSceneMouseEvent event;
-    QPointF p = iconRect().center();
-    event.setPos(p);
-    event.setScenePos(p);
-    mousePressEvent(&event);
-    mouseReleaseEvent(&event);
-}
-
-void TestSwitcherButtonView::drawContents(QPainter *painter, const QStyleOptionGraphicsItem *item) const
-{
-    SwitcherButtonView::drawContents(painter, item);
 }
 
 // Test home application
@@ -341,18 +344,6 @@ void Ut_SwitcherButtonView::cleanupTestCase()
     delete app;
 }
 
-void Ut_SwitcherButtonView::testMousePressRelease()
-{
-    // The MButton signals and the windowToFront signal are interesting
-    QSignalSpy windowToFrontSpy(button, SIGNAL(windowToFront(Window)));
-
-    // Click the button
-    m_subject->emulateButtonClick();
-
-    // Check that windowToFront were emitted
-    QCOMPARE(windowToFrontSpy.count(), 1);
-}
-
 void Ut_SwitcherButtonView::testClosingWithTimeout()
 {
     QSignalSpy closeSpy(button, SIGNAL(closeWindow(Window)));
@@ -364,7 +355,7 @@ void Ut_SwitcherButtonView::testClosingWithTimeout()
     timerImmediateTimeout = true;
 
     // "Click" the close button: check that a closeWindow signal is fired
-    m_subject->emulateCloseButtonClick();
+    button->getView()->closeButton->click();
 
     QCOMPARE(closeSpy.count(), 1);
 
@@ -383,7 +374,8 @@ void Ut_SwitcherButtonView::testClosingWithoutTimeout()
     button->setGeometry(QRectF(0, 0, 100, 100));
 
     // "Click" the close button: check that a closeWindow signal is fired
-    m_subject->emulateCloseButtonClick();
+    button->getView()->closeButton->click();
+
     QCOMPARE(closeSpy.count(), 1);
 
     // The window close timeout does not occur: check that button is closed and invisible
@@ -409,17 +401,6 @@ void Ut_SwitcherButtonView::testXWindow()
     QCOMPARE(damageCreated, true);
 }
 
-void Ut_SwitcherButtonView::testTextOpacity()
-{
-    QPainter painter;
-    button->model()->setText("test");
-    button->model()->setTextVisible(true);
-    m_subject->modifiableStyle()->setTextOpacity(0.5);
-    m_subject->drawContents(&painter, NULL);
-    QCOMPARE(painterText, QString("test"));
-    QCOMPARE(painterTextOpacity, m_subject->modifiableStyle()->textOpacity());
-}
-
 void Ut_SwitcherButtonView::testViewModeChange()
 {
     QCOMPARE(button->model()->viewMode(), SwitcherButtonModel::Large);
@@ -431,6 +412,24 @@ void Ut_SwitcherButtonView::testViewModeChange()
         button->model()->setViewMode(SwitcherButtonModel::Large);
         QCOMPARE(m_subject->styleContainer().currentMode(), QString("large"));
     }
+}
+
+void Ut_SwitcherButtonView::testApplyingStyle()
+{
+    button->setObjectName("OverviewButton");
+    QCOMPARE(m_subject->closeButton->objectName(), QString("CloseButtonOverview"));
+    QCOMPARE(m_subject->titleLabel->objectName(), QString("SwitcherButtonTitleLabelOverview"));
+
+    button->setObjectName("DetailviewButton");
+    button->model()->setViewMode(SwitcherButtonModel::Large);
+    button->getView()->applyStyle();
+    QVERIFY(m_subject->closeButton->isVisible());
+    QCOMPARE(m_subject->closeButton->objectName(), QString("CloseButtonDetailview"));
+    QCOMPARE(m_subject->titleLabel->objectName(), QString("SwitcherButtonTitleLabelDetailview"));
+
+    button->model()->setViewMode(SwitcherButtonModel::Medium);
+    button->getView()->applyStyle();
+    QVERIFY(!m_subject->closeButton->isVisible());
 }
 
 void Ut_SwitcherButtonView::testDamageEventForKnownDamage()
@@ -487,6 +486,103 @@ void Ut_SwitcherButtonView::testXDamageSubtractWhenDisplayEntered()
     QVERIFY(damageSubtracted);
     QCOMPARE(damageDisplay, damageSubtractDisplay);
     QCOMPARE(damageHandle, damageSubtractHandle);
+}
+
+void Ut_SwitcherButtonView::testCloseButtonTranslate()
+{
+    const qreal translation = 20.0;
+    QPointF initialPosition = m_subject->closeButton->scenePos();
+
+    m_subject->modifiableStyle()->setCloseButtonHOffset(translation);
+    m_subject->modifiableStyle()->setCloseButtonVOffset(translation);
+
+    m_subject->translateCloseButton();
+
+    QPointF translatedPosition(initialPosition + QPointF(translation, -translation));
+    QCOMPARE(m_subject->closeButton->scenePos(), translatedPosition);
+}
+
+void Ut_SwitcherButtonView::testBoundingRect()
+{
+    const int titleHeight = m_subject->titleLabel->size().height();
+    const QSize thumbnailSize(20, 20);
+    m_subject->modifiableStyle()->setIconSize(thumbnailSize);
+
+    QRectF expectedRect(0, 0, thumbnailSize.width(), titleHeight + thumbnailSize.height());
+    QCOMPARE(m_subject->boundingRect(), expectedRect);
+
+    // check that close button translation doesn't affect the bounding rect
+    const qreal translation = 20.0;
+    m_subject->modifiableStyle()->setCloseButtonHOffset(translation);
+    m_subject->modifiableStyle()->setCloseButtonVOffset(translation);
+    m_subject->translateCloseButton();
+
+    QCOMPARE(m_subject->boundingRect(), expectedRect);
+}
+
+void Ut_SwitcherButtonView::testThumbnailPosition()
+{
+    const int titleHeight = m_subject->titleLabel->size().height();
+
+    QPoint expectedPosition(0, titleHeight);
+    QCOMPARE(m_subject->thumbnailPosition(), expectedPosition);
+}
+
+void Ut_SwitcherButtonView::testSignalConnections()
+{
+    // verify qApp connections
+    QVERIFY(disconnect(qApp, SIGNAL(windowVisibilityChanged(Window)), m_subject, SLOT(windowVisibilityChanged(Window))));
+    QVERIFY(disconnect(qApp, SIGNAL(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)), m_subject, SLOT(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &))));
+
+    QVERIFY(disconnect(button, SIGNAL(displayEntered()), m_subject, SLOT(setOnDisplay())));
+    QVERIFY(disconnect(button, SIGNAL(displayExited()), m_subject, SLOT(unsetOnDisplay())));
+}
+
+const qreal thumbnailStyleWidth = 180.0;
+const qreal thumbnailStyleHeight = 120.0;
+void Ut_SwitcherButtonView::testDrawBackground_data()
+{
+    QTest::addColumn<M::Orientation>("orientation");
+    QTest::addColumn<M::OrientationAngle>("orientationAngle");
+    QTest::addColumn<QRectF>("targetRect");
+    QTest::addColumn<QRectF>("sourceRect");
+
+    QTest::newRow("landscape0") << M::Landscape << M::Angle0
+            << QRectF(0, 0, thumbnailStyleWidth, thumbnailStyleHeight)
+            << QRectF(0, NAVIGATION_BAR_HEIGHT, Ut_SwitcherButtonView::returnedPixmapWidth, Ut_SwitcherButtonView::returnedPixmapHeight - NAVIGATION_BAR_HEIGHT);
+
+
+    QTest::newRow("landscape90") << M::Landscape << M::Angle90
+            << QRectF(0, 0, thumbnailStyleWidth, thumbnailStyleHeight)
+            << QRectF(0, 0, Ut_SwitcherButtonView::returnedPixmapWidth - NAVIGATION_BAR_HEIGHT, Ut_SwitcherButtonView::returnedPixmapHeight);
+
+    // FIXME: add tests for portrait and other angles
+}
+
+void Ut_SwitcherButtonView::testDrawBackground()
+{
+    QPainter painter;
+    QFETCH(M::Orientation, orientation);
+    QFETCH(M::OrientationAngle, orientationAngle);
+    QFETCH(QRectF, targetRect);
+    QFETCH(QRectF, sourceRect);
+
+    m_subject->modifiableStyle()->setIconSize(QSize(thumbnailStyleWidth, thumbnailStyleHeight));
+    QPoint thumbnailPosition(0, m_subject->titleLabel->size().height());
+
+    gMSceneManagerStub->stubSetReturnValue("orientation", orientation);
+    gMSceneManagerStub->stubSetReturnValue("orientationAngle", orientationAngle);
+    m_subject->drawBackground(&painter, NULL);
+
+    // Adjust title height for thumbnail position
+    if (orientationAngle == M::Angle0 && orientation == M::Landscape) {
+        targetRect.adjust(0, m_subject->titleLabel->size().height(), 0, m_subject->titleLabel->size().height());
+    } else if (orientationAngle == M::Angle90 && orientation == M::Landscape) {
+        targetRect.adjust(-(m_subject->titleLabel->size().height() + thumbnailStyleWidth), 0, -(m_subject->titleLabel->size().height() + thumbnailStyleWidth), 0);
+    }
+
+    QCOMPARE(Ut_SwitcherButtonView::drawPixmapRect, targetRect);
+    QCOMPARE(Ut_SwitcherButtonView::drawPixmapSourceRect, sourceRect);
 }
 
 QTEST_APPLESS_MAIN(Ut_SwitcherButtonView)

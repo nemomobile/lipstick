@@ -51,20 +51,6 @@ class TestSwitcherButtonView : public SwitcherButtonView
 public:
     TestSwitcherButtonView(SwitcherButton &button);
 
-    // helper method to emulate close button click
-    void emulateCloseButtonClick();
-    // helper method to emulate switcher button click
-    void emulateButtonClick();
-    void drawContents(QPainter *painter, const QStyleOptionGraphicsItem *item) const;
-
-    QRectF closeRect() const {
-        return SwitcherButtonView::closeRect();
-    }
-
-    QRectF iconRect() const {
-        return SwitcherButtonView::iconRect();
-    }
-
     SwitcherButtonStyle *modifiableStyle() {
         SwitcherButtonStyleContainer &sc = style();
         const SwitcherButtonStyle *const_s = sc.operator ->();
@@ -134,6 +120,14 @@ public:
     // To see whether update() was called for the view
     static bool viewUpdateCalled;
 
+    // QPainter::DrawPixmap() data
+    static QRectF drawPixmapRect;
+    static QRectF drawPixmapSourceRect;
+
+    // QPixmap data
+    static int returnedPixmapWidth;
+    static int returnedPixmapHeight;
+
 private:
     TestHomeApplication *app;
 
@@ -155,16 +149,21 @@ private slots:
     void cleanup();
     void initTestCase();
     void cleanupTestCase();
-    void testMousePressRelease();
     void testClosingWithTimeout();
     void testClosingWithoutTimeout();
     void testXWindow();
-    void testTextOpacity();
     void testViewModeChange();
+    void testApplyingStyle();
     void testDamageEventForKnownDamage();
     void testDamageEventForUnknownDamage();
     void testEnterExitDisplay();
     void testXDamageSubtractWhenDisplayEntered();
+    void testCloseButtonTranslate();
+    void testBoundingRect();
+    void testThumbnailPosition();
+    void testSignalConnections();
+    void testDrawBackground_data();
+    void testDrawBackground();
 };
 
 #endif //_UT_SWITCHERBUTTONVIEW_
