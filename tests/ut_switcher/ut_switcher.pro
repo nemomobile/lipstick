@@ -37,6 +37,7 @@ HEADERS += \
     $$SRCDIR/switcherbutton.h \
     $$SRCDIR/switcherbuttonstyle.h \
     $$SRCDIR/switcherbuttonmodel.h \
+    $$SRCDIR/homeapplication.h \
     $$SRCDIR/pagedviewport.h \
     $$SRCDIR/pagedviewportstyle.h \
     $$SRCDIR/pagedviewportview.h \

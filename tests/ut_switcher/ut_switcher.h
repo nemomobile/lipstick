@@ -63,6 +63,12 @@ private:
     QList<WindowInfo> createWindowList(int numWindows);
 
 signals:
+    // signal for bringing a window to front
+    void windowToFront(Window window);
+
+    // signal for closing a window
+    void closeWindow(Window window);
+
     // Signal for updating the window list
     void windowListUpdated(const QList<WindowInfo> &windowList);
 
@@ -83,6 +89,15 @@ private slots:
 
     // Executed once after last test case
     void cleanupTestCase();
+
+    // Test that the constructor connects proper signals
+    void testConstruction();
+
+    // Test bringing windows to front
+    void testWindowToFront();
+
+    // Test bringing windows to front
+    void testCloseWindow();
 
     // Test adding windows
     void testWindowAdding();

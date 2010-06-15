@@ -17,9 +17,7 @@
 **
 ****************************************************************************/
 #include <QtTest/QtTest>
-#include <MApplication>
 #include <MApplicationPage>
-
 #include <QFocusEvent>
 #include "ut_switcher.h"
 #include "switcher.h"
@@ -28,13 +26,25 @@
 #include "x11wrapper.h"
 #include "mscenemanager_stub.h"
 #include "mwindow_stub.h"
-
+#include "homeapplication_stub.h"
 
 static QString gWindowInfoTitle;
-
-Atom X11Wrapper::XInternAtom(Display *, const char *, Bool)
+static QMap<Atom, QString> gInternedAtoms;
+static int gTypeOfXSendEvent;
+static Atom gMessageTypeOfXSendEvent;
+static int gFormatOfXSendEvent;
+static Window gWindowOfXSendEvent;
+static Display* gDisplayOfXSendEvent;
+static long gMaskOfXSendEvent;
+static Bool gPropagateFlagOfXSendEvent;
+static long gLongParametersOfXSendEvent[5];
+static const unsigned long WINDOW_ID_FOR_WINDOW_TO_FRONT = 666;
+static const unsigned long WINDOW_ID_FOR_CLOSE_WINDOW = 777;
+Atom X11Wrapper::XInternAtom(Display *, const char *name, Bool)
 {
-    return 0;
+    Atom returnValue = reinterpret_cast<Atom>(name);
+    gInternedAtoms[returnValue] = QString(name);
+    return returnValue;
 }
 
 int X11Wrapper::XSelectInput(Display *, Window, long)
@@ -115,8 +125,24 @@ int X11Wrapper::XChangeProperty(Display *, Window, Atom, Atom, int, int, unsigne
     return 0;
 }
 
-Status X11Wrapper::XSendEvent(Display *, Window , Bool, long, XEvent *)
+Status X11Wrapper::XSendEvent(Display *display, Window,
+                              Bool propagate, long mask, XEvent *event)
 {
+    gTypeOfXSendEvent = event->type;
+    gDisplayOfXSendEvent = display;
+    gMaskOfXSendEvent = mask;
+    gPropagateFlagOfXSendEvent = propagate;
+    if (event->type == ClientMessage) {
+        gFormatOfXSendEvent = event->xclient.format;
+        gMessageTypeOfXSendEvent = event->xclient.message_type;
+        gWindowOfXSendEvent = event->xclient.window;
+        gLongParametersOfXSendEvent[0] = event->xclient.data.l[0];
+        gLongParametersOfXSendEvent[1] = event->xclient.data.l[1];
+        if (gInternedAtoms[gMessageTypeOfXSendEvent] ==
+            QString("_NET_ACTIVE_WINDOW")) {
+            gLongParametersOfXSendEvent[2] = event->xclient.data.l[2];
+        }
+    }
     return 0;
 }
 
@@ -276,6 +302,18 @@ void QTimer::singleShot(int msec, QObject *receiver, const char *member)
 
 void Ut_Switcher::init()
 {
+    gInternedAtoms.clear();
+    gTypeOfXSendEvent = 0;
+    gMessageTypeOfXSendEvent = 0;
+    gFormatOfXSendEvent = 0;
+    gWindowOfXSendEvent = 0;
+    gDisplayOfXSendEvent = NULL;
+    gMaskOfXSendEvent = 0;
+    gPropagateFlagOfXSendEvent = TRUE;
+    for (int i = 0;
+         i < sizeof(gLongParametersOfXSendEvent)/sizeof(long); ++i) {
+        gLongParametersOfXSendEvent[i] = 0;
+    }
     Ut_Switcher::iconGeometryUpdated.clear();
 
     // Creating a switcher also creates the switcher view
@@ -287,6 +325,10 @@ void Ut_Switcher::init()
     connect(this, SIGNAL(windowTitleChanged(Window, QString)), switcher, SLOT(changeWindowTitle(Window, QString)));
     connect(this, SIGNAL(sizePosChanged(const QSizeF &, const QRectF &, const QPointF &)), switcher, SLOT(viewportSizePosChanged(const QSizeF &, const QRectF &, const QPointF &)));
 
+    connect(this, SIGNAL(windowToFront(Window)),
+            switcher, SLOT(windowToFront(Window)));
+    connect(this, SIGNAL(closeWindow(Window)),
+            switcher, SLOT(closeWindow(Window)));
     g_lastSingleShot = QString();
     g_windowTitles.clear();
     g_windowPriorities.clear();
@@ -304,7 +346,7 @@ void Ut_Switcher::initTestCase()
     // MApplications must be created manually these days due to theme system changes
     static int argc = 1;
     static char *app_name = (char *)"./ut_switcher";
-    app = new MApplication(argc, &app_name);
+    app = new HomeApplication(argc, &app_name);
 
     g_testMainWindow = new MainWindow();
 
@@ -317,6 +359,59 @@ void Ut_Switcher::cleanupTestCase()
     delete mSceneManager;
     // Destroy the MApplication
     delete app;
+}
+
+void Ut_Switcher::testConstruction()
+{
+    QVERIFY(disconnect(app,
+                       SIGNAL(windowListUpdated(const QList<WindowInfo> &)),
+                       switcher,
+                       SLOT(updateWindowList(const QList<WindowInfo> &))));
+    connect(app,
+            SIGNAL(windowListUpdated(const QList<WindowInfo> &)),
+            switcher,
+            SLOT(updateWindowList(const QList<WindowInfo> &)));
+    QVERIFY(disconnect(app,
+                       SIGNAL(windowTitleChanged(Window, QString)),
+                       switcher,
+                       SLOT(changeWindowTitle(Window, QString))));
+    connect(app,
+            SIGNAL(windowTitleChanged(Window, QString)),
+            switcher,
+            SLOT(changeWindowTitle(Window, QString)));
+}
+
+static void testXSendEventCommonValues()
+{
+    QCOMPARE(gTypeOfXSendEvent, ClientMessage);
+    QCOMPARE(gDisplayOfXSendEvent, QX11Info::display());
+    QVERIFY(!gPropagateFlagOfXSendEvent);
+    QCOMPARE(gFormatOfXSendEvent, 32);
+}
+
+void Ut_Switcher::testWindowToFront()
+{
+    emit windowToFront(WINDOW_ID_FOR_WINDOW_TO_FRONT);
+    testXSendEventCommonValues();
+    QCOMPARE(gInternedAtoms[gMessageTypeOfXSendEvent],
+             QString("_NET_ACTIVE_WINDOW"));
+    QCOMPARE(gWindowOfXSendEvent, WINDOW_ID_FOR_WINDOW_TO_FRONT);
+    QCOMPARE(gMaskOfXSendEvent, StructureNotifyMask);
+    QCOMPARE(gLongParametersOfXSendEvent[0], 1L);
+    QCOMPARE(gLongParametersOfXSendEvent[1], CurrentTime);
+    QCOMPARE(gLongParametersOfXSendEvent[2], 0L);
+}
+
+void Ut_Switcher::testCloseWindow()
+{
+    emit closeWindow(WINDOW_ID_FOR_CLOSE_WINDOW);
+    testXSendEventCommonValues();
+    QCOMPARE(gInternedAtoms[gMessageTypeOfXSendEvent],
+             QString("_NET_CLOSE_WINDOW"));
+    QCOMPARE(gWindowOfXSendEvent, WINDOW_ID_FOR_CLOSE_WINDOW);
+    QCOMPARE(gMaskOfXSendEvent, SubstructureRedirectMask);
+    QCOMPARE(gLongParametersOfXSendEvent[0], CurrentTime);
+    QCOMPARE(gLongParametersOfXSendEvent[1], (long)QX11Info::appRootWindow(QX11Info::appScreen()));
 }
 
 void Ut_Switcher::testWindowAdding()

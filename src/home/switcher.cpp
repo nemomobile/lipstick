@@ -25,6 +25,7 @@
 #include "switcherbutton.h"
 #include "windowinfo.h"
 #include "mainwindow.h"
+#include "x11wrapper.h"
 
 // The time to wait until updating the model when a new application is started
 #define UPDATE_DELAY_MS 700
@@ -37,8 +38,8 @@ Switcher::Switcher(MWidget *parent) :
     connect(qApp, SIGNAL(windowTitleChanged(Window, QString)), this, SLOT(changeWindowTitle(Window, QString)));
 
     // Get the X11 Atoms for closing and activating a window
-    closeWindowAtom  = XInternAtom(QX11Info::display(), "_NET_CLOSE_WINDOW",  False);
-    activeWindowAtom = XInternAtom(QX11Info::display(), "_NET_ACTIVE_WINDOW", False);
+    closeWindowAtom  = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_CLOSE_WINDOW",  False);
+    activeWindowAtom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_ACTIVE_WINDOW", False);
 }
 
 Switcher::~Switcher()
@@ -78,9 +79,9 @@ void Switcher::windowToFront(Window window)
     ev.xclient.data.l[1]    = CurrentTime;
     ev.xclient.data.l[2]    = 0;
 
-    XSendEvent(display,
-               rootWin, False,
-               SubstructureRedirectMask, &ev);
+    X11Wrapper::XSendEvent(display,
+                           rootWin, False,
+                           StructureNotifyMask, &ev);
 }
 
 void Switcher::closeWindow(Window window)
@@ -99,9 +100,9 @@ void Switcher::closeWindow(Window window)
     ev.xclient.data.l[0]    = CurrentTime;
     ev.xclient.data.l[1]    = rootWin;
 
-    XSendEvent(display,
-               rootWin, False,
-               SubstructureRedirectMask, &ev);
+    X11Wrapper::XSendEvent(display,
+                           rootWin, False,
+                           SubstructureRedirectMask, &ev);
 }
 
 void Switcher::viewportSizePosChanged(const QSizeF &, const QRectF &, const QPointF &)
