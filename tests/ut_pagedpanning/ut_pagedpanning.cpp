@@ -15,7 +15,6 @@
  */
 #include <QtTest/QtTest>
 #include <MApplication>
-#include <QDebug>
 #include <QSignalSpy>
 #include "pagedpanning.h"
 #include "ut_pagedpanning.h"
@@ -142,30 +141,19 @@ void Ut_PagedPanning::testMovementExcatlyPageWidth()
 
 void Ut_PagedPanning::testAutoPanning()
 {
-    qreal currentPosition = 300.0;
-    // Do the initial movement so that the subject internal state has some meaning. In this
-    // case is we want the currentPage to be non zero
-    testMovement(m_subject,
-                 11,            // Page count
-                 currentPosition,  // The position where the movement starts
-                 0.0,              // Move amount
-                 300.0 ,           // Where the current position should end up after movement
-                 true,             // Left to right
-                 3);               // Target
-
-    QCOMPARE(currentPosition, 300.0);
-
     qreal velocity = 0;
     qreal acceleration = 0;
     QSignalSpy spy(m_subject, SIGNAL(pageChanged(int)));
 
+    fillDefaultIntegrationParameters(m_subject, 11, 0, 1000);
+    m_subject->currentPage = 3;
+    m_subject->setPosition(QPointF(300.0, 0.0));
+
     m_subject->panToPage(0);
 
-    performIntegration(m_subject,
-                       currentPosition, velocity,
-                       acceleration);
+    performIntegration(m_subject);
 
-    QCOMPARE(currentPosition, 0.0);
+    QCOMPARE(m_subject->position().x(), 0.0);
     QList<QVariant> arguments = spy.takeLast();
     QCOMPARE(arguments.at(0).toInt(), 0);
 
@@ -176,11 +164,9 @@ void Ut_PagedPanning::testAutoPanning()
 
     m_subject->panToPage(2);
 
-    performIntegration(m_subject,
-                       currentPosition, velocity,
-                       acceleration);
+    performIntegration(m_subject);
 
-    QCOMPARE(currentPosition, 200.0);
+    QCOMPARE(m_subject->position().x(), 200.0);
     arguments = spy.takeLast();
     QVERIFY(arguments.at(0).toInt() == 2);
 
@@ -188,58 +174,35 @@ void Ut_PagedPanning::testAutoPanning()
 
 void Ut_PagedPanning::testCurrentPageRemainsSameWhenPageCountChanges()
 {
-    qreal currentPosition = 300.0;
-    qreal velocity = 0;
-    qreal pointerSpring = 0;
-    qreal acceleration = 0;
-
     fillDefaultIntegrationParameters(m_subject, 11, 0, 1000);
 
-    performMovement(m_subject,
-                    0, // amount to move
-                    true, // left-to-right
-                    currentPosition, velocity, pointerSpring,
-                    acceleration);
-
-    velocity = 0;
-    acceleration = 0;
-    pointerSpring = 0;
-    currentPosition = 300;
-
-    qreal targetPage = 3;
+    qreal currentPosition = 400.0;
+    m_subject->currentPage = 4;
+    m_subject->setPosition(QPointF(currentPosition, 0));
 
     QSignalSpy spy(m_subject, SIGNAL(pageChanged(int)));
-    performMovement(m_subject,
-                    1, // amount to move
-                    true, // left-to-right
-                    currentPosition, velocity, pointerSpring,
-                    acceleration);
 
-
-    QCOMPARE(currentPosition , 300.0);
-    QCOMPARE(spy.count(), 1); // make sure the signal was emitted exactly one time
-    QList<QVariant> arguments = spy.takeFirst(); // take the first signal
-    QVERIFY(arguments.at(0).toInt() == targetPage); // Make sure that we are on the right page
-
-    velocity = 0;
-    acceleration = 0;
-    pointerSpring = 0;
-    spy.clear();
-
+    // Change the page count and set the range accordingly
     m_subject->setPageCount(21);
+    m_subject->setRange(QRectF(0, 0, 2000, 0));
 
-    /*
-      When the page count is set the pager requests start from its parent class.
-      As the QTimeline is not running here we simulate the behaviour be calling the
-      integrator our selves.
-    */
-    performIntegration(m_subject,
-                       currentPosition, velocity,
-                       acceleration);
+    performIntegration(m_subject);
 
-    //Now the position should have changed, but the page info signal should reflect the original state
-    QCOMPARE(currentPosition , 150.0);
+    // Neither the position or the page should have changed
+    QCOMPARE(m_subject->position().x(), 400.0);
     QCOMPARE(spy.count(), 0);
+
+    // Set the count to be less than the current page and reduce the range
+    m_subject->setPageCount(3);
+    m_subject->setRange(QRectF(0, 0, 200, 0));
+
+    performIntegration(m_subject);
+
+    // Now we should have ended on the last page
+    QCOMPARE(m_subject->position().x(), 200.0);
+    QCOMPARE(spy.count(), 1);
+    QList<QVariant> arguments = spy.takeFirst();
+    QCOMPARE(arguments.at(0).toInt(), 2);
 }
 
 void Ut_PagedPanning::testSetPageCount()
@@ -249,7 +212,6 @@ void Ut_PagedPanning::testSetPageCount()
     fillDefaultIntegrationParameters(m_subject, 11, 0, 1000);
     QCOMPARE(spy.count(), 0);
 }
-
 
 void Ut_PagedPanning::testMovement(PagedPanning* pagedPanning,
                                    int pageCount,
@@ -267,8 +229,10 @@ void Ut_PagedPanning::testMovement(PagedPanning* pagedPanning,
 
     fillDefaultIntegrationParameters(pagedPanning, pageCount, rangeStart, rangeEnd);
 
-    qreal pageWidth = (rangeEnd-rangeStart)/(qreal)pageCount;
+    qreal pageWidth = (rangeEnd - rangeStart) / qMax(1, pageCount-1);
     pagedPanning->currentPage = currentPosition/pageWidth;
+    pagedPanning->pageWidth = pageWidth;
+    pagedPanning->setPosition(QPointF(currentPosition, 0));
 
     int pageCrossings;
 
@@ -290,13 +254,10 @@ void Ut_PagedPanning::testMovement(PagedPanning* pagedPanning,
 
     performMovement(pagedPanning,
                     moveAmount, // amount to move
-                    leftToRight, // left-to-right
-                    currentPosition, velocity, pointerSpring,
-                    acceleration);
+                    leftToRight); // left-to-right
 
     QCOMPARE(velocity, 0.0);
-    QCOMPARE(acceleration, 0.0);
-    QCOMPARE(currentPosition, targetPosition);
+    QCOMPARE(pagedPanning->position().x(), targetPosition);
 
     QCOMPARE(spy.count(), pageCrossings);
     if (pageCrossings > 0) {
@@ -309,46 +270,47 @@ void Ut_PagedPanning::testMovement(PagedPanning* pagedPanning,
 void Ut_PagedPanning::performMovement(PagedPanning* pagedPanning,
                                       qreal moveAmount,
                                       bool leftToRight,
-                                      qreal &position,
-                                      qreal &velocity,
-                                      qreal &pointerSpring,
-                                      qreal &acceleration,
                                       qreal speed)
 
 {
     int i = 0;
+    qreal movePosition = 0;
     bool pointerPressControl = true;
-    while (pointerPressControl || velocity != 0.0) {
-        if (i++ < moveAmount) {
-            pointerSpring += leftToRight ? speed : -speed;
-        } else {
+
+    pagedPanning->pointerPress(QPointF(movePosition, 0));
+
+    while (pointerPressControl || pagedPanning->velocity().x() != 0.0) {
+        if (i++ < moveAmount/speed) {
+            movePosition += leftToRight ? speed : -speed;
+        } else if (pointerPressControl) {
+            pagedPanning->pointerRelease();
             pointerPressControl = false;
-            pointerSpring = 0;
         }
-        pagedPanning->integrateAxis(Qt::Horizontal,
-                                    position,
-                                    velocity,
-                                    acceleration,
-                                    pointerSpring,
-                                    pointerPressControl);
+
+        if (pointerPressControl) {
+            pagedPanning->pointerMove(QPointF(movePosition, 0));
+        }
+
+        // Wait for the timer event
+        while(!QCoreApplication::hasPendingEvents())
+            QTest::qSleep(100);
+
+        QCoreApplication::processEvents();
     }
 }
 
 
-void Ut_PagedPanning::performIntegration(PagedPanning* pagedPanning,
-                                         qreal &position,
-                                         qreal &velocity,
-                                         qreal &acceleration)
+void Ut_PagedPanning::performIntegration(PagedPanning* pagedPanning)
 {
-    qreal pointerSpring = 0.0;
+    QSignalSpy stopSpy(pagedPanning, SIGNAL(panningStopped()));
+
     do {
-        pagedPanning->integrateAxis(Qt::Horizontal,
-                                    position,
-                                    velocity,
-                                    acceleration,
-                                    pointerSpring,
-                                    false);
-    } while (velocity != 0.0);
+        while (!QCoreApplication::hasPendingEvents())
+            QTest::qSleep(100);
+
+        QCoreApplication::processEvents();
+    } while (stopSpy.count() == 0);
+
 }
 
 void Ut_PagedPanning::fillDefaultIntegrationParameters(PagedPanning* pagedPanning, qreal newPageCount, qreal rangeStart, qreal rangeEnd)
@@ -368,45 +330,34 @@ void Ut_PagedPanning::fillDefaultIntegrationParameters(PagedPanning* pagedPannin
 
 void Ut_PagedPanning::testDragThreshold()
 {
-    qreal velocity = 0;
-    qreal pointerSpring = 0;
-    qreal acceleration = 0;
     qreal currentPosition = 200.0;
 
     fillDefaultIntegrationParameters(m_subject, 11, 0, 1000);
 
     m_subject->currentPage = 2;
     m_subject->setDragThreshold(0.2);
+    m_subject->setPosition(QPointF(currentPosition, 0));
 
     QSignalSpy spy(m_subject, SIGNAL(pageChanged(int)));
 
     // Drag the pointer a bit, but don't cross the drag threshold
     performMovement(m_subject,
                     10, // amount to move
-                    true, // left-to-right
-                    currentPosition, velocity, pointerSpring,
-                    acceleration);
+                    true); // left-to-right
 
-    QCOMPARE(currentPosition, 200.0);
+    QCOMPARE(m_subject->position().x(), 200.0);
 
     // The page shouldn't have changed yet
     QCOMPARE(spy.count(), 0);
 
     spy.clear();
 
-    // Let the panning settle
-    performIntegration(m_subject,
-                       currentPosition, velocity,
-                       acceleration);
-
     // Drag the pointer over the drag threshold
     performMovement(m_subject,
                     22, // amount to move
-                    false, // left-to-right
-                    currentPosition, velocity, pointerSpring,
-                    acceleration);
+                    false); // left-to-right
 
-    QCOMPARE(currentPosition, 300.0);
+    QCOMPARE(m_subject->position().x(), 300.0);
 
     QCOMPARE(spy.count(), 1);
     QList<QVariant> arguments = spy.takeLast();
@@ -415,14 +366,12 @@ void Ut_PagedPanning::testDragThreshold()
 
 void Ut_PagedPanning::testVelocityThreshold()
 {
-    qreal velocity = 0;
-    qreal pointerSpring = 0;
-    qreal acceleration = 0;
     qreal currentPosition = 100.0;
 
     fillDefaultIntegrationParameters(m_subject, 11, 0, 1000);
 
     m_subject->currentPage = 1;
+    m_subject->setPosition(QPointF(currentPosition, 0));
     m_subject->setVelocityThreshold(10.0);
     m_subject->setPointerSpringK(1.0);
 
@@ -431,11 +380,18 @@ void Ut_PagedPanning::testVelocityThreshold()
     performMovement(m_subject,
                     1,    // amount to move
                     false, // left-to-right
-                    currentPosition, velocity, pointerSpring,
-                    acceleration,
+                    7.0); // speed under threshold
+
+    // Should end up where started
+    QCOMPARE(m_subject->position().x(), 100.0);
+
+    performMovement(m_subject,
+                    1,    // amount to move
+                    false, // left-to-right
                     11.0); // more speed
 
-    QCOMPARE(currentPosition, 200.0);
+    // Should end up on the next page now
+    QCOMPARE(m_subject->position().x(), 200.0);
 
     QCOMPARE(spy.count(), 1);
     QList<QVariant> arguments = spy.takeLast();
@@ -444,14 +400,12 @@ void Ut_PagedPanning::testVelocityThreshold()
 
 void Ut_PagedPanning::testSlide()
 {
-    qreal velocity = 0;
-    qreal pointerSpring = 0;
-    qreal acceleration = 0;
     qreal currentPosition = 100.0;
 
     fillDefaultIntegrationParameters(m_subject, 11, 0, 1000);
 
     m_subject->currentPage = 1;
+    m_subject->setPosition(QPointF(currentPosition, 0));
     m_subject->setSlidingFriction(0.02);
 
     QSignalSpy spy(m_subject, SIGNAL(pageChanged(int)));
@@ -459,12 +413,10 @@ void Ut_PagedPanning::testSlide()
     performMovement(m_subject,
                     70,    // amount to move
                     false, // left-to-right
-                    currentPosition, velocity, pointerSpring,
-                    acceleration,
                     4.0); // more speed
 
     // Should have slid over three pages
-    QCOMPARE(currentPosition, 400.0);
+    QCOMPARE(m_subject->position().x(), 400.0);
 
     QCOMPARE(spy.count(), 3);
     QList<QVariant> arguments = spy.takeLast();
@@ -475,12 +427,10 @@ void Ut_PagedPanning::testSlide()
     performMovement(m_subject,
                     70,    // amount to move
                     true,  // left-to-right
-                    currentPosition, velocity, pointerSpring,
-                    acceleration,
                     10.0); // ridiculous speed
 
     // The view should slide all the way to right
-    QCOMPARE(currentPosition, 0.0);
+    QCOMPARE(m_subject->position().x(), 0.0);
 
     QCOMPARE(spy.count(), 4);
     arguments = spy.takeLast();
@@ -494,8 +444,6 @@ void Ut_PagedPanning::testSlide()
     performMovement(m_subject,
                     30,    // amount to move
                     false,  // left-to-right
-                    currentPosition, velocity, pointerSpring,
-                    acceleration,
                     20.0); // ludicrous speed
 
     // With such a huge swing of a gesture,
@@ -504,5 +452,32 @@ void Ut_PagedPanning::testSlide()
     arguments = spy.takeLast();
     QCOMPARE(arguments.at(0).toInt(), 1);
 }
+
+void Ut_PagedPanning::testSetRange()
+{
+    qreal currentPosition = 200.0;
+    qreal velocity = 0.0;
+    qreal acceleration = 0.0;
+    qreal pointerSpring = 0.0;
+
+    fillDefaultIntegrationParameters(m_subject, 11, 0, 1000);
+
+    m_subject->currentPage = 2;
+    m_subject->setPosition(QPointF(currentPosition, 0));
+
+    m_subject->setRange(QRectF(0, 0, 550, 0));
+
+    // The position should change immediately in one integration step
+    m_subject->integrateAxis(Qt::Horizontal,
+            currentPosition,
+            velocity,
+            acceleration,
+            pointerSpring,
+            false);
+
+    QCOMPARE(currentPosition, 110.0);
+    QCOMPARE(m_subject->currentPage, 2);
+}
+
 
 QTEST_APPLESS_MAIN(Ut_PagedPanning)

@@ -94,14 +94,30 @@ private slots:
     void testCurrentPageRemainsSameWhenPageCountChanges();
 
     /*!
-     * Tests the setting of the page width
+     * Tests the setting of the page count.
      */
     void testSetPageCount();
 
+    /*!
+     * Tests dragging under and over the drag threshold.
+     */
     void testDragThreshold();
+
+    /*!
+     * Tests small flicks with different velocities.
+     */
     void testVelocityThreshold();
 
+    /*!
+     * Tests sliding over multiple pages.
+     */
     void testSlide();
+
+    /*!
+     * Tests that when the page width changes the view is immediately moved
+     * to the correct position determined by the current page and the new page width.
+     */
+    void testSetRange();
 
 private:
     // MApplication
@@ -122,18 +138,11 @@ private:
     void performMovement(PagedPanning* pagedPanning,
 			 qreal moveAmount,
 			 bool leftToRight,
-			 qreal &position,
-			 qreal &velocity,
-			 qreal &pointerSpring,
-			 qreal &acceleration,
                          qreal speed = 1.0);
 
     void fillDefaultIntegrationParameters(PagedPanning* pagedPanning, qreal newPageWidth, qreal rangeStart, qreal rangeEnd);
 
-    void performIntegration(PagedPanning* pagedPanning,
-                            qreal &position,
-                            qreal &velocity,
-                            qreal &acceleration);
+    void performIntegration(PagedPanning* pagedPanning);
 };
 
 #endif

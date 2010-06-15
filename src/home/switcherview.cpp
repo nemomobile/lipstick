@@ -70,6 +70,7 @@ SwitcherView::SwitcherView(Switcher *switcher) :
     detailPolicy->setSpacing(0);
     detailPolicy->setObjectName("DetailviewPolicy");
 
+    viewport->setAutoRange(false);
     viewport->setWidget(pannedWidget);
 
     viewport->positionIndicator()->setObjectName("SwitcherOverviewPageIndicator");
@@ -193,8 +194,7 @@ void SwitcherView::applySwitcherMode()
         controller->setObjectName("DetailviewSwitcher");
     } else {
         disconnect(viewport, 0, this, 0);
-        connect(MainWindow::instance()->sceneManager(), SIGNAL(orientationChangeFinished(M::Orientation)), this, SLOT(updateButtons()));
-        connect(MainWindow::instance()->sceneManager(), SIGNAL(orientationAboutToChange(M::Orientation)), this, SLOT(hideButtons()));
+        connect(MainWindow::instance()->sceneManager(), SIGNAL(orientationChanged(M::Orientation)), this, SLOT(updateButtons()));
 
         pannedLayout->setPolicy(overviewPolicy);
         controller->setObjectName("OverviewSwitcher");
@@ -232,14 +232,6 @@ void SwitcherView::updateData(const QList<const char*>& modifications)
     }
 }
 
-void SwitcherView::hideButtons()
-{
-    foreach (QSharedPointer<SwitcherButton> button, model()->buttons()) {
-        button.data()->setVisible(false);
-    }
-    removeButtonsFromLayout();
-}
-
 void SwitcherView::updateButtons()
 {
     focusedSwitcherButton = std::min(focusedSwitcherButton, model()->buttons().size() - 1);
@@ -257,8 +249,6 @@ void SwitcherView::updateButtons()
     overviewPolicy->setSpacing(0);
     overviewPolicy->setObjectName("OverviewPolicy");
 
-    delete tmp;
-
     // Add widgets from the model to the layout
     foreach (QSharedPointer<SwitcherButton> button, model()->buttons()) {
         detailPolicy->addItem(button.data());
@@ -267,9 +257,7 @@ void SwitcherView::updateButtons()
 
     updateButtonModesAndPageCount();
 
-    foreach (QSharedPointer<SwitcherButton> button, model()->buttons()) {
-        button.data()->setVisible(true);
-    }
+    delete tmp;
 }
 
 void SwitcherView::updateButtonModesAndPageCount()
@@ -295,7 +283,12 @@ void SwitcherView::updateButtonModesAndPageCount()
         pages = ceilf((qreal)model()->buttons().count()/(style()->columnsPerPage()*style()->rowsPerPage()));
     }
 
+    // First update the page count
     viewport->updatePageCount(pages);
+    // Then set the range - this starts the integration and pans
+    // the view to the correct page in case we were on the last
+    // page and closed the last button
+    viewport->setRange(QRectF(0, 0, pages*geometry().width(), 0));
 
     updateContentsMarginsAndSpacings();
 }

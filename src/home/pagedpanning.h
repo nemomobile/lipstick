@@ -97,6 +97,13 @@ protected:
                                 qreal &pointerDifference,
                                 bool pointerPressed
                                 );
+
+    virtual void pointerPress(const QPointF &pos);
+
+    virtual void pointerMove(const QPointF &pos);
+
+    virtual void pointerRelease();
+
     //! \reimp_end
 
 signals:
@@ -143,9 +150,6 @@ private:
     //! Page snapping spring damping friction factor
     qreal pageSnapFriction_;
 
-    //! The pointer press state during the previous integration step
-    bool previousPointerPressed;
-
     //! The view position during the previous integration step
     qreal previousPosition;
 
@@ -157,6 +161,9 @@ private:
 
     //! Current page width
     qreal pageWidth;
+
+    //! Page width during the previous integration step
+    qreal previousPageWidth;
 
     /*! Calculate the sliding distance with the given
      *  initial velocity and friction factor.

@@ -152,7 +152,6 @@ PagedPanning::PagedPanning(QObject* parent) : MPhysics2DPanning(parent),
                                               dragThreshold_(0.5),
                                               pageSnapSpringK_(0.7),
                                               pageSnapFriction_(0.7),
-                                              previousPointerPressed(false),
                                               previousPosition(0),
                                               targetPage(0),
                                               pageWidth(0)
@@ -207,6 +206,21 @@ void PagedPanning::setPageSnapSpringK(qreal)
 void PagedPanning::setPageSnapFriction(qreal)
 {
 }
+
+void PagedPanning::pointerPress(const QPointF &pos)
+{
+    Q_UNUSED(pos);
+}
+
+void PagedPanning::pointerMove(const QPointF &pos)
+{
+    Q_UNUSED(pos);
+}
+
+void PagedPanning::pointerRelease()
+{
+}
+
 
 QList< QSharedPointer<SwitcherButton> > Ut_SwitcherView::createButtonList(int buttons)
 {
@@ -547,9 +561,6 @@ void Ut_SwitcherView::testSwitcherButtonVerticalAlignment()
 
     // Change the orientation to portrait
     gMSceneManagerStub->stubSetReturnValue("orientation", M::Portrait);
-
-    // Called by the SceneManager when orientation is about to change
-    m_subject->hideButtons();
 
     switcherHeight = 600.0;
     switcherWidth = 400.0;

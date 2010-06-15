@@ -40,7 +40,6 @@ PagedPanning::PagedPanning(QObject* parent) : MPhysics2DPanning(parent),
                                               dragThreshold_(0.5),
                                               pageSnapSpringK_(0.7),
                                               pageSnapFriction_(0.7),
-                                              previousPointerPressed(false),
                                               previousPosition(0),
                                               targetPage(0),
                                               pageWidth(0)
@@ -97,6 +96,20 @@ void PagedPanning::setPageSnapSpringK(qreal)
 }
 
 void PagedPanning::setPageSnapFriction(qreal)
+{
+}
+
+void PagedPanning::pointerPress(const QPointF &pos)
+{
+    Q_UNUSED(pos);
+}
+
+void PagedPanning::pointerMove(const QPointF &pos)
+{
+    Q_UNUSED(pos);
+}
+
+void PagedPanning::pointerRelease()
 {
 }
 

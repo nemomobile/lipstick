@@ -78,9 +78,6 @@ private slots:
     /*! Update all buttons in the layout policies */
     void updateButtons();
 
-    /*! Remove all buttons from the layout and set them invisible */
-    void hideButtons();
-
 private:
 
     /*! Adds a button in the correct position in the overview layout policy */

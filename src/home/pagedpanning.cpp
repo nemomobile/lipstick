@@ -30,7 +30,6 @@ PagedPanning::PagedPanning(QObject* parent) : MPhysics2DPanning(parent),
                                               dragThreshold_(0.5),
                                               pageSnapSpringK_(0.7),
                                               pageSnapFriction_(0.7),
-                                              previousPointerPressed(false),
                                               previousPosition(0),
                                               targetPage(0),
                                               pageWidth(0)
@@ -38,6 +37,7 @@ PagedPanning::PagedPanning(QObject* parent) : MPhysics2DPanning(parent),
     // Whenever panning stops for reason or the other, make sure the
     // view ends up on top of a page.
     connect(this, SIGNAL(panningStopped()), this, SLOT(panToCurrentPage()));
+    setPanDirection(Qt::Horizontal);
 }
 
 PagedPanning::~PagedPanning()
@@ -58,14 +58,14 @@ void PagedPanning::integrateAxis(Qt::Orientation orientation,
 
     qreal rangeStart = range().left();
     qreal rangeEnd = range().right();
-    qreal force;
+    qreal force = 0.0;
 
     pageWidth = (rangeEnd - rangeStart) / qMax(1, pageCount_-1);
 
-    // Damping
     if (position >= rangeStart && position <= rangeEnd) {
         // Inside range
         if (pointerPressed) {
+            // Drag friction
             force = -friction() * velocity;
         } else if (snapMode) {
             force = -pageSnapFriction_ * velocity;
@@ -77,79 +77,40 @@ void PagedPanning::integrateAxis(Qt::Orientation orientation,
         force = -borderFriction() * velocity;
     }
 
-    if (pointerPressed == true && previousPointerPressed == false) {
-        initialPage = currentPage;
+    if (previousRange != range()) {
+
+        previousRange = range();
+
+        if( pageWidth != 0 && previousPageWidth != pageWidth ) {
+            /* A change in the page width means the orientation has
+               changed - move the view to the correct position immediately */
+            position = pageWidth * currentPage;
+            force = 0;
+            velocity = 0;
+            acceleration = 0;
+        } else {
+            /* If the page width has remained the same, the number of
+               pages must have changed */
+            snapMode = true;
+        }
+
+        targetPage = currentPage;
     }
 
     if (pointerPressed) {
         // Pointer spring
         force += -pointerSpringK() * pointerDifference;
-        // Stop the automatic panning when the pointer comes down
-        snapMode = false;
+    } else {
+        /* The target page must be inside the panning range, this is to make sure
+           that we do not go out side the range */
+        targetPage = qBound(0, targetPage, pageCount_-1);
 
-        /* Target the next page if the view has been dragged over the
-           dragThreshold. */
-        qreal distanceToInitialPage = position - initialPage*pageWidth;
-        int draggedPages;
-
-        if (distanceToInitialPage > 0) {
-            draggedPages = (int)(distanceToInitialPage/pageWidth + (1.0-dragThreshold_));
-        } else {
-            draggedPages = (int)(distanceToInitialPage/pageWidth - (1.0-dragThreshold_));
-        }
-
-        targetPage = qBound(0, initialPage + draggedPages, pageCount_-1);
-
-        if( currentPage != targetPage) {
-            emit pageChanged(targetPage);
-            currentPage = targetPage;
-        }
-    }
-
-    if (previousRange != range()) {
-        /*
-           Pan the viewport to the correct page
-           in case the underlying widget's size and
-           therefore the page width has changed.
-         */
-        snapMode = true;
-        targetPage = currentPage;
-        previousRange = range();
-    }
-
-    // Check if pointer was just lifted
-    if (pointerPressed == false && previousPointerPressed == true) {
-        // The number of pages to slide
-        qreal slidePages = slideDistance(velocity, slidingFriction())/pageWidth;
-        // Remove half a page; only slide over the center of a page if really going
-        // to the next one
-        slidePages -= slidePages > 0 ? 0.5 : -0.5;
-
-        targetPage = currentPage + (int)slidePages;
-
-        /* Pan to the next page if a strong enough flick was performed. */
-        if ( targetPage == initialPage
-             && std::fabs(velocity) > velocityThreshold_ ) {
-            targetPage += velocity > 0 ? 1 : -1;
-            snapMode = true;
-        }
-
-        if (slideLimit_ > 0)
-            targetPage = qBound(initialPage-slideLimit_,
-                                targetPage,
-                                initialPage+slideLimit_);
-
-    }
-
-    /* The target page must be inside the panning range, this is to make sure
-       that we do not go out side the range */
-    targetPage = qBound(0, targetPage, pageCount_-1);
-
-    if ( !pointerPressed ) {
         int nearestPage = 0;
 
         if (pageWidth > 0) {
             nearestPage = (int)((position / (qreal)pageWidth) + 0.5);
+            // nearestPage is the nearest page in the valid range
+            nearestPage = qBound(0, nearestPage, pageCount_-1);
         }
 
         // Cap the nearestPage at targetPage, in case
@@ -181,7 +142,7 @@ void PagedPanning::integrateAxis(Qt::Orientation orientation,
 
             qreal closeEnough = position - (pageWidth * targetPage);
 
-            if (abs(closeEnough) < 1 && abs(force) < 1) {
+            if (abs(closeEnough) < 2 && abs(force) < 2) {
                 // Setting these to zero should stop the integration process
                 force = 0;
                 velocity = 0;
@@ -199,14 +160,16 @@ void PagedPanning::integrateAxis(Qt::Orientation orientation,
     position      += velocity;
     pointerDifference += velocity;
 
-    previousPointerPressed = pointerPressed;
     previousPosition = position;
+    previousPageWidth = pageWidth;
 }
 
 void PagedPanning::setPageCount(int newPageCount)
 {
     pageCount_ = qMax(1, newPageCount);
-    panToPage(qMin(newPageCount - 1, currentPage));
+    initialPage = currentPage;
+    targetPage = qMin(newPageCount - 1, currentPage);
+    snapMode = true;
 }
 
 int PagedPanning::pageCount() const
@@ -280,9 +243,72 @@ qreal PagedPanning::slideDistance(qreal initialVelocity, qreal friction)
        log(finalVelocity/initialVelocity) = t*log((1-friction))
                                         t = log(finalVelocity/initialVelocity)/log(1-friction)
      */
-    qreal b = 1.0-friction;
+    if (initialVelocity == 0)
+        return 0;
+
+    qreal b = 1.0-qMin((qreal)1.0, friction);
     qreal logb = std::log(b);
     qreal t = std::log(SLIDE_FINAL_VELOCITY / std::fabs(initialVelocity)) / logb;
 
     return initialVelocity * (std::pow(b, t)-1.0) / logb;
+}
+
+void PagedPanning::pointerPress(const QPointF &pos)
+{
+    MPhysics2DPanning::pointerPress(pos);
+
+    pageWidth = (range().right() - range().left()) / qMax(1, pageCount_-1);
+    //currentPage = position().x()/pageWidth;
+    initialPage = currentPage;
+
+    // Stop the automatic panning when the pointer comes down
+    snapMode = false;
+}
+
+void PagedPanning::pointerMove(const QPointF &pos)
+{
+    MPhysics2DPanning::pointerMove(pos);
+
+    /* Target the next page if the view has been dragged over the
+       dragThreshold. */
+    qreal distanceToInitialPage = position().x() - initialPage*pageWidth;
+    int draggedPages;
+
+    if (distanceToInitialPage > 0) {
+        draggedPages = (int)(distanceToInitialPage/pageWidth + (1.0-dragThreshold_));
+    } else {
+        draggedPages = (int)(distanceToInitialPage/pageWidth - (1.0-dragThreshold_));
+    }
+
+    targetPage = qBound(0, initialPage + draggedPages, pageCount_-1);
+
+    if( currentPage != targetPage) {
+        emit pageChanged(targetPage);
+        currentPage = targetPage;
+    }
+}
+
+void PagedPanning::pointerRelease()
+{
+    MPhysics2DPanning::pointerRelease();
+
+    // The number of pages to slide
+    qreal slidePages = slideDistance(velocity().x(), slidingFriction())/pageWidth;
+    // Remove half a page; only slide over the center of a page if really going
+    // to the next one
+    slidePages -= slidePages > 0 ? 0.5 : -0.5;
+
+    targetPage = currentPage + (int)slidePages;
+
+    /* Pan to the next page if a strong enough flick was performed. */
+    if ( targetPage == initialPage
+            && std::fabs(velocity().x()) > velocityThreshold_ ) {
+        targetPage += velocity().x() > 0 ? 1 : -1;
+        snapMode = true;
+    }
+
+    if (slideLimit_ > 0)
+        targetPage = qBound(initialPage-slideLimit_,
+                            targetPage,
+                            initialPage+slideLimit_);
 }
