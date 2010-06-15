@@ -7,6 +7,7 @@ MODEL_HEADERS += $$SRCDIR/launcherpagemodel.h \
 # unit test and unit
 SOURCES += \
     ut_launcherpage.cpp \
+    $$SRCDIR/launcheraction.cpp \
     $$SRCDIR/launcherpage.cpp
 
 # unit test and unit
@@ -17,6 +18,7 @@ HEADERS += \
 # service classes
 HEADERS += $$SRCDIR/launcherpagemodel.h \
            $$SRCDIR/launcherbuttonmodel.h \
+           $$SRCDIR/launcheraction.h \
            $$SRCDIR/launcherbutton.h
 
 # service sources

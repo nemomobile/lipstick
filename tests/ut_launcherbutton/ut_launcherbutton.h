@@ -41,12 +41,10 @@ private slots:
 
     // Test cases
     void testInitialization();
-    void testInitializationXMaemoService();
     void testInitializationAbsoluteIcon();
     void testInitializationFreeDesktopIcon();
-    void testLaunchApplication();
-    void testLaunchMApplication();
     void testLanguageChange();
+    void testLaunch();
 
 signals:
     void clicked();

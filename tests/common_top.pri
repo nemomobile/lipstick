@@ -7,6 +7,7 @@ INCLUDEPATH += $$SRCDIR $$HOMELIBDIR $$STUBSDIR $$M_INSTALL_HEADERS
 DEPENDPATH = $$INCLUDEPATH
 CONFIG += debug meegotouch link_pkgconfig
 PKGCONFIG += contextsubscriber-1.0 \
+    contentaction-0.1 \
     xcomposite
 #    ContentManagerSearchIf
 QT += testlib network gui dbus xml

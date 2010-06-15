@@ -24,6 +24,7 @@
 #include "launcherbuttonmodel.h"
 
 class MDesktopEntry;
+class LauncherAction;
 
 /*!
  * Button widget that can launch an application when its being clicked.
@@ -63,34 +64,20 @@ public:
     virtual ~LauncherButton();
 
     /*!
-     * \brief Sets the type of the object to be launched.
+     * \brief Sets the action to launch the application described by the
+     * desktop file. 
      *
-     * \param type Type of the object to be launched
+     * \param action The action to launch the application
      */
-    void setTargetType(const QString &type);
+    void setAction(const LauncherAction &action);
 
     /*!
-     * \brief Returns the type of the target launched by this button widget.
+     * \brief Returns the action to launch the application described by the
+     * desktop file
      *
-     * \return Type of the object to be launched
+     * \return The action to launch the application
      */
-    QString targetType() const;
-
-    /*!
-     * \brief Sets the target to be launched when this button widget
-     * instance is clicked.
-     *
-     * \param target Full path to the application that will be launched.
-     */
-    void setTarget(const QString &target);
-
-    /*!
-     * \brief Returns full path to the target file launched by this button
-     * widget.
-     *
-     * \return Full path to the application file
-     */
-    QString target() const;
+    LauncherAction action() const;
 
     /*!
      * Returns the file name of the desktop entry where this launcher button was constructed from.
@@ -115,24 +102,12 @@ private slots:
      */
     void launch();
 
-signals:
-    /*!
-     * \brief A signal for notifying that an object of type Application has been launched
-     *
-     * \param application the name of the application
-     */
-    void applicationLaunched(const QString &application);
-
-    /*!
-     * \brief A signal for notifying that an object of type Application that has an X-Maemo-Service has been launched
-     *
-     * \param service the name of the dbus service to launch
-     */
-    void mApplicationLaunched(const QString &service);
-
 private:
-    void updateIcon(QSharedPointer<MDesktopEntry> &entry);
-    void updateTarget(QSharedPointer<MDesktopEntry> &entry);
+    void updateIcon(const LauncherAction &action);
+
+#ifdef UNIT_TEST
+    friend class Ut_LauncherButton;
+#endif
 };
 
 #endif /* MLAUNCHAPPBUTTON_H */

@@ -19,65 +19,113 @@
 
 #include <QtTest/QtTest>
 #include <MApplication>
-#include <MDesktopEntry>
+#include "contentaction.h"
 #include "ut_launcherbutton.h"
 #include "launcherbutton.h"
 #include "launcher_stub.h"
 
-// MDesktopEntry stubs (used by LauncherButton)
-QMap<const MDesktopEntry *, QString> desktopEntryFileName;
-QMap<QString, QString> desktopEntryType;
-QMap<QString, QString> desktopEntryXMaemoService;
-QMap<QString, QString> desktopEntryName;
-QMap<QString, QString> desktopEntryNameOtherLang;
-QMap<QString, QString> desktopEntryIcon;
-QMap<QString, QString> desktopEntryExec;
+using namespace ContentAction;
+
 QString language;
+QMap< QString, QSharedPointer<ActionPrivate> > contentActionPrivate;
 
-MDesktopEntry::MDesktopEntry(const QString &fileName) :
-    d_ptr(NULL)
+// LauncherAction stubs (used by LauncherButton)
+LauncherAction::LauncherAction()
+    : Action()
 {
-    desktopEntryFileName.insert(this, fileName);
 }
 
-QString MDesktopEntry::fileName() const
+LauncherAction::LauncherAction(const QString& desktopEntry)
+    : Action(Action::defaultActionForFile(desktopEntry, ""))
 {
-    return desktopEntryFileName[this];
 }
 
-
-bool MDesktopEntry::isValid() const
+bool operator!=(const LauncherAction &a, const LauncherAction &b)
 {
+    Q_UNUSED(a);
+    Q_UNUSED(b);
     return true;
 }
 
-QString MDesktopEntry::type() const
+// ContentAction stubs (used by LauncherAction)
+struct ContentAction::ActionPrivate
 {
-    return desktopEntryType.value(desktopEntryFileName.value(this));
-}
+    ActionPrivate(bool isValid, QString name,
+                  QString english, QString nonEnglish,
+                  QString icon) :
+        isValid_(isValid), name_(name),
+        english_(english), nonEnglish_(nonEnglish),
+        icon_(icon) {};
+    virtual ~ActionPrivate() {};
 
-QString MDesktopEntry::xMaemoService() const
-{
-    return desktopEntryXMaemoService.value(desktopEntryFileName.value(this));
-}
-
-QString MDesktopEntry::name() const
-{
-    if ("english" == language) {
-        return desktopEntryName.value(desktopEntryFileName.value(this));
-    } else  {
-        return desktopEntryNameOtherLang.value(desktopEntryFileName.value(this));
+    virtual bool isValid() const { return isValid_; }
+    virtual QString name() const { return  name_; }
+    virtual QString localizedName() const {
+       if (language == "english") {
+           return english_;
+       } else {
+           return nonEnglish_;
+       }
     }
+    virtual QString icon() const { return icon_; }
+
+    bool isValid_;
+    QString name_;
+    QString english_;
+    QString nonEnglish_;
+    QString icon_;
+};
+
+bool Action::isValid() const { return d->isValid(); }
+QString Action::name() const { return d->name(); } 
+QString Action::localizedName() const { return d->localizedName(); } 
+QString Action::icon() const { return d->icon(); } 
+
+Action::Action()
+    : d(new ActionPrivate(false, "", "", "", ""))
+{
 }
 
-QString MDesktopEntry::icon() const
+Action::Action(const Action& other)
+    : d(other.d)
 {
-    return desktopEntryIcon.value(desktopEntryFileName.value(this));
 }
 
-QString MDesktopEntry::exec() const
+Action::~Action()
 {
-    return desktopEntryExec.value(desktopEntryFileName.value(this));
+}
+
+Action Action::defaultActionForFile(const QUrl& fileUri, const QString& mimeType)
+{
+    Q_UNUSED(mimeType);
+
+    QString fileName = fileUri.toString();
+    QSharedPointer<ActionPrivate> priv =
+       contentActionPrivate.value(fileName);
+
+    Action action;
+    action.d = priv;
+
+    return action;
+}
+
+int contentActionTriggerCalls = 0;
+void Action::trigger() const
+{
+    contentActionTriggerCalls++;
+}
+
+// A helper function to set up a contentActionPrivate entry
+void addActionPrivate(QString fileName, bool isValid, QString name,
+                      QString english, QString nonEnglish, QString icon)
+{
+    ActionPrivate* priv = new ActionPrivate(isValid, 
+                                            name,
+                                            english,
+                                            nonEnglish,
+                                            icon);
+    contentActionPrivate.insert(fileName,
+                                QSharedPointer<ActionPrivate>(priv));
 }
 
 // QIcon stubs
@@ -87,6 +135,11 @@ QIcon::QIcon(const QString &fileName)
     qIconFileName = fileName;
 }
 
+QIcon& QIcon::operator=(QIcon const &)
+{
+    return *this;
+}
+
 QIcon::~QIcon()
 {
 }
@@ -94,6 +147,7 @@ QIcon::~QIcon()
 bool qIconHasThemeIcon = false;
 bool QIcon::hasThemeIcon(const QString &name)
 {
+    Q_UNUSED(name);
     return qIconHasThemeIcon;
 }
 
@@ -119,16 +173,12 @@ void Ut_LauncherButton::cleanupTestCase()
 void Ut_LauncherButton::init()
 {
     language = "english";
-    desktopEntryNameOtherLang.clear();
-    desktopEntryFileName.clear();
-    desktopEntryType.clear();
-    desktopEntryXMaemoService.clear();
-    desktopEntryName.clear();
-    desktopEntryIcon.clear();
-    desktopEntryExec.clear();
     qIconFileName.clear();
     qIconName.clear();
     qIconHasThemeIcon = false;
+    contentActionPrivate.clear();
+    contentActionTriggerCalls = 0;
+
     m_subject = new LauncherButton();
     connect(this, SIGNAL(clicked()), m_subject, SLOT(launch()));
 }
@@ -142,36 +192,29 @@ void Ut_LauncherButton::testInitialization()
 {
     delete m_subject;
 
-    desktopEntryType.insert("/dev/null", "Application");
-    desktopEntryName.insert("/dev/null", "name");
-    desktopEntryIcon.insert("/dev/null", "icon");
-    desktopEntryExec.insert("/dev/null", "exec");
-
+    addActionPrivate("/dev/null",
+                     true,
+                     "name",
+                     "english",
+                     "nonenglish",
+                     "icon");
 
     m_subject = new LauncherButton("/dev/null");
-    QCOMPARE(m_subject->targetType(), QString("Application"));
-    QCOMPARE(m_subject->text(), QString("name"));
+    QCOMPARE(m_subject->desktopEntry(), QString("/dev/null"));
+    QCOMPARE(m_subject->text(), QString("english"));
     QCOMPARE(m_subject->iconID(), QString("icon"));
-    QCOMPARE(m_subject->target(), QString("exec"));
-}
-
-void Ut_LauncherButton::testInitializationXMaemoService()
-{
-    delete m_subject;
-
-    desktopEntryType.insert("/dev/null", "Application");
-    desktopEntryXMaemoService.insert("/dev/null", "service");
-
-    m_subject = new LauncherButton("/dev/null");
-    QCOMPARE(m_subject->targetType(), QString("Service"));
-    QCOMPARE(m_subject->target(), QString("service"));
 }
 
 void Ut_LauncherButton::testInitializationAbsoluteIcon()
 {
     delete m_subject;
 
-    desktopEntryIcon.insert("/dev/null", "/icon");
+    addActionPrivate("/dev/null",
+                     true,
+                     "name",
+                     "english",
+                     "nonenglish",
+                     "/icon");
 
     m_subject = new LauncherButton("/dev/null");
     QCOMPARE(m_subject->iconID(), QString());
@@ -182,7 +225,12 @@ void Ut_LauncherButton::testInitializationFreeDesktopIcon()
 {
     delete m_subject;
 
-    desktopEntryIcon.insert("/dev/null", "icon");
+    addActionPrivate("/dev/null",
+                     true,
+                     "name",
+                     "english",
+                     "nonenglish",
+                     "icon");
     qIconHasThemeIcon = true;
 
     m_subject = new LauncherButton("/dev/null");
@@ -190,45 +238,29 @@ void Ut_LauncherButton::testInitializationFreeDesktopIcon()
     QCOMPARE(qIconName, QString("icon"));
 }
 
-void Ut_LauncherButton::testLaunchApplication()
+void Ut_LauncherButton::testLaunch()
 {
-    m_subject->setTargetType("Application");
-    m_subject->setTarget("testApplication");
     emit clicked();
-    QCOMPARE(gLauncherStub->stubCallCount("startApplication"), 1);
-    QCOMPARE(gLauncherStub->stubLastCallTo("startApplication").parameter<QString>(0), m_subject->target());
-}
-
-void Ut_LauncherButton::testLaunchMApplication()
-{
-    m_subject->setTargetType("Service");
-    m_subject->setTarget("testService");
-    emit clicked();
-    QCOMPARE(gLauncherStub->stubCallCount("startMApplication"), 1);
-    QCOMPARE(gLauncherStub->stubLastCallTo("startMApplication").parameter<QString>(0), m_subject->target());
+    QCOMPARE(contentActionTriggerCalls, 1);
 }
 
 void Ut_LauncherButton::testLanguageChange()
 {
     delete m_subject;
 
-    desktopEntryType.insert("/dev/null", "Application");
-    desktopEntryName.insert("/dev/null", "name");
-    desktopEntryNameOtherLang.insert("/dev/null", "other_lang_name");
-    desktopEntryIcon.insert("/dev/null", "icon");
-    desktopEntryExec.insert("/dev/null", "exec");
+    addActionPrivate("/dev/null",
+                     true,
+                     "name",
+                     "english",
+                     "nonenglish",
+                     "icon");
 
     m_subject = new LauncherButton("/dev/null");
-    QCOMPARE(m_subject->targetType(), QString("Application"));
-    QCOMPARE(m_subject->text(), QString("name"));
-    QCOMPARE(m_subject->iconID(), QString("icon"));
-    QCOMPARE(m_subject->target(), QString("exec"));
+    QCOMPARE(m_subject->text(), QString("english"));
+
     language = "otherlang";
     m_subject->retranslateUi();
-    QCOMPARE(m_subject->targetType(), QString("Application"));
-    QCOMPARE(m_subject->text(), QString("other_lang_name"));
-    QCOMPARE(m_subject->iconID(), QString("icon"));
-    QCOMPARE(m_subject->target(), QString("exec"));
+    QCOMPARE(m_subject->text(), QString("nonenglish"));
 }
 
 QTEST_APPLESS_MAIN(Ut_LauncherButton)

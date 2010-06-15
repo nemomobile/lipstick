@@ -6,7 +6,7 @@ Build-Depends: debhelper (>= 5), doxygen (>=1.5.9),
   libmeegotouch-dev (>= 0.20.12),
   libqt4-dev (>= 4.6), libqt4-opengl-dev,
   libxcomposite-dev, libxext-dev,
-  libcontextsubscriber-dev, maemo-services-dev
+  libcontextsubscriber-dev, maemo-services-dev, libcontentaction-dev (>= 0.1.9)
 Standards-Version: 3.7.2
 
 Package: duihomescreen

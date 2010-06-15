@@ -21,6 +21,7 @@
 #include "quicklaunchbar.h"
 #include "launcher_stub.h"
 #include "launcherbutton_stub.h"
+#include "launcheraction_stub.h"
 #include "launcherdatastore_stub.h"
 #include "mockdatastore.h"
 

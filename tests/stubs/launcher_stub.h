@@ -29,8 +29,6 @@ class LauncherStub : public StubBase {
   public:
   virtual void LauncherConstructor(LauncherDataStore *dataStore, QGraphicsItem *parent);
   virtual void LauncherDestructor();
-  virtual bool startApplication(const QString &application);
-  virtual bool startMApplication(const QString &serviceName);
   virtual void updatePagesFromDataStore();
   virtual int panToPage(const QString &fileEntryPath);
   virtual QSharedPointer<LauncherButton> createLauncherButton(const QString &desktopEntryPath);
@@ -49,19 +47,6 @@ void LauncherStub::LauncherConstructor(LauncherDataStore *dataStore, QGraphicsIt
 }
 void LauncherStub::LauncherDestructor() {
 
-}
-bool LauncherStub::startApplication(const QString &application) {
-  QList<ParameterBase*> params;
-  params.append( new Parameter<QString>(application));
-  stubMethodEntered("startApplication",params);
-  return stubReturnValue<bool>("startApplication");
-}
-
-bool LauncherStub::startMApplication(const QString &serviceName) {
-  QList<ParameterBase*> params;
-  params.append( new Parameter<QString>(serviceName));
-  stubMethodEntered("startMApplication",params);
-  return stubReturnValue<bool>("startMApplication");
 }
 
 void LauncherStub::updatePagesFromDataStore() {
@@ -126,14 +111,6 @@ Launcher::Launcher(LauncherDataStore *dataStore, QGraphicsItem *parent) {
 
 Launcher::~Launcher() {
   gLauncherStub->LauncherDestructor();
-}
-
-bool Launcher::startApplication(const QString &application) {
-  return gLauncherStub->startApplication(application);
-}
-
-bool Launcher::startMApplication(const QString &serviceName) {
-  return gLauncherStub->startMApplication(serviceName);
 }
 
 void Launcher::updatePagesFromDataStore() {

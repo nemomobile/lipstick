@@ -24,6 +24,7 @@
 #include "launcherpagemodel.h"
 #include "launcherpagestyle.h"
 #include "launcher.h"
+#include "launcheraction_stub.h"
 #include "launcherbutton_stub.h"
 #include "homeapplication_stub.h"
 #include "mainwindow_stub.h"

@@ -8,6 +8,7 @@ MODEL_HEADERS += $$SRCDIR/launcherbuttonmodel.h \
 SOURCES += \
     ut_launcher.cpp \
     $$SRCDIR/launcher.cpp \
+    $$SRCDIR/launcheraction.cpp \
     $$SRCDIR/launcherpage.cpp
 
 # service classes
@@ -18,6 +19,7 @@ SOURCES += \
 HEADERS += \
     ut_launcher.h \
     $$SRCDIR/launcher.h \
+    $$SRCDIR/launcheraction.h \
     $$SRCDIR/launcherpage.h \
     $$SRCDIR/launchermodel.h \
     $$SRCDIR/launcherdatastore.h \

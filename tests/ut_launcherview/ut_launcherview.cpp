@@ -25,6 +25,7 @@
 #include "launcherpage.h"
 #include "launcherbuttonmodel.h"
 #include "launcherbutton_stub.h"
+#include "launcheraction_stub.h"
 #include "launcherdatastore_stub.h"
 #include "homeapplication_stub.h"
 #include "mainwindow_stub.h"

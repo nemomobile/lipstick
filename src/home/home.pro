@@ -40,6 +40,7 @@ CONFIG += link_pkgconfig \
     meegotouch
 PKGCONFIG += xcomposite \
     contextsubscriber-1.0 \
+    contentaction-0.1 \
 #    ContentManagerSearchIf
 
 # Support for deprecated DuiValueSpace. Remove this define when new ContextSubscriber is used.

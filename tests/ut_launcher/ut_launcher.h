@@ -63,10 +63,6 @@ private slots:
     // Executed once after last test case
     void cleanupTestCase();
 
-    // Test that launching an Application is attempted
-    void testApplicationLaunched();
-    // Test that launching a MApplication is attempted
-    void testMApplicationLaunched();
     // Test that launcher buttons are paged to multiple pages
     void testPaging();
     // Test that empty page is removed from launcher

@@ -17,8 +17,6 @@
 **
 ****************************************************************************/
 
-#include <MApplicationIfProxy>
-#include <MDesktopEntry>
 #include "launcher.h"
 #include "launcherbutton.h"
 #include "launcherdatastore.h"
@@ -36,30 +34,6 @@ Launcher::Launcher(LauncherDataStore *dataStore, QGraphicsItem *parent) :
 
 Launcher::~Launcher()
 {
-}
-
-bool Launcher::startApplication(const QString &application)
-{
-    if (!QProcess::startDetached(application)) {
-        qWarning() << "Failed to start application:" << application;
-        return false;
-    } else {
-        return true;
-    }
-}
-
-bool Launcher::startMApplication(const QString &serviceName)
-{
-    MApplicationIfProxy mApplicationIfProxy(serviceName, NULL);
-
-    if (mApplicationIfProxy.connection().isConnected()) {
-        mApplicationIfProxy.launch();
-        return true;
-    } else {
-        qWarning() << "Could not launch" << serviceName;
-        qWarning() << "DBus not connected?";
-        return false;
-    }
 }
 
 void Launcher::updatePagesFromDataStore()

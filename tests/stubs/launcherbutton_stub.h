@@ -12,10 +12,8 @@ class LauncherButtonStub : public StubBase {
   virtual void LauncherButtonConstructor(MWidget *parent);
   virtual void LauncherButtonConstructor(const QString &entry, MWidget *parent);
   virtual void LauncherButtonDestructor();
-  virtual void setTargetType(const QString &type);
-  virtual QString targetType() const;
-  virtual void setTarget(const QString &target);
-  virtual QString target() const;
+  virtual void setAction(const LauncherAction &action);
+  virtual LauncherAction action() const;
   virtual QString desktopEntry() const;
   virtual void launch();
   virtual void updateFromDesktopEntry(const QString &entry);
@@ -36,26 +34,16 @@ void LauncherButtonStub::LauncherButtonConstructor(const QString &entry, MWidget
 void LauncherButtonStub::LauncherButtonDestructor() {
   stubMethodEntered("~LauncherButton");
 }
-void LauncherButtonStub::setTargetType(const QString &type) {
-  QList<ParameterBase*> params;
-  params.append( new Parameter<QString>(type));
-  stubMethodEntered("setTargetType",params);
-}
 
-QString LauncherButtonStub::targetType() const {
-  stubMethodEntered("targetType");
-  return stubReturnValue<QString>("targetType");
-}
-
-void LauncherButtonStub::setTarget(const QString &target) {
+void LauncherButtonStub::setAction(const LauncherAction &action) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<QString >(target));
+  params.append( new Parameter<LauncherAction >(action));
   stubMethodEntered("setTarget",params);
 }
 
-QString LauncherButtonStub::target() const {
-  stubMethodEntered("target");
-  return stubReturnValue<QString>("target");
+LauncherAction LauncherButtonStub::action() const {
+  stubMethodEntered("action");
+  return stubReturnValue<LauncherAction>("action");
 }
 
 QString LauncherButtonStub::desktopEntry() const {
@@ -97,20 +85,12 @@ LauncherButton::~LauncherButton() {
   gLauncherButtonStub->LauncherButtonDestructor();
 }
 
-void LauncherButton::setTargetType(const QString &type) {
-  gLauncherButtonStub->setTargetType(type);
+void LauncherButton::setAction(const LauncherAction &action) {
+  gLauncherButtonStub->setAction(action);
 }
 
-QString LauncherButton::targetType() const {
-  return gLauncherButtonStub->targetType();
-}
-
-void LauncherButton::setTarget(const QString &target) {
-  gLauncherButtonStub->setTarget(target);
-}
-
-QString LauncherButton::target() const {
-  return gLauncherButtonStub->target();
+LauncherAction LauncherButton::action() const {
+  return gLauncherButtonStub->action();
 }
 
 QString LauncherButton::desktopEntry() const {

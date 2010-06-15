@@ -18,8 +18,10 @@
 ****************************************************************************/
 
 #include "launcherbutton.h"
+#include "launcheraction.h"
 #include "launcher.h"
 #include <MDesktopEntry>
+#include <QDateTime>
 #include <QFileInfo>
 
 LauncherButton::LauncherButton(MWidget *parent) : MButton(parent, new LauncherButtonModel)
@@ -41,44 +43,30 @@ LauncherButton::~LauncherButton()
 {
 }
 
-void LauncherButton::setTargetType(const QString &type)
+void LauncherButton::setAction(const LauncherAction &action)
 {
-    model()->setTargetType(type);
+    model()->setAction(action);
 }
 
-QString LauncherButton::targetType() const
+LauncherAction LauncherButton::action() const
 {
-    return model()->targetType();
-}
-
-void LauncherButton::setTarget(const QString &target)
-{
-    model()->setTarget(target);
-}
-
-QString LauncherButton::target() const
-{
-    return model()->target();
+    return model()->action();
 }
 
 QString LauncherButton::desktopEntry() const
 {
-    return model()->desktopEntry()->fileName();
+    return model()->desktopEntryFile();
 }
 
 void LauncherButton::launch()
 {
-    if (targetType() == "Application") {
-        Launcher::startApplication(target());
-    } else if (targetType() == "Service") {
-        Launcher::startMApplication(target());
-    }
+    action().trigger();
 }
 
 void LauncherButton::retranslateUi()
 {
-    if (!model()->desktopEntry().isNull()) {
-        setText(model()->desktopEntry()->name());
+    if (!desktopEntry().isNull()) {
+        setText(action().localizedName());
     }
     MButton::retranslateUi();
 }
@@ -86,31 +74,31 @@ void LauncherButton::retranslateUi()
 void LauncherButton::updateFromDesktopEntry(const QString &desktopEntryPath)
 {
     // only update if not initialized yet or if from the same desktop entry
-    if (model()->desktopEntry().isNull()
-        || desktopEntryPath == model()->desktopEntry()->fileName()) {
+    if (desktopEntry().isNull()
+        || desktopEntryPath == desktopEntry()) {
 
-        QSharedPointer<MDesktopEntry> entry(new MDesktopEntry(desktopEntryPath));
+        LauncherAction action(desktopEntryPath);
 
-        setTargetType(entry->type());
-        setText(entry->name());
+        setText(action.localizedName());
+        updateIcon(action);
 
-        updateIcon(entry);
-        updateTarget(entry);
-
-        model()->setDesktopEntry(entry);
+        model()->setDesktopEntryFile(desktopEntryPath);
+        setAction(action);
     }
 }
 
-void LauncherButton::updateIcon(QSharedPointer<MDesktopEntry> &entry)
+void LauncherButton::updateIcon(const LauncherAction& action)
 {
-    if (!entry->icon().isEmpty()) {
-        if (QFileInfo(entry->icon()).isAbsolute()) {
-            setIcon(QIcon(entry->icon()));
+    QString icon = action.icon();
+
+    if (!icon.isEmpty()) {
+        if (QFileInfo(icon).isAbsolute()) {
+            setIcon(QIcon(icon));
         } else {
-            if (QIcon::hasThemeIcon(entry->icon())) {
-                setIcon(QIcon::fromTheme(entry->icon()));
+            if (QIcon::hasThemeIcon(icon)) {
+                setIcon(QIcon::fromTheme(icon));
             } else {
-                setIconID(entry->icon());
+                setIconID(icon);
             }
         }
     } else {
@@ -118,18 +106,5 @@ void LauncherButton::updateIcon(QSharedPointer<MDesktopEntry> &entry)
         // as incorrect id icon-Application-Default will load default icon
         // (at the moment default icon seems to be icon-l-video)
         setIconID("icon-Application-Default");
-    }
-}
-
-void LauncherButton::updateTarget(QSharedPointer<MDesktopEntry> &entry)
-{
-    if (entry->type() == "Application") {
-        QString thisXMaemoService = entry->xMaemoService();
-        if (thisXMaemoService.isEmpty()) {
-            setTarget(entry->exec());
-        } else {
-            setTarget(thisXMaemoService);
-            setTargetType("Service");
-        }
     }
 }

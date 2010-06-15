@@ -79,22 +79,6 @@ public:
      */
     virtual ~Launcher();
 
-    /*!
-     * Starts an application.
-     *
-     * \param application the application to be started
-     * \return \c true if starting succeeded, \c false otherwise
-     */
-    static bool startApplication(const QString &application);
-
-    /*!
-     * Starts a M application.
-     *
-     * \param serviceName the service name of the application to be started
-     * \return \c true if starting succeeded, \c false otherwise
-     */
-    static bool startMApplication(const QString &serviceName);
-
 signals:
     /*!
      * Signal sent when a launcher button was clicked.

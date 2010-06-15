@@ -63,14 +63,6 @@ void QDBusPendingReplyData::setMetaTypes(int, int const *)
 {
 }
 
-bool mApplicationIfProxyLaunchCalled;
-QDBusPendingReply<> MApplicationIfProxy::launch()
-{
-    mApplicationIfProxyLaunchCalled = true;
-
-    return QDBusPendingReply<>();
-}
-
 QString qProcessProgramStarted;
 bool QProcess::startDetached(const QString &program)
 {
@@ -111,7 +103,6 @@ void Ut_Launcher::init()
     connect(this, SIGNAL(testPanToPageSignal(const QString &)), launcher, SLOT(panToPage(const QString &)));
 
     qProcessProgramStarted.clear();
-    mApplicationIfProxyLaunchCalled = false;
 
     updateFromDesktopEntryCallCount = 0;
 }
@@ -151,20 +142,6 @@ void Ut_Launcher::comparePageNumberArgument(QSignalSpy &spy, int page)
     QCOMPARE(spy.count(), 1);
     QList<QVariant> arguments = spy.takeFirst();
     QCOMPARE(arguments.at(0).toInt(), page);
-}
-
-void Ut_Launcher::testApplicationLaunched()
-{
-    launcher->startApplication("test0");
-
-    QCOMPARE(qProcessProgramStarted, QString("test0"));
-}
-
-void Ut_Launcher::testMApplicationLaunched()
-{
-    launcher->startMApplication("com.nokia.test1");
-
-    QCOMPARE(mApplicationIfProxyLaunchCalled, true);
 }
 
 void Ut_Launcher::testPaging()

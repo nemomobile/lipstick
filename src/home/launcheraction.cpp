@@ -17,22 +17,28 @@
 **
 ****************************************************************************/
 
-#ifndef LAUNCHERBUTTONMODEL_H_
-#define LAUNCHERBUTTONMODEL_H_
-
-#include <mbuttonmodel.h>
 #include "launcheraction.h"
 
-class LauncherButtonModel : public MButtonModel
+LauncherAction::LauncherAction()
+    : Action()
 {
-private:
-    Q_OBJECT
-    M_MODEL(LauncherButtonModel)
+}
 
-    //! Desktop entry file that launcher button is representing
-    M_MODEL_PROPERTY(QString, desktopEntryFile, DesktopEntryFile, true, QString())
-    //! Action for the desktop entry file
-    M_MODEL_PROPERTY(LauncherAction, action, Action, true, LauncherAction())
-};
+LauncherAction::LauncherAction(const QString& desktopEntry)
+    : Action(Action::defaultActionForFile(desktopEntry, "application/x-desktop"))
+{
+}
 
-#endif /* LAUNCHERBUTTONMODEL_H_ */
+bool operator==(const LauncherAction &a, const LauncherAction &b)
+{
+    return 
+        a.isValid() && b.isValid() &&
+        a.name() == b.name() &&
+        a.localizedName() == b.localizedName() &&
+        a.icon() == b.icon();
+}
+
+bool operator!=(const LauncherAction &a, const LauncherAction &b)
+{
+    return !(a == b);
+}
