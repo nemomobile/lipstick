@@ -1,4 +1,4 @@
-duihome (0.21.11~1) unstable; urgency=low
+duihome (0.21.11~2) unstable; urgency=low
 
   * [UNRELEASED]
   * Fixes: NB#167077 - [browser-blocker] Launcher is passing the substitution variables in the Exec field of the .desktop field as parameters when there is no substitution to be done
