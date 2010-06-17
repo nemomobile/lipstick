@@ -9,6 +9,7 @@ SUBDIRS = \
     ut_homescreenservice \
     ut_launcher \
     ut_launcherbutton \
+    ut_launcherbuttonview \
     ut_launcherdatastore \
     ut_launcherpage \
     ut_launcherpageview \
@@ -21,7 +22,7 @@ SUBDIRS = \
     ut_quicklaunchbar \
     ut_quicklaunchbarview \
     ut_switcher \
-   ut_switcherbutton \
+    ut_switcherbutton \
     ut_switcherbuttonview \
     ut_switcherview \
     ut_windowinfo \

@@ -17,6 +17,7 @@ HEADERS += homeapplication.h \
     launcherstyle.h \
     launcheraction.h \
     launcherbutton.h \
+    launcherbuttonview.h \
     launcherbuttonmodel.h \
     pagedpanning.h \
     pagedviewport.h \
@@ -58,6 +59,7 @@ SOURCES += homeapplication.cpp \
     launcherview.cpp \
     launcheraction.cpp \
     launcherbutton.cpp \
+    launcherbuttonview.cpp \
     pagedpanning.cpp \
     pagedviewport.cpp \
     pagedviewportview.cpp \
