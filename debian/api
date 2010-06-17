@@ -1,0 +1,21 @@
+interface: LauncherButtonDesktopFileInterface
+type: file
+scope: Nokia Meego
+state: experimental
+libs-pkg: duihomescreen 
+dev-pkg: duihomescreen
+
+interface: com.meego.core.HomeScreen
+type: dbus
+scope: Platform
+state: experimental
+libs-pkg: duihomescreen
+dev-pkg: duihomescreen
+
+interface: com.meego.core.MDesktopBackgroundExtensionInterface
+type: dbus
+scope: Platform
+state: experimental
+libs-pkg: duihomescreen
+dev-pkg: duihomescreen
+
