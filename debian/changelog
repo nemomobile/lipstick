@@ -1,10 +1,9 @@
-duihome (0.21.11~2) unstable; urgency=low
+duihome (0.21.11-1) unstable; urgency=low
 
-  * [UNRELEASED]
   * Fixes: NB#167077 - [browser-blocker] Launcher is passing the substitution variables in the Exec field of the .desktop field as parameters when there is no substitution to be done
   * Fixes: NB#171829 - Applications do not get _NET_ACTIVE_WINDOW event
 
- -- Aki Koskinen <aki.koskinen@nokia.com>  Mon, 14 Jun 2010 11:59:00 +0300
+ -- Aki Koskinen <aki.koskinen@nokia.com>  Thu, 17 Jun 2010 16:11:00 +0300
 
 duihome (0.21.10-1) unstable; urgency=low
 
