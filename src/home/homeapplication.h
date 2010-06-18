@@ -21,7 +21,6 @@
 #define HOMEAPPLICATION_H_
 
 #include <MApplication>
-//#include <contentsearchif.h>
 #include "windowinfo.h"
 #include <QTimer>
 #include <QMap>
@@ -51,12 +50,6 @@ public:
      * Destroys the HomeApplication.
      */
     ~HomeApplication();
-
-public slots:
-    /*!
-     * Launches content search service
-     */
-    void launchContentSearchService();
 
 signals:
 
@@ -115,9 +108,6 @@ private:
     Atom netWindowNameAtom;
     Atom windowNameAtom;
 
-    //! Content search service interface. Used to launch the content search service.
-    //ContentSearchIf contentSearchIf;
-
     //! A list of windows that are being closed
     QSet<Window> windowsBeingClosed;
 
@@ -142,7 +132,7 @@ private:
      * \return true if application windows were added
      */
     bool createWindowInfos(QSet<Window> openedWindowSet);
-    
+
     /*!
      * Update the title of the given window and emit \c windowTitleChanged
      * \param window The X window to update
@@ -174,7 +164,7 @@ private:
     QMap<Window, WindowInfo> windowMap;
 
     //! List of application windows
-    QList<WindowInfo> applicationWindows; 
+    QList<WindowInfo> applicationWindows;
 
     //! A set of window type atoms that are used to finlter the application windows
     QSet<Atom> excludeAtoms;

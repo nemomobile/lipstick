@@ -1,8 +1,8 @@
-duihome (0.21.11-1~1) unstable; urgency=low
+duihome (0.21.11-2) unstable; urgency=low
 
-  * [UNRELEASED]
+  * Removed a dependency to maemo-services package
 
- -- Aki Koskinen <aki.koskinen@nokia.com>  Thu, 17 Jun 2010 16:31:31 +0300
+ -- Aki Koskinen <aki.koskinen@nokia.com>  Fri, 18 Jun 2010 13:25:00 +0300
 
 duihome (0.21.11-1) unstable; urgency=low
 

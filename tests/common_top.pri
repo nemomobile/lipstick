@@ -9,7 +9,7 @@ CONFIG += debug meegotouch link_pkgconfig
 PKGCONFIG += contextsubscriber-1.0 \
     contentaction-0.1 \
     xcomposite
-#    ContentManagerSearchIf
+
 QT += testlib network gui dbus xml
 exists($$[QT_INSTALL_LIBS]/libQtOpenGL.so):QT += opengl
 TEMPLATE = app
@@ -22,9 +22,6 @@ LIBS += -lgcov
 QMAKE_CXXFLAGS += -ftest-coverage \
     -fprofile-arcs
 }
-
-# Support for deprecated DuiValueSpace. Remove this define when new ContextSubscriber is used.
-DEFINES += MVALUESPACE_USE_DEPRECATED
 
 DEFINES += M_XDG_DIR=\\\"\"$$M_XDG_DIR\"\\\"
 

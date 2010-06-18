@@ -36,7 +36,7 @@ public:
     QList<WindowInfo> stackingWindowList;
     int count;
     int stackingCount;
-    
+
     QPair<Window, QString> changedTitle;
 
 private slots:
@@ -105,16 +105,11 @@ private slots:
     // Test X11EventFilter with PropertyNotify events
     void testX11EventFilterWithPropertyNotify();
     // Test X11EventFilter with VisibilityNotify events
-    void testX11EventFilterWithVisibilityNotify();
+//    void testX11EventFilterWithVisibilityNotify();
     // Test X11EventFilter with ClientMessage events
     void testX11EventFilterWithClientMessage();
     // Test the stacking order signal
     void testWindowStackingOrder();
-
-    // Test content search service launch
-    //void testContentSearchLaunch();
-    // Test content search service launch without service framework
-    //void testContentSearchLaunchWithoutServiceFW();
 
     // Test data for test testX11EventWindowNameChange
     void testX11EventWindowNameChange_data();

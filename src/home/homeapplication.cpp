@@ -130,15 +130,6 @@ void HomeApplication::sendStartupNotifications()
     }
 }
 
-void HomeApplication::launchContentSearchService()
-{
-    /*
-    if (contentSearchIf.isValid()) {
-        contentSearchIf.launch("");
-    }
-    */
-}
-
 bool HomeApplication::x11EventFilter(XEvent *event)
 {
     if (event->type == PropertyNotify && event->xproperty.window == DefaultRootWindow(QX11Info::display())) {
@@ -176,7 +167,7 @@ bool HomeApplication::x11EventFilter(XEvent *event)
                (event->xproperty.atom == windowTypeAtom || event->xproperty.atom == windowStateAtom)) {
 
         updateWindowProperties(event->xproperty.window);
-    
+
         return true;
     } else if (event->type == PropertyNotify &&
                (event->xproperty.atom == windowNameAtom || event->xproperty.atom == netWindowNameAtom)) {
@@ -234,9 +225,9 @@ void HomeApplication::updateWindowMapping()
         for (unsigned int i = 0; i < numWindowItems; i++) {
             result = X11Wrapper::XGetWindowAttributes(dpy, wins[i], &wAttributes);
             // The windows that are bigger than 0x0, are Input/Output windows and are not unmapped are interesting
-            if (result != 0 && 
-                wAttributes.width > 0 && wAttributes.height > 0 && 
-                wAttributes.c_class == InputOutput && 
+            if (result != 0 &&
+                wAttributes.width > 0 && wAttributes.height > 0 &&
+                wAttributes.c_class == InputOutput &&
                 wAttributes.map_state != IsUnmapped) {
                 newWindowList.append(wins[i]);
             }
@@ -318,4 +309,4 @@ bool HomeApplication::isApplicationWindow(const WindowInfo &wi)
     excludeSet += wi.states().toSet();
 
     return excludeSet.intersect(excludeAtoms).isEmpty();
-}    
+}

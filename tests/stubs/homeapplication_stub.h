@@ -29,7 +29,6 @@ class HomeApplicationStub : public StubBase
 public:
     virtual void HomeApplicationConstructor(int &argc, char **argv);
     virtual void HomeApplicationDestructor();
-    virtual void launchContentSearchService();
     virtual void windowListUpdated(QList<WindowInfo> &windowList);
     virtual void windowVisibilityChanged(Window window);
     virtual bool x11EventFilter(XEvent *event);
@@ -46,11 +45,6 @@ void HomeApplicationStub::HomeApplicationConstructor(int &argc, char **argv)
 void HomeApplicationStub::HomeApplicationDestructor()
 {
 
-}
-
-void HomeApplicationStub::launchContentSearchService()
-{
-    stubMethodEntered("launchContentSearchService");
 }
 
 void HomeApplicationStub::windowListUpdated(QList<WindowInfo> &windowList)
@@ -94,11 +88,6 @@ HomeApplication::HomeApplication(int &argc, char **argv) : MApplication(argc, ar
 HomeApplication::~HomeApplication()
 {
     gHomeApplicationStub->HomeApplicationDestructor();
-}
-
-void HomeApplication::launchContentSearchService()
-{
-    gHomeApplicationStub->launchContentSearchService();
 }
 
 bool HomeApplication::x11EventFilter(XEvent *event)

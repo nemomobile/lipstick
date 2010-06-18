@@ -214,7 +214,7 @@ int X11Wrapper::XGetWindowProperty(Display *dpy, Window w, Atom property, long l
 
             Window *windows = (Window *) * prop_return;
             for (int w = 0; w < g_windows.count(); w++) {
-                windows[w] = g_windows[w];                                
+                windows[w] = g_windows[w];
             }
             //for (int i = 0; i < Ut_HomeApplication::clientListNumberOfWindows; i++)
             //windows[i] = i;
@@ -536,7 +536,7 @@ void Ut_HomeApplication::testX11EventFilterWithPropertyNotify()
     QCOMPARE(r.windowList.count(), 0);
 }
 
-void Ut_HomeApplication::testX11EventFilterWithVisibilityNotify()
+/*void Ut_HomeApplication::testX11EventFilterWithVisibilityNotify()
 {
     MainWindow *w = MainWindow::instance(true);
     QList<MWindow *> windowList;
@@ -579,7 +579,7 @@ void Ut_HomeApplication::testX11EventFilterWithVisibilityNotify()
     QVERIFY(!m_subject->testX11EventFilter(&event));
     QCOMPARE(r.windowList.count(), 1);
     QCOMPARE(gMApplicationStub->stubCallCount("x11EventFilter"), x11EventFilterCallCount + 1);
-}
+}*/
 
 void Ut_HomeApplication::testX11EventFilterWithClientMessage()
 {
@@ -614,7 +614,7 @@ void Ut_HomeApplication::testX11EventFilterWithClientMessage()
 
     // Make sure the window list change signal was not emitted
     QCOMPARE(r.count, 1);
-    
+
     // There should be 2 windows in the window list
     QCOMPARE(r.windowList.count(), APPLICATION_WINDOWS - 1);
 }
@@ -650,38 +650,6 @@ void Ut_HomeApplication::testWindowStackingOrder()
     QCOMPARE(first.window(), r.stackingWindowList.last().window());
     QCOMPARE(last.window(), r.stackingWindowList.first().window());
 }
-
-/*
-void Ut_HomeApplication::testContentSearchLaunch()
-{
-    // Add interface so that isValid() returns true
-    validInterfaces.append(QString("com.nokia.ContentSearchIf"));
-
-    // Launch the content search service
-    m_subject->launchContentSearchService();
-
-    // Verify that content search is launched
-    QCOMPARE(serviceInterfaces.count(), 1);
-    QCOMPARE(serviceInterfaces.at(0), QString("com.nokia.ContentSearchIf"));
-    QCOMPARE(asyncCallMethods.at(0), QString("launch"));
-    QCOMPARE(asyncCallArguments.at(0).count(), 1);
-    QCOMPARE(asyncCallArguments.at(0).at(0).type(), QVariant::String);
-    QCOMPARE(asyncCallArguments.at(0).at(0).toString(), QString(""));
-}
-
-void Ut_HomeApplication::testContentSearchLaunchWithoutServiceFW()
-{
-    // Click the search button
-    m_subject->launchContentSearchService();
-
-    // Verify that home application doesn't try to launch the service
-    QCOMPARE(serviceInterfaces.count(), 1);
-    QCOMPARE(serviceInterfaces.at(0), QString("com.nokia.ContentSearchIf"));
-    QCOMPARE(asyncCallMethods.count(), 0);
-}
-*/
-
-
 
 void Ut_HomeApplication::testX11EventWindowNameChange_data()
 {
