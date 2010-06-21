@@ -21,8 +21,9 @@
 #define UT_LAUNCHERBUTTON_H
 
 #include <QObject>
+#include "windowinfo.h"
 
-class MApplication;
+class HomeApplication;
 class LauncherButton;
 
 class Ut_LauncherButton : public QObject
@@ -45,13 +46,17 @@ private slots:
     void testInitializationFreeDesktopIcon();
     void testLanguageChange();
     void testLaunch();
+    void testHideProgressIndicator();
+    void testHideProgressIndicatorIfObscured();
+    void testHideProgressIndicatorIfObscured_data();
 
 signals:
     void clicked();
+    void windowStackingOrderChanged(const QList<WindowInfo> &windowList);
 
 private:
-    // MApplication
-    MApplication *app;
+    // Application
+    HomeApplication *app;
     // The object being tested
     LauncherButton *m_subject;
 };

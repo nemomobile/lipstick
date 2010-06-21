@@ -251,7 +251,12 @@ LauncherButtonStyle {
     press-feedback: press;
     release-feedback: release;
 
+    /* The timeout for the progress indicator (in milliseconds) */
     progress-indicator-timeout: 10000;
+    /* The number of milliseconds in which the given progress indicator images are animated */
+    progress-indicator-animation-duration: 8000;
+    /* The list of IDs of the images to be shown in the progress indicator separated by spaces */
+    progress-indicator-image-list: "meegotouch-launcher-spinner-large-1 meegotouch-launcher-spinner-large-2 meegotouch-launcher-spinner-large-3 meegotouch-launcher-spinner-large-4 meegotouch-launcher-spinner-large-5 meegotouch-launcher-spinner-large-6 meegotouch-launcher-spinner-large-7 meegotouch-launcher-spinner-large-8 meegotouch-launcher-spinner-large-9 meegotouch-launcher-spinner-large-10 meegotouch-launcher-spinner-large-11 meegotouch-launcher-spinner-large-12 meegotouch-launcher-spinner-large-13 meegotouch-launcher-spinner-large-14 meegotouch-launcher-spinner-large-15 meegotouch-launcher-spinner-large-16";
 }
 
 LauncherButton > MSpinnerStyle {

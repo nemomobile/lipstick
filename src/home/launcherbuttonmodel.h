@@ -33,6 +33,8 @@ private:
     M_MODEL_PROPERTY(QString, desktopEntryFile, DesktopEntryFile, true, QString())
     //! Action for the desktop entry file
     M_MODEL_PROPERTY(LauncherAction, action, Action, true, LauncherAction())
+    //! Whether to show a progress indicator or not
+    M_MODEL_PROPERTY(bool, showProgressIndicator, ShowProgressIndicator, true, false)
 };
 
 #endif /* LAUNCHERBUTTONMODEL_H_ */

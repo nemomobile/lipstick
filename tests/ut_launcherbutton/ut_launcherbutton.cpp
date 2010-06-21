@@ -18,11 +18,160 @@
 ****************************************************************************/
 
 #include <QtTest/QtTest>
-#include <MApplication>
 #include "contentaction.h"
 #include "ut_launcherbutton.h"
 #include "launcherbutton.h"
 #include "launcher_stub.h"
+#include "homeapplication_stub.h"
+#include "x11wrapper.h"
+
+#define ATOM_TYPE_NORMAL 1
+#define ATOM_TYPE_NOTIFICATION 2
+#define ATOM_TYPE_MENU 3
+#define ATOM_TYPE_DIALOG 4
+#define ATOM_TYPE_DESKTOP 5
+#define ATOM_TYPE_DEFAULT 6
+
+// X11Wrapper Stubs
+int X11Wrapper::XSelectInput(Display *, Window , long)
+{
+    return 0;
+}
+
+Status X11Wrapper::XGetWindowAttributes(Display *, Window, XWindowAttributes *)
+{
+    return 0;
+}
+
+Atom X11Wrapper::XInternAtom(Display *, const char *atom_name, Bool)
+{
+    if (strcmp(atom_name, "_NET_WM_WINDOW_TYPE_NORMAL") == 0) {
+        return ATOM_TYPE_NORMAL;
+    } else if (strcmp(atom_name, "_NET_WM_WINDOW_TYPE_NOTIFICATION") == 0) {
+        return ATOM_TYPE_NOTIFICATION;
+    } else if (strcmp(atom_name, "_NET_WM_WINDOW_TYPE_MENU") == 0) {
+        return ATOM_TYPE_MENU;
+    } else if (strcmp(atom_name, "_NET_WM_WINDOW_TYPE_DIALOG") == 0) {
+        return ATOM_TYPE_DIALOG;
+    } else if (strcmp(atom_name, "_NET_WM_WINDOW_TYPE_DESKTOP") == 0) {
+        return ATOM_TYPE_DESKTOP;
+    } else {
+        return ATOM_TYPE_DEFAULT;
+    }
+}
+
+int X11Wrapper::XGetWindowProperty(Display *dpy, Window w, Atom property, long long_offset, long long_length, Bool del, Atom req_type, Atom *actual_type_return, int *actual_format_return, unsigned long *nitems_return, unsigned long *bytes_after_return, unsigned char **prop_return)
+{
+    Q_UNUSED(dpy);
+    Q_UNUSED(property);
+    Q_UNUSED(long_offset);
+    Q_UNUSED(long_length);
+    Q_UNUSED(del);
+    Q_UNUSED(req_type);
+    Q_UNUSED(actual_type_return);
+    Q_UNUSED(actual_format_return);
+    Q_UNUSED(bytes_after_return);
+
+    if (w == ATOM_TYPE_NORMAL) {
+        *nitems_return = 1;
+        *prop_return = new unsigned char[1 * sizeof(Atom)];
+        Atom* atom = (Atom *) * prop_return;
+        atom[0] = ATOM_TYPE_NORMAL;
+        return Success;
+    } else if (w == ATOM_TYPE_NOTIFICATION) {
+        *nitems_return = 1;
+        *prop_return = new unsigned char[1 * sizeof(Atom)];
+        Atom* atom = (Atom *) * prop_return;
+        atom[0] = ATOM_TYPE_NOTIFICATION;
+        return Success;
+    } else if (w == ATOM_TYPE_MENU) {
+        *nitems_return = 1;
+        *prop_return = new unsigned char[1 * sizeof(Atom)];
+        Atom* atom = (Atom *) * prop_return;
+        atom[0] = ATOM_TYPE_MENU;
+        return Success;
+    } else if (w == ATOM_TYPE_DIALOG) {
+        *nitems_return = 1;
+        *prop_return = new unsigned char[1 * sizeof(Atom)];
+        Atom* atom = (Atom *) * prop_return;
+        atom[0] = ATOM_TYPE_DIALOG;
+        return Success;
+    } else if (w == ATOM_TYPE_DESKTOP) {
+        *nitems_return = 1;
+        *prop_return = new unsigned char[1 * sizeof(Atom)];
+        Atom* atom = (Atom *) * prop_return;
+        atom[0] = ATOM_TYPE_DESKTOP;
+        return Success;
+    } else if (w == ATOM_TYPE_DEFAULT) {
+        *nitems_return = 1;
+        *prop_return = new unsigned char[1 * sizeof(Atom)];
+        Atom* atom = (Atom *) * prop_return;
+        atom[0] = ATOM_TYPE_DEFAULT;
+        return Success;
+    } else {
+        return BadAtom;
+    }
+}
+
+int X11Wrapper::XFree(void *)
+{
+    return 0;
+}
+
+Status X11Wrapper::XGetWMName(Display *, Window, XTextProperty *)
+{
+    return -1;
+}
+
+Status X11Wrapper::XGetTextProperty(Display *, Window , XTextProperty *, Atom)
+{
+    return 0;
+}
+
+XWMHints *X11Wrapper::XGetWMHints(Display *, Window)
+{
+    return 0;
+}
+
+int X11Wrapper::XFreePixmap(Display *, Pixmap)
+{
+    return 0;
+}
+
+Pixmap X11Wrapper::XCompositeNameWindowPixmap(Display *, Window)
+{
+    return 0;
+}
+
+Damage X11Wrapper::XDamageCreate(Display *, Drawable, int)
+{
+    return 0;
+}
+
+void X11Wrapper::XDamageDestroy(Display *, Damage)
+{
+
+}
+
+int X11Wrapper::XSync(Display *, Bool)
+{
+    return 0;
+}
+
+XErrorHandler X11Wrapper::XSetErrorHandler(XErrorHandler)
+{
+    return 0;
+}
+
+int X11Wrapper::XChangeProperty(Display *, Window, Atom, Atom, int, int, unsigned char *, int)
+{
+    return 0;
+}
+
+Status X11Wrapper::XSendEvent(Display *, Window, Bool, long, XEvent *)
+{
+    return 0;
+}
 
 using namespace ContentAction;
 
@@ -158,11 +307,25 @@ QIcon QIcon::fromTheme(const QString &name, const QIcon &fallback)
     return fallback;
 }
 
+// QTimer stubs
+bool qTimerStarted;
+void QTimer::start()
+{
+    qTimerStarted = true;
+    id = 0;
+}
+
+void QTimer::stop()
+{
+    qTimerStarted = false;
+    id = -1;
+}
+
 void Ut_LauncherButton::initTestCase()
 {
     static int argc = 1;
     static char *app_name[1] = { (char *) "./ut_launcherbutton" };
-    app = new MApplication(argc, app_name);
+    app = new HomeApplication(argc, app_name);
 }
 
 void Ut_LauncherButton::cleanupTestCase()
@@ -178,13 +341,16 @@ void Ut_LauncherButton::init()
     qIconHasThemeIcon = false;
     contentActionPrivate.clear();
     contentActionTriggerCalls = 0;
+    qTimerStarted = false;
 
     m_subject = new LauncherButton();
     connect(this, SIGNAL(clicked()), m_subject, SLOT(launch()));
+    connect(this, SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), m_subject, SLOT(hideProgressIndicatorIfObscured(const QList<WindowInfo> &)));
 }
 
 void Ut_LauncherButton::cleanup()
 {
+    m_subject->hideProgressIndicator();
     delete m_subject;
 }
 
@@ -203,6 +369,9 @@ void Ut_LauncherButton::testInitialization()
     QCOMPARE(m_subject->desktopEntry(), QString("/dev/null"));
     QCOMPARE(m_subject->text(), QString("english"));
     QCOMPARE(m_subject->iconID(), QString("icon"));
+    QVERIFY(disconnect(&m_subject->progressIndicatorTimeoutTimer, SIGNAL(timeout()), m_subject, SLOT(hideProgressIndicator())));
+    QVERIFY(m_subject->progressIndicatorTimeoutTimer.isSingleShot());
+    QVERIFY(!qTimerStarted);
 }
 
 void Ut_LauncherButton::testInitializationAbsoluteIcon()
@@ -242,6 +411,51 @@ void Ut_LauncherButton::testLaunch()
 {
     emit clicked();
     QCOMPARE(contentActionTriggerCalls, 1);
+    QVERIFY(qTimerStarted);
+    QVERIFY(disconnect(qApp, SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), m_subject, SLOT(hideProgressIndicatorIfObscured(const QList<WindowInfo> &))));
+    QVERIFY(m_subject->isInProgress());
+
+    qTimerStarted = false;
+    emit clicked();
+    QVERIFY(!qTimerStarted);
+    QVERIFY(!disconnect(qApp, SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), m_subject, SLOT(hideProgressIndicatorIfObscured(const QList<WindowInfo> &))));
+}
+
+void Ut_LauncherButton::testHideProgressIndicator()
+{
+    emit clicked();
+    m_subject->hideProgressIndicator();
+    QVERIFY(!qTimerStarted);
+    QVERIFY(!disconnect(qApp, SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), m_subject, SLOT(hideProgressIndicatorIfObscured(const QList<WindowInfo> &))));
+    QVERIFY(!m_subject->isInProgress());
+}
+
+void Ut_LauncherButton::testHideProgressIndicatorIfObscured_data()
+{
+    QTest::addColumn<int>("topMostWindowId");
+    QTest::addColumn<bool>("shouldBeInProgress");
+
+    QTest::newRow("_NEW_WM_WINDOW_TYPE_NORMAL") << 1 << false;
+    QTest::newRow("_NEW_WM_WINDOW_TYPE_NOTIFICATION") << 2 << true;
+    QTest::newRow("_NEW_WM_WINDOW_TYPE_MENU") << 3 << true;
+    QTest::newRow("_NEW_WM_WINDOW_TYPE_DIALOG") << 4 << true;
+    QTest::newRow("_NEW_WM_WINDOW_TYPE_DESKTOP") << 5 << true;
+    QTest::newRow("_NEW_WM_WINDOW_TYPE_DEFAULT") << 6 << false;
+}
+
+void Ut_LauncherButton::testHideProgressIndicatorIfObscured()
+{
+    QFETCH(int, topMostWindowId);
+    QFETCH(bool, shouldBeInProgress);
+
+    emit clicked();
+    QCOMPARE(m_subject->isInProgress(), true);
+
+    QList<WindowInfo> windowList;
+    windowList.append(WindowInfo(topMostWindowId));
+    emit windowStackingOrderChanged(windowList);
+
+    QCOMPARE(m_subject->isInProgress(), shouldBeInProgress);
 }
 
 void Ut_LauncherButton::testLanguageChange()
@@ -264,3 +478,5 @@ void Ut_LauncherButton::testLanguageChange()
 }
 
 QTEST_APPLESS_MAIN(Ut_LauncherButton)
+
+//     QCOMPARE(m_subject->progressIndicatorTimeoutTimer.interval(), m_subject->style()->progressIndicatorTimeout());

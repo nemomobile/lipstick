@@ -8,7 +8,6 @@ MODEL_HEADERS += $$SRCDIR/launcherbuttonmodel.h
 SOURCES += \
     ut_launcherbuttonview.cpp \
     $$SRCDIR/launcherbuttonview.cpp \
-    $$SRCDIR/windowinfo.cpp \
     $$STUBSDIR/stubbase.cpp
 
 HEADERS += \
@@ -18,7 +17,6 @@ HEADERS += \
     $$SRCDIR/launcherbuttonstyle.h \
     $$SRCDIR/launcheraction.h \
     $$SRCDIR/launcherbutton.h \
-    $$SRCDIR/windowinfo.h \
-    $$SRCDIR/homeapplication.h
+    $$SRCDIR/windowinfo.h
 
 include(../common_bot.pri)

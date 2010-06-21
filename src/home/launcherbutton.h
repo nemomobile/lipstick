@@ -20,8 +20,10 @@
 #ifndef LAUNCHERBUTTON_H
 #define LAUNCHERBUTTON_H
 
+#include <QTimer>
 #include <MButton>
 #include "launcherbuttonmodel.h"
+#include "windowinfo.h"
 
 class MDesktopEntry;
 class LauncherAction;
@@ -41,6 +43,7 @@ class LauncherButton : public MButton
     M_CONTROLLER(LauncherButton)
 
     Q_PROPERTY(QString desktopEntryPath READ desktopEntry)
+    Q_PROPERTY(bool inProgress READ isInProgress)
 
 public:
     /*!
@@ -96,14 +99,52 @@ public:
      */
     void retranslateUi();
 
+    /*!
+     * Returns whether the object represented by this launcher button is being launched.
+     * \return \c true if the object represented by this launcher button is being launched, \c false otherwise
+     */
+    bool isInProgress() const;
+
+    /*!
+     * Sets the timeout of the progress indicator in milliseconds
+     * \param timeout the timeout of the progress indicator in milliseconds
+     */
+    void setProgressIndicatorTimeout(int timeout);
+
 private slots:
     /*!
-     * Attempts to launch the configured application.
+     * Attempts to launch the configured object.
      */
     void launch();
 
+    /*!
+     * Hides the progress indicator.
+     */
+    void hideProgressIndicator();
+
+    /*!
+     * Hides the progress indicator if the window list contains only normal windows
+     */
+    void hideProgressIndicatorIfObscured(const QList<WindowInfo> &windowList);
+
 private:
+    /*!
+     * Initializes the launcher button.
+     */
+    void init();
+
+    /*!
+     * Updates the icon based on a launcher action
+     *
+     * \param action the LauncherAction to update the icon based on
+     */
     void updateIcon(const LauncherAction &action);
+
+    //! A timer for disabling the progress indicator if the application startup takes a long time
+    QTimer progressIndicatorTimeoutTimer;
+
+    //! Whether an object represented by any launcher button is being launched or not
+    static bool launching;
 
 #ifdef UNIT_TEST
     friend class Ut_LauncherButton;

@@ -50,6 +50,27 @@ void LauncherButton::retranslateUi()
     return;
 }
 
+bool LauncherButton::isInProgress() const
+{
+    return false;
+}
+
+void LauncherButton::setProgressIndicatorTimeout(int)
+{
+}
+
+void LauncherButton::hideProgressIndicator()
+{
+}
+
+void LauncherButton::hideProgressIndicatorIfObscured(const QList<WindowInfo> &)
+{
+}
+
+void LauncherButton::init()
+{
+}
+
 void Ut_LauncherPage::initTestCase()
 {
     static int argc = 1;

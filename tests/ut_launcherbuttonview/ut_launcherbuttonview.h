@@ -21,9 +21,8 @@
 #define UT_LAUNCHERBUTTONVIEW_H
 
 #include <QObject>
-#include "windowinfo.h"
 
-class HomeApplication;
+class MApplication;
 class LauncherButton;
 class LauncherButtonView;
 
@@ -46,15 +45,14 @@ private slots:
     void testApplyStyle();
     void testShowProgressIndicator();
     void testHideProgressIndicator();
-    void testHideProgressIndicatorIfObscured();
-    void testHideProgressIndicatorIfObscured_data();
+    void testSetProgressIndicatorFrame();
 
 signals:
-    void windowStackingOrderChanged(const QList<WindowInfo> &windowList);
+    void frameChanged(int frame);
 
 private:
     // MApplication
-    HomeApplication *app;
+    MApplication *app;
     // The object being tested
     LauncherButtonView *m_subject;
     // Controller for the object

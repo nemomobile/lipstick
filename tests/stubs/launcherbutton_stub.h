@@ -18,6 +18,11 @@ class LauncherButtonStub : public StubBase {
   virtual void launch();
   virtual void updateFromDesktopEntry(const QString &entry);
   virtual void retranslateUi();
+  virtual bool isInProgress() const;
+  virtual void setProgressIndicatorTimeout(int timeout);
+  virtual void hideProgressIndicator();
+  virtual void hideProgressIndicatorIfObscured(const QList<WindowInfo> &windowList);
+  virtual void init();
 }; 
 
 
@@ -66,6 +71,36 @@ void LauncherButtonStub::retranslateUi()
   stubMethodEntered("retranslateUi");
 }
 
+bool LauncherButtonStub::isInProgress() const
+{
+  stubMethodEntered("isInProgress");
+  return stubReturnValue<bool>("isInProgress");
+}
+
+void LauncherButtonStub::setProgressIndicatorTimeout(int timeout)
+{
+  QList<ParameterBase*> params;
+  params.append( new Parameter<int>(timeout));
+  stubMethodEntered("setProgressIndicatorTimeout",params);
+}
+
+void LauncherButtonStub::hideProgressIndicator()
+{
+  stubMethodEntered("hideProgressIndicator");
+}
+
+void LauncherButtonStub::hideProgressIndicatorIfObscured(const QList<WindowInfo> &windowList)
+{
+  QList<ParameterBase*> params;
+  params.append( new Parameter<QList<WindowInfo> >(windowList));
+  stubMethodEntered("hideProgressIndicatorIfObscured",params);
+}
+
+void LauncherButtonStub::init()
+{
+  stubMethodEntered("init");
+}
+
 
 // 3. CREATE A STUB INSTANCE
 LauncherButtonStub gDefaultLauncherButtonStub;
@@ -108,6 +143,31 @@ void LauncherButton::updateFromDesktopEntry(const QString &entry) {
 void LauncherButton::retranslateUi()
 {
     gLauncherButtonStub->retranslateUi();
+}
+
+bool LauncherButton::isInProgress() const
+{
+    return gLauncherButtonStub->isInProgress();
+}
+
+void LauncherButton::setProgressIndicatorTimeout(int timeout)
+{
+    gLauncherButtonStub->setProgressIndicatorTimeout(timeout);
+}
+
+void LauncherButton::hideProgressIndicator()
+{
+    gLauncherButtonStub->hideProgressIndicator();
+}
+
+void LauncherButton::hideProgressIndicatorIfObscured(const QList<WindowInfo> &windowList)
+{
+    gLauncherButtonStub->hideProgressIndicatorIfObscured(windowList);
+}
+
+void LauncherButton::init()
+{
+    gLauncherButtonStub->init();
 }
 
 #endif

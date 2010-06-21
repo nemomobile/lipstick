@@ -34,6 +34,7 @@ public:
     virtual int XGetWindowProperty(Display *display, Window w, Atom property, long long_offset, long long_length, Bool del, Atom req_type, Atom *actual_type_return, int *actual_format_return, unsigned long *nitems_return, unsigned long *bytes_after_return, unsigned char **prop_return);
     virtual int XFree(void *data);
     virtual Status XGetWMName(Display *display, Window w, XTextProperty *text_prop_return);
+    virtual Status XGetTextProperty(Display *display, Window w, XTextProperty *text_prop_return, Atom property);
     virtual XWMHints *XGetWMHints(Display *display, Window w);
     virtual int XFreePixmap(Display *display, Pixmap pixmap);
     virtual Pixmap XCompositeNameWindowPixmap(Display *dpy, Window window);
@@ -111,6 +112,17 @@ Status X11WrapperStub::XGetWMName(Display *display, Window w, XTextProperty *tex
     params.append(new Parameter<XTextProperty * >(text_prop_return));
     stubMethodEntered("XGetWMName", params);
     return stubReturnValue<Status>("XGetWMName");
+}
+
+Status X11WrapperStub::XGetTextProperty(Display *display, Window w, XTextProperty *text_prop_return, Atom property)
+{
+    QList<ParameterBase *> params;
+    params.append(new Parameter<Display * >(display));
+    params.append(new Parameter<Window >(w));
+    params.append(new Parameter<XTextProperty * >(text_prop_return));
+    params.append(new Parameter<Atom >(property));
+    stubMethodEntered("XGetTextProperty", params);
+    return stubReturnValue<Status>("XGetTextProperty");
 }
 
 XWMHints *X11WrapperStub::XGetWMHints(Display *display, Window w)
@@ -238,6 +250,11 @@ int X11Wrapper::XFree(void *data)
 Status X11Wrapper::XGetWMName(Display *display, Window w, XTextProperty *text_prop_return)
 {
     return gX11WrapperStub->XGetWMName(display, w, text_prop_return);
+}
+
+Status X11Wrapper::XGetTextProperty(Display *display, Window w, XTextProperty *text_prop_return, Atom property)
+{
+    return gX11WrapperStub->XGetTextProperty(display, w, text_prop_return, property);
 }
 
 XWMHints *X11Wrapper::XGetWMHints(Display *display, Window w)

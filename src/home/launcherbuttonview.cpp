@@ -17,69 +17,119 @@
 **
 ****************************************************************************/
 
-#include <QApplication>
 #include <QGraphicsAnchorLayout>
-#include <MProgressIndicator>
 #include "launcherbuttonview.h"
 #include "launcherbutton.h"
 
 LauncherButtonView::LauncherButtonView(LauncherButton *controller) :
     MButtonIconView(controller),
-    progressIndicatorLayout(new QGraphicsAnchorLayout(controller)),
-    progressIndicator(new MProgressIndicator(NULL, MProgressIndicator::spinnerType))
+    controller(controller)
 {
-    controller->setLayout(progressIndicatorLayout);
-    progressIndicatorLayout->addCornerAnchors(progressIndicator, Qt::TopLeftCorner, progressIndicatorLayout, Qt::TopLeftCorner);
-    progressIndicator->hide();
-    progressIndicator->setProperty("launcherButtonText", controller->text());
-    progressIndicatorTimer.setSingleShot(true);
+    progressIndicatorTimeLine.setLoopCount(0);
+    progressIndicatorTimeLine.setCurveShape(QTimeLine::LinearCurve);
 
-    connect(controller, SIGNAL(clicked()), this, SLOT(showProgressIndicator()));
-    connect(&progressIndicatorTimer, SIGNAL(timeout()), this, SLOT(hideProgressIndicator()));
+    connect(&progressIndicatorTimeLine, SIGNAL(frameChanged(int)), this, SLOT(setProgressIndicatorFrame(int)));
 }
 
 LauncherButtonView::~LauncherButtonView()
 {
 }
 
+void LauncherButtonView::setupModel()
+{
+    MButtonIconView::setupModel();
+
+    QList<const char *> modifications;
+    modifications << LauncherButtonModel::ShowProgressIndicator;
+    updateData(modifications);
+}
+
 void LauncherButtonView::applyStyle()
 {
     MButtonIconView::applyStyle();
-    progressIndicatorTimer.setInterval(style()->progressIndicatorTimeout());
+
+    // Set the progress indicator timing properties
+    controller->setProgressIndicatorTimeout(style()->progressIndicatorTimeout());
+    progressIndicatorTimeLine.setDuration(style()->progressIndicatorAnimationDuration());
+
+    if (!progressIndicatorPixmaps.isEmpty()) {
+        // Release the old progress indicator pixmaps
+        foreach(const QPixmap *pixmap, progressIndicatorPixmaps) {
+            MTheme::releasePixmap(pixmap);
+        }
+
+        progressIndicatorPixmaps.clear();
+    }
+
+    // Load the new progress indicator pixmaps
+    QStringList imageList = style()->progressIndicatorImageList().trimmed().split(QChar(' '));
+    progressIndicatorPixmaps.fill(NULL, imageList.length());
+    for (int i = 0; i < imageList.count(); i++) {
+        progressIndicatorPixmaps.replace(i, MTheme::pixmap(imageList.at(i)));
+    }
+    progressIndicatorTimeLine.setFrameRange(0, imageList.count() - 1);
+
+    // Calculate progress indicator rectangle
+    int hPadding = style()->paddingLeft() + style()->paddingRight();
+    int vPadding = style()->paddingTop() + style()->paddingBottom();
+    QRectF contentRect(style()->paddingLeft(), style()->paddingTop(), style()->preferredSize().width() - hPadding, style()->preferredSize().height() - vPadding);
+    progressIndicatorRect.setTopLeft(QPointF(contentRect.center().x() - (style()->iconSize().width() / 2), contentRect.top()));
+    progressIndicatorRect.setSize(style()->iconSize());
+}
+
+void LauncherButtonView::drawContents(QPainter *painter, const QStyleOptionGraphicsItem *option) const
+{
+    if (progressIndicatorTimeLine.state() == QTimeLine::Running) {
+        // Draw the button icon view first: it messes up with the painter so the state must be saved
+        painter->save();
+        MButtonIconView::drawContents(painter, option);
+        painter->restore();
+
+        // Draw the progress indicator pixmap
+        const QPixmap *pixmap = progressIndicatorPixmaps.at(progressIndicatorTimeLine.currentFrame());
+        if (pixmap != NULL && !pixmap->isNull()) {
+            painter->drawPixmap(progressIndicatorRect, *pixmap, QRectF(pixmap->rect()));
+        }
+    } else {
+        // No progress indicator, so just draw the icon view
+        MButtonIconView::drawContents(painter, option);
+    }
+}
+
+void LauncherButtonView::updateData(const QList<const char *>& modifications)
+{
+    MButtonIconView::updateData(modifications);
+
+    const char *member;
+    foreach(member, modifications) {
+        if (member == LauncherButtonModel::ShowProgressIndicator) {
+            if (model()->showProgressIndicator()) {
+                showProgressIndicator();
+            } else {
+                hideProgressIndicator();
+            }
+        }
+    }
+}
+
+void LauncherButtonView::setProgressIndicatorFrame(int)
+{
+    update();
 }
 
 void LauncherButtonView::showProgressIndicator()
 {
-    if (!progressIndicator->isVisible()) {
-        connect(qApp, SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), this, SLOT(hideProgressIndicatorIfObscured(const QList<WindowInfo> &)));
-
-        progressIndicator->show();
-        progressIndicator->setUnknownDuration(true);
-        progressIndicatorTimer.start();
+    if (progressIndicatorTimeLine.state() != QTimeLine::Running) {
+        progressIndicatorTimeLine.start();
+        update();
     }
 }
 
 void LauncherButtonView::hideProgressIndicator()
 {
-    progressIndicator->hide();
-    progressIndicator->setUnknownDuration(false);
-    if (progressIndicatorTimer.isActive()) {
-        progressIndicatorTimer.stop();
-    }
-
-    disconnect(qApp, SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), this, SLOT(hideProgressIndicatorIfObscured(const QList<WindowInfo> &)));
-}
-
-void LauncherButtonView::hideProgressIndicatorIfObscured(const QList<WindowInfo> &windowList)
-{
-    if (!windowList.isEmpty()) {
-        const QList<Atom>& windowTypes = windowList.last().types();
-        if (!windowTypes.contains(WindowInfo::NotificationAtom) &&
-            !windowTypes.contains(WindowInfo::DesktopAtom) &&
-            !windowTypes.contains(WindowInfo::DialogAtom) &&
-            !windowTypes.contains(WindowInfo::MenuAtom)) {
-            hideProgressIndicator();
-        }
+    if (progressIndicatorTimeLine.state() != QTimeLine::NotRunning) {
+        progressIndicatorTimeLine.stop();
+        update();
     }
 }
 

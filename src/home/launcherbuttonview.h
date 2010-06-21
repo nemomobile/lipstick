@@ -20,15 +20,12 @@
 #ifndef LAUNCHERBUTTONVIEW_H_
 #define LAUNCHERBUTTONVIEW_H_
 
-#include <QSharedPointer>
-#include <QTimer>
+#include <QTimeLine>
+#include <QRectF>
 #include <mbuttoniconview.h>
 #include "launcherbuttonmodel.h"
 #include "launcherbuttonstyle.h"
-#include "windowinfo.h"
 
-class QGraphicsAnchorLayout;
-class MProgressIndicator;
 class LauncherButton;
 
 /*!
@@ -54,28 +51,38 @@ public:
 
 protected:
     //! \reimp
+    virtual void setupModel();
     virtual void applyStyle();
+    virtual void drawContents(QPainter *painter, const QStyleOptionGraphicsItem *option) const;
+    //! \reimp_end
+
+protected slots:
+    //! \reimp
+    virtual void updateData(const QList<const char *>& modifications);
     //! \reimp_end
 
 private slots:
+    //! Updates the progress indicator
+    void setProgressIndicatorFrame(int frame);
+
+private:
     //! Shows the progress indicator
     void showProgressIndicator();
 
     //! Hides the progress indicator
     void hideProgressIndicator();
 
-    //! Hides the progress indicator if the window list contains only normal windows
-    void hideProgressIndicatorIfObscured(const QList<WindowInfo> &windowList);
+    //! The controller for the view
+    LauncherButton *controller;
 
-private:
-    //! Layout for the progress indicator
-    QGraphicsAnchorLayout *progressIndicatorLayout;
+    //! Pixmaps for the progress indicator
+    QVector<const QPixmap *> progressIndicatorPixmaps;
 
-    //! Progress indicator shown while the application is being launched
-    MProgressIndicator *progressIndicator;
+    //! Animation timeline for the progress indicator
+    QTimeLine progressIndicatorTimeLine;
 
-    //! A timer for disabling the progress indicator if the application startup takes a long time
-    QTimer progressIndicatorTimer;
+    //! Position and size of the progress indicator
+    QRectF progressIndicatorRect;
 
 #ifdef UNIT_TEST
     friend class Ut_LauncherButtonView;

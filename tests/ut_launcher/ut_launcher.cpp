@@ -56,7 +56,27 @@ void LauncherButton::launch()
 
 void LauncherButton::retranslateUi()
 {
+}
 
+bool LauncherButton::isInProgress() const
+{
+    return false;
+}
+
+void LauncherButton::setProgressIndicatorTimeout(int)
+{
+}
+
+void LauncherButton::hideProgressIndicator()
+{
+}
+
+void LauncherButton::hideProgressIndicatorIfObscured(const QList<WindowInfo> &)
+{
+}
+
+void LauncherButton::init()
+{
 }
 
 void QDBusPendingReplyData::setMetaTypes(int, int const *)

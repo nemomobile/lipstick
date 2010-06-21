@@ -17,15 +17,14 @@
 **
 ****************************************************************************/
 
+#include <QtTest/QtTest>
 #include "ut_quicklaunchbar.h"
 #include "quicklaunchbar.h"
-#include "launcher_stub.h"
 #include "launcherbutton_stub.h"
 #include "launcheraction_stub.h"
 #include "launcherdatastore_stub.h"
 #include "mockdatastore.h"
-
-#include <QtTest/QtTest>
+#include "windowinfo_stub.h"
 
 void Ut_QuickLaunchBar::initTestCase()
 {

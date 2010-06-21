@@ -10,7 +10,7 @@ SOURCES += \
 
 # base classes
 SOURCES += \
-    $$STUBSDIR\stubbase.cpp
+    $$STUBSDIR/stubbase.cpp
 
 # unit test and unit
 HEADERS += \
@@ -22,7 +22,7 @@ HEADERS += \
     $$SRCDIR/quicklaunchbarmodel.h \
     $$SRCDIR/launcherbutton.h \
     $$SRCDIR/launcherdatastore.h \
-    $$SRCDIR/launcher.h
+    $$SRCDIR/windowinfo.h
 
 DEFINES += APPLICATIONS_DIRECTORY=\'$$quote(\"/tmp/ut_launcher/applications/\")\'
 
