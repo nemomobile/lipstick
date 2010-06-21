@@ -24,6 +24,7 @@
 #include <QTimer>
 #include <mbuttoniconview.h>
 #include "launcherbuttonmodel.h"
+#include "launcherbuttonstyle.h"
 #include "windowinfo.h"
 
 class QGraphicsAnchorLayout;
@@ -36,7 +37,7 @@ class LauncherButton;
 class LauncherButtonView : public MButtonIconView
 {
     Q_OBJECT
-    M_VIEW(LauncherButtonModel, MButtonIconStyle)
+    M_VIEW(LauncherButtonModel, LauncherButtonStyle)
 
 public:
     /*!
@@ -50,6 +51,11 @@ public:
      * Destroys the LauncherButtonView.
      */
     virtual ~LauncherButtonView();
+
+protected:
+    //! \reimp
+    virtual void applyStyle();
+    //! \reimp_end
 
 private slots:
     //! Shows the progress indicator

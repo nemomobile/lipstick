@@ -19,6 +19,7 @@ HEADERS += homeapplication.h \
     launcherbutton.h \
     launcherbuttonview.h \
     launcherbuttonmodel.h \
+    launcherbuttonstyle.h \
     pagedpanning.h \
     pagedviewport.h \
     pagedviewportstyle.h \
@@ -91,6 +92,7 @@ STYLE_HEADERS += appletspacestyle.h \
     appletspacestyle.h \
     desktopstyle.h \
     launcherstyle.h \
+    launcherbuttonstyle.h \
     launcherpagestyle.h \
     quicklaunchbarstyle.h \
     switcherbuttonstyle.h \

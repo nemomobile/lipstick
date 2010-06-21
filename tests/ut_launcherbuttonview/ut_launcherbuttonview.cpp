@@ -175,21 +175,30 @@ Status X11Wrapper::XSendEvent(Display *, Window, Bool, long, XEvent *)
     return 0;
 }
 
+// QTimer stubs
 bool qTimerStarted;
 void QTimer::start()
 {
     qTimerStarted = true;
 }
 
+void QTimer::stop()
+{
+    qTimerStarted = false;
+}
+
+// MButton stubs
 QString mButtonText;
 QString MButton::text() const
 {
     return mButtonText;
 }
 
-void QTimer::stop()
+// MButtonIconView stubs
+bool mButtonIconViewApplyStyleCalled;
+void MButtonIconView::applyStyle()
 {
-    qTimerStarted = false;
+    mButtonIconViewApplyStyleCalled = true;
 }
 
 void Ut_LauncherButtonView::initTestCase()
@@ -208,14 +217,15 @@ void Ut_LauncherButtonView::cleanupTestCase()
 void Ut_LauncherButtonView::init()
 {
     qTimerStarted = false;
+    mButtonIconViewApplyStyleCalled = false;
     controller = new LauncherButton;
     m_subject = new LauncherButtonView(controller);
+    controller->setView(m_subject);
     connect(this, SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), m_subject, SLOT(hideProgressIndicatorIfObscured(const QList<WindowInfo> &)));
 }
 
 void Ut_LauncherButtonView::cleanup()
 {
-    disconnect(this, SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), m_subject, SLOT(hideProgressIndicatorIfObscured(const QList<WindowInfo> &)));
     delete controller;
 }
 
@@ -229,6 +239,17 @@ void Ut_LauncherButtonView::testInitialization()
     QVERIFY(m_subject->progressIndicatorTimer.isSingleShot());
     QVERIFY(!qTimerStarted);
 }
+
+void Ut_LauncherButtonView::testApplyStyle()
+{
+    LauncherButtonStyle *style = const_cast<LauncherButtonStyle *>(m_subject->style().operator ->());
+    style->setProgressIndicatorTimeout(12345);
+
+    m_subject->applyStyle();
+    QVERIFY(mButtonIconViewApplyStyleCalled);
+    QCOMPARE(m_subject->progressIndicatorTimer.interval(), m_subject->style()->progressIndicatorTimeout());
+}
+
 
 void Ut_LauncherButtonView::testShowProgressIndicator()
 {

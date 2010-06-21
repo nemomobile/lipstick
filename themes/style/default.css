@@ -223,7 +223,7 @@ MOverlayStyle#LauncherBackButtonOverlay {
     offset: 0 0;
 }
 
-MButtonIconStyle#LauncherButton {
+LauncherButtonStyle {
     font: $FONT_XSMALL;
     text-color: #ffffff;
 
@@ -250,6 +250,8 @@ MButtonIconStyle#LauncherButton {
 
     press-feedback: press;
     release-feedback: release;
+
+    progress-indicator-timeout: 10000;
 }
 
 LauncherButton > MSpinnerStyle {

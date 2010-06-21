@@ -23,8 +23,6 @@
 #include "launcherbuttonview.h"
 #include "launcherbutton.h"
 
-static const int PROGRESS_INDICATOR_TIMEOUT = 10000;
-
 LauncherButtonView::LauncherButtonView(LauncherButton *controller) :
     MButtonIconView(controller),
     progressIndicatorLayout(new QGraphicsAnchorLayout(controller)),
@@ -34,9 +32,7 @@ LauncherButtonView::LauncherButtonView(LauncherButton *controller) :
     progressIndicatorLayout->addCornerAnchors(progressIndicator, Qt::TopLeftCorner, progressIndicatorLayout, Qt::TopLeftCorner);
     progressIndicator->hide();
     progressIndicator->setProperty("launcherButtonText", controller->text());
-
     progressIndicatorTimer.setSingleShot(true);
-    progressIndicatorTimer.setInterval(PROGRESS_INDICATOR_TIMEOUT);
 
     connect(controller, SIGNAL(clicked()), this, SLOT(showProgressIndicator()));
     connect(&progressIndicatorTimer, SIGNAL(timeout()), this, SLOT(hideProgressIndicator()));
@@ -44,6 +40,12 @@ LauncherButtonView::LauncherButtonView(LauncherButton *controller) :
 
 LauncherButtonView::~LauncherButtonView()
 {
+}
+
+void LauncherButtonView::applyStyle()
+{
+    MButtonIconView::applyStyle();
+    progressIndicatorTimer.setInterval(style()->progressIndicatorTimeout());
 }
 
 void LauncherButtonView::showProgressIndicator()

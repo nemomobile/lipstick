@@ -43,6 +43,7 @@ private slots:
 
     // Test cases
     void testInitialization();
+    void testApplyStyle();
     void testShowProgressIndicator();
     void testHideProgressIndicator();
     void testHideProgressIndicatorIfObscured();
