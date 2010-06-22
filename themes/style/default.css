@@ -367,6 +367,9 @@ SwitcherButtonStyle {
     font: $FONT_DEFAULT;
     text-color: #FFFFFF;
 
+    press-feedback:;
+    release-feedback:;
+
     /* The opacity of the title */
     text-opacity: 0;
     /* The position of the icon relative to the top-left corner of the button */
