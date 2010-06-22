@@ -36,7 +36,7 @@ Atom WindowInfo::MenuAtom;
 Atom WindowInfo::SkipTaskbarAtom;
 Atom WindowInfo::NameAtom;
 
-WindowInfo::WindowInfo(Window window) : window_(window)
+WindowInfo::WindowInfo(Window window)
 {    
     if (!atomsInitialized) {
         Display *dpy = QX11Info::display();
@@ -53,13 +53,15 @@ WindowInfo::WindowInfo(Window window) : window_(window)
         WindowInfo::NameAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_NAME", False);
         atomsInitialized = true;
     }
-
+    d = new WindowData;
+    d->window = window;
     updateWindowTitle();
     updateWindowProperties();
 }
 
-WindowInfo::WindowInfo() : title_(QString()), window_(0)
+WindowInfo::WindowInfo()
 {
+    d = new WindowData;
 }
 
 WindowInfo::~WindowInfo()
@@ -68,27 +70,27 @@ WindowInfo::~WindowInfo()
 
 const QString& WindowInfo::title() const
 {
-    return title_;
+    return d->title;
 }
 
 WindowInfo::WindowPriority WindowInfo::windowPriority() const
 {
-    return types_.contains(WindowInfo::CallAtom) ? WindowInfo::Call : WindowInfo::Normal;
+    return d->types.contains(WindowInfo::CallAtom) ? WindowInfo::Call : WindowInfo::Normal;
 }
 
 Window WindowInfo::window() const
 {
-    return window_;
+    return d->window;
 }
 
 QList<Atom> WindowInfo::types() const
 {
-    return types_;
+    return d->types;
 }
 
 QList<Atom> WindowInfo::states() const
 {
-    return states_;
+    return d->states;
 }
 
 bool operator==(const WindowInfo &wi1, const WindowInfo &wi2)
@@ -101,13 +103,13 @@ bool WindowInfo::updateWindowTitle()
     Display *dpy = QX11Info::display();
     XTextProperty textProperty;
     bool updated = false;
-    int result = X11Wrapper::XGetTextProperty(dpy, window_, &textProperty, WindowInfo::NameAtom);
+    int result = X11Wrapper::XGetTextProperty(dpy, d->window, &textProperty, WindowInfo::NameAtom);
     if (result == 0) {
-        result = X11Wrapper::XGetWMName(dpy, window_, &textProperty);
+        result = X11Wrapper::XGetWMName(dpy, d->window, &textProperty);
     }
 
     if (result != 0) {
-        title_ = QString::fromUtf8((const char *)textProperty.value);
+        d->title = QString::fromUtf8((const char *)textProperty.value);
         X11Wrapper::XFree(textProperty.value);
         updated = true;
     }
@@ -116,8 +118,8 @@ bool WindowInfo::updateWindowTitle()
 
 void WindowInfo::updateWindowProperties()
 {
-    types_ = getWindowProperties(window_, WindowInfo::TypeAtom);
-    states_ = getWindowProperties(window_, WindowInfo::StateAtom);
+    d->types = getWindowProperties(d->window, WindowInfo::TypeAtom);
+    d->states = getWindowProperties(d->window, WindowInfo::StateAtom);
 }
 
 QList<Atom> WindowInfo::getWindowProperties(Window winId, Atom propertyAtom, long maxCount)

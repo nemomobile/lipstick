@@ -24,6 +24,36 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <QVector>
+#include <QExplicitlySharedDataPointer>
+
+/*!
+  The window data is explicitly shared between window info objects through this class
+ */
+class WindowData : public QSharedData
+{
+
+public:
+    //! Constructs a window data object
+    WindowData() {}
+    //! Copy constructor
+    WindowData(const WindowData& source)
+        : QSharedData(source), window(source.window),
+        types(source.types), states(source.states) {}
+    //! Destructor
+    ~WindowData() {}
+
+    //! The X window id
+    Window window;
+
+    //! The title of the window
+    QString title;
+
+    //! The window types associated with this window
+    QList<Atom> types;
+
+    //! The status atoms of this window
+    QList<Atom> states;
+};
 
 /*!
  * WindowInfo is a helper class for storing information about an open window.
@@ -60,13 +90,14 @@ public:
      * its containers.
      */
     WindowInfo();
-    
+
     /*!
      * Constructs a WindowInfo that contains information about an open window.
      *
      * \param window The X window id
      */
     WindowInfo(Window window);
+
 
     /*!
      * Destroys a WindowInfo object.
@@ -123,17 +154,8 @@ private:
      */
     QList<Atom> getWindowProperties(Window winId, Atom propertyAtom, long maxCount = 16L);
 
-    //! The title of the window
-    QString title_;
-
-    //! The X window id
-    Window window_;
-
-    //! The window types associated with this window
-    QList<Atom> types_;
-
-    //! The status atoms of this window
-    QList<Atom> states_;
+    //! The explicitly shared data object \c WindowData
+    QExplicitlySharedDataPointer<WindowData> d;
     
 };
 

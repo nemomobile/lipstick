@@ -236,12 +236,15 @@ Window SwitcherButton::xWindow()
 
 QHash<Window, QString> g_windowTitles;
 
-WindowInfo::WindowInfo(Window window) : window_(window)
+WindowInfo::WindowInfo(Window window)
 {
+    d = new WindowData;
+    d->window = window;
 }
 
-WindowInfo::WindowInfo() : title_(QString()), window_(0)
+WindowInfo::WindowInfo()
 {
+    d = new WindowData;
 }
 
 WindowInfo::~WindowInfo()
@@ -250,19 +253,19 @@ WindowInfo::~WindowInfo()
 
 const QString& WindowInfo::title() const
 {
-    return g_windowTitles[window_];
+    return g_windowTitles[d->window];
 }
 
 QMap<Window, WindowInfo::WindowPriority > g_windowPriorities;
 
 WindowInfo::WindowPriority WindowInfo::windowPriority() const
 {
-    return g_windowPriorities[window_];
+    return g_windowPriorities[d->window];
 }
 
 Window WindowInfo::window() const
 {
-    return window_;
+    return d->window;
 }
 
 QList<Atom> WindowInfo::types() const
