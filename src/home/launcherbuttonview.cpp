@@ -65,7 +65,7 @@ void LauncherButtonView::applyStyle()
     QStringList imageList = style()->progressIndicatorImageList().trimmed().split(QChar(' '));
     progressIndicatorPixmaps.fill(NULL, imageList.length());
     for (int i = 0; i < imageList.count(); i++) {
-        progressIndicatorPixmaps.replace(i, MTheme::pixmap(imageList.at(i)));
+        progressIndicatorPixmaps.replace(i, MTheme::pixmap(imageList.at(i), style()->iconSize()));
     }
     progressIndicatorTimeLine.setFrameRange(0, imageList.count() - 1);
 
