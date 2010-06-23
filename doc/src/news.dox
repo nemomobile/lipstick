@@ -1,5 +1,22 @@
 /*! \page news What's New in DirectUI Homescreen
 
+\section v02112 0.21.12
+
+\subsection New
+- It is much easier to close the tasks from the switcher
+- Launcher shows a progress indicator when an application is being started
+
+\subsection bugs Bugs fixed
+- Launcher buttons were not placed in their expected positions
+
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Wed, 23 Jun 2010 14:13:51 +0300
+
+\section v02111 0.21.11
+
+\subsection bugs Bugs fixed
+- Launcher was passing the substitution variables in the Exec field of the .desktop field as parameters when there was no substitution to be done
+- Applications did not get _NET_ACTIVE_WINDOW event
+
 \section v02110 0.21.10
 
 \subsection New
