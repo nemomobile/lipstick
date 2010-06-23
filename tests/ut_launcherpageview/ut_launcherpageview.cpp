@@ -70,11 +70,13 @@ void Ut_LauncherPageView::init()
     controller->setView(view);
     showWindowCount = 0;
     hideWindowCount = 0;
+    connect(this, SIGNAL(updateDataRequested(const QList<const char *>&)),
+            view, SLOT(updateData(const QList<const char *>&)));
 }
 
 void Ut_LauncherPageView::cleanup()
 {
-    if (controller == NULL) {
+    if (controller != NULL) {
         delete controller;
         controller = NULL;
     }
@@ -85,19 +87,24 @@ void Ut_LauncherPageView::testAddButtonsToPage()
 {
     QSharedPointer<LauncherButton> widget1(new LauncherButton);
     QSharedPointer<LauncherButton> widget2(new LauncherButton);
+    QSharedPointer<LauncherButton> widget3(new LauncherButton);
+    QSharedPointer<LauncherButton> widget4(new LauncherButton);
     LauncherPageModel::LauncherButtonList widgets;
     widgets.append(widget1);
     controller->model()->setLauncherButtons(widgets);
-
+    // add several widgets so that the order is tested better
     widgets.append(widget2);
+    widgets.append(widget3);
+    widgets.append(widget4);
     controller->model()->setLauncherButtons(widgets);
 
     MLayout* mainLayout = dynamic_cast<MLayout *>(controller->layout());
     QVERIFY(mainLayout != NULL);
 
-    QCOMPARE(mainLayout->count(), 2);
-    QCOMPARE(mainLayout->itemAt(0), widget1.data());
-    QCOMPARE(mainLayout->itemAt(1), widget2.data());
+    QCOMPARE(mainLayout->count(), widgets.count());
+    for (int i = 0; i < mainLayout->count(); i++) {
+        QCOMPARE(mainLayout->itemAt(i), widgets.at(i).data());
+    }
 }
 
 void Ut_LauncherPageView::testRemovingButtonFromLayout()
@@ -132,6 +139,36 @@ void Ut_LauncherPageView::testRemovingButtonFromLayoutInDestructor()
 
     // verify that button destructor has not been called when there is still ref in QSharedPointer
     QCOMPARE(gLauncherButtonStub->stubCallCount("~LauncherButton"), 0);
+}
+
+void Ut_LauncherPageView::testUpdateData()
+{
+    QSharedPointer<LauncherButton> widget1(new LauncherButton);
+    QSharedPointer<LauncherButton> widget2(new LauncherButton);
+    LauncherPageModel::LauncherButtonList widgets;
+    widgets.append(widget1);
+    widgets.append(widget2);
+    controller->model()->setLauncherButtons(widgets);
+
+    MLayout* mainLayout = dynamic_cast<MLayout *>(controller->layout());
+    QCOMPARE(mainLayout->count(), 2);
+    mainLayout->removeItem(widget1.data());
+    mainLayout->removeItem(widget2.data());
+    QCOMPARE(mainLayout->count(), 0);
+
+    QList<const char*> modifications;
+    modifications.append(LauncherPageModel::LauncherButtons);
+    emit updateDataRequested(modifications);
+    QCOMPARE(mainLayout->count(), 2);
+
+    mainLayout->removeItem(widget1.data());
+    mainLayout->removeItem(widget2.data());
+    QCOMPARE(mainLayout->count(), 0);
+
+    QList<const char*> modifications2;
+    modifications.append("does not match");
+    emit updateDataRequested(modifications2);
+    QCOMPARE(mainLayout->count(), 0);
 }
 
 QTEST_APPLESS_MAIN(Ut_LauncherPageView)

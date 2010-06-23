@@ -2,6 +2,7 @@ duihome (0.21.11-2~1) unstable; urgency=low
 
   * [UNRELEASED]
   * Implemented: SWP#3148 Verify tappability of switcher thumbnail close button
+  * Fixes: NB#176177 - Launcher buttons are not placed in their expected positions
 
  -- Aki Koskinen <aki.koskinen@nokia.com>  Fri, 18 Jun 2010 14:10:51 +0300
 

@@ -31,6 +31,8 @@ class Ut_LauncherPageView : public QObject
 {
     Q_OBJECT
 
+signals:
+    void updateDataRequested(const QList<const char *>& modifications);
 private slots:
     // Called before the first testfunction is executed
     void initTestCase();
@@ -45,6 +47,7 @@ private slots:
     void testAddButtonsToPage();
     void testRemovingButtonFromLayout();
     void testRemovingButtonFromLayoutInDestructor();
+    void testUpdateData();
 
 private:
     // MApplication

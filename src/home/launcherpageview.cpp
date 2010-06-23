@@ -66,6 +66,7 @@ void LauncherPageView::updateLayoutFromModel()
     foreach(QSharedPointer<LauncherButton> modelButton, model()->launcherButtons()) {
         modelButtonsList.append(modelButton.data());
     }
+
     // Set of buttons in model
     QSet<LauncherButton *> modelButtonsSet(modelButtonsList.toSet());
 
@@ -75,10 +76,18 @@ void LauncherPageView::updateLayoutFromModel()
         removeButtonFromLayout(deletedButton);
     }
 
-    // Add to layout the buttons that are new in model
+    // Get buttons that are new in model to a map (with model list index as a key) for sorting
     QSet<LauncherButton *> newButtons = modelButtonsSet - layoutButtons;
+    QMap<int, LauncherButton *> newButtonsSorted;
     foreach (LauncherButton *addedButton, newButtons) {
-        policy->insertItem(modelButtonsList.indexOf(addedButton), addedButton);
+        newButtonsSorted.insert(modelButtonsList.indexOf(addedButton), addedButton);
+    }
+
+    // Add new buttons to layout in sorted order
+    QMapIterator<int, LauncherButton *> iter(newButtonsSorted);
+    while (iter.hasNext()) {
+        iter.next();
+        policy->insertItem(iter.key(), iter.value());
     }
 }
 

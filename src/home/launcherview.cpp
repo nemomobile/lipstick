@@ -96,11 +96,18 @@ void LauncherView::updateLayoutFromModel()
         removePageFromLayout(deletedPage);
     }
 
-    // Add to layout the pages that are new in model
+    // Get pages that are new in model to a map (with model list index as a key) for sorting
     QSet<LauncherPage *> newPages = modelPagesSet - layoutPages;
+    QMap<int, LauncherPage *> newPagesSorted;
     foreach (LauncherPage *addedPage, newPages) {
-        // Insert page to same index as in model's list
-        policy->insertItem(modelPagesList.indexOf(addedPage), addedPage);
+        newPagesSorted.insert(modelPagesList.indexOf(addedPage), addedPage);
+    }
+
+    // Add new pages to layout in sorted order
+    QMapIterator<int, LauncherPage *> iter(newPagesSorted);
+    while (iter.hasNext()) {
+        iter.next();
+        policy->insertItem(iter.key(), iter.value());
     }
 }
 

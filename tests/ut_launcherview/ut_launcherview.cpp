@@ -116,11 +116,13 @@ void Ut_LauncherView::init()
     showWindowCount = 0;
     hideWindowCount = 0;
     gFocusFirstPageCalled = false;
+    connect(this, SIGNAL(updateDataRequested(const QList<const char *>&)),
+            view, SLOT(updateData(const QList<const char *>&)));
 }
 
 void Ut_LauncherView::cleanup()
 {
-    if (controller == NULL) {
+    if (controller != NULL) {
         delete controller;
         controller = NULL;
     }
@@ -159,11 +161,12 @@ void Ut_LauncherView::testSetButtons()
 
 void Ut_LauncherView::testAddPages()
 {
+    static const int NUM_ITEMS = 10;
     // add two pages
     QList< QSharedPointer<LauncherPage> > pages;
-    for (int iter1 = 0; iter1 < 2; iter1++){
+    for (int iter1 = 0; iter1 < NUM_ITEMS; iter1++){
         QSharedPointer<LauncherPage> page(new LauncherPage());
-        for (int iter2 = 0; iter2 < 10; iter2++) {
+        for (int iter2 = 0; iter2 < NUM_ITEMS; iter2++) {
             QSharedPointer<LauncherButton> button(new LauncherButton());
             page->appendButton(button);
         }
@@ -179,7 +182,11 @@ void Ut_LauncherView::testAddPages()
 
     QGraphicsLayout* layout = pannedWidget->layout();
 
-    QCOMPARE(layout->count(), 2);
+    QCOMPARE(layout->count(), NUM_ITEMS);
+    // verify layout order
+    for (int i = 0; i < NUM_ITEMS; ++i) {
+        QCOMPARE(layout->itemAt(i), pages.at(i).data());
+    }
 }
 
 void Ut_LauncherView::testRemovingPages()
@@ -208,7 +215,7 @@ void Ut_LauncherView::testRemovingPagesFromLayoutInDestructor()
     controller->model()->setLauncherPages(pages);
 
     delete controller;
-    controller == NULL;
+    controller = NULL;
     // verify that page is not deleted when there is still ref in QSharedPointer
     QVERIFY(!page.isNull());
 }
@@ -225,6 +232,38 @@ void Ut_LauncherView::testFocusFirstPage()
     // which pagedViewport->focusFirstPage() is called
     controller->setFirstPage();
     QCOMPARE(gFocusFirstPageCalled, true);
+}
+
+void Ut_LauncherView::testUpdateData()
+{
+    QSharedPointer<LauncherPage> page1(new LauncherPage);
+    QSharedPointer<LauncherPage> page2(new LauncherPage);
+    LauncherModel::LauncherPageList pages;
+    pages.append(page1);
+    pages.append(page2);
+    controller->model()->setLauncherPages(pages);
+
+    MLayout* mainLayout = dynamic_cast<MLayout *>(
+        dynamic_cast<PagedViewport *>(
+            controller->childItems().at(0))->widget()->layout());
+    QCOMPARE(mainLayout->count(), 2);
+    mainLayout->removeItem(page1.data());
+    mainLayout->removeItem(page2.data());
+    QCOMPARE(mainLayout->count(), 0);
+
+    QList<const char*> modifications;
+    modifications.append(LauncherModel::LauncherPages);
+    emit updateDataRequested(modifications);
+    QCOMPARE(mainLayout->count(), 2);
+
+    mainLayout->removeItem(page1.data());
+    mainLayout->removeItem(page2.data());
+    QCOMPARE(mainLayout->count(), 0);
+
+    QList<const char*> modifications2;
+    modifications.append("does not match");
+    emit updateDataRequested(modifications2);
+    QCOMPARE(mainLayout->count(), 0);
 }
 
 QTEST_APPLESS_MAIN(Ut_LauncherView)
