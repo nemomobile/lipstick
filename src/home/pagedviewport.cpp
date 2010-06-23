@@ -54,6 +54,11 @@ void PagedViewport::panToPage(uint page)
     pagedPanning->panToPage(page);
 }
 
+void PagedViewport::focusFirstPage()
+{
+    pagedPanning->setFirstPagePosition();
+}
+
 void PagedViewport::updatePageCount(int pages)
 {
     pages_ = pages;

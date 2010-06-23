@@ -47,6 +47,8 @@ private slots:
     // Tests that pageChanged signal is emitted when panToPage
     // is called
     void test_panToPage();
+    // Tests setFirstPagePosition method
+    void test_focusFirstPage();
 
 private:
     // MApplication

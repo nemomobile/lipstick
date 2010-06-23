@@ -119,6 +119,11 @@ private slots:
      */
     void testSetRange();
 
+    /*!
+     * Test setting page position to first page
+     */
+    void testSetFirstPagePosition();
+
 private:
     // MApplication
     MApplication *app;

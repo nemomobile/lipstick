@@ -312,3 +312,12 @@ void PagedPanning::pointerRelease()
                             targetPage,
                             initialPage+slideLimit_);
 }
+
+void PagedPanning::setFirstPagePosition()
+{
+    //TODO: add support for setting position to the right-most page
+    // when using right-to-left layout
+    currentPage = 0;
+    targetPage = 0;
+    setPosition(QPointF(0.0, 0.0));
+}

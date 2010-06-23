@@ -90,5 +90,7 @@ private slots:
     void testAddingButtonsWithExistingButtons();
     // Test removing buttons
     void testRemovingButtons();
+    // Test setting launcher to show first page
+    void testSettingLauncherToFirstPage();
 };
 #endif //_UT_LAUNCHER_

@@ -58,6 +58,12 @@ void PagedPanning::panToPage(int page)
     emit pageChanged(page);
 }
 
+bool gSetFirstPagePositionCalled = false;
+void PagedPanning::setFirstPagePosition()
+{
+    gSetFirstPagePositionCalled = true;
+}
+
 void PagedPanning::panToCurrentPage()
 {
     emit pageChanged(currentPage);
@@ -128,6 +134,7 @@ void Ut_PagedViewport::cleanupTestCase()
 void Ut_PagedViewport::init()
 {
     m_subject = new PagedViewport(NULL);
+    gSetFirstPagePositionCalled = false;
 }
 
 void Ut_PagedViewport::cleanup()
@@ -160,6 +167,12 @@ void Ut_PagedViewport::test_panToPage()
     QList<QVariant> arguments = spy.takeFirst();
 
     QVERIFY(arguments.at(0).toInt() == 1);
+}
+
+void Ut_PagedViewport::test_focusFirstPage()
+{
+    m_subject->focusFirstPage();
+    QCOMPARE(gSetFirstPagePositionCalled, true);
 }
 
 QTEST_APPLESS_MAIN(Ut_PagedViewport)

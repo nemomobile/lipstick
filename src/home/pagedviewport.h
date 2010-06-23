@@ -98,6 +98,11 @@ public Q_SLOTS:
      */
     void panToPage(uint page);
 
+    /*!
+     * Moves the viewport to the first page
+     */
+    void focusFirstPage();
+
 private:
     //! Our custom phyics implementation
     PagedPanning* pagedPanning;

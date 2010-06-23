@@ -221,7 +221,7 @@ void QGraphicsItem::setZValue(qreal)
 static bool gQGraphicsItemIsVisible = true;
 bool QGraphicsItem::isVisible() const
 {
-    if (dynamic_cast<const Launcher*>(this)) {
+    if (dynamic_cast<const Launcher*>(this) || dynamic_cast<const MModalSceneWindow*>(this)) {
         return gQGraphicsItemIsVisible;
     }
     return false;
@@ -336,11 +336,24 @@ void Ut_DesktopView::init()
     gQGraphicsItemIsEnabled = false;
 
     gMSceneManagerStub->stubReset();
+    gLauncherStub->stubReset();
 }
 
 void Ut_DesktopView::cleanup()
 {
     delete desktop;
+}
+
+void Ut_DesktopView::testToggleLauncher()
+{
+    gQGraphicsItemIsVisible = false;
+    desktopView->toggleLauncher();
+    QCOMPARE(1, gLauncherStub->stubCallCount("setFirstPage"));
+    QVERIFY(desktopView->launcher->isEnabled());
+
+    gQGraphicsItemIsVisible = true;
+    desktopView->toggleLauncher();
+    QVERIFY(!desktopView->launcher->isEnabled());
 }
 
 void Ut_DesktopView::testBoundingRectAndDrawBackground()
@@ -387,6 +400,7 @@ void Ut_DesktopView::testUpdatingLauncherVisibilityWithDesktopOnTop()
 void Ut_DesktopView::verifyLauncherVisibility(int topMostWindowId, bool shouldBeVisible)
 {
     desktopView->showLauncher();
+
     QVERIFY(gQGraphicsItemIsEnabled);
 
     QCOMPARE(1, gMSceneManagerStub->stubCallCount("appearSceneWindow"));

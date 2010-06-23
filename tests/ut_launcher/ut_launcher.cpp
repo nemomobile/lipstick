@@ -383,4 +383,11 @@ void Ut_Launcher::testRemovingButtons()
     QCOMPARE(launcher->model()->launcherPages().at(1)->model()->launcherButtons().count(), buttonCountOnSecondPage);
 }
 
+void Ut_Launcher::testSettingLauncherToFirstPage()
+{
+    QSignalSpy spy(launcher, SIGNAL(focusToFirstPageRequested()));
+    launcher->setFirstPage();
+    QCOMPARE(spy.count(), 1);
+}
+
 QTEST_MAIN(Ut_Launcher)

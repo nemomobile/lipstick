@@ -50,6 +50,7 @@ LauncherView::LauncherView(Launcher *controller) :
     pagedViewport->setPanDirection(Qt::Horizontal);
 
     connect(controller, SIGNAL(panningRequested(uint)), this, SLOT(panToPage(uint)));
+    connect(controller, SIGNAL(focusToFirstPageRequested()), this, SLOT(focusFirstPage()));
 }
 
 LauncherView::~LauncherView()
@@ -106,6 +107,11 @@ void LauncherView::updateLayoutFromModel()
 void LauncherView::panToPage(uint page)
 {
     pagedViewport->panToPage(page);
+}
+
+void LauncherView::focusFirstPage()
+{
+    pagedViewport->focusFirstPage();
 }
 
 void LauncherView::removePageFromLayout(LauncherPage *page)

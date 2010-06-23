@@ -49,6 +49,8 @@ private slots:
     void testAddPages();
     void testRemovingPages();
     void testRemovingPagesFromLayoutInDestructor();
+    void testSignalConnection();
+    void testFocusFirstPage();
 
 private:
     // MApplication
@@ -59,6 +61,7 @@ private:
     Launcher *controller;
     LauncherDataStore *launcherDataStore;
     LauncherView *view;
+
 };
 
 #endif

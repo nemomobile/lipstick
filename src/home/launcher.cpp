@@ -215,6 +215,11 @@ int Launcher::panToPage(const QString &desktopFileEntry)
     return page;
 }
 
+void Launcher::setFirstPage()
+{
+    emit focusToFirstPageRequested();
+}
+
 int Launcher::pageNumber(const QString &desktopFileEntry)
 {
     QString desktopFile = QString(desktopFileEntry);

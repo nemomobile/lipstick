@@ -261,6 +261,7 @@ void DesktopView::toggleLauncher()
     if (launcherWindow->isVisible()) {
         hideLauncher();
     } else {
+        launcher->setFirstPage();
         showLauncher();
     }
 }

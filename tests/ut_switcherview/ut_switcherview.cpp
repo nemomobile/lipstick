@@ -171,6 +171,9 @@ void PagedPanning::panToPage(int itemIndex) {
     emit pageChanged(itemIndex);
 }
 
+void PagedPanning::setFirstPagePosition() {
+}
+
 void PagedPanning::panToCurrentPage()
 {
     emit pageChanged(currentPage);

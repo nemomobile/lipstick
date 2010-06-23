@@ -86,6 +86,10 @@ public:
      */
     void setPageSnapFriction(qreal value);
 
+    /*!
+     * Sets page position to the first page
+     */
+    void setFirstPagePosition();
 
 protected:
 

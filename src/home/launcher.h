@@ -92,6 +92,11 @@ signals:
      */
     void panningRequested(uint page);
 
+    /*!
+     * Signal to request moving launcher focus to first page
+     */
+    void focusToFirstPageRequested();
+
 public slots:
 
     /*!
@@ -105,6 +110,11 @@ public slots:
      * file is not found.
      */
     int panToPage(const QString &desktopFileEntry);
+
+    /*!
+     * Set launcher to show first page
+     */
+    void setFirstPage();
 
 private slots:
 

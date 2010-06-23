@@ -70,6 +70,11 @@ void PagedViewport::panToPage(uint page)
     Q_UNUSED(page)
 }
 
+bool gFocusFirstPageCalled = false;
+void PagedViewport::focusFirstPage() {
+    gFocusFirstPageCalled = true;
+}
+
 /*
 void PagedViewport::updatePageWidth(int width)
 {
@@ -110,6 +115,7 @@ void Ut_LauncherView::init()
     controller->setView(view);
     showWindowCount = 0;
     hideWindowCount = 0;
+    gFocusFirstPageCalled = false;
 }
 
 void Ut_LauncherView::cleanup()
@@ -205,6 +211,20 @@ void Ut_LauncherView::testRemovingPagesFromLayoutInDestructor()
     controller == NULL;
     // verify that page is not deleted when there is still ref in QSharedPointer
     QVERIFY(!page.isNull());
+}
+
+void Ut_LauncherView::testSignalConnection()
+{
+    QVERIFY(disconnect(controller, SIGNAL(focusToFirstPageRequested()), view, SLOT(focusFirstPage())));
+    connect(controller, SIGNAL(focusToFirstPageRequested()), view, SLOT(focusFirstPage()));
+}
+
+void Ut_LauncherView::testFocusFirstPage()
+{
+    // Test that focusToFirstPageRequested() signal goes to correct slot from
+    // which pagedViewport->focusFirstPage() is called
+    controller->setFirstPage();
+    QCOMPARE(gFocusFirstPageCalled, true);
 }
 
 QTEST_APPLESS_MAIN(Ut_LauncherView)

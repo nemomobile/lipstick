@@ -73,6 +73,8 @@ private slots:
     // Called after every testfunction
     void cleanup();
 
+    // Test opening launcher to first page
+    void testToggleLauncher();
     // Test bounding rectangle and background drawing
     void testBoundingRectAndDrawBackground();
     // Test showing and hiding launcher

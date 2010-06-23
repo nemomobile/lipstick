@@ -479,5 +479,19 @@ void Ut_PagedPanning::testSetRange()
     QCOMPARE(m_subject->currentPage, 2);
 }
 
+void Ut_PagedPanning::testSetFirstPagePosition()
+{
+    //TODO: add testing of setting position to the right-most page
+    // when using right-to-left layout
+
+    // first set position to be something else than 0
+    m_subject->setPosition(QPointF(200.0, 0.0));
+
+    m_subject->setFirstPagePosition();
+
+    QCOMPARE(m_subject->position().x(), 0.0);
+    QCOMPARE(m_subject->currentPage, 0);
+    QCOMPARE(m_subject->targetPage, 0);
+}
 
 QTEST_APPLESS_MAIN(Ut_PagedPanning)

@@ -72,6 +72,11 @@ private slots:
      */
     void panToPage(uint page);
 
+    /*!
+     * Focus launcher to first page
+     */
+    void focusFirstPage();
+
 private:
 
     /*!

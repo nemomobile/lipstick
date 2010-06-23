@@ -31,6 +31,7 @@ class LauncherStub : public StubBase {
   virtual void LauncherDestructor();
   virtual void updatePagesFromDataStore();
   virtual int panToPage(const QString &fileEntryPath);
+  virtual void setFirstPage();
   virtual QSharedPointer<LauncherButton> createLauncherButton(const QString &desktopEntryPath);
   virtual QMap<Launcher::Placement, QString> createPlacementMap(const QHash<QString, QVariant> &desktopEntryPlacements);
   virtual void updateLauncherButton(const QString &desktopEntryPath);
@@ -72,6 +73,10 @@ int LauncherStub::panToPage(const QString &fileEntryPath) {
   params.append( new Parameter<QString>(fileEntryPath));
   stubMethodEntered("panToPage",params);
   return stubReturnValue<int>("panToPage");
+}
+
+void LauncherStub::setFirstPage() {
+  stubMethodEntered("setFirstPage");
 }
 
 void LauncherStub::updateLauncherButton(const QString &fileEntryPath) {
@@ -127,6 +132,10 @@ QMap<Launcher::Placement, QString> Launcher::createPlacementMap(const QHash<QStr
 
 int Launcher::panToPage(const QString &fileEntryPath) {
   return gLauncherStub->panToPage(fileEntryPath);
+}
+
+void Launcher::setFirstPage() {
+  gLauncherStub->setFirstPage();
 }
 
 void Launcher::updateLauncherButton(const QString &fileEntryPath) {
