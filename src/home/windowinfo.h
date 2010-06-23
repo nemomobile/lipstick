@@ -61,14 +61,6 @@ public:
 class WindowInfo
 {
 public:
-    /*!
-     * Priority values for a window. Smaller value means higher priority.
-     * Values are so that different priorities can later be added.
-     */
-    enum WindowPriority {
-        Call = 100,
-        Normal = 500
-    };
 
     // X11 atoms
     static Atom TypeAtom;
@@ -110,13 +102,6 @@ public:
      * \return the title of the window
      */
     const QString &title() const;
-
-    /*!
-     * Gets the priority of the window.
-     *
-     * \return the priority of the window
-     */
-    WindowPriority windowPriority() const;
 
     /*!
      * Gets the types for this window \s WindowType

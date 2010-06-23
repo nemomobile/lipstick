@@ -45,12 +45,10 @@ private slots:
     void cleanup();
 
     // Test cases for detail view
-    void testAutoPanningInDetailView();
     void testSnapIndexChangedInDetailView();
     void testPanningStoppedInDetailView();
 
     // Test cases for over view
-    void testAutoPanningInOverView();
     void testButtonModesInOverviewMode();
     void testPanningStoppedInOverView();
 

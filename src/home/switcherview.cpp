@@ -76,7 +76,6 @@ SwitcherView::SwitcherView(Switcher *switcher) :
     viewport->positionIndicator()->setObjectName("SwitcherOverviewPageIndicator");
 
     focusedSwitcherButton = 0;
-    firstButtonPriority = WindowInfo::Normal;
 }
 
 SwitcherView::~SwitcherView()
@@ -209,20 +208,6 @@ void SwitcherView::updateData(const QList<const char*>& modifications)
     const char *member;
     foreach(member, modifications) {
         if (member == SwitcherModel::Buttons) {
-            if (model()->buttons().isEmpty()) {
-                // Reset the priority if the model is empty
-                firstButtonPriority = WindowInfo::Normal;
-            } else {
-                SwitcherButton *firstButton = model()->buttons().first().data();
-
-                // If the first button's priority has risen pan the view to show it
-                if (firstButton->windowPriority() < firstButtonPriority) {
-                    viewport->panToPage(0);
-                }
-
-                firstButtonPriority = firstButton->windowPriority();
-            }
-
             updateButtons();
         }
 

@@ -147,22 +147,16 @@ void Switcher::updateButtons()
             if (windowMap.contains(wi.window())) {
                 SwitcherButton *b = windowMap[wi.window()];
 
-                // Button already exists - set title and priority (as they may have changed)
+                // Button already exists - set title (as it may have changed)
                 b->setText(wi.title());
-                b->setWindowPriority(wi.windowPriority());
 
                 newWindowMap[wi.window()] = b;
             } else {
-                QSharedPointer<SwitcherButton> b(new SwitcherButton(wi.title(), NULL, wi.window(), wi.windowPriority()));
+                QSharedPointer<SwitcherButton> b(new SwitcherButton(wi.title(), NULL, wi.window()));
                 connect(b.data(), SIGNAL(windowToFront(Window)), this, SLOT(windowToFront(Window)));
                 connect(b.data(), SIGNAL(closeWindow(Window)), this, SLOT(closeWindow(Window)));
 
-                // Put the new high priority buttons straight to the top
-                if (wi.windowPriority() == WindowInfo::Call) {
-                    nextButtons.append(b);
-                } else {
-                    newButtons.append(b);
-                }
+                newButtons.append(b);
 
                 newWindowMap[wi.window()] = b.data();
             }
@@ -171,11 +165,7 @@ void Switcher::updateButtons()
         foreach(QSharedPointer<SwitcherButton> b, oldButtons) {
             // Keep only the buttons for which a window still exists
             if (newWindowMap.contains(b.data()->xWindow())) {
-                if (b.data()->windowPriority() == WindowInfo::Call) {
-                    currentButtons.prepend(b);
-                } else {
-                    currentButtons.append(b);
-                }
+                currentButtons.append(b);
             }
         }
 

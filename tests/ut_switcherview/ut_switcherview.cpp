@@ -88,9 +88,8 @@ Home::Home(QGraphicsItem *parent) : MApplicationPage(parent)
 }
 
 // SwitcherButton stubs
-SwitcherButton::SwitcherButton(const QString &title, MWidget *parent, Window window, WindowInfo::WindowPriority windowPriority) :
-    MButton(title, parent),
-    priority(windowPriority)
+SwitcherButton::SwitcherButton(const QString &title, MWidget *parent, Window window) :
+    MButton(title, parent)
 {
     Q_UNUSED(title);
     Q_UNUSED(parent);
@@ -126,16 +125,6 @@ void SwitcherButton::updateIconGeometry()
 
 void SwitcherButton::resetState()
 {
-}
-
-WindowInfo::WindowPriority SwitcherButton::windowPriority() const
-{
-    return priority;
-}
-
-void SwitcherButton::setWindowPriority(WindowInfo::WindowPriority windowPriority)
-{
-    priority = windowPriority;
 }
 
 Window SwitcherButton::xWindow()
@@ -384,24 +373,6 @@ void Ut_SwitcherView::cleanup()
     delete g_switcherModel;
 }
 
-void Ut_SwitcherView::testAutoPanningInDetailView()
-{
-    g_switcherModel->setSwitcherMode(SwitcherModel::Detailview);
-
-    QCOMPARE(g_panRequested, false);
-
-    QList< QSharedPointer<SwitcherButton> > buttonList = createButtonList(4);
-
-    // Change the first button's priority to
-    // trigger the panning of the view to show it
-    buttonList.first().data()->setWindowPriority(WindowInfo::Call);
-    // Update the model with the modified list
-    g_switcherModel->setButtons(buttonList);
-
-    // SwitcherView should have called the physics integrator's pan method
-    QCOMPARE(g_panRequested, true);
-}
-
 void Ut_SwitcherView::testSnapIndexChangedInDetailView()
 {
     g_switcherModel->setSwitcherMode(SwitcherModel::Detailview);
@@ -459,23 +430,6 @@ void Ut_SwitcherView::testPanningStoppedInDetailView()
 /*
  * Switcher overview tests
  */
-
-void Ut_SwitcherView::testAutoPanningInOverView()
-{
-    QCOMPARE(g_panRequested, false);
-
-    QList< QSharedPointer<SwitcherButton> > buttonList = createButtonList(6);
-    g_switcherModel->setSwitcherMode(SwitcherModel::Overview);
-
-    // Change the first button's priority to
-    // trigger the panning of the view to show it
-    buttonList.first().data()->setWindowPriority(WindowInfo::Call);
-    // Update the model with the modified list
-    g_switcherModel->setButtons(buttonList);
-
-    // SwitcherView should have called the physics integrator's pan method
-    QCOMPARE(g_panRequested, true);
-}
 
 void Ut_SwitcherView::testButtonModesInOverviewMode()
 {

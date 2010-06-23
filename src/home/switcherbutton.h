@@ -41,9 +41,8 @@ public:
      * \param title the Title of the window represented by this button
      * \param parent parent MWidget
      * \param window the X Window represented by this button
-     * \param priority the priority of the X Window represented by this button
      */
-    SwitcherButton(const QString &title, MWidget *parent = NULL, Window window = 0, WindowInfo::WindowPriority windowPriority = WindowInfo::Normal);
+    SwitcherButton(const QString &title, MWidget *parent = NULL, Window window = 0);
 
     /*!
      * Destroys the SwitcherButton.
@@ -54,16 +53,6 @@ public:
      * Gets the X Window represented by this button
      */
     Window xWindow();
-
-    /*!
-     * Gets the priority of the X Window represented by this button
-     */
-    WindowInfo::WindowPriority windowPriority() const;
-
-    /*!
-     * Sets the priority of the X Window represented by this button
-     */
-    void setWindowPriority(WindowInfo::WindowPriority windowPriority);
 
     /*! \reimp
      *
@@ -111,9 +100,6 @@ private:
 
     //! X11 Atom for the icon geometry
     static Atom iconGeometryAtom;
-
-    //! Window priority
-    WindowInfo::WindowPriority priority;
 };
 
 #endif // SWITCHERBUTTON_H

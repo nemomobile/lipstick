@@ -4,6 +4,7 @@ duihome (0.21.12~1) unstable; urgency=low
   * Implemented: SWP#3148 Verify tappability of switcher thumbnail close button
   * Implemented: SWP#DUI-3336 Application start-up indication
   * Fixes: NB#176177 - Launcher buttons are not placed in their expected positions
+  * Implemented: SWP#DUI-3244 Remove customized handling of call UI windows in switcher
 
  -- Vesa Halttunen <vesa.halttunen@nokia.com>  Wed, 23 Jun 2010 14:13:51 +0300
 

@@ -116,12 +116,6 @@ private slots:
     // Test window ordering
     void testWindowOrder();
 
-    // Test call window priority
-    void testCallWindowAdding();
-
-    // Test call window priority
-    void testCallWindowFromExisistingWindow();
-
     // Test that the Switcher update is delayed when launching new applications
     void testUpdateDelay();
 

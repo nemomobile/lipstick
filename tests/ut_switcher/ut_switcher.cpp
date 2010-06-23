@@ -178,9 +178,8 @@ MainWindow *MainWindow::instance(bool)
 }
 
 // SwitcherButton stubs (used by Switcher)
-SwitcherButton::SwitcherButton(const QString &title, MWidget *parent, Window window, WindowInfo::WindowPriority windowPriority) :
-    MButton(title, parent, new SwitcherButtonModel),
-    priority(windowPriority)
+SwitcherButton::SwitcherButton(const QString &title, MWidget *parent, Window window) :
+    MButton(title, parent, new SwitcherButtonModel)
 {
     g_windowButtonMap[this] = window;
 }
@@ -217,16 +216,6 @@ void SwitcherButton::updateIconGeometry()
     Ut_Switcher::iconGeometryUpdated.append(this);
 }
 
-WindowInfo::WindowPriority SwitcherButton::windowPriority() const
-{
-    return priority;
-}
-
-void SwitcherButton::setWindowPriority(WindowInfo::WindowPriority windowPriority)
-{
-    priority = windowPriority;
-}
-
 QList<SwitcherButton *> Ut_Switcher::iconGeometryUpdated;
 
 Window SwitcherButton::xWindow()
@@ -254,13 +243,6 @@ WindowInfo::~WindowInfo()
 const QString& WindowInfo::title() const
 {
     return g_windowTitles[d->window];
-}
-
-QMap<Window, WindowInfo::WindowPriority > g_windowPriorities;
-
-WindowInfo::WindowPriority WindowInfo::windowPriority() const
-{
-    return g_windowPriorities[d->window];
 }
 
 Window WindowInfo::window() const
@@ -334,7 +316,6 @@ void Ut_Switcher::init()
             switcher, SLOT(closeWindow(Window)));
     g_lastSingleShot = QString();
     g_windowTitles.clear();
-    g_windowPriorities.clear();
     g_singleShotTarget = "updateButtons";
 }
 
@@ -588,76 +569,6 @@ void Ut_Switcher::testWindowOrder()
         QCOMPARE(b->text(), title);
         // Check that the window ids are in the same order as in the original list
         QCOMPARE(b->xWindow(), l.at(i).window());
-    }
-}
-
-void Ut_Switcher::testCallWindowAdding()
-{
-    // Add three test windows to the window list
-    QList<WindowInfo> l = createWindowList(3);
-
-    // Let the Switcher know about the updated window list
-    emit windowListUpdated(l);
-
-    // There should be three items in the switcher model
-    QCOMPARE(switcher->model()->buttons().count(), 3);
-
-    // See that three SwitcherButtons are added to the model with the correct names
-    for (int i = 0; i < 3; i++) {
-        // The button titles should match the window names (Test0, Test1, Test2)
-        SwitcherButton *b = switcher->model()->buttons().at(i).data();
-        QString title = QString().sprintf("Test%d", i);
-        QCOMPARE(b->text(), title);
-    }
-
-    QString callTitle("Call");
-
-    // Add a new call window
-    g_windowTitles[111] = callTitle;
-    g_windowPriorities[111] = WindowInfo::Call;
-    l.insert(1, WindowInfo(111));
-
-    emit windowListUpdated(l);
-
-    // There should be four items in the switcher model
-    QCOMPARE(switcher->model()->buttons().count(), 4);
-
-    // The call window should be the first one
-    QCOMPARE(switcher->model()->buttons().at(0)->text(), QString("Call"));
-
-    // See that three previous the SwitcherButtons are still in the same order
-    for (int i = 1; i < 4; i++) {
-        // The button titles should match the window names (Test0, Test1, Test2)
-        SwitcherButton *b = switcher->model()->buttons().at(i).data();
-        QString title = QString().sprintf("Test%d", i - 1);
-        QCOMPARE(b->text(), title);
-    }
-}
-
-void Ut_Switcher::testCallWindowFromExisistingWindow()
-{
-    // Add three test windows to the window list
-    QList<WindowInfo> l = createWindowList(3);
-
-    // Let the Switcher know about the updated window list
-    emit windowListUpdated(l);
-
-    g_windowPriorities[2] = WindowInfo::Call;
-
-    emit windowListUpdated(l);
-
-    // There should be three items in the switcher model
-    QCOMPARE(switcher->model()->buttons().count(), 3);
-
-    // The last window should now be the first one
-    QCOMPARE(switcher->model()->buttons().at(0)->text(), QString("Test2"));
-
-    // See that the rest of the SwitcherButtons are in the right order
-    for (int i = 1; i < 3; i++) {
-        // The button titles should match the window names (Test0, Test1, Test2)
-        SwitcherButton *b = switcher->model()->buttons().at(i).data();
-        QString title = QString().sprintf("Test%d", i - 1);
-        QCOMPARE(b->text(), title);
     }
 }
 

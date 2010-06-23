@@ -73,11 +73,6 @@ const QString& WindowInfo::title() const
     return d->title;
 }
 
-WindowInfo::WindowPriority WindowInfo::windowPriority() const
-{
-    return d->types.contains(WindowInfo::CallAtom) ? WindowInfo::Call : WindowInfo::Normal;
-}
-
 Window WindowInfo::window() const
 {
     return d->window;

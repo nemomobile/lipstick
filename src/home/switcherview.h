@@ -118,9 +118,6 @@ private:
     /*! The current focused switcher button */
     int focusedSwitcherButton;
 
-    /*! Keep track of the first button's priority */
-    WindowInfo::WindowPriority firstButtonPriority;
-
 #ifdef UNIT_TEST
     // to test snapIndexChanged effects
     friend class Ut_SwitcherView;

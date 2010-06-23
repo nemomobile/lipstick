@@ -13,10 +13,3 @@ When a window icon is tapped, _NET_ACTIVE_WINDOW message is sent to the correspo
 <strong>Overview</strong> mode shows more windows in a screen and smaller window icons. Amount of window icons per page can differ for portrait and landscape modes and also for different amounts of icons. In overview mode horizontal panning gestures switch between pages of window icons.
 
 <strong>Detail view</strong> mode shows more detailed window icons, but less icons on screen. In detail view mode panning gestures switch between focused window icon.
-
-\section priorization Window Priorization
-
-Currently call ui is the only prioritized window in application switcher. When call ui appears in window list, it will be moved as the first item on the switcher. Also in detail view mode switcher will be panned to focus call ui window icon and in overview mode switcher will be panned to the first page.
-
-Window is set as a call ui by setting the X Window property _NET_WM_WINDOW_TYPE of the window to value _NET_WM_WINDOW_TYPE_CALL.
-*/

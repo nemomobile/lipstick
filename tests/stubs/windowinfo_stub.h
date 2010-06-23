@@ -49,10 +49,8 @@ public:
     virtual Window window() const;
     virtual bool updateWindowTitle();
     virtual void updateWindowProperties();
-    virtual WindowInfo::WindowPriority windowPriority() const;
     QString _title;
     Window _window;
-    WindowInfo::WindowPriority _windowPriority;
 };
 
 // 2. IMPLEMENT STUB
@@ -104,12 +102,6 @@ void WindowInfoStub::updateWindowProperties()
     stubMethodEntered("updateWindowProperties");
 }
 
-WindowInfo::WindowPriority WindowInfoStub::windowPriority() const
-{
-    stubMethodEntered("windowPriority");
-    return stubReturnValue<WindowInfo::WindowPriority>("windowPriority");
-}
-
 // 3. CREATE A STUB INSTANCE
 WindowInfoStub gDefaultWindowInfoStub;
 WindowInfoStub *gWindowInfoStub = &gDefaultWindowInfoStub;
@@ -159,11 +151,6 @@ bool WindowInfo::updateWindowTitle()
 void WindowInfo::updateWindowProperties()
 {
     gWindowInfoStub->updateWindowProperties();
-}
-
-WindowInfo::WindowPriority WindowInfo::windowPriority() const
-{
-    return gWindowInfoStub->windowPriority();
 }
 
 bool operator==(const WindowInfo &wi1, const WindowInfo &wi2)

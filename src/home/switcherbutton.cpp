@@ -27,9 +27,8 @@
 
 Atom SwitcherButton::iconGeometryAtom = 0;
 
-SwitcherButton::SwitcherButton(const QString &title, MWidget *parent, Window window, WindowInfo::WindowPriority windowPriority) :
-    MButton(title, parent, new SwitcherButtonModel),
-    priority(windowPriority)
+SwitcherButton::SwitcherButton(const QString &title, MWidget *parent, Window window) :
+    MButton(title, parent, new SwitcherButtonModel)
 {
     // Configure timers
     windowCloseTimer.setSingleShot(true);
@@ -55,16 +54,6 @@ SwitcherButton::~SwitcherButton()
 Window SwitcherButton::xWindow()
 {
     return model()->xWindow();
-}
-
-WindowInfo::WindowPriority SwitcherButton::windowPriority() const
-{
-    return priority;
-}
-
-void SwitcherButton::setWindowPriority(WindowInfo::WindowPriority windowPriority)
-{
-    priority = windowPriority;
 }
 
 void SwitcherButton::switchToWindow()
