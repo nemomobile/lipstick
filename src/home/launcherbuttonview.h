@@ -20,6 +20,7 @@
 #ifndef LAUNCHERBUTTONVIEW_H_
 #define LAUNCHERBUTTONVIEW_H_
 
+#include <QTimer>
 #include <QTimeLine>
 #include <QRectF>
 #include <mbuttoniconview.h>
@@ -62,13 +63,13 @@ protected slots:
     //! \reimp_end
 
 private slots:
+    //! Shows the progress indicator
+    void showProgressIndicator();
+
     //! Updates the progress indicator
     void setProgressIndicatorFrame(int frame);
 
 private:
-    //! Shows the progress indicator
-    void showProgressIndicator();
-
     //! Hides the progress indicator
     void hideProgressIndicator();
 
@@ -77,6 +78,9 @@ private:
 
     //! Pixmaps for the progress indicator
     QVector<const QPixmap *> progressIndicatorPixmaps;
+
+    //! Timer for bringing forth the progress indicator
+    QTimer progressIndicatorTimer;
 
     //! Animation timeline for the progress indicator
     QTimeLine progressIndicatorTimeLine;

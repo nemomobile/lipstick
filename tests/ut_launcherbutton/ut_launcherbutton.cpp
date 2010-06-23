@@ -120,7 +120,7 @@ int X11Wrapper::XFree(void *)
 
 Status X11Wrapper::XGetWMName(Display *, Window, XTextProperty *)
 {
-    return -1;
+    return 0;
 }
 
 Status X11Wrapper::XGetTextProperty(Display *, Window , XTextProperty *, Atom)

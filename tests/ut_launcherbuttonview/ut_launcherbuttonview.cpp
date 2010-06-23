@@ -26,6 +26,20 @@
 #include "launcheraction_stub.h"
 #include "windowinfo_stub.h"
 
+// QTimer stubs
+bool qTimerStarted;
+void QTimer::start()
+{
+    qTimerStarted = true;
+    id = 0;
+}
+
+void QTimer::stop()
+{
+    qTimerStarted = false;
+    id = -1;
+}
+
 // QTimeLine stubs
 bool qTimeLineStarted;
 void QTimeLine::start()
@@ -79,6 +93,7 @@ void Ut_LauncherButtonView::cleanupTestCase()
 void Ut_LauncherButtonView::init()
 {
     qTimeLineStarted = false;
+    qTimerStarted = false;
     controller = new LauncherButton;
     controller->setModel(new LauncherButtonModel);
     m_subject = new LauncherButtonView(controller);
@@ -95,8 +110,10 @@ void Ut_LauncherButtonView::cleanup()
 
 void Ut_LauncherButtonView::testInitialization()
 {
+    QVERIFY(disconnect(&m_subject->progressIndicatorTimer, SIGNAL(timeout()), m_subject, SLOT(showProgressIndicator())));
     QVERIFY(disconnect(&m_subject->progressIndicatorTimeLine, SIGNAL(frameChanged(int)), m_subject, SLOT(setProgressIndicatorFrame(int))));
 
+    QVERIFY(m_subject->progressIndicatorTimer.isSingleShot());
     QCOMPARE(m_subject->progressIndicatorTimeLine.state(), QTimeLine::NotRunning);
     QCOMPARE(m_subject->progressIndicatorTimeLine.loopCount(), 0);
     QCOMPARE(m_subject->progressIndicatorTimeLine.curveShape(), QTimeLine::LinearCurve);
@@ -112,9 +129,18 @@ void Ut_LauncherButtonView::testApplyStyle()
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setProgressIndicatorTimeout").parameter<int>(0), m_subject->style()->progressIndicatorTimeout());
 }
 
-void Ut_LauncherButtonView::testShowProgressIndicator()
+void Ut_LauncherButtonView::testUpdateData()
 {
     controller->model()->setShowProgressIndicator(true);
+    QCOMPARE(m_subject->progressIndicatorTimer.isActive(), true);
+
+    controller->model()->setShowProgressIndicator(false);
+    QCOMPARE(m_subject->progressIndicatorTimer.isActive(), false);
+}
+
+void Ut_LauncherButtonView::testShowProgressIndicator()
+{
+    m_subject->showProgressIndicator();
     QCOMPARE(m_subject->progressIndicatorTimeLine.state(), QTimeLine::Running);
     QVERIFY(mWidgetViewUpdateCalled);
 
@@ -125,10 +151,11 @@ void Ut_LauncherButtonView::testShowProgressIndicator()
 
 void Ut_LauncherButtonView::testHideProgressIndicator()
 {
-    controller->model()->setShowProgressIndicator(true);
+    m_subject->showProgressIndicator();
 
     mWidgetViewUpdateCalled = false;
-    controller->model()->setShowProgressIndicator(false);
+    m_subject->hideProgressIndicator();
+    QCOMPARE(m_subject->progressIndicatorTimer.isActive(), false);
     QCOMPARE(m_subject->progressIndicatorTimeLine.state(), QTimeLine::NotRunning);
     QVERIFY(mWidgetViewUpdateCalled);
 }

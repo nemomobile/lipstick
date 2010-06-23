@@ -25,9 +25,11 @@ LauncherButtonView::LauncherButtonView(LauncherButton *controller) :
     MButtonIconView(controller),
     controller(controller)
 {
+    progressIndicatorTimer.setSingleShot(true);
     progressIndicatorTimeLine.setLoopCount(0);
     progressIndicatorTimeLine.setCurveShape(QTimeLine::LinearCurve);
 
+    connect(&progressIndicatorTimer, SIGNAL(timeout()), this, SLOT(showProgressIndicator()));
     connect(&progressIndicatorTimeLine, SIGNAL(frameChanged(int)), this, SLOT(setProgressIndicatorFrame(int)));
 }
 
@@ -51,6 +53,7 @@ void LauncherButtonView::applyStyle()
     // Set the progress indicator timing properties
     controller->setProgressIndicatorTimeout(style()->progressIndicatorTimeout());
     progressIndicatorTimeLine.setDuration(style()->progressIndicatorAnimationDuration());
+    progressIndicatorTimer.setInterval(style()->glowDuration());
 
     if (!progressIndicatorPixmaps.isEmpty()) {
         // Release the old progress indicator pixmaps
@@ -104,7 +107,7 @@ void LauncherButtonView::updateData(const QList<const char *>& modifications)
     foreach(member, modifications) {
         if (member == LauncherButtonModel::ShowProgressIndicator) {
             if (model()->showProgressIndicator()) {
-                showProgressIndicator();
+                progressIndicatorTimer.start();
             } else {
                 hideProgressIndicator();
             }
@@ -119,6 +122,10 @@ void LauncherButtonView::setProgressIndicatorFrame(int)
 
 void LauncherButtonView::showProgressIndicator()
 {
+    if (progressIndicatorTimer.isActive()) {
+        progressIndicatorTimer.stop();
+    }
+
     if (progressIndicatorTimeLine.state() != QTimeLine::Running) {
         progressIndicatorTimeLine.start();
         update();
@@ -127,6 +134,10 @@ void LauncherButtonView::showProgressIndicator()
 
 void LauncherButtonView::hideProgressIndicator()
 {
+    if (progressIndicatorTimer.isActive()) {
+        progressIndicatorTimer.stop();
+    }
+
     if (progressIndicatorTimeLine.state() != QTimeLine::NotRunning) {
         progressIndicatorTimeLine.stop();
         update();
