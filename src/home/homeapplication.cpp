@@ -265,7 +265,7 @@ bool HomeApplication::createWindowInfos(QSet<Window> openedWindowSet)
     foreach(Window w, openedWindowSet) {
         WindowInfo newWindow(w);
         windowMap.insert(w, newWindow);
-        if (MainWindow::instance()->winId() != w) {
+        if (MainWindow::instance() != NULL && MainWindow::instance()->winId() != w) {
             X11Wrapper::XSelectInput(dpy, w, VisibilityChangeMask | PropertyChangeMask);
         }
 
