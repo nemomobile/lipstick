@@ -40,6 +40,7 @@ static Bool gPropagateFlagOfXSendEvent;
 static long gLongParametersOfXSendEvent[5];
 static const unsigned long WINDOW_ID_FOR_WINDOW_TO_FRONT = 666;
 static const unsigned long WINDOW_ID_FOR_CLOSE_WINDOW = 777;
+static const unsigned long WINDOW_ID_FOR_WINDOW_VISIBLE = 888;
 Atom X11Wrapper::XInternAtom(Display *, const char *name, Bool)
 {
     Atom returnValue = reinterpret_cast<Atom>(name);
@@ -120,11 +121,6 @@ XErrorHandler X11Wrapper::XSetErrorHandler(XErrorHandler)
     return 0;
 }
 
-int X11Wrapper::XChangeProperty(Display *, Window, Atom, Atom, int, int, unsigned char *, int)
-{
-    return 0;
-}
-
 Status X11Wrapper::XSendEvent(Display *display, Window,
                               Bool propagate, long mask, XEvent *event)
 {
@@ -198,6 +194,14 @@ void SwitcherButton::resetState()
 }
 
 void SwitcherButton::close()
+{
+}
+
+void SwitcherButton::enterDisplayEvent()
+{
+}
+
+void SwitcherButton::exitDisplayEvent()
 {
 }
 

@@ -82,6 +82,8 @@ private slots:
     void testSetGeometry();
     // Verify that the icon position for the window is set properly when requested
     void testUpdateIconGeometry();
+    // Test that X11 properties are set correctly if visible in switcher
+    void testSetVisibleInSwitcherProperty();
 };
 
 #endif //_UT_APPLETBUTTON_

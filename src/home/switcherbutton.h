@@ -62,6 +62,9 @@ public:
     virtual void setGeometry(const QRectF &rect);
     //! \reimp_end
 
+    //! Sets/unsets _MEEGO_VISIBLE_IN_SWITCHER property to the window.
+    void setVisibleInSwitcherProperty(bool set);
+
 signals:
     /*!
      * \brief A signal for notifying that a window should be brought to front
@@ -94,12 +97,30 @@ public slots:
      */
     void updateIconGeometry();
 
+protected:
+
+    /*! \reimp
+     *
+     * Reimplemented to update _MEEGO_VISIBLE_IN_SWITCHER property
+     */
+    virtual void enterDisplayEvent();
+
+    /*! \reimp
+     *
+     * Reimplemented to update _MEEGO_VISIBLE_IN_SWITCHER property
+     */
+    virtual void exitDisplayEvent();
+
 private:
+
     //! A timer to check if the window is closed when switcher button is dragged outside switcher before timer expires
     QTimer windowCloseTimer;
 
     //! X11 Atom for the icon geometry
     static Atom iconGeometryAtom;
+
+    //! X11 Atom for window being visible in the switcher
+    static Atom visibleAtom;
 };
 
 #endif // SWITCHERBUTTON_H

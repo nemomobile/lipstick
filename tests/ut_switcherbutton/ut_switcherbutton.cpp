@@ -28,6 +28,7 @@
 
 #define TEST_ANY_OTHER_ATOM 1
 #define TEST_NET_WM_ICON_GEOMETRY_ATOM 303
+#define TEST_MEEGOTOUCH_VISIBLE_IN_SWITCHER_ATOM 304
 
 // QCoreApplication stubs to avoid crashing in processEvents()
 QStringList QCoreApplication::arguments()
@@ -42,7 +43,13 @@ void QGraphicsItem::prepareGeometryChange()
 
 Atom X11Wrapper::XInternAtom(Display *, const char *atom_name, Bool)
 {
-    return strcmp(atom_name, "_NET_WM_ICON_GEOMETRY") == 0 ? TEST_NET_WM_ICON_GEOMETRY_ATOM : TEST_ANY_OTHER_ATOM;
+    if (strcmp(atom_name, "_NET_WM_ICON_GEOMETRY") == 0) {
+        return TEST_NET_WM_ICON_GEOMETRY_ATOM;
+    } else if (strcmp(atom_name, "_MEEGOTOUCH_VISIBLE_IN_SWITCHER") == 0) {
+        return TEST_MEEGOTOUCH_VISIBLE_IN_SWITCHER_ATOM;
+    } else {
+        return TEST_ANY_OTHER_ATOM;
+    }
 }
 
 int X11Wrapper::XChangeProperty(Display *display, Window w, Atom property, Atom type, int format, int mode, unsigned char *data, int nelements)
@@ -208,6 +215,35 @@ void Ut_SwitcherButton::testUpdateIconGeometry()
     QCOMPARE(iconGeometry[3], (unsigned int)iconPosition.height());
 
     scene.removeItem(button);
+}
+
+void Ut_SwitcherButton::testSetVisibleInSwitcherProperty()
+{
+    // Set window visible in the Switcher
+    button->setVisibleInSwitcherProperty(true);
+
+    // Check correct values passed to X11Wrapper::XChangeProperty()
+    QCOMPARE(Ut_SwitcherButton::xChangePropertyWindow, button->xWindow());
+    QCOMPARE(Ut_SwitcherButton::xChangePropertyProperty, (Atom)TEST_MEEGOTOUCH_VISIBLE_IN_SWITCHER_ATOM);
+    QCOMPARE(Ut_SwitcherButton::xChangePropertyFormat, 8);
+    QCOMPARE(Ut_SwitcherButton::xChangePropertyMode, PropModeReplace);
+    QCOMPARE(Ut_SwitcherButton::xChangePropertyType, XA_CARDINAL);
+    QCOMPARE(Ut_SwitcherButton::xChangePropertyNElements, 1);
+
+    unsigned char *data = (unsigned char *)xChangePropertyData;
+    QVERIFY(data[0] == 1);
+
+    // Set window not visible in the Switcher
+    button->setVisibleInSwitcherProperty(false);
+
+    // Check correct values passed to X11Wrapper::XChangeProperty()
+    QCOMPARE(Ut_SwitcherButton::xChangePropertyWindow, button->xWindow());
+    QCOMPARE(Ut_SwitcherButton::xChangePropertyProperty, (Atom)TEST_MEEGOTOUCH_VISIBLE_IN_SWITCHER_ATOM);
+    QCOMPARE(Ut_SwitcherButton::xChangePropertyFormat, 8);
+    QCOMPARE(Ut_SwitcherButton::xChangePropertyMode, PropModeReplace);
+    QCOMPARE(Ut_SwitcherButton::xChangePropertyType, XA_CARDINAL);
+    QCOMPARE(Ut_SwitcherButton::xChangePropertyNElements, 1);
+    QVERIFY(data[0] == 0);
 }
 
 QTEST_APPLESS_MAIN(Ut_SwitcherButton)

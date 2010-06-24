@@ -26,6 +26,7 @@
 #include <QX11Info>
 
 Atom SwitcherButton::iconGeometryAtom = 0;
+Atom SwitcherButton::visibleAtom = 0;
 
 SwitcherButton::SwitcherButton(const QString &title, MWidget *parent, Window window) :
     MButton(title, parent, new SwitcherButtonModel)
@@ -37,6 +38,11 @@ SwitcherButton::SwitcherButton(const QString &title, MWidget *parent, Window win
     if (iconGeometryAtom == 0) {
         // Get the icon geometry X11 Atom if it doesn't exist yet
         iconGeometryAtom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_WM_ICON_GEOMETRY", False);
+    }
+
+    if (visibleAtom == 0) {
+        // Get the icon geometry X11 Atom if it doesn't exist yet
+        visibleAtom = X11Wrapper::XInternAtom(QX11Info::display(), "_MEEGOTOUCH_VISIBLE_IN_SWITCHER", False);
     }
 
     // Update the window title and pixmap
@@ -102,3 +108,28 @@ void SwitcherButton::updateIconGeometry()
     iconGeometry[3] = iconPosition.height();
     X11Wrapper::XChangeProperty(QX11Info::display(), xWindow(), iconGeometryAtom, XA_CARDINAL, sizeof(unsigned int) * 8, PropModeReplace, (unsigned char *)&iconGeometry, 4);
 }
+
+void SwitcherButton::enterDisplayEvent()
+{
+    setVisibleInSwitcherProperty(true);
+}
+
+void SwitcherButton::exitDisplayEvent()
+{
+    setVisibleInSwitcherProperty(false);
+}
+
+void SwitcherButton::setVisibleInSwitcherProperty(bool set)
+{
+    Display *dpy = QX11Info::display();
+    if (dpy) {
+        if (set) {
+            unsigned char data = 1;
+            X11Wrapper::XChangeProperty(dpy, xWindow(), visibleAtom, XA_CARDINAL, 8, PropModeReplace, &data, 1);
+        } else {
+            unsigned char data = 0;
+            X11Wrapper::XChangeProperty(dpy, xWindow(), visibleAtom, XA_CARDINAL, 8, PropModeReplace, &data, 1);
+        }
+    }
+}
+

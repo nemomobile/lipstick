@@ -127,6 +127,14 @@ void SwitcherButton::resetState()
 {
 }
 
+void SwitcherButton::enterDisplayEvent()
+{
+}
+
+void SwitcherButton::exitDisplayEvent()
+{
+}
+
 Window SwitcherButton::xWindow()
 {
     return g_windowButtonMap[this];
