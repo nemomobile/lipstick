@@ -66,9 +66,6 @@ protected slots:
     //! \endcond
 
 private slots:
-    /*! Monitors the movement of the pannable viewport */
-    void animateDetailView(const QPointF &pannedPos);
-
     /*! Listens for page change in the paged viewport */
     void updateFocusedButton(int currentPage);
 
@@ -85,6 +82,12 @@ private:
 
     /*! Updates the content margin and spacings of the layout policies */
     void updateContentsMarginsAndSpacings();
+
+    /*! Updates the content margins and spacings of the detail view layout policy */
+    void updateDetailViewContentsMarginsAndSpacings();
+
+    /*! Updates the content margins and spacings of the overview layout policy */
+    void updateOverviewContentsMarginsAndSpacings();
 
     /*! Updates the modes of the buttons and the page count according to the switcher mode */
     void updateButtonModesAndPageCount();

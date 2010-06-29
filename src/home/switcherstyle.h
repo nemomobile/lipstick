@@ -29,25 +29,6 @@ class SwitcherStyle : public MWidgetStyle
     Q_OBJECT
     M_STYLE(SwitcherStyle)
 
-    /*! Defines how much the focused switcher button will be scaled */
-    M_STYLE_ATTRIBUTE(qreal, scaleFactor, ScaleFactor)
-
-    /*!
-     * Defines how much extra the focused switcher button will move 
-     * horizontally "out of the way".
-     */
-    M_STYLE_ATTRIBUTE(qreal, fastForward, FastForward)
-
-    /*!
-     * Defines how much the focused switcher button will rotate at maximum 
-     * during horizontal movement
-     */
-    M_STYLE_ATTRIBUTE(qreal, itemRotation, ItemRotation)
-    /*!
-     * Defines how mush the items will over lap when they are stationary
-     */
-    M_STYLE_ATTRIBUTE(qreal, itemOverLap, ItemOverLap)
-
      /*!
      * Defines horizontal spacing between switcher buttons.
      */

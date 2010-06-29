@@ -35,7 +35,7 @@
 #include "pagedviewport.h"
 
 static void setSwitcherButtonSize(QList< QSharedPointer<SwitcherButton> > &buttonList, const QSizeF &size);
-static void verifyContentMarginValues(qreal top, qreal bottom, qreal target);
+static void verifyEqualContentMarginValues(qreal first, qreal second, qreal target);
 
 SwitcherModel* g_switcherModel;
 QMap<SwitcherButton *, Window> g_windowButtonMap;
@@ -241,28 +241,6 @@ void Ut_SwitcherView::verifyButtonModesInOverviewMode(QList< QSharedPointer<Swit
             QCOMPARE(buttonList[i].data()->model()->viewMode(), SwitcherButtonModel::Medium);
         }
     }
-    /*
-    int buttons = buttonList.count();
-    if (gMSceneManagerStub->orientation() == M::Landscape){
-        for(int i = 0; i < buttons; i++){
-            if (buttons < 3) {
-                QVERIFY(buttonList[i].data()->model()->viewMode() == SwitcherButtonModel::Large);
-            } else {
-                QVERIFY(buttonList[i].data()->model()->viewMode() == SwitcherButtonModel::Medium);
-            }
-        }
-    } else {
-        for(int i = 0; i < buttons; i++){
-            if (buttons < 3) {
-                QVERIFY(buttonList[i].data()->model()->viewMode() == SwitcherButtonModel::Large);
-            } else if (buttons < 5) {
-                QVERIFY(buttonList[i].data()->model()->viewMode() == SwitcherButtonModel::Medium);
-            } else {
-                QVERIFY(buttonList[i].data()->model()->viewMode() == SwitcherButtonModel::Small);
-            }
-        }
-    }
-    */
 }
 
 void Ut_SwitcherView::verifyButtonModesInOverviewMode(M::Orientation orientation)
@@ -298,29 +276,38 @@ void Ut_SwitcherView::verifyLayoutPolicyContentMargins(const QSizeF &buttonSize)
     if (g_switcherModel->buttons().size() == 0) {
         // Test the overview policy margins
         m_subject->overviewPolicy->getContentsMargins(&left, &top, &right, &bottom);
-        verifyContentMarginValues(top, bottom, 0.0);
-        // Test the detail view policy margins
-        m_subject->detailPolicy->getContentsMargins(&left, &top, &right, &bottom);
-        verifyContentMarginValues(top, bottom, 0.0);
-    } else if (g_switcherModel->buttons().size() < 3) {
-        // Test the overview policy margins
-        m_subject->overviewPolicy->getContentsMargins(&left, &top, &right, &bottom);
-        qreal numberOfRowSpacings = qMax(0, m_subject->overviewPolicy->rowCount() - 1);
-        qreal heightTakenByRowSpacings =  numberOfRowSpacings * m_subject->modifiableStyle()->buttonVerticalSpacing();
-        qreal verticalMargin = (m_subject->geometry().height() - (buttonSize.height() * m_subject->overviewPolicy->rowCount() + heightTakenByRowSpacings)) / 2;
-
-        verifyContentMarginValues(top, bottom, verticalMargin);
+        verifyEqualContentMarginValues(top, bottom, 0.0);
+        verifyEqualContentMarginValues(left, right, 0.0);
 
         // Test the detail view policy margins
         m_subject->detailPolicy->getContentsMargins(&left, &top, &right, &bottom);
-        verticalMargin = (m_subject->geometry().height() - buttonSize.height()) / 2;
-        verifyContentMarginValues(top, bottom, verticalMargin);
+        verifyEqualContentMarginValues(top, bottom, 0.0);
+        verifyEqualContentMarginValues(left, right, 0.0);
     } else {
-        // Overview policy margins are determined by the style,
-        // just test the detail view policy margins
+        qreal horizontalMargin, verticalMargin;
+        if (g_switcherModel->buttons().size() < 3) {
+            // Test the overview policy vertical margins
+            m_subject->overviewPolicy->getContentsMargins(&left, &top, &right, &bottom);
+            qreal numberOfRowSpacings = qMax(0, m_subject->overviewPolicy->rowCount() - 1);
+            qreal heightTakenByRowSpacings =  numberOfRowSpacings * m_subject->modifiableStyle()->buttonVerticalSpacing();
+            verticalMargin = (m_subject->geometry().height() - (buttonSize.height() * m_subject->overviewPolicy->rowCount() + heightTakenByRowSpacings)) / 2;
+
+            verifyEqualContentMarginValues(top, bottom, verticalMargin);
+        } else {
+            // Overview policy vertical margins are determined by the style
+            // TODO this should be tested.
+        }
+
+        // TODO test the overview policy horizontal margins!
+        // TODO test the overview policy spacings!
+
+        // Test the detail view policy margins and horizontal spacing
         m_subject->detailPolicy->getContentsMargins(&left, &top, &right, &bottom);
-        qreal verticalMargin = (m_subject->geometry().height() - buttonSize.height()) / 2;
-        verifyContentMarginValues(top, bottom, verticalMargin);
+        horizontalMargin = (m_subject->geometry().width() - buttonSize.width()) / 2;
+        verticalMargin = (m_subject->geometry().height() - buttonSize.height()) / 2;
+        verifyEqualContentMarginValues(top, bottom, verticalMargin);
+        verifyEqualContentMarginValues(left, right, horizontalMargin);
+        QCOMPARE(m_subject->detailPolicy->horizontalSpacing(), horizontalMargin / 2);
     }
 }
 
@@ -331,10 +318,10 @@ void setSwitcherButtonSize(QList< QSharedPointer<SwitcherButton> > &buttonList, 
     }
 }
 
-void verifyContentMarginValues(qreal top, qreal bottom, qreal target)
+void verifyEqualContentMarginValues(qreal first, qreal second, qreal target)
 {
-    QCOMPARE(top, bottom);
-    QCOMPARE(top, target);
+    QCOMPARE(first, second);
+    QCOMPARE(first, target);
 }
 
 /*
@@ -478,7 +465,7 @@ void Ut_SwitcherView::testPanningStoppedInOverView()
     QCOMPARE(m_subject->focusedSwitcherButton, 0);
 }
 
-void Ut_SwitcherView::testSwitcherButtonVerticalAlignment()
+void Ut_SwitcherView::testSwitcherButtonAlignment()
 {
     g_switcherModel->setSwitcherMode(SwitcherModel::Overview);
     gMSceneManagerStub->stubSetReturnValue("orientation", M::Landscape);

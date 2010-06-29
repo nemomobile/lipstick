@@ -53,7 +53,7 @@ private slots:
     void testPanningStoppedInOverView();
 
     // Test that the buttons are positioned correctly
-    void testSwitcherButtonVerticalAlignment();
+    void testSwitcherButtonAlignment();
 
     // Test that buttons are removed correctly
     void testRemovingButtons();

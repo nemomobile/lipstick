@@ -306,17 +306,10 @@ SwitcherStyle {
     padding-top: 0;
     padding-bottom: 0;
 
-    /* how much to down scale the non emphasizzed items */
-    scale-factor: 0.8;
-    /* The amount the focused item will "fast-forward" during the transition */
-    fast-forward: 4.0mm;
-    /* The angle that the item will rotate during the transition */
-    item-rotation: 15;
-    /* The amoun the items will overlap when stationary */
-    item-over-lap: 3mm;
-
     button-horizontal-spacing: 0;
     button-vertical-spacing: 0;
+    rows-per-page: 1;
+    columns-per-page: 1;
 }
 
 
@@ -342,6 +335,15 @@ SwitcherStyle#OverviewSwitcher.Landscape {
 MAbstractLayoutPolicyStyle#OverviewPolicy {
     margin-top: 6.4mm;
     margin-bottom: 3mm;
+    vertical-spacing: 0.0;
+    horizontal-spacing: 0.0;
+}
+
+MAbstractLayoutPolicyStyle#DetailviewPolicy {
+    margin-top: 6.4mm;
+    margin-bottom: 3mm;
+    vertical-spacing: 0.0;
+    horizontal-spacing: 0.0;
 }
 
 PagedViewportStyle {

@@ -18,7 +18,6 @@
 ****************************************************************************/
 #include "ut_switcherbuttonview.h"
 
-#include <QGLContext>
 #include <MScalableImage>
 #include <MCancelEvent>
 #include "mscenemanager_stub.h"
@@ -73,44 +72,6 @@ int X11Wrapper::XChangeProperty(Display *display, Window w, Atom property, Atom 
 void MTheme::releasePixmap(const QPixmap *)
 {
 }
-
-// MGLRenderer stubs (used by SwitcherButton)
-#ifdef M_USE_OPENGL
-MGLRenderer::MGLRenderer() : d_ptr(0)
-{
-}
-
-MGLRenderer::~MGLRenderer()
-{
-}
-
-MGLRenderer *MGLRenderer::instance()
-{
-    static MGLRenderer mGLRenderer;
-    return &mGLRenderer;
-}
-
-quint32 MGLRenderer::bindX11Pixmap(Pixmap pixmap)
-{
-    Q_UNUSED(pixmap);
-    return 1;
-}
-
-void MGLRenderer::unbindX11Pixmap(Pixmap pixmap)
-{
-    Q_UNUSED(pixmap);
-}
-
-void MGLRenderer::drawTexture(const QTransform &transform, quint32 texId, const QSizeF &size, qreal opacity,
-                                bool inverted)
-{
-    Q_UNUSED(transform);
-    Q_UNUSED(texId);
-    Q_UNUSED(size);
-    Q_UNUSED(opacity);
-    Q_UNUSED(inverted);
-}
-#endif
 
 // X stubs (used by SwitcherButton)
 QList<Pixmap> Ut_SwitcherButtonView::allocatedPixmaps;
