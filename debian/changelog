@@ -1,3 +1,9 @@
+duihome (0.21.14~1) unstable; urgency=low
+
+  * New version [UNRELEASED]
+
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Wed, 30 Jun 2010 19:39:34 +0300
+
 duihome (0.21.13-1) unstable; urgency=low
 
   * Fixes: NB#174923 - Minimize/maximize animation end/begins at the edge of the screen
