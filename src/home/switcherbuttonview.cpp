@@ -386,6 +386,8 @@ void SwitcherButtonView::updateXWindowIconGeometryIfNecessary() const
         iconGeometry[1] = iconSceneGeometry.y();
         iconGeometry[2] = iconSceneGeometry.width();
         iconGeometry[3] = iconSceneGeometry.height();
+
+        // TODO there is a slight performance penalty for calling this on every frame - it would be enough to update it every now and then.
         X11Wrapper::XChangeProperty(QX11Info::display(), model()->xWindow(), iconGeometryAtom, XA_CARDINAL, sizeof(unsigned int) * 8, PropModeReplace, (unsigned char *)&iconGeometry, 4);
     }
 }
