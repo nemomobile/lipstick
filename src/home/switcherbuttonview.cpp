@@ -18,7 +18,6 @@
 ****************************************************************************/
 
 #include <cmath>
-#include <QTimer>
 #include <QGraphicsSceneMouseEvent>
 #include "mainwindow.h"
 #include <MApplication>
@@ -39,6 +38,7 @@ bool SwitcherButtonView::badMatchOccurred = false;
 #endif
 
 const int SwitcherButtonView::NAVIGATION_BAR_HEIGHT = 100;
+const int SwitcherButtonView::ICON_GEOMETRY_UPDATE_INTERVAL = 200;
 Atom SwitcherButtonView::iconGeometryAtom = 0;
 
 SwitcherButtonView::SwitcherButtonView(SwitcherButton *button) :
@@ -79,6 +79,11 @@ SwitcherButtonView::SwitcherButtonView(SwitcherButton *button) :
         // Get the icon geometry X11 Atom if it doesn't exist yet
         iconGeometryAtom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_WM_ICON_GEOMETRY", False);
     }
+
+    // Set up the timer for updating the icon geometry
+    updateXWindowIconGeometryTimer.setSingleShot(true);
+    updateXWindowIconGeometryTimer.setInterval(ICON_GEOMETRY_UPDATE_INTERVAL);
+    connect(&updateXWindowIconGeometryTimer, SIGNAL(timeout()), this, SLOT(updateXWindowIconGeometry()));
 }
 
 SwitcherButtonView::~SwitcherButtonView()
@@ -369,27 +374,33 @@ void SwitcherButtonView::destroyDamage()
 
 void SwitcherButtonView::updateXWindowIconGeometryIfNecessary() const
 {
-    // Get the position of the Switcher Button in scene coordinates
-    QPointF topLeft(controller->mapToScene(thumbnailPosition()));
-
-    if (iconScenePosition != topLeft) {
-        iconScenePosition = topLeft;
-
-        QPointF bottomRight(controller->mapToScene(thumbnailPosition().x() + style()->iconSize().width(), thumbnailPosition().y() + style()->iconSize().height()));
-        QRectF iconSceneGeometry;
-        iconSceneGeometry.setCoords(topLeft.x(), topLeft.y(), bottomRight.x(), bottomRight.y());
-        iconSceneGeometry = iconSceneGeometry.normalized();
-
-        // Replace the old X icon geometry property for the window with iconGeometry, which consists of 4 unsigned ints (32 bits)
-        unsigned int iconGeometry[4];
-        iconGeometry[0] = iconSceneGeometry.x();
-        iconGeometry[1] = iconSceneGeometry.y();
-        iconGeometry[2] = iconSceneGeometry.width();
-        iconGeometry[3] = iconSceneGeometry.height();
-
-        // TODO there is a slight performance penalty for calling this on every frame - it would be enough to update it every now and then.
-        X11Wrapper::XChangeProperty(QX11Info::display(), model()->xWindow(), iconGeometryAtom, XA_CARDINAL, sizeof(unsigned int) * 8, PropModeReplace, (unsigned char *)&iconGeometry, 4);
+    if (updatedXWindowIconPosition != controller->mapToScene(thumbnailPosition())) {
+        // Update the icon geometry in a moment if an update has not already been requested
+        if (!updateXWindowIconGeometryTimer.isActive()) {
+            updateXWindowIconGeometryTimer.start();
+        }
     }
+}
+
+void SwitcherButtonView::updateXWindowIconGeometry()
+{
+    // Get the geometry of the Switcher Button in scene coordinates
+    QPointF topLeft(controller->mapToScene(thumbnailPosition()));
+    QPointF bottomRight(controller->mapToScene(thumbnailPosition().x() + style()->iconSize().width(), thumbnailPosition().y() + style()->iconSize().height()));
+    QRectF iconSceneGeometry;
+    iconSceneGeometry.setCoords(topLeft.x(), topLeft.y(), bottomRight.x(), bottomRight.y());
+    iconSceneGeometry = iconSceneGeometry.normalized();
+
+    // Replace the old X icon geometry property for the window with iconGeometry, which consists of 4 unsigned ints (32 bits)
+    unsigned int iconGeometry[4];
+    iconGeometry[0] = iconSceneGeometry.x();
+    iconGeometry[1] = iconSceneGeometry.y();
+    iconGeometry[2] = iconSceneGeometry.width();
+    iconGeometry[3] = iconSceneGeometry.height();
+    X11Wrapper::XChangeProperty(QX11Info::display(), model()->xWindow(), iconGeometryAtom, XA_CARDINAL, sizeof(unsigned int) * 8, PropModeReplace, (unsigned char *)&iconGeometry, 4);
+
+    // Store which position has already been updated
+    updatedXWindowIconPosition = topLeft;
 }
 
 M_REGISTER_VIEW_NEW(SwitcherButtonView, SwitcherButton)

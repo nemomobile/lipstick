@@ -29,6 +29,7 @@
 #include "windowinfo_stub.h"
 
 bool Ut_SwitcherButtonView::timerImmediateTimeout = false;
+bool Ut_SwitcherButtonView::timerStarted = false;
 MainWindow *Ut_SwitcherButtonView::mainWindow = NULL;
 
 const int NAVIGATION_BAR_HEIGHT = 100;
@@ -290,20 +291,25 @@ void TestHomeApplication::emitDamageEvent(Qt::HANDLE damage, short x, short y, u
 }
 
 // QTimer stubs (used by Ut_SwitcherButtonView)
-void QTimer::start(int msec)
+void QTimer::start(int)
 {
-    Q_UNUSED(msec);
+    start();
+}
 
+void QTimer::start()
+{
     if (Ut_SwitcherButtonView::timerImmediateTimeout) {
         emit timeout();
     }
 
     id = 0;
+    Ut_SwitcherButtonView::timerStarted = true;
 }
 
 void QTimer::stop()
 {
     id = -1;
+    Ut_SwitcherButtonView::timerStarted = false;
 }
 
 // QPixmap stubs (used by SwitcherButtonView)
@@ -330,6 +336,7 @@ void Ut_SwitcherButtonView::init()
     QCoreApplication::processEvents();
 
     timerImmediateTimeout = false;
+    timerStarted = false;
     allocatedPixmaps.clear();
     lastPixmap = 0;
     xCompositeNameWindowPixmapCausesBadMatch = false;
@@ -572,17 +579,14 @@ void Ut_SwitcherButtonView::testDrawBackground_data()
     QTest::addColumn<M::OrientationAngle>("orientationAngle");
     QTest::addColumn<QRectF>("targetRect");
     QTest::addColumn<QRectF>("sourceRect");
-    QTest::addColumn<QSizeF>("iconSceneSize");
 
     QTest::newRow("landscape0") << M::Landscape << M::Angle0
             << QRectF(0, 0, thumbnailStyleWidth, thumbnailStyleHeight)
-            << QRectF(0, NAVIGATION_BAR_HEIGHT, Ut_SwitcherButtonView::returnedPixmapWidth, Ut_SwitcherButtonView::returnedPixmapHeight - NAVIGATION_BAR_HEIGHT)
-            << QSizeF(thumbnailStyleWidth, thumbnailStyleHeight);
+            << QRectF(0, NAVIGATION_BAR_HEIGHT, Ut_SwitcherButtonView::returnedPixmapWidth, Ut_SwitcherButtonView::returnedPixmapHeight - NAVIGATION_BAR_HEIGHT);
 
     QTest::newRow("landscape90") << M::Landscape << M::Angle90
             << QRectF(0, 0, thumbnailStyleWidth, thumbnailStyleHeight)
-            << QRectF(0, 0, Ut_SwitcherButtonView::returnedPixmapWidth - NAVIGATION_BAR_HEIGHT, Ut_SwitcherButtonView::returnedPixmapHeight)
-            << QSizeF(thumbnailStyleWidth, thumbnailStyleHeight);
+            << QRectF(0, 0, Ut_SwitcherButtonView::returnedPixmapWidth - NAVIGATION_BAR_HEIGHT, Ut_SwitcherButtonView::returnedPixmapHeight);
 
     // FIXME: add tests for portrait and other angles
 }
@@ -594,7 +598,6 @@ void Ut_SwitcherButtonView::testDrawBackground()
     QFETCH(M::OrientationAngle, orientationAngle);
     QFETCH(QRectF, targetRect);
     QFETCH(QRectF, sourceRect);
-    QFETCH(QSizeF, iconSceneSize);
 
     m_subject->modifiableStyle()->setIconSize(QSize(thumbnailStyleWidth, thumbnailStyleHeight));
     QPoint thumbnailPosition(0, m_subject->titleLabel->size().height());
@@ -613,8 +616,38 @@ void Ut_SwitcherButtonView::testDrawBackground()
     QCOMPARE(drawPixmapRect, targetRect);
     QCOMPARE(drawPixmapSourceRect, sourceRect);
 
+    // When the background is drawn the icon geometry should be updated if necessary
+    QVERIFY(m_subject->updateXWindowIconGeometryTimer.isActive());
+}
+
+void Ut_SwitcherButtonView::testUpdateXWindowIconGeometryIfNecessary()
+{
+    // When no timer is running and the geometry differs from what has already been set the timer should be started
+    m_subject->updateXWindowIconGeometryIfNecessary();
+    QVERIFY(timerStarted);
+
+    // If a timer has already been started it should not be started again
+    timerStarted = false;
+    m_subject->updateXWindowIconGeometryIfNecessary();
+    QVERIFY(!timerStarted);
+
+    // When the geometry is the same as what has already been set the timer should not be started
+    m_subject->updateXWindowIconGeometry();
+    m_subject->updateXWindowIconGeometryTimer.stop();
+    m_subject->updateXWindowIconGeometryIfNecessary();
+    QVERIFY(!m_subject->updateXWindowIconGeometryTimer.isActive());
+
+    // Test signal connections
+    QVERIFY(disconnect(&m_subject->updateXWindowIconGeometryTimer, SIGNAL(timeout()), m_subject, SLOT(updateXWindowIconGeometry())));
+}
+
+void Ut_SwitcherButtonView::testUpdateXWindowIconGeometry()
+{
+    m_subject->modifiableStyle()->setIconSize(QSize(thumbnailStyleWidth, thumbnailStyleHeight));
+    m_subject->updateXWindowIconGeometry();
+
     // XChangeProperty should be called for the window of the button and _NET_WM_ICON_GEOMETRY property should be filled with 4 32-bit values which should contain the icon geometry
-    QRectF iconSceneGeometry(QPointF(0, m_subject->titleLabel->size().height()), iconSceneSize);
+    QRectF iconSceneGeometry(QPointF(0, m_subject->titleLabel->size().height()), QSizeF(thumbnailStyleWidth, thumbnailStyleHeight));
     QCOMPARE(xChangePropertyWindow, button->xWindow());
     QCOMPARE(xChangePropertyProperty, (Atom)TEST_NET_WM_ICON_GEOMETRY_ATOM);
     QCOMPARE(xChangePropertyFormat, 32);

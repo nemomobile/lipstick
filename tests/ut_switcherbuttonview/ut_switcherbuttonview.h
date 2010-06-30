@@ -85,6 +85,9 @@ public:
     // Switch for making the close timer timeout to occur immediately or not
     static bool timerImmediateTimeout;
 
+    // For checking whether a timer is started even if it has already been started
+    static bool timerStarted;
+
     // For checking that the window pixmaps get freed
     static QList<Pixmap> allocatedPixmaps;
     static Pixmap lastPixmap;
@@ -174,6 +177,8 @@ private slots:
     void testSignalConnections();
     void testDrawBackground_data();
     void testDrawBackground();
+    void testUpdateXWindowIconGeometryIfNecessary();
+    void testUpdateXWindowIconGeometry();
 };
 
 #endif //_UT_SWITCHERBUTTONVIEW_

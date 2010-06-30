@@ -20,6 +20,7 @@
 #define SWITCHERBUTTONVIEW_H
 
 #include <MButtonView>
+#include <QTimer>
 #include "switcherbuttonmodel.h"
 #include "switcherbuttonstyle.h"
 #include "x11wrapper.h"
@@ -88,6 +89,12 @@ protected slots:
      */
     void unsetOnDisplay();
 
+private slots:
+    /*!
+     * \brief Updates the _NET_WM_ICON_GEOMETRY X property for the Window
+     */
+    void updateXWindowIconGeometry();
+
 protected:
     /*!
      * Creates an X damage structure based on the current X window pixmap.
@@ -109,9 +116,7 @@ protected:
     virtual void updateXWindowPixmap();
 
 private:
-    /*!
-     * \brief Updates the _NET_WM_ICON_GEOMETRY X property for the Window
-     */
+    //! Starts a timer for updating the icon geometry if the icon geometry has changed after the last update
     void updateXWindowIconGeometryIfNecessary() const;
 
     //! Translates close button according to offset attributes in style.
@@ -120,9 +125,7 @@ private:
     //! Returns the thumbnail position in parent coordinates.
     QPoint thumbnailPosition() const;
 
-    /*! 
-     * Updates the button style to reflect the current view mode.
-     */
+    //! Updates the button style to reflect the current view mode.
     void updateViewMode();
 
     //! Returns the bounding rectangle of the window title
@@ -138,6 +141,9 @@ private:
 
     // The height of the navigation bar for cropping the thumbnail
     static const int NAVIGATION_BAR_HEIGHT;
+
+    // Time between icon geometry updates in milliseconds
+    static const int ICON_GEOMETRY_UPDATE_INTERVAL;
 
     //! SwitcherButton controller
     SwitcherButton *controller;
@@ -169,8 +175,11 @@ private:
     //! Policy for title bar layout
     MLinearLayoutPolicy *titleBarPolicy;
 
+    //! Timer for updating the icon's position in scene coordination
+    mutable QTimer updateXWindowIconGeometryTimer;
+
     //! The icon's position in scene coordinates
-    mutable QPointF iconScenePosition;
+    QPointF updatedXWindowIconPosition;
 
     //! X11 Atom for the icon geometry
     static Atom iconGeometryAtom;
