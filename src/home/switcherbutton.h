@@ -59,7 +59,6 @@ public:
      * Reimplemented here as public because it's protected in the base class so the view cannot access it.
      */
     virtual void prepareGeometryChange();
-    virtual void setGeometry(const QRectF &rect);
     //! \reimp_end
 
     //! Sets/unsets _MEEGO_VISIBLE_IN_SWITCHER property to the window.
@@ -92,11 +91,6 @@ public slots:
      */
     void resetState();
 
-    /*!
-     * \brief Updates the _NET_WM_ICON_GEOMETRY X property for the Window
-     */
-    void updateIconGeometry();
-
 protected:
 
     /*! \reimp
@@ -115,9 +109,6 @@ private:
 
     //! A timer to check if the window is closed when switcher button is dragged outside switcher before timer expires
     QTimer windowCloseTimer;
-
-    //! X11 Atom for the icon geometry
-    static Atom iconGeometryAtom;
 
     //! X11 Atom for window being visible in the switcher
     static Atom visibleAtom;

@@ -78,10 +78,6 @@ private slots:
     void testSwitchToWindow();
     void testClose();
     void testPrepareGeometryChange();
-    // Verify that the icon position for the window is set properly when the switcher button is moved
-    void testSetGeometry();
-    // Verify that the icon position for the window is set properly when requested
-    void testUpdateIconGeometry();
     // Test that X11 properties are set correctly if visible in switcher
     void testSetVisibleInSwitcherProperty();
 };

@@ -105,14 +105,6 @@ void Switcher::closeWindow(Window window)
                            SubstructureRedirectMask, &ev);
 }
 
-void Switcher::viewportSizePosChanged(const QSizeF &, const QRectF &, const QPointF &)
-{
-    foreach(QSharedPointer<SwitcherButton> b, model()->buttons()) {
-        // Update the icon geometry of each button when the viewport is panned
-        b->updateIconGeometry();
-    }
-}
-
 void Switcher::changeWindowTitle(Window window,  const QString &title)
 {
     if (windowMap.contains(window)) {

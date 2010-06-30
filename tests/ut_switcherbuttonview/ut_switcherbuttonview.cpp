@@ -33,20 +33,38 @@ MainWindow *Ut_SwitcherButtonView::mainWindow = NULL;
 
 const int NAVIGATION_BAR_HEIGHT = 100;
 
+#define TEST_ANY_OTHER_ATOM 1
+#define TEST_NET_WM_ICON_GEOMETRY_ATOM 303
+
 // QCoreApplication stubs to avoid crashing in processEvents()
 QStringList QCoreApplication::arguments()
 {
     return QStringList();
 }
 
-// X11Wrapper stubs (used by SwitcherButton)
-Atom X11Wrapper::XInternAtom(Display *, const char *, Bool)
+// X11Wrapper stubs (used by SwitcherButtonView)
+Atom X11Wrapper::XInternAtom(Display *, const char *atom_name, Bool)
 {
-    return 1;
+    if (strcmp(atom_name, "_NET_WM_ICON_GEOMETRY") == 0) {
+        return TEST_NET_WM_ICON_GEOMETRY_ATOM;
+    } else {
+        return TEST_ANY_OTHER_ATOM;
+    }
 }
 
-int X11Wrapper::XChangeProperty(Display *, Window, Atom, Atom, int, int, unsigned char *, int)
+int X11Wrapper::XChangeProperty(Display *display, Window w, Atom property, Atom type, int format, int mode, unsigned char *data, int nelements)
 {
+    Ut_SwitcherButtonView::xChangePropertyDisplay = display;
+    Ut_SwitcherButtonView::xChangePropertyWindow = w;
+    Ut_SwitcherButtonView::xChangePropertyProperty = property;
+    Ut_SwitcherButtonView::xChangePropertyType = type;
+    Ut_SwitcherButtonView::xChangePropertyFormat = format;
+    Ut_SwitcherButtonView::xChangePropertyMode = mode;
+    Ut_SwitcherButtonView::xChangePropertyNElements = nelements;
+
+    if (data != NULL) {
+        memcpy(Ut_SwitcherButtonView::xChangePropertyData, data, nelements * format / 8);
+    }
     return 0;
 }
 
@@ -98,6 +116,14 @@ QList<Pixmap> Ut_SwitcherButtonView::allocatedPixmaps;
 Pixmap Ut_SwitcherButtonView::lastPixmap;
 bool Ut_SwitcherButtonView::xCompositeNameWindowPixmapCausesBadMatch = false;
 XErrorHandler Ut_SwitcherButtonView::xErrorHandler = NULL;
+Display *Ut_SwitcherButtonView::xChangePropertyDisplay;
+Window Ut_SwitcherButtonView::xChangePropertyWindow;
+Atom Ut_SwitcherButtonView::xChangePropertyProperty;
+Atom Ut_SwitcherButtonView::xChangePropertyType;
+int Ut_SwitcherButtonView::xChangePropertyFormat;
+int Ut_SwitcherButtonView::xChangePropertyMode;
+unsigned char Ut_SwitcherButtonView::xChangePropertyData[16];
+int Ut_SwitcherButtonView::xChangePropertyNElements;
 bool Ut_SwitcherButtonView::damageCreated = false;
 unsigned long Ut_SwitcherButtonView::damageHandle = 0;
 Display *Ut_SwitcherButtonView::damageDisplay = NULL;
@@ -192,7 +218,7 @@ void QPainter::drawText(const QRectF &, int, const QString &text, QRectF *)
 
 QRectF Ut_SwitcherButtonView::drawPixmapRect;
 QRectF Ut_SwitcherButtonView::drawPixmapSourceRect;
-void QPainter::drawPixmap(const QRectF &targetRect, const QPixmap &pixmap, const QRectF &sourceRect)
+void QPainter::drawPixmap(const QRectF &targetRect, const QPixmap &, const QRectF &sourceRect)
 {
     Ut_SwitcherButtonView::drawPixmapRect = targetRect;
     Ut_SwitcherButtonView::drawPixmapSourceRect = sourceRect;
@@ -546,15 +572,17 @@ void Ut_SwitcherButtonView::testDrawBackground_data()
     QTest::addColumn<M::OrientationAngle>("orientationAngle");
     QTest::addColumn<QRectF>("targetRect");
     QTest::addColumn<QRectF>("sourceRect");
+    QTest::addColumn<QSizeF>("iconSceneSize");
 
     QTest::newRow("landscape0") << M::Landscape << M::Angle0
             << QRectF(0, 0, thumbnailStyleWidth, thumbnailStyleHeight)
-            << QRectF(0, NAVIGATION_BAR_HEIGHT, Ut_SwitcherButtonView::returnedPixmapWidth, Ut_SwitcherButtonView::returnedPixmapHeight - NAVIGATION_BAR_HEIGHT);
-
+            << QRectF(0, NAVIGATION_BAR_HEIGHT, Ut_SwitcherButtonView::returnedPixmapWidth, Ut_SwitcherButtonView::returnedPixmapHeight - NAVIGATION_BAR_HEIGHT)
+            << QSizeF(thumbnailStyleWidth, thumbnailStyleHeight);
 
     QTest::newRow("landscape90") << M::Landscape << M::Angle90
             << QRectF(0, 0, thumbnailStyleWidth, thumbnailStyleHeight)
-            << QRectF(0, 0, Ut_SwitcherButtonView::returnedPixmapWidth - NAVIGATION_BAR_HEIGHT, Ut_SwitcherButtonView::returnedPixmapHeight);
+            << QRectF(0, 0, Ut_SwitcherButtonView::returnedPixmapWidth - NAVIGATION_BAR_HEIGHT, Ut_SwitcherButtonView::returnedPixmapHeight)
+            << QSizeF(thumbnailStyleWidth, thumbnailStyleHeight);
 
     // FIXME: add tests for portrait and other angles
 }
@@ -566,6 +594,7 @@ void Ut_SwitcherButtonView::testDrawBackground()
     QFETCH(M::OrientationAngle, orientationAngle);
     QFETCH(QRectF, targetRect);
     QFETCH(QRectF, sourceRect);
+    QFETCH(QSizeF, iconSceneSize);
 
     m_subject->modifiableStyle()->setIconSize(QSize(thumbnailStyleWidth, thumbnailStyleHeight));
     QPoint thumbnailPosition(0, m_subject->titleLabel->size().height());
@@ -581,8 +610,20 @@ void Ut_SwitcherButtonView::testDrawBackground()
         targetRect.adjust(-(m_subject->titleLabel->size().height() + thumbnailStyleWidth), 0, -(m_subject->titleLabel->size().height() + thumbnailStyleWidth), 0);
     }
 
-    QCOMPARE(Ut_SwitcherButtonView::drawPixmapRect, targetRect);
-    QCOMPARE(Ut_SwitcherButtonView::drawPixmapSourceRect, sourceRect);
+    QCOMPARE(drawPixmapRect, targetRect);
+    QCOMPARE(drawPixmapSourceRect, sourceRect);
+
+    // XChangeProperty should be called for the window of the button and _NET_WM_ICON_GEOMETRY property should be filled with 4 32-bit values which should contain the icon geometry
+    QRectF iconSceneGeometry(QPointF(0, m_subject->titleLabel->size().height()), iconSceneSize);
+    QCOMPARE(xChangePropertyWindow, button->xWindow());
+    QCOMPARE(xChangePropertyProperty, (Atom)TEST_NET_WM_ICON_GEOMETRY_ATOM);
+    QCOMPARE(xChangePropertyFormat, 32);
+    QCOMPARE(xChangePropertyNElements, 4);
+    unsigned int *iconGeometry = (unsigned int *)xChangePropertyData;
+    QCOMPARE(iconGeometry[0], (unsigned int)iconSceneGeometry.x());
+    QCOMPARE(iconGeometry[1], (unsigned int)iconSceneGeometry.y());
+    QCOMPARE(iconGeometry[2], (unsigned int)iconSceneGeometry.width());
+    QCOMPARE(iconGeometry[3], (unsigned int)iconSceneGeometry.height());
 }
 
 QTEST_APPLESS_MAIN(Ut_SwitcherButtonView)

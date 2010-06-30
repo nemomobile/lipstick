@@ -27,7 +27,6 @@
 #include "windowinfo_stub.h"
 
 #define TEST_ANY_OTHER_ATOM 1
-#define TEST_NET_WM_ICON_GEOMETRY_ATOM 303
 #define TEST_MEEGOTOUCH_VISIBLE_IN_SWITCHER_ATOM 304
 
 // QCoreApplication stubs to avoid crashing in processEvents()
@@ -43,9 +42,7 @@ void QGraphicsItem::prepareGeometryChange()
 
 Atom X11Wrapper::XInternAtom(Display *, const char *atom_name, Bool)
 {
-    if (strcmp(atom_name, "_NET_WM_ICON_GEOMETRY") == 0) {
-        return TEST_NET_WM_ICON_GEOMETRY_ATOM;
-    } else if (strcmp(atom_name, "_MEEGOTOUCH_VISIBLE_IN_SWITCHER") == 0) {
+    if (strcmp(atom_name, "_MEEGOTOUCH_VISIBLE_IN_SWITCHER") == 0) {
         return TEST_MEEGOTOUCH_VISIBLE_IN_SWITCHER_ATOM;
     } else {
         return TEST_ANY_OTHER_ATOM;
@@ -162,59 +159,6 @@ void Ut_SwitcherButton::testPrepareGeometryChange()
 {
     button->prepareGeometryChange();
     QVERIFY(prepareGeometryChangeCalled);
-}
-
-void Ut_SwitcherButton::testSetGeometry()
-{
-    // Verify that the icon position for the window is set properly when the switcher button is moved
-    QGraphicsScene scene;
-    scene.addItem(button);
-    button->model()->setXWindow(3);
-    button->setGeometry(QRectF(25, 25, 50, 50));
-
-    // Get the expected icon position
-    QRectF iconPosition = button->boundingRect();
-    iconPosition.moveTo(button->mapToScene(0, 0));
-
-    // Update the icon geometry
-    scene.removeItem(button);
-
-    // XChangeProperty should be called for the window of the button and _NET_WM_ICON_GEOMETRY property should be filled with 4 32-bit values which should contain the icon geometry
-    QCOMPARE(Ut_SwitcherButton::xChangePropertyWindow, button->xWindow());
-    QCOMPARE(Ut_SwitcherButton::xChangePropertyProperty, (Atom)TEST_NET_WM_ICON_GEOMETRY_ATOM);
-    QCOMPARE(Ut_SwitcherButton::xChangePropertyFormat, 32);
-    QCOMPARE(Ut_SwitcherButton::xChangePropertyNElements, 4);
-    unsigned int *iconGeometry = (unsigned int *)xChangePropertyData;
-    QCOMPARE(iconGeometry[0], (unsigned int)iconPosition.x());
-    QCOMPARE(iconGeometry[1], (unsigned int)iconPosition.y());
-    QCOMPARE(iconGeometry[2], (unsigned int)iconPosition.width());
-    QCOMPARE(iconGeometry[3], (unsigned int)iconPosition.height());
-}
-
-void Ut_SwitcherButton::testUpdateIconGeometry()
-{
-    // Verify that the icon position for the window is set properly when the switcher button is moved
-    QGraphicsScene scene;
-    scene.addItem(button);
-    button->model()->setXWindow(3);
-    button->setGeometry(QRectF(25, 25, 50, 50));
-
-    // Get the expected icon position
-    QRectF iconPosition = button->boundingRect();
-    iconPosition.moveTo(button->mapToScene(0, 0));
-
-    // XChangeProperty should be called for the window of the button and _NET_WM_ICON_GEOMETRY property should be filled with 4 32-bit values which should contain the icon geometry
-    QCOMPARE(Ut_SwitcherButton::xChangePropertyWindow, button->xWindow());
-    QCOMPARE(Ut_SwitcherButton::xChangePropertyProperty, (Atom)TEST_NET_WM_ICON_GEOMETRY_ATOM);
-    QCOMPARE(Ut_SwitcherButton::xChangePropertyFormat, 32);
-    QCOMPARE(Ut_SwitcherButton::xChangePropertyNElements, 4);
-    unsigned int *iconGeometry = (unsigned int *)xChangePropertyData;
-    QCOMPARE(iconGeometry[0], (unsigned int)iconPosition.x());
-    QCOMPARE(iconGeometry[1], (unsigned int)iconPosition.y());
-    QCOMPARE(iconGeometry[2], (unsigned int)iconPosition.width());
-    QCOMPARE(iconGeometry[3], (unsigned int)iconPosition.height());
-
-    scene.removeItem(button);
 }
 
 void Ut_SwitcherButton::testSetVisibleInSwitcherProperty()

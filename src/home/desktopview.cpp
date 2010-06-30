@@ -133,8 +133,6 @@ DesktopView::DesktopView(Desktop *desktop) :
     // Create switcher
     switcher->setObjectName("OverviewSwitcher");
     mainLayout->addItem(switcher);
-    connect(desktop, SIGNAL(viewportSizePosChanged(const QSizeF &, const QRectF &, const QPointF &)),
-            switcher, SLOT(viewportSizePosChanged(const QSizeF &, const QRectF &, const QPointF &)));
 
     // Add a placeholder for the quick launch bar TODO remove hardcoded values
     widget = new QGraphicsWidget;

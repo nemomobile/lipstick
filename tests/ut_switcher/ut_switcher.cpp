@@ -210,18 +210,6 @@ void SwitcherButton::prepareGeometryChange()
     QGraphicsItem::prepareGeometryChange();
 }
 
-void SwitcherButton::setGeometry(const QRectF &rect)
-{
-    return MButton::setGeometry(rect);
-}
-
-void SwitcherButton::updateIconGeometry()
-{
-    Ut_Switcher::iconGeometryUpdated.append(this);
-}
-
-QList<SwitcherButton *> Ut_Switcher::iconGeometryUpdated;
-
 Window SwitcherButton::xWindow()
 {
     return g_windowButtonMap[this];
@@ -303,7 +291,6 @@ void Ut_Switcher::init()
          i < sizeof(gLongParametersOfXSendEvent)/sizeof(long); ++i) {
         gLongParametersOfXSendEvent[i] = 0;
     }
-    Ut_Switcher::iconGeometryUpdated.clear();
 
     // Creating a switcher also creates the switcher view
     switcher = new Switcher;
@@ -312,7 +299,6 @@ void Ut_Switcher::init()
     // Connect widget add/remove signals
     connect(this, SIGNAL(windowListUpdated(const QList<WindowInfo> &)), switcher, SLOT(updateWindowList(const QList<WindowInfo> &)));
     connect(this, SIGNAL(windowTitleChanged(Window, QString)), switcher, SLOT(changeWindowTitle(Window, QString)));
-    connect(this, SIGNAL(sizePosChanged(const QSizeF &, const QRectF &, const QPointF &)), switcher, SLOT(viewportSizePosChanged(const QSizeF &, const QRectF &, const QPointF &)));
 
     connect(this, SIGNAL(windowToFront(Window)),
             switcher, SLOT(windowToFront(Window)));
@@ -504,8 +490,6 @@ void Ut_Switcher::testPanning()
     // Let the Switcher know about the updated window list
     emit windowListUpdated(l);
 
-    Ut_Switcher::iconGeometryUpdated.clear();
-
     // There should be three items in the switcher model
     QCOMPARE(switcher->model()->buttons().count(), 3);
 
@@ -513,13 +497,6 @@ void Ut_Switcher::testPanning()
     QSizeF viewportSize;
     QRectF pannedRange;
     QPointF pannedPos;
-    emit sizePosChanged(viewportSize, pannedRange, pannedPos);
-
-    // The icon geometry of the three windows should be changed
-    QCOMPARE(iconGeometryUpdated.count(), 3);
-    for (int i = 0; i < 3; i++) {
-        QCOMPARE(l.at(i).window(), iconGeometryUpdated.at(i)->xWindow());
-    }
 }
 
 QList<WindowInfo> Ut_Switcher::createWindowList(int numWindows)

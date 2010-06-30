@@ -63,18 +63,9 @@ private:
     QList<WindowInfo> createWindowList(int numWindows);
 
 signals:
-    // signal for bringing a window to front
     void windowToFront(Window window);
-
-    // signal for closing a window
     void closeWindow(Window window);
-
-    // Signal for updating the window list
     void windowListUpdated(const QList<WindowInfo> &windowList);
-
-    // Signal for panning
-    void sizePosChanged(const QSizeF &viewportSize, const QRectF &pannedRange, const QPointF &pannedPos);
-
     void windowTitleChanged(Window window, const QString &title);
 
 private slots:

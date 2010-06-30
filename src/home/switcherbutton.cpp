@@ -25,7 +25,6 @@
 #include "x11wrapper.h"
 #include <QX11Info>
 
-Atom SwitcherButton::iconGeometryAtom = 0;
 Atom SwitcherButton::visibleAtom = 0;
 
 SwitcherButton::SwitcherButton(const QString &title, MWidget *parent, Window window) :
@@ -35,11 +34,6 @@ SwitcherButton::SwitcherButton(const QString &title, MWidget *parent, Window win
     windowCloseTimer.setSingleShot(true);
     connect(&windowCloseTimer, SIGNAL(timeout()), this, SLOT(resetState()));
 
-    if (iconGeometryAtom == 0) {
-        // Get the icon geometry X11 Atom if it doesn't exist yet
-        iconGeometryAtom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_WM_ICON_GEOMETRY", False);
-    }
-
     if (visibleAtom == 0) {
         // Get the icon geometry X11 Atom if it doesn't exist yet
         visibleAtom = X11Wrapper::XInternAtom(QX11Info::display(), "_MEEGOTOUCH_VISIBLE_IN_SWITCHER", False);
@@ -47,8 +41,6 @@ SwitcherButton::SwitcherButton(const QString &title, MWidget *parent, Window win
 
     // Update the window title and pixmap
     model()->setXWindow(window);
-
-    connect(MainWindow::instance(), SIGNAL(orientationChangeFinished(const M::Orientation &)), this, SLOT(updateIconGeometry()));
 
     connect(this, SIGNAL(clicked()), this, SLOT(switchToWindow()));
 }
@@ -80,33 +72,10 @@ void SwitcherButton::prepareGeometryChange()
     QGraphicsItem::prepareGeometryChange();
 }
 
-void SwitcherButton::setGeometry(const QRectF &rect)
-{
-    MButton::setGeometry(rect);
-
-    // When the switcher button's geometry is changed update the icon geometry
-    updateIconGeometry();
-}
-
 void SwitcherButton::resetState()
 {
     setVisible(true);
     prepareGeometryChange();
-}
-
-void SwitcherButton::updateIconGeometry()
-{
-    // Get the position of the Switcher Button in scene coordinates
-    QRectF iconPosition = boundingRect();
-    iconPosition.moveTo(mapToScene(0, 0));
-
-    // Replace the old X icon geometry property for the window with iconGeometry, which consists of 4 unsigned ints (32 bits)
-    unsigned int iconGeometry[4];
-    iconGeometry[0] = iconPosition.x();
-    iconGeometry[1] = iconPosition.y();
-    iconGeometry[2] = iconPosition.width();
-    iconGeometry[3] = iconPosition.height();
-    X11Wrapper::XChangeProperty(QX11Info::display(), xWindow(), iconGeometryAtom, XA_CARDINAL, sizeof(unsigned int) * 8, PropModeReplace, (unsigned char *)&iconGeometry, 4);
 }
 
 void SwitcherButton::enterDisplayEvent()

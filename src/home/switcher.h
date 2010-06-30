@@ -64,11 +64,6 @@ private slots:
     void closeWindow(Window window);
 
     /*!
-     * \brief A slot for getting information about changes in the viewport in which the switcher resides
-     */
-    void viewportSizePosChanged(const QSizeF &viewportSize, const QRectF &pannedRange, const QPointF &pannedPos);
-
-    /*!
      * \brief A slot for changing a window title of a switcher button
      */
     void changeWindowTitle(Window window,  const QString &title);

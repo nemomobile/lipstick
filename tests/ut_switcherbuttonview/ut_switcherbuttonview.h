@@ -95,6 +95,16 @@ public:
     // The X error handler to be used
     static XErrorHandler xErrorHandler;
 
+    // For catching XChangeProperty parameters
+    static Display *xChangePropertyDisplay;
+    static Window xChangePropertyWindow;
+    static Atom xChangePropertyProperty;
+    static Atom xChangePropertyType;
+    static int xChangePropertyFormat;
+    static int xChangePropertyMode;
+    static unsigned char xChangePropertyData[16];
+    static int xChangePropertyNElements;
+
     // Whether a Damage object has been created
     static bool damageCreated;
     static unsigned long damageHandle;

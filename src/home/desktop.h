@@ -44,12 +44,6 @@ public:
      * Destroys the Desktop.
      */
     virtual ~Desktop();
-
-signals:
-    /*!
-     * \brief Signaled when the viewport size, the panning range or the panning position changes.
-     */
-    void viewportSizePosChanged(const QSizeF &viewportSize, const QRectF &pannedRange, const QPointF &pannedPos);
 };
 
 #endif // DESKTOP_H

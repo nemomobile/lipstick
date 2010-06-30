@@ -115,14 +115,6 @@ void SwitcherButton::prepareGeometryChange()
 {
 }
 
-void SwitcherButton::setGeometry(const QRectF &)
-{
-}
-
-void SwitcherButton::updateIconGeometry()
-{
-}
-
 void SwitcherButton::resetState()
 {
 }

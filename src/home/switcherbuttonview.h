@@ -109,6 +109,10 @@ protected:
     virtual void updateXWindowPixmap();
 
 private:
+    /*!
+     * \brief Updates the _NET_WM_ICON_GEOMETRY X property for the Window
+     */
+    void updateXWindowIconGeometryIfNecessary() const;
 
     //! Translates close button according to offset attributes in style.
     void translateCloseButton();
@@ -161,8 +165,15 @@ private:
 
     //! Title bar layout
     MLayout *titleBarLayout;
+
     //! Policy for title bar layout
     MLinearLayoutPolicy *titleBarPolicy;
+
+    //! The icon's position in scene coordinates
+    mutable QPointF iconScenePosition;
+
+    //! X11 Atom for the icon geometry
+    static Atom iconGeometryAtom;
 
 #ifdef UNIT_TEST
     friend class Ut_SwitcherButtonView;

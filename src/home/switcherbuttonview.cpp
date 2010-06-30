@@ -32,12 +32,14 @@
 #include <MLinearLayoutPolicy>
 #include "switcherbuttonview.h"
 #include "switcherbutton.h"
+#include "x11wrapper.h"
 
 #ifdef Q_WS_X11
 bool SwitcherButtonView::badMatchOccurred = false;
 #endif
 
 const int SwitcherButtonView::NAVIGATION_BAR_HEIGHT = 100;
+Atom SwitcherButtonView::iconGeometryAtom = 0;
 
 SwitcherButtonView::SwitcherButtonView(SwitcherButton *button) :
     MButtonView(button),
@@ -72,6 +74,11 @@ SwitcherButtonView::SwitcherButtonView(SwitcherButton *button) :
     // Enable or disable reception of damage events based on whether the switcher button is on the screen or not
     connect(button, SIGNAL(displayEntered()), this, SLOT(setOnDisplay()));
     connect(button, SIGNAL(displayExited()), this, SLOT(unsetOnDisplay()));
+
+    if (iconGeometryAtom == 0) {
+        // Get the icon geometry X11 Atom if it doesn't exist yet
+        iconGeometryAtom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_WM_ICON_GEOMETRY", False);
+    }
 }
 
 SwitcherButtonView::~SwitcherButtonView()
@@ -134,11 +141,15 @@ void SwitcherButtonView::drawBackground(QPainter *painter, const QStyleOptionGra
             }
             break;
     }
+
     // Do the actual drawing
     painter->drawPixmap(QRect(pos, size), qWindowPixmap, source);
 
     // Restore the painter state
     painter->restore();
+
+    // Update the X window _NET_WM_ICON_GEOMETRY property if necessary
+    updateXWindowIconGeometryIfNecessary();
 }
 
 void SwitcherButtonView::drawContents(QPainter *painter, const QStyleOptionGraphicsItem *) const
@@ -354,6 +365,29 @@ void SwitcherButtonView::destroyDamage()
         xWindowPixmapDamage = 0;
     }
 #endif
+}
+
+void SwitcherButtonView::updateXWindowIconGeometryIfNecessary() const
+{
+    // Get the position of the Switcher Button in scene coordinates
+    QPointF topLeft(controller->mapToScene(thumbnailPosition()));
+
+    if (iconScenePosition != topLeft) {
+        iconScenePosition = topLeft;
+
+        QPointF bottomRight(controller->mapToScene(thumbnailPosition().x() + style()->iconSize().width(), thumbnailPosition().y() + style()->iconSize().height()));
+        QRectF iconSceneGeometry;
+        iconSceneGeometry.setCoords(topLeft.x(), topLeft.y(), bottomRight.x(), bottomRight.y());
+        iconSceneGeometry = iconSceneGeometry.normalized();
+
+        // Replace the old X icon geometry property for the window with iconGeometry, which consists of 4 unsigned ints (32 bits)
+        unsigned int iconGeometry[4];
+        iconGeometry[0] = iconSceneGeometry.x();
+        iconGeometry[1] = iconSceneGeometry.y();
+        iconGeometry[2] = iconSceneGeometry.width();
+        iconGeometry[3] = iconSceneGeometry.height();
+        X11Wrapper::XChangeProperty(QX11Info::display(), model()->xWindow(), iconGeometryAtom, XA_CARDINAL, sizeof(unsigned int) * 8, PropModeReplace, (unsigned char *)&iconGeometry, 4);
+    }
 }
 
 M_REGISTER_VIEW_NEW(SwitcherButtonView, SwitcherButton)
