@@ -1,5 +1,13 @@
 /*! \page news What's New in DirectUI Homescreen
 
+\section v02113 0.21.13
+
+\subsection New
+- Switcher detail view is usable again (if enabled
+
+\subsection bugs Bugs fixed
+- Minimize/maximize animation ended/began at the edge of the screen
+
 \section v02112 0.21.12
 
 \subsection New
@@ -8,8 +16,6 @@
 
 \subsection bugs Bugs fixed
 - Launcher buttons were not placed in their expected positions
-
- -- Vesa Halttunen <vesa.halttunen@nokia.com>  Wed, 23 Jun 2010 14:13:51 +0300
 
 \section v02111 0.21.11
 

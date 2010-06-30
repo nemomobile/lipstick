@@ -1,8 +1,9 @@
-duihome (0.21.13~1) unstable; urgency=low
+duihome (0.21.13-1) unstable; urgency=low
 
-  * New version [UNRELEASED]
+  * Fixes: NB#174923 - Minimize/maximize animation end/begins at the edge of the screen
+  * Switcher detail view is usable again (if enabled)
 
- -- Vesa Halttunen <vesa.halttunen@nokia.com>  Mon, 28 Jun 2010 18:01:16 +0300
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Wed, 30 Jun 2010 19:31:16 +0300
 
 duihome (0.21.12-1) unstable; urgency=low
 
