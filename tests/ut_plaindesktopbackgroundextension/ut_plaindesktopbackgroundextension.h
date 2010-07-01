@@ -50,14 +50,14 @@ private slots:
     void testDrawBackground();
     void testUpdatePixmaps();
     void testUpdatePixmapsFails();
-    void testSetBlurFactor();
-    void testSetBlurTimeLineDirection();
+    void testSetDefocusFactor();
+    void testSetDefocusTimeLineDirection();
     void testUpdateDesktop();
     void testUpdateDesktopNoDesktop();
 
 signals:
-    void setBlurTimeLineDirection(const QList<WindowInfo> &windowList);
-    void setBlurFactor(qreal blurFactor);
+    void setDefocusTimeLineDirection(const QList<WindowInfo> &windowList);
+    void setDefocusFactor(qreal blurFactor);
     void updateLandscapePixmap();
     void updatePortraitPixmap();
     void pixmapUpdated();

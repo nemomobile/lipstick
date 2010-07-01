@@ -41,8 +41,9 @@ public:
      * \param name the name of the pixmap to load
      * \param defaultName the name of the default pixmap to load if loading the user selected one fails
      * \param blurRadius the blur radius (in pixels)
+     * \param brightness the brightness (from 0 to 1)
      */
-    PlainDesktopBackgroundPixmap(const QString &name, const QString &defaultName, int blurRadius);
+    PlainDesktopBackgroundPixmap(const QString &name, const QString &defaultName, int blurRadius, qreal brightness);
 
     /*!
      * Frees the background pixmap.
@@ -57,11 +58,11 @@ public:
     const QPixmap *pixmap() const;
 
     /*!
-     * Returns the blurred pixmap.
+     * Returns the defocused pixmap.
      *
-     * \return the blurred pixmap
+     * \return the defocused pixmap
      */
-    const QPixmap *blurredPixmap() const;
+    const QPixmap *defocusedPixmap() const;
 
     /*!
      * Returns the name of the pixmap.
@@ -72,17 +73,17 @@ public:
 
 private slots:
     /*!
-     * Creates a blurred pixmap from the pixmap if the pixmap is loaded from
+     * Creates a defocused pixmap from the pixmap if the pixmap is loaded from
      * a file or if it is loaded from the theme and it is already available.
      * If the pixmap is loaded from the theme and is not yet available starts
      * listening to pixmapRequestsFinished() signals to blur the pixmap when
      * it is available.
      */
-    void createBlurredPixmap();
+    void createDefocusedPixmap();
 
 signals:
     /*!
-     * Signaled when the pixmap is updated (blurred pixmap becomes available).
+     * Signaled when the pixmap is updated (defocused pixmap becomes available).
      */
     void pixmapUpdated();
 
@@ -90,26 +91,30 @@ private:
     // The blur radius for the pixmap
     int blurRadius_;
 
+    // The brightness for the pixmap
+    qreal brightness_;
+
     // The pixmap if read from the theme
     const QPixmap *pixmapFromTheme_;
 
     //! The pixmap if read from a file
     QSharedPointer<QPixmap> pixmapFromFile_;
 
-    //! A blurred version of the pixmap
-    QSharedPointer<QPixmap> blurredPixmap_;
+    //! A defocused version of the pixmap
+    QSharedPointer<QPixmap> defocusedPixmap_;
 
     //! The name of the pixmap
     QString pixmapName_;
 
     /*!
-     * Creates a blurred pixmap from a pixmap.
+     * Creates a defocused pixmap from a pixmap.
      *
      * \param pixmap the pixmap to blur
      * \param blurRadius the blur radius (in pixels)
-     * \return a blurred version of the pixmap
+     * \param brightness the brightness (from 0 to 1)
+     * \return a defocused version of the pixmap
      */
-    static QPixmap *createBlurredPixmap(const QPixmap &pixmap, int blurRadius);
+    static QPixmap *createDefocusedPixmap(const QPixmap &pixmap, int blurRadius, qreal brightness);
 
 #ifdef UNIT_TEST
     friend class Ut_PlainDesktopBackgroundPixmap;

@@ -30,11 +30,14 @@ class PlainDesktopBackgroundStyle : public MWidgetStyle
     //! The blur radius (in pixels)
     M_STYLE_ATTRIBUTE(int, blurRadius, BlurRadius)
 
-    //! The blur duration (in ms)
-    M_STYLE_ATTRIBUTE(int, blurDuration, BlurDuration)
+    //! The brightness for dimming (from 0 to 1)
+    M_STYLE_ATTRIBUTE(qreal, brightness, Brightness)
 
-    //! The blur update interval (in ms)
-    M_STYLE_ATTRIBUTE(int, blurUpdateInterval, BlurUpdateInterval)
+    //! The defocus duration (in ms)
+    M_STYLE_ATTRIBUTE(int, defocusDuration, DefocusDuration)
+
+    //! The defocus update interval (in ms)
+    M_STYLE_ATTRIBUTE(int, defocusUpdateInterval, DefocusUpdateInterval)
 
     //! The name of the default background image
     M_STYLE_ATTRIBUTE(QString, defaultBackgroundImage, DefaultBackgroundImage)

@@ -30,33 +30,35 @@
 
 // PlainDesktopBackgroundPixmap stubs
 QPixmap *PlainDesktopBackgroundPixmapConstructorPixmap;
-QPixmap *PlainDesktopBackgroundPixmapConstructorBlurredPixmap;
+QPixmap *PlainDesktopBackgroundPixmapConstructorDefocusedPixmap;
 QString PlainDesktopBackgroundPixmapConstructorName;
 QString PlainDesktopBackgroundPixmapConstructorDefaultName;
 int PlainDesktopBackgroundPixmapConstructorBlurRadius;
+qreal PlainDesktopBackgroundPixmapConstructorBrightness;
 QString PlainDesktopBackgroundPixmapConstructorPixmapName;
-PlainDesktopBackgroundPixmap::PlainDesktopBackgroundPixmap(const QString &name, const QString &defaultName, int blurRadius) :
+PlainDesktopBackgroundPixmap::PlainDesktopBackgroundPixmap(const QString &name, const QString &defaultName, int blurRadius, qreal brightness) :
         pixmapFromTheme_(NULL)
 {
     PlainDesktopBackgroundPixmapConstructorName = name;
     PlainDesktopBackgroundPixmapConstructorDefaultName = defaultName;
     PlainDesktopBackgroundPixmapConstructorBlurRadius = blurRadius;
+    PlainDesktopBackgroundPixmapConstructorBrightness = brightness;
     pixmapFromFile_ = QSharedPointer<QPixmap>(PlainDesktopBackgroundPixmapConstructorPixmap);
-    blurredPixmap_ = QSharedPointer<QPixmap>(PlainDesktopBackgroundPixmapConstructorBlurredPixmap);
+    defocusedPixmap_ = QSharedPointer<QPixmap>(PlainDesktopBackgroundPixmapConstructorDefocusedPixmap);
     pixmapName_ = PlainDesktopBackgroundPixmapConstructorPixmapName;
 }
 
 PlainDesktopBackgroundPixmap::~PlainDesktopBackgroundPixmap()
 {
     PlainDesktopBackgroundPixmapConstructorPixmap = NULL;
-    PlainDesktopBackgroundPixmapConstructorBlurredPixmap = NULL;
+    PlainDesktopBackgroundPixmapConstructorDefocusedPixmap = NULL;
 }
 
-void PlainDesktopBackgroundPixmap::createBlurredPixmap()
+void PlainDesktopBackgroundPixmap::createDefocusedPixmap()
 {
 }
 
-QPixmap *PlainDesktopBackgroundPixmap::createBlurredPixmap(const QPixmap &, int)
+QPixmap *PlainDesktopBackgroundPixmap::createDefocusedPixmap(const QPixmap &, int, qreal)
 {
     return NULL;
 }
@@ -66,9 +68,9 @@ const QPixmap *PlainDesktopBackgroundPixmap::pixmap() const
     return pixmapFromFile_.data();
 }
 
-const QPixmap *PlainDesktopBackgroundPixmap::blurredPixmap() const
+const QPixmap *PlainDesktopBackgroundPixmap::defocusedPixmap() const
 {
-    return blurredPixmap_.data();
+    return defocusedPixmap_.data();
 }
 
 QString PlainDesktopBackgroundPixmap::pixmapName() const
@@ -252,7 +254,7 @@ void Ut_PlainDesktopBackgroundExtension::init()
     updateCalled = false;
     currentOrientationAngle = M::Angle0;
     PlainDesktopBackgroundPixmapConstructorPixmap = NULL;
-    PlainDesktopBackgroundPixmapConstructorBlurredPixmap = NULL;
+    PlainDesktopBackgroundPixmapConstructorDefocusedPixmap = NULL;
     PlainDesktopBackgroundPixmapConstructorPixmapName.clear();
     MThemePixmapReturnValue = MThemePixmapDefaultValue;
     MGConfItemValueForKey.clear();
@@ -260,11 +262,11 @@ void Ut_PlainDesktopBackgroundExtension::init()
     QTimeLineState = QTimeLine::NotRunning;
     QPainterDrawPixmapTargetRect = QRectF();
     extension = new PlainDesktopBackgroundExtension;
-    connect(this, SIGNAL(setBlurFactor(qreal)), extension, SLOT(setBlurFactor(qreal)));
+    connect(this, SIGNAL(setDefocusFactor(qreal)), extension, SLOT(setDefocusFactor(qreal)));
     connect(this, SIGNAL(updateLandscapePixmap()), extension, SLOT(updateLandscapePixmap()));
     connect(this, SIGNAL(updatePortraitPixmap()), extension, SLOT(updatePortraitPixmap()));
     connect(this, SIGNAL(pixmapUpdated()), extension, SLOT(updateDesktop()));
-    connect(this, SIGNAL(setBlurTimeLineDirection(const QList<WindowInfo> &)), extension, SLOT(setBlurTimeLineDirection(const QList<WindowInfo> &)));
+    connect(this, SIGNAL(setDefocusTimeLineDirection(const QList<WindowInfo> &)), extension, SLOT(setDefocusTimeLineDirection(const QList<WindowInfo> &)));
 }
 
 void Ut_PlainDesktopBackgroundExtension::cleanup()
@@ -275,12 +277,12 @@ void Ut_PlainDesktopBackgroundExtension::cleanup()
 void Ut_PlainDesktopBackgroundExtension::testInitialize()
 {
     PlainDesktopBackgroundStyle *landscapeStyle = modifiablePlainDesktopBackgroundStyle(M::Landscape);
-    landscapeStyle->setBlurDuration(3);
-    landscapeStyle->setBlurUpdateInterval(4);
+    landscapeStyle->setDefocusDuration(3);
+    landscapeStyle->setDefocusUpdateInterval(4);
 
     QCOMPARE(extension->initialize(""), true);
-    QCOMPARE(QTimeLineDuration, landscapeStyle->blurDuration());
-    QCOMPARE(QTimeLineUpdateInterval, landscapeStyle->blurUpdateInterval());
+    QCOMPARE(QTimeLineDuration, landscapeStyle->defocusDuration());
+    QCOMPARE(QTimeLineUpdateInterval, landscapeStyle->defocusUpdateInterval());
 }
 
 void Ut_PlainDesktopBackgroundExtension::testWidget()
@@ -296,12 +298,12 @@ void Ut_PlainDesktopBackgroundExtension::testDrawBackground()
 
     // Set up the pixmaps
     PlainDesktopBackgroundPixmapConstructorPixmap = new QPixmap(1, 1);
-    PlainDesktopBackgroundPixmapConstructorBlurredPixmap = new QPixmap(1, 1);
+    PlainDesktopBackgroundPixmapConstructorDefocusedPixmap = new QPixmap(1, 1);
     const QPixmap *landscapePixmap = PlainDesktopBackgroundPixmapConstructorPixmap;
     emit updateLandscapePixmap();
 
     PlainDesktopBackgroundPixmapConstructorPixmap = new QPixmap(1, 1);
-    PlainDesktopBackgroundPixmapConstructorBlurredPixmap = new QPixmap(1, 1);
+    PlainDesktopBackgroundPixmapConstructorDefocusedPixmap = new QPixmap(1, 1);
     const QPixmap *portraitPixmap = PlainDesktopBackgroundPixmapConstructorPixmap;
     emit updatePortraitPixmap();
 
@@ -332,6 +334,7 @@ void Ut_PlainDesktopBackgroundExtension::testUpdatePixmaps()
     PlainDesktopBackgroundStyle *landscapeStyle = modifiablePlainDesktopBackgroundStyle(M::Landscape);
     PlainDesktopBackgroundStyle *portraitStyle = modifiablePlainDesktopBackgroundStyle(M::Portrait);
     landscapeStyle->setBlurRadius(27);
+    landscapeStyle->setBrightness(0.2);
     landscapeStyle->setDefaultBackgroundImage("landscapeDefault");
     portraitStyle->setDefaultBackgroundImage("portraitDefault");
 
@@ -345,20 +348,22 @@ void Ut_PlainDesktopBackgroundExtension::testUpdatePixmaps()
 
     // Set up the pixmaps
     PlainDesktopBackgroundPixmapConstructorPixmap = new QPixmap(1, 1);
-    PlainDesktopBackgroundPixmapConstructorBlurredPixmap = new QPixmap(1, 1);
+    PlainDesktopBackgroundPixmapConstructorDefocusedPixmap = new QPixmap(1, 1);
     emit updateLandscapePixmap();
     QCOMPARE(PlainDesktopBackgroundPixmapConstructorName, landscapeName);
     QCOMPARE(PlainDesktopBackgroundPixmapConstructorDefaultName, landscapeStyle->defaultBackgroundImage());
     QCOMPARE(PlainDesktopBackgroundPixmapConstructorBlurRadius, landscapeStyle->blurRadius());
+    QCOMPARE(PlainDesktopBackgroundPixmapConstructorBrightness, landscapeStyle->brightness());
     QVERIFY(updateCalled);
 
     updateCalled = false;
     PlainDesktopBackgroundPixmapConstructorPixmap = new QPixmap(1, 1);
-    PlainDesktopBackgroundPixmapConstructorBlurredPixmap = new QPixmap(1, 1);
+    PlainDesktopBackgroundPixmapConstructorDefocusedPixmap = new QPixmap(1, 1);
     emit updatePortraitPixmap();
     QCOMPARE(PlainDesktopBackgroundPixmapConstructorName, portraitName);
     QCOMPARE(PlainDesktopBackgroundPixmapConstructorDefaultName, portraitStyle->defaultBackgroundImage());
     QCOMPARE(PlainDesktopBackgroundPixmapConstructorBlurRadius, landscapeStyle->blurRadius());
+    QCOMPARE(PlainDesktopBackgroundPixmapConstructorBrightness, landscapeStyle->brightness());
     QVERIFY(updateCalled);
 
     MTheme::releaseStyle(landscapeStyle);
@@ -373,13 +378,13 @@ void Ut_PlainDesktopBackgroundExtension::testUpdatePixmapsFails()
     // Set up the pixmaps
     PlainDesktopBackgroundPixmapConstructorPixmapName = "testPixmap";
     PlainDesktopBackgroundPixmapConstructorPixmap = new QPixmap(1, 1);
-    PlainDesktopBackgroundPixmapConstructorBlurredPixmap = new QPixmap(1, 1);
+    PlainDesktopBackgroundPixmapConstructorDefocusedPixmap = new QPixmap(1, 1);
     emit updateLandscapePixmap();
 
     // Set up the pixmaps again so that they fail
     PlainDesktopBackgroundPixmapConstructorPixmapName = "unexpectedPixmap";
     PlainDesktopBackgroundPixmapConstructorPixmap = new QPixmap(1, 1);
-    PlainDesktopBackgroundPixmapConstructorBlurredPixmap = new QPixmap(1, 1);
+    PlainDesktopBackgroundPixmapConstructorDefocusedPixmap = new QPixmap(1, 1);
     emit updateLandscapePixmap();
 
     // Check that the GConf key was set to the previous value
@@ -389,36 +394,36 @@ void Ut_PlainDesktopBackgroundExtension::testUpdatePixmapsFails()
     MGConfItemValueForKey.insert("/desktop/meego/background/landscape/picture_filename", QString());
     PlainDesktopBackgroundPixmapConstructorPixmapName = QString();
     PlainDesktopBackgroundPixmapConstructorPixmap = new QPixmap(1, 1);
-    PlainDesktopBackgroundPixmapConstructorBlurredPixmap = new QPixmap(1, 1);
+    PlainDesktopBackgroundPixmapConstructorDefocusedPixmap = new QPixmap(1, 1);
     emit updateLandscapePixmap();
 
     // Check that the GConf key was not set to the previous value
     QCOMPARE(MGConfItemValueForKey.value("/desktop/meego/background/landscape/picture_filename"), QVariant(QString()));
 }
 
-void Ut_PlainDesktopBackgroundExtension::testSetBlurFactor()
+void Ut_PlainDesktopBackgroundExtension::testSetDefocusFactor()
 {
     QCOMPARE(extension->initialize(""), true);
     extension->setDesktopInterface(*this);
 
     // Set up the pixmaps
     PlainDesktopBackgroundPixmapConstructorPixmap = new QPixmap(1, 1);
-    PlainDesktopBackgroundPixmapConstructorBlurredPixmap = new QPixmap(1, 1);
+    PlainDesktopBackgroundPixmapConstructorDefocusedPixmap = new QPixmap(1, 1);
     emit updateLandscapePixmap();
 
     // This should call MDesktopInterface::update() and painting (called by update()) should use the blur factor
     qreal blurFactor = 0.5;
-    emit setBlurFactor(blurFactor);
+    emit setDefocusFactor(blurFactor);
     QVERIFY(updateCalled);
     QCOMPARE(QPainterOpacity, blurFactor);
 
     // Setting the same blur factor again should not result in updates
     updateCalled = false;
-    emit setBlurFactor(blurFactor);
+    emit setDefocusFactor(blurFactor);
     QVERIFY(!updateCalled);
 }
 
-void Ut_PlainDesktopBackgroundExtension::testSetBlurTimeLineDirection()
+void Ut_PlainDesktopBackgroundExtension::testSetDefocusTimeLineDirection()
 {
     QList<WindowInfo> emptyWindowList;
     QList<WindowInfo> fullWindowList;
@@ -426,25 +431,25 @@ void Ut_PlainDesktopBackgroundExtension::testSetBlurTimeLineDirection()
     fullWindowList.append(WindowInfo(Window()));
 
     // Test that the timeline direction is set and the timeline is resumed
-    emit setBlurTimeLineDirection(fullWindowList);
+    emit setDefocusTimeLineDirection(fullWindowList);
     QCOMPARE(QTimeLineDirection, QTimeLine::Forward);
     QCOMPARE(QTimeLineState, QTimeLine::Running);
 
     // Test that the timeline is resumed if it's not running even if the direction doesn't change
     QTimeLineState = QTimeLine::NotRunning;
-    emit setBlurTimeLineDirection(fullWindowList);
+    emit setDefocusTimeLineDirection(fullWindowList);
     QCOMPARE(QTimeLineDirection, QTimeLine::Forward);
     QCOMPARE(QTimeLineState, QTimeLine::Running);
 
     // Test that the timeline direction is set when it changes and the timeline is resumed
     QTimeLineState = QTimeLine::NotRunning;
-    emit setBlurTimeLineDirection(emptyWindowList);
+    emit setDefocusTimeLineDirection(emptyWindowList);
     QCOMPARE(QTimeLineDirection, QTimeLine::Backward);
     QCOMPARE(QTimeLineState, QTimeLine::Running);
 
     // Test that the timeline is resumed if it's not running even if the direction doesn't change
     QTimeLineState = QTimeLine::NotRunning;
-    emit setBlurTimeLineDirection(emptyWindowList);
+    emit setDefocusTimeLineDirection(emptyWindowList);
     QCOMPARE(QTimeLineDirection, QTimeLine::Backward);
     QCOMPARE(QTimeLineState, QTimeLine::Running);
 }

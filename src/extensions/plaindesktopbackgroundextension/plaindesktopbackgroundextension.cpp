@@ -34,15 +34,16 @@ PlainDesktopBackgroundExtension::PlainDesktopBackgroundExtension() :
     desktop(NULL),
     landscapeGConfItem("/desktop/meego/background/landscape/picture_filename"),
     portraitGConfItem("/desktop/meego/background/portrait/picture_filename"),
-    blurFactor(0),
+    defocusFactor(0),
     blurRadius(0),
+    brightness(1),
     pixmapBeingUpdated(false)
 {
-    // Set up the blurring timeline
-    connect(&blurTimeLine, SIGNAL(valueChanged(qreal)), this, SLOT(setBlurFactor(qreal)));
+    // Set up the defocusing timeline
+    connect(&defocusTimeLine, SIGNAL(valueChanged(qreal)), this, SLOT(setDefocusFactor(qreal)));
 
     // Connect to the windowListUpdated signal of the HomeApplication to get information about window list changes
-    connect(qApp, SIGNAL(windowListUpdated(const QList<WindowInfo> &)), this, SLOT(setBlurTimeLineDirection(const QList<WindowInfo> &)));
+    connect(qApp, SIGNAL(windowListUpdated(const QList<WindowInfo> &)), this, SLOT(setDefocusTimeLineDirection(const QList<WindowInfo> &)));
 
     // Connect the GConf signals
     connect(&landscapeGConfItem, SIGNAL(valueChanged()), this, SLOT(updateLandscapePixmap()));
@@ -68,8 +69,9 @@ bool PlainDesktopBackgroundExtension::initialize(const QString &)
     // Get the defaults from the style
     const PlainDesktopBackgroundStyle *landscapeStyle = plainDesktopBackgroundStyle(M::Landscape);
     blurRadius = landscapeStyle->blurRadius();
-    blurTimeLine.setDuration(landscapeStyle->blurDuration());
-    blurTimeLine.setUpdateInterval(landscapeStyle->blurUpdateInterval());
+    brightness = landscapeStyle->brightness();
+    defocusTimeLine.setDuration(landscapeStyle->defocusDuration());
+    defocusTimeLine.setUpdateInterval(landscapeStyle->defocusUpdateInterval());
     landscapeDefaultBackgroundImage = landscapeStyle->defaultBackgroundImage();
     MTheme::releaseStyle(landscapeStyle);
 
@@ -101,42 +103,42 @@ void PlainDesktopBackgroundExtension::drawBackground(QPainter *painter, const QR
     PlainDesktopBackgroundPixmap *pixmap = (angle == M::Angle0 || angle == M::Angle180) ? landscapePixmap.data() : portraitPixmap.data();
 
     if (pixmap != NULL) {
-        if (pixmap->pixmap() != NULL && blurFactor < 1) {
-            // The normal background pixmap needs to be drawn unless the background should be completely blurred
+        if (pixmap->pixmap() != NULL && defocusFactor < 1) {
+            // The normal background pixmap needs to be drawn unless the background should be completely defocused
             drawPixmap(painter, *pixmap->pixmap(), boundingRect);
         }
 
-        if (pixmap->blurredPixmap() != NULL && blurFactor > 0) {
-            // The blurred background pixmap needs to be drawn if the background should be blurred at all
-            painter->setOpacity(blurFactor);
-            drawPixmap(painter, *pixmap->blurredPixmap(), boundingRect);
+        if (pixmap->defocusedPixmap() != NULL && defocusFactor > 0) {
+            // The defocused background pixmap needs to be drawn if the background should be defocused at all
+            painter->setOpacity(defocusFactor);
+            drawPixmap(painter, *pixmap->defocusedPixmap(), boundingRect);
         }
     }
 }
 
-void PlainDesktopBackgroundExtension::setBlurTimeLineDirection(const QList<WindowInfo> &windowList)
+void PlainDesktopBackgroundExtension::setDefocusTimeLineDirection(const QList<WindowInfo> &windowList)
 {
-    // If there are windows in the window list the background should be blurred (blurFactor should be animated from 0 to 1).
-    // If there are no windows in the window list the background should not be blurred (blurFactor should be animated from 1 to 0).
+    // If there are windows in the window list the background should be defocused (defocusFactor should be animated from 0 to 1).
+    // If there are no windows in the window list the background should not be defocused (defocusFactor should be animated from 1 to 0).
     QTimeLine::Direction direction = windowList.length() > 0 ? QTimeLine::Forward : QTimeLine::Backward;
-    if (blurTimeLine.direction() != direction) {
-        blurTimeLine.toggleDirection();
+    if (defocusTimeLine.direction() != direction) {
+        defocusTimeLine.toggleDirection();
     }
 
-    if (blurTimeLine.state() == QTimeLine::NotRunning) {
-        blurTimeLine.resume();
+    if (defocusTimeLine.state() == QTimeLine::NotRunning) {
+        defocusTimeLine.resume();
     }
 }
 
-void PlainDesktopBackgroundExtension::setBlurFactor(qreal blurFactor)
+void PlainDesktopBackgroundExtension::setDefocusFactor(qreal defocusFactor)
 {
-    if (this->blurFactor != blurFactor) {
-        this->blurFactor = blurFactor;
+    if (this->defocusFactor != defocusFactor) {
+        this->defocusFactor = defocusFactor;
         if (desktop != NULL) {
             desktop->update();
         }
-        // Set a property with the blur factor to make functional testing possible
-        qApp->setProperty("plainDesktopBackgroundExtensionBlurFactor", QVariant(blurFactor));
+        // Set a property with the defocus factor to make functional testing possible
+        qApp->setProperty("plainDesktopBackgroundExtensionDefocusFactor", QVariant(defocusFactor));
     }
 }
 
@@ -167,17 +169,17 @@ void PlainDesktopBackgroundExtension::updatePixmap(QSharedPointer<PlainDesktopBa
         bool previousPixmapExists = !(*pixmap).isNull();
         QString oldName = previousPixmapExists ? (*pixmap)->pixmapName() : "";
         QString newName = gConfItem.value().toString();
-        *pixmap = QSharedPointer<PlainDesktopBackgroundPixmap>(new PlainDesktopBackgroundPixmap(newName, defaultName, blurRadius));
+        *pixmap = QSharedPointer<PlainDesktopBackgroundPixmap>(new PlainDesktopBackgroundPixmap(newName, defaultName, blurRadius, brightness));
         QString actualName = (*pixmap)->pixmapName();
 
         if (previousPixmapExists && !(newName.isEmpty() && actualName == defaultName) && (actualName != newName && !oldName.isEmpty())) {
             // The loaded pixmap is not the requested one so something went wrong. Use the old pixmap name instead.
             pixmapBeingUpdated = true;
             gConfItem.set(oldName);
-            *pixmap = QSharedPointer<PlainDesktopBackgroundPixmap>(new PlainDesktopBackgroundPixmap(oldName, defaultName, blurRadius));
+            *pixmap = QSharedPointer<PlainDesktopBackgroundPixmap>(new PlainDesktopBackgroundPixmap(oldName, defaultName, blurRadius, brightness));
             pixmapBeingUpdated = false;
 
-            // Redraw the desktop if the blurred pixmap becomes available later
+            // Redraw the desktop if the defocused pixmap becomes available later
             connect((*pixmap).data(), SIGNAL(pixmapUpdated()), this, SLOT(updateDesktop()));
         }
 

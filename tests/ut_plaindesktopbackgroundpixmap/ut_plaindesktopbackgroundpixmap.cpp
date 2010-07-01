@@ -19,9 +19,23 @@
 
 #include <QtTest/QtTest>
 #include <QImageReader>
+#include <QGraphicsBlurEffect>
+#include <QGraphicsItem>
 #include <MTheme>
 #include "ut_plaindesktopbackgroundpixmap.h"
 #include "plaindesktopbackgroundpixmap.h"
+
+qreal qGraphicsEffectBlurRadius;
+void QGraphicsBlurEffect::setBlurRadius(qreal blurRadius)
+{
+    qGraphicsEffectBlurRadius = blurRadius;
+}
+
+qreal qGraphicsItemOpacity;
+void QGraphicsItem::setOpacity(qreal opacity)
+{
+    qGraphicsItemOpacity = opacity;
+}
 
 bool qImageReaderCanRead;
 bool QImageReader::canRead() const
@@ -71,28 +85,32 @@ void Ut_PlainDesktopBackgroundPixmap::init()
     MThemePixmapReturnValue = MThemePixmapDefaultValue;
     qImageReaderCanRead = true;
     qImageReaderSize = QSize(50, 50);
+    qGraphicsEffectBlurRadius = 0;
+    qGraphicsItemOpacity = 0;
 }
 
 void Ut_PlainDesktopBackgroundPixmap::cleanup()
 {
 }
 
-void checkBlurredPixmap(const PlainDesktopBackgroundPixmap &pixmap)
+void checkDefocusedPixmap(const PlainDesktopBackgroundPixmap &pixmap)
 {
-    QVERIFY(pixmap.blurredPixmap() != NULL);
-    QCOMPARE(pixmap.pixmap()->size(), pixmap.blurredPixmap()->size());
+    QVERIFY(pixmap.defocusedPixmap() != NULL);
+    QCOMPARE(pixmap.pixmap()->size(), pixmap.defocusedPixmap()->size());
 }
 
 void Ut_PlainDesktopBackgroundPixmap::testConstructingFromFile()
 {
     QPixmapLoadReturnValue = true;
     QString expectedFileName("/tmp/file.png");
-    PlainDesktopBackgroundPixmap pixmap(expectedFileName, "test", 0);
+    PlainDesktopBackgroundPixmap pixmap(expectedFileName, "test", 5, 0.2);
     QCOMPARE(QPixmapLoadFileName, expectedFileName);
     QVERIFY(pixmap.pixmapFromFile_ != NULL);
     QCOMPARE(pixmap.pixmap(), pixmap.pixmapFromFile_.data());
 
-    checkBlurredPixmap(pixmap);
+    checkDefocusedPixmap(pixmap);
+    QCOMPARE(qGraphicsEffectBlurRadius, (qreal)5);
+    QCOMPARE(qGraphicsItemOpacity, 0.2);
 }
 
 void Ut_PlainDesktopBackgroundPixmap::testConstructingFromFileFails()
@@ -102,13 +120,13 @@ void Ut_PlainDesktopBackgroundPixmap::testConstructingFromFileFails()
     MThemePixmapReturnValue = &expectedPixmap;
     QPixmapLoadReturnValue = false;
 
-    PlainDesktopBackgroundPixmap pixmap("/tmp/file.png", expectedName, 0);
+    PlainDesktopBackgroundPixmap pixmap("/tmp/file.png", expectedName, 0, 0);
     QCOMPARE(pixmap.pixmapFromFile_.isNull(), true);
     QCOMPARE(pixmap.pixmapFromTheme_, &expectedPixmap);
     QCOMPARE(MThemePixmapId, expectedName);
     QCOMPARE(pixmap.pixmap(), pixmap.pixmapFromTheme_);
 
-    checkBlurredPixmap(pixmap);
+    checkDefocusedPixmap(pixmap);
 }
 
 void Ut_PlainDesktopBackgroundPixmap::testConstructingFromFileFailsBecauseCantRead()
@@ -119,13 +137,13 @@ void Ut_PlainDesktopBackgroundPixmap::testConstructingFromFileFailsBecauseCantRe
     QPixmapLoadReturnValue = true;
     qImageReaderCanRead = false;
 
-    PlainDesktopBackgroundPixmap pixmap("/tmp/file.png", expectedName, 0);
+    PlainDesktopBackgroundPixmap pixmap("/tmp/file.png", expectedName, 0, 0);
     QCOMPARE(pixmap.pixmapFromFile_.isNull(), true);
     QCOMPARE(pixmap.pixmapFromTheme_, &expectedPixmap);
     QCOMPARE(MThemePixmapId, expectedName);
     QCOMPARE(pixmap.pixmap(), pixmap.pixmapFromTheme_);
 
-    checkBlurredPixmap(pixmap);
+    checkDefocusedPixmap(pixmap);
 }
 
 void Ut_PlainDesktopBackgroundPixmap::testConstructingFromFileFailsBecauseOfSize()
@@ -136,13 +154,13 @@ void Ut_PlainDesktopBackgroundPixmap::testConstructingFromFileFailsBecauseOfSize
     QPixmapLoadReturnValue = true;
     qImageReaderSize = QSize(5000, 5000);
 
-    PlainDesktopBackgroundPixmap pixmap("/tmp/file.png", expectedName, 0);
+    PlainDesktopBackgroundPixmap pixmap("/tmp/file.png", expectedName, 0, 0);
     QCOMPARE(pixmap.pixmapFromFile_.isNull(), true);
     QCOMPARE(pixmap.pixmapFromTheme_, &expectedPixmap);
     QCOMPARE(MThemePixmapId, expectedName);
     QCOMPARE(pixmap.pixmap(), pixmap.pixmapFromTheme_);
 
-    checkBlurredPixmap(pixmap);
+    checkDefocusedPixmap(pixmap);
 }
 
 void Ut_PlainDesktopBackgroundPixmap::testConstructingFromTheme()
@@ -151,36 +169,36 @@ void Ut_PlainDesktopBackgroundPixmap::testConstructingFromTheme()
     QPixmap expectedPixmap(50, 50);
     MThemePixmapReturnValue = &expectedPixmap;
 
-    PlainDesktopBackgroundPixmap pixmap(expectedName, "default", 0);
+    PlainDesktopBackgroundPixmap pixmap(expectedName, "default", 0, 0);
     QCOMPARE(pixmap.pixmapFromFile_.isNull(), true);
     QCOMPARE(pixmap.pixmapFromTheme_, &expectedPixmap);
     QCOMPARE(MThemePixmapId, expectedName);
     QCOMPARE(pixmap.pixmap(), pixmap.pixmapFromTheme_);
 
-    // The blurred pixmap creation should have succeeded so pixmapRequestsFinished() signals should not be listened
-    QCOMPARE(disconnect(MTheme::instance(), SIGNAL(pixmapRequestsFinished()), &pixmap, SLOT(createBlurredPixmap())), false);
-    checkBlurredPixmap(pixmap);
+    // The defocused pixmap creation should have succeeded so pixmapRequestsFinished() signals should not be listened
+    QCOMPARE(disconnect(MTheme::instance(), SIGNAL(pixmapRequestsFinished()), &pixmap, SLOT(createDefocusedPixmap())), false);
+    checkDefocusedPixmap(pixmap);
 }
 
 void Ut_PlainDesktopBackgroundPixmap::testConstructingFromThemeIsDelayed()
 {
     QPixmap brokenPixmap(-1, -1);
     MThemePixmapReturnValue = &brokenPixmap;
-    PlainDesktopBackgroundPixmap pixmap("test", "default", 0);
+    PlainDesktopBackgroundPixmap pixmap("test", "default", 0, 0);
     QSignalSpy spy(&pixmap, SIGNAL(pixmapUpdated()));
 
-    // The blurred pixmap creation should have failed so pixmapRequestsFinished() signals should be listened
-    QCOMPARE(disconnect(MTheme::instance(), SIGNAL(pixmapRequestsFinished()), &pixmap, SLOT(createBlurredPixmap())), true);
-    QCOMPARE(pixmap.blurredPixmap(), (QPixmap *)NULL);
+    // The defocused pixmap creation should have failed so pixmapRequestsFinished() signals should be listened
+    QCOMPARE(disconnect(MTheme::instance(), SIGNAL(pixmapRequestsFinished()), &pixmap, SLOT(createDefocusedPixmap())), true);
+    QCOMPARE(pixmap.defocusedPixmap(), (QPixmap *)NULL);
     QCOMPARE(spy.count(), 0);
 
     // If the pixmap becomes available the blur should be executed
     QPixmap validPixmap(50, 50);
     pixmap.pixmapFromTheme_ = &validPixmap;
-    connect(this, SIGNAL(pixmapRequestsFinished()), &pixmap, SLOT(createBlurredPixmap()));
+    connect(this, SIGNAL(pixmapRequestsFinished()), &pixmap, SLOT(createDefocusedPixmap()));
     emit pixmapRequestsFinished();
     QCOMPARE(spy.count(), 1);
-    checkBlurredPixmap(pixmap);
+    checkDefocusedPixmap(pixmap);
 }
 
 void Ut_PlainDesktopBackgroundPixmap::testConstructingFromEmptyName()
@@ -189,13 +207,13 @@ void Ut_PlainDesktopBackgroundPixmap::testConstructingFromEmptyName()
     QPixmap expectedPixmap(50, 50);
     MThemePixmapReturnValue = &expectedPixmap;
 
-    PlainDesktopBackgroundPixmap pixmap("", expectedName, 0);
+    PlainDesktopBackgroundPixmap pixmap("", expectedName, 0, 0);
     QCOMPARE(pixmap.pixmapFromFile_.isNull(), true);
     QCOMPARE(pixmap.pixmapFromTheme_, &expectedPixmap);
     QCOMPARE(MThemePixmapId, expectedName);
     QCOMPARE(pixmap.pixmap(), pixmap.pixmapFromTheme_);
 
-    checkBlurredPixmap(pixmap);
+    checkDefocusedPixmap(pixmap);
 }
 
 QTEST_MAIN(Ut_PlainDesktopBackgroundPixmap)

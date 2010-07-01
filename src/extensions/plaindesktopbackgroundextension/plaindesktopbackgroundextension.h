@@ -57,16 +57,16 @@ public:
 
 private slots:
     /*!
-     * \brief Sets the blur time line direction based on whether there are windows in the window list.
+     * \brief Sets the defocus time line direction based on whether there are windows in the window list.
      */
-    void setBlurTimeLineDirection(const QList<WindowInfo> &windowList);
+    void setDefocusTimeLineDirection(const QList<WindowInfo> &windowList);
 
     /*!
-     * Sets the blur factor.
+     * Sets the defocus factor.
      *
-     * \param blurFactor the new blur factor
+     * \param defocusFactor the new defocus factor
      */
-    void setBlurFactor(qreal blurFactor);
+    void setDefocusFactor(qreal defocusFactor);
 
     /*!
      * Updates the landscape pixmap.
@@ -114,14 +114,17 @@ private:
     //! The name of the portrait default background image
     QString portraitDefaultBackgroundImage;
 
-    //! Blurring factor
-    qreal blurFactor;
+    //! Defocusing factor
+    qreal defocusFactor;
 
-    //! Blurring timeline
-    QTimeLine blurTimeLine;
+    //! Defocusing timeline
+    QTimeLine defocusTimeLine;
 
     //! Blur radius (in pixels)
     int blurRadius;
+
+    //! Brightness (from 0 to 1)
+    qreal brightness;
 
     //! Whether a pixmap is being updated or not
     bool pixmapBeingUpdated;

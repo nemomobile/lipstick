@@ -28,8 +28,9 @@
 static const int PIXMAP_WIDTH_MAX = 2048;
 static const int PIXMAP_HEIGHT_MAX = 2048;
 
-PlainDesktopBackgroundPixmap::PlainDesktopBackgroundPixmap(const QString &name, const QString &defaultName, int blurRadius) :
+PlainDesktopBackgroundPixmap::PlainDesktopBackgroundPixmap(const QString &name, const QString &defaultName, int blurRadius, qreal brightness) :
         blurRadius_(blurRadius),
+        brightness_(brightness),
         pixmapFromTheme_(NULL)
 {
     if (name.startsWith('/')) {
@@ -67,8 +68,8 @@ PlainDesktopBackgroundPixmap::PlainDesktopBackgroundPixmap(const QString &name, 
         pixmapName_ = defaultName;
     }
 
-    // Create a blurred version
-    createBlurredPixmap();
+    // Create a defocused version
+    createDefocusedPixmap();
 }
 
 PlainDesktopBackgroundPixmap::~PlainDesktopBackgroundPixmap()
@@ -78,22 +79,22 @@ PlainDesktopBackgroundPixmap::~PlainDesktopBackgroundPixmap()
     }
 }
 
-void PlainDesktopBackgroundPixmap::createBlurredPixmap()
+void PlainDesktopBackgroundPixmap::createDefocusedPixmap()
 {
     // Disconnect previous pixmapRequestsFinished() connections if any
-    disconnect(MTheme::instance(), SIGNAL(pixmapRequestsFinished()), this, SLOT(createBlurredPixmap()));
+    disconnect(MTheme::instance(), SIGNAL(pixmapRequestsFinished()), this, SLOT(createDefocusedPixmap()));
 
     if (pixmapFromFile_.isNull() && pixmapFromTheme_ != NULL && pixmapFromTheme_->isNull()) {
         // A pixmap from the theme is being used but it is not available yet: listen to pixmapRequestsFinished() signals
-        connect(MTheme::instance(), SIGNAL(pixmapRequestsFinished()), this, SLOT(createBlurredPixmap()));
+        connect(MTheme::instance(), SIGNAL(pixmapRequestsFinished()), this, SLOT(createDefocusedPixmap()));
     } else {
         // A pixmap from a file is being used or a pixmap from the theme is being used and it is available
-        blurredPixmap_ = QSharedPointer<QPixmap>(createBlurredPixmap(*pixmap(), blurRadius_));
+        defocusedPixmap_ = QSharedPointer<QPixmap>(createDefocusedPixmap(*pixmap(), blurRadius_, brightness_));
         emit pixmapUpdated();
     }
 }
 
-QPixmap *PlainDesktopBackgroundPixmap::createBlurredPixmap(const QPixmap &pixmap, int blurRadius)
+QPixmap *PlainDesktopBackgroundPixmap::createDefocusedPixmap(const QPixmap &pixmap, int blurRadius, qreal brightness)
 {
     // Create a scene and put the pixmap on it using a blur effect
     QGraphicsScene scene;
@@ -101,17 +102,18 @@ QPixmap *PlainDesktopBackgroundPixmap::createBlurredPixmap(const QPixmap &pixmap
     QGraphicsBlurEffect *blur = new QGraphicsBlurEffect;
     blur->setBlurRadius(blurRadius);
     item->setGraphicsEffect(blur);
+    item->setOpacity(brightness);
     scene.addItem(item);
 
-    // Create a pixmap for the blurred version of the pixmap
-    QPixmap *blurredPixmap = new QPixmap(pixmap.width(), pixmap.height());
-    blurredPixmap->fill(Qt::black);
+    // Create a pixmap for the defocused version of the pixmap
+    QPixmap *defocusedPixmap = new QPixmap(pixmap.width(), pixmap.height());
+    defocusedPixmap->fill(Qt::black);
 
     // Paint the scene to the pixmap
-    QPainter painter(blurredPixmap);
+    QPainter painter(defocusedPixmap);
     scene.render(&painter);
 
-    return blurredPixmap;
+    return defocusedPixmap;
 }
 
 const QPixmap *PlainDesktopBackgroundPixmap::pixmap() const
@@ -119,9 +121,9 @@ const QPixmap *PlainDesktopBackgroundPixmap::pixmap() const
     return pixmapFromFile_.isNull() ? pixmapFromTheme_ : pixmapFromFile_.data();
 }
 
-const QPixmap *PlainDesktopBackgroundPixmap::blurredPixmap() const
+const QPixmap *PlainDesktopBackgroundPixmap::defocusedPixmap() const
 {
-    return blurredPixmap_.data();
+    return defocusedPixmap_.data();
 }
 
 QString PlainDesktopBackgroundPixmap::pixmapName() const
