@@ -50,17 +50,13 @@ public:
 
     //! \reimp
     virtual void setDesktopInterface(MDesktopInterface &desktopInterface);
+    virtual void setDefocused(bool defocused);
     virtual void drawBackground(QPainter *painter, const QRectF &boundingRect) const;
     virtual bool initialize(const QString &interface);
     virtual QGraphicsWidget *widget();
     //! \reimp_end
 
 private slots:
-    /*!
-     * \brief Sets the defocus time line direction based on whether there are windows in the window list.
-     */
-    void setDefocusTimeLineDirection(const QList<WindowInfo> &windowList);
-
     /*!
      * Sets the defocus factor.
      *

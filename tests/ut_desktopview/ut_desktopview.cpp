@@ -270,6 +270,12 @@ void TestDesktopBackgroundExtension::setDesktopInterface(MDesktopInterface &)
 {
 }
 
+bool extensionDefocused;
+void TestDesktopBackgroundExtension::setDefocused(bool defocused)
+{
+    extensionDefocused = defocused;
+}
+
 void TestDesktopBackgroundExtension::drawBackground(QPainter *, const QRectF &boundingRect) const
 {
     this->boundingRect = boundingRect;
@@ -312,10 +318,13 @@ void Ut_DesktopView::init()
     desktopView->modifiableStyle()->setDesktopBackgroundImage(backgroundImage);
     connect(this, SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)),
             desktopView, SLOT(updateLauncherVisiblity(const QList<WindowInfo> &)));
+    connect(this, SIGNAL(windowListUpdated(const QList<WindowInfo> &)),
+            desktopView, SLOT(setSwitcherHasContent(const QList<WindowInfo> &)));
     // For QWidget activateWindow() and raise() stubs
     windowRaised = false;
     windowActivated = false;
     gQGraphicsItemIsVisible = false;
+    extensionDefocused = false;
 
     gMSceneManagerStub->stubReset();
     gLauncherStub->stubReset();
@@ -381,8 +390,8 @@ void Ut_DesktopView::testUpdatingLauncherVisibilityWithDesktopOnTop()
 
 void Ut_DesktopView::verifyAppearDisappear(MSceneWindow *appear, MSceneWindow *disappear)
 {
-    QCOMPARE(1, gMSceneManagerStub->stubCallCount("appearSceneWindow"));
-    QCOMPARE(1, gMSceneManagerStub->stubCallCount("disappearSceneWindow"));
+    QCOMPARE(gMSceneManagerStub->stubCallCount("appearSceneWindow"), 1);
+    QCOMPARE(gMSceneManagerStub->stubCallCount("disappearSceneWindow"), 1);
     QCOMPARE(gMSceneManagerStub->stubLastCallTo("appearSceneWindow").parameter<MSceneWindow *>(0), appear);
     QCOMPARE(gMSceneManagerStub->stubLastCallTo("disappearSceneWindow").parameter<MSceneWindow *>(0), disappear);
     gMSceneManagerStub->stubReset();
@@ -394,6 +403,7 @@ void Ut_DesktopView::verifyLauncherVisibility(int topMostWindowId, bool shouldBe
 
     verifyAppearDisappear(desktopView->launcherWindow, desktopView->switcherWindow);
 
+    gQGraphicsItemIsVisible = true;
     QList<WindowInfo> windowList;
     windowList.append(WindowInfo(topMostWindowId));
     emit windowStackingOrderChanged(windowList);
@@ -438,8 +448,6 @@ void Ut_DesktopView::testShowLauncherAndPanToPageWithEmptyDesktopFile()
 {
     gLauncherStub->stubSetReturnValue("panToPage", -1);
 
-    desktopView->launcher->setEnabled(false);
-
     QCOMPARE(desktopView->launcherWindow->isVisible(), false);
 
     desktopView->showLauncherAndPanToPage("");
@@ -449,6 +457,33 @@ void Ut_DesktopView::testShowLauncherAndPanToPageWithEmptyDesktopFile()
     QCOMPARE(windowRaised, true);
 
     QCOMPARE(1, gMSceneManagerStub->stubCallCount("appearSceneWindow"));
+}
+
+void Ut_DesktopView::testDefocusing()
+{
+    TestDesktopBackgroundExtension extension;
+    desktopView->addExtension(&extension);
+
+    desktopView->showLauncher();
+    QVERIFY(extensionDefocused);
+
+    desktopView->hideLauncher();
+    QVERIFY(!extensionDefocused);
+
+    QList<WindowInfo> windowList;
+    windowList.append(WindowInfo(0));
+    emit windowListUpdated(windowList);
+    QVERIFY(extensionDefocused);
+
+    desktopView->showLauncher();
+    QVERIFY(extensionDefocused);
+
+    windowList.clear();
+    emit windowListUpdated(windowList);
+    QVERIFY(extensionDefocused);
+
+    desktopView->hideLauncher();
+    QVERIFY(!extensionDefocused);
 }
 
 QTEST_APPLESS_MAIN(Ut_DesktopView)

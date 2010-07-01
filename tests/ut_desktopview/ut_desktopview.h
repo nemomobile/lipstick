@@ -40,6 +40,7 @@ public:
     mutable QRectF boundingRect;
     virtual bool initialize(const QString &);
     virtual void setDesktopInterface(MDesktopInterface &desktopInterface);
+    virtual void setDefocused(bool defocused);
     virtual void drawBackground(QPainter *painter, const QRectF &boundingRect) const;
 };
 
@@ -89,6 +90,7 @@ private slots:
     void testShowLauncherAndPanToPageWithBadDesktopFile();
     // Test show launcher with empty desktop file path given
     void testShowLauncherAndPanToPageWithEmptyDesktopFile();
+    void testDefocusing();
 
 public:
     // The main window
@@ -96,6 +98,7 @@ public:
 
 signals:
     void windowStackingOrderChanged(const QList<WindowInfo> &);
+    void windowListUpdated(const QList<WindowInfo> &);
 
 private:
     void verifyAppearDisappear(MSceneWindow *appear, MSceneWindow *disappear);

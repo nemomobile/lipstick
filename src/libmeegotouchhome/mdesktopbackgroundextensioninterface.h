@@ -67,6 +67,13 @@ public:
     virtual void setDesktopInterface(MDesktopInterface &desktopInterface) = 0;
 
     /*!
+     * Tells the extension whether the desktop should be defocused or not.
+     *
+     * \param defocused \c true if the desktop should be defocused, \c false otherwise
+     */
+    virtual void setDefocused(bool defocused) = 0;
+
+    /*!
      * Paints the desktop background using the given painter.
      *
      * \param painter the painter to draw the desktop background with.

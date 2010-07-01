@@ -17,8 +17,8 @@
 **
 ****************************************************************************/
 
-#include <QPainter>
 #include <QApplication>
+#include <QPainter>
 #include <QGraphicsScene>
 #include <QGraphicsPixmapItem>
 #include <QGraphicsBlurEffect>
@@ -41,9 +41,6 @@ PlainDesktopBackgroundExtension::PlainDesktopBackgroundExtension() :
 {
     // Set up the defocusing timeline
     connect(&defocusTimeLine, SIGNAL(valueChanged(qreal)), this, SLOT(setDefocusFactor(qreal)));
-
-    // Connect to the windowListUpdated signal of the HomeApplication to get information about window list changes
-    connect(qApp, SIGNAL(windowListUpdated(const QList<WindowInfo> &)), this, SLOT(setDefocusTimeLineDirection(const QList<WindowInfo> &)));
 
     // Connect the GConf signals
     connect(&landscapeGConfItem, SIGNAL(valueChanged()), this, SLOT(updateLandscapePixmap()));
@@ -116,11 +113,9 @@ void PlainDesktopBackgroundExtension::drawBackground(QPainter *painter, const QR
     }
 }
 
-void PlainDesktopBackgroundExtension::setDefocusTimeLineDirection(const QList<WindowInfo> &windowList)
+void PlainDesktopBackgroundExtension::setDefocused(bool defocused)
 {
-    // If there are windows in the window list the background should be defocused (defocusFactor should be animated from 0 to 1).
-    // If there are no windows in the window list the background should not be defocused (defocusFactor should be animated from 1 to 0).
-    QTimeLine::Direction direction = windowList.length() > 0 ? QTimeLine::Forward : QTimeLine::Backward;
+    QTimeLine::Direction direction = defocused ? QTimeLine::Forward : QTimeLine::Backward;
     if (defocusTimeLine.direction() != direction) {
         defocusTimeLine.toggleDirection();
     }

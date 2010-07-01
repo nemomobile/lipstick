@@ -266,7 +266,6 @@ void Ut_PlainDesktopBackgroundExtension::init()
     connect(this, SIGNAL(updateLandscapePixmap()), extension, SLOT(updateLandscapePixmap()));
     connect(this, SIGNAL(updatePortraitPixmap()), extension, SLOT(updatePortraitPixmap()));
     connect(this, SIGNAL(pixmapUpdated()), extension, SLOT(updateDesktop()));
-    connect(this, SIGNAL(setDefocusTimeLineDirection(const QList<WindowInfo> &)), extension, SLOT(setDefocusTimeLineDirection(const QList<WindowInfo> &)));
 }
 
 void Ut_PlainDesktopBackgroundExtension::cleanup()
@@ -423,33 +422,28 @@ void Ut_PlainDesktopBackgroundExtension::testSetDefocusFactor()
     QVERIFY(!updateCalled);
 }
 
-void Ut_PlainDesktopBackgroundExtension::testSetDefocusTimeLineDirection()
+void Ut_PlainDesktopBackgroundExtension::testSetDefocused()
 {
-    QList<WindowInfo> emptyWindowList;
-    QList<WindowInfo> fullWindowList;
-
-    fullWindowList.append(WindowInfo(Window()));
-
     // Test that the timeline direction is set and the timeline is resumed
-    emit setDefocusTimeLineDirection(fullWindowList);
+    extension->setDefocused(true);
     QCOMPARE(QTimeLineDirection, QTimeLine::Forward);
     QCOMPARE(QTimeLineState, QTimeLine::Running);
 
     // Test that the timeline is resumed if it's not running even if the direction doesn't change
     QTimeLineState = QTimeLine::NotRunning;
-    emit setDefocusTimeLineDirection(fullWindowList);
+    extension->setDefocused(true);
     QCOMPARE(QTimeLineDirection, QTimeLine::Forward);
     QCOMPARE(QTimeLineState, QTimeLine::Running);
 
     // Test that the timeline direction is set when it changes and the timeline is resumed
     QTimeLineState = QTimeLine::NotRunning;
-    emit setDefocusTimeLineDirection(emptyWindowList);
+    extension->setDefocused(false);
     QCOMPARE(QTimeLineDirection, QTimeLine::Backward);
     QCOMPARE(QTimeLineState, QTimeLine::Running);
 
     // Test that the timeline is resumed if it's not running even if the direction doesn't change
     QTimeLineState = QTimeLine::NotRunning;
-    emit setDefocusTimeLineDirection(emptyWindowList);
+    extension->setDefocused(false);
     QCOMPARE(QTimeLineDirection, QTimeLine::Backward);
     QCOMPARE(QTimeLineState, QTimeLine::Running);
 }

@@ -1,6 +1,8 @@
 duihome (0.21.14~1) unstable; urgency=low
 
   * New version [UNRELEASED]
+  * Implemented: SWP#DUI-3399 Dim switcher background when there's content on the switcher
+  * Fixes: NB#176918 - Shading out of background wallpaper not dark enough.
 
  -- Vesa Halttunen <vesa.halttunen@nokia.com>  Wed, 30 Jun 2010 19:39:34 +0300
 

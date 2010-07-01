@@ -105,9 +105,11 @@ DesktopView::DesktopView(Desktop *desktop) :
     MWidgetView(desktop),
     switcher(new Switcher),
     switcherWindow(new MSceneWindow),
+    switcherHasContent(false),
     launcherDataStore(NULL),
     launcher(NULL),
     launcherWindow(new MSceneWindow),
+    launcherVisible(false),
     quickLaunchBar(NULL),
     quickLaunchBarWindow(new MOverlay),
     backgroundExtensionArea(new MApplicationExtensionArea("com.meego.core.MDesktopBackgroundExtensionInterface/1.0"))
@@ -138,6 +140,7 @@ DesktopView::DesktopView(Desktop *desktop) :
     launcher = new Launcher(launcherDataStore);
     connect(qApp, SIGNAL(focusToLauncherAppRequested(const QString &)), this, SLOT(showLauncherAndPanToPage(const QString &)));
     connect(qApp, SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), this, SLOT(updateLauncherVisiblity(const QList<WindowInfo> &)));
+    connect(qApp, SIGNAL(windowListUpdated(const QList<WindowInfo> &)), this, SLOT(setSwitcherHasContent(const QList<WindowInfo> &)));
     windowLayout = new QGraphicsLinearLayout();
     windowLayout->setContentsMargins(0, 0, 0, 0);
     launcherWindow->setLayout(windowLayout);
@@ -158,6 +161,8 @@ DesktopView::DesktopView(Desktop *desktop) :
             this, SLOT(addExtension(MApplicationExtensionInterface*)));
     connect(backgroundExtensionArea, SIGNAL(extensionRemoved(MApplicationExtensionInterface*)),
             this, SLOT(removeExtension(MApplicationExtensionInterface*)));
+    backgroundExtensionArea->setInProcessFilter(QRegExp("/duihome-plaindesktopbackgroundextension.desktop$"));
+    backgroundExtensionArea->setOutOfProcessFilter(QRegExp("$^"));
     backgroundExtensionArea->init();
 
     setSceneWindowOrder();
@@ -212,7 +217,7 @@ void DesktopView::showLauncherAndPanToPage(const QString &desktopFileEntry)
 
 void DesktopView::updateLauncherVisiblity(const QList<WindowInfo> &windowList)
 {
-    if (launcher->isEnabled() && !windowList.isEmpty()) {
+    if (launcherWindow->isVisible() && !windowList.isEmpty()) {
         const QList<Atom>& windowTypes = windowList.last().types();
         if (!windowTypes.contains(WindowInfo::NotificationAtom) &&
             !windowTypes.contains(WindowInfo::DesktopAtom) &&
@@ -238,6 +243,9 @@ void DesktopView::showLauncher()
     MainWindow::instance()->sceneManager()->appearSceneWindow(launcherWindow);
     MainWindow::instance()->sceneManager()->disappearSceneWindow(switcherWindow);
     setSceneWindowOrder();
+
+    launcherVisible = true;
+    setDefocused();
 }
 
 void DesktopView::hideLauncher()
@@ -245,6 +253,9 @@ void DesktopView::hideLauncher()
     MainWindow::instance()->sceneManager()->disappearSceneWindow(launcherWindow);
     MainWindow::instance()->sceneManager()->appearSceneWindow(switcherWindow);
     setSceneWindowOrder();
+
+    launcherVisible = false;
+    setDefocused();
 }
 
 void DesktopView::setSceneWindowOrder()
@@ -252,6 +263,20 @@ void DesktopView::setSceneWindowOrder()
     // Keep the switcher and launcher windows behind the quick launch bar window
     launcherWindow->setZValue(quickLaunchBarWindow->zValue() - 1);
     switcherWindow->setZValue(quickLaunchBarWindow->zValue() - 2);
+}
+
+void DesktopView::setSwitcherHasContent(const QList<WindowInfo> &windowList)
+{
+    switcherHasContent = !windowList.isEmpty();
+    setDefocused();
+}
+
+void DesktopView::setDefocused()
+{
+    bool defocused = switcherHasContent || launcherVisible;
+    foreach (MDesktopBackgroundExtensionInterface *backgroundExtension, backgroundExtensions) {
+        backgroundExtension->setDefocused(defocused);
+    }
 }
 
 void DesktopView::update()

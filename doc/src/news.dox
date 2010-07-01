@@ -1,9 +1,17 @@
 /*! \page news What's New in DirectUI Homescreen
 
+\section v02114 0.21.14
+
+\subsection New
+- The desktop background is blurred and dimmed if there is content on the desktop (in the switcher or in the launcher)
+
+\subsection bugs Bugs fixed
+- Shaded out background wallpaper was not dark enough
+
 \section v02113 0.21.13
 
 \subsection New
-- Switcher detail view is usable again (if enabled
+- Switcher detail view is usable again (if enabled)
 
 \subsection bugs Bugs fixed
 - Minimize/maximize animation ended/began at the edge of the screen

@@ -76,6 +76,9 @@ private slots:
     //! Hides the launcher if applicable, based on the top most window
     void updateLauncherVisiblity(const QList<WindowInfo> &windowList);
 
+    //! Sets whether the switcher has content or not based on the window list
+    void setSwitcherHasContent(const QList<WindowInfo> &windowList);
+
     //! Toggles the launcher visibility
     void toggleLauncher();
 
@@ -120,9 +123,14 @@ private:
     void hideLauncher();
 
     /*!
-     * \brief rearranges the Z order of the scene window
+     * \brief Rearranges the Z order of the scene window
      */
     void setSceneWindowOrder();
+
+    /*!
+     * \brief Lets the background extensions know whether the desktop should be defocused or not
+     */
+    void setDefocused();
 
     /*!
      * Creates a launcher data store.
@@ -140,6 +148,9 @@ private:
     //! Scene window for the switcher
     MSceneWindow *switcherWindow;
 
+    //! Whether the switcher has content in it
+    bool switcherHasContent;
+
     //! Data store to store the launcher and quick launch bar item locations to
     LauncherDataStore *launcherDataStore;
 
@@ -148,6 +159,9 @@ private:
 
     //! Scene window for the launcher
     MSceneWindow *launcherWindow;
+
+    //! Whether the launcher is visible or not
+    bool launcherVisible;
 
     //! The quick launch bar
     QuickLaunchBar *quickLaunchBar;

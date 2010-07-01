@@ -51,12 +51,11 @@ private slots:
     void testUpdatePixmaps();
     void testUpdatePixmapsFails();
     void testSetDefocusFactor();
-    void testSetDefocusTimeLineDirection();
+    void testSetDefocused();
     void testUpdateDesktop();
     void testUpdateDesktopNoDesktop();
 
 signals:
-    void setDefocusTimeLineDirection(const QList<WindowInfo> &windowList);
     void setDefocusFactor(qreal blurFactor);
     void updateLandscapePixmap();
     void updatePortraitPixmap();

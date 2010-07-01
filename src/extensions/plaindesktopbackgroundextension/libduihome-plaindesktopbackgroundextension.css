@@ -1,8 +1,8 @@
 PlainDesktopBackgroundStyle {
     blur-radius: 10;
     brightness: 0.75;
-    defocus-duration: 1000;
-    defocus-update-interval: 100;
+    defocus-duration: 500;
+    defocus-update-interval: 33;
 }
 PlainDesktopBackgroundStyle.Landscape {
     /* The name of the default background image */
