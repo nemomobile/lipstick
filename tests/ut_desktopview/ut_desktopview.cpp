@@ -25,7 +25,7 @@
 #include <MScene>
 #include <MDeviceProfile>
 #include <MPannableViewport>
-#include <MModalSceneWindow>
+#include <MSceneWindow>
 
 #include "ut_desktopview.h"
 #include "desktopview.h"
@@ -220,17 +220,8 @@ void QGraphicsItem::setZValue(qreal)
 static bool gQGraphicsItemIsVisible = true;
 bool QGraphicsItem::isVisible() const
 {
-    if (dynamic_cast<const Launcher*>(this) || dynamic_cast<const MModalSceneWindow*>(this)) {
+    if (dynamic_cast<const Launcher*>(this) || dynamic_cast<const MSceneWindow*>(this)) {
         return gQGraphicsItemIsVisible;
-    }
-    return false;
-}
-
-static bool gQGraphicsItemIsEnabled = false;
-bool QGraphicsItem::isEnabled() const
-{
-    if (dynamic_cast<const Launcher*>(this)) {
-        return gQGraphicsItemIsEnabled;
     }
     return false;
 }
@@ -239,13 +230,6 @@ void MWidget::setVisible(bool visible)
 {
     if (dynamic_cast<const Launcher*>(this)) {
         gQGraphicsItemIsVisible = visible;
-    }
-}
-
-void QGraphicsItem::setEnabled(bool enabled)
-{
-    if (dynamic_cast<const Launcher*>(this)) {
-        gQGraphicsItemIsEnabled = enabled;
     }
 }
 
@@ -332,7 +316,6 @@ void Ut_DesktopView::init()
     windowRaised = false;
     windowActivated = false;
     gQGraphicsItemIsVisible = false;
-    gQGraphicsItemIsEnabled = false;
 
     gMSceneManagerStub->stubReset();
     gLauncherStub->stubReset();
@@ -348,11 +331,11 @@ void Ut_DesktopView::testToggleLauncher()
     gQGraphicsItemIsVisible = false;
     desktopView->toggleLauncher();
     QCOMPARE(1, gLauncherStub->stubCallCount("setFirstPage"));
-    QVERIFY(desktopView->launcher->isEnabled());
+    verifyAppearDisappear(desktopView->launcherWindow, desktopView->switcherWindow);
 
     gQGraphicsItemIsVisible = true;
     desktopView->toggleLauncher();
-    QVERIFY(!desktopView->launcher->isEnabled());
+    verifyAppearDisappear(desktopView->switcherWindow, desktopView->launcherWindow);
 }
 
 void Ut_DesktopView::testBoundingRectAndDrawBackground()
@@ -396,21 +379,27 @@ void Ut_DesktopView::testUpdatingLauncherVisibilityWithDesktopOnTop()
     verifyLauncherVisibility(0xfeedbeef, true);
 }
 
+void Ut_DesktopView::verifyAppearDisappear(MSceneWindow *appear, MSceneWindow *disappear)
+{
+    QCOMPARE(1, gMSceneManagerStub->stubCallCount("appearSceneWindow"));
+    QCOMPARE(1, gMSceneManagerStub->stubCallCount("disappearSceneWindow"));
+    QCOMPARE(gMSceneManagerStub->stubLastCallTo("appearSceneWindow").parameter<MSceneWindow *>(0), appear);
+    QCOMPARE(gMSceneManagerStub->stubLastCallTo("disappearSceneWindow").parameter<MSceneWindow *>(0), disappear);
+    gMSceneManagerStub->stubReset();
+}
+
 void Ut_DesktopView::verifyLauncherVisibility(int topMostWindowId, bool shouldBeVisible)
 {
     desktopView->showLauncher();
 
-    QVERIFY(gQGraphicsItemIsEnabled);
-
-    QCOMPARE(1, gMSceneManagerStub->stubCallCount("appearSceneWindow"));
+    verifyAppearDisappear(desktopView->launcherWindow, desktopView->switcherWindow);
 
     QList<WindowInfo> windowList;
     windowList.append(WindowInfo(topMostWindowId));
     emit windowStackingOrderChanged(windowList);
 
     if (!shouldBeVisible) {
-        QVERIFY(!gQGraphicsItemIsEnabled);
-        QCOMPARE(1, gMSceneManagerStub->stubCallCount("disappearSceneWindow"));
+        verifyAppearDisappear(desktopView->switcherWindow, desktopView->launcherWindow);
     }
 }
 
@@ -419,36 +408,30 @@ void Ut_DesktopView::testShowLauncherAndPanToPageWithCorrectDesktopFile()
     gLauncherStub->stubSetReturnValue("panToPage", 1);
     desktopView->hideLauncher();
 
-    QCOMPARE(1, gMSceneManagerStub->stubCallCount("disappearSceneWindow"));
-    QVERIFY(!desktopView->launcher->isEnabled());
+    verifyAppearDisappear(desktopView->switcherWindow, desktopView->launcherWindow);
 
     desktopView->showLauncherAndPanToPage("correctFileName");
     gQGraphicsItemIsVisible = true;
-    gQGraphicsItemIsEnabled = true;
 
     QCOMPARE(windowActivated, true);
     QCOMPARE(windowRaised, true);
 
-    QCOMPARE(1, gMSceneManagerStub->stubCallCount("appearSceneWindow"));
-    QVERIFY(gQGraphicsItemIsEnabled);
+    verifyAppearDisappear(desktopView->launcherWindow, desktopView->switcherWindow);
 }
 
 void Ut_DesktopView::testShowLauncherAndPanToPageWithBadDesktopFile()
 {
     gLauncherStub->stubSetReturnValue("panToPage", -1);
 
-    desktopView->launcher->setEnabled(false);
     desktopView->launcher->setVisible(false);
 
     QCOMPARE(desktopView->launcherWindow->isVisible(), false);
-    QCOMPARE(desktopView->launcher->isEnabled(), false);
 
     desktopView->showLauncherAndPanToPage("badFileName");
 
     QCOMPARE(windowActivated, false);
     QCOMPARE(windowRaised, false);
     QCOMPARE(desktopView->launcherWindow->isVisible(), false);
-    QCOMPARE(desktopView->launcher->isEnabled(), false);
 }
 
 void Ut_DesktopView::testShowLauncherAndPanToPageWithEmptyDesktopFile()
@@ -458,17 +441,14 @@ void Ut_DesktopView::testShowLauncherAndPanToPageWithEmptyDesktopFile()
     desktopView->launcher->setEnabled(false);
 
     QCOMPARE(desktopView->launcherWindow->isVisible(), false);
-    QCOMPARE(desktopView->launcher->isEnabled(), false);
 
     desktopView->showLauncherAndPanToPage("");
     gQGraphicsItemIsVisible = true;
-    gQGraphicsItemIsEnabled = true;
 
     QCOMPARE(windowActivated, true);
     QCOMPARE(windowRaised, true);
 
     QCOMPARE(1, gMSceneManagerStub->stubCallCount("appearSceneWindow"));
-    QCOMPARE(desktopView->launcher->isEnabled(), true);
 }
 
 QTEST_APPLESS_MAIN(Ut_DesktopView)

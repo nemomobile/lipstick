@@ -33,7 +33,7 @@ class LauncherDataStore;
 class Launcher;
 class NotificationArea;
 class QGraphicsLinearLayout;
-class MModalSceneWindow;
+class MSceneWindow;
 class MPannableViewport;
 class MOverlay;
 class MApplicationExtensionArea;
@@ -109,8 +109,7 @@ private slots:
 #endif
 
 private:
-
-     /*!
+    /*!
      * \brief Shows the application launcher
      */
     void showLauncher();
@@ -119,6 +118,11 @@ private:
      * \brief Hides the application launcher
      */
     void hideLauncher();
+
+    /*!
+     * \brief rearranges the Z order of the scene window
+     */
+    void setSceneWindowOrder();
 
     /*!
      * Creates a launcher data store.
@@ -133,14 +137,17 @@ private:
     //! The switcher widget
     Switcher *switcher;
 
+    //! Scene window for the switcher
+    MSceneWindow *switcherWindow;
+
     //! Data store to store the launcher and quick launch bar item locations to
     LauncherDataStore *launcherDataStore;
 
     //! Application launcher
     Launcher *launcher;
 
-    //! scene window for the launcher
-    MModalSceneWindow *launcherWindow;
+    //! Scene window for the launcher
+    MSceneWindow *launcherWindow;
 
     //! The quick launch bar
     QuickLaunchBar *quickLaunchBar;

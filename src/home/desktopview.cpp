@@ -39,7 +39,7 @@
 #include <MViewCreator>
 #include <MDeviceProfile>
 #include <MSceneManager>
-#include <MModalSceneWindow>
+#include <MSceneWindow>
 #include <MPannableViewport>
 #include <MApplication>
 #include <MOverlay>
@@ -104,56 +104,42 @@ void DesktopView::stopBenchmarking()
 DesktopView::DesktopView(Desktop *desktop) :
     MWidgetView(desktop),
     switcher(new Switcher),
+    switcherWindow(new MSceneWindow),
     launcherDataStore(NULL),
     launcher(NULL),
-    launcherWindow(new MModalSceneWindow),
+    launcherWindow(new MSceneWindow),
     quickLaunchBar(NULL),
     quickLaunchBarWindow(new MOverlay),
     backgroundExtensionArea(new MApplicationExtensionArea("com.meego.core.MDesktopBackgroundExtensionInterface/1.0"))
 {
+    // Add the switcher into a scene window
+    switcher->setObjectName("OverviewSwitcher");
+    QGraphicsLinearLayout *windowLayout = new QGraphicsLinearLayout();
+    windowLayout->setContentsMargins(0, 0, 0, 0);
+    switcherWindow->setLayout(windowLayout);
+    switcherWindow->setObjectName("SwitcherWindow");
+    windowLayout->addItem(switcher);
+    MainWindow::instance()->sceneManager()->appearSceneWindowNow(switcherWindow);
+
     // Create the launcher data store
     launcherDataStore = createLauncherDataStore();
-
-    // Create the main layout that contains the switcher etc.
-    QGraphicsLinearLayout *mainLayout = new QGraphicsLinearLayout(Qt::Vertical);
-    mainLayout->setContentsMargins(0, 0, 0, 0);
-    mainLayout->setSpacing(0);
-    desktop->setLayout(mainLayout);
-
-    // Add a placeholder for the status area TODO remove hardcoded values
-    QGraphicsWidget *widget = new QGraphicsWidget;
-    widget->setMinimumHeight(28);
-    widget->setMaximumHeight(28);
-    mainLayout->addItem(widget);
-
-    // Create switcher
-    switcher->setObjectName("OverviewSwitcher");
-    mainLayout->addItem(switcher);
-
-    // Add a placeholder for the quick launch bar TODO remove hardcoded values
-    widget = new QGraphicsWidget;
-    widget->setMinimumHeight(76);
-    widget->setMaximumHeight(76);
-    mainLayout->addItem(widget);
 
     // Create a quick launch bar and put it in a scene window
     quickLaunchBar = new QuickLaunchBar(launcherDataStore);
     connect(quickLaunchBar, SIGNAL(toggleLauncherButtonClicked()), this, SLOT(toggleLauncher()));
-    QGraphicsLinearLayout *windowLayout = new QGraphicsLinearLayout();
+    windowLayout = new QGraphicsLinearLayout();
     windowLayout->setContentsMargins(0, 0, 0, 0);
     windowLayout->addItem(quickLaunchBar);
     quickLaunchBarWindow->setLayout(windowLayout);
     quickLaunchBarWindow->setObjectName("QuickLaunchBarOverlay");
     MainWindow::instance()->sceneManager()->appearSceneWindowNow(quickLaunchBarWindow);
 
-    windowLayout = new QGraphicsLinearLayout();
-    windowLayout->setContentsMargins(0, 0, 0, 0);
-
-    // The launcher is added into a modal scene window
+    // Add the launcher into a scene window
     launcher = new Launcher(launcherDataStore);
-
     connect(qApp, SIGNAL(focusToLauncherAppRequested(const QString &)), this, SLOT(showLauncherAndPanToPage(const QString &)));
     connect(qApp, SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), this, SLOT(updateLauncherVisiblity(const QList<WindowInfo> &)));
+    windowLayout = new QGraphicsLinearLayout();
+    windowLayout->setContentsMargins(0, 0, 0, 0);
     launcherWindow->setLayout(windowLayout);
     launcherWindow->setObjectName("LauncherWindow");
     windowLayout->addItem(launcher);
@@ -173,10 +159,13 @@ DesktopView::DesktopView(Desktop *desktop) :
     connect(backgroundExtensionArea, SIGNAL(extensionRemoved(MApplicationExtensionInterface*)),
             this, SLOT(removeExtension(MApplicationExtensionInterface*)));
     backgroundExtensionArea->init();
+
+    setSceneWindowOrder();
 }
 
 DesktopView::~DesktopView()
 {
+    delete switcherWindow;
     delete launcherWindow;
     delete quickLaunchBarWindow;
     delete backgroundExtensionArea;
@@ -247,28 +236,22 @@ void DesktopView::toggleLauncher()
 void DesktopView::showLauncher()
 {
     MainWindow::instance()->sceneManager()->appearSceneWindow(launcherWindow);
-
-    // Set the launcher window below other modal scene windows
-    // @todo TODO get rid of the hardcoded value when MSceneManager enables dynamic allocation of Z values
-    launcherWindow->parentItem()->setZValue(300);
-
-    launcher->setEnabled(true);
-
-    // TODO : does this have to be animated??
-    switcher->setVisible(false);
+    MainWindow::instance()->sceneManager()->disappearSceneWindow(switcherWindow);
+    setSceneWindowOrder();
 }
 
 void DesktopView::hideLauncher()
 {
-    // Disable the launcher so that during the disappear animation of
-    // the dialog it's not possible to launch another application
-    launcher->setEnabled(false);
-
-    // Scroll the launcher above the screen
     MainWindow::instance()->sceneManager()->disappearSceneWindow(launcherWindow);
+    MainWindow::instance()->sceneManager()->appearSceneWindow(switcherWindow);
+    setSceneWindowOrder();
+}
 
-    // TODO : does this have to be animated??
-    switcher->setVisible(true);
+void DesktopView::setSceneWindowOrder()
+{
+    // Keep the switcher and launcher windows behind the quick launch bar window
+    launcherWindow->setZValue(quickLaunchBarWindow->zValue() - 1);
+    switcherWindow->setZValue(quickLaunchBarWindow->zValue() - 2);
 }
 
 void DesktopView::update()

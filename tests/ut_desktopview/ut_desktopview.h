@@ -83,7 +83,6 @@ private slots:
     void testUpdatingLauncherVisibilityWithStatusIndicatorMenuOnTop();
     void testUpdatingLauncherVisibilityWithDialogOnTop();
     void testUpdatingLauncherVisibilityWithDesktopOnTop();
-    void verifyLauncherVisibility(int topMostWindowId, bool shouldBeVisible);
     // Test showing launcher when showLauncherAndPanToPage is called
     void testShowLauncherAndPanToPageWithCorrectDesktopFile();
     // Test that launcher is not shown when bad desktop file is given
@@ -96,11 +95,12 @@ public:
     static MainWindow *mainWindow;
 
 signals:
-
     void windowStackingOrderChanged(const QList<WindowInfo> &);
 
-
 private:
+    void verifyAppearDisappear(MSceneWindow *appear, MSceneWindow *disappear);
+    void verifyLauncherVisibility(int topMostWindowId, bool shouldBeVisible);
+
     // The mapp
     MApplication *app;
     // The object being tested

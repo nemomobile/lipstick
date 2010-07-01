@@ -38,6 +38,17 @@ MOverlayStyle#QuickLaunchBarOverlay {
     horizontal-align: left;
 }
 
+MSceneWindowStyle#SwitcherWindow {
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
 MSceneWindowStyle#LauncherWindow {
     margin-left: 0;
     margin-right: 0;
@@ -47,50 +58,6 @@ MSceneWindowStyle#LauncherWindow {
     padding-right: 0;
     padding-top: 0;
     padding-bottom: 0;
-}
-
-MSceneWindowStyle#AppletSpaceWindow {
-    margin-left: 0;
-    margin-right: 0;
-    margin-top: 0;
-    margin-bottom: 0;
-    padding-left: 0;
-    padding-right: 0;
-    padding-top: 0;
-    padding-bottom: 0;
-    minimum-size: 100% -1;
-    preferred-size: 100% -1;
-    maximum-size: 100% -1;
-}
-
-AppletSpaceStyle {
-    extend-direction: "bottom";
-    background-image: "duibutton-background-pressed" 10px 10px 10px 10px;
-    margin-left: 0;
-    margin-right: 0;
-    margin-top: 0;
-    margin-bottom: 0;
-    padding-left: 1.6mm;
-    padding-right: 1.6mm;
-    padding-top: 1.6mm;
-    padding-bottom: 1.6mm;
-    minimum-size: 100% 100%;
-    preferred-size: 100% -1;
-    maximum-size: 100% -1;
-}
-
-MButtonStyle#AppletSpaceCloseButton {
-    icon-size: $SIZE_ICON_DEFAULT $SIZE_ICON_DEFAULT;
-    preferred-size: 6.4mm 6.4mm;
-    minimum-size: 6.4mm 6.4mm;
-    maximum-size: 6.4mm 6.4mm;
-}
-
-MOverlayStyle#AppletSpaceCloseButtonOverlay {
-    minimum-size: 6.4mm 6.4mm;
-    preferred-size: 6.4mm 6.4mm;
-    maximum-size: 6.4mm 6.4mm;
-    offset: 0 0;
 }
 
 MButtonIconStyle {
@@ -142,7 +109,6 @@ PagePositionIndicatorStyle#SwitcherOverviewPageIndicator {
 }
 
 LauncherStyle {
-    background-image: "main-menu-background" 0 0 0 15;
     margin-left: 0;
     margin-right: 0;
     margin-top: 0;
@@ -152,7 +118,6 @@ LauncherStyle {
     /* Add top padding so that the launcher does not go under the status area */
     padding-top: 2.8mm;
     padding-bottom: 8.8mm; /* 76 + 12 == quick launch bar + ?;*/
-    background-opacity: 0;
 }
 
 LauncherPageStyle {
@@ -302,8 +267,9 @@ SwitcherStyle {
     margin-bottom: 0;
     padding-left: 0;
     padding-right: 0;
-    padding-top: 0;
-    padding-bottom: 0;
+    /* Add top padding so that the launcher does not go under the status area */
+    padding-top: 2.8mm;
+    padding-bottom: 8.8mm; /* 76 + 12 == quick launch bar + ?;*/
 
     button-horizontal-spacing: 0;
     button-vertical-spacing: 0;
