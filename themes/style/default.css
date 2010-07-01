@@ -45,8 +45,9 @@ MSceneWindowStyle#SwitcherWindow {
     margin-bottom: 0;
     padding-left: 0;
     padding-right: 0;
-    padding-top: 0;
-    padding-bottom: 0;
+    /* Add top padding so that the launcher does not go under the status area */
+    padding-top: 2.8mm;
+    padding-bottom: 8.8mm; /* 76 + 12 == quick launch bar + ?;*/
 }
 
 MSceneWindowStyle#LauncherWindow {
@@ -267,9 +268,8 @@ SwitcherStyle {
     margin-bottom: 0;
     padding-left: 0;
     padding-right: 0;
-    /* Add top padding so that the launcher does not go under the status area */
-    padding-top: 2.8mm;
-    padding-bottom: 8.8mm; /* 76 + 12 == quick launch bar + ?;*/
+    padding-top: 0;
+    padding-bottom: 0;
 
     button-horizontal-spacing: 0;
     button-vertical-spacing: 0;
