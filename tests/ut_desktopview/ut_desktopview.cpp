@@ -39,7 +39,6 @@
 #include "mwindow_stub.h"
 #include "mscenemanager_stub.h"
 #include <QDBusConnection>
-#include "appletspace_stub.h"
 #include "x11wrapper.h"
 
 #define ATOM_TYPE_NORMAL 1

@@ -1,7 +1,5 @@
 TEMPLATE = subdirs
 SUBDIRS = \
-    ut_appletspace \
-    ut_appletspaceview \
     ut_desktop \
     ut_desktopview \
     ut_home \

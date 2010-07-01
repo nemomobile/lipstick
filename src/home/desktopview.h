@@ -33,7 +33,6 @@ class LauncherDataStore;
 class Launcher;
 class NotificationArea;
 class QGraphicsLinearLayout;
-class AppletSpace;
 class MModalSceneWindow;
 class MPannableViewport;
 class MOverlay;
@@ -44,9 +43,7 @@ class HomeScreenService;
 
 /*!
  * The desktop view draws a background for the desktop and manages layouts
- * related to the desktop. The applets are inside a flow layout, which in
- * turn is inside a main layout. In addition to this the main layout
- * contains a button for displaying the applet inventory.
+ * related to the desktop.
  */
 class DesktopView : public MWidgetView, public MDesktopInterface
 {
@@ -71,15 +68,11 @@ public:
     virtual void paint (QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget=0);
 #endif
     virtual void drawBackground(QPainter *painter, const QStyleOptionGraphicsItem *option) const;
-    virtual void setGeometry(const QRectF &rect);
     virtual void update();
     virtual M::OrientationAngle orientationAngle();
     //! \reimp_end
 
 private slots:
-    //! Shows the applet space if it is not visible, hides it otherwise
-    void toggleAppletSpace();
-
     //! Hides the launcher if applicable, based on the top most window
     void updateLauncherVisiblity(const QList<WindowInfo> &windowList);
 
@@ -154,15 +147,6 @@ private:
 
     //! Scene window for the quick launch bar
     MOverlay *quickLaunchBarWindow;
-
-    //! The applet space
-    AppletSpace *appletSpace;
-
-    //! Scene window for the applet space
-    MModalSceneWindow *appletSpaceWindow;
-
-    //! Pannable viewport in which the applet space is displayed
-    MPannableViewport *appletSpaceViewport;
 
     //! Application extension support for desktop background drawing
     MApplicationExtensionArea *backgroundExtensionArea;

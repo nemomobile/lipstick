@@ -32,7 +32,6 @@
 #include "desktop.h"
 #include "mainwindow.h"
 #include "switcher.h"
-#include "appletspace.h"
 #include "quicklaunchbar.h"
 #include "mdesktopbackgroundextensioninterface.h"
 #include "mfiledatastore.h"
@@ -110,9 +109,6 @@ DesktopView::DesktopView(Desktop *desktop) :
     launcherWindow(new MModalSceneWindow),
     quickLaunchBar(NULL),
     quickLaunchBarWindow(new MOverlay),
-    appletSpace(new AppletSpace),
-    appletSpaceWindow(new MModalSceneWindow),
-    appletSpaceViewport(new MPannableViewport(appletSpaceWindow)),
     backgroundExtensionArea(new MApplicationExtensionArea("com.meego.core.MDesktopBackgroundExtensionInterface/1.0"))
 {
     // Create the launcher data store
@@ -143,7 +139,6 @@ DesktopView::DesktopView(Desktop *desktop) :
     // Create a quick launch bar and put it in a scene window
     quickLaunchBar = new QuickLaunchBar(launcherDataStore);
     connect(quickLaunchBar, SIGNAL(toggleLauncherButtonClicked()), this, SLOT(toggleLauncher()));
-    connect(quickLaunchBar, SIGNAL(toggleAppletSpaceButtonClicked()), this, SLOT(toggleAppletSpace()));
     QGraphicsLinearLayout *windowLayout = new QGraphicsLinearLayout();
     windowLayout->setContentsMargins(0, 0, 0, 0);
     windowLayout->addItem(quickLaunchBar);
@@ -167,20 +162,6 @@ DesktopView::DesktopView(Desktop *desktop) :
     MainWindow::instance()->sceneManager()->appearSceneWindowNow(launcherWindow);
     MainWindow::instance()->sceneManager()->disappearSceneWindowNow(launcherWindow);
 
-    // Put the applet space inside a pannable viewport
-    connect(appletSpace, SIGNAL(closed()), this, SLOT(toggleAppletSpace()));
-    appletSpaceViewport->setWidget(appletSpace);
-    appletSpaceViewport->setMinimumSize(MApplication::activeWindow()->visibleSceneSize());
-    appletSpaceViewport->setMaximumSize(MApplication::activeWindow()->visibleSceneSize());
-
-    // Create a layout for the applet space scene window
-    windowLayout = new QGraphicsLinearLayout();
-    windowLayout->setContentsMargins(0, 0, 0, 0);
-    windowLayout->addItem(appletSpaceViewport);
-    appletSpaceWindow->setLayout(windowLayout);
-    appletSpaceWindow->setObjectName("AppletSpaceWindow");
-    MainWindow::instance()->sceneManager()->disappearSceneWindowNow(appletSpaceWindow);
-
 #ifdef BENCHMARKS_ON
     connect(MApplication::instance(), SIGNAL(startBenchmarking()), this, SLOT(startBenchmarking()));
     connect(MApplication::instance(), SIGNAL(stopBenchmarking()), this, SLOT(stopBenchmarking()));
@@ -198,7 +179,6 @@ DesktopView::~DesktopView()
 {
     delete launcherWindow;
     delete quickLaunchBarWindow;
-    delete appletSpaceWindow;
     delete backgroundExtensionArea;
     delete launcherDataStore;
 }
@@ -289,25 +269,6 @@ void DesktopView::hideLauncher()
 
     // TODO : does this have to be animated??
     switcher->setVisible(true);
-}
-
-void DesktopView::toggleAppletSpace()
-{
-    if (appletSpaceWindow->isVisible()) {
-        appletSpaceWindow->disappear();
-        appletSpace->setEnabled(false);
-    } else {
-        appletSpaceWindow->appear();
-        appletSpace->setEnabled(true);
-    }
-}
-
-void DesktopView::setGeometry(const QRectF &rect)
-{
-    MWidgetView::setGeometry(rect);
-    // Set the viewports to the size of the desktop
-    appletSpaceViewport->setMinimumSize(rect.size());
-    appletSpaceViewport->setMaximumSize(rect.size());
 }
 
 void DesktopView::update()

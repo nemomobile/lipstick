@@ -13,7 +13,7 @@ SOURCES += \
 
 # service classes
 SOURCES += \
-    $$STUBSDIR\stubbase.cpp
+    $$STUBSDIR/stubbase.cpp
 
 # unit test and unit classes
 HEADERS += \

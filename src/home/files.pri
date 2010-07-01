@@ -2,10 +2,6 @@
 HEADERS += homeapplication.h \
     windowinfo.h \
     home.h \
-    appletspace.h \
-    appletspaceview.h \
-    appletspacemodel.h \
-    appletspacestyle.h \
     desktop.h \
     desktopmodel.h \
     desktopview.h \
@@ -51,8 +47,6 @@ HEADERS += homeapplication.h \
 SOURCES += homeapplication.cpp \
     windowinfo.cpp \
     home.cpp \
-    appletspace.cpp \
-    appletspaceview.cpp \
     desktop.cpp \
     desktopview.cpp \
     mainwindow.cpp \
@@ -78,9 +72,7 @@ SOURCES += homeapplication.cpp \
     pagepositionindicator.cpp \
     homescreenservice.cpp \
     homescreenadaptor.cpp
-MODEL_HEADERS += appletspacemodel.h \
-    appletspacemodel.h \
-    desktopmodel.h \
+MODEL_HEADERS += desktopmodel.h \
     launcherbuttonmodel.h \
     launchermodel.h \
     quicklaunchbarmodel.h \
@@ -88,9 +80,7 @@ MODEL_HEADERS += appletspacemodel.h \
     switchermodel.h \
     launcherpagemodel.h \
     pagepositionindicatormodel.h
-STYLE_HEADERS += appletspacestyle.h \
-    appletspacestyle.h \
-    desktopstyle.h \
+STYLE_HEADERS += desktopstyle.h \
     launcherstyle.h \
     launcherbuttonstyle.h \
     launcherpagestyle.h \

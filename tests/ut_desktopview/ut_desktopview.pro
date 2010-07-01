@@ -37,7 +37,6 @@ HEADERS += \
     $$SRCDIR/switcher.h \
     $$SRCDIR/quicklaunchbar.h \
     $$SRCDIR/launcher.h \
-    $$SRCDIR/launcherdatastore.h \
-    $$SRCDIR/appletspace.h
+    $$SRCDIR/launcherdatastore.h
 
 include(../common_bot.pri)
