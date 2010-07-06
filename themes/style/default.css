@@ -68,30 +68,9 @@ MButtonIconStyle {
 
 MButtonStyle#ToggleLauncherButton {
     icon-size: 4.8mm 4.8mm;
-}
-MButtonStyle#ToggleLauncherButton.Landscape {
     preferred-size: 7.2mm 7.2mm;
     maximum-size: 7.2mm 7.2mm;
     minimum-size: 7.2mm 7.2mm;
-}
-MButtonStyle#ToggleLauncherButton.Portrait {
-    preferred-size: 8.8mm 8.8mm;
-    maximum-size: 8.8mm 8.8mm;
-    minimum-size: 8.8mm 8.8mm;
-}
-
-MButtonStyle#SearchButton {
-    icon-size: 4.8mm 4.8mm;
-}
-MButtonStyle#SearchButton.Landscape {
-    preferred-size: 7.2mm 7.2mm;
-    maximum-size: 7.2mm 7.2mm;
-    minimum-size: 7.2mm 7.2mm;
-}
-MButtonStyle#SearchButton.Portrait {
-    preferred-size: 8.8mm 8.8mm;
-    maximum-size: 8.8mm 8.8mm;
-    minimum-size: 8.8mm 8.8mm;
 }
 
 PagePositionIndicatorStyle {
