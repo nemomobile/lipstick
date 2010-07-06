@@ -53,12 +53,19 @@ public:
      */
     virtual ~SwitcherView();
 
+    /*!
+     * Event handler for switcher. Needed to enable gestures.
+     */
+    bool event(QEvent *e);
+
 protected:
     /*! \reimp
      * Re-implemented here to get an update when the model is set
      */
     virtual void setupModel();
     //! \reimp_end
+
+   void pinchGestureEvent(QGestureEvent *event, QPinchGesture* gesture);
 
 protected slots:
     //! \cond
@@ -112,7 +119,7 @@ private:
     MWidget* pannedWidget;
 
     /*! Layout for the panned widget */
-    MLayout* pannedLayout;    
+    MLayout* pannedLayout;
 
     /*! Layout policies for the different switcher modes */
     MGridLayoutPolicy* overviewPolicy;
@@ -120,6 +127,15 @@ private:
 
     /*! The current focused switcher button */
     int focusedSwitcherButton;
+
+    /*! Indicates if the user has canceled (changed direction) of pinch gesture */
+    bool pinchGestureCanceled;
+
+    /*! The starting mode for pinch gesture */
+    SwitcherModel::Mode pinchGestureOriginalMode;
+
+    /*! The target mode for pinch gesture */
+    SwitcherModel::Mode pinchGestureTargetMode;
 
 #ifdef UNIT_TEST
     // to test snapIndexChanged effects

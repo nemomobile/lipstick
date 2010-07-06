@@ -16,6 +16,7 @@
 ** of this file.
 **
 ****************************************************************************/
+
 #include <QX11Info>
 #include <QApplication>
 #include <MLayout>
@@ -26,6 +27,8 @@
 #include "windowinfo.h"
 #include "mainwindow.h"
 #include "x11wrapper.h"
+#include <QEvent>
+
 
 // The time to wait until updating the model when a new application is started
 #define UPDATE_DELAY_MS 700
@@ -40,6 +43,10 @@ Switcher::Switcher(MWidget *parent) :
     // Get the X11 Atoms for closing and activating a window
     closeWindowAtom  = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_CLOSE_WINDOW",  False);
     activeWindowAtom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_ACTIVE_WINDOW", False);
+
+    // This stuff is necessary to receive touch events.
+    setAcceptTouchEvents(true);
+    grabGesture(Qt::PinchGesture);
 }
 
 Switcher::~Switcher()

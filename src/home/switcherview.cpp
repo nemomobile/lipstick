@@ -16,6 +16,7 @@
  ** of this file.
  **
  ****************************************************************************/
+
 #include "switcherview.h"
 #include "switcher.h"
 #include "switcherbutton.h"
@@ -36,17 +37,19 @@
 #include <MDeviceProfile>
 #include <QTimeLine>
 #include <QGraphicsLinearLayout>
+#include <QPinchGesture>
 #include <MPositionIndicator>
 #include "pagepositionindicatorview.h"
 #include <math.h>
 #include <algorithm>
 #include "pagedviewport.h"
+#include <QGestureEvent>
 
 static const qreal HALF_PI = M_PI / 2.0;
 static const qreal MAX_Z_VALUE = 1.0;
 
 SwitcherView::SwitcherView(Switcher *switcher) :
-    MWidgetView(switcher), controller(switcher), mainLayout(new QGraphicsLinearLayout(Qt::Vertical)), pannedWidget(new MWidget), viewport(new PagedViewport)
+        MWidgetView(switcher), controller(switcher), mainLayout(new QGraphicsLinearLayout(Qt::Vertical)), pannedWidget(new MWidget), viewport(new PagedViewport)
 {
     mainLayout->setContentsMargins(0, 0, 0, 0);
     switcher->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -74,11 +77,22 @@ SwitcherView::SwitcherView(Switcher *switcher) :
     viewport->positionIndicator()->setObjectName("SwitcherOverviewPageIndicator");
 
     focusedSwitcherButton = 0;
+
 }
 
 SwitcherView::~SwitcherView()
 {
     removeButtonsFromLayout();
+}
+
+bool SwitcherView::event(QEvent *e)
+{
+    // This stuff is necessary to receive touch events.
+    if (e->type() == QEvent::TouchBegin) {
+        e->setAccepted(true);
+        return true;
+    }
+    return MWidgetView::event(e);
 }
 
 void SwitcherView::panningStopped()
@@ -100,12 +114,10 @@ void SwitcherView::applySwitcherMode()
 {
     if (model()->switcherMode() == SwitcherModel::Detailview) {
         connect(viewport, SIGNAL(panningStopped()), this, SLOT(panningStopped()));
-
         pannedLayout->setPolicy(detailPolicy);
         controller->setObjectName("DetailviewSwitcher");
     } else {
         disconnect(viewport, 0, this, 0);
-
         pannedLayout->setPolicy(overviewPolicy);
         controller->setObjectName("OverviewSwitcher");
     }
@@ -303,6 +315,49 @@ void SwitcherView::removeButtonsFromLayout()
     for (int i = 0, count = pannedLayout->count(); i < count; i++) {
         static_cast<SwitcherButton *>(pannedLayout->takeAt(0))->setParentItem(0);
     }
+}
+
+void SwitcherView::pinchGestureEvent(QGestureEvent *event, QPinchGesture* gesture)
+{
+    switch(gesture->state()) {
+    case Qt::GestureStarted:
+        pinchGestureCanceled = false;
+        pinchGestureOriginalMode = model()->switcherMode();
+        break;
+    case Qt::GestureUpdated:
+        {
+            pinchGestureTargetMode = gesture->scaleFactor() >=1 ? SwitcherModel::Detailview  :  SwitcherModel::Overview;
+            // If the gesture scale goes back to the original direction the user has "canceled" the transition.
+            if (gesture->scaleFactor() >= 1) {
+                // Zooming in: the transition is canceled if the scale factor decreases.
+                if (gesture->scaleFactor() < gesture->lastScaleFactor()) {
+                    pinchGestureCanceled = true;
+                } else if (gesture->scaleFactor() > gesture->lastScaleFactor()) {
+                    pinchGestureCanceled = false;
+                }
+            } else {
+                // Zooming out: the transition is canceled if the scale factor increases.
+                if (gesture->scaleFactor() > gesture->lastScaleFactor()) {
+                    pinchGestureCanceled = true;
+                } else if (gesture->scaleFactor() < gesture->lastScaleFactor()) {
+                    pinchGestureCanceled = false;
+                }
+            }
+            break;
+        }
+    default:
+        {
+            // Gesture finished.
+            if (pinchGestureCanceled && model()->switcherMode() != pinchGestureOriginalMode) {
+                model()->setSwitcherMode(pinchGestureOriginalMode);
+            } else {
+                model()->setSwitcherMode(pinchGestureTargetMode);
+            }
+            applySwitcherMode();
+            break;
+        }
+    }
+    event->accept(gesture);
 }
 
 M_REGISTER_VIEW_NEW(SwitcherView, Switcher)
