@@ -33,6 +33,8 @@
 #include "windowinfo_stub.h"
 #include "pagedpanning.h"
 #include "pagedviewport.h"
+#include <QGestureEvent>
+#include <QPinchGesture>
 
 static void setSwitcherButtonSize(QList< QSharedPointer<SwitcherButton> > &buttonList, const QSizeF &size);
 static void verifyEqualContentMarginValues(qreal first, qreal second, qreal target);
@@ -85,6 +87,13 @@ public:
 
 Home::Home(QGraphicsItem *parent) : MApplicationPage(parent)
 {
+}
+
+// Gesture stubs
+Qt::GestureState currentPinchState = Qt::NoGesture;
+Qt::GestureState QGesture::state() const
+{
+    return currentPinchState;
 }
 
 // SwitcherButton stubs
@@ -463,6 +472,157 @@ void Ut_SwitcherView::testPanningStoppedInOverView()
     emit panningStopped();
     // Focused on 1st button of first page
     QCOMPARE(m_subject->focusedSwitcherButton, 0);
+}
+
+
+void Ut_SwitcherView::testDetailToOverviewModeChange()
+{
+    gMSceneManagerStub->stubSetReturnValue("orientation", M::Landscape);
+    m_subject->modifiableStyle()->setRowsPerPage(2);
+    m_subject->modifiableStyle()->setColumnsPerPage(2);
+
+    // fill 2 and a half pages
+    g_switcherModel->setButtons(createButtonList(10));
+
+    QPinchGesture pinch;
+    QList<QGesture*> gestures;
+    gestures.append(&pinch);
+    QGestureEvent event(gestures);
+
+    g_switcherModel->setSwitcherMode(SwitcherModel::Detailview);
+    currentPinchState = Qt::GestureStarted;
+
+    // Scale factor <1 is transition to Overview mode.
+    pinch.setScaleFactor(0.5);
+    m_subject->pinchGestureEvent(&event, &pinch);
+
+    currentPinchState = Qt::GestureUpdated;
+    m_subject->pinchGestureEvent(&event, &pinch);
+
+    currentPinchState = Qt::GestureFinished;
+    m_subject->pinchGestureEvent(&event, &pinch);
+
+    QCOMPARE (g_switcherModel->switcherMode(), SwitcherModel::Overview);
+
+    // Check that doing the pinch gesture twice in the same direction doesn't switch the mode
+    // Ie, the gesture direction should determine whether transition happens
+    g_switcherModel->setSwitcherMode(SwitcherModel::Overview);
+
+    currentPinchState = Qt::GestureStarted;
+   m_subject->pinchGestureEvent(&event, &pinch);
+
+   currentPinchState = Qt::GestureUpdated;
+   m_subject->pinchGestureEvent(&event, &pinch);
+
+   currentPinchState = Qt::GestureFinished;
+   m_subject->pinchGestureEvent(&event, &pinch);
+
+   QCOMPARE (g_switcherModel->switcherMode(), SwitcherModel::Overview);
+}
+
+void Ut_SwitcherView::testOverviewToDetailModeChange()
+{
+    gMSceneManagerStub->stubSetReturnValue("orientation", M::Landscape);
+    m_subject->modifiableStyle()->setRowsPerPage(2);
+    m_subject->modifiableStyle()->setColumnsPerPage(2);
+
+    // fill 2 and a half pages
+    g_switcherModel->setButtons(createButtonList(10));
+
+   QPinchGesture pinch;
+   QList<QGesture*> gestures;
+   gestures.append(&pinch);
+   QGestureEvent event(gestures);
+
+    g_switcherModel->setSwitcherMode(SwitcherModel::Overview);
+   currentPinchState = Qt::GestureStarted;
+
+   // Scale factor >1 is transition to Detailview mode.
+   pinch.setScaleFactor(1.5);
+   m_subject->pinchGestureEvent(&event, &pinch);
+
+   currentPinchState = Qt::GestureUpdated;
+   m_subject->pinchGestureEvent(&event, &pinch);
+
+   currentPinchState = Qt::GestureFinished;
+   m_subject->pinchGestureEvent(&event, &pinch);
+
+   QCOMPARE (g_switcherModel->switcherMode(), SwitcherModel::Detailview);
+
+   // Check that doing the pinch gesture twice in the same direction doesn't switch the mode
+   // Ie, the gesture direction should determine whether transition happens
+   g_switcherModel->setSwitcherMode(SwitcherModel::Detailview);
+
+   currentPinchState = Qt::GestureStarted;
+  m_subject->pinchGestureEvent(&event, &pinch);
+
+  currentPinchState = Qt::GestureUpdated;
+  m_subject->pinchGestureEvent(&event, &pinch);
+
+  currentPinchState = Qt::GestureFinished;
+  m_subject->pinchGestureEvent(&event, &pinch);
+
+  QCOMPARE (g_switcherModel->switcherMode(), SwitcherModel::Detailview);
+}
+
+void Ut_SwitcherView::testModeChangeCancel()
+{
+    gMSceneManagerStub->stubSetReturnValue("orientation", M::Landscape);
+    m_subject->modifiableStyle()->setRowsPerPage(2);
+    m_subject->modifiableStyle()->setColumnsPerPage(2);
+
+    // fill 2 and a half pages
+    g_switcherModel->setButtons(createButtonList(10));
+
+   QPinchGesture pinch;
+   QList<QGesture*> gestures;
+   gestures.append(&pinch);
+   QGestureEvent event(gestures);
+
+   // Overview->Detailview gesture cancellation
+   g_switcherModel->setSwitcherMode(SwitcherModel::Overview);
+   pinch.setScaleFactor(1.5);
+   currentPinchState = Qt::GestureStarted;
+   m_subject->pinchGestureEvent(&event, &pinch);
+
+   currentPinchState = Qt::GestureUpdated;
+   m_subject->pinchGestureEvent(&event, &pinch);
+
+   pinch.setScaleFactor(0.5);
+   currentPinchState = Qt::GestureUpdated;
+   m_subject->pinchGestureEvent(&event, &pinch);
+
+   currentPinchState = Qt::GestureFinished;
+   m_subject->pinchGestureEvent(&event, &pinch);
+
+   QCOMPARE (g_switcherModel->switcherMode(), SwitcherModel::Overview);
+
+   // Detail->Overview gesture cancellation
+   g_switcherModel->setSwitcherMode(SwitcherModel::Detailview);
+  currentPinchState = Qt::GestureStarted;
+
+  pinch.setScaleFactor(0.5);
+  m_subject->pinchGestureEvent(&event, &pinch);
+
+  currentPinchState = Qt::GestureUpdated;
+  m_subject->pinchGestureEvent(&event, &pinch);
+
+  pinch.setScaleFactor(1.5);
+  currentPinchState = Qt::GestureUpdated;
+  m_subject->pinchGestureEvent(&event, &pinch);
+
+  currentPinchState = Qt::GestureFinished;
+  m_subject->pinchGestureEvent(&event, &pinch);
+
+  QCOMPARE (g_switcherModel->switcherMode(), SwitcherModel::Detailview);
+}
+
+void Ut_SwitcherView::testEvent()
+{
+    QEvent e(QEvent::TouchBegin);
+    e.setAccepted(false);
+    m_subject->event(&e);
+    QCOMPARE(e.isAccepted(), true);
 }
 
 void Ut_SwitcherView::testSwitcherButtonAlignment()

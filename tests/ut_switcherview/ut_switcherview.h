@@ -52,11 +52,20 @@ private slots:
     void testButtonModesInOverviewMode();
     void testPanningStoppedInOverView();
 
+    // Test cases for mode changing
+    void testDetailToOverviewModeChange();
+    void testOverviewToDetailModeChange();
+    void testModeChangeCancel();
+
+    // Test case for event handler
+    void testEvent();
+
     // Test that the buttons are positioned correctly
     void testSwitcherButtonAlignment();
 
     // Test that buttons are removed correctly
     void testRemovingButtons();
+
 
 private:
     void verifyButtonModesInOverviewMode(M::Orientation orientation);
