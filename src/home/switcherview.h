@@ -53,10 +53,14 @@ public:
      */
     virtual ~SwitcherView();
 
-    /*!
-     * Event handler for switcher. Needed to enable gestures.
+    /*! \reimp
+     * Re-implented event handler. Needed to enable gestures.
+     *
+     * \param e event to be handled
+     * \return true if event was accepted, otherwise false
      */
     bool event(QEvent *e);
+    //! \reimp_end
 
 protected:
     /*! \reimp
@@ -65,7 +69,14 @@ protected:
     virtual void setupModel();
     //! \reimp_end
 
-   void pinchGestureEvent(QGestureEvent *event, QPinchGesture* gesture);
+    /*! \reimp
+      * Re-implemented to handle the mode switch
+      *
+      * \param event Gesture event class for general event handling.
+      * \param gesture Pinch gesture class. Contains all pinch specific information
+      */
+    virtual void pinchGestureEvent(QGestureEvent *event, QPinchGesture* gesture);
+    //! \reimp_end
 
 protected slots:
     //! \cond
