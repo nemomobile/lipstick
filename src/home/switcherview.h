@@ -127,16 +127,6 @@ private:
 
     /*! The current focused switcher button */
     int focusedSwitcherButton;
-
-    /*! Indicates if the user has canceled (changed direction) of pinch gesture */
-    bool pinchGestureCanceled;
-
-    /*! The starting mode for pinch gesture */
-    SwitcherModel::Mode pinchGestureOriginalMode;
-
-    /*! The target mode for pinch gesture */
-    SwitcherModel::Mode pinchGestureTargetMode;
-
 #ifdef UNIT_TEST
     // to test snapIndexChanged effects
     friend class Ut_SwitcherView;

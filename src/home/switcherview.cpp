@@ -16,7 +16,6 @@
  ** of this file.
  **
  ****************************************************************************/
-
 #include "switcherview.h"
 #include "switcher.h"
 #include "switcherbutton.h"
@@ -319,10 +318,15 @@ void SwitcherView::removeButtonsFromLayout()
 
 void SwitcherView::pinchGestureEvent(QGestureEvent *event, QPinchGesture* gesture)
 {
+    /*! The target mode for pinch gesture */
+    static SwitcherModel::Mode pinchGestureTargetMode = model()->switcherMode();
+
+    /*! Indicates if the user has canceled (changed direction) of pinch gesture */
+    static bool pinchGestureCanceled = false;
+
     switch(gesture->state()) {
     case Qt::GestureStarted:
         pinchGestureCanceled = false;
-        pinchGestureOriginalMode = model()->switcherMode();
         break;
     case Qt::GestureUpdated:
         {
@@ -332,14 +336,14 @@ void SwitcherView::pinchGestureEvent(QGestureEvent *event, QPinchGesture* gestur
                 // Zooming in: the transition is canceled if the scale factor decreases.
                 if (gesture->scaleFactor() < gesture->lastScaleFactor()) {
                     pinchGestureCanceled = true;
-                } else if (gesture->scaleFactor() > gesture->lastScaleFactor()) {
+                } else if (gesture->scaleFactor() >= gesture->lastScaleFactor()) {
                     pinchGestureCanceled = false;
                 }
             } else {
                 // Zooming out: the transition is canceled if the scale factor increases.
                 if (gesture->scaleFactor() > gesture->lastScaleFactor()) {
                     pinchGestureCanceled = true;
-                } else if (gesture->scaleFactor() < gesture->lastScaleFactor()) {
+                } else if (gesture->scaleFactor() <= gesture->lastScaleFactor()) {
                     pinchGestureCanceled = false;
                 }
             }
@@ -348,9 +352,7 @@ void SwitcherView::pinchGestureEvent(QGestureEvent *event, QPinchGesture* gestur
     default:
         {
             // Gesture finished.
-            if (pinchGestureCanceled && model()->switcherMode() != pinchGestureOriginalMode) {
-                model()->setSwitcherMode(pinchGestureOriginalMode);
-            } else {
+            if (!pinchGestureCanceled) {
                 model()->setSwitcherMode(pinchGestureTargetMode);
             }
             applySwitcherMode();
