@@ -1,4 +1,4 @@
-/*! \mainpage DirectUI Homescreen Reference Documentation
+/*! \mainpage MeeGo Touch Homescreen Reference Documentation
 
 <table class="mainIndex">
   <tr>
@@ -9,7 +9,7 @@
   <tr>
     <td>
       <ul>
-      <li><strong><a href="news.html">What's New in DirectUI Homescreen</a></strong></li>
+      <li><strong><a href="news.html">What's New in MeeGo Touch Homescreen</a></strong></li>
       </ul>
     </td>
     <td>
@@ -23,7 +23,6 @@
     <td>
       <ul>
       <li><a href="classes.html">All Classes</a></li>
-      <li><a href="mainclasses.html">Main Classes</a></li>
       <li><a href="annotated.html">Annotated Classes</a></li>
       <li><a href="namespaces.html">All Namespaces</a></li>
       <li><a href="hierarchy.html">Inheritance Hierarchy</a></li>

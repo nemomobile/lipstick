@@ -1,6 +1,6 @@
-/*! \page background %Direct UI Homescreen background image customization
+/*! \page background %MeeGo Touch Homescreen background image customization
 
-%Direct UI Homescreen supports background image customization through GConf.
+%MeeGo Touch Homescreen supports background image customization through GConf.
 The keys are as follows:
 
 <table>

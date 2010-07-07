@@ -1,12 +1,12 @@
-/*! \page startup %Direct UI Homescreen %startup signalling
+/*! \page startup %MeeGo Touch Homescreen %startup signalling
 
-%Direct UI Homescreen integrates to upstart scripts by stopping its execution after
-it is drawn and responsive. Direct UI Homescreen also sends a D-Bus signal that
+%MeeGo Touch Homescreen integrates to upstart scripts by stopping its execution after
+it is drawn and responsive. MeeGo Touch Homescreen also sends a D-Bus signal that
 tells other interested parties that the home screen is up and running.
 
 \section upstart Integration with upstart scripts
 
-%Direct UI Homescreen has two modes in which it operates:
+%MeeGo Touch Homescreen has two modes in which it operates:
 
 -# upstart mode, where duihome stops itself after it has initialized and
 is responsive
@@ -41,7 +41,7 @@ reboot
 
 Note the "--upstart" parameter, and the "expect stop" stanza.
 
-\section dbus D-Bus notification of Direct UI Homescreen readiness
+\section dbus D-Bus notification of MeeGo Touch Homescreen readiness
 
 Regardless of the use of upstart mode, duihome sends a D-Bus signal
 when it has initialized and is responsive. The D-Bus signal details
