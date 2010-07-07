@@ -474,16 +474,8 @@ void Ut_SwitcherView::testPanningStoppedInOverView()
     QCOMPARE(m_subject->focusedSwitcherButton, 0);
 }
 
-
 void Ut_SwitcherView::testDetailToOverviewModeChange()
 {
-    gMSceneManagerStub->stubSetReturnValue("orientation", M::Landscape);
-    m_subject->modifiableStyle()->setRowsPerPage(2);
-    m_subject->modifiableStyle()->setColumnsPerPage(2);
-
-    // fill 2 and a half pages
-    g_switcherModel->setButtons(createButtonList(10));
-
     QPinchGesture pinch;
     QList<QGesture*> gestures;
     gestures.append(&pinch);
@@ -493,6 +485,7 @@ void Ut_SwitcherView::testDetailToOverviewModeChange()
     currentPinchState = Qt::GestureStarted;
 
     // Scale factor <1 is transition to Overview mode.
+    pinch.setLastScaleFactor(0.8);
     pinch.setScaleFactor(0.5);
     m_subject->pinchGestureEvent(&event, &pinch);
 
@@ -522,13 +515,6 @@ void Ut_SwitcherView::testDetailToOverviewModeChange()
 
 void Ut_SwitcherView::testOverviewToDetailModeChange()
 {
-    gMSceneManagerStub->stubSetReturnValue("orientation", M::Landscape);
-    m_subject->modifiableStyle()->setRowsPerPage(2);
-    m_subject->modifiableStyle()->setColumnsPerPage(2);
-
-    // fill 2 and a half pages
-    g_switcherModel->setButtons(createButtonList(10));
-
    QPinchGesture pinch;
    QList<QGesture*> gestures;
    gestures.append(&pinch);
@@ -538,7 +524,8 @@ void Ut_SwitcherView::testOverviewToDetailModeChange()
    currentPinchState = Qt::GestureStarted;
 
    // Scale factor >1 is transition to Detailview mode.
-   pinch.setScaleFactor(1.5);
+   pinch.setLastScaleFactor(1.5);
+   pinch.setScaleFactor(2.0);
    m_subject->pinchGestureEvent(&event, &pinch);
 
    currentPinchState = Qt::GestureUpdated;
@@ -567,13 +554,6 @@ void Ut_SwitcherView::testOverviewToDetailModeChange()
 
 void Ut_SwitcherView::testModeChangeCancel()
 {
-    gMSceneManagerStub->stubSetReturnValue("orientation", M::Landscape);
-    m_subject->modifiableStyle()->setRowsPerPage(2);
-    m_subject->modifiableStyle()->setColumnsPerPage(2);
-
-    // fill 2 and a half pages
-    g_switcherModel->setButtons(createButtonList(10));
-
    QPinchGesture pinch;
    QList<QGesture*> gestures;
    gestures.append(&pinch);
