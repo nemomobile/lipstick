@@ -29,6 +29,8 @@ class TestSwitcherView;
 class Switcher;
 class SwitcherButton;
 class MSceneManager;
+class QPinchGesture;
+class QGestureEvent;
 
 class Ut_SwitcherView : public QObject
 {
@@ -66,7 +68,6 @@ private slots:
     // Test that buttons are removed correctly
     void testRemovingButtons();
 
-
 private:
     void verifyButtonModesInOverviewMode(M::Orientation orientation);
     void verifyButtonModesInOverviewMode(QList< QSharedPointer<SwitcherButton> > &buttonList);
@@ -74,6 +75,8 @@ private:
 
     QList< QSharedPointer<SwitcherButton> > createButtonList(int buttons);
     void appendMoreButtonsToList(int newButtons, QList< QSharedPointer<SwitcherButton> > &buttonList);
+
+    void pinchGesture(qreal scaleFactor, Qt::GestureState state);
 
 signals:
     void pageChanged(int newPosition);
@@ -85,6 +88,9 @@ private:
     Switcher *switcher;
     // The object being tested
     TestSwitcherView *m_subject;
+
+    QPinchGesture *mPinch;
+    QGestureEvent *mEvent;
 };
 
 #endif

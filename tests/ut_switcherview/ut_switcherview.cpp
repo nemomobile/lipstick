@@ -333,6 +333,13 @@ void verifyEqualContentMarginValues(qreal first, qreal second, qreal target)
     QCOMPARE(first, target);
 }
 
+void Ut_SwitcherView::pinchGesture(qreal scaleFactor, Qt::GestureState state)
+{
+    currentPinchState = state;
+    mPinch->setScaleFactor(scaleFactor);
+    m_subject->pinchGestureEvent(mEvent, mPinch);
+}
+
 /*
  * Switcher detail view tests
  */
@@ -361,12 +368,18 @@ void Ut_SwitcherView::init()
     m_subject = new TestSwitcherView(switcher);
     switcher->setView(m_subject);
     gSwitcherStub->stubReset();
+    mPinch = new QPinchGesture();
+    QList<QGesture*> gestures;
+    gestures.append(mPinch);
+    mEvent = new QGestureEvent(gestures);
 }
 
 void Ut_SwitcherView::cleanup()
 {
     delete m_subject;
     delete g_switcherModel;
+    delete mPinch;
+    delete mEvent;
 }
 
 void Ut_SwitcherView::testSnapIndexChangedInDetailView()
@@ -474,26 +487,20 @@ void Ut_SwitcherView::testPanningStoppedInOverView()
     QCOMPARE(m_subject->focusedSwitcherButton, 0);
 }
 
+/*
+ * Mode change tests
+ */
 void Ut_SwitcherView::testDetailToOverviewModeChange()
 {
-    QPinchGesture pinch;
-    QList<QGesture*> gestures;
-    gestures.append(&pinch);
-    QGestureEvent event(gestures);
-
     g_switcherModel->setSwitcherMode(SwitcherModel::Detailview);
     currentPinchState = Qt::GestureStarted;
 
     // Scale factor <1 is transition to Overview mode.
-    pinch.setLastScaleFactor(0.8);
-    pinch.setScaleFactor(0.5);
-    m_subject->pinchGestureEvent(&event, &pinch);
+    mPinch->setLastScaleFactor(0.8);
 
-    currentPinchState = Qt::GestureUpdated;
-    m_subject->pinchGestureEvent(&event, &pinch);
-
-    currentPinchState = Qt::GestureFinished;
-    m_subject->pinchGestureEvent(&event, &pinch);
+    pinchGesture(0.5,Qt::GestureStarted);
+    pinchGesture(0.5,Qt::GestureUpdated);
+    pinchGesture(0.5,Qt::GestureFinished);
 
     QCOMPARE (g_switcherModel->switcherMode(), SwitcherModel::Overview);
 
@@ -501,100 +508,60 @@ void Ut_SwitcherView::testDetailToOverviewModeChange()
     // Ie, the gesture direction should determine whether transition happens
     g_switcherModel->setSwitcherMode(SwitcherModel::Overview);
 
-    currentPinchState = Qt::GestureStarted;
-   m_subject->pinchGestureEvent(&event, &pinch);
-
-   currentPinchState = Qt::GestureUpdated;
-   m_subject->pinchGestureEvent(&event, &pinch);
-
-   currentPinchState = Qt::GestureFinished;
-   m_subject->pinchGestureEvent(&event, &pinch);
+    pinchGesture(0.5,Qt::GestureStarted);
+    pinchGesture(0.5,Qt::GestureUpdated);
+    pinchGesture(0.5,Qt::GestureFinished);
 
    QCOMPARE (g_switcherModel->switcherMode(), SwitcherModel::Overview);
 }
 
 void Ut_SwitcherView::testOverviewToDetailModeChange()
 {
-   QPinchGesture pinch;
-   QList<QGesture*> gestures;
-   gestures.append(&pinch);
-   QGestureEvent event(gestures);
-
     g_switcherModel->setSwitcherMode(SwitcherModel::Overview);
-   currentPinchState = Qt::GestureStarted;
 
    // Scale factor >1 is transition to Detailview mode.
-   pinch.setLastScaleFactor(1.5);
-   pinch.setScaleFactor(2.0);
-   m_subject->pinchGestureEvent(&event, &pinch);
+   mPinch->setLastScaleFactor(1.5);
 
-   currentPinchState = Qt::GestureUpdated;
-   m_subject->pinchGestureEvent(&event, &pinch);
-
-   currentPinchState = Qt::GestureFinished;
-   m_subject->pinchGestureEvent(&event, &pinch);
-
+   pinchGesture(2.0,Qt::GestureStarted);
+   pinchGesture(2.0,Qt::GestureUpdated);
+   pinchGesture(2.0,Qt::GestureFinished);
    QCOMPARE (g_switcherModel->switcherMode(), SwitcherModel::Detailview);
 
    // Check that doing the pinch gesture twice in the same direction doesn't switch the mode
    // Ie, the gesture direction should determine whether transition happens
    g_switcherModel->setSwitcherMode(SwitcherModel::Detailview);
 
-   currentPinchState = Qt::GestureStarted;
-  m_subject->pinchGestureEvent(&event, &pinch);
-
-  currentPinchState = Qt::GestureUpdated;
-  m_subject->pinchGestureEvent(&event, &pinch);
-
-  currentPinchState = Qt::GestureFinished;
-  m_subject->pinchGestureEvent(&event, &pinch);
-
-  QCOMPARE (g_switcherModel->switcherMode(), SwitcherModel::Detailview);
+   pinchGesture(2.0,Qt::GestureStarted);
+   pinchGesture(2.0,Qt::GestureUpdated);
+   pinchGesture(2.0,Qt::GestureFinished);
+   QCOMPARE (g_switcherModel->switcherMode(), SwitcherModel::Detailview);
 }
 
 void Ut_SwitcherView::testModeChangeCancel()
 {
-   QPinchGesture pinch;
-   QList<QGesture*> gestures;
-   gestures.append(&pinch);
-   QGestureEvent event(gestures);
-
    // Overview->Detailview gesture cancellation
    g_switcherModel->setSwitcherMode(SwitcherModel::Overview);
-   pinch.setScaleFactor(1.5);
-   currentPinchState = Qt::GestureStarted;
-   m_subject->pinchGestureEvent(&event, &pinch);
 
-   currentPinchState = Qt::GestureUpdated;
-   m_subject->pinchGestureEvent(&event, &pinch);
+   mPinch->setLastScaleFactor(1.0);
 
-   pinch.setScaleFactor(0.5);
-   currentPinchState = Qt::GestureUpdated;
-   m_subject->pinchGestureEvent(&event, &pinch);
-
-   currentPinchState = Qt::GestureFinished;
-   m_subject->pinchGestureEvent(&event, &pinch);
-
+   // Start with outward pinch and change to inward pinch
+   pinchGesture(1.5,Qt::GestureStarted);
+   pinchGesture(1.5,Qt::GestureUpdated);
+   pinchGesture(0.5,Qt::GestureUpdated);
+   pinchGesture(0.5,Qt::GestureFinished);
    QCOMPARE (g_switcherModel->switcherMode(), SwitcherModel::Overview);
 
    // Detail->Overview gesture cancellation
    g_switcherModel->setSwitcherMode(SwitcherModel::Detailview);
-  currentPinchState = Qt::GestureStarted;
 
-  pinch.setScaleFactor(0.5);
-  m_subject->pinchGestureEvent(&event, &pinch);
+   mPinch->setLastScaleFactor(0.8);
 
-  currentPinchState = Qt::GestureUpdated;
-  m_subject->pinchGestureEvent(&event, &pinch);
-
-  pinch.setScaleFactor(1.5);
-  currentPinchState = Qt::GestureUpdated;
-  m_subject->pinchGestureEvent(&event, &pinch);
-
-  currentPinchState = Qt::GestureFinished;
-  m_subject->pinchGestureEvent(&event, &pinch);
-
-  QCOMPARE (g_switcherModel->switcherMode(), SwitcherModel::Detailview);
+   // Start with inward pinch and change to outward pinch
+   pinchGesture(0.5,Qt::GestureStarted);
+   pinchGesture(0.5,Qt::GestureUpdated);
+   pinchGesture(1.5,Qt::GestureUpdated);
+   pinchGesture(1.5,Qt::GestureFinished);
+   QCOMPARE (g_switcherModel->switcherMode(), SwitcherModel::Detailview);
 }
 
 void Ut_SwitcherView::testEvent()
