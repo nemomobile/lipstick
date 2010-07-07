@@ -6,9 +6,9 @@ PlainDesktopBackgroundStyle {
 }
 PlainDesktopBackgroundStyle.Landscape {
     /* The name of the default background image */
-    default-background-image: "HomeWallpaperLandscape";
+    default-background-image: "meegotouch-wallpaper-landscape";
 }
 PlainDesktopBackgroundStyle.Portrait {
     /* The name of the default background image */
-    default-background-image: "HomeWallpaperPortrait";
+    default-background-image: "meegotouch-wallpaper-portrait";
 }
