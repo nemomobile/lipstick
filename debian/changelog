@@ -1,6 +1,7 @@
 duihome (0.21.15~1) unstable; urgency=low
 
   * New version [UNRELEASED]
+  * Fixes: NB#178219 -  Launcher view is not shown according to the page indicator
 
  -- Vesa Halttunen <vesa.halttunen@nokia.com>  Fri, 02 Jul 2010 15:21:33 +0300
 

@@ -484,6 +484,7 @@ void Ut_PagedPanning::testSetFirstPagePosition()
     //TODO: add testing of setting position to the right-most page
     // when using right-to-left layout
 
+    QSignalSpy spy(m_subject, SIGNAL(pageChanged(int)));
     // first set position to be something else than 0
     m_subject->setPosition(QPointF(200.0, 0.0));
 
@@ -492,6 +493,9 @@ void Ut_PagedPanning::testSetFirstPagePosition()
     QCOMPARE(m_subject->position().x(), 0.0);
     QCOMPARE(m_subject->currentPage, 0);
     QCOMPARE(m_subject->targetPage, 0);
+    QCOMPARE(spy.count(), 1);
+    QList<QVariant> arguments = spy.takeFirst();
+    QVERIFY(arguments.at(0).toInt() == 0);
 }
 
 QTEST_APPLESS_MAIN(Ut_PagedPanning)

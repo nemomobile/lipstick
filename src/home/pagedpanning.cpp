@@ -320,4 +320,5 @@ void PagedPanning::setFirstPagePosition()
     currentPage = 0;
     targetPage = 0;
     setPosition(QPointF(0.0, 0.0));
+    emit pageChanged(0);
 }
