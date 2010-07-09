@@ -103,7 +103,7 @@ void DesktopView::stopBenchmarking()
 
 DesktopView::DesktopView(Desktop *desktop) :
     MWidgetView(desktop),
-    switcher(new Switcher),
+    switcher(Switcher::instance()),
     switcherWindow(new MSceneWindow),
     switcherHasContent(false),
     launcherDataStore(NULL),

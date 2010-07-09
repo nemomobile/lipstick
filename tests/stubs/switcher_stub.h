@@ -89,8 +89,9 @@ void SwitcherStub::scheduleUpdate()
 
 SwitcherStub gDefaultSwitcherStub;
 SwitcherStub *gSwitcherStub = &gDefaultSwitcherStub;
+Switcher *gSwitcherInstance = NULL;
 
-Switcher::Switcher(MWidget *parent)
+Switcher::Switcher(MWidget *parent) : MWidgetController(parent)
 {
     gSwitcherStub->switcherConstructor(parent);
 }
@@ -98,6 +99,15 @@ Switcher::Switcher(MWidget *parent)
 Switcher::~Switcher()
 {
     gSwitcherStub->switcherDestructor();
+    gSwitcherInstance = NULL;
+}
+
+Switcher *Switcher::instance()
+{
+    if (gSwitcherInstance == NULL) {
+        gSwitcherInstance = new Switcher;
+    }
+    return gSwitcherInstance;
 }
 
 void Switcher::updateWindowList(const QList<WindowInfo> &windowList)

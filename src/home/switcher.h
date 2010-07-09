@@ -36,11 +36,11 @@ class Switcher : public MWidgetController
 
 public:
     /*!
-     * Constructs a Switcher widget.
+     * Returns an instance of the Switcher.
      *
-     * \param parent the parent widget of the Switcher, defaults to NULL
+     * \return an instance of the Switcher
      */
-    Switcher(MWidget *parent = NULL);
+    static Switcher *instance();
 
     /*!
      * Destroys the Switcher.
@@ -74,11 +74,20 @@ private slots:
     void updateButtons();
 
 private:
+    /*!
+     * Constructs a Switcher widget.
+     *
+     * \param parent the parent widget of the Switcher, defaults to NULL
+     */
+    Switcher(MWidget *parent = NULL);
 
     /*!
      * \brief Starts a timer which eventually calls updateButtons
      */
     void scheduleUpdate();
+
+    //! A singleton switcher instance
+    static Switcher *switcher;
 
     //! X11 Atom for the close window message type
     Atom closeWindowAtom;

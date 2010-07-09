@@ -362,7 +362,7 @@ void Ut_SwitcherView::init()
 {
     g_panRequested = false;
     // Create test switcher
-    switcher = new Switcher();
+    switcher = Switcher::instance();
     g_switcherModel = new SwitcherModel;
     switcher->setModel(g_switcherModel);
     m_subject = new TestSwitcherView(switcher);
@@ -376,8 +376,7 @@ void Ut_SwitcherView::init()
 
 void Ut_SwitcherView::cleanup()
 {
-    delete m_subject;
-    delete g_switcherModel;
+    delete switcher;
     delete mPinch;
     delete mEvent;
 }

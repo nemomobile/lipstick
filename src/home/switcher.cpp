@@ -29,9 +29,18 @@
 #include "x11wrapper.h"
 #include <QEvent>
 
-
 // The time to wait until updating the model when a new application is started
 #define UPDATE_DELAY_MS 700
+
+Switcher *Switcher::switcher = NULL;
+
+Switcher *Switcher::instance()
+{
+    if (switcher == NULL) {
+        switcher = new Switcher;
+    }
+    return switcher;
+}
 
 Switcher::Switcher(MWidget *parent) :
     MWidgetController(new SwitcherModel, parent), windowListUpdated(false)
@@ -51,6 +60,7 @@ Switcher::Switcher(MWidget *parent) :
 
 Switcher::~Switcher()
 {
+    switcher = NULL;
 }
 
 void Switcher::updateWindowList(const QList<WindowInfo> &newList)

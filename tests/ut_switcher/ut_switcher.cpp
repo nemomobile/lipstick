@@ -293,7 +293,7 @@ void Ut_Switcher::init()
     }
 
     // Creating a switcher also creates the switcher view
-    switcher = new Switcher;
+    switcher = Switcher::instance();
     switcher->setView(new SwitcherView(switcher));
 
     // Connect widget add/remove signals
