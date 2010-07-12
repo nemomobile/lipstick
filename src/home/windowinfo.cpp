@@ -36,23 +36,27 @@ Atom WindowInfo::MenuAtom;
 Atom WindowInfo::SkipTaskbarAtom;
 Atom WindowInfo::NameAtom;
 
-WindowInfo::WindowInfo(Window window)
-{    
+void WindowInfo::initializeAtoms()
+{
     if (!atomsInitialized) {
         Display *dpy = QX11Info::display();
-        WindowInfo::TypeAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_WINDOW_TYPE", False);
-        WindowInfo::StateAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_STATE", False);
-        WindowInfo::NormalAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_NORMAL", False);    
-        WindowInfo::DesktopAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_DESKTOP", False);
-        WindowInfo::NotificationAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_NOTIFICATION", False);
-        WindowInfo::DialogAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_DIALOG", False);
-        WindowInfo::CallAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_CALL", False);
-        WindowInfo::DockAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_DOCK", False);
-        WindowInfo::MenuAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_MENU", False);
-        WindowInfo::SkipTaskbarAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_STATE_SKIP_TASKBAR", False);
-        WindowInfo::NameAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_NAME", False);
+        TypeAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_WINDOW_TYPE", False);
+        StateAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_STATE", False);
+        NormalAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_NORMAL", False);
+        DesktopAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_DESKTOP", False);
+        NotificationAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_NOTIFICATION", False);
+        DialogAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_DIALOG", False);
+        CallAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_CALL", False);
+        DockAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_DOCK", False);
+        MenuAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_MENU", False);
+        SkipTaskbarAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_STATE_SKIP_TASKBAR", False);
+        NameAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_NAME", False);
         atomsInitialized = true;
     }
+}
+
+WindowInfo::WindowInfo(Window window)
+{
     d = new WindowData;
     d->window = window;
     updateWindowTitle();

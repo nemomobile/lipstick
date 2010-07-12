@@ -20,69 +20,19 @@
 #ifndef UT_HOMEAPPLICATION_H
 #define UT_HOMEAPPLICATION_H
 
-#include <QtTest/QtTest>
-#include <QtGui>
-#include "windowinfo.h"
+#include <QObject>
 
-class TestHomeApplication;
-
-class WindowListReceiver : public QObject
-{
-    Q_OBJECT
-
-public:
-    WindowListReceiver() : count(0), stackingCount(0) { }
-    QList<WindowInfo> windowList;
-    QList<WindowInfo> stackingWindowList;
-    int count;
-    int stackingCount;
-
-    QPair<Window, QString> changedTitle;
-
-private slots:
-
-    void windowListUpdated(const QList<WindowInfo> &windowList) {
-        this->windowList = windowList;
-        this->count++;
-    }
-
-    void stackingWindowListUpdated(const QList<WindowInfo> &windowList) {
-        this->stackingWindowList = windowList;
-        this->stackingCount++;
-    }
-
-    void changeWindowTitle(Window w, const QString &title)
-    {
-        changedTitle.first = w;
-        changedTitle.second = title;
-    }
-};
-
-class WindowVisibilityReceiver : public QObject
-{
-    Q_OBJECT
-
-public:
-    WindowVisibilityReceiver() { }
-    QList<Window> windowList;
-
-private slots:
-    void windowVisibilityChanged(Window window) {
-        this->windowList.append(window);
-    }
-};
+class HomeApplication;
 
 class Ut_HomeApplication : public QObject
 {
     Q_OBJECT
 
 public:
-    static QList<Window> visibilityNotifyWindows;
     static QList<QString> validInterfaces;
     static QList<QString> serviceInterfaces;
     static QList<QString> asyncCallMethods;
     static QList< QList<QVariant> > asyncCallArguments;
-    static int clientListNumberOfWindows;
 
 private slots:
     // Called before the first testfunction is executed
@@ -100,25 +50,12 @@ private slots:
     // Test the startup, so that the process stopping and d-bus
     // notifications don't happen when the --upstart switch is not given
     void testNonUpstartStartup();
-    // Test X11EventFilter with window state change
-    void testX11EventFilterWithWmStateChange();
-    // Test X11EventFilter with PropertyNotify events
-    void testX11EventFilterWithPropertyNotify();
-    // Test X11EventFilter with VisibilityNotify events
-//    void testX11EventFilterWithVisibilityNotify();
-    // Test X11EventFilter with ClientMessage events
-    void testX11EventFilterWithClientMessage();
-    // Test the stacking order signal
-    void testWindowStackingOrder();
 
-    // Test data for test testX11EventWindowNameChange
-    void testX11EventWindowNameChange_data();
-    // Test that title change signal is emitted when X window property changes
-    void testX11EventWindowNameChange();
+    void testX11EventFilter();
 
 private:
     // The object being tested
-    TestHomeApplication *m_subject;
+    HomeApplication *m_subject;
 };
 
 #endif

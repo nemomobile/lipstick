@@ -20,6 +20,8 @@
 #define _UT_SWITCHER_
 
 #include <QObject>
+#include <QPair>
+#include "mwindow.h"
 #include "windowinfo.h"
 
 class MApplication;
@@ -30,16 +32,61 @@ class QSizeF;
 class QRectF;
 class QPointF;
 
-class MainWindow : public QObject
+class WindowListReceiver : public QObject
 {
     Q_OBJECT
 
 public:
+    WindowListReceiver() : count(0), stackingCount(0) { }
+    QList<WindowInfo> windowList;
+    QList<WindowInfo> stackingWindowList;
+    int count;
+    int stackingCount;
 
+    QPair<Window, QString> changedTitle;
+
+private slots:
+
+    void windowListUpdated(const QList<WindowInfo> &windowList) {
+        this->windowList = windowList;
+        this->count++;
+    }
+
+    void stackingWindowListUpdated(const QList<WindowInfo> &windowList) {
+        this->stackingWindowList = windowList;
+        this->stackingCount++;
+    }
+
+    void changeWindowTitle(Window w, const QString &title)
+    {
+        changedTitle.first = w;
+        changedTitle.second = title;
+    }
+};
+
+class WindowVisibilityReceiver : public QObject
+{
+    Q_OBJECT
+
+public:
+    WindowVisibilityReceiver() { }
+    QList<Window> windowList;
+
+private slots:
+    void windowVisibilityChanged(Window window) {
+        this->windowList.append(window);
+    }
+};
+
+class MainWindow : public MWindow
+{
+    Q_OBJECT
+
+public:
     MainWindow();
     ~MainWindow();
 
-    MainWindow *instance(bool);
+    static MainWindow *instance(bool);
 
     void exitDisplay();
 
@@ -55,18 +102,15 @@ class Ut_Switcher : public QObject
 
 public:
     static QList<SwitcherButton *> iconGeometryUpdated;
+    static QList<Window> visibilityNotifyWindows;
+    static int clientListNumberOfWindows;
 
 private:
     MApplication *app;
     Switcher *switcher;
 
-    QList<WindowInfo> createWindowList(int numWindows);
-
-signals:
-    void windowToFront(Window window);
-    void closeWindow(Window window);
-    void windowListUpdated(const QList<WindowInfo> &windowList);
-    void windowTitleChanged(Window window, const QString &title);
+    void verifyModel(const QList<WindowInfo> &windowList);
+    QString titleForWindow(Window window, const QList<WindowInfo> &windowList);
 
 private slots:
     // Executed once before every test case
@@ -81,31 +125,28 @@ private slots:
     // Executed once after last test case
     void cleanupTestCase();
 
-    // Test that the constructor connects proper signals
-    void testConstruction();
-
     // Test bringing windows to front
     void testWindowToFront();
 
     // Test bringing windows to front
     void testCloseWindow();
 
-    // Test adding windows
-    void testWindowAdding();
+    // Test X11EventFilter with PropertyNotify events
+    void testX11EventFilterWithPropertyNotify();
 
-    // Test removing windows
-    void testWindowRemoving();
+    // Test X11EventFilter with VisibilityNotify events
+    void testX11EventFilterWithVisibilityNotify();
 
-    void testWindowTitleChangeWhenWindowListIsUpdated();
+    // Test X11EventFilter with ClientMessage events
+    void testX11EventFilterWithClientMessage();
 
-    // Test changing window title
-    void testWindowTitleChange();
+    // Test the stacking order signal
+    void testWindowStackingOrder();
 
-    // Tests that panning updates the switcher button icon geometries
-    void testPanning();
-
-    // Test window ordering
-    void testWindowOrder();
+    // Test data for test testX11EventWindowNameChange
+    void testX11EventWindowNameChange_data();
+    // Test that title change signal is emitted when X window property changes
+    void testX11EventWindowNameChange();
 
     // Test that the Switcher update is delayed when launching new applications
     void testUpdateDelay();

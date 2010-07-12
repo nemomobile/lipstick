@@ -20,9 +20,9 @@
 #include <cmath>
 #include <QGraphicsSceneMouseEvent>
 #include "mainwindow.h"
-#include <MApplication>
 #include <QX11Info>
 #include <QPainter>
+#include <MApplication>
 #include <MScalableImage>
 #include <MCancelEvent>
 #include <MSceneManager>
@@ -31,6 +31,7 @@
 #include <MLinearLayoutPolicy>
 #include "switcherbuttonview.h"
 #include "switcherbutton.h"
+#include "switcher.h"
 #include "x11wrapper.h"
 
 #ifdef Q_WS_X11
@@ -49,7 +50,7 @@ SwitcherButtonView::SwitcherButtonView(SwitcherButton *button) :
     onDisplay(true)
 {
     // Connect to the windowVisibilityChanged signal of the HomeApplication to get information about window visiblity changes
-    connect(qApp, SIGNAL(windowVisibilityChanged(Window)), this, SLOT(windowVisibilityChanged(Window)));
+    connect(Switcher::instance(), SIGNAL(windowVisibilityChanged(Window)), this, SLOT(windowVisibilityChanged(Window)));
 
     // Show interest in X pixmap change signals
     connect(qApp, SIGNAL(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)), this, SLOT(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)));

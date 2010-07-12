@@ -18,6 +18,7 @@ HEADERS += \
     $$SRCDIR/switcherbuttonstyle.h \
     $$SRCDIR/switcherbuttonview.h \
     $$SRCDIR/homeapplication.h \
-    $$SRCDIR/mainwindow.h 
+    $$SRCDIR/mainwindow.h \
+    $$SRCDIR/switcher.h 
 
 include(../common_bot.pri)

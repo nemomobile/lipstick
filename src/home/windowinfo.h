@@ -61,7 +61,6 @@ public:
 class WindowInfo
 {
 public:
-
     // X11 atoms
     static Atom TypeAtom;
     static Atom StateAtom;
@@ -75,10 +74,9 @@ public:
     static Atom SkipTaskbarAtom;
     static Atom NameAtom;
 
-
     /*!
      * Constructs a WindowInfo that contains information about an open window.
-     * This is needed to satisfy the Qt's defualt constructed value paradigm in 
+     * This is needed to satisfy the Qt's default constructed value paradigm in
      * its containers.
      */
     WindowInfo();
@@ -90,11 +88,15 @@ public:
      */
     WindowInfo(Window window);
 
-
     /*!
      * Destroys a WindowInfo object.
      */
     ~WindowInfo();
+
+    /*!
+     * Initializes the X11 atoms
+     */
+    static void initializeAtoms();
 
     /*!
      * Gets the title of the window.

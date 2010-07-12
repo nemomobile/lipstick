@@ -16,18 +16,16 @@
 ** of this file.
 **
 ****************************************************************************/
-
 #include <QX11Info>
-#include <QApplication>
+#include <QEvent>
+#include <MApplication>
 #include <MLayout>
 #include <MFlowLayoutPolicy>
-
 #include "switcher.h"
 #include "switcherbutton.h"
 #include "windowinfo.h"
 #include "mainwindow.h"
 #include "x11wrapper.h"
-#include <QEvent>
 
 // The time to wait until updating the model when a new application is started
 #define UPDATE_DELAY_MS 700
@@ -43,17 +41,29 @@ Switcher *Switcher::instance()
 }
 
 Switcher::Switcher(MWidget *parent) :
-    MWidgetController(new SwitcherModel, parent), windowListUpdated(false)
+    MWidgetController(new SwitcherModel, parent)
 {
-    // Connect to the windowListUpdated signal of the HomeApplication to get information about window list changes
-    connect(qApp, SIGNAL(windowListUpdated(const QList<WindowInfo> &)), this, SLOT(updateWindowList(const QList<WindowInfo> &)));
-    connect(qApp, SIGNAL(windowTitleChanged(Window, QString)), this, SLOT(changeWindowTitle(Window, QString)));
+    // Get the X11 Atoms for closing and activating a window and for different window types
+    Display *dpy = QX11Info::display();
+    closeWindowAtom  = X11Wrapper::XInternAtom(dpy, "_NET_CLOSE_WINDOW", False);
+    activeWindowAtom = X11Wrapper::XInternAtom(dpy, "_NET_ACTIVE_WINDOW", False);
+    windowTypeAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_WINDOW_TYPE", False);
+    clientListAtom = X11Wrapper::XInternAtom(dpy, "_NET_CLIENT_LIST", False);
+    stackedClientListAtom = X11Wrapper::XInternAtom(dpy, "_NET_CLIENT_LIST_STACKING", False);
+    closeWindowAtom = X11Wrapper::XInternAtom(dpy, "_NET_CLOSE_WINDOW", False);
+    windowStateAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_STATE", False);
+    netWindowNameAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_NAME", False);
+    windowNameAtom = X11Wrapper::XInternAtom(dpy, "WM_NAME", False);
 
-    // Get the X11 Atoms for closing and activating a window
-    closeWindowAtom  = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_CLOSE_WINDOW",  False);
-    activeWindowAtom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_ACTIVE_WINDOW", False);
+    // Put the atoms for window types that should be excluded from the switcher into a list
+    excludeAtoms.insert(WindowInfo::DesktopAtom);
+    excludeAtoms.insert(WindowInfo::MenuAtom);
+    excludeAtoms.insert(WindowInfo::DockAtom);
+    excludeAtoms.insert(WindowInfo::DialogAtom);
+    excludeAtoms.insert(WindowInfo::NotificationAtom);
+    excludeAtoms.insert(WindowInfo::SkipTaskbarAtom);
 
-    // This stuff is necessary to receive touch events.
+    // This stuff is necessary to receive touch events
     setAcceptTouchEvents(true);
     grabGesture(Qt::PinchGesture);
 }
@@ -63,53 +73,28 @@ Switcher::~Switcher()
     switcher = NULL;
 }
 
-void Switcher::updateWindowList(const QList<WindowInfo> &newList)
-{
-    int previousWindowCount = windowList.count();
-    windowList = newList;
-
-    windowListUpdated = true;
-
-    // If no new windows have appeared, i.e. an application is not currently
-    // starting, update the buttons immediately - otherwise, wait a bit
-    if( previousWindowCount >= newList.count() ) {
-        updateButtons();
-    } else {
-        QTimer::singleShot(UPDATE_DELAY_MS, this, SLOT(updateButtons()));
-    }
-}
-
 void Switcher::windowToFront(Window window)
 {
-    XEvent ev;
-    memset(&ev, 0, sizeof(ev));
-
-    Display *display = QX11Info::display();
-
     Window rootWin = QX11Info::appRootWindow(QX11Info::appScreen());
 
+    XEvent ev;
+    memset(&ev, 0, sizeof(ev));
     ev.xclient.type         = ClientMessage;
     ev.xclient.window       = window;
     ev.xclient.message_type = activeWindowAtom;
     ev.xclient.format       = 32;
     ev.xclient.data.l[0]    = 1;
     ev.xclient.data.l[1]    = CurrentTime;
-    ev.xclient.data.l[2]    = 0;
 
-    X11Wrapper::XSendEvent(display,
-                           rootWin, False,
-                           StructureNotifyMask, &ev);
+    X11Wrapper::XSendEvent(QX11Info::display(), rootWin, False, StructureNotifyMask, &ev);
 }
 
 void Switcher::closeWindow(Window window)
 {
-    XEvent ev;
-    memset(&ev, 0, sizeof(ev));
-
-    Display *display = QX11Info::display();
-
     Window rootWin = QX11Info::appRootWindow(QX11Info::appScreen());
 
+    XEvent ev;
+    memset(&ev, 0, sizeof(ev));
     ev.xclient.type         = ClientMessage;
     ev.xclient.window       = window;
     ev.xclient.message_type = closeWindowAtom;
@@ -117,76 +102,234 @@ void Switcher::closeWindow(Window window)
     ev.xclient.data.l[0]    = CurrentTime;
     ev.xclient.data.l[1]    = rootWin;
 
-    X11Wrapper::XSendEvent(display,
-                           rootWin, False,
-                           SubstructureRedirectMask, &ev);
+    X11Wrapper::XSendEvent(QX11Info::display(), rootWin, False, SubstructureRedirectMask, &ev);
 }
-
-void Switcher::changeWindowTitle(Window window,  const QString &title)
-{
-    if (windowMap.contains(window)) {
-        windowMap.value(window)->setText(title);
-        windowMap.value(window)->update();
-    }
-}
-
 
 void Switcher::updateButtons()
 {
-    if( windowListUpdated ) {
+    QList< QSharedPointer<SwitcherButton> > oldButtons(model()->buttons());
 
-        windowListUpdated = false;
+    // List of existing buttons for which a window still exists
+    QList< QSharedPointer<SwitcherButton> > currentButtons;
 
-        QList< QSharedPointer<SwitcherButton> > oldButtons(model()->buttons());
+    // List of newly created buttons
+    QList< QSharedPointer<SwitcherButton> > newButtons;
 
-        // List of existing buttons for which a window still exists
-        QList< QSharedPointer<SwitcherButton> > currentButtons;
+    // List to be set as the new list in the model
+    QList< QSharedPointer<SwitcherButton> > nextButtons;
 
-        // List of newly created buttons
-        QList< QSharedPointer<SwitcherButton> > newButtons;
+    // The new mapping of known windows to the buttons
+    QMap<Window, SwitcherButton *> newWindowMap;
 
-        // List to be set as the new list in the model
-        QList< QSharedPointer<SwitcherButton> > nextButtons;
+    // Go through the windows and create new buttons for new windows
+    foreach(WindowInfo wi, applicationWindows) {
+        if (switcherButtonMap.contains(wi.window())) {
+            SwitcherButton *b = switcherButtonMap[wi.window()];
 
-        // The new mapping of known windows to the buttons
-        QMap<Window, SwitcherButton *> newWindowMap;
+            // Button already exists - set title (as it may have changed)
+            b->setText(wi.title());
 
-        // Go through the windows and create new buttons for new windows
-        foreach(WindowInfo wi, windowList) {
-            if (windowMap.contains(wi.window())) {
-                SwitcherButton *b = windowMap[wi.window()];
+            newWindowMap.insert(wi.window(), b);
+        } else {
+            QSharedPointer<SwitcherButton> b(new SwitcherButton(wi.title(), NULL, wi.window()));
+            connect(b.data(), SIGNAL(windowToFront(Window)), this, SLOT(windowToFront(Window)));
+            connect(b.data(), SIGNAL(closeWindow(Window)), this, SLOT(closeWindow(Window)));
 
-                // Button already exists - set title (as it may have changed)
-                b->setText(wi.title());
+            newButtons.append(b);
 
-                newWindowMap[wi.window()] = b;
-            } else {
-                QSharedPointer<SwitcherButton> b(new SwitcherButton(wi.title(), NULL, wi.window()));
-                connect(b.data(), SIGNAL(windowToFront(Window)), this, SLOT(windowToFront(Window)));
-                connect(b.data(), SIGNAL(closeWindow(Window)), this, SLOT(closeWindow(Window)));
+            newWindowMap.insert(wi.window(), b.data());
+        }
+    }
 
-                newButtons.append(b);
+    foreach(QSharedPointer<SwitcherButton> b, oldButtons) {
+        // Keep only the buttons for which a window still exists
+        if (newWindowMap.contains(b.data()->xWindow())) {
+            currentButtons.append(b);
+        }
+    }
 
-                newWindowMap[wi.window()] = b.data();
+    switcherButtonMap = newWindowMap;
+    nextButtons.append(currentButtons);
+    nextButtons.append(newButtons);
+
+    // Take the new set of buttons into use
+    model()->setButtons(nextButtons);
+
+    // Let interested parties know about the updated window list
+    emit windowListUpdated(applicationWindows);
+}
+
+bool Switcher::handleX11Event(XEvent *event)
+{
+    if (event->type == PropertyNotify) {
+        if (event->xproperty.atom == stackedClientListAtom && event->xproperty.window == DefaultRootWindow(QX11Info::display())) {
+            // The client list of the root window has changed so update the window list
+            updateWindowMapping();
+            return true;
+        } else if (event->xproperty.atom == windowTypeAtom || event->xproperty.atom == windowStateAtom) {
+            // The type or state of a window has changed so update that window's properties
+            updateWindowProperties(event->xproperty.window);
+            return true;
+        } else if (event->xproperty.atom == windowNameAtom || event->xproperty.atom == netWindowNameAtom) {
+            // The title of a window has changed so update that window's title
+            updateWindowTitle(event->xproperty.window);
+            return true;
+        }
+    } else if (event->type == VisibilityNotify) {
+        if (event->xvisibility.state == VisibilityFullyObscured) {
+            // A window was obscured: was it a homescreen window?
+            bool homescreenWindowVisibilityChanged = false;
+            Q_FOREACH(MWindow *window, MApplication::windows()) {
+                if (event->xvisibility.window == window->winId()) {
+                    homescreenWindowVisibilityChanged = true;
+                    break;
+                }
+            }
+
+            if (!homescreenWindowVisibilityChanged) {
+                // It was some other window, so let interested parties (the SwitcherButtons) know about it
+                if (event->xvisibility.send_event) {
+                    emit windowVisibilityChanged(event->xvisibility.window);
+                }
+                return true;
             }
         }
-
-        foreach(QSharedPointer<SwitcherButton> b, oldButtons) {
-            // Keep only the buttons for which a window still exists
-            if (newWindowMap.contains(b.data()->xWindow())) {
-                currentButtons.append(b);
-            }
+    } else if (event->type == ClientMessage && event->xclient.message_type == closeWindowAtom) {
+        // A _NET_CLOSE_WINDOW message was caught so a window is being closed; add it to windows being closed list and update the window list
+        if (!windowsBeingClosed.contains(event->xclient.window)) {
+            windowsBeingClosed.insert(event->xclient.window);
         }
+        updateWindowMapping();
+        return true;
+    }
 
-        windowMap = newWindowMap;
-        nextButtons.append(currentButtons);
-        nextButtons.append(newButtons);
+    return false;
+}
 
-        // Take the new set of buttons into use
-        model()->setButtons(nextButtons);
+void Switcher::updateWindowTitle(Window window)
+{
+    QMap<Window, WindowInfo>::iterator i = windowMap.find(window);
+    if (i != windowMap.end()) {
+        if ((*i).updateWindowTitle() && switcherButtonMap.contains(window)) {
+            switcherButtonMap.value(window)->setText((*i).title());
+            switcherButtonMap.value(window)->update();
+        }
     }
 }
 
-void Switcher::scheduleUpdate() {
-    QTimer::singleShot(UPDATE_DELAY_MS, this, SLOT(updateButtons()));
+void Switcher::updateWindowProperties(Window window)
+{
+    QMap<Window, WindowInfo>::iterator i = windowMap.find(window);
+    if (i != windowMap.end()) {
+        bool wasApplication = isApplicationWindow(*i);
+        (*i).updateWindowProperties();
+        bool isApplication = isApplicationWindow(*i);
+
+        if (wasApplication != isApplication) {
+            // Update the window list if the window has changed from an app window to some thing else or vice versa
+            if (isApplication) {
+                applicationWindows.append(*i);
+            } else {
+                applicationWindows.removeOne(*i);
+            }
+
+            updateButtons();
+        }
+    }
+}
+
+void Switcher::updateWindowMapping()
+{
+    // Get a list of all windows
+    Display *dpy = QX11Info::display();
+    XWindowAttributes wAttributes;
+    Atom actualType;
+    int actualFormat;
+    unsigned long numWindowItems, bytesLeft;
+    unsigned char *windowData = NULL;
+    Status result = X11Wrapper::XGetWindowProperty(dpy, DefaultRootWindow(dpy), stackedClientListAtom,
+                                                0, 0x7fffffff, False, XA_WINDOW,
+                                                &actualType, &actualFormat, &numWindowItems, &bytesLeft, &windowData);
+
+    if (result == Success && windowData != None) {
+        // We need to keep the stacking order of the windows -> hence the list
+        QList<Window> newWindowList;
+        Window *wins = (Window *)windowData;
+        for (unsigned int i = 0; i < numWindowItems; i++) {
+            result = X11Wrapper::XGetWindowAttributes(dpy, wins[i], &wAttributes);
+            // The windows that are bigger than 0x0, are Input/Output windows and are not unmapped are interesting
+            if (result != 0 &&
+                wAttributes.width > 0 && wAttributes.height > 0 &&
+                wAttributes.c_class == InputOutput &&
+                wAttributes.map_state != IsUnmapped) {
+                newWindowList.append(wins[i]);
+            }
+        }
+        QSet<Window> newWindowSet = newWindowList.toSet() - windowsBeingClosed;
+        QSet<Window> oldWindowSet = windowMap.keys().toSet();
+        QSet<Window> closedWindowSet = oldWindowSet - newWindowSet;
+        windowsBeingClosed -= closedWindowSet;
+        QSet<Window> openedWindowSet = newWindowSet - oldWindowSet;
+
+        bool added = createWindowInfos(openedWindowSet);
+        bool removed = removeWindowInfos(closedWindowSet);
+        if (added || removed) {
+            if (!removed) {
+                // If windows have been added but not removed, update the switcher with a delay
+                QTimer::singleShot(UPDATE_DELAY_MS, this, SLOT(updateButtons()));
+            } else {
+                // If windows have been removed update the switcher instantly
+                updateButtons();
+            }
+        }
+        windowsBeingClosed -= closedWindowSet;
+
+        QList<WindowInfo> stackingWindowList;
+        foreach (Window w, newWindowList) {
+            if (!windowsBeingClosed.contains(w)) {
+                stackingWindowList.append(windowMap.value(w));
+            }
+        }
+        emit windowStackingOrderChanged(stackingWindowList);
+    }
+}
+
+bool Switcher::createWindowInfos(QSet<Window> openedWindowSet)
+{
+    bool appWindowsAppeared = false;
+    foreach(Window w, openedWindowSet) {
+        WindowInfo newWindow(w);
+        windowMap.insert(w, newWindow);
+        if (MainWindow::instance() != NULL && MainWindow::instance()->winId() != w) {
+            X11Wrapper::XSelectInput(QX11Info::display(), w, VisibilityChangeMask | PropertyChangeMask);
+        }
+
+        if (isApplicationWindow(newWindow)) {
+            applicationWindows.append(newWindow);
+            appWindowsAppeared = true;
+        }
+    }
+    return appWindowsAppeared;
+}
+
+bool Switcher::removeWindowInfos(QSet<Window> closedWindowSet)
+{
+    bool appWindowsDisappeared = false;
+    foreach(Window w, closedWindowSet) {
+        if (windowMap.contains(w)) {
+            WindowInfo removedWindow = windowMap.take(w);
+            if (applicationWindows.removeOne(removedWindow)) {
+                appWindowsDisappeared = true;
+            }
+        }
+    }
+    return appWindowsDisappeared;
+}
+
+bool Switcher::isApplicationWindow(const WindowInfo &wi)
+{
+    QSet<Atom> excludeSet;
+    excludeSet += wi.types().toSet();
+    excludeSet += wi.states().toSet();
+    return excludeSet.intersect(excludeAtoms).isEmpty();
 }

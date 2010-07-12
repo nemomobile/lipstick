@@ -34,7 +34,6 @@ Atom WindowInfo::MenuAtom;
 Atom WindowInfo::SkipTaskbarAtom;
 Atom WindowInfo::NameAtom;
 
-
 // 1. DECLARE STUB
 // FIXME - stubgen is not yet finished
 class WindowInfoStub : public StubBase
@@ -43,14 +42,13 @@ public:
     virtual void WindowInfoConstructor(Window window);
     virtual void WindowInfoConstructor();
     virtual void WindowInfoDestructor();
+    virtual void initializeAtoms();
     virtual const QString &title() const;
     virtual QList<Atom> types() const;
     virtual QList<Atom> states() const;
     virtual Window window() const;
     virtual bool updateWindowTitle();
     virtual void updateWindowProperties();
-    QString _title;
-    Window _window;
 };
 
 // 2. IMPLEMENT STUB
@@ -67,6 +65,12 @@ void WindowInfoStub::WindowInfoDestructor()
 {
 
 }
+
+void WindowInfoStub::initializeAtoms()
+{
+    stubMethodEntered("initializeAtoms");
+}
+
 const QString &WindowInfoStub::title() const
 {
     stubMethodEntered("title");
@@ -96,7 +100,7 @@ bool WindowInfoStub::updateWindowTitle()
     stubMethodEntered("updateWindowTitle");
     return stubReturnValue<bool>("updateWindowTitle");
 }
-    
+
 void WindowInfoStub::updateWindowProperties()
 {
     stubMethodEntered("updateWindowProperties");
@@ -123,6 +127,11 @@ WindowInfo::~WindowInfo()
     gWindowInfoStub->WindowInfoDestructor();
 }
 
+void WindowInfo::initializeAtoms()
+{
+    gWindowInfoStub->initializeAtoms();
+}
+
 const QString &WindowInfo::title() const
 {
     return gWindowInfoStub->title();
@@ -147,7 +156,7 @@ bool WindowInfo::updateWindowTitle()
 {
     return gWindowInfoStub->updateWindowTitle();
 }
-    
+
 void WindowInfo::updateWindowProperties()
 {
     gWindowInfoStub->updateWindowProperties();
@@ -157,5 +166,5 @@ bool operator==(const WindowInfo &wi1, const WindowInfo &wi2)
 {
     return wi1.window() == wi2.window();
 }
-    
+
 #endif

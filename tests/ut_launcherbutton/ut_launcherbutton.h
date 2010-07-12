@@ -23,7 +23,7 @@
 #include <QObject>
 #include "windowinfo.h"
 
-class HomeApplication;
+class MApplication;
 class LauncherButton;
 
 class Ut_LauncherButton : public QObject
@@ -56,7 +56,7 @@ signals:
 
 private:
     // Application
-    HomeApplication *app;
+    MApplication *app;
     // The object being tested
     LauncherButton *m_subject;
 };

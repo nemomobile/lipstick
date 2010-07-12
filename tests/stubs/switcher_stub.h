@@ -28,10 +28,9 @@ class SwitcherStub : public StubBase
 public:
     virtual void switcherConstructor(MWidget *parent = NULL);
     virtual void switcherDestructor();
-    virtual void updateWindowList(const QList<WindowInfo> &windowList);
+    virtual bool handleX11Event(XEvent *event);
     virtual void windowToFront(Window window);
     virtual void closeWindow(Window window);
-    virtual void changeWindowTitle(Window window,  const QString &title);
     virtual void updateButtons();
     virtual void scheduleUpdate();
 };
@@ -48,11 +47,12 @@ void SwitcherStub::switcherDestructor()
     stubMethodEntered("switcherDestructor");
 }
 
-void SwitcherStub::updateWindowList(const QList<WindowInfo> &windowList)
+bool SwitcherStub::handleX11Event(XEvent *event)
 {
     QList<ParameterBase *> params;
-    params.append(new Parameter<QList<WindowInfo> >(windowList));
-    stubMethodEntered("updateWindowList", params);
+    params.append(new Parameter<XEvent *>(event));
+    stubMethodEntered("handleX11Event", params);
+    return stubReturnValue<bool>("handleX11Event");
 }
 
 void SwitcherStub::windowToFront(Window window)
@@ -67,14 +67,6 @@ void SwitcherStub::closeWindow(Window window)
     QList<ParameterBase *> params;
     params.append(new Parameter<Window>(window));
     stubMethodEntered("closeWindow", params);
-}
-
-void SwitcherStub::changeWindowTitle(Window window,  const QString &title)
-{
-    QList<ParameterBase *> params;
-    params.append(new Parameter<Window>(window));
-    params.append(new Parameter<QString>(title));
-    stubMethodEntered("changeWindowTitle", params);
 }
 
 void SwitcherStub::updateButtons()
@@ -110,9 +102,9 @@ Switcher *Switcher::instance()
     return gSwitcherInstance;
 }
 
-void Switcher::updateWindowList(const QList<WindowInfo> &windowList)
+bool Switcher::handleX11Event(XEvent *event)
 {
-    gSwitcherStub->updateWindowList(windowList);
+    return gSwitcherStub->handleX11Event(event);
 }
 
 void Switcher::windowToFront(Window window)
@@ -123,11 +115,6 @@ void Switcher::windowToFront(Window window)
 void Switcher::closeWindow(Window window)
 {
     gSwitcherStub->closeWindow(window);
-}
-
-void Switcher::changeWindowTitle(Window window,  const QString &title)
-{
-    gSwitcherStub->changeWindowTitle(window, title);
 }
 
 void Switcher::updateButtons()

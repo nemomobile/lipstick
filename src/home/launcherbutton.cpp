@@ -20,10 +20,10 @@
 #include "launcherbutton.h"
 #include "launcheraction.h"
 #include "launcher.h"
+#include "switcher.h"
 #include <MDesktopEntry>
 #include <QDateTime>
 #include <QFileInfo>
-#include <QApplication>
 
 bool LauncherButton::launching = false;
 
@@ -75,7 +75,7 @@ void LauncherButton::launch()
         launching = true;
         model()->setShowProgressIndicator(true);
 
-        connect(qApp, SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), this, SLOT(hideProgressIndicatorIfObscured(const QList<WindowInfo> &)));
+        connect(Switcher::instance(), SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), this, SLOT(hideProgressIndicatorIfObscured(const QList<WindowInfo> &)));
 
         action().trigger();
 
@@ -92,7 +92,7 @@ void LauncherButton::hideProgressIndicator()
         progressIndicatorTimeoutTimer.stop();
     }
 
-    disconnect(qApp, SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), this, SLOT(hideProgressIndicatorIfObscured(const QList<WindowInfo> &)));
+    disconnect(Switcher::instance(), SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), this, SLOT(hideProgressIndicatorIfObscured(const QList<WindowInfo> &)));
 }
 
 void LauncherButton::hideProgressIndicatorIfObscured(const QList<WindowInfo> &windowList)

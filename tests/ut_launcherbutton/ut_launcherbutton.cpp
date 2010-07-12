@@ -18,11 +18,12 @@
 ****************************************************************************/
 
 #include <QtTest/QtTest>
+#include <MApplication>
 #include "contentaction.h"
 #include "ut_launcherbutton.h"
 #include "launcherbutton.h"
 #include "launcher_stub.h"
-#include "homeapplication_stub.h"
+#include "switcher_stub.h"
 #include "x11wrapper.h"
 
 #define ATOM_TYPE_NORMAL 1
@@ -325,7 +326,8 @@ void Ut_LauncherButton::initTestCase()
 {
     static int argc = 1;
     static char *app_name[1] = { (char *) "./ut_launcherbutton" };
-    app = new HomeApplication(argc, app_name);
+    app = new MApplication(argc, app_name);
+    WindowInfo::initializeAtoms();
 }
 
 void Ut_LauncherButton::cleanupTestCase()
@@ -412,13 +414,13 @@ void Ut_LauncherButton::testLaunch()
     emit clicked();
     QCOMPARE(contentActionTriggerCalls, 1);
     QVERIFY(qTimerStarted);
-    QVERIFY(disconnect(qApp, SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), m_subject, SLOT(hideProgressIndicatorIfObscured(const QList<WindowInfo> &))));
+    QVERIFY(disconnect(Switcher::instance(), SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), m_subject, SLOT(hideProgressIndicatorIfObscured(const QList<WindowInfo> &))));
     QVERIFY(m_subject->isInProgress());
 
     qTimerStarted = false;
     emit clicked();
     QVERIFY(!qTimerStarted);
-    QVERIFY(!disconnect(qApp, SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), m_subject, SLOT(hideProgressIndicatorIfObscured(const QList<WindowInfo> &))));
+    QVERIFY(!disconnect(Switcher::instance(), SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), m_subject, SLOT(hideProgressIndicatorIfObscured(const QList<WindowInfo> &))));
 }
 
 void Ut_LauncherButton::testHideProgressIndicator()
@@ -426,7 +428,7 @@ void Ut_LauncherButton::testHideProgressIndicator()
     emit clicked();
     m_subject->hideProgressIndicator();
     QVERIFY(!qTimerStarted);
-    QVERIFY(!disconnect(qApp, SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), m_subject, SLOT(hideProgressIndicatorIfObscured(const QList<WindowInfo> &))));
+    QVERIFY(!disconnect(Switcher::instance(), SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), m_subject, SLOT(hideProgressIndicatorIfObscured(const QList<WindowInfo> &))));
     QVERIFY(!m_subject->isInProgress());
 }
 

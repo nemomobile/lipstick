@@ -149,6 +149,7 @@ Status X11Wrapper::XSendEvent(Display *, Window, Bool, long, XEvent *)
 
 void Ut_WindowInfo::initTestCase()
 {
+    WindowInfo::initializeAtoms();
     windowInfo = new WindowInfo(1);
 }
 

@@ -21,6 +21,6 @@ HEADERS += \
     $$SRCDIR/launcher.h \
     $$SRCDIR/windowinfo.h \
     $$SRCDIR/x11wrapper.h \
-    $$SRCDIR/homeapplication.h
+    $$SRCDIR/switcher.h
 
 include(../common_bot.pri)

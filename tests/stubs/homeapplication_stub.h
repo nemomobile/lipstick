@@ -29,8 +29,6 @@ class HomeApplicationStub : public StubBase
 public:
     virtual void HomeApplicationConstructor(int &argc, char **argv);
     virtual void HomeApplicationDestructor();
-    virtual void windowListUpdated(QList<WindowInfo> &windowList);
-    virtual void windowVisibilityChanged(Window window);
     virtual bool x11EventFilter(XEvent *event);
     virtual void sendStartupNotifications();
 };
@@ -45,20 +43,6 @@ void HomeApplicationStub::HomeApplicationConstructor(int &argc, char **argv)
 void HomeApplicationStub::HomeApplicationDestructor()
 {
 
-}
-
-void HomeApplicationStub::windowListUpdated(QList<WindowInfo> &windowList)
-{
-    QList<ParameterBase *> params;
-    params.append(new Parameter<QList<WindowInfo> & >(windowList));
-    stubMethodEntered("windowListUpdated", params);
-}
-
-void HomeApplicationStub::windowVisibilityChanged(Window window)
-{
-    QList<ParameterBase *> params;
-    params.append(new Parameter<Window >(window));
-    stubMethodEntered("windowVisibilityChanged", params);
 }
 
 bool HomeApplicationStub::x11EventFilter(XEvent *event)

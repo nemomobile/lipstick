@@ -25,6 +25,7 @@
 #include <MLabel>
 #include "mainwindow_stub.h"
 #include "homeapplication_stub.h"
+#include "switcher_stub.h"
 #include "windowinfo_stub.h"
 
 bool Ut_SwitcherButtonView::timerImmediateTimeout = false;
@@ -525,7 +526,7 @@ void Ut_SwitcherButtonView::testThumbnailPosition()
 void Ut_SwitcherButtonView::testSignalConnections()
 {
     // verify qApp connections
-    QVERIFY(disconnect(qApp, SIGNAL(windowVisibilityChanged(Window)), m_subject, SLOT(windowVisibilityChanged(Window))));
+    QVERIFY(disconnect(Switcher::instance(), SIGNAL(windowVisibilityChanged(Window)), m_subject, SLOT(windowVisibilityChanged(Window))));
     QVERIFY(disconnect(qApp, SIGNAL(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)), m_subject, SLOT(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &))));
 
     QVERIFY(disconnect(button, SIGNAL(displayEntered()), m_subject, SLOT(setOnDisplay())));

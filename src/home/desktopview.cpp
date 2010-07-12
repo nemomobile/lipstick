@@ -139,8 +139,8 @@ DesktopView::DesktopView(Desktop *desktop) :
     // Add the launcher into a scene window
     launcher = new Launcher(launcherDataStore);
     connect(qApp, SIGNAL(focusToLauncherAppRequested(const QString &)), this, SLOT(showLauncherAndPanToPage(const QString &)));
-    connect(qApp, SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), this, SLOT(updateLauncherVisiblity(const QList<WindowInfo> &)));
-    connect(qApp, SIGNAL(windowListUpdated(const QList<WindowInfo> &)), this, SLOT(setSwitcherHasContent(const QList<WindowInfo> &)));
+    connect(switcher, SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), this, SLOT(updateLauncherVisiblity(const QList<WindowInfo> &)));
+    connect(switcher, SIGNAL(windowListUpdated(const QList<WindowInfo> &)), this, SLOT(setSwitcherHasContent(const QList<WindowInfo> &)));
     windowLayout = new QGraphicsLinearLayout();
     windowLayout->setContentsMargins(0, 0, 0, 0);
     launcherWindow->setLayout(windowLayout);
