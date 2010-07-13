@@ -36,14 +36,17 @@ public:
     //! Constructs a window data object
     WindowData() {}
     //! Copy constructor
-    WindowData(const WindowData& source)
-        : QSharedData(source), window(source.window),
-        types(source.types), states(source.states) {}
+    WindowData(const WindowData& source) : QSharedData(source),
+            window(source.window), transientFor(source.transientFor),
+            types(source.types), states(source.states) {}
     //! Destructor
     ~WindowData() {}
 
-    //! The X window id
+    //! The X window ID
     Window window;
+
+    //! The ID of the window this window is transient for
+    Window transientFor;
 
     //! The title of the window
     QString title;
@@ -118,11 +121,18 @@ public:
     QList<Atom> states() const;
 
     /*!
-     * Gets the window.
+     * Gets the window ID.
      *
      * \return the Window
      */
     Window window() const;
+
+    /*!
+     * Gets the window ID of the window this window is transient for.
+     *
+     * \return the ID of the window this window is transient for
+     */
+    Window transientFor() const;
 
     /*!
      * Retrieves the window title. First the title is retrieved with atom _NET_WM_NAME,

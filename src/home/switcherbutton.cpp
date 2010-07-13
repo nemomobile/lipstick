@@ -54,6 +54,11 @@ Window SwitcherButton::xWindow()
     return model()->xWindow();
 }
 
+void SwitcherButton::setXWindow(Window window)
+{
+    model()->setXWindow(window);
+}
+
 void SwitcherButton::switchToWindow()
 {
     emit windowToFront(model()->xWindow());

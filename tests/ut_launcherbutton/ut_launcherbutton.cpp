@@ -174,6 +174,11 @@ Status X11Wrapper::XSendEvent(Display *, Window, Bool, long, XEvent *)
     return 0;
 }
 
+Status X11Wrapper::XGetTransientForHint(Display *, Window, Window *)
+{
+    return 0;
+}
+
 using namespace ContentAction;
 
 QString language;

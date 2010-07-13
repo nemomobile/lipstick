@@ -109,6 +109,7 @@ private:
     MApplication *app;
     Switcher *switcher;
 
+    void updateWindowList();
     void verifyModel(const QList<WindowInfo> &windowList);
     QString titleForWindow(Window window, const QList<WindowInfo> &windowList);
 
@@ -150,6 +151,15 @@ private slots:
 
     // Test that the Switcher update is delayed when launching new applications
     void testUpdateDelay();
+
+    // Test that transient windows are registered properly when opened
+    void testTransientWindowOpening();
+
+    // Test that transiency changes are handled properly
+    void testTransiencyChanges();
+
+    // Test that closing a transient window will close all the windows it is transient for
+    void testTransientWindowClosing();
 
 private:
     MSceneManager *mSceneManager;

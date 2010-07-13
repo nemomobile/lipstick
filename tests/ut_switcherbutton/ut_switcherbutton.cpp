@@ -137,20 +137,20 @@ void Ut_SwitcherButton::cleanupTestCase()
 
 void Ut_SwitcherButton::testXWindow()
 {
-    button->model()->setXWindow(1);
+    button->setXWindow(1);
     QCOMPARE(button->xWindow(), (Window)1);
 }
 
 void Ut_SwitcherButton::testSwitchToWindow()
 {
-    button->model()->setXWindow(2);
+    button->setXWindow(2);
     button->switchToWindow();
     QCOMPARE(signalReceiver.switchedWindow, (Window)2);
 }
 
 void Ut_SwitcherButton::testClose()
 {
-    button->model()->setXWindow(3);
+    button->setXWindow(3);
     button->close();
     QCOMPARE(signalReceiver.closedWindow, (Window)3);
 }

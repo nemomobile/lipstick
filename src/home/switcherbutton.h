@@ -54,6 +54,13 @@ public:
      */
     Window xWindow();
 
+    /*!
+     * Sets the X Window represented by this button
+     *
+     * \param window the X Window represented by this button
+     */
+    void setXWindow(Window window);
+
     /*! \reimp
      *
      * Reimplemented here as public because it's protected in the base class so the view cannot access it.

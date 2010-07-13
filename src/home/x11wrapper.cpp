@@ -103,3 +103,8 @@ void X11Wrapper::XDamageSubtract(Display *dpy, Damage damage, XserverRegion repa
 {
     ::XDamageSubtract(dpy, damage, repair, parts);
 }
+
+Status X11Wrapper::XGetTransientForHint(Display *display, Window w, Window *prop_window_return)
+{
+    return ::XGetTransientForHint(display, w, prop_window_return);
+}

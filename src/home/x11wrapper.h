@@ -46,6 +46,7 @@ public:
     static int XChangeProperty(Display *display, Window w, Atom property, Atom type, int format, int mode, unsigned char *data, int nelements);
     static Status XSendEvent(Display *display, Window w, Bool propagate, long event_mask, XEvent *event_send);
     static void XDamageSubtract(Display *dpy, Damage damage, XserverRegion repair, XserverRegion parts);
+    static Status XGetTransientForHint(Display *display, Window w, Window *prop_window_return);
 };
 
 #endif /* X11WRAPPER_H_ */

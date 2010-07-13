@@ -147,6 +147,13 @@ Status X11Wrapper::XSendEvent(Display *, Window, Bool, long, XEvent *)
     return 0;
 }
 
+Window x11WrapperTransientForHint;
+Status X11Wrapper::XGetTransientForHint(Display *, Window, Window *prop_return)
+{
+    *prop_return = x11WrapperTransientForHint;
+    return 1;
+}
+
 void Ut_WindowInfo::initTestCase()
 {
     WindowInfo::initializeAtoms();
@@ -160,6 +167,7 @@ void Ut_WindowInfo::cleanupTestCase()
 
 void Ut_WindowInfo::init()
 {
+    x11WrapperTransientForHint = 0;
 }
 
 void Ut_WindowInfo::cleanup()
@@ -177,10 +185,12 @@ void Ut_WindowInfo::testGetters()
     updated = windowInfo->updateWindowTitle();
     QVERIFY(updated);
     QCOMPARE(windowInfo->title(), QString("WindowTitleXGetWMName"));
-
     QCOMPARE(windowInfo->types().count(), 2);
-
     QCOMPARE(windowInfo->states().count(), 1);
+
+    x11WrapperTransientForHint = 5;
+    windowInfo->updateWindowProperties();
+    QCOMPARE(windowInfo->transientFor(), x11WrapperTransientForHint);
 }
 
 QTEST_MAIN(Ut_WindowInfo)

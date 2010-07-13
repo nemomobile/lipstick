@@ -82,6 +82,11 @@ Window WindowInfo::window() const
     return d->window;
 }
 
+Window WindowInfo::transientFor() const
+{
+    return d->transientFor;
+}
+
 QList<Atom> WindowInfo::types() const
 {
     return d->types;
@@ -119,29 +124,27 @@ void WindowInfo::updateWindowProperties()
 {
     d->types = getWindowProperties(d->window, WindowInfo::TypeAtom);
     d->states = getWindowProperties(d->window, WindowInfo::StateAtom);
+
+    if (!X11Wrapper::XGetTransientForHint(QX11Info::display(), d->window, &d->transientFor) || d->transientFor == d->window) {
+        d->transientFor = 0;
+    }
 }
 
 QList<Atom> WindowInfo::getWindowProperties(Window winId, Atom propertyAtom, long maxCount)
 {
-    QList<Atom> to;
-    Display *dpy = QX11Info::display();
-
+    QList<Atom> properties;
     Atom actualType;
     int actualFormat;
     unsigned long numTypeItems, bytesLeft;
     unsigned char *typeData = NULL;
-    
-    Status result = X11Wrapper::XGetWindowProperty(dpy, winId, propertyAtom, 0L, maxCount, False, XA_ATOM,
-                                                   &actualType, &actualFormat, 
-                                                   &numTypeItems, &bytesLeft, &typeData);
 
+    Status result = X11Wrapper::XGetWindowProperty(QX11Info::display(), winId, propertyAtom, 0L, maxCount, False, XA_ATOM, &actualType, &actualFormat, &numTypeItems, &bytesLeft, &typeData);
     if (result == Success) {
-        to.clear();
-        Atom *type = (Atom *)typeData;
+        Atom *type = (Atom *) typeData;
         for (unsigned int n = 0; n < numTypeItems; n++) {
-            to.append(type[n]);
+            properties.append(type[n]);
         }
-        X11Wrapper::XFree(typeData);            
+        X11Wrapper::XFree(typeData);
     }
-    return to;
+    return properties;
 }
