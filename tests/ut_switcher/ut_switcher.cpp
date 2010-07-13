@@ -333,8 +333,6 @@ Status X11Wrapper::XSendEvent(Display *display, Window,
 }
 
 QMap<SwitcherButton *, Window> g_windowButtonMap;
-QString g_lastSingleShot;
-QString g_singleShotTarget;
 
 // Home stubs
 class Home : public MApplicationPage
@@ -405,15 +403,25 @@ Window SwitcherButton::xWindow()
     return g_windowButtonMap[this];
 }
 
-void QTimer::singleShot(int msec, QObject *receiver, const char *member)
+// QTimer stubs
+bool qTimerImmediateTimeout;
+void QTimer::start(int)
 {
-    Q_UNUSED(msec);
+    start();
+}
 
-    if( !g_singleShotTarget.isEmpty() ) {
-        QMetaObject::invokeMethod(receiver, g_singleShotTarget.toAscii().data(), Qt::DirectConnection);
+void QTimer::start()
+{
+    if (qTimerImmediateTimeout) {
+        emit timeout();
     }
 
-    g_lastSingleShot = QString(member);
+    id = 0;
+}
+
+void QTimer::stop()
+{
+    id = -1;
 }
 
 QList<Window> Ut_Switcher::visibilityNotifyWindows;
@@ -434,9 +442,6 @@ void Ut_Switcher::init()
 
     // Creating a switcher also creates the switcher view
     switcher = Switcher::instance();
-
-    g_lastSingleShot = QString();
-    g_singleShotTarget = "updateButtons";
 
     visibilityNotifyWindows.clear();
 
@@ -459,8 +464,9 @@ void Ut_Switcher::init()
     g_windowTypeMap[INVALID_WINDOWS + APPLICATION_WINDOWS + 2][0] = ATOM_TYPE_DIALOG;
     g_windowTypeMap[INVALID_WINDOWS + APPLICATION_WINDOWS + 3][0] = ATOM_TYPE_DOCK;
     g_windowTypeMap[INVALID_WINDOWS + APPLICATION_WINDOWS + 4][0] = ATOM_TYPE_MENU;
-
     g_windowStateMap.clear();
+
+    qTimerImmediateTimeout = true;
 }
 
 void Ut_Switcher::cleanup()
@@ -595,7 +601,6 @@ void Ut_Switcher::testX11EventFilterWithVisibilityNotify()
     windowList.append(w);
     gMApplicationStub->stubSetReturnValue<QList<MWindow *> >("windows", windowList);
 
-    int x11EventFilterCallCount;
     WindowVisibilityReceiver r;
     connect(switcher, SIGNAL(windowVisibilityChanged(Window)), &r, SLOT(windowVisibilityChanged(Window)));
 
@@ -607,12 +612,10 @@ void Ut_Switcher::testX11EventFilterWithVisibilityNotify()
     event.xvisibility.send_event = TRUE;
 
     // Make sure the window visibility change signal is not emitted if state is VisibilityUnobscured
-    x11EventFilterCallCount = gMApplicationStub->stubCallCount("x11EventFilter");
     QVERIFY(!switcher->handleX11Event(&event));
     QCOMPARE(r.windowList.count(), 0);
 
     // Make sure the window visibility change signal was emitted with the given window if state is VisibilityFullyObscured
-    x11EventFilterCallCount = gMApplicationStub->stubCallCount("x11EventFilter");
     event.xvisibility.state = VisibilityFullyObscured;
     QVERIFY(switcher->handleX11Event(&event));
     QCOMPARE(r.windowList.count(), 1);
@@ -648,13 +651,7 @@ void Ut_Switcher::testX11EventFilterWithClientMessage()
     clientEvent.xclient.window = INVALID_WINDOWS + 1; // This is the first application window id
     QVERIFY(switcher->handleX11Event(&clientEvent));
 
-    // Make sure the window list change signal was emitted
-    QCOMPARE(r.count, 1);
-    // We have closed one window
-    QCOMPARE(r.windowList.count(), APPLICATION_WINDOWS - 1);
-    verifyModel(r.windowList);
-
-    // Change the client list so that the window being closed was actually closed
+    // When the stacking list is updated the closed window should be excluded
     XEvent propertyEvent;
     propertyEvent.type = PropertyNotify;
     propertyEvent.xproperty.window = DefaultRootWindow(QX11Info::display());
@@ -759,11 +756,9 @@ void Ut_Switcher::testX11EventWindowNameChange()
 
 void Ut_Switcher::testUpdateDelay()
 {
-    // Prevent immediate update
-    g_singleShotTarget.clear();
-
     WindowListReceiver r;
     connect(switcher, SIGNAL(windowListUpdated(const QList<WindowInfo> &)), &r, SLOT(windowListUpdated(const QList<WindowInfo> &)));
+    qTimerImmediateTimeout = false;
 
     XEvent event;
     event.xproperty.atom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_CLIENT_LIST_STACKING", False);
@@ -779,7 +774,7 @@ void Ut_Switcher::testUpdateDelay()
     QCOMPARE(switcher->model()->buttons().count(), 0);
 
     // But the update should have been scheduled
-    QVERIFY(g_lastSingleShot.contains("updateButtons"));
+    QVERIFY(switcher->updateButtonsTimer.isActive());
 }
 
 QTEST_APPLESS_MAIN(Ut_Switcher)

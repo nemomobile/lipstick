@@ -29,10 +29,10 @@ public:
     virtual void switcherConstructor(MWidget *parent = NULL);
     virtual void switcherDestructor();
     virtual bool handleX11Event(XEvent *event);
+    virtual void updateButtons();
     virtual void windowToFront(Window window);
     virtual void closeWindow(Window window);
-    virtual void updateButtons();
-    virtual void scheduleUpdate();
+    virtual void scheduleUpdateButtons();
 };
 
 void SwitcherStub::switcherConstructor(MWidget *parent)
@@ -74,9 +74,9 @@ void SwitcherStub::updateButtons()
     stubMethodEntered("updateButtons");
 }
 
-void SwitcherStub::scheduleUpdate()
+void SwitcherStub::scheduleUpdateButtons()
 {
-    stubMethodEntered("scheduleUpdate");
+    stubMethodEntered("scheduleUpdateButtons");
 }
 
 SwitcherStub gDefaultSwitcherStub;
@@ -122,9 +122,9 @@ void Switcher::updateButtons()
     gSwitcherStub->updateButtons();
 }
 
-void Switcher::scheduleUpdate()
+void Switcher::scheduleUpdateButtons()
 {
-    gSwitcherStub->scheduleUpdate();
+    gSwitcherStub->scheduleUpdateButtons();
 }
 
 #endif

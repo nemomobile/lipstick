@@ -16,10 +16,10 @@
 ** of this file.
 **
 ****************************************************************************/
-
 #ifndef SWITCHER_H
 #define SWITCHER_H
 
+#include <QTimer>
 #include <MWidgetController>
 #include "switchermodel.h"
 #include <X11/Xlib.h>
@@ -72,7 +72,12 @@ signals:
     void windowVisibilityChanged(Window window);
 
 private slots:
-   /*!
+    /*!
+     * \brief Updates the buttons in the model based on the current window list
+     */
+    void updateButtons();
+
+    /*!
      * \brief A slot for notifying that a window should be brought to front
      */
     void windowToFront(Window window);
@@ -81,11 +86,6 @@ private slots:
      * \brief A slot for notifying that a window should be closed
      */
     void closeWindow(Window window);
-
-    /*!
-     * \brief Updates the buttons in the model based on the new window list
-     */
-    void updateButtons();
 
 private:
     /*!
@@ -96,31 +96,73 @@ private:
     Switcher(MWidget *parent = NULL);
 
     /*!
-     * \brief Starts a timer which eventually calls updateButtons
+     * Adds all windows in the given set to the Switcher.
+     *
+     * \param windows the set of windows to add to the Switcher
+     * \return \c true if an application window was added, \c false otherwise
      */
-    void scheduleUpdate();
+    bool addWindows(const QSet<Window> &windows);
 
     /*!
-     * Gets the current client window list from X and filters it based on
-     *  - Windows that are bigger than 0x0, are Input/Output windows, are not unmapped and type includes Normal are included. Additionally:
-     *  - Windows that have a type Notification or Desktop are not included.
-     *  - Windows that have the "skip taskbar" state flag set, are not included.
-     *  - Windows that are non application windows, such as desktop, menu, notification.
+     * Adds a window to the set of windows tracked by the Switcher.
+     *
+     * \param window the ID of the window to be added
+     * \return \c true if the window was added as an application window, \c false otherwise
      */
-    void updateWindowMapping();
+    bool addWindow(Window window);
 
     /*!
-     * Updates the window properties changes.
-     * \param window The window to update.
+     * Removes all windows in the given set to the Switcher.
+     *
+     * \param windows the set of windows to remove from the Switcher
+     * \return \c true if an application window was removed, \c false otherwise
      */
-    void updateWindowProperties(Window window);
+    bool removeWindows(const QSet<Window> &windows);
 
     /*!
-     * Helper method to create a \c WindowInfos into the current mapping
-     * \param openedWindowSet A set of new windows
-     * \return true if application windows were added
+     * Removes a window from the set of windows tracked by the Switcher.
+     *
+     * \param window the ID of the window to be removed
+     * \return \c true if the window was removed and was an application window, \c false otherwise
      */
-    bool createWindowInfos(QSet<Window> openedWindowSet);
+    bool removeWindow(Window window);
+
+    /*!
+     * Marks a window as being closed.
+     *
+     * \param window the ID of the window to mark as being closed
+     */
+    void markWindowBeingClosed(Window window);
+
+    /*!
+     * Checks whether a window is interesting from the Switcher's point of view.
+     * Such windows are bigger than 0x0, are Input/Output windows and are not unmapped.
+     *
+     * \param window the ID of the window whose relevance is to be checked
+     * \return \c true if the window is relevant, \c false otherwise
+     */
+    bool isRelevantWindow(Window window);
+
+    /*!
+     * Checks whether a window is an application window. A window is not an application window if
+     *  - its type is Desktop, Menu, Dock, Dialog or Notification
+     *  - it has the "skip taskbar" state flag set
+     *
+     * \param windowInfo information for the window to be checked
+     * \return \c true if the window is an application window, \c false otherwise
+     */
+    bool isApplicationWindow(const WindowInfo &windowInfo);
+
+    /*!
+     * \brief Schedules update of the buttons in the model based on the current window list
+     */
+    void scheduleUpdateButtons();
+
+    /*!
+     * Gets the current stacked client window list from X and checks whether new windows are added or removed.
+     * Adds and removes such windows from the switcher and emits the updated stacked window list.
+     */
+    void updateWindowInfoMap();
 
     /*!
      * Update the title of the given window and emit \c windowTitleChanged
@@ -129,16 +171,10 @@ private:
     void updateWindowTitle(Window window);
 
     /*!
-     * Helper method to remove a \c WindowInfos from the current mapping
-     * \param closedWindowSet A set of closed windows
-     * \return true if application windows were removed
+     * Updates the window properties changes.
+     * \param window The window to update.
      */
-    bool removeWindowInfos(QSet<Window> closedWindowSet);
-
-    /*!
-     * Helper method to check if the window is an applciation window
-     */
-    bool isApplicationWindow(const WindowInfo &window);
+    void updateWindowProperties(Window window);
 
     //! A singleton switcher instance
     static Switcher *switcher;
@@ -150,27 +186,28 @@ private:
     Atom activeWindowAtom;
 
     //! X11 Atoms for window types
-    Atom windowTypeAtom;
     Atom clientListAtom;
     Atom stackedClientListAtom;
-    Atom windowStateAtom;
     Atom netWindowNameAtom;
     Atom windowNameAtom;
 
-    //! A mapping from known X Window ids to SwitcherButtons
+    //! A mapping from known X Window IDs to SwitcherButtons
     QMap<Window, SwitcherButton *> switcherButtonMap;
 
     //! A list of windows that are being closed
     QSet<Window> windowsBeingClosed;
 
     //! Mapping of the current X windows
-    QMap<Window, WindowInfo> windowMap;
+    QMap<Window, WindowInfo *> windowInfoMap;
 
     //! List of application windows
     QList<WindowInfo> applicationWindows;
 
-    //! A set of window type atoms that are used to finlter the application windows
+    //! A set of window type atoms that are used to filter the application windows
     QSet<Atom> excludeAtoms;
+
+    //! A timer for scheduling button updates
+    QTimer updateButtonsTimer;
 
 #ifdef UNIT_TEST
     friend class Ut_Switcher;
