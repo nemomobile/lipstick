@@ -1,4 +1,4 @@
-duihome (0.21.15~1) unstable; urgency=low
+duihome (0.21.15~2) unstable; urgency=low
 
   * New version [UNRELEASED]
   * Implemented: SWP#DUI-3250 Switcher should stack windows of same task on top of each other
@@ -6,7 +6,7 @@ duihome (0.21.15~1) unstable; urgency=low
   * Fixes: NB#176914 - Shortcut icons on the homescreen are out of alignment
   * Fixes: NB#174025 - launcher closes when device screen dims
 
- -- Vesa Halttunen <vesa.halttunen@nokia.com>  Thu, 15 Jul 2010 19:19:33 +0300
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Thu, 15 Jul 2010 19:20:33 +0300
 
 duihome (0.21.14-1) unstable; urgency=low
 
