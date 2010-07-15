@@ -1,8 +1,10 @@
 duihome (0.21.15~1) unstable; urgency=low
 
   * New version [UNRELEASED]
+  * Implemented: SWP#DUI-3250 Switcher should stack windows of same task on top of each other
   * Fixes: NB#178219 - Launcher view is not shown according to the page indicator
   * Fixes: NB#176914 - Shortcut icons on the homescreen are out of alignment
+  * Fixes: NB#174025 - launcher closes when device screen dims
 
  -- Vesa Halttunen <vesa.halttunen@nokia.com>  Fri, 02 Jul 2010 15:21:33 +0300
 

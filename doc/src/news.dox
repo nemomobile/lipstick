@@ -1,5 +1,15 @@
 /*! \page news What's New in MeeGo Touch Homescreen
 
+\section v02115 0.21.15
+
+\subsection New
+- The switcher now supports transient windows
+
+\subsection bugs Bugs fixed
+- The launcher page indicator did not show the correct page when the launcher was opened
+- Shortcut icons on the quick launch bar were not properly aligned
+- The launcher closed when the screen dimmed
+
 \section v02114 0.21.14
 
 \subsection New
