@@ -40,21 +40,6 @@ Provides: duihomescreen-l10n
 %description -n duihomescreen-l10n-fi
 MeeGo Touch Homescreen Finnish messages
 
-%package -n duihomescreen-applets
-Summary: MeeGo Touch Homescreen Demo Applets
-%description -n duihomescreen-applets
-MeeGo Touch Homescreen Demo Applets
-
-%package -n duihomescreen-applets-l10n-eng-en
-Summary: MeeGo Touch Homescreen Demo Applets engineering English messages
-%description -n duihomescreen-applets-l10n-eng-en
-MeeGo Touch Homescreen Demo Applets engineering English messages
-
-%package -n duihomescreen-applets-l10n-fi
-Summary: MeeGo Touch Homescreen Demo Applets Finnish messages
-%description -n duihomescreen-applets-l10n-fi
-MeeGo Touch Homescreen Demo Applets Fin messages
-
 %package -n duihomescreen-tests
 Summary: MeeGo Touch Homescreen unit tests
 %description -n duihomescreen-tests
@@ -133,35 +118,6 @@ rm -fR %{buildroot}
 %defattr(-,root,root)
 %dir /usr/share/l10n/meegotouch
 /usr/share/l10n/meegotouch/duihome_fi.qm
-
-%files -n duihomescreen-applets
-%defattr(-,root,root)
-%dir /usr/lib/meegotouch/applets
-%dir /usr/share/meegotouch/applets
-%dir /usr/share/meegotouch/applets/settings
-%dir /usr/share/themes/base/meegotouch/imageapplet
-%dir /usr/share/themes/base/meegotouch/imageapplet/images
-%dir /usr/share/themes/base/meegotouch/weatherappletres
-%dir /usr/share/themes/base/meegotouch/weatherappletres/images
-%dir /usr/share/themes/base/meegotouch/weatherappletres/style
-/usr/lib/meegotouch/applets/*.so
-/usr/share/meegotouch/applets/settings/*.xml
-/usr/share/meegotouch/applets/*.desktop
-/usr/share/themes/base/meegotouch/imageapplet/images/*.png
-/usr/share/themes/base/meegotouch/weatherappletres/images/*.png
-/usr/share/themes/base/meegotouch/weatherappletres/style/*.css
-/usr/share/themes/base/meegotouch/weatherappletres/*.conf
-
-%files -n duihomescreen-applets-l10n-eng-en
-%defattr(-,root,root)
-%dir /usr/share/l10n/meegotouch
-/usr/share/l10n/meegotouch/weatherappletres.qm
-/usr/share/l10n/meegotouch/weatherappletres_en.qm
-
-%files -n duihomescreen-applets-l10n-fi
-%defattr(-,root,root)
-%dir /usr/share/l10n/meegotouch
-/usr/share/l10n/meegotouch/weatherappletres_fi.qm
 
 %files -n duihomescreen-tests
 %defattr(-,root,root)

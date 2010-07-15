@@ -97,7 +97,7 @@ binary-arch: build install
 #	dh_installinfo
 #	dh_installman
 	dh_link
-	dh_strip --dbg-package=duihomescreen-plugins-dbg --dbg-package=duihomescreen --dbg-package=libduihome0
+	dh_strip --dbg-package=duihomescreen --dbg-package=libduihome0
 	dh_compress
 	dh_fixperms
 #	dh_perl

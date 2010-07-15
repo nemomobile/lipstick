@@ -1,6 +1,0 @@
-usr/lib/meegotouch/applets/libimageapplet.so
-usr/share/meegotouch/applets/game.desktop
-usr/share/meegotouch/applets/settings/image*.xml
-usr/share/themes/base/meegotouch/imageapplet/*.conf
-usr/share/themes/base/meegotouch/imageapplet/images/*.png
-usr/share/themes/base/meegotouch/imageapplet/style/*.css

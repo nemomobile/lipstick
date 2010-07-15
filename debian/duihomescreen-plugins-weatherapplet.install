@@ -1,6 +1,0 @@
-usr/lib/meegotouch/applets/libweatherapplet.so
-usr/share/meegotouch/applets/weather*.desktop
-usr/share/meegotouch/applets/settings/weather*.xml
-usr/share/themes/base/meegotouch/weatherappletres/*.conf
-usr/share/themes/base/meegotouch/weatherappletres/images/*.png
-usr/share/themes/base/meegotouch/weatherappletres/style/*.css

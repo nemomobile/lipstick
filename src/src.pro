@@ -4,5 +4,4 @@ SUBDIRS = \
     libmeegotouchhome \
     home \
     home/translations \
-    applets \
     extensions \

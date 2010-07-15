@@ -61,11 +61,6 @@ signals:
      */
     void toggleLauncherButtonClicked();
 
-    /*!
-     * \brief A signal for notifying that the applet space button has been clicked
-     */
-    void toggleAppletSpaceButtonClicked();
-
 private slots:
     /*!
      * \brief Updates the widget list based on the contents of the data store

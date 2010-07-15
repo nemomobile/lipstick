@@ -82,4 +82,4 @@ private slots:
     void testSetVisibleInSwitcherProperty();
 };
 
-#endif //_UT_APPLETBUTTON_
+#endif //_UT_SWITCHERBUTTON_

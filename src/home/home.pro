@@ -52,7 +52,5 @@ QMAKE_CLEAN += *.gcov \
 target.path = /usr/bin
 INSTALLS += target
 
-DEFINES += APPLET_DATA=\'$$quote(\"$$M_APPLET_DATA_DIR\")\'
-DEFINES += APPLET_SETTINGS=\'$$quote(\"$$M_APPLET_SETTINGS_DIR\")\'
 DEFINES += APPLICATIONS_DIRECTORY=\'$$quote(\"/usr/share/applications/\")\'
 DEFINES += M_XDG_DIR=\\\"\"$$M_XDG_DIR\"\\\"

@@ -1,9 +1,0 @@
-[Desktop Entry]
-Type=X-MeeGoApplet
-Name=Weather
-Icon=icon-m-notification-temperature
-Exec=mappletrunner
-
-[X-MeeGoApplet]
-Applet=libweatherapplet.so
-Identifier=weatherappletres

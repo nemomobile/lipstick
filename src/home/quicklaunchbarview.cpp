@@ -49,13 +49,6 @@ QuickLaunchBarView::QuickLaunchBarView(QuickLaunchBar *controller) : MWidgetView
     l->addStretch();
     l->addItem(launcherButtonLayout);
     l->addStretch();
-
-    // The applet space is currently disabled
-    /*
-    MButton *appletSpaceButton = new MButton("Applet Space");
-    connect(appletSpaceButton, SIGNAL(clicked()), controller, SIGNAL(toggleAppletSpaceButtonClicked()));
-    l->addItem(appletSpaceButton);
-    */
 }
 
 QuickLaunchBarView::~QuickLaunchBarView()

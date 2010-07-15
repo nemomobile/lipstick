@@ -4,7 +4,6 @@ QT += dbus
 
 TEMPLATE += lib
 
-DEFINES += APPLET_DATA=\'$$quote(\"$$M_APPLET_DATA_DIR\")\'
 DEFINES += APPLICATIONS_DIRECTORY=\'$$quote(\"/usr/share/applications/\")\'
 DEFINES += NOTIFICATIONS_EVENT_TYPES=\'$$quote(\"$$M_NOTIFICATIONS_EVENT_TYPES_DIR\")\'
 

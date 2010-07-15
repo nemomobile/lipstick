@@ -2,8 +2,6 @@
 *.debhelper
 duihomescreen-dbg/
 duihomescreen-l10n-engineering-english/
-duihomescreen-plugins-dbg/
-duihomescreen-plugins/
 duihomescreen-tests/
 duihomescreen/
 files

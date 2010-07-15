@@ -25,63 +25,12 @@ Enhances: duihomescreen
 Description: Engineering English translations for Direct UI Home screen
  Engineering English translations for Direct UI Home screen
 
-Package: duihomescreen-plugins-weatherapplet-l10n-engineering-english
-Section: devel
-Architecture: any
-Enhances: duihomescreen-plugins-weatherapplet
-Description: Engineering English translations for Direct UI home weather applet
-
-Package: duihomescreen-plugins-weatherapplet-l10n-fi
-Section: devel
-Architecture: any
-Enhances: duihomescreen-plugins-weatherapplet
-Description: Finnish translations for Direct UI home weather applet
-
-Package: duihomescreen-plugins-weatherapplet-l10n-en
-Section: devel
-Architecture: any
-Enhances: duihomescreen-plugins-weatherapplet
-Description: English translations for Direct UI home weather applet
-
 Package: duihomescreen-dbg
 Architecture: any
 Section: devel
 Depends: duihomescreen (= ${binary:Version})
 Description: Direct UI Home screen debug info
  Direct UI Home screen debug information
-
-Package: duihomescreen-plugins-weatherapplet
-Architecture: any
-Section: user/TEST
-Depends: ${shlibs:Depends}, duihomescreen-plugins-weatherapplet-l10n-engineering-english
-Suggests: duihomescreen-plugins-weatherapplet-l10n-en, duihomescreen-plugins-weatherapplet-l10n-fi
-Description: Direct UI Home screen plugins
- Direct UI home weather applet
-XB-Maemo-Title: Weather
-XB-Maemo-Desktop-File: /usr/share/dui/applets/weather.desktop
-
-Package: duihomescreen-plugins-imageapplet
-Architecture: any
-Section: user/TEST
-Depends: ${shlibs:Depends}
-Description: Direct UI Home screen plugins
- Direct UI home image applet
-XB-Maemo-Title: Images
-XB-Maemo-Desktop-File: /usr/share/dui/applets/media.desktop
-
-Package: duihomescreen-plugins
-Architecture: any
-Section: x11
-Depends: duihomescreen-plugins-weatherapplet, duihomescreen-plugins-imageapplet, ${shlibs:Depends}
-Description: Direct UI Home screen plugins
- Direct UI home screen plugins
-
-Package: duihomescreen-plugins-dbg
-Architecture: any
-Section: devel
-Depends: duihomescreen-plugins (= ${binary:Version})
-Description: Direct UI Home screen plugins debug info
- Direct UI Home screen plugins debug information
 
 Package: libduihome0
 Architecture: any
@@ -112,7 +61,7 @@ Description: API documentation for libduihome
 Package: duihomescreen-tests
 Section: devel
 Architecture: any
-Depends: ci-testing, testrunner, duihomescreen (= ${binary:Version}), duihomescreen-plugins (= ${binary:Version}),
+Depends: ci-testing, testrunner, duihomescreen (= ${binary:Version}),
   meego-env-dimming
 XB-Maemo-CI-Packages: duihomescreen
 XB-Maemo-CI-Stage: fast, staging

@@ -24,8 +24,8 @@
 #include "desktopmodel.h"
 
 /*!
- * The desktop widget is a container for the status area,
- * notification area, switcher and the applet mashup canvas.
+ * The desktop widget is a container for the switcher,
+ * launcher and quick launch bar.
  */
 class Desktop : public MWidgetController
 {
