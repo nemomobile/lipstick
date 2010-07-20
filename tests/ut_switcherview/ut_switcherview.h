@@ -23,6 +23,7 @@
 #include <QtTest/QtTest>
 #include <QObject>
 #include <MApplication>
+#include "windowinfo.h"
 
 class MWindow;
 class TestSwitcherView;
@@ -68,6 +69,12 @@ private slots:
     // Test that buttons are removed correctly
     void testRemovingButtons();
 
+    // Test that switcher pans to the correct page when button is added in overview mode
+    void testPanToSwitcherPageInOverviewMode();
+
+    // Test that switcher pans to the correct page when button is added in detailview mode
+    void testPanToSwitcherPageInDetailviewMode();
+
 private:
     void verifyButtonModesInOverviewMode(M::Orientation orientation);
     void verifyButtonModesInOverviewMode(QList< QSharedPointer<SwitcherButton> > &buttonList);
@@ -81,6 +88,7 @@ private:
 signals:
     void pageChanged(int newPosition);
     void panningStopped();
+    void panToSwitcherPage(QList<WindowInfo> windowList);
 
 private:
     MApplication *app;

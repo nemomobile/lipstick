@@ -102,7 +102,6 @@ SwitcherButton::SwitcherButton(const QString &title, MWidget *parent, Window win
 {
     Q_UNUSED(title);
     Q_UNUSED(parent);
-    Q_UNUSED(window);
 
     g_windowButtonMap[this] = window;
 }
@@ -140,7 +139,6 @@ Window SwitcherButton::xWindow()
 {
     return g_windowButtonMap[this];
 }
-
 
 PagedPanning::PagedPanning(QObject* parent) : MPhysics2DPanning(parent),
                                               pageCount_(1),
@@ -234,7 +232,7 @@ void Ut_SwitcherView::appendMoreButtonsToList(int newButtons, QList< QSharedPoin
 {
     int newCount = buttonList.count() + newButtons;
     for(int i = buttonList.count(); i < newCount; i++) {
-        QSharedPointer<SwitcherButton> button(new SwitcherButton(QString("Title %1").arg(i), NULL, 1));
+        QSharedPointer<SwitcherButton> button(new SwitcherButton(QString("Title %1").arg(i), NULL, i));
         button.data()->setModel(new SwitcherButtonModel());
         buttonList.append(button);
     }
@@ -643,6 +641,60 @@ void Ut_SwitcherView::testRemovingButtons()
     QCOMPARE(layout->count(), 1);
     // verify that removed button was not deleted while there is still ref in QSharedPointer
     QVERIFY(!removedButton.isNull());
+}
+
+void Ut_SwitcherView::testPanToSwitcherPageInOverviewMode()
+{
+    int firstPageIndex = 0;
+    int secondPageIndex = 1;
+
+    g_switcherModel->setSwitcherMode(SwitcherModel::Overview);
+    m_subject->modifiableStyle()->setRowsPerPage(2);
+    m_subject->modifiableStyle()->setColumnsPerPage(2);
+
+    connect(this, SIGNAL(panToSwitcherPage(QList<WindowInfo>)), m_subject, SLOT(panToSwitcherPage(QList<WindowInfo>)));
+    g_windowButtonMap.clear();
+    int buttons = 4;
+    QList< QSharedPointer<SwitcherButton> > list(createButtonList(buttons));
+    QList<WindowInfo> list1;
+    list1.append(g_windowButtonMap.value(list.last().data()));
+
+    g_switcherModel->setButtons(list);
+    gWindowInfoStub->stubSetReturnValue("window", g_windowButtonMap.value(list.last().data()));
+    emit panToSwitcherPage(list1);
+    QCOMPARE(g_windowButtonMap.count(), buttons);
+    QCOMPARE(g_panRequested, true);
+    QCOMPARE(g_panRequestIndex, uint(firstPageIndex));
+
+    int moreButtons = 3;
+    appendMoreButtonsToList(moreButtons, list);
+    g_switcherModel->setButtons(list);
+    list1.append(g_windowButtonMap.value(list.last().data()));
+    gWindowInfoStub->stubSetReturnValue("window", g_windowButtonMap.value(list.last().data()));
+    emit panToSwitcherPage(list1);
+    QCOMPARE(g_windowButtonMap.count(), buttons + moreButtons);
+    QCOMPARE(g_panRequested, true);
+    QCOMPARE(g_panRequestIndex, uint(secondPageIndex));
+}
+
+void Ut_SwitcherView::testPanToSwitcherPageInDetailviewMode()
+{
+    g_switcherModel->setSwitcherMode(SwitcherModel::Detailview);
+    connect(this, SIGNAL(panToSwitcherPage(QList<WindowInfo>)), m_subject, SLOT(panToSwitcherPage(QList<WindowInfo>)));
+
+    g_windowButtonMap.clear();
+    int buttons = 4;
+    QList< QSharedPointer<SwitcherButton> > list(createButtonList(buttons));
+    QList<WindowInfo> list1;
+    list1.append(g_windowButtonMap.value(list.last().data()));
+    g_switcherModel->setButtons(list);
+    gWindowInfoStub->stubSetReturnValue("window", g_windowButtonMap.value(list.last().data()));
+
+    emit panToSwitcherPage(list1);
+    QCOMPARE(g_windowButtonMap.count(), buttons);
+    QCOMPARE(g_panRequested, true);
+    int lastPageIndex = buttons -1;
+    QCOMPARE(g_panRequestIndex, uint(lastPageIndex));
 }
 
 QTEST_APPLESS_MAIN(Ut_SwitcherView)

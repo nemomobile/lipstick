@@ -56,6 +56,8 @@ SwitcherView::SwitcherView(Switcher *switcher) :
 
     connect(viewport, SIGNAL(pageChanged(int)), this, SLOT(updateFocusedButton(int)));
     connect(MainWindow::instance()->sceneManager(), SIGNAL(orientationChanged(M::Orientation)), this, SLOT(updateButtons()));
+    connect(controller, SIGNAL(windowStackingOrderChanged(QList<WindowInfo>)), this, SLOT(panToSwitcherPage(QList<WindowInfo>)));
+    connect(controller, SIGNAL(windowListUpdated(QList<WindowInfo>)), this, SLOT(panToSwitcherPage(QList<WindowInfo>)));
 
     // We have custom values for this view port in the style
     viewport->setObjectName("SwitcherViewport");
@@ -137,6 +139,23 @@ void SwitcherView::updateData(const QList<const char*>& modifications)
     }
 }
 
+void SwitcherView::panToSwitcherPage(QList<WindowInfo> windowList)
+{
+    for (int i = 0; i < model()->buttons().count(); ++i) {
+        if (windowList.last().window() == model()->buttons().at(i)->xWindow()) {
+            uint buttonPos = i;
+            uint page = 0;
+            if (model()->switcherMode() == SwitcherModel::Overview) {
+                page = buttonPos / (style()->columnsPerPage() * style()->rowsPerPage());
+            } else {
+                page = buttonPos;
+            }
+            viewport->panToPage(page);
+            break;
+        }
+    }
+}
+
 void SwitcherView::updateButtons()
 {
     focusedSwitcherButton = std::min(focusedSwitcherButton, model()->buttons().size() - 1);
@@ -214,7 +233,7 @@ void SwitcherView::updateFocusedButton(int currentPage)
     } else {
         // Focus on 1st button of the snapped page
         int pos = currentPage * (style()->columnsPerPage() * style()->rowsPerPage());
-        // Just a sanity check that we don't requst a non-existent element
+        // Just a sanity check that we don't request a non-existent element
         if (pos >= 0 && pos < model()->buttons().count()) {
             focusedSwitcherButton = pos;
         }

@@ -83,6 +83,9 @@ protected slots:
     virtual void updateData(const QList<const char *>& modifications);
     //! \endcond
 
+    /*! Pan to switcher page containing the button corresponding to the topmost window */
+    void panToSwitcherPage(QList<WindowInfo> windowList);
+
 private slots:
     /*! Listens for page change in the paged viewport */
     void updateFocusedButton(int currentPage);
