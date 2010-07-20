@@ -24,6 +24,6 @@ HEADERS += \
     $$SRCDIR/switchermodel.h \
     $$SRCDIR/switcherbutton.h \
     $$SRCDIR/switcherbuttonmodel.h \
-    $$SRCDIR/windowinfo.h \
+    $$SRCDIR/windowinfo.h
 
 include(../common_bot.pri)

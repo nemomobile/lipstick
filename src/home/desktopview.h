@@ -27,6 +27,7 @@
 #include "windowinfo.h"
 
 class Desktop;
+class HomeWindowMonitor;
 class Switcher;
 class QuickLaunchBar;
 class LauncherDataStore;
@@ -139,8 +140,8 @@ private:
      */
     LauncherDataStore *createLauncherDataStore();
 
-    //! The controller
-    Desktop *desktop;
+    //! The window manager
+    HomeWindowMonitor *windowMonitor;
 
     //! The switcher widget
     Switcher *switcher;

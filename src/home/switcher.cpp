@@ -16,13 +16,13 @@
 ** of this file.
 **
 ****************************************************************************/
+
 #include <QX11Info>
 #include <QEvent>
-#include <MApplication>
 #include "switcher.h"
+#include "windowmonitor.h"
 #include "switcherbutton.h"
 #include "windowinfo.h"
-#include "mainwindow.h"
 #include "x11wrapper.h"
 
 // The time to wait until updating the model when a new application is started
@@ -33,13 +33,16 @@ Switcher *Switcher::switcher = NULL;
 Switcher *Switcher::instance()
 {
     if (switcher == NULL) {
-        switcher = new Switcher;
+        qFatal("Switcher::instance called before it was constructed");
     }
     return switcher;
 }
 
-Switcher::Switcher(MWidget *parent) : MWidgetController(new SwitcherModel, parent)
+Switcher::Switcher(const WindowMonitor *windowMonitor, MWidget *parent) : MWidgetController(new SwitcherModel, parent),
+        windowMonitor(windowMonitor)
 {
+    switcher = this;
+
     // Get the X11 Atoms for closing and activating a window and for other switcher functionalities
     Display *display = QX11Info::display();
     closeWindowAtom = X11Wrapper::XInternAtom(display, "_NET_CLOSE_WINDOW", False);
@@ -107,15 +110,12 @@ bool Switcher::handleX11Event(XEvent *event)
         if (event->xvisibility.state == VisibilityFullyObscured) {
             // A window was obscured: was it a homescreen window?
             bool homescreenWindowVisibilityChanged = false;
-            Q_FOREACH(MWindow *window, MApplication::windows()) {
-                if (event->xvisibility.window == window->winId()) {
-                    homescreenWindowVisibilityChanged = true;
-                    break;
-                }
+            if (windowMonitor != NULL) {
+                homescreenWindowVisibilityChanged = windowMonitor->isOwnWindow(event->xvisibility.window);
             }
 
             if (!homescreenWindowVisibilityChanged) {
-                // It was some other window, so let interested parties (the SwitcherButtons) know about it
+                // It was some other window, so let interested parties know about it
                 if (event->xvisibility.send_event) {
                     emit windowVisibilityChanged(event->xvisibility.window);
                 }
@@ -157,7 +157,7 @@ bool Switcher::addWindow(Window window)
             // Add the window to the application window list in case it is one
             applicationWindows.append(*windowInfo);
 
-            if (MainWindow::instance() != NULL && MainWindow::instance()->winId() != window) {
+            if (windowMonitor != NULL && !windowMonitor->isOwnWindow(window)) {
                 // The Switcher needs to know about Visibility and property changes of other applications' windows (but not of the homescreen window)
                 X11Wrapper::XSelectInput(QX11Info::display(), window, VisibilityChangeMask | PropertyChangeMask);
             }

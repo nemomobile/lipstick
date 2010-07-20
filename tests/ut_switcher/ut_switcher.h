@@ -21,10 +21,10 @@
 
 #include <QObject>
 #include <QPair>
-#include "mwindow.h"
 #include "windowinfo.h"
 
 class MApplication;
+class MockWindowMonitor;
 class Switcher;
 class SwitcherButton;
 class MSceneManager;
@@ -78,24 +78,6 @@ private slots:
     }
 };
 
-class MainWindow : public MWindow
-{
-    Q_OBJECT
-
-public:
-    MainWindow();
-    ~MainWindow();
-
-    static MainWindow *instance(bool);
-
-    void exitDisplay();
-
-signals:
-
-    void displayExited();
-};
-
-
 class Ut_Switcher : public QObject
 {
     Q_OBJECT
@@ -107,6 +89,7 @@ public:
 
 private:
     MApplication *app;
+    MockWindowMonitor *mockWindowMonitor;
     Switcher *switcher;
 
     void updateWindowList();

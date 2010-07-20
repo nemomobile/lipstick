@@ -26,7 +26,7 @@
 class SwitcherStub : public StubBase
 {
 public:
-    virtual void switcherConstructor(MWidget *parent = NULL);
+    virtual void switcherConstructor(const WindowMonitor *windowMonitor, MWidget *parent = NULL);
     virtual void switcherDestructor();
     virtual bool handleX11Event(XEvent *event);
     virtual void updateButtons();
@@ -35,9 +35,10 @@ public:
     virtual void scheduleUpdateButtons();
 };
 
-void SwitcherStub::switcherConstructor(MWidget *parent)
+void SwitcherStub::switcherConstructor(const WindowMonitor *windowMonitor, MWidget *parent)
 {
     QList<ParameterBase *> params;
+    params.append(new Parameter<const WindowMonitor *>(windowMonitor));
     params.append(new Parameter<MWidget *>(parent));
     stubMethodEntered("switcherConstructor", params);
 }
@@ -83,9 +84,12 @@ SwitcherStub gDefaultSwitcherStub;
 SwitcherStub *gSwitcherStub = &gDefaultSwitcherStub;
 Switcher *gSwitcherInstance = NULL;
 
-Switcher::Switcher(MWidget *parent) : MWidgetController(parent)
+Switcher::Switcher(const WindowMonitor *windowMonitor, MWidget *parent) : MWidgetController(parent)
 {
-    gSwitcherStub->switcherConstructor(parent);
+    gSwitcherStub->switcherConstructor(windowMonitor, parent);
+    if (gSwitcherInstance == NULL) {
+        gSwitcherInstance = this;
+    }
 }
 
 Switcher::~Switcher()
@@ -97,7 +101,7 @@ Switcher::~Switcher()
 Switcher *Switcher::instance()
 {
     if (gSwitcherInstance == NULL) {
-        gSwitcherInstance = new Switcher;
+        gSwitcherInstance = new Switcher(NULL);
     }
     return gSwitcherInstance;
 }

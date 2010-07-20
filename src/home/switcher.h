@@ -24,6 +24,7 @@
 #include "switchermodel.h"
 #include <X11/Xlib.h>
 
+class WindowMonitor;
 class WindowInfo;
 
 /*!
@@ -41,6 +42,13 @@ public:
      * \return an instance of the Switcher
      */
     static Switcher *instance();
+
+    /*!
+     * Constructs a Switcher widget.
+     * \param windowMonitor a window monitor instance to be used by this switcher
+     * \param parent the parent widget of the Switcher, defaults to NULL
+     */
+    Switcher(const WindowMonitor *windowMonitor, MWidget *parent = NULL);
 
     /*!
      * Destroys the Switcher.
@@ -88,13 +96,6 @@ private slots:
     void closeWindow(Window window);
 
 private:
-    /*!
-     * Constructs a Switcher widget.
-     *
-     * \param parent the parent widget of the Switcher, defaults to NULL
-     */
-    Switcher(MWidget *parent = NULL);
-
     /*!
      * Adds all windows in the given set to the Switcher.
      *
@@ -204,6 +205,9 @@ private:
 
     //! A singleton switcher instance
     static Switcher *switcher;
+
+    //! The window manager instance this switcher uses
+    const WindowMonitor *windowMonitor;
 
     //! X11 Atom for the close window message type
     Atom closeWindowAtom;

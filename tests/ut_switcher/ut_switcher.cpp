@@ -17,15 +17,14 @@
 **
 ****************************************************************************/
 #include <QtTest/QtTest>
-#include <MApplicationPage>
 #include "ut_switcher.h"
+#include "windowmonitor.h"
 #include "switcher.h"
 #include "switcherbutton.h"
 #include "switcherview.h"
-#include "x11wrapper.h"
 #include "mscenemanager_stub.h"
 #include "mwindow_stub.h"
-#include "mapplication_stub.h"
+#include <MApplication>
 #include "x11wrapper.h"
 
 // The numbers of different windows the stubs are testing
@@ -337,33 +336,6 @@ Status X11Wrapper::XGetTransientForHint(Display *, Window window, Window *prop_r
 
 QMap<SwitcherButton *, Window> g_windowButtonMap;
 
-// Home stubs
-class Home : public MApplicationPage
-{
-public:
-    Home(QGraphicsItem *parent = 0);
-};
-
-Home::Home(QGraphicsItem *parent) : MApplicationPage(parent)
-{
-}
-
-
-MainWindow *g_testMainWindow;
-
-MainWindow::MainWindow()
-{
-}
-
-MainWindow::~MainWindow()
-{
-}
-
-MainWindow *MainWindow::instance(bool)
-{
-    return g_testMainWindow;
-}
-
 // SwitcherButton stubs (used by Switcher)
 SwitcherButton::SwitcherButton(const QString &title, MWidget *parent, Window window) :
     MButton(title, parent, new SwitcherButtonModel)
@@ -411,6 +383,15 @@ Window SwitcherButton::xWindow()
     return g_windowButtonMap[this];
 }
 
+class MockWindowMonitor : public WindowMonitor {
+public:
+    virtual bool isOwnWindow(WId wid) const {
+        return ownWindows.contains(wid);
+    }
+
+    QList<WId> ownWindows;
+};
+
 // QTimer stubs
 bool qTimerImmediateTimeout;
 void QTimer::start(int)
@@ -437,7 +418,8 @@ int Ut_Switcher::clientListNumberOfWindows;
 void Ut_Switcher::init()
 {
     // Creating a switcher also creates the switcher view
-    switcher = Switcher::instance();
+    mockWindowMonitor = new MockWindowMonitor;
+    switcher = new Switcher(mockWindowMonitor);
 
     visibilityNotifyWindows.clear();
 
@@ -472,6 +454,9 @@ void Ut_Switcher::cleanup()
 {
     // Destroy the switcher (and the associated view)
     delete switcher;
+    switcher = NULL;
+    delete mockWindowMonitor;
+    mockWindowMonitor = NULL;
 }
 
 void Ut_Switcher::initTestCase()
@@ -483,7 +468,6 @@ void Ut_Switcher::initTestCase()
     static char *app_name = (char *)"./ut_switcher";
     app = new MApplication(argc, &app_name);
 
-    g_testMainWindow = new MainWindow();
     mSceneManager = new MSceneManager(NULL, NULL);
     gMWindowStub->stubSetReturnValue("sceneManager", mSceneManager);
 }
@@ -606,11 +590,6 @@ void Ut_Switcher::testX11EventFilterWithPropertyNotify()
 
 void Ut_Switcher::testX11EventFilterWithVisibilityNotify()
 {
-    MainWindow *w = MainWindow::instance(true);
-    QList<MWindow *> windowList;
-    windowList.append(w);
-    gMApplicationStub->stubSetReturnValue<QList<MWindow *> >("windows", windowList);
-
     WindowVisibilityReceiver r;
     connect(switcher, SIGNAL(windowVisibilityChanged(Window)), &r, SLOT(windowVisibilityChanged(Window)));
 
@@ -637,7 +616,9 @@ void Ut_Switcher::testX11EventFilterWithVisibilityNotify()
     QCOMPARE(r.windowList.count(), 1);
 
     // Make sure the window visibility change signal is not emitted if the window is the homescreen itself
-    event.xvisibility.window = w->winId();
+    WId HOME_WINDOW_ID = 1001;
+    mockWindowMonitor->ownWindows.append(HOME_WINDOW_ID);
+    event.xvisibility.window = HOME_WINDOW_ID;
     QVERIFY(!switcher->handleX11Event(&event));
     QCOMPARE(r.windowList.count(), 1);
 }
