@@ -49,7 +49,6 @@ SwitcherButtonView::SwitcherButtonView(SwitcherButton *button) :
     xWindowPixmapDamage(0),
     onDisplay(true)
 {
-    // Connect to the windowVisibilityChanged signal of the HomeApplication to get information about window visiblity changes
     connect(Switcher::instance(), SIGNAL(windowVisibilityChanged(Window)), this, SLOT(windowVisibilityChanged(Window)));
 
     // Show interest in X pixmap change signals
