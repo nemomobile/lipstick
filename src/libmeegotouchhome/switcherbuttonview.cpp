@@ -28,7 +28,7 @@
 #include <MSceneManager>
 #include <MLayout>
 #include <MLabel>
-#include <MLinearLayoutPolicy>
+#include <QGraphicsLinearLayout>
 #include "switcherbuttonview.h"
 #include "switcherbutton.h"
 #include "switcher.h"
@@ -61,20 +61,19 @@ SwitcherButtonView::SwitcherButtonView(SwitcherButton *button) :
     // Show interest in X pixmap change signals
     connect(qApp, SIGNAL(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)), this, SLOT(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)));
 
-    titleBarLayout = new MLayout(controller);
+    titleBarLayout = new QGraphicsLinearLayout(Qt::Horizontal, controller);
     titleBarLayout->setContentsMargins(0,0,0,0);
-    titleBarPolicy = new MLinearLayoutPolicy(titleBarLayout, Qt::Horizontal);
 
     titleLabel = new MLabel(controller);
     titleLabel->setContentsMargins(0,0,0,0);
-    titleLabel->setAlignment(Qt::AlignLeft);
-    titleLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    titleBarPolicy->addItem(titleLabel);
+    titleLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    titleBarLayout->addItem(titleLabel);
 
     closeButton = new MButton();
     closeButton->setViewType(MButton::iconType);
     connect(closeButton, SIGNAL(clicked()), controller, SLOT(close()));
-    titleBarPolicy->addItem(closeButton);
+    titleBarLayout->addItem(closeButton);
+    titleBarLayout->setAlignment(closeButton, Qt::AlignVCenter);
 
     controller->setLayout(titleBarLayout);
 
@@ -186,6 +185,7 @@ void SwitcherButtonView::translateCloseButton()
 {
     int verticalOffset = -style()->closeButtonVOffset();
     int horizontalOffset = style()->closeButtonHOffset();
+
     // Horizontal offset needs to be handled differently for different layout directions
     if (MApplication::layoutDirection() == Qt::RightToLeft) {
         horizontalOffset = -horizontalOffset;
@@ -220,9 +220,15 @@ void SwitcherButtonView::applyStyle()
         titleLabel->setObjectName("SwitcherButtonTitleLabelDetailview");
 
     } else {
-        closeButton->setObjectName("CloseButtonOverview");
+        if(model()->viewMode() == SwitcherButtonModel::Medium) {
+            closeButton->setObjectName("CloseButtonOverviewMedium");
+            titleLabel->setObjectName("SwitcherButtonTitleLabelOverviewMedium");
+        } else {
+            closeButton->setObjectName("CloseButtonOverviewLarge");
+            titleLabel->setObjectName("SwitcherButtonTitleLabelOverviewLarge");
+        }
+
         closeButton->show();
-        titleLabel->setObjectName("SwitcherButtonTitleLabelOverview");
     }
     closeButton->setIconID(style()->closeIcon());
 

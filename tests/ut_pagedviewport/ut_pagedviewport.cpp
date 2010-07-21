@@ -42,7 +42,7 @@ PagedPanning::PagedPanning(QObject* parent) : MPhysics2DPanning(parent),
                                               pageSnapFriction_(0.7),
                                               previousPosition(0),
                                               targetPage(0),
-                                              pageWidth(0)
+                                              pageWidth_(0)
 {
 }
 
@@ -56,12 +56,6 @@ void PagedPanning::panToPage(int page)
     targetPage = page;
     snapMode = true;
     emit pageChanged(page);
-}
-
-bool gSetFirstPagePositionCalled = false;
-void PagedPanning::setFirstPagePosition()
-{
-    gSetFirstPagePositionCalled = true;
 }
 
 void PagedPanning::panToCurrentPage()
@@ -119,9 +113,21 @@ void PagedPanning::pointerRelease()
 {
 }
 
-int PagedPanning::activePage()
+int PagedPanning::activePage() const
 {
     return currentPage;
+}
+
+float PagedPanning::pageWidth() const
+{
+    return 0;
+}
+
+uint gPagedPanningSetPage = -1;
+
+void PagedPanning::setPage(uint page)
+{
+    gPagedPanningSetPage = page;
 }
 
 void Ut_PagedViewport::initTestCase()
@@ -139,7 +145,7 @@ void Ut_PagedViewport::cleanupTestCase()
 void Ut_PagedViewport::init()
 {
     m_subject = new PagedViewport(NULL);
-    gSetFirstPagePositionCalled = false;
+    gPagedPanningSetPage = -1;
 }
 
 void Ut_PagedViewport::cleanup()
@@ -174,10 +180,16 @@ void Ut_PagedViewport::test_panToPage()
     QVERIFY(arguments.at(0).toInt() == 1);
 }
 
+void Ut_PagedViewport::test_setPage()
+{
+    m_subject->setPage(5);
+    QCOMPARE(gPagedPanningSetPage, uint(5));
+}
+
 void Ut_PagedViewport::test_focusFirstPage()
 {
     m_subject->focusFirstPage();
-    QCOMPARE(gSetFirstPagePositionCalled, true);
+    QCOMPARE(gPagedPanningSetPage, uint(0));
 }
 
 QTEST_APPLESS_MAIN(Ut_PagedViewport)

@@ -1,6 +1,7 @@
 duihome (0.21.17~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Implemented: SWP#DUI-3433 Apply switcher transitions
   * Fixes NB#183617 - Closing window thumbnail takes user to the last page of switcher
   * Fixes NB#185701 - Task switcher should not add special window types to its view
 

@@ -24,6 +24,7 @@ SUBDIRS = \
     ut_switcherbutton \
     ut_switcherbuttonview \
     ut_switcherview \
+    ut_transformlayoutanimation \
     ut_windowinfo \
     ut_pagepositionindicatorview \
     ut_applicationpackagemonitor \

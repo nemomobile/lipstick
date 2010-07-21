@@ -227,7 +227,7 @@ void Ut_PagedPanning::testMovement(PagedPanning* pagedPanning,
 
     qreal pageWidth = (rangeEnd - rangeStart) / qMax(1, pageCount-1);
     pagedPanning->currentPage = currentPosition/pageWidth;
-    pagedPanning->pageWidth = pageWidth;
+    pagedPanning->pageWidth_ = pageWidth;
     pagedPanning->setPosition(QPointF(currentPosition, 0));
 
     int pageCrossings;
@@ -485,23 +485,29 @@ void Ut_PagedPanning::testSetRange()
     QCOMPARE(m_subject->currentPage, 2);
 }
 
-void Ut_PagedPanning::testSetFirstPagePosition()
+void Ut_PagedPanning::testSetPage()
 {
-    //TODO: add testing of setting position to the right-most page
-    // when using right-to-left layout
-
     QSignalSpy spy(m_subject, SIGNAL(pageChanged(int)));
-    // first set position to be something else than 0
-    m_subject->setPosition(QPointF(200.0, 0.0));
 
-    m_subject->setFirstPagePosition();
+    m_subject->setPage(1);
+    QCOMPARE(spy.count(), 0);
 
-    QCOMPARE(m_subject->position().x(), 0.0);
-    QCOMPARE(m_subject->currentPage, 0);
-    QCOMPARE(m_subject->targetPage, 0);
+    m_subject->setRange(QRectF(0, 0, 100, 100));
+    m_subject->setPageCount(3);
+    m_subject->setPage(1);
     QCOMPARE(spy.count(), 1);
-    QList<QVariant> arguments = spy.takeFirst();
-    QVERIFY(arguments.at(0).toInt() == 0);
+    QCOMPARE(m_subject->currentPage, 1);
+    QCOMPARE(m_subject->targetPage, 1);
+    QCOMPARE(spy.takeFirst().at(0).toInt(), 1);
+    QCOMPARE(m_subject->position().x(), qreal(50.0f));
+
+    m_subject->setPage(2);
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(m_subject->currentPage, 2);
+    QCOMPARE(m_subject->targetPage, 2);
+    QCOMPARE(spy.takeFirst().at(0).toInt(), 2);
+    QCOMPARE(m_subject->position().x(), qreal(100.0f));
 }
+
 
 QTEST_APPLESS_MAIN(Ut_PagedPanning)

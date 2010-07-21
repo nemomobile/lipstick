@@ -62,6 +62,13 @@ public:
     void panToPage(int page);
 
     /*!
+     * Sets the specified page immediately
+     *
+     * \param page The page to set
+     */
+    void setPage(uint page);
+
+    /*!
      * Sets the snap activation velocity threshold
      */
     void setVelocityThreshold(qreal value);
@@ -87,11 +94,14 @@ public:
     void setPageSnapFriction(qreal value);
 
     /*!
-     * Sets page position to the first page
+     * \return the currently active page
      */
-    void setFirstPagePosition();
+    int activePage() const;
 
-    int activePage();
+    /*!
+     * Returns the page width
+     */
+    float pageWidth() const;
 
 protected:
 
@@ -166,7 +176,7 @@ private:
     int initialPage;
 
     //! Current page width
-    qreal pageWidth;
+    qreal pageWidth_;
 
     //! Page width during the previous integration step
     qreal previousPageWidth;

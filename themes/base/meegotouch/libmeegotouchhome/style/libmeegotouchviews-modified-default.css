@@ -128,59 +128,89 @@ MAbstractLayoutPolicyStyle#DetailviewPolicy {
     horizontal-spacing: 0.0;
 }
 
-MButtonIconStyle#CloseButtonOverview
+SwitcherButton MButtonIconStyle
 {
-    minimum-size: 4.8mm 4.8mm;
-    preferred-size: 4.8mm 4.8mm;
-    maximum-size: 4.8mm 4.8mm;
-
-    icon-size: 1.8mm 1.8mm;
-
-    margin-top: 0;
+    margin-top:    0;
     margin-bottom: 0;
-    margin-left: 0;
-    margin-right: 0;
+    margin-left:   0;
+    margin-right:  0.4mm;
+}
+
+MButtonIconStyle#CloseButtonOverviewMedium
+{
+    minimum-size:   $SIZE_ICON_XSMALL $SIZE_ICON_XSMALL;
+    preferred-size: $SIZE_ICON_XSMALL $SIZE_ICON_XSMALL;
+    maximum-size:   $SIZE_ICON_XSMALL $SIZE_ICON_XSMALL;
+    icon-size:      $SIZE_ICON_XSMALL $SIZE_ICON_XSMALL;
+}
+
+MButtonIconStyle#CloseButtonOverviewLarge
+{
+    minimum-size:   $SIZE_ICON_SMALL $SIZE_ICON_SMALL;
+    preferred-size: $SIZE_ICON_SMALL $SIZE_ICON_SMALL;
+    maximum-size:   $SIZE_ICON_SMALL $SIZE_ICON_SMALL;
+    icon-size:      $SIZE_ICON_SMALL $SIZE_ICON_SMALL;
 }
 
 MButtonIconStyle#CloseButtonDetailview
 {
-    minimum-size: 4.8mm 4.8mm;
-    preferred-size: 4.8mm 4.8mm;
-    maximum-size: 4.8mm 4.8mm;
+    minimum-size:   $SIZE_ICON_DEFAULT $SIZE_ICON_DEFAULT;
+    preferred-size: $SIZE_ICON_DEFAULT $SIZE_ICON_DEFAULT;
+    maximum-size:   $SIZE_ICON_DEFAULT $SIZE_ICON_DEFAULT;
+    icon-size:      $SIZE_ICON_DEFAULT $SIZE_ICON_DEFAULT;
+}
 
-    icon-size: $SIZE_ICON_DEFAULT $SIZE_ICON_DEFAULT;
-
-    margin-top: 0;
+SwitcherButton MLabelStyle {
+    color: #FFFFFF;
+    margin-top:    0;
     margin-bottom: 0;
-    margin-left: 0;
-    margin-right: 0;
+    margin-left:   0;
+    margin-right:  0;
 }
 
 MLabelStyle#SwitcherButtonTitleLabelDetailview {
-    font: $FONT_DEFAULT;
-    color: #FFFFFF;
+    font: $FONT_XLARGE;
 
-    preferred-size: -1 3mm;
-    minimum-size: -1 3mm;
-    maximum-size: -1 3mm;
+    preferred-size: -1 4.255mm;
+    minimum-size:   -1 4.255mm;
+    maximum-size:   -1 4.255mm;
 
-    margin-top: 0;
-    margin-bottom: 0;
-    margin-left: 0.6mm;
+    margin-left:  0.6mm;
     margin-right: 0.6mm;
 }
 
-MLabelStyle#SwitcherButtonTitleLabelOverview {
+MLabelStyle#SwitcherButtonTitleLabelDetailview.Landscape {
+    font: "Nokia Sans" 3.6mm;
+}
+
+MLabelStyle#SwitcherButtonTitleLabelOverviewMedium {
     font: $FONT_XSMALL;
-    color: #FFFFFF;
 
     preferred-size: -1 2.3mm;
-    minimum-size: -1 2.3mm;
-    maximum-size: -1 2.3mm;
+    minimum-size:   -1 2.3mm;
+    maximum-size:   -1 2.3mm;
 
-    margin-top: 0;
-    margin-bottom: 0;
     margin-left: 0.1mm;
-    /* adjust to overlap the close button horizontal offset */
-    margin-right: -1.3mm;
+}
+
+MLabelStyle#SwitcherButtonTitleLabelOverviewMedium.Landscape {
+    font: $FONT_XXSMALL;
+
+    preferred-size: -1 1.79mm;
+    minimum-size:   -1 1.79mm;
+    maximum-size:   -1 1.79mm;
+}
+
+MLabelStyle#SwitcherButtonTitleLabelOverviewLarge {
+    font: $FONT_DEFAULT;
+
+    preferred-size: -1 3.1mm;
+    minimum-size:   -1 3.1mm;
+    maximum-size:   -1 3.1mm;
+
+    margin-left: 0.1mm;
+}
+
+MLabelStyle#SwitcherButtonTitleLabelOverviewLarge.Landscape {
+    font: $FONT_LARGE;
 }

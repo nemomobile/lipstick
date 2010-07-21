@@ -3,7 +3,9 @@ TARGET = ut_switcherview
 
 STYLE_HEADERS += $$SRCDIR/switcherstyle.h \
     $$SRCDIR/pagepositionindicatorstyle.h \
-    $$SRCDIR/pagedviewportstyle.h
+    $$SRCDIR/pagedviewportstyle.h \
+    $$SRCDIR/transformlayoutanimationstyle.h
+
 MODEL_HEADERS += $$SRCDIR/switchermodel.h \
                  $$SRCDIR/switcherbuttonmodel.h \
                  $$SRCDIR/pagepositionindicatormodel.h
@@ -34,7 +36,10 @@ HEADERS += \
     $$SRCDIR/pagepositionindicatorview.h \
     $$SRCDIR/pagepositionindicatorstyle.h \
     $$SRCDIR/pagepositionindicatormodel.h \
-    $$SRCDIR/pagedviewportstyle.h
+    $$SRCDIR/pagedviewportstyle.h \
+    $$SRCDIR/transformlayoutanimation.h \
+    $$SRCDIR/transformlayoutanimationstyle.h
+
 
 
 # service classes

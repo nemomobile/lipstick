@@ -161,6 +161,11 @@ SwitcherStyle {
     button-vertical-spacing: 0;
     rows-per-page: 1;
     columns-per-page: 1;
+    pinch-cancel-threshold: 0.25;
+    pinch-length: 1.5;
+    bounce-scale: 0.04;
+    bounce-duration: 300;
+    bounce-curve: linear;
 }
 
 
@@ -182,6 +187,13 @@ SwitcherStyle#OverviewSwitcher.Landscape {
     rows-per-page: 2;
     columns-per-page: 2;
 }
+
+TransformLayoutAnimationStyle#SwitcherLayoutAnimation {
+    easing-curve: inoutcubic;
+    minimum-speed: 0.03;
+    speed-smoothness: 0.7;
+}
+
 
 PagedViewportStyle {
     pan-threshold: 15.0;
@@ -217,8 +229,8 @@ SwitcherButtonStyle {
     /* The close button icon */
     close-icon: ;
 
-    close-button-h-offset: 1.3mm;
-    close-button-v-offset: 1.3mm;
+    close-button-h-offset: 0mm;
+    close-button-v-offset: 0mm;
 }
 
 /* The default values for the switcher button in the overview mode */
@@ -237,10 +249,10 @@ SwitcherButtonStyle#OverviewButton {
 }
 
 SwitcherButtonStyle#OverviewButton.Portrait:medium {
-    preferred-size: 17.4mm 31.3mm;
-    minimum-size: 17.4mm 31.3mm;
-    maximum-size: 17.4mm 31.3mm;
-    icon-size: 17.4mm 28.0mm;
+    preferred-size: 15.56mm 28.0mm;
+    minimum-size: 15.56mm 28.0mm;
+    maximum-size: 15.56mm 28.0mm;
+    icon-size: 15.56mm 28.0mm;
 
     close-button-v-offset: 1.3mm;
     close-button-h-offset: 1.3mm;
@@ -250,7 +262,7 @@ SwitcherButtonStyle#OverviewButton.Portrait:large {
     preferred-size: 21mm 37.8mm;
     minimum-size: 21mm 37.8mm;
     maximum-size: 21mm 37.8mm;
-    icon-size: 21mm 33.4mm;
+    icon-size: 21mm 37.8mm;
 
     close-button-v-offset: 1.3mm;
     close-button-h-offset: 1.3mm;
@@ -260,7 +272,7 @@ SwitcherButtonStyle#OverviewButton.Landscape:medium {
     preferred-size: 21.8mm 12.1mm;
     minimum-size: 21.8mm 12.1mm;
     maximum-size: 21.8mm 12.1mm;
-    icon-size: 21.8mm 9.8mm;
+    icon-size: 21.8mm 12.1mm;
 
     close-button-v-offset: 1.3mm;
     close-button-h-offset: 1.3mm;
@@ -270,7 +282,7 @@ SwitcherButtonStyle#OverviewButton.Landscape:large {
     preferred-size: 37.8mm 21mm;
     minimum-size: 37.8mm 21mm;
     maximum-size: 37.8mm 21mm;
-    icon-size: 37.8mm 16.6mm;
+    icon-size: 37.8mm 21mm;
 
     close-button-v-offset: 1.3mm;
     close-button-h-offset: 1.3mm;
@@ -278,8 +290,8 @@ SwitcherButtonStyle#OverviewButton.Landscape:large {
 
 /* Switcher buttons in the detail viewmode */
 SwitcherButtonStyle#DetailviewButton {
-    close-button-v-offset: 1.3mm;
-    close-button-h-offset: 1.3mm;
+    close-button-v-offset: 0mm;
+    close-button-h-offset: 0mm;
 }
 
 SwitcherButtonStyle#DetailviewButton.Portrait {

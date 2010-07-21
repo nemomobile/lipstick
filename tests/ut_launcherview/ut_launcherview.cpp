@@ -71,6 +71,10 @@ void PagedViewport::panToPage(uint page)
     Q_UNUSED(page)
 }
 
+void PagedViewport::setPage(uint)
+{
+}
+
 bool gFocusFirstPageCalled = false;
 void PagedViewport::focusFirstPage() {
     gFocusFirstPageCalled = true;

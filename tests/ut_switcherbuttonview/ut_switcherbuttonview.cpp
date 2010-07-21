@@ -405,8 +405,8 @@ void Ut_SwitcherButtonView::testViewModeChange()
 void Ut_SwitcherButtonView::testApplyingStyle()
 {
     button->setObjectName("OverviewButton");
-    QCOMPARE(m_subject->closeButton->objectName(), QString("CloseButtonOverview"));
-    QCOMPARE(m_subject->titleLabel->objectName(), QString("SwitcherButtonTitleLabelOverview"));
+    QCOMPARE(m_subject->closeButton->objectName(), QString("CloseButtonOverviewLarge"));
+    QCOMPARE(m_subject->titleLabel->objectName(), QString("SwitcherButtonTitleLabelOverviewLarge"));
 
     button->setObjectName("DetailviewButton");
     button->model()->setViewMode(SwitcherButtonModel::Large);

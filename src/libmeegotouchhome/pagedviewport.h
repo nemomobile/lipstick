@@ -73,6 +73,11 @@ public:
 
     int currentPage();
 
+    /*!
+     * Returns the page width
+     */
+    float pageWidth() const;
+
 Q_SIGNALS:
 
     /*!
@@ -99,6 +104,13 @@ public Q_SLOTS:
      * \param page The page to pan to
      */
     void panToPage(uint page);
+
+    /*!
+     * Moves the viewport to the specified page immediately without animation
+     *
+     * \param page The page to set
+     */
+    void setPage(uint page);
 
     /*!
      * Moves the viewport to the first page

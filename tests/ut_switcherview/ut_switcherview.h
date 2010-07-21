@@ -59,6 +59,10 @@ private slots:
     void testDetailToOverviewModeChange();
     void testOverviewToDetailModeChange();
     void testModeChangeCancel();
+    void testTransitionControl();
+    void testBounceAnimation();
+    void testOverpinchOverview();
+    void testOverpinchDetailview();
 
     // Test case for event handler
     void testEvent();

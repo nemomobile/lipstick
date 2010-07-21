@@ -31,6 +31,8 @@ class MLinearLayoutPolicy;
 class MGridLayoutPolicy;
 class QGraphicsLinearLayout;
 class PagedViewport;
+class TransformLayoutAnimation;
+class QPropertyAnimation;
 
 /*!
  * The switcher view draws a background for the switcher.
@@ -93,6 +95,12 @@ private slots:
     /*! Update all buttons in the layout policies */
     void updateButtons();
 
+    /*! Sets the switcher mode according to current pinch gesture target */
+    void applyPinchGestureTargetMode();
+
+    /*! Runs the bounce animation if currently in overview mode */
+    void runOverviewBounceAnimation();
+
 private:
     /*! Repositions the switcher so that the visible page is reflects the topmost application */
     void repositionSwitcher();
@@ -115,22 +123,28 @@ private:
     /*! Selects the layout policy and sets up switcher mode dependent signals */
     void applySwitcherMode();
 
-    /*! Returns the postion of a SwitcherButton in the model*/
-    qint16 buttonPosition(SwitcherButton* button);
+    /*! Returns the index of a SwitcherButton in the model or -1, if not found */
+    qint16 buttonIndex(const SwitcherButton* button) const;
+
+    //! Returns the switcher button which is underneath point centerPoint or NULL
+    const SwitcherButton *buttonAt(QPointF centerPoint) const;
 
     //! Calculates which switcher button is nearest to point centerPoint
-    void nearestButtonFrom(QPointF centerPoint);
+    void calculateNearestButtonAt(QPointF centerPoint);
 
-    //! Calculated which switcher button is underneath point centerPoint
-    bool buttonAt(QPointF centerPoint);
-
-    //! Calculates which button is being pinched.
-    void calculatePinchedButton(QPointF centerPoint);
+    //! Returns the maximum number of buttons in a page
+    int buttonsPerPage() const;
 
     /*! Remove all buttons from layout and set parents to NULL
      * Parents are set to NULL to avoid double deletion as buttons are QSharedPointer's in model
      */
     void removeButtonsFromLayout();
+
+    /*! Starts the bounce animation */
+    void startBounceAnimation();
+
+    /*! Sets the direction of the bounce animation */
+    void setInwardBounceAnimation(bool i);
 
     /*! The switcher controller */
     Switcher *controller;
@@ -146,6 +160,9 @@ private:
     /*! Layout for the panned widget */
     MLayout* pannedLayout;
 
+    /*! Layout animation for switching layout policies */
+    TransformLayoutAnimation *layoutAnimation;
+
     /*! Layout policies for the different switcher modes */
     MGridLayoutPolicy* overviewPolicy;
     MLinearLayoutPolicy* detailPolicy;
@@ -156,6 +173,9 @@ private:
     /*! The button being currently pinched*/
     qint16 pinchedButtonPosition;
 
+    /*! The target mode for pinch gesture */
+    SwitcherModel::Mode pinchGestureTargetMode;
+
 #ifdef UNIT_TEST
     // to test snapIndexChanged effects
     friend class Ut_SwitcherView;
@@ -163,6 +183,12 @@ private:
 
     /*! The viewport that shows the switcher buttons */
     PagedViewport *viewport;
+
+    /*! True if the pinch direction is to the mode we're already in */
+    bool overpinch;
+
+    /*! Animation for the bounce when going to overview mode and when overpinching */
+    QPropertyAnimation *bounceAnimation;
 };
 
 #endif // SWITCHERVIEW_H

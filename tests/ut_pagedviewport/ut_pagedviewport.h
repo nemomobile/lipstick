@@ -49,6 +49,8 @@ private slots:
     void test_panToPage();
     // Tests setFirstPagePosition method
     void test_focusFirstPage();
+    // Tests setPage method
+    void test_setPage();
 
 private:
     // MApplication

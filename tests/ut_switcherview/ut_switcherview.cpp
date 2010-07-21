@@ -33,6 +33,7 @@
 #include "windowinfo_stub.h"
 #include "pagedpanning.h"
 #include "pagedviewport.h"
+#include "transformlayoutanimation_stub.h"
 #include <QGestureEvent>
 #include <QPinchGesture>
 
@@ -115,6 +116,17 @@ void PagedViewport::focusFirstPage()
 
 }
 
+float PagedViewport::pageWidth() const
+{
+    return 0;
+}
+
+void PagedViewport::setPage(uint page)
+{
+    Q_UNUSED(page)
+}
+
+
 // Home stubs
 class Home : public MApplicationPage
 {
@@ -189,7 +201,7 @@ PagedPanning::PagedPanning(QObject* parent) : MPhysics2DPanning(parent),
                                               pageSnapFriction_(0.7),
                                               previousPosition(0),
                                               targetPage(0),
-                                              pageWidth(0)
+                                              pageWidth_(0)
 {
 }
 
@@ -201,9 +213,6 @@ void PagedPanning::panToPage(int itemIndex) {
     g_panRequested = true;
     g_panRequestIndex = itemIndex;
     emit pageChanged(itemIndex);
-}
-
-void PagedPanning::setFirstPagePosition() {
 }
 
 void PagedPanning::panToCurrentPage()
@@ -256,14 +265,24 @@ void PagedPanning::pointerRelease()
 {
 }
 
-int PagedPanning::activePage()
+int PagedPanning::activePage() const
 {
     return currentPage;
+}
+
+float PagedPanning::pageWidth() const
+{
+    return 0;
 }
 
 QList<QGraphicsItem *> items_;
 QList<QGraphicsItem *> QGraphicsView::items(const QPoint &/*pos*/) const
 { return items_;}
+
+void PagedPanning::setPage(uint)
+{
+}
+
 
 QList< QSharedPointer<SwitcherButton> > Ut_SwitcherView::createButtonList(int buttons)
 {
@@ -412,12 +431,26 @@ void Ut_SwitcherView::init()
     m_subject = new TestSwitcherView(switcher);
     switcher->setView(m_subject);
     gSwitcherStub->stubReset();
+    gTransformLayoutAnimationStub->stubReset();
+    gTransformLayoutAnimationStub->stubSetReturnValue("duration", -1);
     mPinch = new QPinchGesture();
     mPinch->setCenterPoint(QPointF(100,100));
     QList<QGesture*> gestures;
     gestures.append(mPinch);
     mEvent = new QGestureEvent(gestures);
     items_.clear();
+
+    // Some test cases switch between switcher modes, must set the styles here, can't use modifiablestyle
+    SwitcherStyle *s = const_cast<SwitcherStyle*>(static_cast<const SwitcherStyle*>(MTheme::style("SwitcherStyle", "DetailviewSwitcher")));
+    s->setRowsPerPage(1);
+    s->setColumnsPerPage(1);
+    s->setPinchLength(1.0f);
+    s->setPinchCancelThreshold(0.25f);
+    s = const_cast<SwitcherStyle*>(static_cast<const SwitcherStyle*>(MTheme::style("SwitcherStyle", "OverviewSwitcher")));
+    s->setRowsPerPage(1);
+    s->setColumnsPerPage(1);
+    s->setPinchLength(1.0f);
+    s->setPinchCancelThreshold(0.25f);
 }
 
 void Ut_SwitcherView::cleanup()
@@ -562,7 +595,7 @@ void Ut_SwitcherView::testDetailToOverviewModeChange()
     pinchGesture(0.5,Qt::GestureUpdated);
     pinchGesture(0.5,Qt::GestureFinished);
 
-   QCOMPARE (g_switcherModel->switcherMode(), SwitcherModel::Overview);
+    QCOMPARE (g_switcherModel->switcherMode(), SwitcherModel::Overview);
 }
 
 void Ut_SwitcherView::testOverviewToDetailModeChange()
@@ -573,22 +606,22 @@ void Ut_SwitcherView::testOverviewToDetailModeChange()
     items_.append(&item1);
     g_switcherModel->setSwitcherMode(SwitcherModel::Overview);
 
-   // Scale factor >1 is transition to Detailview mode.
-   mPinch->setLastScaleFactor(1.5);
+    // Scale factor >1 is transition to Detailview mode.
+    mPinch->setLastScaleFactor(1.5);
 
-   pinchGesture(2.0,Qt::GestureStarted);
-   pinchGesture(2.0,Qt::GestureUpdated);
-   pinchGesture(2.0,Qt::GestureFinished);
-   QCOMPARE (g_switcherModel->switcherMode(), SwitcherModel::Detailview);
+    pinchGesture(2.0,Qt::GestureStarted);
+    pinchGesture(2.0,Qt::GestureUpdated);
+    pinchGesture(2.0,Qt::GestureFinished);
+    QCOMPARE (g_switcherModel->switcherMode(), SwitcherModel::Detailview);
 
-   // Check that doing the pinch gesture twice in the same direction doesn't switch the mode
-   // Ie, the gesture direction should determine whether transition happens
-   g_switcherModel->setSwitcherMode(SwitcherModel::Detailview);
+    // Check that doing the pinch gesture twice in the same direction doesn't switch the mode
+    // Ie, the gesture direction should determine whether transition happens
+    g_switcherModel->setSwitcherMode(SwitcherModel::Detailview);
 
-   pinchGesture(2.0,Qt::GestureStarted);
-   pinchGesture(2.0,Qt::GestureUpdated);
-   pinchGesture(2.0,Qt::GestureFinished);
-   QCOMPARE (g_switcherModel->switcherMode(), SwitcherModel::Detailview);
+    pinchGesture(2.0,Qt::GestureStarted);
+    pinchGesture(2.0,Qt::GestureUpdated);
+    pinchGesture(2.0,Qt::GestureFinished);
+    QCOMPARE (g_switcherModel->switcherMode(), SwitcherModel::Detailview);
 }
 
 void Ut_SwitcherView::testModeChangeCancel()
@@ -597,29 +630,89 @@ void Ut_SwitcherView::testModeChangeCancel()
     item1.setText("button");
     item1.setXWindow(1);
     items_.append(&item1);
+
+    gTransformLayoutAnimationStub->stubSetReturnValue("manualControl", true);
+
     // Overview->Detailview gesture cancellation
-   g_switcherModel->setSwitcherMode(SwitcherModel::Overview);
+    g_switcherModel->setSwitcherMode(SwitcherModel::Overview);
+    pinchGesture(1.0, Qt::GestureStarted);
+    pinchGesture(1.1, Qt::GestureUpdated);
+    pinchGesture(1.1, Qt::GestureFinished);
+    QCOMPARE(gTransformLayoutAnimationStub->stubCallCount("cancelAnimation"), 1);
+    QCOMPARE(m_subject->pinchGestureTargetMode, SwitcherModel::Overview);
+    m_subject->layoutAnimation->stop();
 
-   mPinch->setLastScaleFactor(1.0);
+    // Detail->Overview gesture cancellation
+    g_switcherModel->setSwitcherMode(SwitcherModel::Detailview);
+    pinchGesture(1.0, Qt::GestureStarted);
+    pinchGesture(0.9, Qt::GestureUpdated);
+    pinchGesture(0.9, Qt::GestureFinished);
+    QCOMPARE(gTransformLayoutAnimationStub->stubCallCount("cancelAnimation"), 2);
+    QCOMPARE(m_subject->pinchGestureTargetMode, SwitcherModel::Detailview);
+    m_subject->layoutAnimation->stop();
+}
 
-   // Start with outward pinch and change to inward pinch
-   pinchGesture(1.5,Qt::GestureStarted);
-   pinchGesture(1.5,Qt::GestureUpdated);
-   pinchGesture(0.5,Qt::GestureUpdated);
-   pinchGesture(0.5,Qt::GestureFinished);
-   QCOMPARE (g_switcherModel->switcherMode(), SwitcherModel::Overview);
+void Ut_SwitcherView::testTransitionControl()
+{
+    g_switcherModel->setSwitcherMode(SwitcherModel::Overview);
 
-   // Detail->Overview gesture cancellation
-   g_switcherModel->setSwitcherMode(SwitcherModel::Detailview);
+    mPinch->setLastScaleFactor(1.0);
+    pinchGesture(1.0, Qt::GestureStarted);
+    QVERIFY(!m_subject->viewport->isEnabled());
+    gTransformLayoutAnimationStub->stubSetReturnValue("manualControl", true);
+    pinchGesture(1.1, Qt::GestureUpdated);
+    QVERIFY(gTransformLayoutAnimationStub->stubLastCallTo("setManualControl").parameter<bool>(0));
+    QCOMPARE(gTransformLayoutAnimationStub->stubLastCallTo("setProgress").parameter<float>(0), 0.1f);
 
-   mPinch->setLastScaleFactor(0.8);
+    pinchGesture(1.2, Qt::GestureUpdated);
+    QCOMPARE(gTransformLayoutAnimationStub->stubLastCallTo("setProgress").parameter<float>(0), 0.2f);
 
-   // Start with inward pinch and change to outward pinch
-   pinchGesture(0.5,Qt::GestureStarted);
-   pinchGesture(0.5,Qt::GestureUpdated);
-   pinchGesture(1.5,Qt::GestureUpdated);
-   pinchGesture(1.5,Qt::GestureFinished);
-   QCOMPARE (g_switcherModel->switcherMode(), SwitcherModel::Detailview);
+    pinchGesture(1.3, Qt::GestureFinished);
+    QVERIFY(!gTransformLayoutAnimationStub->stubLastCallTo("setManualControl").parameter<bool>(0));
+    QVERIFY(m_subject->viewport->isEnabled());
+}
+
+void Ut_SwitcherView::testBounceAnimation()
+{
+    m_subject->modifiableStyle()->setBounceDuration(100);
+
+    m_subject->pinchGestureTargetMode = SwitcherModel::Detailview;
+    m_subject->runOverviewBounceAnimation();
+    QCOMPARE(m_subject->bounceAnimation->state(), QAbstractAnimation::Stopped);
+
+    m_subject->pinchGestureTargetMode = SwitcherModel::Overview;
+    m_subject->runOverviewBounceAnimation();
+    QCOMPARE(m_subject->bounceAnimation->state(), QAbstractAnimation::Running);
+}
+
+void Ut_SwitcherView::testOverpinchOverview()
+{
+    g_switcherModel->setSwitcherMode(SwitcherModel::Overview);
+    m_subject->modifiableStyle()->setBounceDuration(100);
+    m_subject->modifiableStyle()->setBounceScale(0.5);
+
+    float scale = 0.5;
+    pinchGesture(1.0, Qt::GestureStarted);
+    pinchGesture(1.0 - scale, Qt::GestureUpdated);
+
+    QCOMPARE(m_subject->bounceAnimation->state(), QAbstractAnimation::Paused);
+    QVERIFY2(m_subject->bounceAnimation->keyValueAt(0.5).toFloat() < 1.0f, "incorrect zoom direction");
+    QCOMPARE(m_subject->bounceAnimation->currentTime(), int(m_subject->bounceAnimation->duration() / 2 * scale));
+}
+
+void Ut_SwitcherView::testOverpinchDetailview()
+{
+    g_switcherModel->setSwitcherMode(SwitcherModel::Detailview);
+    m_subject->modifiableStyle()->setBounceDuration(100);
+    m_subject->modifiableStyle()->setBounceScale(0.5);
+
+    float scale = 0.5;
+    pinchGesture(1.0, Qt::GestureStarted);
+    pinchGesture(1.0 + scale, Qt::GestureUpdated);
+
+    QCOMPARE(m_subject->bounceAnimation->state(), QAbstractAnimation::Paused);
+    QVERIFY2(m_subject->bounceAnimation->keyValueAt(0.5).toFloat() > 1.0f, "incorrect zoom direction");
+    QCOMPARE(m_subject->bounceAnimation->currentTime(), int(m_subject->bounceAnimation->duration() / 2 * scale));
 }
 
 void Ut_SwitcherView::testEvent()
@@ -774,8 +867,8 @@ void Ut_SwitcherView::testWhenPinchingOnSwitcherButtonExactPinchedButtonIsDetect
     QList< QSharedPointer<SwitcherButton> > buttons = createButtonList(2);
     g_switcherModel->setButtons(buttons);
     items_.append(buttons.at(1).data());
-    m_subject->buttonAt(QPointF(100,100));
-    QCOMPARE(m_subject->pinchedButtonPosition, qint16(1));
+    const SwitcherButton *button = m_subject->buttonAt(QPointF(100,100));
+    QVERIFY2(button == buttons.at(1).data(), "Incorrect button detected");
 }
 
 void Ut_SwitcherView::testWhenPinchingOnEmptyAreaNearestButtonIsDetected()
@@ -789,10 +882,10 @@ void Ut_SwitcherView::testWhenPinchingOnEmptyAreaNearestButtonIsDetected()
     buttons.at(2).data()->setPos(198,216);
     g_switcherModel->setButtons(buttons);
     // When clicking topLeft area button 1 should be detected
-    m_subject->nearestButtonFrom(QPointF(140,124));
+    m_subject->calculateNearestButtonAt(QPointF(140,124));
     QCOMPARE(m_subject->pinchedButtonPosition, qint16(0));
     // When clicking bottomRight area button 3 should be selected
-    m_subject->nearestButtonFrom(QPointF(593,313));
+    m_subject->calculateNearestButtonAt(QPointF(593,313));
     QCOMPARE(m_subject->pinchedButtonPosition, qint16(2));
 
     gMWindowStub->stubSetReturnValue("orientation", M::Portrait);
@@ -802,7 +895,7 @@ void Ut_SwitcherView::testWhenPinchingOnEmptyAreaNearestButtonIsDetected()
     buttons.at(2).data()->setPos(50,408);
     g_switcherModel->setButtons(buttons);
     // When clicking topRight area button 2 should be detected
-    m_subject->nearestButtonFrom(QPointF(60,72));
+    m_subject->calculateNearestButtonAt(QPointF(60,72));
     QCOMPARE(m_subject->pinchedButtonPosition, qint16(1));
 }
 

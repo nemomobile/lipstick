@@ -23,6 +23,7 @@
 
 #include <MWidgetStyle>
 #include <QFont>
+#include <QEasingCurve>
 
 class SwitcherStyle : public MWidgetStyle
 {
@@ -48,6 +49,33 @@ class SwitcherStyle : public MWidgetStyle
      * Defines amount of columns in switcher view.
      */
     M_STYLE_ATTRIBUTE(int, columnsPerPage, ColumnsPerPage)
+
+    /*!
+     * The length of the pinch gesture needed to make a full transition between modes
+     */
+    M_STYLE_ATTRIBUTE(qreal, pinchLength, PinchLength)
+
+    /*!
+     * The progress threshold of canceling the mode transition, range 0 to 1
+     */
+    M_STYLE_ATTRIBUTE(qreal, pinchCancelThreshold, PinchCancelThreshold)
+
+    /*!
+     * Scaling amount of bounce animation and zooming when overpinching.
+     * The value is added to or subtracted from factor 1, so that value 0.3 will scale
+     * to 0.7 in overview mode and 1.3 in detail view mode
+     */
+    M_STYLE_ATTRIBUTE(qreal, bounceScale, BounceScale)
+
+    /*!
+     * Duration of the bounce animation in milliseconds when transitioning to overview mode
+     */
+    M_STYLE_ATTRIBUTE(int, bounceDuration, BounceDuration)
+
+    /*!
+     * Easing curve of the bounce animation
+     */
+    M_STYLE_ATTRIBUTE(QEasingCurve, bounceCurve, BounceCurve)
 };
 
 class SwitcherStyleContainer : public MWidgetStyleContainer

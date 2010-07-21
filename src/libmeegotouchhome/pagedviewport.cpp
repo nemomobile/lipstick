@@ -56,9 +56,16 @@ void PagedViewport::panToPage(uint page)
     pagedPanning->panToPage(page);
 }
 
+void PagedViewport::setPage(uint page)
+{
+    pagedPanning->setPage(page);
+}
+
 void PagedViewport::focusFirstPage()
 {
-    pagedPanning->setFirstPagePosition();
+    //TODO: add support for setting position to the right-most page
+    // when using right-to-left layout
+    pagedPanning->setPage(0);
 }
 
 void PagedViewport::updatePageCount(int pages)
@@ -71,4 +78,9 @@ void PagedViewport::updatePageCount(int pages)
 int PagedViewport::currentPage()
 {
     return pagedPanning->activePage();
+}
+
+float PagedViewport::pageWidth() const
+{
+    return pagedPanning->pageWidth();
 }

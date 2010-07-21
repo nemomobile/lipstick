@@ -28,8 +28,8 @@
 class SwitcherButton;
 class MButton;
 class MLayout;
-class MLinearLayoutPolicy;
 class MLabel;
+class QGraphicsLinearLayout;
 
 /*!
  * \class SwitcherButtonView
@@ -165,10 +165,7 @@ private:
     bool onDisplay;
 
     //! Title bar layout
-    MLayout *titleBarLayout;
-
-    //! Policy for title bar layout
-    MLinearLayoutPolicy *titleBarPolicy;
+    QGraphicsLinearLayout *titleBarLayout;
 
     //! Timer for updating the icon's position in scene coordination
     mutable QTimer updateXWindowIconGeometryTimer;
