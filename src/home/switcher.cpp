@@ -74,32 +74,34 @@ Switcher::~Switcher()
 
 bool Switcher::handleX11Event(XEvent *event)
 {
+    bool eventWasHandled = false;
+
     if (event->type == CreateNotify) {
         // A window has been created so add it to the switcher if it has not been added already
         if (isRelevantWindow(event->xcreatewindow.window) && addWindow(event->xcreatewindow.window)) {
             scheduleUpdateButtons();
         }
-        return true;
+        eventWasHandled = true;
     } else if (event->type == DestroyNotify) {
         // A window has been destroyed so completely remove it from the switcher
         if (removeWindow(event->xdestroywindow.window)) {
             // Update the switcher buttons instantly
             updateButtons();
         }
-        return true;
+        eventWasHandled = true;
     } else if (event->type == PropertyNotify) {
         if (event->xproperty.atom == stackedClientListAtom && event->xproperty.window == DefaultRootWindow(QX11Info::display())) {
             // The client list of the root window has changed so update the window list
             updateWindowInfoMap();
-            return true;
+            eventWasHandled = true;
         } else if (event->xproperty.atom == WindowInfo::TypeAtom || event->xproperty.atom == WindowInfo::StateAtom || event->xproperty.atom == XA_WM_TRANSIENT_FOR) {
             // The type, state or transiency of a window has changed so update that window's properties
             updateWindowProperties(event->xproperty.window);
-            return true;
+            eventWasHandled = true;
         } else if (event->xproperty.atom == windowNameAtom || event->xproperty.atom == netWindowNameAtom) {
             // The title of a window has changed so update that window's title
             updateWindowTitle(event->xproperty.window);
-            return true;
+            eventWasHandled = true;
         }
     } else if (event->type == VisibilityNotify) {
         if (event->xvisibility.state == VisibilityFullyObscured) {
@@ -117,16 +119,16 @@ bool Switcher::handleX11Event(XEvent *event)
                 if (event->xvisibility.send_event) {
                     emit windowVisibilityChanged(event->xvisibility.window);
                 }
-                return true;
+                eventWasHandled = true;
             }
         }
     } else if (event->type == ClientMessage && event->xclient.message_type == closeWindowAtom) {
         // A _NET_CLOSE_WINDOW message was caught so a window is being closed; add it to windows being closed list
         markWindowBeingClosed(event->xclient.window);
-        return true;
+        eventWasHandled = true;
     }
 
-    return false;
+    return eventWasHandled;
 }
 
 bool Switcher::addWindows(const QSet<Window> &windows)
