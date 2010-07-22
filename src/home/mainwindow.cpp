@@ -58,6 +58,8 @@ MainWindow::MainWindow(QWidget *parent) :
     home = new Home;
     sceneManager()->appearSceneWindowNow(home);
 
+    setBackgroundBrush(Qt::black);
+
     excludeFromTaskBar();
 }
 
