@@ -22,7 +22,7 @@
 void Ut_PagedPanning::initTestCase()
 {
     int argc = 1;
-    char *app_name = (char *)"./ut_pagepanning";
+    char *app_name = (char *)"./ut_pagedpanning";
     app = new MApplication(argc, &app_name);
 }
 
@@ -74,8 +74,6 @@ void Ut_PagedPanning::testMovementGreaterThenPageWidthRightToLeft()
                  6);               // Target page index after move
 }
 
-
-
 void Ut_PagedPanning::testMovementSmallerThenPageWidthLeftToRight()
 {
     qreal currentPosition = 200.0;
@@ -125,7 +123,6 @@ void Ut_PagedPanning::testHugeMovementRightToLeft()
                  10);              // Target page index after move
 }
 
-
 void Ut_PagedPanning::testMovementExcatlyPageWidth()
 {
     qreal currentPosition = 200.0;
@@ -136,7 +133,6 @@ void Ut_PagedPanning::testMovementExcatlyPageWidth()
                  100.0 ,           // Where the current position should end up after movement
                  true,             // Left to right
                  1);               // Target page index after move
-
 }
 
 void Ut_PagedPanning::testAutoPanning()
@@ -266,6 +262,16 @@ void Ut_PagedPanning::testMovement(PagedPanning* pagedPanning,
     }
 }
 
+Ut_MPhysics2DPanning::Ut_MPhysics2DPanning(MPhysics2DPanning *physics) :
+        physics(physics)
+{
+    connect(this, SIGNAL(notify(QVariant)), physics, SLOT(_q_integrator(QVariant)));
+}
+
+void Ut_MPhysics2DPanning::advancePhysicsCalculation() {
+    emit notify(QVariant());
+}
+
 
 void Ut_PagedPanning::performMovement(PagedPanning* pagedPanning,
                                       qreal moveAmount,
@@ -273,6 +279,8 @@ void Ut_PagedPanning::performMovement(PagedPanning* pagedPanning,
                                       qreal speed)
 
 {
+    Ut_MPhysics2DPanning physicsDriver(pagedPanning);
+
     int i = 0;
     qreal movePosition = 0;
     bool pointerPressControl = true;
@@ -291,24 +299,18 @@ void Ut_PagedPanning::performMovement(PagedPanning* pagedPanning,
             pagedPanning->pointerMove(QPointF(movePosition, 0));
         }
 
-        // Wait for the timer event
-        while(!QCoreApplication::hasPendingEvents())
-            QTest::qSleep(100);
-
-        QCoreApplication::processEvents();
+        physicsDriver.advancePhysicsCalculation();
     }
 }
 
 
 void Ut_PagedPanning::performIntegration(PagedPanning* pagedPanning)
 {
+    Ut_MPhysics2DPanning physicsDriver(pagedPanning);
     QSignalSpy stopSpy(pagedPanning, SIGNAL(panningStopped()));
 
     do {
-        while (!QCoreApplication::hasPendingEvents())
-            QTest::qSleep(100);
-
-        QCoreApplication::processEvents();
+        physicsDriver.advancePhysicsCalculation();
     } while (stopSpy.count() == 0);
 
 }
@@ -413,7 +415,7 @@ void Ut_PagedPanning::testSlide()
     performMovement(m_subject,
                     70,    // amount to move
                     false, // left-to-right
-                    4.0); // more speed
+                    8.0); // more speed
 
     // Should have slid over three pages
     QCOMPARE(m_subject->position().x(), 400.0);

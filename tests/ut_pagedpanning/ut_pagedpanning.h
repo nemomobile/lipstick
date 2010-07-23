@@ -22,6 +22,29 @@
 
 class MApplication;
 class PagedPanning;
+class MPhysics2DPanning;
+
+/*
+ * A helper class to drive the physics simulation.
+ * There is no easy way to drive the MPhysics2DPanning class's physics
+ * integration. A class named Ut_MPhysics2DPanning is marked as friend
+ * class of that class however and that gives access to the private parts
+ * of the class and hence to the physics integration machinery.
+ */
+class Ut_MPhysics2DPanning : public QObject
+{
+    Q_OBJECT
+
+    MPhysics2DPanning *physics;
+public:
+    Ut_MPhysics2DPanning(MPhysics2DPanning *physics);
+
+    void advancePhysicsCalculation();
+
+signals:
+    void notify(QVariant);
+};
+
 
 class Ut_PagedPanning : public QObject
 {
@@ -37,29 +60,29 @@ private slots:
     // Called after every testfunction
     void cleanup();
 
-    // Test cases    
+    // Test cases
     // Test the creation.
     void testCreation();
 
-    /*! 
+    /*!
      * Tests small movement from left to right that should snap back to
      * its original position
      */
     void testMovementSmallerThenPageWidthLeftToRight();
 
-    /*! 
-     * Tests big enough movement from left to right that should snap to the previous 
+    /*!
+     * Tests big enough movement from left to right that should snap to the previous
      * snap position
      */
     void testMovementGreaterThenPageWidthLeftToRight();
 
-    /*! 
-     * Tests big enough movement from right to left that should snap to the previous 
+    /*!
+     * Tests big enough movement from right to left that should snap to the previous
      * snap position
      */
     void testMovementGreaterThenPageWidthRightToLeft();
 
-    /*! 
+    /*!
      * Tests small movement from right to left that should snap back to
      * its original position
      */
@@ -82,13 +105,13 @@ private slots:
     void testMovementExcatlyPageWidth();
 
     /*!
-     * Tests movent that is exctly the threshold and it should advance to the next
+     * Tests movement that is exctly the threshold and it should advance to the next
      * snap position
      */
     void testAutoPanning();
 
     /*!
-     * Tests that the current page stays the same when the page width is changed. 
+     * Tests that the current page stays the same when the page width is changed.
      * Note this test also tests the case where a rotation occurs.
      */
     void testCurrentPageRemainsSameWhenPageCountChanges();
@@ -131,18 +154,18 @@ private:
     PagedPanning* m_subject;
 
     void testMovement(PagedPanning* integrator,
-		      int pageWidth,
-		      qreal originalPosition,
-		      qreal moveAmount,
-		      qreal targetPosition,
-		      bool leftToRight,
-		      int targetPage,
-		      qreal rangeStart = 0.0,
-		      qreal rangeEnd = 1000.0);
-    
+              int pageWidth,
+              qreal originalPosition,
+              qreal moveAmount,
+              qreal targetPosition,
+              bool leftToRight,
+              int targetPage,
+              qreal rangeStart = 0.0,
+              qreal rangeEnd = 1000.0);
+
     void performMovement(PagedPanning* pagedPanning,
-			 qreal moveAmount,
-			 bool leftToRight,
+             qreal moveAmount,
+             bool leftToRight,
                          qreal speed = 1.0);
 
     void fillDefaultIntegrationParameters(PagedPanning* pagedPanning, qreal newPageWidth, qreal rangeStart, qreal rangeEnd);
