@@ -1,10 +1,16 @@
-duihome (0.21.16~1) unstable; urgency=low
+duihome (0.21.17~1) unstable; urgency=low
 
-  * New version [UNRELEASED]
+  * [UNRELEASED]
+
+ -- Aki Koskinen <aki.koskinen@nokia.com>  Thu, 29 Jul 2010 12:52:21 +0300
+
+duihome (0.21.16-1) unstable; urgency=low
+
   * Fixes: NB#178843 - switcher goes to wrong page when minimizing the 5th application for the first time
   * Fixes: NB#178834 - on switcher orientation switch, background color is incorrect
+  * ut_pagedpanning execution time improvement
 
- -- Vesa Halttunen <vesa.halttunen@nokia.com>  Thu, 15 Jul 2010 20:05:45 +0300
+ -- Aki Koskinen <aki.koskinen@nokia.com>  Thu, 29 Jul 2010 11:52:00 +0300
 
 duihome (0.21.15-1) unstable; urgency=low
 
