@@ -220,6 +220,14 @@ void PagedPanning::pointerRelease()
 {
 }
 
+int PagedPanning::activePage()
+{
+    return currentPage;
+}
+
+QList<QGraphicsItem *> items_;
+QList<QGraphicsItem *> QGraphicsView::items(const QPoint &/*pos*/) const
+{ return items_;}
 
 QList< QSharedPointer<SwitcherButton> > Ut_SwitcherView::createButtonList(int buttons)
 {
@@ -367,9 +375,11 @@ void Ut_SwitcherView::init()
     switcher->setView(m_subject);
     gSwitcherStub->stubReset();
     mPinch = new QPinchGesture();
+    mPinch->setCenterPoint(QPointF(100,100));
     QList<QGesture*> gestures;
     gestures.append(mPinch);
     mEvent = new QGestureEvent(gestures);
+    items_.clear();
 }
 
 void Ut_SwitcherView::cleanup()
@@ -489,7 +499,10 @@ void Ut_SwitcherView::testPanningStoppedInOverView()
  */
 void Ut_SwitcherView::testDetailToOverviewModeChange()
 {
+    SwitcherButton item1("button", NULL,1);
+    items_.append(&item1);
     g_switcherModel->setSwitcherMode(SwitcherModel::Detailview);
+    g_switcherModel->setButtons(createButtonList(4));
     currentPinchState = Qt::GestureStarted;
 
     // Scale factor <1 is transition to Overview mode.
@@ -514,6 +527,8 @@ void Ut_SwitcherView::testDetailToOverviewModeChange()
 
 void Ut_SwitcherView::testOverviewToDetailModeChange()
 {
+    SwitcherButton item1("button", NULL,1);
+    items_.append(&item1);
     g_switcherModel->setSwitcherMode(SwitcherModel::Overview);
 
    // Scale factor >1 is transition to Detailview mode.
@@ -536,7 +551,9 @@ void Ut_SwitcherView::testOverviewToDetailModeChange()
 
 void Ut_SwitcherView::testModeChangeCancel()
 {
-   // Overview->Detailview gesture cancellation
+    SwitcherButton item1("button", NULL,1);
+    items_.append(&item1);
+    // Overview->Detailview gesture cancellation
    g_switcherModel->setSwitcherMode(SwitcherModel::Overview);
 
    mPinch->setLastScaleFactor(1.0);
@@ -695,6 +712,43 @@ void Ut_SwitcherView::testPanToSwitcherPageInDetailviewMode()
     QCOMPARE(g_panRequested, true);
     int lastPageIndex = buttons -1;
     QCOMPARE(g_panRequestIndex, uint(lastPageIndex));
+}
+
+void Ut_SwitcherView::testWhenPinchingOnSwitcherButtonExactPinchedButtonIsDetected()
+{
+    QList< QSharedPointer<SwitcherButton> > buttons = createButtonList(2);
+    g_switcherModel->setButtons(buttons);
+    items_.append(buttons.at(1).data());
+    m_subject->buttonAt(QPointF(100,100));
+    QCOMPARE(m_subject->pinchedButtonPosition, qint16(1));
+}
+
+void Ut_SwitcherView::testWhenPinchingOnEmptyAreaNearestButtonIsDetected()
+{
+    m_subject->modifiableStyle()->setRowsPerPage(2);
+    m_subject->modifiableStyle()->setColumnsPerPage(2);
+    QList< QSharedPointer<SwitcherButton> > buttons = createButtonList(3);
+    gMWindowStub->stubSetReturnValue("orientation", M::Landscape);
+    buttons.at(0).data()->setPos(198,65);
+    buttons.at(1).data()->setPos(447,65);
+    buttons.at(2).data()->setPos(198,216);
+    g_switcherModel->setButtons(buttons);
+    // When clicking topLeft area button 1 should be detected
+    m_subject->nearestButtonFrom(QPointF(140,124));
+    QCOMPARE(m_subject->pinchedButtonPosition, qint16(0));
+    // When clicking bottomRight area button 3 should be selected
+    m_subject->nearestButtonFrom(QPointF(593,313));
+    QCOMPARE(m_subject->pinchedButtonPosition, qint16(2));
+
+    gMWindowStub->stubSetReturnValue("orientation", M::Portrait);
+    m_subject->viewport->setGeometry(QRectF(0,0,480,748));
+    buttons.at(0).data()->setPos(51,65);
+    buttons.at(1).data()->setPos(255,65);
+    buttons.at(2).data()->setPos(50,408);
+    g_switcherModel->setButtons(buttons);
+    // When clicking topRight area button 2 should be detected
+    m_subject->nearestButtonFrom(QPointF(60,72));
+    QCOMPARE(m_subject->pinchedButtonPosition, qint16(1));
 }
 
 QTEST_APPLESS_MAIN(Ut_SwitcherView)

@@ -75,6 +75,12 @@ private slots:
     // Test that switcher pans to the correct page when button is added in detailview mode
     void testPanToSwitcherPageInDetailviewMode();
 
+    // Test when button is pinched exact button is detected
+    void testWhenPinchingOnSwitcherButtonExactPinchedButtonIsDetected();
+
+    // Test when pinching empty area nearest button is detected
+    void testWhenPinchingOnEmptyAreaNearestButtonIsDetected();
+
 private:
     void verifyButtonModesInOverviewMode(M::Orientation orientation);
     void verifyButtonModesInOverviewMode(QList< QSharedPointer<SwitcherButton> > &buttonList);

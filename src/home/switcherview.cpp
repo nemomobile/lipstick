@@ -78,7 +78,7 @@ SwitcherView::SwitcherView(Switcher *switcher) :
     viewport->positionIndicator()->setObjectName("SwitcherOverviewPageIndicator");
 
     focusedSwitcherButton = 0;
-
+    pinchedButtonPosition = -1;
 }
 
 SwitcherView::~SwitcherView()
@@ -335,6 +335,78 @@ void SwitcherView::removeButtonsFromLayout()
     }
 }
 
+qint16 SwitcherView::buttonPosition(SwitcherButton* button)
+{
+    QList<QSharedPointer<SwitcherButton> > buttons = model()->buttons();
+    for(qint16 i=0;i< buttons.count();++i) {
+        if(buttons.at(i) == button) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+void SwitcherView::nearestButtonFrom(QPointF centerPoint)
+{
+    qreal nearestDistance = 0.0;
+    QList<QSharedPointer<SwitcherButton> > buttons = model()->buttons();
+    uint buttonsPerPage = style()->columnsPerPage()*style()->rowsPerPage();
+    uint fullPages = buttons.count() / buttonsPerPage;
+    uint extraButtons = buttons.count() - (fullPages * buttonsPerPage);
+    uint currentPage = viewport->currentPage();
+
+    // If the current page is not a full page then go through how many ever buttons there are on the page
+    uint loopCounter = currentPage + 1 > fullPages ? extraButtons : buttonsPerPage;
+
+    // Loop from first button in page to number of buttons in page
+    for(uint buttonPosition = buttonsPerPage*currentPage;buttonPosition < buttonsPerPage*currentPage + loopCounter;buttonPosition++) {
+        SwitcherButton* button = buttons.at(buttonPosition).data();
+        // Translate the button pos(scene coordinates) to viewport coordinates
+        QPointF buttonPosViewport = button->mapToItem(viewport, button->pos());
+        // Scene coordinates for buttons on pages greater than 1 are more than viewport coordinate diemensions(device width/height)
+        //Hence points are translated to first page where centerPoint is supposedly delivered
+        QPointF buttonPosTranslatedToFirstPage(buttonPosViewport);
+        // In portrait mode centerpoint is still delivered as if origin is device topLeft when kept in landscape.
+        // Scene cooridnates are however measured as if origin is at device bottomLeft when kept in landscape.
+        QPointF centerPointTranslated(centerPoint);
+        if(MainWindow::instance()->orientation() == M::Landscape) {
+                buttonPosTranslatedToFirstPage.setX(buttonPosTranslatedToFirstPage.x() - currentPage*viewport->size().width());
+            } else {
+                buttonPosTranslatedToFirstPage.setX(buttonPosTranslatedToFirstPage.x() - currentPage*viewport->size().width());
+		centerPointTranslated.setX(viewport->size().width() - centerPoint.y());
+		centerPointTranslated.setY(centerPoint.x());
+        }
+        // Calculate the distance between button center point and center point of pinch
+ 	QLineF line(centerPointTranslated, buttonPosTranslatedToFirstPage);
+        qreal distance = line.length();
+        // if calculated distance is less than previous least distance then this button is nearer
+        if(nearestDistance == 0.0 || distance < nearestDistance) {
+            nearestDistance = distance;
+            pinchedButtonPosition = buttonPosition;
+        }
+    } 
+}
+
+bool SwitcherView::buttonAt(QPointF centerPoint)
+{
+    QList<QGraphicsItem*> items = MainWindow::instance()->items(centerPoint.x(), centerPoint.y());
+    foreach(QGraphicsItem* item, items) {
+        SwitcherButton* button = dynamic_cast<SwitcherButton*>(item);
+        if(button) {
+            pinchedButtonPosition = buttonPosition(button);
+            return true;
+        }
+    }
+    return false;
+}
+
+void SwitcherView::calculatePinchedButton(QPointF centerPoint)
+{
+    if(!buttonAt(centerPoint)) {
+        nearestButtonFrom(centerPoint);
+    }
+}
+
 void SwitcherView::pinchGestureEvent(QGestureEvent *event, QPinchGesture* gesture)
 {
     /*! The target mode for pinch gesture */
@@ -345,8 +417,11 @@ void SwitcherView::pinchGestureEvent(QGestureEvent *event, QPinchGesture* gestur
 
     switch(gesture->state()) {
     case Qt::GestureStarted:
-        pinchGestureCanceled = false;
-        break;
+        {
+            pinchGestureCanceled = false;
+            calculatePinchedButton(gesture->centerPoint());
+            break;
+        }
     case Qt::GestureUpdated:
         {
             pinchGestureTargetMode = gesture->scaleFactor() >=1 ? SwitcherModel::Detailview  :  SwitcherModel::Overview;

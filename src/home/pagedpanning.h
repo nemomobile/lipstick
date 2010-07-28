@@ -91,6 +91,8 @@ public:
      */
     void setFirstPagePosition();
 
+    int activePage();
+
 protected:
 
     //! \reimp

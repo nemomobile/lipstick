@@ -119,6 +119,11 @@ void PagedPanning::pointerRelease()
 {
 }
 
+int PagedPanning::activePage()
+{
+    return currentPage;
+}
+
 void Ut_PagedViewport::initTestCase()
 {
     static int argc = 1;

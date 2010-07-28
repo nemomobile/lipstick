@@ -71,6 +71,8 @@ public:
      */
     void updatePageCount(int pages);
 
+    int currentPage();
+
 Q_SIGNALS:
 
     /*!

@@ -116,6 +116,18 @@ private:
     /*! Selects the layout policy and sets up switcher mode dependent signals */
     void applySwitcherMode();
 
+    /*! Returns the postion of a SwitcherButton in the model*/
+    qint16 buttonPosition(SwitcherButton* button);
+
+    //! Calculates which switcher button is nearest to point centerPoint
+    void nearestButtonFrom(QPointF centerPoint);
+
+    //! Calculated which switcher button is underneath point centerPoint
+    bool buttonAt(QPointF centerPoint);
+
+    //! Calculates which button is being pinched.
+    void calculatePinchedButton(QPointF centerPoint);
+
     /*! Remove all buttons from layout and set parents to NULL
      * Parents are set to NULL to avoid double deletion as buttons are QSharedPointer's in model
      */
@@ -141,6 +153,10 @@ private:
 
     /*! The current focused switcher button */
     int focusedSwitcherButton;
+
+    /*! The button being currently pinched*/
+    qint16 pinchedButtonPosition;
+
 #ifdef UNIT_TEST
     // to test snapIndexChanged effects
     friend class Ut_SwitcherView;
