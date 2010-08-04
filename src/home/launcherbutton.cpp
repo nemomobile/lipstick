@@ -25,8 +25,6 @@
 #include <QDateTime>
 #include <QFileInfo>
 
-bool LauncherButton::launching = false;
-
 LauncherButton::LauncherButton(MWidget *parent) : MButton(parent, new LauncherButtonModel)
 {
     init();
@@ -48,10 +46,6 @@ void LauncherButton::init()
 {
     // When the button is clicked the related object should be launched
     connect(this, SIGNAL(clicked()), this, SLOT(launch()));
-
-    // When the progress indicator timer times out the progress indicator should be hidden
-    progressIndicatorTimeoutTimer.setSingleShot(true);
-    connect(&progressIndicatorTimeoutTimer, SIGNAL(timeout()), this, SLOT(hideProgressIndicator()));
 }
 
 void LauncherButton::setAction(const LauncherAction &action)
@@ -69,33 +63,30 @@ QString LauncherButton::desktopEntry() const
     return model()->desktopEntryFile();
 }
 
+LauncherButtonModel::State LauncherButton::buttonState() const
+{
+    return model()->buttonState();
+}
+
 void LauncherButton::launch()
 {
-    if (!launching) {
-        launching = true;
-        model()->setShowProgressIndicator(true);
+    if (model()->buttonState() == LauncherButtonModel::Installed) {
+        model()->setButtonState(LauncherButtonModel::Launching);
 
-        connect(Switcher::instance(), SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), this, SLOT(hideProgressIndicatorIfObscured(const QList<WindowInfo> &)));
+        connect(Switcher::instance(), SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), this, SLOT(stopLaunchProgressIfObscured(const QList<WindowInfo> &)));
 
         action().trigger();
-
-        progressIndicatorTimeoutTimer.start();
     }
 }
 
-void LauncherButton::hideProgressIndicator()
+void LauncherButton::stopLaunchProgress()
 {
-    launching = false;
-    model()->setShowProgressIndicator(false);
+    model()->setButtonState(LauncherButtonModel::Installed);
 
-    if (progressIndicatorTimeoutTimer.isActive()) {
-        progressIndicatorTimeoutTimer.stop();
-    }
-
-    disconnect(Switcher::instance(), SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), this, SLOT(hideProgressIndicatorIfObscured(const QList<WindowInfo> &)));
+    disconnect(Switcher::instance(), SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), this, SLOT(stopLaunchProgressIfObscured(const QList<WindowInfo> &)));
 }
 
-void LauncherButton::hideProgressIndicatorIfObscured(const QList<WindowInfo> &windowList)
+void LauncherButton::stopLaunchProgressIfObscured(const QList<WindowInfo> &windowList)
 {
     if (!windowList.isEmpty()) {
         const QList<Atom>& windowTypes = windowList.last().types();
@@ -103,7 +94,7 @@ void LauncherButton::hideProgressIndicatorIfObscured(const QList<WindowInfo> &wi
             !windowTypes.contains(WindowInfo::DesktopAtom) &&
             !windowTypes.contains(WindowInfo::DialogAtom) &&
             !windowTypes.contains(WindowInfo::MenuAtom)) {
-            hideProgressIndicator();
+            stopLaunchProgress();
         }
     }
 }
@@ -152,14 +143,4 @@ void LauncherButton::updateIcon(const LauncherAction& action)
         // (at the moment default icon seems to be icon-l-video)
         setIconID("icon-Application-Default");
     }
-}
-
-bool LauncherButton::isInProgress() const
-{
-    return model()->showProgressIndicator();
-}
-
-void LauncherButton::setProgressIndicatorTimeout(int timeout)
-{
-    progressIndicatorTimeoutTimer.setInterval(timeout);
 }

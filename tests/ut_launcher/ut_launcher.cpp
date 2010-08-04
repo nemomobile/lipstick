@@ -33,7 +33,6 @@
 
 const static int BUTTONS_PER_PAGE = 12;
 
-
 QString qProcessProgramStarted;
 bool QProcess::startDetached(const QString &program)
 {

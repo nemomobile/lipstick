@@ -46,9 +46,9 @@ private slots:
     void testInitializationFreeDesktopIcon();
     void testLanguageChange();
     void testLaunch();
-    void testHideProgressIndicator();
-    void testHideProgressIndicatorIfObscured();
-    void testHideProgressIndicatorIfObscured_data();
+    void testStopLaunchProgress();
+    void testStopLaunchProgressIfObscured();
+    void testStopLaunchProgressIfObscured_data();
 
 signals:
     void clicked();

@@ -43,7 +43,7 @@ class LauncherButton : public MButton
     M_CONTROLLER(LauncherButton)
 
     Q_PROPERTY(QString desktopEntryPath READ desktopEntry)
-    Q_PROPERTY(bool inProgress READ isInProgress)
+    Q_PROPERTY(LauncherButtonModel::State buttonState READ buttonState)
 
 public:
     /*!
@@ -89,6 +89,12 @@ public:
     QString desktopEntry() const;
 
     /*!
+     * Returns current button state.
+     * \return the button state.
+     */
+    LauncherButtonModel::State buttonState() const;
+
+    /*!
      * Updates button from given desktop entry.
      * \param desktopEntryPath Path to the desktop entry to update the button from.
      */
@@ -99,18 +105,6 @@ public:
      */
     void retranslateUi();
 
-    /*!
-     * Returns whether the object represented by this launcher button is being launched.
-     * \return \c true if the object represented by this launcher button is being launched, \c false otherwise
-     */
-    bool isInProgress() const;
-
-    /*!
-     * Sets the timeout of the progress indicator in milliseconds
-     * \param timeout the timeout of the progress indicator in milliseconds
-     */
-    void setProgressIndicatorTimeout(int timeout);
-
 private slots:
     /*!
      * Attempts to launch the configured object.
@@ -118,14 +112,14 @@ private slots:
     void launch();
 
     /*!
-     * Hides the progress indicator.
+     * Stops the launch animation.
      */
-    void hideProgressIndicator();
+    void stopLaunchProgress();
 
     /*!
-     * Hides the progress indicator if the window list contains only normal windows
+     * Stops the launch animation if the window list contains only normal windows
      */
-    void hideProgressIndicatorIfObscured(const QList<WindowInfo> &windowList);
+    void stopLaunchProgressIfObscured(const QList<WindowInfo> &windowList);
 
 private:
     /*!
@@ -139,12 +133,6 @@ private:
      * \param action the LauncherAction to update the icon based on
      */
     void updateIcon(const LauncherAction &action);
-
-    //! A timer for disabling the progress indicator if the application startup takes a long time
-    QTimer progressIndicatorTimeoutTimer;
-
-    //! Whether an object represented by any launcher button is being launched or not
-    static bool launching;
 
 #ifdef UNIT_TEST
     friend class Ut_LauncherButton;

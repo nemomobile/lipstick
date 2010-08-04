@@ -26,6 +26,9 @@
 #include "switcher_stub.h"
 #include "x11wrapper.h"
 
+#include "launcherbuttonmodel.h"
+Q_DECLARE_METATYPE(LauncherButtonModel::State);
+
 #define ATOM_TYPE_NORMAL 1
 #define ATOM_TYPE_NOTIFICATION 2
 #define ATOM_TYPE_MENU 3
@@ -313,20 +316,6 @@ QIcon QIcon::fromTheme(const QString &name, const QIcon &fallback)
     return fallback;
 }
 
-// QTimer stubs
-bool qTimerStarted;
-void QTimer::start()
-{
-    qTimerStarted = true;
-    id = 0;
-}
-
-void QTimer::stop()
-{
-    qTimerStarted = false;
-    id = -1;
-}
-
 void Ut_LauncherButton::initTestCase()
 {
     static int argc = 1;
@@ -348,16 +337,16 @@ void Ut_LauncherButton::init()
     qIconHasThemeIcon = false;
     contentActionPrivate.clear();
     contentActionTriggerCalls = 0;
-    qTimerStarted = false;
 
     m_subject = new LauncherButton();
+    m_subject->model()->setButtonState(LauncherButtonModel::Installed);
     connect(this, SIGNAL(clicked()), m_subject, SLOT(launch()));
-    connect(this, SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), m_subject, SLOT(hideProgressIndicatorIfObscured(const QList<WindowInfo> &)));
+    connect(this, SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), m_subject, SLOT(stopLaunchProgressIfObscured(const QList<WindowInfo> &)));
 }
 
 void Ut_LauncherButton::cleanup()
 {
-    m_subject->hideProgressIndicator();
+    m_subject->stopLaunchProgress();
     delete m_subject;
 }
 
@@ -376,9 +365,6 @@ void Ut_LauncherButton::testInitialization()
     QCOMPARE(m_subject->desktopEntry(), QString("/dev/null"));
     QCOMPARE(m_subject->text(), QString("english"));
     QCOMPARE(m_subject->iconID(), QString("icon"));
-    QVERIFY(disconnect(&m_subject->progressIndicatorTimeoutTimer, SIGNAL(timeout()), m_subject, SLOT(hideProgressIndicator())));
-    QVERIFY(m_subject->progressIndicatorTimeoutTimer.isSingleShot());
-    QVERIFY(!qTimerStarted);
 }
 
 void Ut_LauncherButton::testInitializationAbsoluteIcon()
@@ -418,51 +404,46 @@ void Ut_LauncherButton::testLaunch()
 {
     emit clicked();
     QCOMPARE(contentActionTriggerCalls, 1);
-    QVERIFY(qTimerStarted);
-    QVERIFY(disconnect(Switcher::instance(), SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), m_subject, SLOT(hideProgressIndicatorIfObscured(const QList<WindowInfo> &))));
-    QVERIFY(m_subject->isInProgress());
+    QVERIFY(disconnect(Switcher::instance(), SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), m_subject, SLOT(stopLaunchProgressIfObscured(const QList<WindowInfo> &))));
 
-    qTimerStarted = false;
     emit clicked();
-    QVERIFY(!qTimerStarted);
-    QVERIFY(!disconnect(Switcher::instance(), SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), m_subject, SLOT(hideProgressIndicatorIfObscured(const QList<WindowInfo> &))));
+    QVERIFY(!disconnect(Switcher::instance(), SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), m_subject, SLOT(stopLaunchProgressIfObscured(const QList<WindowInfo> &))));
 }
 
-void Ut_LauncherButton::testHideProgressIndicator()
+void Ut_LauncherButton::testStopLaunchProgress()
 {
     emit clicked();
-    m_subject->hideProgressIndicator();
-    QVERIFY(!qTimerStarted);
-    QVERIFY(!disconnect(Switcher::instance(), SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), m_subject, SLOT(hideProgressIndicatorIfObscured(const QList<WindowInfo> &))));
-    QVERIFY(!m_subject->isInProgress());
+    m_subject->stopLaunchProgress();
+    QCOMPARE(m_subject->buttonState(), LauncherButtonModel::Installed);
+    QVERIFY(!disconnect(Switcher::instance(), SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), m_subject, SLOT(stopLaunchProgressIfObscured(const QList<WindowInfo> &))));
 }
 
-void Ut_LauncherButton::testHideProgressIndicatorIfObscured_data()
+void Ut_LauncherButton::testStopLaunchProgressIfObscured_data()
 {
     QTest::addColumn<int>("topMostWindowId");
-    QTest::addColumn<bool>("shouldBeInProgress");
+    QTest::addColumn<LauncherButtonModel::State>("state");
 
-    QTest::newRow("_NEW_WM_WINDOW_TYPE_NORMAL") << 1 << false;
-    QTest::newRow("_NEW_WM_WINDOW_TYPE_NOTIFICATION") << 2 << true;
-    QTest::newRow("_NEW_WM_WINDOW_TYPE_MENU") << 3 << true;
-    QTest::newRow("_NEW_WM_WINDOW_TYPE_DIALOG") << 4 << true;
-    QTest::newRow("_NEW_WM_WINDOW_TYPE_DESKTOP") << 5 << true;
-    QTest::newRow("_NEW_WM_WINDOW_TYPE_DEFAULT") << 6 << false;
+    QTest::newRow("_NEW_WM_WINDOW_TYPE_NORMAL") << 1 << LauncherButtonModel::Installed;
+    QTest::newRow("_NEW_WM_WINDOW_TYPE_NOTIFICATION") << 2 << LauncherButtonModel::Launching;
+    QTest::newRow("_NEW_WM_WINDOW_TYPE_MENU") << 3 << LauncherButtonModel::Launching;
+    QTest::newRow("_NEW_WM_WINDOW_TYPE_DIALOG") << 4 << LauncherButtonModel::Launching;
+    QTest::newRow("_NEW_WM_WINDOW_TYPE_DESKTOP") << 5 << LauncherButtonModel::Launching;
+    QTest::newRow("_NEW_WM_WINDOW_TYPE_DEFAULT") << 6 << LauncherButtonModel::Installed;
 }
 
-void Ut_LauncherButton::testHideProgressIndicatorIfObscured()
+void Ut_LauncherButton::testStopLaunchProgressIfObscured()
 {
     QFETCH(int, topMostWindowId);
-    QFETCH(bool, shouldBeInProgress);
+    QFETCH(LauncherButtonModel::State, state);
 
     emit clicked();
-    QCOMPARE(m_subject->isInProgress(), true);
+    QCOMPARE(m_subject->buttonState(), LauncherButtonModel::Launching);
 
     QList<WindowInfo> windowList;
     windowList.append(WindowInfo(topMostWindowId));
     emit windowStackingOrderChanged(windowList);
 
-    QCOMPARE(m_subject->isInProgress(), shouldBeInProgress);
+    QCOMPARE(m_subject->buttonState(), state);
 }
 
 void Ut_LauncherButton::testLanguageChange()
@@ -485,5 +466,3 @@ void Ut_LauncherButton::testLanguageChange()
 }
 
 QTEST_APPLESS_MAIN(Ut_LauncherButton)
-
-//     QCOMPARE(m_subject->progressIndicatorTimeoutTimer.interval(), m_subject->style()->progressIndicatorTimeout());

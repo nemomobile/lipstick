@@ -1,7 +1,8 @@
 include(../common_top.pri)
 TARGET = ut_quicklaunchbar
 
-MODEL_HEADERS += $$SRCDIR/quicklaunchbarmodel.h
+MODEL_HEADERS += $$SRCDIR/quicklaunchbarmodel.h \
+    $$SRCDIR/launcherbuttonmodel.h
 
 # unit test and unit
 SOURCES += \
@@ -22,7 +23,8 @@ HEADERS += \
     $$SRCDIR/quicklaunchbarmodel.h \
     $$SRCDIR/launcherbutton.h \
     $$SRCDIR/launcherdatastore.h \
-    $$SRCDIR/windowinfo.h
+    $$SRCDIR/windowinfo.h \
+    $$SRCDIR/launcherbuttonmodel.h
 
 DEFINES += APPLICATIONS_DIRECTORY=\'$$quote(\"/tmp/ut_launcher/applications/\")\'
 

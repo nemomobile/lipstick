@@ -19,12 +19,20 @@
 
 #include <QtTest/QtTest>
 #include <MApplication>
-#include <MProgressIndicator>
+#include "mprogressindicator_stub.h"
 #include "ut_launcherbuttonview.h"
 #include "launcherbuttonview.h"
+#include "launcherbuttonmodel.h"
 #include "launcherbutton_stub.h"
 #include "launcheraction_stub.h"
 #include "windowinfo_stub.h"
+
+// MButton stubs
+QString mButtonText;
+QString MButton::text() const
+{
+    return mButtonText;
+}
 
 // QTimer stubs
 bool qTimerStarted;
@@ -38,30 +46,6 @@ void QTimer::stop()
 {
     qTimerStarted = false;
     id = -1;
-}
-
-// QTimeLine stubs
-bool qTimeLineStarted;
-void QTimeLine::start()
-{
-    qTimeLineStarted = true;
-}
-
-void QTimeLine::stop()
-{
-    qTimeLineStarted = false;
-}
-
-QTimeLine::State QTimeLine::state() const
-{
-    return qTimeLineStarted ? QTimeLine::Running : QTimeLine::NotRunning;
-}
-
-// MButton stubs
-QString mButtonText;
-QString MButton::text() const
-{
-    return mButtonText;
 }
 
 // MButtonIconView stubs
@@ -92,15 +76,15 @@ void Ut_LauncherButtonView::cleanupTestCase()
 
 void Ut_LauncherButtonView::init()
 {
-    qTimeLineStarted = false;
-    qTimerStarted = false;
     controller = new LauncherButton;
     controller->setModel(new LauncherButtonModel);
     m_subject = new LauncherButtonView(controller);
     controller->setView(m_subject);
-    connect(this, SIGNAL(frameChanged(int)), m_subject, SLOT(setProgressIndicatorFrame(int)));
     mWidgetViewUpdateCalled = false;
     mButtonIconViewApplyStyleCalled = false;
+    qTimerStarted = false;
+
+    gMProgressIndicatorStub->stubReset();
 }
 
 void Ut_LauncherButtonView::cleanup()
@@ -110,60 +94,81 @@ void Ut_LauncherButtonView::cleanup()
 
 void Ut_LauncherButtonView::testInitialization()
 {
-    QVERIFY(disconnect(&m_subject->progressIndicatorTimer, SIGNAL(timeout()), m_subject, SLOT(showProgressIndicator())));
-    QVERIFY(disconnect(&m_subject->progressIndicatorTimeLine, SIGNAL(frameChanged(int)), m_subject, SLOT(setProgressIndicatorFrame(int))));
+    controller->setObjectName("LauncherButton");
+    QVERIFY(m_subject->progressIndicator->objectName() == "LauncherButtonProgressIndicator");
 
-    QVERIFY(m_subject->progressIndicatorTimer.isSingleShot());
-    QCOMPARE(m_subject->progressIndicatorTimeLine.state(), QTimeLine::NotRunning);
-    QCOMPARE(m_subject->progressIndicatorTimeLine.loopCount(), 0);
-    QCOMPARE(m_subject->progressIndicatorTimeLine.curveShape(), QTimeLine::LinearCurve);
+    controller->setObjectName("QuickLaunchBarButton");
+    QVERIFY(m_subject->progressIndicator->objectName() == "QuickLaunchBarButtonProgressIndicator");
+
+    QCOMPARE(m_subject->model()->buttonState(), LauncherButtonModel::Installed);
+    QVERIFY(disconnect(&m_subject->launchProgressTimeoutTimer, SIGNAL(timeout()), controller, SLOT(stopLaunchProgress())));
+    QVERIFY(m_subject->launchProgressTimeoutTimer.isSingleShot());
+    QVERIFY(!qTimerStarted);
 }
 
 void Ut_LauncherButtonView::testApplyStyle()
 {
-    LauncherButtonStyle *style = const_cast<LauncherButtonStyle *>(m_subject->style().operator ->());
-    style->setProgressIndicatorTimeout(12345);
-
     m_subject->applyStyle();
     QVERIFY(mButtonIconViewApplyStyleCalled);
-    QCOMPARE(gLauncherButtonStub->stubLastCallTo("setProgressIndicatorTimeout").parameter<int>(0), m_subject->style()->progressIndicatorTimeout());
 }
 
-void Ut_LauncherButtonView::testUpdateData()
+void Ut_LauncherButtonView::testResetProgressIndicator_data()
 {
-    controller->model()->setShowProgressIndicator(true);
-    QCOMPARE(m_subject->progressIndicatorTimer.isActive(), true);
+     QTest::addColumn<LauncherButtonModel::State>("state");
+     QTest::addColumn<bool>("verifyVisible");
+     QTest::addColumn<int>("verifySetUnknownDurationCallCount");
+     QTest::addColumn<bool>("verifySetUnknownDurationParam");
 
-    controller->model()->setShowProgressIndicator(false);
-    QCOMPARE(m_subject->progressIndicatorTimer.isActive(), false);
+     QTest::newRow("installed") << LauncherButtonModel::Installed << false << 0 << false;
+
+     QTest::newRow("Launching") << LauncherButtonModel::Launching << true << 2 << true;
+     QTest::newRow("Installing") << LauncherButtonModel::Installing << true << 2 << true;
+     // reset calls already setUnknowDuration once with false parameter
+     QTest::newRow("Downloading") << LauncherButtonModel::Downloading << true << 1 << false;
 }
 
-void Ut_LauncherButtonView::testShowProgressIndicator()
+void Ut_LauncherButtonView::testResetProgressIndicator()
 {
-    m_subject->showProgressIndicator();
-    QCOMPARE(m_subject->progressIndicatorTimeLine.state(), QTimeLine::Running);
-    QVERIFY(mWidgetViewUpdateCalled);
+    QFETCH(LauncherButtonModel::State, state);
+    QFETCH(bool, verifyVisible);
+    QFETCH(int, verifySetUnknownDurationCallCount);
+    QFETCH(bool, verifySetUnknownDurationParam);
 
-    mWidgetViewUpdateCalled = false;
-    m_subject->showProgressIndicator();
-    QVERIFY(!mWidgetViewUpdateCalled);
+    m_subject->model()->setButtonState(state);
+
+    QCOMPARE(m_subject->progressIndicator->isVisible(), verifyVisible);
+    QCOMPARE(gMProgressIndicatorStub->stubCallCount("setUnknownDuration"), verifySetUnknownDurationCallCount);
+    if (verifySetUnknownDurationCallCount > 0) {
+        QCOMPARE(gMProgressIndicatorStub->stubLastCallTo("setUnknownDuration").parameter<bool>(0), verifySetUnknownDurationParam);
+    }
 }
 
-void Ut_LauncherButtonView::testHideProgressIndicator()
+void Ut_LauncherButtonView::testLaunchingProgress()
 {
-    m_subject->showProgressIndicator();
+    m_subject->model()->setButtonState(LauncherButtonModel::Launching);
+    QVERIFY(qTimerStarted);
+    // one for reset and one for button state change
+    QCOMPARE(gMProgressIndicatorStub->stubCallCount("setUnknownDuration"), 2);
+    QCOMPARE(gMProgressIndicatorStub->stubLastCallTo("setUnknownDuration").parameter<bool>(0), true);
 
-    mWidgetViewUpdateCalled = false;
-    m_subject->hideProgressIndicator();
-    QCOMPARE(m_subject->progressIndicatorTimer.isActive(), false);
-    QCOMPARE(m_subject->progressIndicatorTimeLine.state(), QTimeLine::NotRunning);
-    QVERIFY(mWidgetViewUpdateCalled);
+    m_subject->model()->setButtonState(LauncherButtonModel::Installed);
+    QVERIFY(!qTimerStarted);
 }
 
-void Ut_LauncherButtonView::testSetProgressIndicatorFrame()
+void Ut_LauncherButtonView::testUpdateProgressWhenDownloading()
 {
-    emit frameChanged(5);
-    QVERIFY(mWidgetViewUpdateCalled);
+    m_subject->model()->setButtonState(LauncherButtonModel::Downloading);
+
+    m_subject->model()->setOperationProgress(50);
+    QCOMPARE(gMProgressIndicatorStub->stubLastCallTo("setValue").parameter<int>(0), 50);
+}
+
+void Ut_LauncherButtonView::testUpdateProgressWhenNotDownloading()
+{
+    m_subject->model()->setButtonState(LauncherButtonModel::Installing);
+
+    m_subject->model()->setOperationProgress(50);
+    QCOMPARE(gMProgressIndicatorStub->stubLastCallTo("setValue").parameter<int>(0), 0);
 }
 
 QTEST_APPLESS_MAIN(Ut_LauncherButtonView)

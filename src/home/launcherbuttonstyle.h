@@ -28,13 +28,13 @@ class LauncherButtonStyle : public MButtonIconStyle
     M_STYLE(LauncherButtonStyle)
 
     //! The timeout for the progress indicator (in milliseconds)
-    M_STYLE_ATTRIBUTE(int, progressIndicatorTimeout, ProgressIndicatorTimeout)
+    M_STYLE_ATTRIBUTE(int, launchProgressIndicatorTimeout, LaunchProgressIndicatorTimeout)
 
-    //! The number of milliseconds in which the given progress indicator images are animated
-    M_STYLE_ATTRIBUTE(int, progressIndicatorAnimationDuration, ProgressIndicatorAnimationDuration)
-
-    //! The list of IDs of the images to be shown in the progress indicator separated by spaces
-    M_STYLE_ATTRIBUTE(QString, progressIndicatorImageList, ProgressIndicatorImageList)
+    /*!
+     * The progress indicator icon size (this is needed for implementation reasons
+     * as progress indicator icons might be different size than button icon).
+     */
+    M_STYLE_ATTRIBUTE(QSize, progressIndicatorIconSize, ProgressIndicatorIconSize)
 };
 
 class LauncherButtonStyleContainer : public MButtonIconStyleContainer

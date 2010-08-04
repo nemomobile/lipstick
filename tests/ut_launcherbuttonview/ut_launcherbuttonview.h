@@ -22,6 +22,9 @@
 
 #include <QObject>
 
+#include "launcherbuttonmodel.h"
+Q_DECLARE_METATYPE(LauncherButtonModel::State);
+
 class MApplication;
 class LauncherButton;
 class LauncherButtonView;
@@ -43,10 +46,11 @@ private slots:
     // Test cases
     void testInitialization();
     void testApplyStyle();
-    void testUpdateData();
-    void testShowProgressIndicator();
-    void testHideProgressIndicator();
-    void testSetProgressIndicatorFrame();
+    void testResetProgressIndicator_data();
+    void testResetProgressIndicator();
+    void testLaunchingProgress();
+    void testUpdateProgressWhenDownloading();
+    void testUpdateProgressWhenNotDownloading();
 
 signals:
     void frameChanged(int frame);

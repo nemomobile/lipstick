@@ -25,16 +25,32 @@
 
 class LauncherButtonModel : public MButtonModel
 {
-private:
     Q_OBJECT
     M_MODEL(LauncherButtonModel)
+
+    Q_ENUMS(State)
+
+public:
+    //! Possible launcher button states
+    enum State {
+        //! Button state when application is downloading
+        Downloading,
+        //! Button state when application is installing
+        Installing,
+        //! Button state when application is installed successfully
+        Installed,
+        //! Button state when application is launching
+        Launching
+    };
 
     //! Desktop entry file that launcher button is representing
     M_MODEL_PROPERTY(QString, desktopEntryFile, DesktopEntryFile, true, QString())
     //! Action for the desktop entry file
     M_MODEL_PROPERTY(LauncherAction, action, Action, true, LauncherAction())
-    //! Whether to show a progress indicator or not
-    M_MODEL_PROPERTY(bool, showProgressIndicator, ShowProgressIndicator, true, false)
+    //! The current state of this button
+    M_MODEL_PROPERTY(LauncherButtonModel::State, buttonState, ButtonState, true, Installed)
+    //! Progress of button operation, between 0 and 100 (eg. for download)
+    M_MODEL_PROPERTY(int, operationProgress, OperationProgress, true, 0)
 };
 
 #endif /* LAUNCHERBUTTONMODEL_H_ */

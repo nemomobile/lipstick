@@ -28,7 +28,7 @@
 #include "launcherbuttonstyle.h"
 
 class LauncherButton;
-
+class MProgressIndicator;
 /*!
  * The launcher button view allows a progress indicator to be displayed on top of it.
  */
@@ -52,9 +52,8 @@ public:
 
 protected:
     //! \reimp
-    virtual void setupModel();
     virtual void applyStyle();
-    virtual void drawContents(QPainter *painter, const QStyleOptionGraphicsItem *option) const;
+    virtual void setupModel();
     //! \reimp_end
 
 protected slots:
@@ -62,31 +61,21 @@ protected slots:
     virtual void updateData(const QList<const char *>& modifications);
     //! \reimp_end
 
-private slots:
-    //! Shows the progress indicator
-    void showProgressIndicator();
-
-    //! Updates the progress indicator
-    void setProgressIndicatorFrame(int frame);
-
 private:
-    //! Hides the progress indicator
-    void hideProgressIndicator();
+    //! Resets the progress indicator according to button state
+    void resetProgressIndicator();
 
     //! The controller for the view
     LauncherButton *controller;
 
-    //! Pixmaps for the progress indicator
-    QVector<const QPixmap *> progressIndicatorPixmaps;
-
-    //! Timer for bringing forth the progress indicator
-    QTimer progressIndicatorTimer;
-
-    //! Animation timeline for the progress indicator
-    QTimeLine progressIndicatorTimeLine;
-
     //! Position and size of the progress indicator
     QRectF progressIndicatorRect;
+
+    //! Progress indicator for operation
+    MProgressIndicator *progressIndicator;
+
+    //! A timer for disabling the progress indicator if the application startup takes a long time
+    QTimer launchProgressTimeoutTimer;
 
 #ifdef UNIT_TEST
     friend class Ut_LauncherButtonView;

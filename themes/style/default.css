@@ -191,20 +191,27 @@ LauncherButtonStyle {
 
     /* The size of the icon if the button represents a shortcut */
     icon-size: 8mm 8mm;
+    /* The size of the progress indicator icon */
+    /* (due implementation reasons progress indicator might be of different size than button icon) */
+    progress-indicator-icon-size: 94 94;
 
     press-feedback: press;
     release-feedback: release;
 
     /* The timeout for the progress indicator (in milliseconds) */
-    progress-indicator-timeout: 10000;
-    /* The number of milliseconds in which the given progress indicator images are animated */
-    progress-indicator-animation-duration: 8000;
-    /* The list of IDs of the images to be shown in the progress indicator separated by spaces */
-    progress-indicator-image-list: "meegotouch-launcher-spinner-large-1 meegotouch-launcher-spinner-large-2 meegotouch-launcher-spinner-large-3 meegotouch-launcher-spinner-large-4 meegotouch-launcher-spinner-large-5 meegotouch-launcher-spinner-large-6 meegotouch-launcher-spinner-large-7 meegotouch-launcher-spinner-large-8 meegotouch-launcher-spinner-large-9 meegotouch-launcher-spinner-large-10 meegotouch-launcher-spinner-large-11 meegotouch-launcher-spinner-large-12 meegotouch-launcher-spinner-large-13 meegotouch-launcher-spinner-large-14 meegotouch-launcher-spinner-large-15 meegotouch-launcher-spinner-large-16";
+    launch-progress-indicator-timeout: 10000;
 }
 
-LauncherButton > MSpinnerStyle {
-    speed: 2;
+MSpinnerStyle#LauncherButtonProgressIndicator {
+    period: 8000;
+    bg-pixmap: meegotouch-progressindicator-spinner-hollow-background;
+    progress-pixmap: meegotouch-progressindicator-spinner-hollow-progress;
+}
+
+MSpinnerStyle#QuickLaunchBarButtonProgressIndicator {
+    period: 8000;
+    bg-pixmap: meegotouch-progressindicator-spinner-hollow-background-small;
+    progress-pixmap: meegotouch-progressindicator-spinner-hollow-progress-small;
 }
 
 QuickLaunchBarStyle {
@@ -218,8 +225,9 @@ QuickLaunchBarStyle {
     margin-bottom: 0;
 }
 
-MButtonIconStyle#QuickLaunchBarButton {
+LauncherButtonStyle#QuickLaunchBarButton {
     font: $FONT_SMALL;
+
     text-color: $COLOR_INVERTED_FOREGROUND;
 
     margin-left: $MARGIN_DOUBLE;
@@ -235,6 +243,9 @@ MButtonIconStyle#QuickLaunchBarButton {
     release-feedback: release;
 
     icon-size: $SIZE_ICON_LARGE $SIZE_ICON_LARGE;
+    /* The size of the progress indicator icon */
+    /* (due implementation reasons progress indicator might be of different size than button icon) */
+    progress-indicator-icon-size: 58 58;
 }
 
 SwitcherStyle {

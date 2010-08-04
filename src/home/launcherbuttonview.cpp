@@ -17,86 +17,59 @@
 **
 ****************************************************************************/
 
-#include <QGraphicsAnchorLayout>
+#include <MProgressIndicator>
 #include "launcherbuttonview.h"
 #include "launcherbutton.h"
 
 LauncherButtonView::LauncherButtonView(LauncherButton *controller) :
     MButtonIconView(controller),
-    controller(controller)
+    controller(controller),
+    progressIndicator(new MProgressIndicator(controller, MProgressIndicator::spinnerType))
 {
-    progressIndicatorTimer.setSingleShot(true);
-    progressIndicatorTimeLine.setLoopCount(0);
-    progressIndicatorTimeLine.setCurveShape(QTimeLine::LinearCurve);
+    progressIndicator->setContentsMargins(0,0,0,0);
+    progressIndicator->setRange(0, 100);
+    progressIndicator->hide();
 
-    connect(&progressIndicatorTimer, SIGNAL(timeout()), this, SLOT(showProgressIndicator()));
-    connect(&progressIndicatorTimeLine, SIGNAL(frameChanged(int)), this, SLOT(setProgressIndicatorFrame(int)));
+    // When the progress indicator timer times out the progress indicator should be hidden
+    launchProgressTimeoutTimer.setSingleShot(true);
+    connect(&launchProgressTimeoutTimer, SIGNAL(timeout()), controller, SLOT(stopLaunchProgress()));
 }
 
 LauncherButtonView::~LauncherButtonView()
 {
 }
 
-void LauncherButtonView::setupModel()
-{
-    MButtonIconView::setupModel();
-
-    QList<const char *> modifications;
-    modifications << LauncherButtonModel::ShowProgressIndicator;
-    updateData(modifications);
-}
-
 void LauncherButtonView::applyStyle()
 {
     MButtonIconView::applyStyle();
 
-    // Set the progress indicator timing properties
-    controller->setProgressIndicatorTimeout(style()->progressIndicatorTimeout());
-    progressIndicatorTimeLine.setDuration(style()->progressIndicatorAnimationDuration());
-    progressIndicatorTimer.setInterval(style()->glowDuration());
+    // set launch progress maximum duration from style
+    launchProgressTimeoutTimer.setInterval(style()->launchProgressIndicatorTimeout());
 
-    if (!progressIndicatorPixmaps.isEmpty()) {
-        // Release the old progress indicator pixmaps
-        foreach(const QPixmap *pixmap, progressIndicatorPixmaps) {
-            MTheme::releasePixmap(pixmap);
-        }
-
-        progressIndicatorPixmaps.clear();
+    if (controller->objectName() == "LauncherButton") {
+        progressIndicator->setObjectName("LauncherButtonProgressIndicator");
+    } else {
+        progressIndicator->setObjectName("QuickLaunchBarButtonProgressIndicator");
     }
 
-    // Load the new progress indicator pixmaps
-    QStringList imageList = style()->progressIndicatorImageList().trimmed().split(QChar(' '));
-    progressIndicatorPixmaps.fill(NULL, imageList.length());
-    for (int i = 0; i < imageList.count(); i++) {
-        progressIndicatorPixmaps.replace(i, MTheme::pixmap(imageList.at(i), style()->iconSize()));
-    }
-    progressIndicatorTimeLine.setFrameRange(0, imageList.count() - 1);
+    // Set position and size for progress indicator
+    int hMargin = style()->paddingLeft() + style()->paddingRight() + style()->marginLeft() + style()->marginRight();
+    int vMargin = style()->paddingTop() + style()->paddingBottom() + style()->marginTop() + style()->marginBottom();
 
-    // Calculate progress indicator rectangle
-    int hPadding = style()->paddingLeft() + style()->paddingRight();
-    int vPadding = style()->paddingTop() + style()->paddingBottom();
-    QRectF contentRect(style()->paddingLeft(), style()->paddingTop(), style()->preferredSize().width() - hPadding, style()->preferredSize().height() - vPadding);
-    progressIndicatorRect.setTopLeft(QPointF(contentRect.center().x() - (style()->iconSize().width() / 2), contentRect.top()));
-    progressIndicatorRect.setSize(style()->iconSize());
+    int progressIndicatorHOffset = (style()->preferredSize().width() / 2) - (style()->progressIndicatorIconSize().width() / 2);
+    int progressIndicatorVOffset = (style()->iconSize().height() - style()->progressIndicatorIconSize().height())/2;
+    int progressIndicatorLeftPosition =  progressIndicatorHOffset + hMargin / 2;
+    int progressIndicatorTopPosition = progressIndicatorVOffset + vMargin / 2;
+
+    progressIndicator->setPreferredSize(style()->progressIndicatorIconSize());
+    progressIndicator->setPos(QPointF(progressIndicatorLeftPosition, progressIndicatorTopPosition));
 }
 
-void LauncherButtonView::drawContents(QPainter *painter, const QStyleOptionGraphicsItem *option) const
+void LauncherButtonView::setupModel()
 {
-    if (progressIndicatorTimeLine.state() == QTimeLine::Running) {
-        // Draw the button icon view first: it messes up with the painter so the state must be saved
-        painter->save();
-        MButtonIconView::drawContents(painter, option);
-        painter->restore();
+    MButtonIconView::setupModel();
 
-        // Draw the progress indicator pixmap
-        const QPixmap *pixmap = progressIndicatorPixmaps.at(progressIndicatorTimeLine.currentFrame());
-        if (pixmap != NULL && !pixmap->isNull()) {
-            painter->drawPixmap(progressIndicatorRect, *pixmap, QRectF(pixmap->rect()));
-        }
-    } else {
-        // No progress indicator, so just draw the icon view
-        MButtonIconView::drawContents(painter, option);
-    }
+    resetProgressIndicator();
 }
 
 void LauncherButtonView::updateData(const QList<const char *>& modifications)
@@ -105,42 +78,48 @@ void LauncherButtonView::updateData(const QList<const char *>& modifications)
 
     const char *member;
     foreach(member, modifications) {
-        if (member == LauncherButtonModel::ShowProgressIndicator) {
-            if (model()->showProgressIndicator()) {
-                progressIndicatorTimer.start();
+        if (member == LauncherButtonModel::ButtonState) {
+            resetProgressIndicator();
+
+            if (model()->buttonState() == LauncherButtonModel::Launching) {
+                launchProgressTimeoutTimer.start();
             } else {
-                hideProgressIndicator();
+                // stop launch timer in case we were launching
+                if (launchProgressTimeoutTimer.isActive()) {
+                    launchProgressTimeoutTimer.stop();
+                }
+            }
+        } else if (member == LauncherButtonModel::OperationProgress) {
+            if (model()->buttonState() == LauncherButtonModel::Downloading) {
+                progressIndicator->setValue(model()->operationProgress());
             }
         }
     }
 }
 
-void LauncherButtonView::setProgressIndicatorFrame(int)
+void LauncherButtonView::resetProgressIndicator()
 {
-    update();
-}
-
-void LauncherButtonView::showProgressIndicator()
-{
-    if (progressIndicatorTimer.isActive()) {
-        progressIndicatorTimer.stop();
-    }
-
-    if (progressIndicatorTimeLine.state() != QTimeLine::Running) {
-        progressIndicatorTimeLine.start();
-        update();
-    }
-}
-
-void LauncherButtonView::hideProgressIndicator()
-{
-    if (progressIndicatorTimer.isActive()) {
-        progressIndicatorTimer.stop();
-    }
-
-    if (progressIndicatorTimeLine.state() != QTimeLine::NotRunning) {
-        progressIndicatorTimeLine.stop();
-        update();
+    switch(model()->buttonState()) {
+        case LauncherButtonModel::Installing:
+        case LauncherButtonModel::Launching:
+        {
+            progressIndicator->reset();
+            progressIndicator->setUnknownDuration(true);
+            progressIndicator->show();
+        }
+        break;
+        case LauncherButtonModel::Downloading:
+        {
+            progressIndicator->reset();
+            progressIndicator->show();
+        }
+        break;
+        case LauncherButtonModel::Installed:
+        default:
+        {
+            progressIndicator->hide();
+        }
+        break;
     }
 }
 

@@ -4,46 +4,46 @@
 #include "launcherbutton.h"
 #include <stubbase.h>
 
+#include "launcherbuttonmodel.h"
+
 
 // 1. DECLARE STUB
 // FIXME - stubgen is not yet finished
 class LauncherButtonStub : public StubBase {
   public:
   virtual void LauncherButtonConstructor(MWidget *parent);
-  virtual void LauncherButtonConstructor(const QString &entry, MWidget *parent);
+  virtual void LauncherButtonConstructor(const QString &desktopEntryPath, MWidget *parent);
   virtual void LauncherButtonDestructor();
   virtual void setAction(const LauncherAction &action);
   virtual LauncherAction action() const;
   virtual QString desktopEntry() const;
-  virtual void launch();
-  virtual void updateFromDesktopEntry(const QString &entry);
+  virtual void updateFromDesktopEntry(const QString &desktopEntryPath);
   virtual void retranslateUi();
-  virtual bool isInProgress() const;
-  virtual void setProgressIndicatorTimeout(int timeout);
-  virtual void hideProgressIndicator();
-  virtual void hideProgressIndicatorIfObscured(const QList<WindowInfo> &windowList);
+  virtual void launch();
+  virtual void stopLaunchProgress();
+  virtual void stopLaunchProgressIfObscured(const QList<WindowInfo> &windowList);
   virtual void init();
+  virtual void updateIcon(const LauncherAction &action);
+  virtual LauncherButtonModel::State buttonState() const;
 }; 
-
 
 // 2. IMPLEMENT STUB
 void LauncherButtonStub::LauncherButtonConstructor(MWidget *parent) {
   Q_UNUSED(parent);
 
 }
-void LauncherButtonStub::LauncherButtonConstructor(const QString &entry, MWidget *parent) {
-  Q_UNUSED(entry);
+void LauncherButtonStub::LauncherButtonConstructor(const QString &desktopEntryPath, MWidget *parent) {
+  Q_UNUSED(desktopEntryPath);
   Q_UNUSED(parent);
 
 }
 void LauncherButtonStub::LauncherButtonDestructor() {
-  stubMethodEntered("~LauncherButton");
-}
 
+}
 void LauncherButtonStub::setAction(const LauncherAction &action) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<LauncherAction >(action));
-  stubMethodEntered("setTarget",params);
+  params.append( new Parameter<const LauncherAction & >(action));
+  stubMethodEntered("setAction",params);
 }
 
 LauncherAction LauncherButtonStub::action() const {
@@ -56,49 +56,43 @@ QString LauncherButtonStub::desktopEntry() const {
   return stubReturnValue<QString>("desktopEntry");
 }
 
+void LauncherButtonStub::updateFromDesktopEntry(const QString &desktopEntryPath) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<const QString & >(desktopEntryPath));
+  stubMethodEntered("updateFromDesktopEntry",params);
+}
+
+void LauncherButtonStub::retranslateUi() {
+  stubMethodEntered("retranslateUi");
+}
+
 void LauncherButtonStub::launch() {
   stubMethodEntered("launch");
 }
 
-void LauncherButtonStub::updateFromDesktopEntry(const QString &entry) {
+void LauncherButtonStub::stopLaunchProgress() {
+  stubMethodEntered("stopLaunchProgress");
+}
+
+void LauncherButtonStub::stopLaunchProgressIfObscured(const QList<WindowInfo> &windowList) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const QString &>(entry));
-  stubMethodEntered("updateFromDesktopEntry",params);
+  params.append( new Parameter<const QList<WindowInfo> & >(windowList));
+  stubMethodEntered("stopLaunchProgressIfObscured",params);
 }
 
-void LauncherButtonStub::retranslateUi()
-{
-  stubMethodEntered("retranslateUi");
-}
-
-bool LauncherButtonStub::isInProgress() const
-{
-  stubMethodEntered("isInProgress");
-  return stubReturnValue<bool>("isInProgress");
-}
-
-void LauncherButtonStub::setProgressIndicatorTimeout(int timeout)
-{
-  QList<ParameterBase*> params;
-  params.append( new Parameter<int>(timeout));
-  stubMethodEntered("setProgressIndicatorTimeout",params);
-}
-
-void LauncherButtonStub::hideProgressIndicator()
-{
-  stubMethodEntered("hideProgressIndicator");
-}
-
-void LauncherButtonStub::hideProgressIndicatorIfObscured(const QList<WindowInfo> &windowList)
-{
-  QList<ParameterBase*> params;
-  params.append( new Parameter<QList<WindowInfo> >(windowList));
-  stubMethodEntered("hideProgressIndicatorIfObscured",params);
-}
-
-void LauncherButtonStub::init()
-{
+void LauncherButtonStub::init() {
   stubMethodEntered("init");
+}
+
+void LauncherButtonStub::updateIcon(const LauncherAction &action) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<const LauncherAction & >(action));
+  stubMethodEntered("updateIcon",params);
+}
+
+LauncherButtonModel::State LauncherButtonStub::buttonState() const {
+  stubMethodEntered("buttonState");
+  return stubReturnValue<LauncherButtonModel::State>("buttonState");
 }
 
 
@@ -112,8 +106,8 @@ LauncherButton::LauncherButton(MWidget *parent) {
   gLauncherButtonStub->LauncherButtonConstructor(parent);
 }
 
-LauncherButton::LauncherButton(const QString &entry, MWidget *parent) {
-  gLauncherButtonStub->LauncherButtonConstructor(entry, parent);
+LauncherButton::LauncherButton(const QString &desktopEntryPath, MWidget *parent) {
+  gLauncherButtonStub->LauncherButtonConstructor(desktopEntryPath, parent);
 }
 
 LauncherButton::~LauncherButton() {
@@ -132,42 +126,36 @@ QString LauncherButton::desktopEntry() const {
   return gLauncherButtonStub->desktopEntry();
 }
 
+void LauncherButton::updateFromDesktopEntry(const QString &desktopEntryPath) {
+  gLauncherButtonStub->updateFromDesktopEntry(desktopEntryPath);
+}
+
+void LauncherButton::retranslateUi() {
+  gLauncherButtonStub->retranslateUi();
+}
+
 void LauncherButton::launch() {
   gLauncherButtonStub->launch();
 }
 
-void LauncherButton::updateFromDesktopEntry(const QString &entry) {
-    gLauncherButtonStub->updateFromDesktopEntry(entry);
+void LauncherButton::stopLaunchProgress() {
+  gLauncherButtonStub->stopLaunchProgress();
 }
 
-void LauncherButton::retranslateUi()
-{
-    gLauncherButtonStub->retranslateUi();
+void LauncherButton::stopLaunchProgressIfObscured(const QList<WindowInfo> &windowList) {
+  gLauncherButtonStub->stopLaunchProgressIfObscured(windowList);
 }
 
-bool LauncherButton::isInProgress() const
-{
-    return gLauncherButtonStub->isInProgress();
+void LauncherButton::init() {
+  gLauncherButtonStub->init();
 }
 
-void LauncherButton::setProgressIndicatorTimeout(int timeout)
-{
-    gLauncherButtonStub->setProgressIndicatorTimeout(timeout);
+void LauncherButton::updateIcon(const LauncherAction &action) {
+  gLauncherButtonStub->updateIcon(action);
 }
 
-void LauncherButton::hideProgressIndicator()
-{
-    gLauncherButtonStub->hideProgressIndicator();
-}
-
-void LauncherButton::hideProgressIndicatorIfObscured(const QList<WindowInfo> &windowList)
-{
-    gLauncherButtonStub->hideProgressIndicatorIfObscured(windowList);
-}
-
-void LauncherButton::init()
-{
-    gLauncherButtonStub->init();
+LauncherButtonModel::State LauncherButton::buttonState() const {
+    return gLauncherButtonStub->buttonState();
 }
 
 #endif
