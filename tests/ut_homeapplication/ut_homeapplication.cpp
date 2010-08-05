@@ -33,6 +33,7 @@
 #include "mapplication_stub.h"
 #include "switcher_stub.h"
 #include "windowinfo_stub.h"
+#include "xeventlistener.h"
 #include <signal.h>
 
 // QDBusAbstractInterface stubs (used by HomeApplication through service framework)
@@ -93,16 +94,28 @@ QList<QString> Ut_HomeApplication::serviceInterfaces;
 QList<QString> Ut_HomeApplication::asyncCallMethods;
 QList< QList<QVariant> > Ut_HomeApplication::asyncCallArguments;
 
+
+class MockXEventListener : public XEventListener, public StubBase
+{
+public:
+    bool handleXEvent(XEvent &event)
+    {
+        QList<ParameterBase*> params;
+        params.append(new Parameter<XEvent*>(&event));
+        stubMethodEntered("handleXEvent", params);
+        return stubReturnValue<bool>("handleXEvent");
+    }
+};
+
+
 void Ut_HomeApplication::initTestCase()
 {
     qRegisterMetaType<Window>("Window");
-    gMApplicationStub->stubSetReturnValue("x11EventFilter", false);
 }
 
 void Ut_HomeApplication::cleanupTestCase()
 {
 }
-
 
 void Ut_HomeApplication::init()
 {
@@ -114,11 +127,15 @@ void Ut_HomeApplication::init()
     static char *args[] = {(char *) "./ut_homeapplication"};
     static int argc = sizeof(args) / sizeof(char *);
     m_subject = new HomeApplication(argc, args);
+
+    gMApplicationStub->stubReset();
+    gMApplicationStub->stubSetReturnValue("x11EventFilter", false);
 }
 
 void Ut_HomeApplication::cleanup()
 {
     delete m_subject;
+    m_subject = NULL;
 }
 
 static void resetDbusAndSignalExpectedValues()
@@ -138,7 +155,6 @@ static void compareDbusValues()
     QCOMPARE(dbusMessageType, QDBusMessage::SignalMessage);
     QCOMPARE(dbusMessageMember, HOME_READY_SIGNAL_NAME);
 }
-
 
 void Ut_HomeApplication::testUpstartStartup()
 {
@@ -174,23 +190,72 @@ void Ut_HomeApplication::testNonUpstartStartup()
     compareDbusValues();
 }
 
-void Ut_HomeApplication::testX11EventFilter()
+void Ut_HomeApplication::testXEventFilterReturnsFalseWhenNoEventListenerExists()
 {
     XEvent event;
 
     gMApplicationStub->stubSetReturnValue("x11EventFilter", false);
-    gSwitcherStub->stubSetReturnValue("handleX11Event", true);
-    QVERIFY(m_subject->x11EventFilter(&event));
-    QCOMPARE(gSwitcherStub->stubCallCount("handleX11Event"), 1);
-    QCOMPARE(gMApplicationStub->stubCallCount("x11EventFilter"), 0);
+    QCOMPARE(m_subject->x11EventFilter(&event), false);
+}
 
-    gMApplicationStub->stubReset();
-    gMApplicationStub->stubSetReturnValue("x11EventFilter", true);
-    gSwitcherStub->stubReset();
-    gSwitcherStub->stubSetReturnValue("handleX11Event", false);
-    QVERIFY(m_subject->x11EventFilter(&event));
-    QCOMPARE(gSwitcherStub->stubCallCount("handleX11Event"), 1);
-    QCOMPARE(gMApplicationStub->stubCallCount("x11EventFilter"), 1);
+void Ut_HomeApplication::testXEventFilterReturnsFalseWhenEventFilterReturnsFalse()
+{
+    MockXEventListener mockXEventListener;
+    mockXEventListener.stubSetReturnValue("handleXEvent", false);
+    m_subject->addXEventListener(&mockXEventListener);
+
+    XEvent event;
+    QCOMPARE(m_subject->x11EventFilter(&event), false);
+    QCOMPARE(mockXEventListener.stubCallCount("handleXEvent"), 1);
+    QCOMPARE(mockXEventListener.stubLastCallTo("handleXEvent").parameter<XEvent*>(0), &event);
+
+    m_subject->removeXEventListener(&mockXEventListener);
+}
+
+void Ut_HomeApplication::testXEventFilterReturnsTrueWhenEventFilterReturnsTrue()
+{
+    MockXEventListener mockXEventListener;
+    mockXEventListener.stubSetReturnValue("handleXEvent", true);
+    m_subject->addXEventListener(&mockXEventListener);
+
+    XEvent event;
+    QCOMPARE(m_subject->x11EventFilter(&event), true);
+    QCOMPARE(mockXEventListener.stubCallCount("handleXEvent"), 1);
+    QCOMPARE(mockXEventListener.stubLastCallTo("handleXEvent").parameter<XEvent*>(0), &event);
+
+    m_subject->removeXEventListener(&mockXEventListener);
+}
+
+void Ut_HomeApplication::testXEventFilterReturnsTrueWhenThereAreTwoEventFiltersAndOnlyTheOtherReturnsTrue()
+{
+    MockXEventListener mockXEventListener1;
+    mockXEventListener1.stubSetReturnValue("handleXEvent", true);
+    m_subject->addXEventListener(&mockXEventListener1);
+
+    MockXEventListener mockXEventListener2;
+    mockXEventListener2.stubSetReturnValue("handleXEvent", false);
+    m_subject->addXEventListener(&mockXEventListener2);
+
+    XEvent event;
+    QCOMPARE(m_subject->x11EventFilter(&event), true);
+    QCOMPARE(mockXEventListener1.stubCallCount("handleXEvent"), 1);
+    QCOMPARE(mockXEventListener1.stubLastCallTo("handleXEvent").parameter<XEvent*>(0), &event);
+    QCOMPARE(mockXEventListener2.stubCallCount("handleXEvent"), 1);
+    QCOMPARE(mockXEventListener2.stubLastCallTo("handleXEvent").parameter<XEvent*>(0), &event);
+
+    m_subject->removeXEventListener(&mockXEventListener1);
+    m_subject->removeXEventListener(&mockXEventListener2);
+}
+
+void Ut_HomeApplication::testSameXEventFilterCanBeAddedOnlyOnce()
+{
+    MockXEventListener mockXEventListener;
+    m_subject->addXEventListener(&mockXEventListener);
+    m_subject->addXEventListener(&mockXEventListener);
+
+    XEvent event;
+    m_subject->x11EventFilter(&event);
+    QCOMPARE(mockXEventListener.stubCallCount("handleXEvent"), 1);
 }
 
 QTEST_APPLESS_MAIN(Ut_HomeApplication)

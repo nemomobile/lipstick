@@ -46,7 +46,8 @@ HEADERS += homeapplication.h \
     homescreenadaptor.h \
     homewindowmonitor.h \
     windowmonitor.h \
-    applicationpackagemonitor.h
+    applicationpackagemonitor.h \
+    xeventlistener.h
 SOURCES += homeapplication.cpp \
     windowinfo.cpp \
     home.cpp \

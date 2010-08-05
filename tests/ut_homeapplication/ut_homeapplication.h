@@ -51,11 +51,16 @@ private slots:
     // notifications don't happen when the --upstart switch is not given
     void testNonUpstartStartup();
 
-    void testX11EventFilter();
+    void testXEventFilterReturnsFalseWhenNoEventListenerExists();
+    void testXEventFilterReturnsFalseWhenEventFilterReturnsFalse();
+    void testXEventFilterReturnsTrueWhenEventFilterReturnsTrue();
+    void testXEventFilterReturnsTrueWhenThereAreTwoEventFiltersAndOnlyTheOtherReturnsTrue();
+    void testSameXEventFilterCanBeAddedOnlyOnce();
 
 private:
     // The object being tested
     HomeApplication *m_subject;
+
 };
 
 #endif

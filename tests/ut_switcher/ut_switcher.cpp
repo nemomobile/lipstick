@@ -485,7 +485,7 @@ void Ut_Switcher::updateWindowList()
     event.xproperty.atom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_CLIENT_LIST_STACKING", False);
     event.xproperty.window = DefaultRootWindow(QX11Info::display());
     event.type = PropertyNotify;
-    QVERIFY(switcher->handleX11Event(&event));
+    QVERIFY(switcher->handleXEvent(event));
 }
 
 void Ut_Switcher::testWindowToFront()
@@ -543,24 +543,24 @@ void Ut_Switcher::testX11EventFilterWithPropertyNotify()
     event.type = 0;
     event.xproperty.window = 0;
     event.xproperty.atom = 0;
-    QVERIFY(!switcher->handleX11Event(&event));
+    QVERIFY(!switcher->handleXEvent(event));
     event.type = PropertyNotify;
-    QVERIFY(!switcher->handleX11Event(&event));
+    QVERIFY(!switcher->handleXEvent(event));
     event.xproperty.window = DefaultRootWindow(QX11Info::display());
-    QVERIFY(!switcher->handleX11Event(&event));
+    QVERIFY(!switcher->handleXEvent(event));
     event.type = 0;
-    QVERIFY(!switcher->handleX11Event(&event));
+    QVERIFY(!switcher->handleXEvent(event));
 
     event.xproperty.atom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_CLIENT_LIST_STACKING", False);
-    QVERIFY(!switcher->handleX11Event(&event));
+    QVERIFY(!switcher->handleXEvent(event));
 
     event.xproperty.window = 0;
-    QVERIFY(!switcher->handleX11Event(&event));
+    QVERIFY(!switcher->handleXEvent(event));
     event.type = PropertyNotify;
-    QVERIFY(!switcher->handleX11Event(&event));
+    QVERIFY(!switcher->handleXEvent(event));
 
     event.xproperty.window = DefaultRootWindow(QX11Info::display());
-    QVERIFY(switcher->handleX11Event(&event));
+    QVERIFY(switcher->handleXEvent(event));
 
     // Make sure the window list change signal was emitted
     QCOMPARE(r.count, 1);
@@ -573,7 +573,7 @@ void Ut_Switcher::testX11EventFilterWithPropertyNotify()
     g_windowStateMap[FIRST_APPLICATION_WINDOW] = states;
     event.xproperty.window = INVALID_WINDOWS;
     event.xproperty.atom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_WM_STATE", False);
-    QVERIFY(switcher->handleX11Event(&event));
+    QVERIFY(switcher->handleXEvent(event));
     QCOMPARE(r.count, 2);
     QCOMPARE(r.windowList.count(), APPLICATION_WINDOWS - 1);
     verifyModel(r.windowList);
@@ -582,7 +582,7 @@ void Ut_Switcher::testX11EventFilterWithPropertyNotify()
     g_windowTypeMap[FIRST_APPLICATION_WINDOW + 1][0] = ATOM_TYPE_MENU;
     event.xproperty.window = FIRST_APPLICATION_WINDOW + 1;
     event.xproperty.atom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_WM_WINDOW_TYPE", False);
-    QVERIFY(switcher->handleX11Event(&event));
+    QVERIFY(switcher->handleXEvent(event));
     QCOMPARE(r.count, 3);
     QCOMPARE(r.windowList.count(), 0);
     verifyModel(r.windowList);
@@ -601,25 +601,25 @@ void Ut_Switcher::testX11EventFilterWithVisibilityNotify()
     event.xvisibility.send_event = TRUE;
 
     // Make sure the window visibility change signal is not emitted if state is VisibilityUnobscured
-    QVERIFY(!switcher->handleX11Event(&event));
+    QVERIFY(!switcher->handleXEvent(event));
     QCOMPARE(r.windowList.count(), 0);
 
     // Make sure the window visibility change signal was emitted with the given window if state is VisibilityFullyObscured
     event.xvisibility.state = VisibilityFullyObscured;
-    QVERIFY(switcher->handleX11Event(&event));
+    QVERIFY(switcher->handleXEvent(event));
     QCOMPARE(r.windowList.count(), 1);
     QCOMPARE(r.windowList.at(0), (Window)303);
 
     // Make sure the window visibility change signal is not emitted if send_event is FALSE but the event is processed
     event.xvisibility.send_event = FALSE;
-    QVERIFY(switcher->handleX11Event(&event));
+    QVERIFY(switcher->handleXEvent(event));
     QCOMPARE(r.windowList.count(), 1);
 
     // Make sure the window visibility change signal is not emitted if the window is the homescreen itself
     WId HOME_WINDOW_ID = 1001;
     mockWindowMonitor->ownWindows.append(HOME_WINDOW_ID);
     event.xvisibility.window = HOME_WINDOW_ID;
-    QVERIFY(!switcher->handleX11Event(&event));
+    QVERIFY(!switcher->handleXEvent(event));
     QCOMPARE(r.windowList.count(), 1);
 }
 
@@ -632,15 +632,15 @@ void Ut_Switcher::testX11EventFilterWithClientMessage()
     XEvent clientEvent;
     clientEvent.type = 0;
     clientEvent.xclient.message_type = 0;
-    QVERIFY(!switcher->handleX11Event(&clientEvent));
+    QVERIFY(!switcher->handleXEvent(clientEvent));
     clientEvent.type = ClientMessage;
-    QVERIFY(!switcher->handleX11Event(&clientEvent));
+    QVERIFY(!switcher->handleXEvent(clientEvent));
     clientEvent.type = 0;
     clientEvent.xclient.message_type = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_CLOSE_WINDOW", False);
-    QVERIFY(!switcher->handleX11Event(&clientEvent));
+    QVERIFY(!switcher->handleXEvent(clientEvent));
     clientEvent.type = ClientMessage;
     clientEvent.xclient.window = FIRST_APPLICATION_WINDOW;
-    QVERIFY(switcher->handleX11Event(&clientEvent));
+    QVERIFY(switcher->handleXEvent(clientEvent));
 
     // When the stacking list is updated the closed window should be excluded
     updateWindowList();
@@ -727,7 +727,7 @@ void Ut_Switcher::testX11EventWindowNameChange()
     event.xproperty.window = window;
     gGetWindowTitleSucceeds = success;
     x11WrapperWMName[window] = newTitle;
-    QVERIFY(switcher->handleX11Event(&event));
+    QVERIFY(switcher->handleXEvent(event));
     verifyModel(r.windowList);
 
     // The title should only change if getting it succeeds
@@ -788,7 +788,7 @@ void Ut_Switcher::testTransiencyChanges()
     event.type = PropertyNotify;
     event.xproperty.window = INVALID_WINDOWS + 1;
     event.xproperty.atom = XA_WM_TRANSIENT_FOR;
-    QVERIFY(switcher->handleX11Event(&event));
+    QVERIFY(switcher->handleXEvent(event));
 
     // The window list should contain only one window which should represent the second window
     QCOMPARE(r.count, 2);
@@ -800,7 +800,7 @@ void Ut_Switcher::testTransiencyChanges()
 
     // Update the state of a window that currently is a transient window back to normal
     x11WrapperTransientForHint.clear();
-    QVERIFY(switcher->handleX11Event(&event));
+    QVERIFY(switcher->handleXEvent(event));
 
     // The window list should contain only both windows again
     QCOMPARE(r.count, 3);

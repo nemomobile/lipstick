@@ -82,56 +82,56 @@ Switcher::~Switcher()
     switcher = NULL;
 }
 
-bool Switcher::handleX11Event(XEvent *event)
+bool Switcher::handleXEvent(XEvent &event)
 {
     bool eventWasHandled = false;
 
-    if (event->type == CreateNotify) {
+    if (event.type == CreateNotify) {
         // A window has been created so add it to the switcher if it has not been added already
-        if (isRelevantWindow(event->xcreatewindow.window) && addWindow(event->xcreatewindow.window)) {
+        if (isRelevantWindow(event.xcreatewindow.window) && addWindow(event.xcreatewindow.window)) {
             scheduleUpdateButtons();
         }
         eventWasHandled = true;
-    } else if (event->type == DestroyNotify) {
+    } else if (event.type == DestroyNotify) {
         // A window has been destroyed so completely remove it from the switcher
-        if (removeWindow(event->xdestroywindow.window)) {
+        if (removeWindow(event.xdestroywindow.window)) {
             // Update the switcher buttons instantly
             updateButtons();
         }
         eventWasHandled = true;
-    } else if (event->type == PropertyNotify) {
-        if (event->xproperty.atom == stackedClientListAtom && event->xproperty.window == DefaultRootWindow(QX11Info::display())) {
+    } else if (event.type == PropertyNotify) {
+        if (event.xproperty.atom == stackedClientListAtom && event.xproperty.window == DefaultRootWindow(QX11Info::display())) {
             // The client list of the root window has changed so update the window list
             updateWindowInfoMap();
             eventWasHandled = true;
-        } else if (event->xproperty.atom == WindowInfo::TypeAtom || event->xproperty.atom == WindowInfo::StateAtom || event->xproperty.atom == XA_WM_TRANSIENT_FOR) {
+        } else if (event.xproperty.atom == WindowInfo::TypeAtom || event.xproperty.atom == WindowInfo::StateAtom || event.xproperty.atom == XA_WM_TRANSIENT_FOR) {
             // The type, state or transiency of a window has changed so update that window's properties
-            updateWindowProperties(event->xproperty.window);
+            updateWindowProperties(event.xproperty.window);
             eventWasHandled = true;
-        } else if (event->xproperty.atom == windowNameAtom || event->xproperty.atom == netWindowNameAtom) {
+        } else if (event.xproperty.atom == windowNameAtom || event.xproperty.atom == netWindowNameAtom) {
             // The title of a window has changed so update that window's title
-            updateWindowTitle(event->xproperty.window);
+            updateWindowTitle(event.xproperty.window);
             eventWasHandled = true;
         }
-    } else if (event->type == VisibilityNotify) {
-        if (event->xvisibility.state == VisibilityFullyObscured) {
+    } else if (event.type == VisibilityNotify) {
+        if (event.xvisibility.state == VisibilityFullyObscured) {
             // A window was obscured: was it a homescreen window?
             bool homescreenWindowVisibilityChanged = false;
             if (windowMonitor != NULL) {
-                homescreenWindowVisibilityChanged = windowMonitor->isOwnWindow(event->xvisibility.window);
+                homescreenWindowVisibilityChanged = windowMonitor->isOwnWindow(event.xvisibility.window);
             }
 
             if (!homescreenWindowVisibilityChanged) {
                 // It was some other window, so let interested parties know about it
-                if (event->xvisibility.send_event) {
-                    emit windowVisibilityChanged(event->xvisibility.window);
+                if (event.xvisibility.send_event) {
+                    emit windowVisibilityChanged(event.xvisibility.window);
                 }
                 eventWasHandled = true;
             }
         }
-    } else if (event->type == ClientMessage && event->xclient.message_type == closeWindowAtom) {
+    } else if (event.type == ClientMessage && event.xclient.message_type == closeWindowAtom) {
         // A _NET_CLOSE_WINDOW message was caught so a window is being closed; add it to windows being closed list
-        markWindowBeingClosed(event->xclient.window);
+        markWindowBeingClosed(event.xclient.window);
         eventWasHandled = true;
     }
 

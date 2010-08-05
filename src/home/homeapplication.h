@@ -22,8 +22,10 @@
 
 #include <MApplication>
 #include <QTimer>
+#include <QSet>
 
 class HomeScreenService;
+class XEventListener;
 
 /*!
  * HomeApplication extends MApplication with additional services.
@@ -45,6 +47,22 @@ public:
      * Destroys the HomeApplication.
      */
     ~HomeApplication();
+
+    /*!
+     * Adds an X event listener object for this application. When X events arrive,
+     * they are forwarded to the listener.
+     * Before destroying the event listener object, remove the listener from the application
+     * by calling \c removeXEventListener.
+     * \param listener the X event listener
+     */
+    void addXEventListener(XEventListener *listener);
+
+    /*!
+     * Removes the X11 event listener object. The listener won't receive anymore events
+     * from this application.
+     * \param listener the listener object to remove.
+     */
+    void removeXEventListener(XEventListener *listener);
 
 signals:
     /*!
@@ -78,6 +96,11 @@ private:
 
     //! Implementations for com.meego.core.HomeScreen interface.
     HomeScreenService *homeScreenService;
+
+    /*!
+     * The X event listener objects registered for receiving X events.
+     */
+    QSet<XEventListener*> xEventListeners;
 
 #ifdef UNIT_TEST
     friend class Ut_HomeApplication;

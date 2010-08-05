@@ -22,6 +22,7 @@
 #include <QTimer>
 #include <MWidgetController>
 #include "switchermodel.h"
+#include "xeventlistener.h"
 #include <X11/Xlib.h>
 
 class WindowMonitor;
@@ -30,7 +31,7 @@ class WindowInfo;
 /*!
  * Switcher is a widget that shows the available windows.
  */
-class Switcher : public MWidgetController
+class Switcher : public MWidgetController, public XEventListener
 {
     Q_OBJECT
     M_CONTROLLER(Switcher)
@@ -57,12 +58,12 @@ public:
     ~Switcher();
 
     /*!
-     * Handles an X11 event if it is related to the Switcher.
+     * Handles an X event if it is related to the Switcher.
      *
      * \param event the XEvent to be handled
      * \return \c true if the event was handled, \c false otherwise
      */
-    bool handleX11Event(XEvent *event);
+    bool handleXEvent(XEvent &event);
 
 signals:
     /*!

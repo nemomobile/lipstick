@@ -25,8 +25,8 @@
 #include "homeapplication.h"
 #include "homescreenservice.h"
 #include "homescreenadaptor.h"
-#include "switcher.h"
 #include "windowinfo.h"
+#include "xeventlistener.h"
 
 /*!
  * D-Bus names for the home screen service
@@ -77,7 +77,8 @@ static bool isUpstartMode(int argc, char *argv[])
 
 HomeApplication::HomeApplication(int &argc, char **argv) :
     MApplication(argc, argv),
-    homeScreenService(new HomeScreenService)
+    homeScreenService(new HomeScreenService),
+    xEventListeners()
 {
     // Enable prestart mode
     MApplication::setPrestartMode(M::TerminateOnClose);
@@ -109,6 +110,18 @@ HomeApplication::~HomeApplication()
     delete homeScreenService;
 }
 
+void HomeApplication::addXEventListener(XEventListener *listener)
+{
+    if (listener != NULL) {
+        xEventListeners.insert(listener);
+    }
+}
+
+void HomeApplication::removeXEventListener(XEventListener *listener)
+{
+    xEventListeners.remove(listener);
+}
+
 void HomeApplication::sendStartupNotifications()
 {
     static QDBusConnection systemBus = QDBusConnection::systemBus();
@@ -125,10 +138,16 @@ void HomeApplication::sendStartupNotifications()
 
 bool HomeApplication::x11EventFilter(XEvent *event)
 {
-    Switcher *switcher = Switcher::instance();
-    if (switcher != NULL && switcher->handleX11Event(event)) {
-        return true;
+    bool eventHandled = false;
+    foreach (XEventListener* listener, xEventListeners) {
+        if (listener->handleXEvent(*event)) {
+            eventHandled = true;
+        }
     }
 
-    return MApplication::x11EventFilter(event);
+    if (!eventHandled) {
+        eventHandled = MApplication::x11EventFilter(event);
+    }
+
+    return eventHandled;
 }

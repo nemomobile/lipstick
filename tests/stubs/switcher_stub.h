@@ -28,7 +28,7 @@ class SwitcherStub : public StubBase
 public:
     virtual void switcherConstructor(const WindowMonitor *windowMonitor, MWidget *parent = NULL);
     virtual void switcherDestructor();
-    virtual bool handleX11Event(XEvent *event);
+    virtual bool handleXEvent(XEvent &event);
     virtual void updateButtons();
     virtual void windowToFront(Window window);
     virtual void closeWindow(Window window);
@@ -48,12 +48,12 @@ void SwitcherStub::switcherDestructor()
     stubMethodEntered("switcherDestructor");
 }
 
-bool SwitcherStub::handleX11Event(XEvent *event)
+bool SwitcherStub::handleXEvent(XEvent &event)
 {
     QList<ParameterBase *> params;
-    params.append(new Parameter<XEvent *>(event));
-    stubMethodEntered("handleX11Event", params);
-    return stubReturnValue<bool>("handleX11Event");
+    params.append(new Parameter<XEvent&>(event));
+    stubMethodEntered("handleXEvent", params);
+    return stubReturnValue<bool>("handleXEvent");
 }
 
 void SwitcherStub::windowToFront(Window window)
@@ -106,9 +106,9 @@ Switcher *Switcher::instance()
     return gSwitcherInstance;
 }
 
-bool Switcher::handleX11Event(XEvent *event)
+bool Switcher::handleXEvent(XEvent &event)
 {
-    return gSwitcherStub->handleX11Event(event);
+    return gSwitcherStub->handleXEvent(event);
 }
 
 void Switcher::windowToFront(Window window)

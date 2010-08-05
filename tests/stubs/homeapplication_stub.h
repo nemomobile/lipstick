@@ -29,6 +29,8 @@ class HomeApplicationStub : public StubBase
 public:
     virtual void HomeApplicationConstructor(int &argc, char **argv);
     virtual void HomeApplicationDestructor();
+    virtual void addXEventListener(XEventListener *listener);
+    virtual void removeXEventListener(XEventListener *listener);
     virtual bool x11EventFilter(XEvent *event);
     virtual void sendStartupNotifications();
 };
@@ -38,11 +40,23 @@ void HomeApplicationStub::HomeApplicationConstructor(int &argc, char **argv)
 {
     Q_UNUSED(argc);
     Q_UNUSED(argv);
-
 }
 void HomeApplicationStub::HomeApplicationDestructor()
 {
+}
 
+void HomeApplicationStub::addXEventListener(XEventListener *listener)
+{
+    QList<ParameterBase *> params;
+    params.append(new Parameter<XEventListener*>(listener));
+    stubMethodEntered("addXEventListener", params);
+}
+
+void HomeApplicationStub::removeXEventListener(XEventListener *listener)
+{
+    QList<ParameterBase *> params;
+    params.append(new Parameter<XEventListener*>(listener));
+    stubMethodEntered("removeXEventListener", params);
 }
 
 bool HomeApplicationStub::x11EventFilter(XEvent *event)
@@ -72,6 +86,16 @@ HomeApplication::HomeApplication(int &argc, char **argv) : MApplication(argc, ar
 HomeApplication::~HomeApplication()
 {
     gHomeApplicationStub->HomeApplicationDestructor();
+}
+
+void HomeApplication::addXEventListener(XEventListener *listener)
+{
+    gHomeApplicationStub->addXEventListener(listener);
+}
+
+void HomeApplication::removeXEventListener(XEventListener *listener)
+{
+    gHomeApplicationStub->removeXEventListener(listener);
 }
 
 bool HomeApplication::x11EventFilter(XEvent *event)
