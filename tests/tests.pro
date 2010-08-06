@@ -26,6 +26,7 @@ SUBDIRS = \
     ut_switcherview \
     ut_windowinfo \
     ut_pagepositionindicatorview \
+    ut_applicationpackagemonitor \
     ut_test
 
 QMAKE_STRIP = echo
