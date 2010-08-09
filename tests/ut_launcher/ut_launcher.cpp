@@ -23,65 +23,16 @@
 #include "ut_launcher.h"
 #include "launcher.h"
 #include "launcherpage.h"
-#include "launcherbutton.h"
+#include "windowinfo_stub.h"
+#include "launcherbutton_stub.h"
 #include "launcherdatastore_stub.h"
 #include "launchermodel.h"
 #include "launcherpagemodel.h"
 #include "mockdatastore.h"
 
 
-
-// LauncherButton stubs
-LauncherButton::LauncherButton(MWidget *parent) : MButton(parent, new LauncherButtonModel) {}
-LauncherButton::LauncherButton(const QString&, MWidget*parent) : MButton(parent, new LauncherButtonModel) {}
-LauncherButton::~LauncherButton(){}
-
 const static int BUTTONS_PER_PAGE = 12;
 
-
-QString LauncherButton::desktopEntry() const
-{
-    return objectName();
-}
-
-int updateFromDesktopEntryCallCount = 0;
-void LauncherButton::updateFromDesktopEntry(const QString &)
-{
-    updateFromDesktopEntryCallCount++;
-}
-
-void LauncherButton::launch()
-{
-}
-
-void LauncherButton::retranslateUi()
-{
-}
-
-bool LauncherButton::isInProgress() const
-{
-    return false;
-}
-
-void LauncherButton::setProgressIndicatorTimeout(int)
-{
-}
-
-void LauncherButton::hideProgressIndicator()
-{
-}
-
-void LauncherButton::hideProgressIndicatorIfObscured(const QList<WindowInfo> &)
-{
-}
-
-void LauncherButton::init()
-{
-}
-
-void QDBusPendingReplyData::setMetaTypes(int, int const *)
-{
-}
 
 QString qProcessProgramStarted;
 bool QProcess::startDetached(const QString &program)
@@ -106,6 +57,7 @@ void Ut_Launcher::addButtonsToLauncher(int amount)
 // Tests
 void Ut_Launcher::initTestCase()
 {
+    gLauncherButtonStub->stubReset();
 }
 
 void Ut_Launcher::cleanupTestCase()
@@ -123,8 +75,6 @@ void Ut_Launcher::init()
     connect(this, SIGNAL(testPanToPageSignal(const QString &)), launcher, SLOT(panToPage(const QString &)));
 
     qProcessProgramStarted.clear();
-
-    updateFromDesktopEntryCallCount = 0;
 }
 
 void Ut_Launcher::cleanup()
@@ -306,10 +256,12 @@ void Ut_Launcher::testUpdatingLauncherButton()
     QString updateButtonEntry = QString(APPLICATIONS_DIRECTORY) + "testApp20.desktop";
     // Make one specific button to "simulate" updated button
     // (Update is checked from button so that we don't have to stub LauncherPage just for this)
-    launcher->model()->launcherPages().at(2).data()->model()->launcherButtons().at(0)->setObjectName(updateButtonEntry);
+
+    gLauncherButtonStub->stubSetReturnValue("desktopEntry", updateButtonEntry);
+
     emit updateButton(updateButtonEntry);
 
-    QCOMPARE(updateFromDesktopEntryCallCount, 1);
+    QCOMPARE(gLauncherButtonStub->stubCallCount("updateFromDesktopEntry"), 1);
 }
 
 void Ut_Launcher::testAddingButtons()
@@ -369,14 +321,14 @@ void Ut_Launcher::testRemovingButtons()
     int buttonCount = BUTTONS_PER_PAGE + buttonCountOnSecondPage;
     addButtonsToLauncher(buttonCount);
 
-    // Make specific buttons to "simulate" removed buttons
-    launcher->model()->launcherPages().at(0).data()->model()->launcherButtons().at(3)->setObjectName("testApp2.desktop");
-    launcher->model()->launcherPages().at(0).data()->model()->launcherButtons().at(4)->setObjectName("testApp3.desktop");
-
     // remove 2 buttons from 1st page
     buttonCountOnFirstPage = BUTTONS_PER_PAGE - 2;
-    launcher->removeLauncherButton("testApp2.desktop");
+
+    gLauncherButtonStub->stubSetReturnValue("desktopEntry", QString("testApp3.desktop"));
     launcher->removeLauncherButton("testApp3.desktop");
+
+    gLauncherButtonStub->stubSetReturnValue("desktopEntry", QString("testApp4.desktop"));
+    launcher->removeLauncherButton("testApp4.desktop");
 
     QCOMPARE(launcher->model()->launcherPages().count(), 2);
     QCOMPARE(launcher->model()->launcherPages().at(0)->model()->launcherButtons().count(), buttonCountOnFirstPage);

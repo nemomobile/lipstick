@@ -20,56 +20,11 @@
 #include <MApplication>
 #include <MDesktopEntry>
 #include "ut_launcherpage.h"
+#include "windowinfo_stub.h"
+#include "launcherbutton_stub.h"
 #include "launcherpage.h"
-#include "launcherbutton.h"
 
 static QSharedPointer<LauncherButton> createLauncherButton(QString desktopFileName = QString());
-
-// LauncherButton stubs
-LauncherButton::LauncherButton(MWidget *parent) : MButton(parent, new LauncherButtonModel) {}
-LauncherButton::LauncherButton(const QString&, MWidget*parent) : MButton(parent, new LauncherButtonModel) {}
-LauncherButton::~LauncherButton(){}
-
-QString LauncherButton::desktopEntry() const
-{
-    return objectName();
-}
-
-int updateFromDesktopEntryCallCount = 0;
-void LauncherButton::updateFromDesktopEntry(const QString &)
-{
-    updateFromDesktopEntryCallCount++;
-}
-
-void LauncherButton::launch()
-{
-}
-
-void LauncherButton::retranslateUi()
-{
-    return;
-}
-
-bool LauncherButton::isInProgress() const
-{
-    return false;
-}
-
-void LauncherButton::setProgressIndicatorTimeout(int)
-{
-}
-
-void LauncherButton::hideProgressIndicator()
-{
-}
-
-void LauncherButton::hideProgressIndicatorIfObscured(const QList<WindowInfo> &)
-{
-}
-
-void LauncherButton::init()
-{
-}
 
 void Ut_LauncherPage::initTestCase()
 {
@@ -86,7 +41,6 @@ void Ut_LauncherPage::cleanupTestCase()
 void Ut_LauncherPage::init()
 {
     m_subject = new LauncherPage();
-    updateFromDesktopEntryCallCount = 0;
 }
 
 void Ut_LauncherPage::cleanup()
@@ -144,9 +98,14 @@ void Ut_LauncherPage::testUpdateButton()
     QSharedPointer<LauncherButton> button2 = createLauncherButton("my-entry-name-updated");
     m_subject->appendButton(button1);
     m_subject->appendButton(button2);
-    m_subject->updateButton("my-entry-name-updated");
 
-    QCOMPARE(updateFromDesktopEntryCallCount, 1);
+    gLauncherButtonStub->stubSetReturnValue("desktopEntry", QString("my-entry-name-1"));
+    m_subject->updateButton("my-entry-name-updated");
+    QCOMPARE(gLauncherButtonStub->stubCallCount("updateFromDesktopEntry"), 0);
+
+    gLauncherButtonStub->stubSetReturnValue("desktopEntry", QString("my-entry-name-updated"));
+    m_subject->updateButton("my-entry-name-updated");
+    QCOMPARE(gLauncherButtonStub->stubCallCount("updateFromDesktopEntry"), 1);
 }
 
 static QSharedPointer<LauncherButton> createLauncherButton(QString desktopFileName)
