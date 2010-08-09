@@ -48,45 +48,45 @@ signals:
      *\param bytesLoaded is current amount of bytes downloaded.
      *\param bytesTotal is size of downloading package in bytes.
      */
-    void downloadProgress(const QString &packageName, int bytesLoaded, int bytesTotal);
+    void downloadProgress(const QString &packageName, const QString &packageExtraPath, int bytesLoaded, int bytesTotal);
     /*!
      * Status of install progress of package being installed.
      *
      *\param desktopEntryName is name of desktop entry file.
      *\param percentage is install completion level.
      */
-    void installProgress(const QString &packageName, int percentage);
+    void installProgress(const QString &packageName, const QString &packageExtraPath, int percentage);
     /*!
      * Notifies about success in installing and downloading package.
      *
      *\param desktopEntryName is name of desktop entry file.
      */
-    void operationSuccess(const QString &packagename, const QString &desktopEntryName);
+    void operationSuccess(const QString &packageName, const QString &packageExtraPath);
     /*!
      * Notifies about error in installing and downloading package.
      *
      *\param desktopEntryName is name of desktop entry file.
      *\param error is string format description of error occured.
      */
-    void operationError(const QString &packageName, const QString& error);
+    void operationError(const QString &packageName, const QString &packageExtraPath, const QString& error);
 
 private slots:
     /*!
      * Slot to handle PackageManagers download_progress signal.
      */
-    void packageDownloadProgress(const QString& operation, const QString& packagename, const QString& packageversion, int already, int total);
+    void packageDownloadProgress(const QString& operation, const QString& packageName, const QString& packageVersion, int already, int total);
     /*!
      * Slot to handle PackageManagers operation_started signal.
      */
-    void packageOperationStarted(const QString& operation, const QString& packagename, const QString& packageversion);
+    void packageOperationStarted(const QString& operation, const QString& packageName, const QString& packageVersion);
     /*!
      * Slot to handle PackageManagers operation_progress signal.
      */
-    void packageOperationProgress(const QString& operation, const QString& packageame, const QString& packageversion, int percentage);
+    void packageOperationProgress(const QString& operation, const QString& packageame, const QString& packageVersion, int percentage);
     /*!
      * Slot to handle PackageManagers operation_complete signal.
      */
-    void packageOperationComplete(const QString& operation, const QString& packagename, const QString& packageversion, const QString& error, bool need_reboot);
+    void packageOperationComplete(const QString& operation, const QString& packageName, const QString& packageVersion, const QString& error, bool need_reboot);
 
 private:
 
@@ -95,20 +95,36 @@ private:
     public:
         PackageProperties() :
             desktopEntryName(QString()),
-            installCompleted(false),
-            downloadCompleted(false) {};
+            installing(false) {};
 
         QString desktopEntryName;
-        bool installCompleted;
-        bool downloadCompleted;
+        bool installing;
     };
 
     /*!
-     * Emits operationSuccess signal if package has all required information
+     * Returns PackageProperties for package name and sets desktop entry path if one is found.
      *
-     *\param name of the package being installed.
+     *\param name of package being installed
+     *\return PackageProperties object.
      */
-    void emitSuccessIfPackageFinished(const QString &packagename);
+    PackageProperties & activePackageProperties(const QString packageName);
+
+    /*!
+     * Checks that package has desktop entry name property and operation is install or upgrade.
+     *
+     *\param properties of package being installed.
+     *\param type of the current operation.
+     */
+    bool isValidOperation(const PackageProperties &properties, const QString &operation);
+
+    /*!
+     * Returns desktop entry path from APPLICATIONS_DIR/installer-extra/ or if it doesn't
+     * exist empty QString.
+     *
+     *\param name of the package being installed
+     *\return path to desktop file in installer-extra directory.
+     */
+    QString desktopEntryName(const QString &packageName);
 
     //! Mapping of installing package names and installing phase properties
     QMap<QString, PackageProperties> activePackages;
@@ -116,8 +132,9 @@ private:
     //! DBus connection to system bus
     QDBusConnection con;
 
-
-friend class Ut_ApplicationPackageMonitor;
+#ifdef UNIT_TEST
+    friend class Ut_ApplicationPackageMonitor;
+#endif
 
 };
 

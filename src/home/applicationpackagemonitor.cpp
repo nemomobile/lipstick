@@ -18,7 +18,6 @@
 ****************************************************************************/
 
 #include "applicationpackagemonitor.h"
-//#include <QtDBus>
 #include <QDBusConnection>
 
 static const QString PACKAGE_MANAGER_DBUS_SERVICE="com.nokia.package_manager";
@@ -48,73 +47,92 @@ ApplicationPackageMonitor::~ApplicationPackageMonitor()
 {
 }
 
+ApplicationPackageMonitor::PackageProperties &ApplicationPackageMonitor::activePackageProperties(const QString packageName)
+{
+    if (!activePackages.contains(packageName)) {
+        // Set the desktopEntryName if already known
+        activePackages[packageName].desktopEntryName = desktopEntryName(packageName);
+    }
+
+    return activePackages[packageName];
+}
+
 void ApplicationPackageMonitor::packageDownloadProgress(const QString &operation,
-                                    const QString &packagename,
-                                    const QString &packageversion,
+                                    const QString &packageName,
+                                    const QString &packageVersion,
                                     int already, int total)
 {
     Q_UNUSED(operation)
-    Q_UNUSED(packageversion)
+    Q_UNUSED(packageVersion)
 
-    if(operation.compare(OPERATION_INSTALL, Qt::CaseInsensitive) == 0 ||
-           operation.compare(OPERATION_UPGRADE, Qt::CaseInsensitive) == 0)
-    {
-        emit downloadProgress(packagename, already, total);
+    PackageProperties &properties = activePackageProperties(packageName);
+
+    if (isValidOperation(properties, operation)) {
+        emit downloadProgress(packageName, properties.desktopEntryName, already, total);
     }
 }
 
 void ApplicationPackageMonitor::packageOperationStarted(const QString &operation,
-                                const QString &packagename,
+                                const QString &packageName,
                                 const QString &version)
 {
     Q_UNUSED(operation)
-    Q_UNUSED(packagename)
+    Q_UNUSED(packageName)
     Q_UNUSED(version)
 }
 
 void ApplicationPackageMonitor::packageOperationProgress(const QString &operation,
-                                const QString &packagename,
-                                const QString &packageversion,
+                                const QString &packageName,
+                                const QString &packageVersion,
                                 int percentage)
 {
-    Q_UNUSED(packageversion)
+    Q_UNUSED(packageVersion)
 
-    if(operation.compare(OPERATION_INSTALL, Qt::CaseInsensitive) == 0 ||
-           operation.compare(OPERATION_UPGRADE, Qt::CaseInsensitive) == 0)
-    {
-        activePackages[packagename].downloadCompleted = true;
-        emit installProgress(packagename, percentage);
+    PackageProperties &properties = activePackageProperties(packageName);
+
+    if (isValidOperation(properties, operation)) {
+        properties.installing = true;
+        emit installProgress(packageName, properties.desktopEntryName, percentage);
     }
 }
 
 void ApplicationPackageMonitor::packageOperationComplete(const QString &operation,
-                                const QString &packagename,
-                                const QString &packageversion,
+                                const QString &packageName,
+                                const QString &packageVersion,
                                 const QString &error,
                                 bool need_reboot)
 {
-    Q_UNUSED(packageversion)
+    Q_UNUSED(packageVersion)
     Q_UNUSED(need_reboot)
     Q_UNUSED(operation)
 
-    if(operation.compare(OPERATION_INSTALL, Qt::CaseInsensitive) == 0 ||
-           operation.compare(OPERATION_UPGRADE, Qt::CaseInsensitive) == 0)
-    {
+    PackageProperties &properties = activePackageProperties(packageName);
+
+    if (isValidOperation(properties, operation)) {
         if (!error.isEmpty()) {
-            activePackages.remove(packagename);
-            emit operationError(packagename, error);
-        } else if (activePackages[packagename].downloadCompleted) {
-            activePackages[packagename].installCompleted = true;
-            emitSuccessIfPackageFinished(packagename);
+            emit operationError(packageName, properties.desktopEntryName, error);
+        } else if (activePackages[packageName].installing) {
+            emit operationSuccess(packageName, properties.desktopEntryName);
         }
     }
+
+    activePackages.remove(packageName);
 }
 
-void ApplicationPackageMonitor::emitSuccessIfPackageFinished(const QString &packagename)
+bool ApplicationPackageMonitor::isValidOperation(const PackageProperties &properties, const QString &operation)
 {
-    const PackageProperties &properties = activePackages.value(packagename);
-    if (properties.installCompleted && properties.downloadCompleted) {
-        activePackages.remove(packagename);
-        emit operationSuccess(packagename, properties.desktopEntryName);
+    if ((operation.compare(OPERATION_INSTALL, Qt::CaseInsensitive) == 0 ||
+           operation.compare(OPERATION_UPGRADE, Qt::CaseInsensitive) == 0 ) &&
+        !properties.desktopEntryName.isEmpty() ) {
+         return true;
+    } else {
+         return false;
     }
+
+}
+
+QString ApplicationPackageMonitor::desktopEntryName(const QString &packageName)
+{
+    //TODO: acually return desktop entry name
+    return QString(packageName);
 }

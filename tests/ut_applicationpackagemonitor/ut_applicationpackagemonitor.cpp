@@ -56,58 +56,71 @@ void Ut_ApplicationPackageMonitor::cleanup()
 
 void Ut_ApplicationPackageMonitor::installUnsuccessfully(const QString &name)
 {
-    QSignalSpy spyDownload(m_subject, SIGNAL(downloadProgress(const QString&, int, int)));
+    QSignalSpy spyDownload(m_subject, SIGNAL(downloadProgress(const QString&, const QString&, int, int)));
+
+    // TODO:
+    //const QString &desktopEntryName = "name.desktop";
+    //m_subject->activePackages[name].desktopEntryName = desktopEntryName;
 
     m_subject->packageDownloadProgress("Install", name, "version", 12, 24);
 
     QCOMPARE(spyDownload.count(), 1);
     QList<QVariant> arguments = spyDownload.takeFirst();
     QVERIFY(arguments.at(0).toString() == name);
-    QVERIFY(arguments.at(1).toInt() == 12);
-    QVERIFY(arguments.at(2).toInt() == 24);
+    QVERIFY(arguments.at(1).toString() == name);
+    QVERIFY(arguments.at(2).toInt() == 12);
+    QVERIFY(arguments.at(3).toInt() == 24);
 
     arguments.clear();
-    QSignalSpy spyInstall(m_subject, SIGNAL(installProgress(const QString&, int)));
+    QSignalSpy spyInstall(m_subject, SIGNAL(installProgress(const QString&, const QString&,  int)));
 
     m_subject->packageOperationProgress("Install", name, "version", 50);
 
     QCOMPARE(spyInstall.count(), 1);
     arguments = spyInstall.takeFirst();
     QVERIFY(arguments.at(0).toString() == name);
-    QVERIFY(arguments.at(1).toInt() == 50);
+    QVERIFY(arguments.at(1).toString() == name);
+    QVERIFY(arguments.at(2).toInt() == 50);
 
     arguments.clear();
-    QSignalSpy spyError(m_subject, SIGNAL(operationError(const QString&, const QString&)));
+    QSignalSpy spyError(m_subject, SIGNAL(operationError(const QString&, const QString&, const QString&)));
 
     m_subject->packageOperationComplete("Install", name, "version", "Error", 0);
 
     QCOMPARE(spyError.count(), 1);
     arguments = spyError.takeFirst();
     QVERIFY(arguments.at(0).toString() == name);
-    QVERIFY(arguments.at(1).toString() == "Error");
+    QVERIFY(arguments.at(1).toString() == name);
+    QVERIFY(arguments.at(2).toString() == "Error");
 }
 
 void Ut_ApplicationPackageMonitor::installSuccessfully(const QString &name)
 {
-    QSignalSpy spyDownload(m_subject, SIGNAL(downloadProgress(const QString&, int, int)));
+    QSignalSpy spyDownload(m_subject, SIGNAL(downloadProgress(const QString&, const QString&, int, int)));
+
+    // TODO:
+    //const QString &desktopEntryName = "name.desktop";
+    //m_subject->activePackages[name].desktopEntryName = desktopEntryName;
 
     m_subject->packageDownloadProgress("Install", name, "version", 12, 24);
 
     QCOMPARE(spyDownload.count(), 1);
     QList<QVariant> arguments = spyDownload.takeFirst();
-    QVERIFY(arguments.at(0).toString() == name);
-    QVERIFY(arguments.at(1).toInt() == 12);
-    QVERIFY(arguments.at(2).toInt() == 24);
+    QCOMPARE(arguments.at(0).toString(), name);
+    QCOMPARE(arguments.at(1).toString(), name);
+    QVERIFY(arguments.at(2).toInt() == 12);
+    QVERIFY(arguments.at(3).toInt() == 24);
 
     arguments.clear();
-    QSignalSpy spyInstall(m_subject, SIGNAL(installProgress(const QString&, int)));
+    QSignalSpy spyInstall(m_subject, SIGNAL(installProgress(const QString&, const QString&, int)));
 
     m_subject->packageOperationProgress("Install", name, "version", 50);
 
     QCOMPARE(spyInstall.count(), 1);
     arguments = spyInstall.takeFirst();
     QVERIFY(arguments.at(0).toString() == name);
-    QVERIFY(arguments.at(1).toInt() == 50);
+    QVERIFY(arguments.at(1).toString() == name);
+    QVERIFY(arguments.at(2).toInt() == 50);
 
     arguments.clear();
     QSignalSpy spySuccess(m_subject, SIGNAL(operationSuccess(const QString&, const QString&)));
@@ -117,19 +130,25 @@ void Ut_ApplicationPackageMonitor::installSuccessfully(const QString &name)
     QCOMPARE(spySuccess.count(), 1);
     arguments = spySuccess.takeFirst();
     QVERIFY(arguments.at(0).toString() == name);
+    QVERIFY(arguments.at(1).toString() == name);
 }
 
 void Ut_ApplicationPackageMonitor::installSuccessfullyWithOperationCompleteAfterDownload(const QString &name)
 {
-    QSignalSpy spyDownload(m_subject, SIGNAL(downloadProgress(const QString&, int, int)));
+    QSignalSpy spyDownload(m_subject, SIGNAL(downloadProgress(const QString&, const QString&, int, int)));
+
+    // TODO:
+    //const QString &desktopEntryName = "name.desktop";
+    //m_subject->activePackages[name].desktopEntryName = desktopEntryName;
 
     m_subject->packageDownloadProgress("Install", name, "version", 12, 24);
 
     QCOMPARE(spyDownload.count(), 1);
     QList<QVariant> arguments = spyDownload.takeFirst();
     QVERIFY(arguments.at(0).toString() == name);
-    QVERIFY(arguments.at(1).toInt() == 12);
-    QVERIFY(arguments.at(2).toInt() == 24);
+    QVERIFY(arguments.at(1).toString() == name);
+    QVERIFY(arguments.at(2).toInt() == 12);
+    QVERIFY(arguments.at(3).toInt() == 24);
 
     arguments.clear();
     QSignalSpy spyComplete(m_subject, SIGNAL(operationSuccess(const QString&, const QString&)));
@@ -137,14 +156,15 @@ void Ut_ApplicationPackageMonitor::installSuccessfullyWithOperationCompleteAfter
     m_subject->packageOperationComplete("Install", name, "version", "", 0);
     QCOMPARE(spyComplete.count(), 0);
 
-    QSignalSpy spyInstall(m_subject, SIGNAL(installProgress(const QString&, int)));
+    QSignalSpy spyInstall(m_subject, SIGNAL(installProgress(const QString&, const QString&, int)));
 
     m_subject->packageOperationProgress("Install", name, "version", 50);
 
     QCOMPARE(spyInstall.count(), 1);
     arguments = spyInstall.takeFirst();
     QVERIFY(arguments.at(0).toString() == name);
-    QVERIFY(arguments.at(1).toInt() == 50);
+    QVERIFY(arguments.at(1).toString() == name);
+    QVERIFY(arguments.at(2).toInt() == 50);
 
     arguments.clear();
     QSignalSpy spySuccess(m_subject, SIGNAL(operationSuccess(const QString&, const QString&)));
@@ -159,13 +179,17 @@ void Ut_ApplicationPackageMonitor::installSuccessfullyWithOperationCompleteAfter
 
 void Ut_ApplicationPackageMonitor::uninstall(const QString &name)
 {
-    QSignalSpy spyDownload(m_subject, SIGNAL(downloadProgress(const QString&, int, int)));
+    QSignalSpy spyDownload(m_subject, SIGNAL(downloadProgress(const QString&, const QString&, int, int)));
+
+    // TODO:
+    //const QString &desktopEntryName = "name.desktop";
+    //m_subject->activePackages[name].desktopEntryName = desktopEntryName;
 
     m_subject->packageDownloadProgress("Uninstall", name, "version", 12, 24);
 
     QCOMPARE(spyDownload.count(), 0);
 
-    QSignalSpy spyInstall(m_subject, SIGNAL(installProgress(const QString&, int)));
+    QSignalSpy spyInstall(m_subject, SIGNAL(installProgress(const QString&, const QString&, int)));
 
     m_subject->packageOperationProgress("Uninstall", name, "version", 50);
 
