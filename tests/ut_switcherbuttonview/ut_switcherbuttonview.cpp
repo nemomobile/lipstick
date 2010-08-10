@@ -287,17 +287,6 @@ void Ut_SwitcherButtonView::init()
     m_subject = button->getView();
     connect(this, SIGNAL(windowVisibilityChanged(Window)), m_subject, SLOT(windowVisibilityChanged(Window)));
 
-    // This really shouldn't be necessary, but apparently libdui needs something
-    // as stupid as this since commit 9aa354a239. If libdui gets fixed
-    // this can be removed.
-    QCoreApplication::processEvents();
-    // TODO this REALLY REALLY shouldn't be necessary, but apparently there is a
-    // bug in Qt 4.6 as of 20090930 that requires this. If Qt gets fixed this
-    // can be removed.
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-
     timerImmediateTimeout = false;
     timerStarted = false;
     allocatedPixmaps.clear();
