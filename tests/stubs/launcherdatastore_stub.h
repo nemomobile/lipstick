@@ -27,7 +27,7 @@
 // FIXME - stubgen is not yet finished
 class LauncherDataStoreStub : public StubBase {
   public:
-  virtual void LauncherDataStoreConstructor(MDataStore *dataStore);
+  virtual void LauncherDataStoreConstructor(MDataStore *dataStore, const QString &directoryPath);
   virtual void LauncherDataStoreDestructor();
   virtual QHash<QString, QVariant> dataForAllDesktopEntries();
   virtual bool updateDataForDesktopEntry(const QString &entryPath, const QVariant &data);
@@ -42,9 +42,9 @@ class LauncherDataStoreStub : public StubBase {
 };
 
 // 2. IMPLEMENT STUB
-void LauncherDataStoreStub::LauncherDataStoreConstructor(MDataStore *dataStore) {
+void LauncherDataStoreStub::LauncherDataStoreConstructor(MDataStore *dataStore, const QString &directoryPath) {
   Q_UNUSED(dataStore);
-
+  Q_UNUSED(directoryPath);
 }
 void LauncherDataStoreStub::LauncherDataStoreDestructor() {
 
@@ -115,8 +115,8 @@ LauncherDataStoreStub* gLauncherDataStoreStub = &gDefaultLauncherDataStoreStub;
 
 
 // 4. CREATE A PROXY WHICH CALLS THE STUB
-LauncherDataStore::LauncherDataStore(MDataStore *dataStore) {
-  gLauncherDataStoreStub->LauncherDataStoreConstructor(dataStore);
+LauncherDataStore::LauncherDataStore(MDataStore *dataStore, const QString &directoryPath) {
+  gLauncherDataStoreStub->LauncherDataStoreConstructor(dataStore, directoryPath);
 }
 
 LauncherDataStore::~LauncherDataStore() {

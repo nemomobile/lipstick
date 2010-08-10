@@ -29,9 +29,10 @@ static const QString KEY_PREFIX = "DesktopEntries";
 static const char* const FILE_FILTER = "*.desktop";
 static const int FILES_PROCESSED_AT_ONCE = 3;
 
-LauncherDataStore::LauncherDataStore(MDataStore* dataStore) :
+LauncherDataStore::LauncherDataStore(MDataStore* dataStore, const QString& directoryPath) :
         store(dataStore),
-        updatePending(false)
+        updatePending(false),
+        directoryPath(directoryPath)
 {
     connect(&processUpdateQueueTimer, SIGNAL(timeout()), this, SLOT(processUpdateQueue()));
     processUpdateQueueTimer.setSingleShot(true);
@@ -43,7 +44,7 @@ LauncherDataStore::LauncherDataStore(MDataStore* dataStore) :
     // Start watching the applications directory for changes
     connect(&watcher, SIGNAL(directoryChanged(const QString)), this, SLOT(updateDataFromDesktopEntryFiles()));
     connect(&watcher, SIGNAL(fileChanged(QString)), this, SLOT(updateDesktopEntry(QString)));
-    watcher.addPath(APPLICATIONS_DIRECTORY);
+    watcher.addPath(directoryPath);
 }
 
 LauncherDataStore::~LauncherDataStore()
@@ -95,7 +96,7 @@ void LauncherDataStore::updateDataFromDesktopEntryFiles()
 void LauncherDataStore::startProcessingUpdateQueue()
 {
     updatePending = false;
-    updateQueue = QDir(APPLICATIONS_DIRECTORY, FILE_FILTER).entryInfoList(QDir::Files);
+    updateQueue = QDir(directoryPath, FILE_FILTER).entryInfoList(QDir::Files);
     updateValidKeys.clear();
     if (!updateQueue.isEmpty()) {
         processUpdateQueueTimer.start();
@@ -108,6 +109,7 @@ void LauncherDataStore::processUpdateQueue()
         // If the update queue is empty do nothing
         return;
     }
+
 
     // Disconnect the dataStoreChanged() signal connection during updates
     store->disconnect(this);
@@ -139,7 +141,7 @@ void LauncherDataStore::processUpdateQueue()
         // When the update queue has been processed remove all desktop entries that are not valid
         QStringList allKeys(store->allKeys());
         foreach (const QString &key, allKeys) {
-            if (!updateValidKeys.contains(key)) {
+            if (key.startsWith(KEY_PREFIX) && !updateValidKeys.contains(key)) {
                 store->remove(key);
                 emit desktopEntryRemoved(keyToEntryPath(key));
             }

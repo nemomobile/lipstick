@@ -39,4 +39,6 @@ HEADERS += \
     $$SRCDIR/launcher.h \
     $$SRCDIR/launcherdatastore.h
 
+DEFINES += APPLICATIONS_DIRECTORY=\'$$quote(\"/tmp/ut_desktopview/applications/\")\'
+
 include(../common_bot.pri)

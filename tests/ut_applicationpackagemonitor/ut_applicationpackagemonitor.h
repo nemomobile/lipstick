@@ -40,23 +40,7 @@ private slots:
     void cleanup();
 
     // Test cases
-private:
-    // MApplication
-    MApplication *app;
-    // The object being tested
-    ApplicationPackageMonitor *m_subject;
 
-    //Simulates slots called during unsuccessfull package install
-    void installUnsuccessfully(const QString&);
-    //Simulates slots called during succesfull package install
-    void installSuccessfully(const QString&);
-    //There is a possibility that operation complete signal is emitted when download
-    //progress is finished. Simulates that possibility.
-    void installSuccessfullyWithOperationCompleteAfterDownload(const QString&);
-    //Simulates slots called when uninstalling
-    void uninstall(const QString&);
-
-private slots:
     //Tests created dbus connections.
     void testConstruction();
     //Tests successfull install with multiple packages.
@@ -71,6 +55,44 @@ private slots:
     //complete signal received after download progress.
     void testSuccessfullInstallWithOperationCompletedAfterDownload();
 
+signals:
+
+    // Signals normally emitted by LauncherDataStore
+
+    void desktopEntryChanged(const QString &);
+
+    void desktopEntryAdded(const QString &);
+
+    void desktopEntryRemoved(const QString &);
+
+private:
+
+    //Simulates slots called during unsuccessfull package install
+    void installUnsuccessfully(const QString&);
+
+    //Simulates slots called during succesfull package install
+    void installSuccessfully(const QString&);
+
+    //There is a possibility that operation complete signal is emitted when download
+    //progress is finished. Simulates that possibility.
+    void installSuccessfullyWithOperationCompleteAfterDownload(const QString&);
+
+    //Simulates slots called when uninstalling
+    void uninstall(const QString&);
+
+    // Mimicks an installation of the extra desktop file for a package
+    void installPackageExtra(QString packageName);
+
+    // Mimicks the change in the extra desktop file for a package when it is uninstalled
+    void uninstallPackageExtra(QString packageName);
+
+    // Mimicks the change in the extra desktop file for a package when it is broken
+    void breakPackageExtra(QString packageName);
+
+    // MApplication
+    MApplication *app;
+    // The object being tested
+    ApplicationPackageMonitor *m_subject;
 
 };
 

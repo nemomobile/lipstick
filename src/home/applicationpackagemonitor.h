@@ -22,6 +22,9 @@
 
 #include <QObject>
 #include <QDBusConnection>
+#include <QSharedPointer>
+
+class MFileDataStore;
 
 /*!
  * ApplicationPackageMonitor listens dbus signals from Package Manager to be used
@@ -52,20 +55,20 @@ signals:
     /*!
      * Status of install progress of package being installed.
      *
-     *\param desktopEntryName is name of desktop entry file.
+     *\param desktopEntryName is name of preliminary desktop entry file under installer-extra/.
      *\param percentage is install completion level.
      */
     void installProgress(const QString &packageName, const QString &packageExtraPath, int percentage);
     /*!
-     * Notifies about success in installing and downloading package.
+     * Notifies about success in installing a package.
      *
-     *\param desktopEntryName is name of desktop entry file.
+     *\param desktopEntryName is name of the installed desktop entry file.
      */
     void operationSuccess(const QString &packageName, const QString &packageExtraPath);
     /*!
      * Notifies about error in installing and downloading package.
      *
-     *\param desktopEntryName is name of desktop entry file.
+     *\param desktopEntryName is name of preliminary desktop entry file under installer-extra/.
      *\param error is string format description of error occured.
      */
     void operationError(const QString &packageName, const QString &packageExtraPath, const QString& error);
@@ -88,7 +91,14 @@ private slots:
      */
     void packageOperationComplete(const QString& operation, const QString& packageName, const QString& packageVersion, const QString& error, bool need_reboot);
 
+    /*!
+     * Update the cached package information from the given desktop file.
+     */
+    void updatePackageState(const QString &desktopEntryPath);
+
 private:
+
+    class ExtraDirWatcher;
 
     //! Stores package properties
     class PackageProperties {
@@ -126,11 +136,23 @@ private:
      */
     QString desktopEntryName(const QString &packageName);
 
+
     //! Mapping of installing package names and installing phase properties
     QMap<QString, PackageProperties> activePackages;
 
     //! DBus connection to system bus
     QDBusConnection con;
+
+    /*!
+     * Cache for the state of packages and the mapping from package names to .desktop files.
+     * Not owned.
+     */
+    MFileDataStore *dataStore;
+
+    /*!
+     * Keeps track of the .desktop files under installer-extra directory
+     */
+    QSharedPointer<ExtraDirWatcher> extraDirWatcher;
 
 #ifdef UNIT_TEST
     friend class Ut_ApplicationPackageMonitor;

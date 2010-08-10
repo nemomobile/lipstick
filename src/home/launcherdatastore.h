@@ -58,8 +58,9 @@ public:
      * to this LauncherDataStore.
      *
      * \param dataStore The backend data store. 
+     * \param directoryPath The directory to watch.
      */
-    LauncherDataStore(MDataStore* dataStore);
+    LauncherDataStore(MDataStore* dataStore, const QString &directoryPath = APPLICATIONS_DIRECTORY);
 
     /*!
      * Destroys LauncherDataStore
@@ -108,7 +109,7 @@ signals:
 private slots:
     /*!
      * Updates the contents of the data store from the desktop entries in
-     * APPLICATIONS_DIRECTORY. If no update is currently in progress the
+     * the directory. If no update is currently in progress the
      * .desktop entry file list is added to the update queue and the
      * update queue processing timer is started. If an update is already
      * in progress the updatePending flag is raised to indicate that
@@ -146,7 +147,7 @@ private:
      * \param acceptedTypes List of accepted entry types
      * \return is desktop entry valid
      */
-    bool isDesktopEntryValid(const MDesktopEntry &entry, const QStringList &acceptedTypes);
+    virtual bool isDesktopEntryValid(const MDesktopEntry &entry, const QStringList &acceptedTypes);
 
     /*!
       * This helper method gets a key from entry path by adding key prefix to the path.
@@ -207,6 +208,9 @@ private:
 
     //! Valid keys found during the update
     QSet<QString> updateValidKeys;
+
+    //! The directory being watched
+    QString directoryPath;
 };
 
 #endif
