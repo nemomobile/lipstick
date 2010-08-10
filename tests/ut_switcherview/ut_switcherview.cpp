@@ -38,10 +38,12 @@
 
 static void setSwitcherButtonSize(QList< QSharedPointer<SwitcherButton> > &buttonList, const QSizeF &size);
 static void verifyEqualContentMarginValues(qreal first, qreal second, qreal target);
-
+static void verifyPanningResult(QList<QSharedPointer<SwitcherButton> > list, bool panningShouldHappen, int targetPage);
 SwitcherModel* g_switcherModel;
 QMap<SwitcherButton *, Window> g_windowButtonMap;
 QRectF g_switcherGeometry;
+bool g_panRequested;
+uint g_panRequestIndex;
 
 class Ut_SwitcherStyle : public SwitcherStyle
 {
@@ -77,6 +79,41 @@ public:
         g_switcherGeometry = rect;
     }
 };
+
+//PagedViewport stubs
+PagedViewport::PagedViewport(QGraphicsItem *parent)
+{
+    Q_UNUSED(parent)
+}
+
+PagedViewport::~PagedViewport() { }
+
+void PagedViewport::setPanDirection(const Qt::Orientations &panDirection)
+{
+    Q_UNUSED(panDirection)
+}
+
+void PagedViewport::updatePageCount(int pages)
+{
+    Q_UNUSED(pages)
+}
+
+int PagedViewport::currentPage()
+{
+    return 0;
+}
+
+void PagedViewport::panToPage(uint page)
+{
+    Q_UNUSED(page)
+    g_panRequested = true;
+    g_panRequestIndex = page;
+}
+
+void PagedViewport::focusFirstPage()
+{
+
+}
 
 // Home stubs
 class Home : public MApplicationPage
@@ -157,9 +194,6 @@ PagedPanning::PagedPanning(QObject* parent) : MPhysics2DPanning(parent),
 PagedPanning::~PagedPanning()
 {
 }
-
-bool g_panRequested;
-uint g_panRequestIndex;
 
 void PagedPanning::panToPage(int itemIndex) {
     g_panRequested = true;
@@ -660,58 +694,69 @@ void Ut_SwitcherView::testRemovingButtons()
     QVERIFY(!removedButton.isNull());
 }
 
+void verifyPanningResult(QList<QSharedPointer<SwitcherButton> > list, bool panningShouldHappen, int targetPage)
+{
+    g_switcherModel->setButtons(list);
+    gWindowInfoStub->stubSetReturnValue("window", g_windowButtonMap.value(list.last().data()));
+    Window topmost = list.last().data()->xWindow();
+    g_switcherModel->setTopmostWindow(topmost);
+    QCOMPARE(g_windowButtonMap.count(), list.count());
+    QCOMPARE(g_panRequested, panningShouldHappen);
+    if (panningShouldHappen) {
+        QCOMPARE(g_panRequestIndex, uint(targetPage));
+    }
+}
+
 void Ut_SwitcherView::testPanToSwitcherPageInOverviewMode()
 {
     int firstPageIndex = 0;
     int secondPageIndex = 1;
 
-    g_switcherModel->setSwitcherMode(SwitcherModel::Overview);
     m_subject->modifiableStyle()->setRowsPerPage(2);
     m_subject->modifiableStyle()->setColumnsPerPage(2);
+    g_switcherModel->setSwitcherMode(SwitcherModel::Overview);
 
-    connect(this, SIGNAL(panToSwitcherPage(QList<WindowInfo>)), m_subject, SLOT(panToSwitcherPage(QList<WindowInfo>)));
     g_windowButtonMap.clear();
     int buttons = 4;
     QList< QSharedPointer<SwitcherButton> > list(createButtonList(buttons));
-    QList<WindowInfo> list1;
-    list1.append(g_windowButtonMap.value(list.last().data()));
+    verifyPanningResult(list, true, firstPageIndex);
 
-    g_switcherModel->setButtons(list);
-    gWindowInfoStub->stubSetReturnValue("window", g_windowButtonMap.value(list.last().data()));
-    emit panToSwitcherPage(list1);
-    QCOMPARE(g_windowButtonMap.count(), buttons);
-    QCOMPARE(g_panRequested, true);
-    QCOMPARE(g_panRequestIndex, uint(firstPageIndex));
+    g_panRequested = false;
 
     int moreButtons = 3;
     appendMoreButtonsToList(moreButtons, list);
-    g_switcherModel->setButtons(list);
-    list1.append(g_windowButtonMap.value(list.last().data()));
-    gWindowInfoStub->stubSetReturnValue("window", g_windowButtonMap.value(list.last().data()));
-    emit panToSwitcherPage(list1);
-    QCOMPARE(g_windowButtonMap.count(), buttons + moreButtons);
-    QCOMPARE(g_panRequested, true);
-    QCOMPARE(g_panRequestIndex, uint(secondPageIndex));
+    verifyPanningResult(list, true, secondPageIndex);
+
+    g_panRequested = false;
+
+    // Lets delete something from the first page to see if we pan -> we shouldn't 
+    // as the top most window does not change.
+    list.removeAt(2);
+    verifyPanningResult(list, false, -1);
 }
 
 void Ut_SwitcherView::testPanToSwitcherPageInDetailviewMode()
 {
     g_switcherModel->setSwitcherMode(SwitcherModel::Detailview);
-    connect(this, SIGNAL(panToSwitcherPage(QList<WindowInfo>)), m_subject, SLOT(panToSwitcherPage(QList<WindowInfo>)));
 
     g_windowButtonMap.clear();
     int buttons = 4;
     QList< QSharedPointer<SwitcherButton> > list(createButtonList(buttons));
-    QList<WindowInfo> list1;
-    list1.append(g_windowButtonMap.value(list.last().data()));
-    g_switcherModel->setButtons(list);
-    gWindowInfoStub->stubSetReturnValue("window", g_windowButtonMap.value(list.last().data()));
 
-    emit panToSwitcherPage(list1);
-    QCOMPARE(g_windowButtonMap.count(), buttons);
-    QCOMPARE(g_panRequested, true);
-    int lastPageIndex = buttons -1;
-    QCOMPARE(g_panRequestIndex, uint(lastPageIndex));
+    verifyPanningResult(list, true, 3);
+
+    g_panRequested = false;
+
+    int moreButtons = 3;
+    appendMoreButtonsToList(moreButtons, list);
+    verifyPanningResult(list, true, 6);
+
+    g_panRequested = false;
+
+    // Lets delete something from the first page to see if we pan -> we shouldn't 
+    // as the top most window does not change.
+    list.removeAt(2);
+    verifyPanningResult(list, false, -1);
 }
 
 void Ut_SwitcherView::testWhenPinchingOnSwitcherButtonExactPinchedButtonIsDetected()

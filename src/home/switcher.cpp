@@ -16,7 +16,6 @@
 ** of this file.
 **
 ****************************************************************************/
-
 #include <QX11Info>
 #include <QEvent>
 #include "switcher.h"
@@ -285,6 +284,18 @@ void Switcher::updateWindowInfoMap()
 
         bool added = addWindows(openedWindowSet);
         bool removed = removeWindows(closedWindowSet);
+
+        // The stacking order needs to be cleared out before we start updating the
+        // buttons as the topmostWindow is set in the 'updateButtons()' method and
+        // the method call is scheduled with a timer in the case of an addition
+        QList<WindowInfo> stackingWindowList;
+        foreach (Window window, newWindowList) {
+            if (!windowsBeingClosed.contains(window)) {
+                stackingWindowList.append(*windowInfoMap.value(window));
+            }
+        }
+
+        topmostWindow = stackingWindowList.last().window();
         if (added || removed) {
             if (!removed) {
                 // If windows have been added but not removed, update the switcher with a delay
@@ -293,14 +304,13 @@ void Switcher::updateWindowInfoMap()
                 // If windows have been removed update the switcher instantly
                 updateButtons();
             }
+        } else if (!windowMonitor->isOwnWindow(topmostWindow)) {
+            // The view might also need to react (== pan to the correct page) if no buttons were added 
+            // but the stacking order was changed, i.e. due to app chaining or some other activity
+
+            model()->setTopmostWindow(topmostWindow);
         }
 
-        QList<WindowInfo> stackingWindowList;
-        foreach (Window window, newWindowList) {
-            if (!windowsBeingClosed.contains(window)) {
-                stackingWindowList.append(*windowInfoMap.value(window));
-            }
-        }
         emit windowStackingOrderChanged(stackingWindowList);
     }
 }
@@ -410,6 +420,8 @@ void Switcher::updateButtons()
 
     // Let interested parties know about the updated window list
     emit windowListUpdated(applicationWindows);
+
+    model()->setTopmostWindow(topmostWindow);
 }
 
 void Switcher::windowToFront(Window window)

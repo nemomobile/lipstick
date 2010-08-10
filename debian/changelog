@@ -1,6 +1,7 @@
 duihome (0.21.17~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes NB#183617 - Closing window thumbnail takes user to the last page of switcher
 
  -- Aki Koskinen <aki.koskinen@nokia.com>  Thu, 29 Jul 2010 12:52:21 +0300
 

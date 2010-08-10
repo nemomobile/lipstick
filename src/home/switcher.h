@@ -244,6 +244,9 @@ private:
     //! A timer for scheduling button updates
     QTimer updateButtonsTimer;
 
+    //! Reflects the top most window id of the _NET_CLIENT_LIST_STACKING
+    Window topmostWindow;
+
 #ifdef UNIT_TEST
     friend class Ut_Switcher;
 #endif

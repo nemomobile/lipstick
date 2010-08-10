@@ -94,7 +94,6 @@ private:
 signals:
     void pageChanged(int newPosition);
     void panningStopped();
-    void panToSwitcherPage(QList<WindowInfo> windowList);
 
 private:
     MApplication *app;

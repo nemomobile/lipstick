@@ -11,7 +11,7 @@ MODEL_HEADERS += $$SRCDIR/switchermodel.h \
 # unit test and unit
 SOURCES += \
     ut_switcherview.cpp \
-    $$SRCDIR/pagedviewport.cpp \
+#    $$SRCDIR/pagedviewport.cpp \
     $$SRCDIR/switcherview.cpp \
     $$SRCDIR/pagepositionindicatorview.cpp \
     $$SRCDIR/pagepositionindicator.cpp \

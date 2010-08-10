@@ -56,8 +56,6 @@ SwitcherView::SwitcherView(Switcher *switcher) :
 
     connect(viewport, SIGNAL(pageChanged(int)), this, SLOT(updateFocusedButton(int)));
     connect(MainWindow::instance()->sceneManager(), SIGNAL(orientationChanged(M::Orientation)), this, SLOT(updateButtons()));
-    connect(controller, SIGNAL(windowStackingOrderChanged(QList<WindowInfo>)), this, SLOT(panToSwitcherPage(QList<WindowInfo>)));
-    connect(controller, SIGNAL(windowListUpdated(QList<WindowInfo>)), this, SLOT(panToSwitcherPage(QList<WindowInfo>)));
 
     // We have custom values for this view port in the style
     viewport->setObjectName("SwitcherViewport");
@@ -135,22 +133,25 @@ void SwitcherView::updateData(const QList<const char*>& modifications)
             updateButtons();
         } else if (member == SwitcherModel::SwitcherMode) {
             applySwitcherMode();
+        } else if (member == SwitcherModel::TopmostWindow) {
+            repositionSwitcher();
         }
     }
 }
 
-void SwitcherView::panToSwitcherPage(QList<WindowInfo> windowList)
+void SwitcherView::repositionSwitcher()
 {
+    Window topmost = model()->topmostWindow();
     for (int i = 0; i < model()->buttons().count(); ++i) {
-        if (windowList.last().window() == model()->buttons().at(i)->xWindow()) {
+        if (topmost == model()->buttons().at(i)->xWindow()) {
             uint buttonPos = i;
-            uint page = 0;
+            int targetPage = 0;
             if (model()->switcherMode() == SwitcherModel::Overview) {
-                page = buttonPos / (style()->columnsPerPage() * style()->rowsPerPage());
+                targetPage = buttonPos / (style()->columnsPerPage() * style()->rowsPerPage());
             } else {
-                page = buttonPos;
+                targetPage = buttonPos;
             }
-            viewport->panToPage(page);
+            viewport->panToPage(targetPage);
             break;
         }
     }

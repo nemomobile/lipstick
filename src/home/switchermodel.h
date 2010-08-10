@@ -22,6 +22,7 @@
 #define SWITCHERMODEL_H_
 
 #include <MWidgetModel>
+#include <X11/Xlib.h>
 #include "switcherbutton.h"
 
 class SwitcherModel : public MWidgetModel
@@ -40,6 +41,7 @@ private:
     M_MODEL(SwitcherModel)
     M_MODEL_PROPERTY(SwitcherModel::ButtonList, buttons, Buttons, true, ButtonList())
     M_MODEL_PROPERTY(SwitcherModel::Mode, switcherMode, SwitcherMode, true, Overview)
+    M_MODEL_PROPERTY(Window, topmostWindow, TopmostWindow, true, 0)
 };
 
 #endif /* SWITCHERMODEL_H_ */

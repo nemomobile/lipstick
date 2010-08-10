@@ -663,12 +663,14 @@ void Ut_Switcher::testWindowStackingOrder()
 
     QCOMPARE(r.stackingCount, 1);
     QCOMPARE(r.stackingWindowList.count(), VALID_WINDOWS);
-
+    
     WindowInfo first = r.stackingWindowList.first();
     WindowInfo last = r.stackingWindowList.last();
 
     QCOMPARE(first.window(), (unsigned long)(FIRST_APPLICATION_WINDOW));
     QCOMPARE(last.window(), (unsigned long)g_windows.count() - 1);
+
+    QCOMPARE(switcher->model()->topmostWindow(), last.window());
 
     Window tmp = g_windows[FIRST_APPLICATION_WINDOW];
     g_windows[FIRST_APPLICATION_WINDOW] = g_windows.last();
@@ -680,6 +682,8 @@ void Ut_Switcher::testWindowStackingOrder()
 
     QCOMPARE(first.window(), r.stackingWindowList.last().window());
     QCOMPARE(last.window(), r.stackingWindowList.first().window());
+
+    QCOMPARE(switcher->model()->topmostWindow(), r.stackingWindowList.last().window());
 }
 
 void Ut_Switcher::testX11EventWindowNameChange_data()
