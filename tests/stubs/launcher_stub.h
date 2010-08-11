@@ -27,8 +27,12 @@
 // FIXME - stubgen is not yet finished
 class LauncherStub : public StubBase {
   public:
-  virtual void LauncherConstructor(LauncherDataStore *dataStore, QGraphicsItem *parent);
+  virtual void LauncherConstructor(LauncherDataStore *dataStore, ApplicationPackageMonitor *packageMonitor, QGraphicsItem *parent);
   virtual void LauncherDestructor();
+  virtual void setDownloadProgress(const QString& packageName, const QString& desktopEntryPath, int bytesLoaded, int bytesTotal);
+  virtual void setInstallProgress(const QString& packageName, const QString& desktopEntryPath, int percentage);
+  virtual void setOperationSuccess(const QString& packageName, const QString& desktopEntryPath);
+  virtual void setOperationError(const QString& packageName, const QString& desktopEntryPath, const QString& error);
   virtual void updatePagesFromDataStore();
   virtual int panToPage(const QString &fileEntryPath);
   virtual void setFirstPage();
@@ -41,13 +45,50 @@ class LauncherStub : public StubBase {
 }; 
 
 // 2. IMPLEMENT STUB
-void LauncherStub::LauncherConstructor(LauncherDataStore *dataStore, QGraphicsItem *parent) {
+void LauncherStub::LauncherConstructor(LauncherDataStore *dataStore, ApplicationPackageMonitor *packageMonitor, QGraphicsItem *parent) {
   Q_UNUSED(dataStore);
+  Q_UNUSED(packageMonitor);
   Q_UNUSED(parent);
 
 }
 void LauncherStub::LauncherDestructor() {
 
+}
+
+void LauncherStub::setDownloadProgress(const QString& packageName, const QString& desktopEntryPath, int bytesLoaded, int bytesTotal)
+{
+  QList<ParameterBase*> params;
+  params.append( new Parameter<QString>(packageName));
+  params.append( new Parameter<QString>(desktopEntryPath));
+  params.append( new Parameter<int>(bytesLoaded));
+  params.append( new Parameter<int>(bytesTotal));
+  stubMethodEntered("setDownloadProgress", params);
+}
+
+void LauncherStub::setInstallProgress(const QString& packageName, const QString& desktopEntryPath, int percentage)
+{
+  QList<ParameterBase*> params;
+  params.append( new Parameter<QString>(packageName));
+  params.append( new Parameter<QString>(desktopEntryPath));
+  params.append( new Parameter<int>(percentage));
+  stubMethodEntered("setInstallProgress", params);
+}
+
+void LauncherStub::setOperationSuccess(const QString& packageName, const QString& desktopEntryPath)
+{
+  QList<ParameterBase*> params;
+  params.append( new Parameter<QString>(packageName));
+  params.append( new Parameter<QString>(desktopEntryPath));
+  stubMethodEntered("setOperationSuccess", params);
+}
+
+void LauncherStub::setOperationError(const QString& packageName, const QString& desktopEntryPath, const QString& error)
+{
+  QList<ParameterBase*> params;
+  params.append( new Parameter<QString>(packageName));
+  params.append( new Parameter<QString>(desktopEntryPath));
+  params.append( new Parameter<QString>(error));
+  stubMethodEntered("setOperationError", params);
 }
 
 void LauncherStub::updatePagesFromDataStore() {
@@ -110,12 +151,32 @@ LauncherStub* gLauncherStub = &gDefaultLauncherStub;
 
 
 // 4. CREATE A PROXY WHICH CALLS THE STUB
-Launcher::Launcher(LauncherDataStore *dataStore, QGraphicsItem *parent) {
-  gLauncherStub->LauncherConstructor(dataStore, parent);
+Launcher::Launcher(LauncherDataStore *dataStore, ApplicationPackageMonitor *packageMonitor, QGraphicsItem *parent) {
+  gLauncherStub->LauncherConstructor(dataStore, packageMonitor, parent);
 }
 
 Launcher::~Launcher() {
   gLauncherStub->LauncherDestructor();
+}
+
+void Launcher::setDownloadProgress(const QString& packageName, const QString& desktopEntryPath, int bytesLoaded, int bytesTotal)
+{
+  gLauncherStub->setDownloadProgress(packageName, desktopEntryPath, bytesLoaded, bytesTotal);
+}
+
+void Launcher::setInstallProgress(const QString& packageName, const QString& desktopEntryPath, int percentage)
+{
+  gLauncherStub->setInstallProgress(packageName, desktopEntryPath, percentage);
+}
+
+void Launcher::setOperationSuccess(const QString& packageName, const QString& desktopEntryPath)
+{
+  gLauncherStub->setOperationSuccess(packageName, desktopEntryPath);
+}
+
+void Launcher::setOperationError(const QString& packageName, const QString& desktopEntryPath, const QString& error)
+{
+  gLauncherStub->setOperationError(packageName, desktopEntryPath, error);
 }
 
 void Launcher::updatePagesFromDataStore() {

@@ -41,6 +41,7 @@ class MApplicationExtensionArea;
 class MApplicationExtensionInterface;
 class MDesktopBackgroundExtensionInterface;
 class HomeScreenService;
+class ApplicationPackageMonitor;
 
 /*!
  * The desktop view draws a background for the desktop and manages layouts
@@ -154,6 +155,9 @@ private:
 
     //! Data store to store the launcher and quick launch bar item locations to
     LauncherDataStore *launcherDataStore;
+
+    //! Application package monitor
+    ApplicationPackageMonitor *packageMonitor;
 
     //! Application launcher
     Launcher *launcher;

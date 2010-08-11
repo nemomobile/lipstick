@@ -22,6 +22,8 @@ class LauncherButtonStub : public StubBase {
   virtual void launch();
   virtual void stopLaunchProgress();
   virtual void stopLaunchProgressIfObscured(const QList<WindowInfo> &windowList);
+  virtual void setState(LauncherButtonModel::State state, int progress);
+  virtual int operationProgress() const;
   virtual void init();
   virtual void updateIcon(const LauncherAction &action);
   virtual LauncherButtonModel::State buttonState() const;
@@ -95,6 +97,17 @@ LauncherButtonModel::State LauncherButtonStub::buttonState() const {
   return stubReturnValue<LauncherButtonModel::State>("buttonState");
 }
 
+void LauncherButtonStub::setState(LauncherButtonModel::State state, int progress) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<LauncherButtonModel::State>(state));
+  params.append( new Parameter<int>(progress));
+  stubMethodEntered("setState",params);
+}
+
+int LauncherButtonStub::operationProgress() const {
+  stubMethodEntered("operationProgress");
+  return stubReturnValue<int>("operationProgress");
+}
 
 // 3. CREATE A STUB INSTANCE
 LauncherButtonStub gDefaultLauncherButtonStub;
@@ -147,7 +160,7 @@ void LauncherButton::stopLaunchProgressIfObscured(const QList<WindowInfo> &windo
 }
 
 void LauncherButton::init() {
-  gLauncherButtonStub->init();
+    gLauncherButtonStub->init();
 }
 
 void LauncherButton::updateIcon(const LauncherAction &action) {
@@ -156,6 +169,15 @@ void LauncherButton::updateIcon(const LauncherAction &action) {
 
 LauncherButtonModel::State LauncherButton::buttonState() const {
     return gLauncherButtonStub->buttonState();
+}
+
+void LauncherButton::setState(LauncherButtonModel::State state, int progress)
+{
+    gLauncherButtonStub->setState(state, progress);
+}
+
+int LauncherButton::operationProgress() const {
+    return gLauncherButtonStub->operationProgress();
 }
 
 #endif

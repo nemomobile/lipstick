@@ -49,6 +49,8 @@ private slots:
     void testStopLaunchProgress();
     void testStopLaunchProgressIfObscured();
     void testStopLaunchProgressIfObscured_data();
+    void testSettingButtonStateAndProgress();
+    void testSettingButtonStateAndProgressWithInvalidValues();
 
 signals:
     void clicked();

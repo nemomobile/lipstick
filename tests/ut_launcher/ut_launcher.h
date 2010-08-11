@@ -25,6 +25,7 @@
 
 class Launcher;
 class LauncherDataStore;
+class ApplicationPackageMonitor;
 class MApplication;
 class MWidget;
 
@@ -35,6 +36,7 @@ class Ut_Launcher : public QObject
 private:
     Launcher *launcher;
     LauncherDataStore *launcherDataStore;
+    ApplicationPackageMonitor *packageMonitor;
     MApplication *app;
 
     void writeDesktopFile(QString fileName, QString type, QString name, QString iconName, QString exec);
@@ -92,5 +94,21 @@ private slots:
     void testRemovingButtons();
     // Test setting launcher to show first page
     void testSettingLauncherToFirstPage();
+    // Test signal connections
+    void testPackageMonitorSignalConnections();
+    // Test updating button state
+    void testUpdateButtonState();
+    // Test adding palceholder button to launcher
+    void testAddPlaceholderButtonToLauncher();
+    // Test handling of downloadProgress signal
+    void testSetDownloadProgress();
+    // Test handling of downloadProgress signal with invalid values
+    void testSetDownloadProgressWithInvalidValues();
+    // Test handling of installProgress signal
+    void testSetInstallProgress();
+    // Test handling of operationSuccess signal
+    void testSetOperationSuccess();
+    // Test handling of operationError signal
+    void testSetOperationError();
 };
 #endif //_UT_LAUNCHER_

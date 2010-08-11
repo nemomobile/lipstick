@@ -39,6 +39,7 @@
 #include "mainwindow_stub.h"
 #include "mwindow_stub.h"
 #include "mscenemanager_stub.h"
+#include "applicationpackagemonitor_stub.h"
 #include <QDBusConnection>
 #include "x11wrapper.h"
 

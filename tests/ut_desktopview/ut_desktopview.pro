@@ -37,7 +37,8 @@ HEADERS += \
     $$SRCDIR/switcher.h \
     $$SRCDIR/quicklaunchbar.h \
     $$SRCDIR/launcher.h \
-    $$SRCDIR/launcherdatastore.h
+    $$SRCDIR/launcherdatastore.h \
+    $$SRCDIR/applicationpackagemonitor.h
 
 DEFINES += APPLICATIONS_DIRECTORY=\'$$quote(\"/tmp/ut_desktopview/applications/\")\'
 

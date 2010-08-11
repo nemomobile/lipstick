@@ -109,9 +109,7 @@ void LauncherButton::retranslateUi()
 
 void LauncherButton::updateFromDesktopEntry(const QString &desktopEntryPath)
 {
-    // only update if not initialized yet or if from the same desktop entry
-    if (desktopEntry().isNull()
-        || desktopEntryPath == desktopEntry()) {
+    if (!desktopEntryPath.isEmpty()) {
 
         LauncherAction action(desktopEntryPath);
 
@@ -143,4 +141,17 @@ void LauncherButton::updateIcon(const LauncherAction& action)
         // (at the moment default icon seems to be icon-l-video)
         setIconID("icon-Application-Default");
     }
+}
+
+void LauncherButton::setState(LauncherButtonModel::State state, int progress)
+{
+    model()->setButtonState(state);
+    if (progress >= 0 && progress <= 100) {
+        model()->setOperationProgress(progress);
+    }
+}
+
+int LauncherButton::operationProgress() const
+{
+    return model()->operationProgress();
 }

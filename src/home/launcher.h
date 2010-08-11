@@ -27,6 +27,7 @@
 
 class MDesktopEntry;
 class LauncherDataStore;
+class ApplicationPackageMonitor;
 
 /*!
  * Widget for launching and browsing installed applications.
@@ -72,7 +73,7 @@ public:
      * \param dataStore LauncherDataStore for storing launcher button positions and entries
      * \param parent Parent for the widget, defaults to NULL
      */
-    Launcher(LauncherDataStore *dataStore, QGraphicsItem *parent = NULL);
+    Launcher(LauncherDataStore *dataStore, ApplicationPackageMonitor *packageMonitor, QGraphicsItem *parent = NULL);
 
     /*!
      * Destroys the Launcher.
@@ -115,6 +116,42 @@ public slots:
      * Set launcher to show first page
      */
     void setFirstPage();
+
+    /*!
+     * Set button state to "downloading", and calculate and set it's progress
+     *
+     * \param packageName Name of package related to the operation
+     * \param desktopEntryName Desktop entry of the application button represents
+     * \param bytesLoaded Amount of bytes loaded
+     * \param bytesTotal Total amount of bytes to download
+     */
+    void setDownloadProgress(const QString& packageName, const QString& desktopEntryPath, int bytesLoaded, int bytesTotal);
+
+    /*!
+     * Set button state to "installing", and set it's progress
+     *
+     * \param packageName Name of package related to the operation
+     * \param desktopEntryName Desktop entry of the application button represents
+     * \param percentage Percentage of installation completed
+     */
+    void setInstallProgress(const QString& packageName, const QString& desktopEntryPath, int percentage);
+
+    /*!
+     * Set button state to "installed"
+     *
+     * \param packageName Name of package related to the operation
+     * \param desktopEntryName Desktop entry of the application button represents
+     */
+    void setOperationSuccess(const QString& packageName, const QString& desktopEntryPath);
+
+    /*!
+     * Set button state to "broken"
+     *
+     * \param packageName Name of package related to the operation
+     * \param desktopEntryName Desktop entry of the application button represents
+     * \param error Error message
+     */
+    void setOperationError(const QString& packageName, const QString& desktopEntryPath, const QString& error);
 
 private slots:
 
@@ -208,6 +245,26 @@ private:
      */
     QMap<Launcher::Placement, QString> createPlacementMap(const QHash<QString, QVariant> &desktopEntryPlacements);
 
+    /*!
+     * Updates the state and operation progress of a launcher button.
+     * Creates a new placeholder button if one doesn't exist for the given desktopentryfile.
+     *
+     * \param packageName Name of the package that button represents
+     * \param desktopEntryPath Desktop entry of the package that button represents
+     * \param state State button should be set to
+     * \param progress Progress of operation
+     */
+    void updateButtonState(const QString &packageName, const QString& desktopEntryPath, LauncherButtonModel::State state, int progress);
+
+    /*!
+     * Adds a placeholder button to launcher
+     * \param button Placeholder button to be added to launcher
+     */
+    void addPlaceholderButtonToLauncher(QSharedPointer<LauncherButton> button);
+
+    //! A mapping from packageName to launcher buttons
+    QMap<QString, QSharedPointer<LauncherButton> > launcherButtonMap;
+
     //! A string used for identifying content to be placed in the launcher
     static const QString LOCATION_IDENTIFIER;
 
@@ -219,6 +276,9 @@ private:
 
     //! LauncherDataStore for storing launcher button positions and entries
     LauncherDataStore *dataStore;
+
+    //! PackageMonitor from which launcher receives signals
+    ApplicationPackageMonitor *packageMonitor;
 
     //! Whether the launcher has been initialized or not
     bool initialized;

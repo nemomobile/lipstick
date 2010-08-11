@@ -44,6 +44,7 @@ class LauncherButton : public MButton
 
     Q_PROPERTY(QString desktopEntryPath READ desktopEntry)
     Q_PROPERTY(LauncherButtonModel::State buttonState READ buttonState)
+    Q_PROPERTY(int operationProgress READ operationProgress)
 
 public:
     /*!
@@ -104,6 +105,20 @@ public:
      * Handles the language change notification and propagets is to MButton.
      */
     void retranslateUi();
+
+    /*!
+     * Sets the state and progress of a button
+     * Progress property is changed only if parameter progress is valid (0..100)
+     * \param state State of a button
+     * \param progress Progress of operation
+     */
+    void setState(LauncherButtonModel::State state, int progress);
+
+    /*!
+     * Returns progress of button's ongoing operation
+     * \return operation progress
+     */
+    int operationProgress() const;
 
 private slots:
     /*!

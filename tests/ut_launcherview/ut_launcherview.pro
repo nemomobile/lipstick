@@ -43,7 +43,8 @@ HEADERS += \
     $$SRCDIR/pagepositionindicator.h \
     $$SRCDIR/pagepositionindicatorview.h \
     $$SRCDIR/pagepositionindicatorstyle.h \
-    $$SRCDIR/pagepositionindicatormodel.h
+    $$SRCDIR/pagepositionindicatormodel.h \
+    $$SRCDIR/applicationpackagemonitor.h
 
 DEFINES += APPLICATIONS_DIRECTORY=\'$$quote(\"/tmp/ut_launcherview/applications/\")\'
 

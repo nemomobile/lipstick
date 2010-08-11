@@ -465,4 +465,36 @@ void Ut_LauncherButton::testLanguageChange()
     QCOMPARE(m_subject->text(), QString("nonenglish"));
 }
 
+void Ut_LauncherButton::testSettingButtonStateAndProgress()
+{
+    //Default value for state is "installed" and 0 for progress
+    QCOMPARE(m_subject->model()->buttonState(), LauncherButtonModel::Installed);
+    QCOMPARE(m_subject->model()->operationProgress(), 0);
+
+    int progress = 50;
+    m_subject->setState(LauncherButtonModel::Downloading, progress);
+    QCOMPARE(m_subject->model()->buttonState(), LauncherButtonModel::Downloading);
+    QCOMPARE(m_subject->model()->operationProgress(), progress);
+
+    //Only progress should change
+    progress = 99;
+    m_subject->setState(LauncherButtonModel::Downloading, progress);
+    QCOMPARE(m_subject->model()->buttonState(), LauncherButtonModel::Downloading);
+    QCOMPARE(m_subject->model()->operationProgress(), progress);
+}
+
+void Ut_LauncherButton::testSettingButtonStateAndProgressWithInvalidValues()
+{
+    //With invalid values progress shouldn't change from default value 0
+    int progress = -1;
+    m_subject->setState(LauncherButtonModel::Installing, progress);
+    QCOMPARE(m_subject->model()->buttonState(), LauncherButtonModel::Installing);
+    QCOMPARE(m_subject->model()->operationProgress(), 0);
+
+    progress = 101;
+    m_subject->setState(LauncherButtonModel::Downloading, progress);
+    QCOMPARE(m_subject->model()->buttonState(), LauncherButtonModel::Downloading);
+    QCOMPARE(m_subject->model()->operationProgress(), 0);
+}
+
 QTEST_APPLESS_MAIN(Ut_LauncherButton)

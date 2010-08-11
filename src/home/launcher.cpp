@@ -20,20 +20,92 @@
 #include "launcher.h"
 #include "launcherbutton.h"
 #include "launcherdatastore.h"
+#include "applicationpackagemonitor.h"
 
 const QString Launcher::LOCATION_IDENTIFIER = "launcher";
 const char Launcher::SECTION_SEPARATOR = '/';
 const QString Launcher::PLACEMENT_TEMPLATE = LOCATION_IDENTIFIER + SECTION_SEPARATOR + "%1" + SECTION_SEPARATOR + "%2";
 
-Launcher::Launcher(LauncherDataStore *dataStore, QGraphicsItem *parent) :
+Launcher::Launcher(LauncherDataStore *dataStore, ApplicationPackageMonitor *packageMonitor, QGraphicsItem *parent) :
     MWidgetController(new LauncherModel, parent),
-    dataStore(dataStore)
+    dataStore(dataStore),
+    packageMonitor(packageMonitor)
 {
     connect(dataStore, SIGNAL(dataStoreChanged()), this, SLOT(updatePagesFromDataStore()));
+
+    connect(packageMonitor, SIGNAL(downloadProgress(const QString&, const QString &, int, int)),
+            this, SLOT(setDownloadProgress(const QString&, const QString &, int, int)));
+    connect(packageMonitor, SIGNAL(installProgress(const QString&, const QString &, int)),
+            this, SLOT(setInstallProgress(const QString&, const QString &, int)));
+    connect(packageMonitor, SIGNAL(operationSuccess(const QString&, const QString&)),
+            this, SLOT(setOperationSuccess(const QString&, const QString&)));
+    connect(packageMonitor, SIGNAL(operationError(const QString&, const QString&, const QString&)),
+            this, SLOT(setOperationError(const QString&, const QString&, const QString&)));
 }
 
 Launcher::~Launcher()
 {
+}
+
+void Launcher::setDownloadProgress(const QString& packageName, const QString &desktopEntryPath, int bytesLoaded, int bytesTotal)
+{
+    int percentage = -1;
+    if (bytesTotal > 0 && bytesLoaded <= bytesTotal) {
+        percentage = ((double)bytesLoaded / (double)bytesTotal) * 100;
+    }
+    updateButtonState(packageName, desktopEntryPath, LauncherButtonModel::Downloading, percentage);
+}
+
+void Launcher::setInstallProgress(const QString& packageName, const QString &desktopEntryPath, int percentage)
+{
+    updateButtonState(packageName, desktopEntryPath, LauncherButtonModel::Installing, percentage);
+}
+
+void Launcher::setOperationSuccess(const QString& packageName, const QString& desktopEntryPath)
+{
+    if (launcherButtonMap.contains(packageName)) {
+        launcherButtonMap.value(packageName)->updateFromDesktopEntry(desktopEntryPath);
+        launcherButtonMap.value(packageName)->setState(LauncherButtonModel::Installed, 0);
+        launcherButtonMap.remove(packageName);
+    }
+}
+
+void Launcher::setOperationError(const QString& packageName, const QString& desktopEntryPath, const QString& error)
+{
+    Q_UNUSED(error)
+    int progress = 0;
+    updateButtonState(packageName, desktopEntryPath, LauncherButtonModel::Broken, progress);
+}
+
+void Launcher::updateButtonState(const QString &packageName, const QString &desktopEntryPath, LauncherButtonModel::State state, int progress)
+{
+    if (!launcherButtonMap.contains(packageName)) {
+        QSharedPointer<LauncherButton> button = createLauncherButton(desktopEntryPath);
+        launcherButtonMap.insert(packageName, button);
+        addPlaceholderButtonToLauncher(button);
+    }
+    launcherButtonMap.value(packageName)->setState(state, progress);
+}
+
+void Launcher::addPlaceholderButtonToLauncher(QSharedPointer<LauncherButton> button)
+{
+    QList<QSharedPointer<LauncherPage> > pages = model()->launcherPages();
+
+    QSharedPointer<LauncherPage> page;
+
+    bool added = false;
+    if (!pages.isEmpty()) {
+        page = pages.last();
+        added = page->appendButton(button);
+    }
+
+    if (!added) {
+        page = QSharedPointer<LauncherPage>(new LauncherPage());
+        pages.append(page);
+        page->appendButton(button);
+    }
+
+    model()->setLauncherPages(pages);
 }
 
 void Launcher::updatePagesFromDataStore()

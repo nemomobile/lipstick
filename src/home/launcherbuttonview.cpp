@@ -115,6 +115,7 @@ void LauncherButtonView::resetProgressIndicator()
         }
         break;
         case LauncherButtonModel::Installed:
+        case LauncherButtonModel::Broken:
         default:
         {
             progressIndicator->hide();

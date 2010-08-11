@@ -40,7 +40,9 @@ public:
         //! Button state when application is installed successfully
         Installed,
         //! Button state when application is launching
-        Launching
+        Launching,
+        //! Button state when application installation has failed
+        Broken
     };
 
     //! Desktop entry file that launcher button is representing
