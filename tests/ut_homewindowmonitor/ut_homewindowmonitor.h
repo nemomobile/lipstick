@@ -23,6 +23,7 @@
 #include <QObject>
 
 class HomeWindowMonitor;
+class MWindow;
 
 class Ut_HomeWindowMonitor : public QObject
 {
@@ -39,11 +40,14 @@ private slots:
     void cleanup();
 
     // Test cases
-    void testRegisteredWindowIdIsRecognizedAsOwnWindow();
+    void testWindowIdInWindowListIsRecognizedAsOwnWindow();
+    void testWindowIdNotInWindowListIsNotRecognizedAsOwnWindow();
 
 private:
     // The object being tested
     HomeWindowMonitor *m_subject;
+
+    QList<MWindow*> windowList;
 };
 
 #endif

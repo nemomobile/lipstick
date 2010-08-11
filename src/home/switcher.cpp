@@ -23,6 +23,7 @@
 #include "windowmonitor.h"
 #include "switcherbutton.h"
 #include "windowinfo.h"
+#include "homewindowmonitor.h"
 #include "x11wrapper.h"
 
 // The time to wait until updating the model when a new application is started
@@ -42,6 +43,10 @@ Switcher::Switcher(const WindowMonitor *windowMonitor, MWidget *parent) : MWidge
         windowMonitor(windowMonitor)
 {
     switcher = this;
+
+    if (windowMonitor == NULL) {
+        windowMonitor = new HomeWindowMonitor;
+    }
 
     // Get the X11 Atoms for closing and activating a window and for other switcher functionalities
     Display *display = QX11Info::display();
@@ -72,6 +77,8 @@ Switcher::Switcher(const WindowMonitor *windowMonitor, MWidget *parent) : MWidge
 
 Switcher::~Switcher()
 {
+    delete windowMonitor;
+
     switcher = NULL;
 }
 

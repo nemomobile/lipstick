@@ -45,10 +45,11 @@ public:
 
     /*!
      * Constructs a Switcher widget.
-     * \param windowMonitor a window monitor instance to be used by this switcher
+     * \param windowMonitor a window monitor instance to be used by this switcher.
+     *        Switcher takes ownership of the window monitor passed in.
      * \param parent the parent widget of the Switcher, defaults to NULL
      */
-    Switcher(const WindowMonitor *windowMonitor, MWidget *parent = NULL);
+    Switcher(const WindowMonitor *windowMonitor = NULL, MWidget *parent = NULL);
 
     /*!
      * Destroys the Switcher.

@@ -29,7 +29,6 @@
 
 #include "ut_desktopview.h"
 #include "desktopview.h"
-#include "homewindowmonitor_stub.h"
 #include "desktop.h"
 #include "switcher_stub.h"
 #include "quicklaunchbar_stub.h"

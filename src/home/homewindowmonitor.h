@@ -21,7 +21,6 @@
 #define HOMEWINDOWMONITOR_H
 
 #include "windowmonitor.h"
-#include <QSet>
 
 /*!
  * A window monitor implementation to be used with the home screen application.
@@ -29,19 +28,10 @@
 class HomeWindowMonitor : public WindowMonitor
 {
 public:
-    /*!
-     * Registers a window id to be monitored by this window monitor.
-     * \param wid the id to register
-     */
-    void registerWindowId(WId wid);
-
     //! \reimp
     virtual bool isOwnWindow(WId wid) const;
     //! \reimp_end
 
-private:
-    //! The currently registered window ids
-    QSet<WId> windowIds;
 };
 
 #endif // HOMEWINDOWMONITOR_H

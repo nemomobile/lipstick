@@ -19,8 +19,17 @@
 
 #include "ut_homewindowmonitor.h"
 #include "homewindowmonitor.h"
+#include "mapplication_stub.h"
+#include "mwindow_stub.h"
+
 #include <QtTest/QtTest>
 
+const WId OWN_WINDOW_ID = 2002;
+
+WId QWidget::winId() const
+{
+    return OWN_WINDOW_ID;
+}
 
 void Ut_HomeWindowMonitor::initTestCase()
 {
@@ -33,19 +42,30 @@ void Ut_HomeWindowMonitor::cleanupTestCase()
 void Ut_HomeWindowMonitor::init()
 {
     m_subject = new HomeWindowMonitor();
+
+    gMApplicationStub->stubReset();
+
+    windowList.append(new MWindow);
+    gMApplicationStub->stubSetReturnValue<QList<MWindow*> >("windows", windowList);
 }
 
 void Ut_HomeWindowMonitor::cleanup()
 {
     delete m_subject;
+
+    qDeleteAll(windowList);
+    windowList.clear();
 }
 
-void Ut_HomeWindowMonitor::testRegisteredWindowIdIsRecognizedAsOwnWindow()
+void Ut_HomeWindowMonitor::testWindowIdInWindowListIsRecognizedAsOwnWindow()
+{
+    QCOMPARE(m_subject->isOwnWindow(OWN_WINDOW_ID), true);
+}
+
+void Ut_HomeWindowMonitor::testWindowIdNotInWindowListIsNotRecognizedAsOwnWindow()
 {
     const WId SOME_WINDOW_ID = 1001;
     QCOMPARE(m_subject->isOwnWindow(SOME_WINDOW_ID), false);
-    m_subject->registerWindowId(SOME_WINDOW_ID);
-    QCOMPARE(m_subject->isOwnWindow(SOME_WINDOW_ID), true);
 }
 
 QTEST_MAIN(Ut_HomeWindowMonitor)

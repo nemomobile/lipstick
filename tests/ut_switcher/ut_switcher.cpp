@@ -24,6 +24,7 @@
 #include "switcherview.h"
 #include "mscenemanager_stub.h"
 #include "mwindow_stub.h"
+#include "homewindowmonitor_stub.h"
 #include <MApplication>
 #include "x11wrapper.h"
 
@@ -455,7 +456,6 @@ void Ut_Switcher::cleanup()
     // Destroy the switcher (and the associated view)
     delete switcher;
     switcher = NULL;
-    delete mockWindowMonitor;
     mockWindowMonitor = NULL;
 }
 

@@ -31,7 +31,6 @@
 #include "desktopview.h"
 #include "desktop.h"
 #include "mainwindow.h"
-#include "homewindowmonitor.h"
 #include "switcher.h"
 #include "quicklaunchbar.h"
 #include "mdesktopbackgroundextensioninterface.h"
@@ -105,8 +104,7 @@ void DesktopView::stopBenchmarking()
 
 DesktopView::DesktopView(Desktop *desktop) :
     MWidgetView(desktop),
-    windowMonitor(new HomeWindowMonitor),
-    switcher(new Switcher(windowMonitor)),
+    switcher(new Switcher),
     switcherWindow(new MSceneWindow),
     switcherHasContent(false),
     launcherDataStore(NULL),
@@ -117,8 +115,6 @@ DesktopView::DesktopView(Desktop *desktop) :
     quickLaunchBarWindow(new MOverlay),
     backgroundExtensionArea(new MApplicationExtensionArea("com.meego.core.MDesktopBackgroundExtensionInterface/1.0"))
 {
-    windowMonitor->registerWindowId(MainWindow::instance()->winId());
-
     // Add the switcher into a scene window
     switcher->setObjectName("OverviewSwitcher");
     QGraphicsLinearLayout *windowLayout = new QGraphicsLinearLayout();
@@ -183,7 +179,6 @@ DesktopView::~DesktopView()
     delete quickLaunchBarWindow;
     delete backgroundExtensionArea;
     delete launcherDataStore;
-    delete windowMonitor;
     delete packageMonitor;
 }
 

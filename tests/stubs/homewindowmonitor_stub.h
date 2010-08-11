@@ -28,17 +28,10 @@
 // FIXME - stubgen is not yet finished
 class HomeWindowMonitorStub : public StubBase {
 public:
-    virtual void registerWindowId(WId wid);
     virtual bool isOwnWindow(WId wid);
 };
 
 // 2. IMPLEMENT STUB
-void HomeWindowMonitorStub::registerWindowId(WId wid) {
-    QList<ParameterBase*> params;
-    params.append(new Parameter<WId>(wid));
-    stubMethodEntered("registerWindowId", params);
-}
-
 bool HomeWindowMonitorStub::isOwnWindow(WId wid) {
     QList<ParameterBase*> params;
     params.append(new Parameter<WId>(wid));
@@ -52,10 +45,6 @@ HomeWindowMonitorStub gDefaultHomeWindowMonitorStub;
 HomeWindowMonitorStub* gHomeWindowMonitorStub = &gDefaultHomeWindowMonitorStub;
 
 // 4. CREATE A PROXY WHICH CALLS THE STUB
-void HomeWindowMonitor::registerWindowId(WId wid) {
-    gHomeWindowMonitorStub->registerWindowId(wid);
-}
-
 bool HomeWindowMonitor::isOwnWindow(WId wid) const {
     return gHomeWindowMonitorStub->isOwnWindow(wid);
 }

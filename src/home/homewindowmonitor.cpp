@@ -18,13 +18,16 @@
 ****************************************************************************/
 
 #include "homewindowmonitor.h"
-
-void HomeWindowMonitor::registerWindowId(WId wid)
-{
-    windowIds.insert(wid);
-}
+#include <MApplication>
+#include <MWindow>
 
 bool HomeWindowMonitor::isOwnWindow(WId wid) const
 {
-    return windowIds.contains(wid);
+    foreach (MWindow *window, MApplication::windows()) {
+        if (window->winId() == wid) {
+            return true;
+        }
+    }
+
+    return false;
 }
