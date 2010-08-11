@@ -592,41 +592,6 @@ void Ut_Switcher::testX11EventFilterWithPropertyNotify()
     verifyModel(r.windowList);
 }
 
-void Ut_Switcher::testX11EventFilterWithVisibilityNotify()
-{
-    WindowVisibilityReceiver r;
-    connect(switcher, SIGNAL(windowVisibilityChanged(Window)), &r, SLOT(windowVisibilityChanged(Window)));
-
-    // Verify that X11EventFilter only reacts to events it's supposed to react on
-    XEvent event;
-    event.type = VisibilityNotify;
-    event.xvisibility.window = 303;
-    event.xvisibility.state = VisibilityUnobscured;
-    event.xvisibility.send_event = TRUE;
-
-    // Make sure the window visibility change signal is not emitted if state is VisibilityUnobscured
-    QVERIFY(!switcher->handleXEvent(event));
-    QCOMPARE(r.windowList.count(), 0);
-
-    // Make sure the window visibility change signal was emitted with the given window if state is VisibilityFullyObscured
-    event.xvisibility.state = VisibilityFullyObscured;
-    QVERIFY(switcher->handleXEvent(event));
-    QCOMPARE(r.windowList.count(), 1);
-    QCOMPARE(r.windowList.at(0), (Window)303);
-
-    // Make sure the window visibility change signal is not emitted if send_event is FALSE but the event is processed
-    event.xvisibility.send_event = FALSE;
-    QVERIFY(switcher->handleXEvent(event));
-    QCOMPARE(r.windowList.count(), 1);
-
-    // Make sure the window visibility change signal is not emitted if the window is the homescreen itself
-    WId HOME_WINDOW_ID = 1001;
-    mockWindowMonitor->ownWindows.append(HOME_WINDOW_ID);
-    event.xvisibility.window = HOME_WINDOW_ID;
-    QVERIFY(!switcher->handleXEvent(event));
-    QCOMPARE(r.windowList.count(), 1);
-}
-
 void Ut_Switcher::testX11EventFilterWithClientMessage()
 {
     WindowListReceiver r;

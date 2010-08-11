@@ -76,11 +76,6 @@ signals:
      */
     void windowStackingOrderChanged(const QList<WindowInfo> &windowList);
 
-    /*!
-     * \brief A signal for notifying that the window visibility has changed
-     */
-    void windowVisibilityChanged(Window window);
-
 private slots:
     /*!
      * \brief Updates the buttons in the model based on the current window list

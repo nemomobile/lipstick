@@ -31,8 +31,49 @@
 #include <QGraphicsLinearLayout>
 #include "switcherbuttonview.h"
 #include "switcherbutton.h"
-#include "switcher.h"
+#include "xeventlistener.h"
 #include "x11wrapper.h"
+
+
+/*!
+ * An X event listener for the switcher button view. Reacts to visibility
+ * notify events.
+ */
+class SwitcherButtonViewXEventListener : public XEventListener
+{
+    //! The SwitcherButtonView object that owns this listener
+    SwitcherButtonView &parent;
+
+public:
+    /*!
+     * Constructs a new listener for switcher button view.
+     * \param parent the owner of this object.
+     */
+    SwitcherButtonViewXEventListener(SwitcherButtonView &parent) :
+            parent(parent)
+    {
+    }
+
+    /*!
+     * Destructor.
+     */
+    virtual ~SwitcherButtonViewXEventListener()
+    {
+    }
+
+    //! \reimp
+    virtual bool handleXEvent(const XEvent &event)
+    {
+        bool handled = false;
+
+        if (event.type == VisibilityNotify && event.xvisibility.state == VisibilityFullyObscured && event.xvisibility.send_event == True) {
+            handled = parent.windowFullyObscured(event.xvisibility.window);
+        }
+
+        return handled;
+    }
+    //! \reimp_end
+};
 
 #ifdef Q_WS_X11
 bool SwitcherButtonView::badMatchOccurred = false;
@@ -54,10 +95,9 @@ SwitcherButtonView::SwitcherButtonView(SwitcherButton *button) :
     xWindowPixmap(0),
     xWindowPixmapDamage(0),
     onDisplay(true),
-    updateXWindowPixmapRetryCount(0)
+    updateXWindowPixmapRetryCount(0),
+    xEventListener(new SwitcherButtonViewXEventListener(*this))
 {
-    connect(Switcher::instance(), SIGNAL(windowVisibilityChanged(Window)), this, SLOT(windowVisibilityChanged(Window)));
-
     // Show interest in X pixmap change signals
     connect(qApp, SIGNAL(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)), this, SLOT(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)));
 
@@ -336,12 +376,16 @@ int SwitcherButtonView::handleXError(Display *, XErrorEvent *event)
 }
 #endif
 
-void SwitcherButtonView::windowVisibilityChanged(Window window)
+bool SwitcherButtonView::windowFullyObscured(Window window)
 {
+    bool ownWindow = false;
+
     if (window == model()->xWindow()) {
         updateXWindowPixmap();
-        update();
+        ownWindow = true;
     }
+
+    return ownWindow;
 }
 
 void SwitcherButtonView::damageEvent(Qt::HANDLE &damage, short &x, short &y, unsigned short &width, unsigned short &height)

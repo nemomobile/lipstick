@@ -40,7 +40,7 @@ class Ut_SwitcherButtonStyleContainer : public SwitcherButtonStyleContainer
 public:
     QString currentMode()
     {
-	return MButtonStyleContainer::currentMode();
+        return MButtonStyleContainer::currentMode();
     }
 };
 
@@ -58,7 +58,7 @@ public:
         return s;
     }
     Ut_SwitcherButtonStyleContainer& styleContainer() {
-	return style();
+        return style();
     }
 };
 
@@ -151,6 +151,9 @@ private:
     // SwitcherButtonView instance under testing
     TestSwitcherButtonView *m_subject;
 
+    // Sets up the tests dealing with handling the visibility notify XEvents
+    XEvent setupVisibilityNotifyTest();
+
 signals:
     // Signal for notifying about window visibility changed
     void windowVisibilityChanged(Window window);
@@ -181,6 +184,11 @@ private slots:
     void testUpdateXWindowIconGeometryIfNecessary();
     void testUpdateXWindowIconGeometry();
     void testUpdateXWindowPixmap();
+    void testSwitcherButtonsVisibilityEventCausesUpdateToBeCalled();
+    void testSwitcherButtonsVisibilityEventWithIncorrectTypeDoesNotCauseUpdateToBeCalled();
+    void testSwitcherButtonsVisibilityEventWithIncorrectVisibilityStateDoesNotCauseUpdateToBeCalled();
+    void testSwitcherButtonsVisibilityEventWithIncorrectVisibilityWindowDoesNotCauseUpdateToBeCalled();
+    void testSwitcherButtonsVisibilityEventWithIncorrectVisibilitySendEventDoesNotCauseUpdateToBeCalled();
 };
 
 #endif //_UT_SWITCHERBUTTONVIEW_

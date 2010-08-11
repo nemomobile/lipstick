@@ -118,9 +118,6 @@ private slots:
     // Test X11EventFilter with PropertyNotify events
     void testX11EventFilterWithPropertyNotify();
 
-    // Test X11EventFilter with VisibilityNotify events
-    void testX11EventFilterWithVisibilityNotify();
-
     // Test X11EventFilter with ClientMessage events
     void testX11EventFilterWithClientMessage();
 

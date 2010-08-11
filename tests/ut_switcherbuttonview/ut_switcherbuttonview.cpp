@@ -286,7 +286,6 @@ void Ut_SwitcherButtonView::init()
     button = new TestSwitcherButton;
     button->setText("Test");
     m_subject = button->getView();
-    connect(this, SIGNAL(windowVisibilityChanged(Window)), m_subject, SLOT(windowVisibilityChanged(Window)));
 
     timerImmediateTimeout = false;
     timerStarted = false;
@@ -305,7 +304,6 @@ void Ut_SwitcherButtonView::init()
     damageSubtracted = false;
     damageSubtractHandle = NULL;
     damageSubtractDisplay = NULL;
-
 }
 
 void Ut_SwitcherButtonView::cleanup()
@@ -315,12 +313,14 @@ void Ut_SwitcherButtonView::cleanup()
 
     // Check that whatever Pixmap is allocated is also freed
     QCOMPARE(allocatedPixmaps.count(), 0);
+
+    gHomeApplicationStub->stubReset();
 }
 
 void Ut_SwitcherButtonView::initTestCase()
 {
     static int argc = 1;
-    static char *app_name = (char *)"./ut_switcherbutton";
+    static char *app_name = (char *)"./ut_switcherbuttonview";
     app = new TestHomeApplication(argc, &app_name);
     mainWindow = MainWindow::instance(true);
     gHomeApplicationStub->stubSetReturnValue("mainWindow", mainWindow);
@@ -519,7 +519,6 @@ void Ut_SwitcherButtonView::testThumbnailPosition()
 void Ut_SwitcherButtonView::testSignalConnections()
 {
     // verify qApp connections
-    QVERIFY(disconnect(Switcher::instance(), SIGNAL(windowVisibilityChanged(Window)), m_subject, SLOT(windowVisibilityChanged(Window))));
     QVERIFY(disconnect(qApp, SIGNAL(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)), m_subject, SLOT(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &))));
 
     QVERIFY(disconnect(button, SIGNAL(displayEntered()), m_subject, SLOT(setOnDisplay())));
@@ -650,6 +649,65 @@ void Ut_SwitcherButtonView::testUpdateXWindowPixmap()
     m_subject->updateXWindowPixmap();
     QVERIFY(!timerStarted);
     QCOMPARE(m_subject->updateXWindowPixmapRetryCount, 0);
+}
+
+const Window CORRECT_WINDOW_ID = 1001;
+const Window INCORRECT_WINDOW_ID = 2002;
+XEvent Ut_SwitcherButtonView::setupVisibilityNotifyTest()
+{
+    button->setXWindow(CORRECT_WINDOW_ID);
+    viewUpdateCalled = false;
+
+    XEvent xevent;
+    xevent.type = VisibilityNotify;
+    xevent.xvisibility.state = VisibilityFullyObscured;
+    xevent.xvisibility.window = CORRECT_WINDOW_ID;
+    xevent.xvisibility.send_event = True;
+    return xevent;
+}
+
+void Ut_SwitcherButtonView::testSwitcherButtonsVisibilityEventCausesUpdateToBeCalled()
+{
+    XEvent xevent = setupVisibilityNotifyTest();
+
+    QCOMPARE(m_subject->xEventListener->handleXEvent(xevent), true);
+    QCOMPARE(viewUpdateCalled, true);
+}
+
+void Ut_SwitcherButtonView::testSwitcherButtonsVisibilityEventWithIncorrectTypeDoesNotCauseUpdateToBeCalled()
+{
+    XEvent xevent = setupVisibilityNotifyTest();
+    xevent.type = PropertyNotify;
+
+    QCOMPARE(m_subject->xEventListener->handleXEvent(xevent), false);
+    QCOMPARE(viewUpdateCalled, false);
+}
+
+void Ut_SwitcherButtonView::testSwitcherButtonsVisibilityEventWithIncorrectVisibilityStateDoesNotCauseUpdateToBeCalled()
+{
+    XEvent xevent = setupVisibilityNotifyTest();
+    xevent.xvisibility.state = VisibilityPartiallyObscured;
+
+    QCOMPARE(m_subject->xEventListener->handleXEvent(xevent), false);
+    QCOMPARE(viewUpdateCalled, false);
+}
+
+void Ut_SwitcherButtonView::testSwitcherButtonsVisibilityEventWithIncorrectVisibilityWindowDoesNotCauseUpdateToBeCalled()
+{
+    XEvent xevent = setupVisibilityNotifyTest();
+    xevent.xvisibility.window = INCORRECT_WINDOW_ID;
+
+    QCOMPARE(m_subject->xEventListener->handleXEvent(xevent), false);
+    QCOMPARE(viewUpdateCalled, false);
+}
+
+void Ut_SwitcherButtonView::testSwitcherButtonsVisibilityEventWithIncorrectVisibilitySendEventDoesNotCauseUpdateToBeCalled()
+{
+    XEvent xevent = setupVisibilityNotifyTest();
+    xevent.xvisibility.send_event = False;
+
+    QCOMPARE(m_subject->xEventListener->handleXEvent(xevent), false);
+    QCOMPARE(viewUpdateCalled, false);
 }
 
 QTEST_APPLESS_MAIN(Ut_SwitcherButtonView)

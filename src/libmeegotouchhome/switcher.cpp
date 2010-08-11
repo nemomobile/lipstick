@@ -119,22 +119,6 @@ bool Switcher::handleXEvent(const XEvent &event)
             updateWindowTitle(event.xproperty.window);
             eventWasHandled = true;
         }
-    } else if (event.type == VisibilityNotify) {
-        if (event.xvisibility.state == VisibilityFullyObscured) {
-            // A window was obscured: was it a homescreen window?
-            bool homescreenWindowVisibilityChanged = false;
-            if (windowMonitor != NULL) {
-                homescreenWindowVisibilityChanged = windowMonitor->isOwnWindow(event.xvisibility.window);
-            }
-
-            if (!homescreenWindowVisibilityChanged) {
-                // It was some other window, so let interested parties know about it
-                if (event.xvisibility.send_event) {
-                    emit windowVisibilityChanged(event.xvisibility.window);
-                }
-                eventWasHandled = true;
-            }
-        }
     } else if (event.type == ClientMessage && event.xclient.message_type == closeWindowAtom) {
         // A _NET_CLOSE_WINDOW message was caught so a window is being closed; add it to windows being closed list
         markWindowBeingClosed(event.xclient.window);

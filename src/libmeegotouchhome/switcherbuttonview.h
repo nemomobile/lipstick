@@ -30,6 +30,7 @@ class MButton;
 class MLayout;
 class MLabel;
 class QGraphicsLinearLayout;
+class XEventListener;
 
 /*!
  * \class SwitcherButtonView
@@ -64,6 +65,13 @@ public:
     //! Returns the bounding rectangle of the thumbnail
     QRectF thumbnailRect() const;
 
+    /*!
+     * A method for notifying that a window got fully obscured. If the fully obscured window
+     * is the same window that this switcher button is representing, then the button gets updated.
+     * \return \c true if \a window was the window id this switcher button is representing.
+     */
+    bool windowFullyObscured(Window window);
+
 protected slots:
     //! \reimp
     virtual void updateData(const QList<const char *>& modifications);
@@ -73,11 +81,6 @@ protected slots:
      * \brief A slot for receiving information about pixmap changes
      */
     virtual void damageEvent(Qt::HANDLE &damage, short &x, short &y, unsigned short &width, unsigned short &height);
-
-    /*!
-     * \brief Slot for getting information about window visibility changes
-     */
-    virtual void windowVisibilityChanged(Window window);
 
     /*!
      * \brief Starts getting damage events for the current X window.
@@ -182,6 +185,9 @@ private:
 
     //! X11 Atom for the icon geometry
     static Atom iconGeometryAtom;
+
+    //! A listener object for X events
+    QSharedPointer<XEventListener> xEventListener;
 
 #ifdef UNIT_TEST
     friend class Ut_SwitcherButtonView;
