@@ -38,8 +38,14 @@
 bool SwitcherButtonView::badMatchOccurred = false;
 #endif
 
-const int SwitcherButtonView::NAVIGATION_BAR_HEIGHT = 100;
-const int SwitcherButtonView::ICON_GEOMETRY_UPDATE_INTERVAL = 200;
+// The height of the navigation bar for cropping the thumbnail
+static const int NAVIGATION_BAR_HEIGHT = 100;
+// Time between icon geometry updates in milliseconds
+static const int ICON_GEOMETRY_UPDATE_INTERVAL = 200;
+// Time between icon pixmap fetch retries in milliseconds
+static const int ICON_PIXMAP_RETRY_INTERVAL = 100;
+// Maximun number of icon pixmap fetch retries
+static const int ICON_PIXMAP_RETRY_MAX_COUNT = 5;
 Atom SwitcherButtonView::iconGeometryAtom = 0;
 
 SwitcherButtonView::SwitcherButtonView(SwitcherButton *button) :
@@ -47,7 +53,8 @@ SwitcherButtonView::SwitcherButtonView(SwitcherButton *button) :
     controller(button),
     xWindowPixmap(0),
     xWindowPixmapDamage(0),
-    onDisplay(true)
+    onDisplay(true),
+    updateXWindowPixmapRetryCount(0)
 {
     connect(Switcher::instance(), SIGNAL(windowVisibilityChanged(Window)), this, SLOT(windowVisibilityChanged(Window)));
 
@@ -84,6 +91,9 @@ SwitcherButtonView::SwitcherButtonView(SwitcherButton *button) :
     updateXWindowIconGeometryTimer.setSingleShot(true);
     updateXWindowIconGeometryTimer.setInterval(ICON_GEOMETRY_UPDATE_INTERVAL);
     connect(&updateXWindowIconGeometryTimer, SIGNAL(timeout()), this, SLOT(updateXWindowIconGeometry()));
+    updateXWindowPixmapRetryTimer.setSingleShot(true);
+    updateXWindowIconGeometryTimer.setInterval(ICON_PIXMAP_RETRY_INTERVAL);
+    connect(&updateXWindowPixmapRetryTimer, SIGNAL(timeout()), this, SLOT(updateXWindowPixmap()));
 }
 
 SwitcherButtonView::~SwitcherButtonView()
@@ -225,7 +235,6 @@ void SwitcherButtonView::setupModel()
 
     if (model()->xWindow() != 0) {
         updateXWindowPixmap();
-        update();
     }
     updateViewMode();
 
@@ -259,7 +268,6 @@ void SwitcherButtonView::updateData(const QList<const char *>& modifications)
     foreach(member, modifications) {
         if (member == SwitcherButtonModel::XWindow && model()->xWindow() != 0) {
             updateXWindowPixmap();
-            update();
         } else if (member == SwitcherButtonModel::ViewMode) {
             updateViewMode();
         } else if(member == SwitcherButtonModel::Text) {
@@ -291,6 +299,12 @@ void SwitcherButtonView::updateXWindowPixmap()
     if (badMatchOccurred) {
         xWindowPixmap = 0;
         badMatchOccurred = false;
+        if (++updateXWindowPixmapRetryCount
+            <= ICON_PIXMAP_RETRY_MAX_COUNT) {
+            updateXWindowPixmapRetryTimer.start();
+        } else {
+            updateXWindowPixmapRetryCount = 0;
+        }
     }
 
     // Reset the error handler
@@ -303,6 +317,7 @@ void SwitcherButtonView::updateXWindowPixmap()
         qWindowPixmap = QPixmap::fromX11Pixmap(xWindowPixmap, QPixmap::ExplicitlyShared);
     }
 #endif
+    update();
 }
 
 #ifdef Q_WS_X11

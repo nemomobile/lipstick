@@ -88,6 +88,7 @@ int Ut_SwitcherButtonView::xChangePropertyMode;
 unsigned char Ut_SwitcherButtonView::xChangePropertyData[16];
 int Ut_SwitcherButtonView::xChangePropertyNElements;
 bool Ut_SwitcherButtonView::damageCreated = false;
+bool Ut_SwitcherButtonView::damageDestroyed = false;
 unsigned long Ut_SwitcherButtonView::damageHandle = 0;
 Display *Ut_SwitcherButtonView::damageDisplay = NULL;
 bool Ut_SwitcherButtonView::damageSubtracted = false;
@@ -130,7 +131,7 @@ Damage X11Wrapper::XDamageCreate(Display *dpy, Drawable drawable, int)
 void X11Wrapper::XDamageDestroy(Display *, Damage damage)
 {
     if (damage == Ut_SwitcherButtonView::damageHandle) {
-        Ut_SwitcherButtonView::damageCreated = false;
+        Ut_SwitcherButtonView::damageDestroyed = true;
         Ut_SwitcherButtonView::damageHandle = 0;
     }
 }
@@ -308,6 +309,8 @@ void Ut_SwitcherButtonView::init()
     painterText.clear();
     painterTextOpacity = 0;
     viewUpdateCalled = false;
+    damageCreated = false;
+    damageDestroyed = false;
     damageDisplay = NULL;
     damageSubtracted = false;
     damageSubtractHandle = NULL;
@@ -465,7 +468,7 @@ void Ut_SwitcherButtonView::testEnterExitDisplay()
 
     // Exiting the display should cause the destruction of the damage
     button->emitDisplayExited();
-    QVERIFY(!damageCreated);
+    QVERIFY(damageDestroyed);
     QCOMPARE(damageHandle, (unsigned long)0);
 }
 
@@ -531,6 +534,14 @@ void Ut_SwitcherButtonView::testSignalConnections()
 
     QVERIFY(disconnect(button, SIGNAL(displayEntered()), m_subject, SLOT(setOnDisplay())));
     QVERIFY(disconnect(button, SIGNAL(displayExited()), m_subject, SLOT(unsetOnDisplay())));
+    QVERIFY(disconnect(&m_subject->updateXWindowIconGeometryTimer,
+                       SIGNAL(timeout()),
+                       m_subject,
+                       SLOT(updateXWindowIconGeometry())));
+    QVERIFY(disconnect(&m_subject->updateXWindowPixmapRetryTimer,
+                       SIGNAL(timeout()),
+                       m_subject,
+                       SLOT(updateXWindowPixmap())));
 }
 
 const qreal thumbnailStyleWidth = 180.0;
@@ -619,6 +630,36 @@ void Ut_SwitcherButtonView::testUpdateXWindowIconGeometry()
     QCOMPARE(iconGeometry[1], (unsigned int)iconSceneGeometry.y());
     QCOMPARE(iconGeometry[2], (unsigned int)iconSceneGeometry.width());
     QCOMPARE(iconGeometry[3], (unsigned int)iconSceneGeometry.height());
+}
+
+static const int ICON_PIXMAP_RETRY_MAX_COUNT = 5;
+void Ut_SwitcherButtonView::testUpdateXWindowPixmap()
+{
+    // damage handling is tested elsewhere, this test
+    // tests the retrying logic
+
+    // test that the timer is started each time the pixmap
+    // fetch causes a badmatch, up to the max count
+    button->model()->setXWindow(1);
+    xCompositeNameWindowPixmapCausesBadMatch = true;
+    for (int i = 0; i < ICON_PIXMAP_RETRY_MAX_COUNT; ++i) {
+        timerStarted = false;
+        m_subject->updateXWindowPixmap();
+        QVERIFY(timerStarted);
+        QCOMPARE(m_subject->updateXWindowPixmapRetryCount, i + 1);
+    }
+    // the next attempt after max count doesn't start the
+    // timer anymore
+    timerStarted = false;
+    m_subject->updateXWindowPixmap();
+    QVERIFY(!timerStarted);
+    QCOMPARE(m_subject->updateXWindowPixmapRetryCount, 0);
+    // when badmatch doesn't occur, the timer is not started either
+    xCompositeNameWindowPixmapCausesBadMatch = false;
+    timerStarted = false;
+    m_subject->updateXWindowPixmap();
+    QVERIFY(!timerStarted);
+    QCOMPARE(m_subject->updateXWindowPixmapRetryCount, 0);
 }
 
 QTEST_APPLESS_MAIN(Ut_SwitcherButtonView)

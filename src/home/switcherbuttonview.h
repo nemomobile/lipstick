@@ -95,6 +95,11 @@ private slots:
      */
     void updateXWindowIconGeometry();
 
+    /*!
+     * \brief Updates the X window pixmap.
+     */
+    void updateXWindowPixmap();
+
 protected:
     /*!
      * Creates an X damage structure based on the current X window pixmap.
@@ -110,10 +115,6 @@ protected:
     virtual void setupModel();
     //! \reimp_end
 
-    /*!
-     * \brief Updates the X window pixmap.
-     */
-    virtual void updateXWindowPixmap();
 
 private:
     //! Starts a timer for updating the icon geometry if the icon geometry has changed after the last update
@@ -138,12 +139,6 @@ private:
     //! Whether a BadMatch X error has occurred
     static bool badMatchOccurred;
 #endif
-
-    // The height of the navigation bar for cropping the thumbnail
-    static const int NAVIGATION_BAR_HEIGHT;
-
-    // Time between icon geometry updates in milliseconds
-    static const int ICON_GEOMETRY_UPDATE_INTERVAL;
 
     //! SwitcherButton controller
     SwitcherButton *controller;
@@ -177,6 +172,13 @@ private:
 
     //! Timer for updating the icon's position in scene coordination
     mutable QTimer updateXWindowIconGeometryTimer;
+
+    //! Timer for updating the icon's pixmap if it wasn't ready and
+    //! a badmatch occurred
+    QTimer updateXWindowPixmapRetryTimer;
+
+    //! Current count of retries for updating icon's pixmap
+    int updateXWindowPixmapRetryCount;
 
     //! The icon's position in scene coordinates
     QPointF updatedXWindowIconPosition;

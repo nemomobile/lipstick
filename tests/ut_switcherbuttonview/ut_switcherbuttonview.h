@@ -110,6 +110,7 @@ public:
 
     // Whether a Damage object has been created
     static bool damageCreated;
+    static bool damageDestroyed;
     static unsigned long damageHandle;
     static Display *damageDisplay;
 
@@ -179,6 +180,7 @@ private slots:
     void testDrawBackground();
     void testUpdateXWindowIconGeometryIfNecessary();
     void testUpdateXWindowIconGeometry();
+    void testUpdateXWindowPixmap();
 };
 
 #endif //_UT_SWITCHERBUTTONVIEW_
