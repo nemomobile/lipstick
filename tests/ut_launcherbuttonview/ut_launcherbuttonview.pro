@@ -17,6 +17,7 @@ HEADERS += \
     $$SRCDIR/launcherbuttonstyle.h \
     $$SRCDIR/launcheraction.h \
     $$SRCDIR/launcherbutton.h \
-    $$SRCDIR/windowinfo.h
+    $$SRCDIR/windowinfo.h \
+    $$SRCDIR/launcherbuttonprogressindicator.h
 
 include(../common_bot.pri)

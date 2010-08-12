@@ -286,36 +286,6 @@ void addActionPrivate(QString fileName, bool isValid, QString name,
                                 QSharedPointer<ActionPrivate>(priv));
 }
 
-// QIcon stubs
-QString qIconFileName;
-QIcon::QIcon(const QString &fileName)
-{
-    qIconFileName = fileName;
-}
-
-QIcon& QIcon::operator=(QIcon const &)
-{
-    return *this;
-}
-
-QIcon::~QIcon()
-{
-}
-
-bool qIconHasThemeIcon = false;
-bool QIcon::hasThemeIcon(const QString &name)
-{
-    Q_UNUSED(name);
-    return qIconHasThemeIcon;
-}
-
-QString qIconName;
-QIcon QIcon::fromTheme(const QString &name, const QIcon &fallback)
-{
-    qIconName = name;
-    return fallback;
-}
-
 void Ut_LauncherButton::initTestCase()
 {
     static int argc = 1;
@@ -332,9 +302,6 @@ void Ut_LauncherButton::cleanupTestCase()
 void Ut_LauncherButton::init()
 {
     language = "english";
-    qIconFileName.clear();
-    qIconName.clear();
-    qIconHasThemeIcon = false;
     contentActionPrivate.clear();
     contentActionTriggerCalls = 0;
 
@@ -364,40 +331,8 @@ void Ut_LauncherButton::testInitialization()
     m_subject = new LauncherButton("/dev/null");
     QCOMPARE(m_subject->desktopEntry(), QString("/dev/null"));
     QCOMPARE(m_subject->text(), QString("english"));
-    QCOMPARE(m_subject->iconID(), QString("icon"));
-}
-
-void Ut_LauncherButton::testInitializationAbsoluteIcon()
-{
-    delete m_subject;
-
-    addActionPrivate("/dev/null",
-                     true,
-                     "name",
-                     "english",
-                     "nonenglish",
-                     "/icon");
-
-    m_subject = new LauncherButton("/dev/null");
-    QCOMPARE(m_subject->iconID(), QString());
-    QCOMPARE(qIconFileName, QString("/icon"));
-}
-
-void Ut_LauncherButton::testInitializationFreeDesktopIcon()
-{
-    delete m_subject;
-
-    addActionPrivate("/dev/null",
-                     true,
-                     "name",
-                     "english",
-                     "nonenglish",
-                     "icon");
-    qIconHasThemeIcon = true;
-
-    m_subject = new LauncherButton("/dev/null");
-    QCOMPARE(m_subject->iconID(), QString());
-    QCOMPARE(qIconName, QString("icon"));
+    // verify that action was updated to model
+    QCOMPARE(m_subject->model()->action().name(), QString("name"));
 }
 
 void Ut_LauncherButton::testLaunch()
@@ -405,9 +340,17 @@ void Ut_LauncherButton::testLaunch()
     emit clicked();
     QCOMPARE(contentActionTriggerCalls, 1);
     QVERIFY(disconnect(Switcher::instance(), SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), m_subject, SLOT(stopLaunchProgressIfObscured(const QList<WindowInfo> &))));
+}
+
+void Ut_LauncherButton::testButtonClickWhenLaunching()
+{
+    emit clicked();
+    QVERIFY(disconnect(Switcher::instance(), SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), m_subject, SLOT(stopLaunchProgressIfObscured(const QList<WindowInfo> &))));
+    QCOMPARE(contentActionTriggerCalls, 1);
 
     emit clicked();
     QVERIFY(!disconnect(Switcher::instance(), SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), m_subject, SLOT(stopLaunchProgressIfObscured(const QList<WindowInfo> &))));
+    QCOMPARE(contentActionTriggerCalls, 1);
 
     m_subject->stopLaunchProgress();
     m_subject->model()->setButtonState(LauncherButtonModel::Broken);

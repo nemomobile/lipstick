@@ -49,7 +49,12 @@ HEADERS += homeapplication.h \
     homewindowmonitor.h \
     windowmonitor.h \
     applicationpackagemonitor.h \
-    xeventlistener.h
+    xeventlistener.h \
+    applicationpackagemonitor.h \
+    launcherbuttonprogressindicatorview.h \
+    launcherbuttonprogressindicatorstyle.h \
+    launcherbuttonprogressindicator.h \
+    launcherbuttonprogressindicatormodel.h
 SOURCES += homeapplication.cpp \
     windowinfo.cpp \
     home.cpp \
@@ -81,7 +86,9 @@ SOURCES += homeapplication.cpp \
     homescreenadaptor.cpp \
     homewindowmonitor.cpp \
     applicationpackagemonitor.cpp \
-    xeventlistener.cpp
+    xeventlistener.cpp \
+    launcherbuttonprogressindicatorview.cpp \
+    launcherbuttonprogressindicator.cpp
 MODEL_HEADERS += desktopmodel.h \
     launcherbuttonmodel.h \
     launchermodel.h \
@@ -89,7 +96,8 @@ MODEL_HEADERS += desktopmodel.h \
     switcherbuttonmodel.h \
     switchermodel.h \
     launcherpagemodel.h \
-    pagepositionindicatormodel.h
+    pagepositionindicatormodel.h \
+    launcherbuttonprogressindicatormodel.h
 STYLE_HEADERS += desktopstyle.h \
     launcherstyle.h \
     launcherbuttonstyle.h \
@@ -99,5 +107,5 @@ STYLE_HEADERS += desktopstyle.h \
     switcherstyle.h \
     pagepositionindicatorstyle.h \
     pagedviewportstyle.h \
-    transformlayoutanimationstyle.h
-
+    transformlayoutanimationstyle.h \
+    launcherbuttonprogressindicatorstyle.h

@@ -28,7 +28,7 @@
 #include "launcherbuttonstyle.h"
 
 class LauncherButton;
-class MProgressIndicator;
+class LauncherButtonProgressIndicator;
 /*!
  * The launcher button view allows a progress indicator to be displayed on top of it.
  */
@@ -65,6 +65,11 @@ private:
     //! Resets the progress indicator according to button state
     void resetProgressIndicator();
 
+    //! Updates the icon id according to button state
+    void updateButtonIcon();
+
+    void setIconFromAction();
+
     //! The controller for the view
     LauncherButton *controller;
 
@@ -72,7 +77,7 @@ private:
     QRectF progressIndicatorRect;
 
     //! Progress indicator for operation
-    MProgressIndicator *progressIndicator;
+    LauncherButtonProgressIndicator *progressIndicator;
 
     //! A timer for disabling the progress indicator if the application startup takes a long time
     QTimer launchProgressTimeoutTimer;

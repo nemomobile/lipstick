@@ -22,8 +22,6 @@
 #include "launcher.h"
 #include "switcher.h"
 #include <MDesktopEntry>
-#include <QDateTime>
-#include <QFileInfo>
 
 #include <MWidgetCreator>
 M_REGISTER_WIDGET(LauncherButton)
@@ -119,32 +117,9 @@ void LauncherButton::updateFromDesktopEntry(const QString &desktopEntryPath)
         LauncherAction action(desktopEntryPath);
 
         setText(action.localizedName());
-        updateIcon(action);
 
         model()->setDesktopEntryFile(desktopEntryPath);
         setAction(action);
-    }
-}
-
-void LauncherButton::updateIcon(const LauncherAction& action)
-{
-    QString icon = action.icon();
-
-    if (!icon.isEmpty()) {
-        if (QFileInfo(icon).isAbsolute()) {
-            setIcon(QIcon(icon));
-        } else {
-            if (QIcon::hasThemeIcon(icon)) {
-                setIcon(QIcon::fromTheme(icon));
-            } else {
-                setIconID(icon);
-            }
-        }
-    } else {
-        // FIXME: change to use correct default icon id when available
-        // as incorrect id icon-Application-Default will load default icon
-        // (at the moment default icon seems to be icon-l-video)
-        setIconID("icon-Application-Default");
     }
 }
 

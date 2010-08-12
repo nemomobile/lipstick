@@ -21,13 +21,49 @@
 #define UT_LAUNCHERBUTTONVIEW_H
 
 #include <QObject>
+#include <MWidgetView>
 
+#include "launcherbuttonview.h"
 #include "launcherbuttonmodel.h"
+
 Q_DECLARE_METATYPE(LauncherButtonModel::State);
 
 class MApplication;
 class LauncherButton;
 class LauncherButtonView;
+
+class Ut_LauncherButtonStyle : public LauncherButtonStyle
+{
+};
+
+class Ut_LauncherButtonStyleContainer : public LauncherButtonStyleContainer
+{
+public:
+    QString currentMode()
+    {
+        return LauncherButtonStyleContainer::currentMode();
+    }
+};
+
+class TestLauncherButtonView : public LauncherButtonView
+{
+    M_VIEW(LauncherButtonModel, Ut_LauncherButtonStyle)
+
+public:
+    TestLauncherButtonView(LauncherButton *button) : LauncherButtonView(button) {}
+
+    LauncherButtonStyle *modifiableStyle() {
+        LauncherButtonStyleContainer &sc = style();
+        const LauncherButtonStyle *const_s = sc.operator ->();
+        LauncherButtonStyle *s = const_cast<LauncherButtonStyle *>(const_s);
+        return s;
+    }
+    Ut_LauncherButtonStyleContainer& styleContainer() {
+        return style();
+    }
+
+    friend class Ut_LauncherButtonView;
+};
 
 class Ut_LauncherButtonView : public QObject
 {
@@ -51,6 +87,12 @@ private slots:
     void testLaunchingProgress();
     void testUpdateProgressWhenDownloading();
     void testUpdateProgressWhenNotDownloading();
+    void testUpdatingIconFromAction();
+    void testUpdatingAbsoluteIconFromAction();
+    void testUpdatingFreeDesktopIconFromAction();
+    void testUpdatingPlaceholderIcons_data();
+    void testUpdatingPlaceholderIcons();
+    void testUpdatingIconFromActionAfterPlaceholderIcon();
 
 signals:
     void frameChanged(int frame);
@@ -59,7 +101,7 @@ private:
     // MApplication
     MApplication *app;
     // The object being tested
-    LauncherButtonView *m_subject;
+    TestLauncherButtonView *m_subject;
     // Controller for the object
     LauncherButton *controller;
 };

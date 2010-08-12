@@ -42,10 +42,9 @@ private slots:
 
     // Test cases
     void testInitialization();
-    void testInitializationAbsoluteIcon();
-    void testInitializationFreeDesktopIcon();
     void testLanguageChange();
     void testLaunch();
+    void testButtonClickWhenLaunching();
     void testStopLaunchProgress();
     void testStopLaunchProgressIfObscured();
     void testStopLaunchProgressIfObscured_data();

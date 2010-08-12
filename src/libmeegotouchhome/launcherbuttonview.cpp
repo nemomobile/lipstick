@@ -17,14 +17,18 @@
 **
 ****************************************************************************/
 
-#include <MProgressIndicator>
 #include "launcherbuttonview.h"
+
+#include <QFileInfo>
+#include "launcherbuttonprogressindicator.h"
 #include "launcherbutton.h"
+
+static const QString DEFAULT_APPLICATION_ICON_ID = "icon-l-default-application";
 
 LauncherButtonView::LauncherButtonView(LauncherButton *controller) :
     MButtonIconView(controller),
     controller(controller),
-    progressIndicator(new MProgressIndicator(controller, MProgressIndicator::spinnerType))
+    progressIndicator(new LauncherButtonProgressIndicator(controller))
 {
     progressIndicator->setContentsMargins(0,0,0,0);
     progressIndicator->setRange(0, 100);
@@ -69,6 +73,7 @@ void LauncherButtonView::setupModel()
 {
     MButtonIconView::setupModel();
 
+    updateButtonIcon();
     resetProgressIndicator();
 }
 
@@ -79,6 +84,7 @@ void LauncherButtonView::updateData(const QList<const char *>& modifications)
     const char *member;
     foreach(member, modifications) {
         if (member == LauncherButtonModel::ButtonState) {
+            updateButtonIcon();
             resetProgressIndicator();
 
             if (model()->buttonState() == LauncherButtonModel::Launching) {
@@ -93,13 +99,18 @@ void LauncherButtonView::updateData(const QList<const char *>& modifications)
             if (model()->buttonState() == LauncherButtonModel::Downloading) {
                 progressIndicator->setValue(model()->operationProgress());
             }
+        } else if (member == LauncherButtonModel::Action) {
+            updateButtonIcon();
         }
     }
 }
 
 void LauncherButtonView::resetProgressIndicator()
 {
-    switch(model()->buttonState()) {
+    LauncherButtonModel::State state = model()->buttonState();
+
+    progressIndicator->setIndicatorState(state);
+    switch(state) {
         case LauncherButtonModel::Installing:
         case LauncherButtonModel::Launching:
         {
@@ -114,13 +125,48 @@ void LauncherButtonView::resetProgressIndicator()
             progressIndicator->show();
         }
         break;
-        case LauncherButtonModel::Installed:
-        case LauncherButtonModel::Broken:
         default:
         {
             progressIndicator->hide();
         }
         break;
+    }
+}
+
+void LauncherButtonView::updateButtonIcon()
+{
+    switch(model()->buttonState()) {
+        case LauncherButtonModel::Downloading:
+            model()->setIconID(style()->downloadingPlaceholderIcon());
+        break;
+        case LauncherButtonModel::Installing:
+            model()->setIconID(style()->installingPlaceholderIcon());
+        break;
+        case LauncherButtonModel::Broken:
+            model()->setIconID(style()->brokenPlaceholderIcon());
+        break;
+        default:
+            setIconFromAction();
+        break;
+    }
+}
+
+void LauncherButtonView::setIconFromAction()
+{
+    QString icon = model()->action().icon();
+
+    if (!icon.isEmpty()) {
+        if (QFileInfo(icon).isAbsolute()) {
+            model()->setIcon(QIcon(icon));
+        } else {
+            if (QIcon::hasThemeIcon(icon)) {
+                model()->setIcon(QIcon::fromTheme(icon));
+            } else {
+                model()->setIconID(icon);
+            }
+        }
+    } else {
+        model()->setIconID(DEFAULT_APPLICATION_ICON_ID);
     }
 }
 

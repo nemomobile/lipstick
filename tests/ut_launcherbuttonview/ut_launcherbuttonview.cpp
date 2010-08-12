@@ -19,13 +19,12 @@
 
 #include <QtTest/QtTest>
 #include <MApplication>
-#include "mprogressindicator_stub.h"
+#include <contentaction.h>
 #include "ut_launcherbuttonview.h"
-#include "launcherbuttonview.h"
-#include "launcherbuttonmodel.h"
 #include "launcherbutton_stub.h"
-#include "launcheraction_stub.h"
 #include "windowinfo_stub.h"
+#include "launcherbuttonprogressindicator_stub.h"
+#include "mprogressindicator_stub.h"
 
 // MButton stubs
 QString mButtonText;
@@ -61,6 +60,111 @@ void MWidgetView::update(const QRectF &)
     mWidgetViewUpdateCalled = true;
 }
 
+using namespace ContentAction;
+
+// LauncherAction stubs (used by LauncherButton)
+LauncherAction::LauncherAction()
+    : Action()
+{
+}
+
+LauncherAction::LauncherAction(const QString& desktopEntry)
+    : Action(Action::defaultActionForFile(desktopEntry, ""))
+{
+}
+
+bool operator!=(const LauncherAction &a, const LauncherAction &b)
+{
+    Q_UNUSED(a);
+    Q_UNUSED(b);
+    return true;
+}
+
+// ContentAction stubs (used by LauncherAction)
+
+QMap< QString, QSharedPointer<ActionPrivate> > contentActionPrivate;
+struct ContentAction::ActionPrivate
+{
+    ActionPrivate(QString icon) : icon_(icon) {};
+    virtual ~ActionPrivate() {};
+
+    virtual bool isValid() const { return true; }
+    virtual QString name() const { return  QString(""); }
+    virtual QString localizedName() const { return QString(""); }
+    virtual QString icon() const { return icon_; }
+
+    QString icon_;
+};
+
+bool Action::isValid() const { return d->isValid(); }
+QString Action::name() const { return d->name(); }
+QString Action::localizedName() const { return d->localizedName(); }
+QString Action::icon() const { return d->icon(); }
+
+Action::Action()
+    : d(new ActionPrivate(""))
+{
+}
+
+Action::Action(const Action& other)
+    : d(other.d)
+{
+}
+
+Action::~Action()
+{
+}
+
+Action Action::defaultActionForFile(const QUrl& fileUri, const QString& mimeType)
+{
+    Q_UNUSED(mimeType);
+
+    QString fileName = fileUri.toString();
+    QSharedPointer<ActionPrivate> priv =
+       contentActionPrivate.value(fileName);
+    Action action;
+    action.d = priv;
+
+    return action;
+}
+
+// A helper function to set up a contentActionPrivate entry
+void createDefaultAction(QString fileName, QString icon)
+{
+    ActionPrivate* priv = new ActionPrivate(icon);
+    contentActionPrivate.insert(fileName, QSharedPointer<ActionPrivate>(priv));
+}
+
+// QIcon stubs
+QString qIconFileName;
+QIcon::QIcon(const QString &fileName)
+{
+    qIconFileName = fileName;
+}
+
+QIcon& QIcon::operator=(QIcon const &)
+{
+    return *this;
+}
+
+QIcon::~QIcon()
+{
+}
+
+bool qIconHasThemeIcon = false;
+bool QIcon::hasThemeIcon(const QString &name)
+{
+    Q_UNUSED(name);
+    return qIconHasThemeIcon;
+}
+
+QString qIconName;
+QIcon QIcon::fromTheme(const QString &name, const QIcon &fallback)
+{
+    qIconName = name;
+    return fallback;
+}
+
 void Ut_LauncherButtonView::initTestCase()
 {
     static int argc = 1;
@@ -78,11 +182,14 @@ void Ut_LauncherButtonView::init()
 {
     controller = new LauncherButton;
     controller->setModel(new LauncherButtonModel);
-    m_subject = new LauncherButtonView(controller);
+    m_subject = new TestLauncherButtonView(controller);
     controller->setView(m_subject);
     mWidgetViewUpdateCalled = false;
     mButtonIconViewApplyStyleCalled = false;
     qTimerStarted = false;
+    qIconHasThemeIcon = false;
+    qIconFileName.clear();
+    qIconName.clear();
 
     gMProgressIndicatorStub->stubReset();
 }
@@ -119,11 +226,10 @@ void Ut_LauncherButtonView::testResetProgressIndicator_data()
      QTest::addColumn<int>("verifySetUnknownDurationCallCount");
      QTest::addColumn<bool>("verifySetUnknownDurationParam");
 
-     QTest::newRow("installed") << LauncherButtonModel::Installed << false << 0 << false;
+     QTest::newRow("Installed") << LauncherButtonModel::Installed << false << 0 << false;
 
      QTest::newRow("Launching") << LauncherButtonModel::Launching << true << 2 << true;
      QTest::newRow("Installing") << LauncherButtonModel::Installing << true << 2 << true;
-     // reset calls already setUnknowDuration once with false parameter
      QTest::newRow("Downloading") << LauncherButtonModel::Downloading << true << 1 << false;
 }
 
@@ -141,6 +247,7 @@ void Ut_LauncherButtonView::testResetProgressIndicator()
     if (verifySetUnknownDurationCallCount > 0) {
         QCOMPARE(gMProgressIndicatorStub->stubLastCallTo("setUnknownDuration").parameter<bool>(0), verifySetUnknownDurationParam);
     }
+    QCOMPARE(gLauncherButtonProgressIndicatorStub->stubLastCallTo("setIndicatorState").parameter<LauncherButtonModel::State>(0), state);
 }
 
 void Ut_LauncherButtonView::testLaunchingProgress()
@@ -169,6 +276,74 @@ void Ut_LauncherButtonView::testUpdateProgressWhenNotDownloading()
 
     m_subject->model()->setOperationProgress(50);
     QCOMPARE(gMProgressIndicatorStub->stubLastCallTo("setValue").parameter<int>(0), 0);
+}
+
+void Ut_LauncherButtonView::testUpdatingIconFromAction()
+{
+    createDefaultAction("/dev/null", "icon");
+    LauncherAction action("/dev/null");
+    m_subject->model()->setAction(action);
+    QCOMPARE(m_subject->model()->iconID(), QString("icon"));
+}
+
+void Ut_LauncherButtonView::testUpdatingAbsoluteIconFromAction()
+{
+    createDefaultAction("/dev/null", "/icon");
+    LauncherAction action("/dev/null");
+    m_subject->model()->setAction(action);
+    QCOMPARE(qIconFileName, QString("/icon"));
+}
+
+void Ut_LauncherButtonView::testUpdatingFreeDesktopIconFromAction()
+{
+    createDefaultAction("/dev/null", "icon");
+    LauncherAction action("/dev/null");
+
+    qIconHasThemeIcon = true;
+
+    m_subject->model()->setAction(action);
+    QCOMPARE(qIconName, QString("icon"));
+}
+
+void Ut_LauncherButtonView::testUpdatingPlaceholderIcons_data()
+{
+     QTest::addColumn<LauncherButtonModel::State>("state");
+     QTest::addColumn<QString>("iconId");
+
+     QTest::newRow("Downloading") << LauncherButtonModel::Downloading << "Downloading";
+     QTest::newRow("Installing") << LauncherButtonModel::Installing << "Installing";
+     QTest::newRow("Broken") << LauncherButtonModel::Broken << "Broken";
+}
+
+void Ut_LauncherButtonView::testUpdatingPlaceholderIcons()
+{
+    QFETCH(LauncherButtonModel::State, state);
+    QFETCH(QString, iconId);
+
+    m_subject->modifiableStyle()->setDownloadingPlaceholderIcon("Downloading");
+    m_subject->modifiableStyle()->setInstallingPlaceholderIcon("Installing");
+    m_subject->modifiableStyle()->setBrokenPlaceholderIcon("Broken");
+
+    m_subject->model()->setButtonState(state);
+
+    QCOMPARE(m_subject->model()->iconID(), iconId);
+}
+
+void Ut_LauncherButtonView::testUpdatingIconFromActionAfterPlaceholderIcon()
+{
+    createDefaultAction("/dev/null", "icon");
+    LauncherAction action("/dev/null");
+    m_subject->model()->setAction(action);
+
+    // change to a state with placeholder icon
+    QString placeholderIconId = "Installing";
+    m_subject->modifiableStyle()->setInstallingPlaceholderIcon(placeholderIconId);
+    m_subject->model()->setButtonState(LauncherButtonModel::Installing);
+    QCOMPARE(m_subject->model()->iconID(), placeholderIconId);
+
+    // change back to a installed state with icon from content action
+    m_subject->model()->setButtonState(LauncherButtonModel::Installed);
+    QCOMPARE(m_subject->model()->iconID(), QString("icon"));
 }
 
 QTEST_APPLESS_MAIN(Ut_LauncherButtonView)

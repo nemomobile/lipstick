@@ -35,6 +35,13 @@ class LauncherButtonStyle : public MButtonIconStyle
      * as progress indicator icons might be different size than button icon).
      */
     M_STYLE_ATTRIBUTE(QSize, progressIndicatorIconSize, ProgressIndicatorIconSize)
+
+    //! Placeholder icon for downloading state
+    M_STYLE_ATTRIBUTE(QString, downloadingPlaceholderIcon, DownloadingPlaceholderIcon);
+    //! Placeholder icon for installing state
+    M_STYLE_ATTRIBUTE(QString, installingPlaceholderIcon, InstallingPlaceholderIcon);
+    //! Placeholder icon for broken state
+    M_STYLE_ATTRIBUTE(QString, brokenPlaceholderIcon, BrokenPlaceholderIcon);
 };
 
 class LauncherButtonStyleContainer : public MButtonIconStyleContainer
