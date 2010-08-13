@@ -63,7 +63,7 @@ public:
      * \param event the XEvent to be handled
      * \return \c true if the event was handled, \c false otherwise
      */
-    bool handleXEvent(XEvent &event);
+    bool handleXEvent(const XEvent &event);
 
 signals:
     /*!

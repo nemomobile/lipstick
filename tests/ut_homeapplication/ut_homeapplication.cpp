@@ -115,7 +115,7 @@ public:
         ListenerRemovingPair = qMakePair(called, removed);
     }
 
-    bool handleXEvent(XEvent &event)
+    bool handleXEvent(const XEvent &event)
     {
         if (this == ListenerAddingPair.first) {
             Ut_HomeApplication::m_subject->addXEventListener(ListenerAddingPair.second);
@@ -126,7 +126,7 @@ public:
         }
 
         QList<ParameterBase*> params;
-        params.append(new Parameter<XEvent*>(&event));
+        params.append(new Parameter<const XEvent*>(&event));
         stubMethodEntered("handleXEvent", params);
         return stubReturnValue<bool>("handleXEvent");
     }
@@ -235,7 +235,7 @@ void Ut_HomeApplication::testXEventFilterReturnsFalseWhenEventFilterReturnsFalse
     XEvent event;
     QCOMPARE(m_subject->x11EventFilter(&event), false);
     QCOMPARE(mockXEventListener.stubCallCount("handleXEvent"), 1);
-    QCOMPARE(mockXEventListener.stubLastCallTo("handleXEvent").parameter<XEvent*>(0), &event);
+    QCOMPARE(mockXEventListener.stubLastCallTo("handleXEvent").parameter<const XEvent*>(0), &event);
 
     m_subject->removeXEventListener(&mockXEventListener);
 }
@@ -249,7 +249,7 @@ void Ut_HomeApplication::testXEventFilterReturnsTrueWhenEventFilterReturnsTrue()
     XEvent event;
     QCOMPARE(m_subject->x11EventFilter(&event), true);
     QCOMPARE(mockXEventListener.stubCallCount("handleXEvent"), 1);
-    QCOMPARE(mockXEventListener.stubLastCallTo("handleXEvent").parameter<XEvent*>(0), &event);
+    QCOMPARE(mockXEventListener.stubLastCallTo("handleXEvent").parameter<const XEvent*>(0), &event);
 
     m_subject->removeXEventListener(&mockXEventListener);
 }
@@ -267,9 +267,9 @@ void Ut_HomeApplication::testXEventFilterReturnsTrueWhenThereAreTwoEventFiltersA
     XEvent event;
     QCOMPARE(m_subject->x11EventFilter(&event), true);
     QCOMPARE(mockXEventListener1.stubCallCount("handleXEvent"), 1);
-    QCOMPARE(mockXEventListener1.stubLastCallTo("handleXEvent").parameter<XEvent*>(0), &event);
+    QCOMPARE(mockXEventListener1.stubLastCallTo("handleXEvent").parameter<const XEvent*>(0), &event);
     QCOMPARE(mockXEventListener2.stubCallCount("handleXEvent"), 1);
-    QCOMPARE(mockXEventListener2.stubLastCallTo("handleXEvent").parameter<XEvent*>(0), &event);
+    QCOMPARE(mockXEventListener2.stubLastCallTo("handleXEvent").parameter<const XEvent*>(0), &event);
 
     m_subject->removeXEventListener(&mockXEventListener1);
     m_subject->removeXEventListener(&mockXEventListener2);

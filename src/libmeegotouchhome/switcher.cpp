@@ -88,7 +88,7 @@ Switcher::~Switcher()
     switcher = NULL;
 }
 
-bool Switcher::handleXEvent(XEvent &event)
+bool Switcher::handleXEvent(const XEvent &event)
 {
     bool eventWasHandled = false;
 

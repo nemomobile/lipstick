@@ -26,7 +26,7 @@
 class TestXEventListener : public XEventListener
 {
 public:
-    virtual bool handleXEvent(XEvent &event) {
+    virtual bool handleXEvent(const XEvent &event) {
         Q_UNUSED(event);
         return true;
     }

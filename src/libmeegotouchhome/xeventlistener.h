@@ -46,7 +46,7 @@ public:
      * \param event the X event
      * \return \c true if the event got handled
      */
-    virtual bool handleXEvent(XEvent &event) = 0;
+    virtual bool handleXEvent(const XEvent &event) = 0;
 };
 
 #endif /* X11EVENTLISTENER_H_ */
