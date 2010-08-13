@@ -56,11 +56,14 @@ private slots:
     void testXEventFilterReturnsTrueWhenEventFilterReturnsTrue();
     void testXEventFilterReturnsTrueWhenThereAreTwoEventFiltersAndOnlyTheOtherReturnsTrue();
     void testSameXEventFilterCanBeAddedOnlyOnce();
+    void testAddingNewEventFilterDuringEventProcessing();
+    void testRemovingOfAlreadyCalledEventFilterDuringEventProcessing();
+    void testRemovingOfTheEventFilterThatIsCurrentlyProcessingAnEvent();
+    void testRemovingOfAnEventFilterThatHasNotYetProcessedAnEvent();
 
-private:
+public:
     // The object being tested
-    HomeApplication *m_subject;
-
+    static HomeApplication *m_subject;
 };
 
 #endif

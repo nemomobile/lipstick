@@ -97,16 +97,44 @@ QList< QList<QVariant> > Ut_HomeApplication::asyncCallArguments;
 
 class MockXEventListener : public XEventListener, public StubBase
 {
+    static QPair<XEventListener*, XEventListener*> ListenerAddingPair;
+    static QPair<XEventListener*, XEventListener*> ListenerRemovingPair;
+
 public:
+    //! Sets up a removing hook for listener objects. While \a called is handlind and event,
+    //! \a removed gets unregistered for listening the events.
+    static void RegisterAddingPair(XEventListener* called, XEventListener* added)
+    {
+        ListenerAddingPair = qMakePair(called, added);
+    }
+
+    //! Sets up a removing hook for listener objects. While \a called is handlind and event,
+    //! \a removed gets unregistered for listening the events.
+    static void RegisterRemovingPair(XEventListener* called, XEventListener* removed)
+    {
+        ListenerRemovingPair = qMakePair(called, removed);
+    }
+
     bool handleXEvent(XEvent &event)
     {
+        if (this == ListenerAddingPair.first) {
+            Ut_HomeApplication::m_subject->addXEventListener(ListenerAddingPair.second);
+        }
+
+        if (this == ListenerRemovingPair.first) {
+            Ut_HomeApplication::m_subject->removeXEventListener(ListenerRemovingPair.second);
+        }
+
         QList<ParameterBase*> params;
         params.append(new Parameter<XEvent*>(&event));
         stubMethodEntered("handleXEvent", params);
         return stubReturnValue<bool>("handleXEvent");
     }
 };
+QPair<XEventListener*, XEventListener*> MockXEventListener::ListenerAddingPair;
+QPair<XEventListener*, XEventListener*> MockXEventListener::ListenerRemovingPair;
 
+HomeApplication* Ut_HomeApplication::m_subject = NULL;
 
 void Ut_HomeApplication::initTestCase()
 {
@@ -256,6 +284,82 @@ void Ut_HomeApplication::testSameXEventFilterCanBeAddedOnlyOnce()
     XEvent event;
     m_subject->x11EventFilter(&event);
     QCOMPARE(mockXEventListener.stubCallCount("handleXEvent"), 1);
+}
+
+void Ut_HomeApplication::testAddingNewEventFilterDuringEventProcessing()
+{
+    MockXEventListener mockXEventListener1;
+    m_subject->addXEventListener(&mockXEventListener1);
+    MockXEventListener mockXEventListener2;
+
+    // While calling the first filter, add a second one
+    MockXEventListener::RegisterAddingPair(&mockXEventListener1, &mockXEventListener2);
+
+    XEvent event;
+    m_subject->x11EventFilter(&event);
+
+    QCOMPARE(mockXEventListener1.stubCallCount("handleXEvent"), 1);
+    QCOMPARE(mockXEventListener2.stubCallCount("handleXEvent"), 0);
+
+    m_subject->x11EventFilter(&event);
+
+    // On the second event handling round both of the listeners need to be called
+    QCOMPARE(mockXEventListener1.stubCallCount("handleXEvent"), 2);
+    QCOMPARE(mockXEventListener2.stubCallCount("handleXEvent"), 1);
+}
+
+void Ut_HomeApplication::testRemovingOfAlreadyCalledEventFilterDuringEventProcessing()
+{
+    MockXEventListener mockXEventListener1;
+    m_subject->addXEventListener(&mockXEventListener1);
+    MockXEventListener mockXEventListener2;
+    m_subject->addXEventListener(&mockXEventListener2);
+    MockXEventListener mockXEventListener3;
+    m_subject->addXEventListener(&mockXEventListener3);
+
+    // While calling the second filter, remove the first one
+    MockXEventListener::RegisterRemovingPair(&mockXEventListener2, &mockXEventListener1);
+
+    XEvent event;
+    m_subject->x11EventFilter(&event);
+
+    QCOMPARE(mockXEventListener1.stubCallCount("handleXEvent"), 1);
+    QCOMPARE(mockXEventListener2.stubCallCount("handleXEvent"), 1);
+    QCOMPARE(mockXEventListener3.stubCallCount("handleXEvent"), 1);
+}
+
+void Ut_HomeApplication::testRemovingOfTheEventFilterThatIsCurrentlyProcessingAnEvent()
+{
+    MockXEventListener mockXEventListener1;
+    m_subject->addXEventListener(&mockXEventListener1);
+    MockXEventListener mockXEventListener2;
+    m_subject->addXEventListener(&mockXEventListener2);
+
+    // While calling the first filter, remove that one
+    MockXEventListener::RegisterRemovingPair(&mockXEventListener1, &mockXEventListener1);
+
+    XEvent event;
+    m_subject->x11EventFilter(&event);
+
+    QCOMPARE(mockXEventListener1.stubCallCount("handleXEvent"), 1);
+    QCOMPARE(mockXEventListener2.stubCallCount("handleXEvent"), 1);
+}
+
+void Ut_HomeApplication::testRemovingOfAnEventFilterThatHasNotYetProcessedAnEvent()
+{
+    MockXEventListener mockXEventListener1;
+    m_subject->addXEventListener(&mockXEventListener1);
+    MockXEventListener mockXEventListener2;
+    m_subject->addXEventListener(&mockXEventListener2);
+
+    // While calling the first filter, remove the second one
+    MockXEventListener::RegisterRemovingPair(&mockXEventListener1, &mockXEventListener2);
+
+    XEvent event;
+    m_subject->x11EventFilter(&event);
+
+    QCOMPARE(mockXEventListener1.stubCallCount("handleXEvent"), 1);
+    QCOMPARE(mockXEventListener2.stubCallCount("handleXEvent"), 0);
 }
 
 QTEST_APPLESS_MAIN(Ut_HomeApplication)

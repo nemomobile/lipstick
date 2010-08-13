@@ -100,7 +100,14 @@ private:
     /*!
      * The X event listener objects registered for receiving X events.
      */
-    QSet<XEventListener*> xEventListeners;
+    QList<XEventListener*> xEventListeners;
+
+    //! A flag that tells if there is an active iterator going through the X event listener container
+    bool iteratorActiveForEventListenerContainer;
+
+    //! Listener objects that are to be removed from listening to X events.
+    //! Once a listener is on this list, it won't receive any X events any more.
+    QList<XEventListener*> toBeRemovedEventListeners;
 
 #ifdef UNIT_TEST
     friend class Ut_HomeApplication;

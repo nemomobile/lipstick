@@ -78,7 +78,9 @@ static bool isUpstartMode(int argc, char *argv[])
 HomeApplication::HomeApplication(int &argc, char **argv) :
     MApplication(argc, argv),
     homeScreenService(new HomeScreenService),
-    xEventListeners()
+    xEventListeners(),
+    iteratorActiveForEventListenerContainer(false),
+    toBeRemovedEventListeners()
 {
     // Enable prestart mode
     MApplication::setPrestartMode(M::TerminateOnClose);
@@ -112,14 +114,18 @@ HomeApplication::~HomeApplication()
 
 void HomeApplication::addXEventListener(XEventListener *listener)
 {
-    if (listener != NULL) {
-        xEventListeners.insert(listener);
+    if (listener != NULL && !xEventListeners.contains(listener)) {
+        xEventListeners.append(listener);
     }
 }
 
 void HomeApplication::removeXEventListener(XEventListener *listener)
 {
-    xEventListeners.remove(listener);
+    if (iteratorActiveForEventListenerContainer) {
+        toBeRemovedEventListeners.append(listener);
+    } else {
+        xEventListeners.removeOne(listener);
+    }
 }
 
 void HomeApplication::sendStartupNotifications()
@@ -139,11 +145,21 @@ void HomeApplication::sendStartupNotifications()
 bool HomeApplication::x11EventFilter(XEvent *event)
 {
     bool eventHandled = false;
+    iteratorActiveForEventListenerContainer = true;
     foreach (XEventListener* listener, xEventListeners) {
-        if (listener->handleXEvent(*event)) {
-            eventHandled = true;
+        if (!toBeRemovedEventListeners.contains(listener)) {
+            if (listener->handleXEvent(*event)) {
+                eventHandled = true;
+            }
         }
     }
+    iteratorActiveForEventListenerContainer = false;
+
+    // Remove now any event listeners that got removed while going through the event listeners
+    foreach (XEventListener* listener, toBeRemovedEventListeners) {
+        xEventListeners.removeOne(listener);
+    }
+    toBeRemovedEventListeners.clear();
 
     if (!eventHandled) {
         eventHandled = MApplication::x11EventFilter(event);
