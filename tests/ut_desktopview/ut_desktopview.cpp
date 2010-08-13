@@ -34,7 +34,6 @@
 #include "quicklaunchbar_stub.h"
 #include "launcher_stub.h"
 #include "launcherdatastore_stub.h"
-#include "homeapplication_stub.h"
 #include "mainwindow_stub.h"
 #include "mwindow_stub.h"
 #include "mscenemanager_stub.h"
@@ -299,9 +298,8 @@ void Ut_DesktopView::initTestCase()
     // MApplications must be created manually these days due to theme system changes
     static int argc = 1;
     static char *app_name = (char *)"./ut_desktopview";
-    app = new HomeApplication(argc, &app_name);
+    app = new MApplication(argc, &app_name);
     mainWindow = MainWindow::instance(true);
-    gHomeApplicationStub->stubSetReturnValue("mainWindow", mainWindow);
 
     backgroundImage = new QPixmap(50, 50);
     backgroundTopImage = new QPixmap(25, 25);

@@ -27,6 +27,7 @@ SUBDIRS = \
     ut_windowinfo \
     ut_pagepositionindicatorview \
     ut_applicationpackagemonitor \
+    ut_xeventlistener \
     ut_test
 
 QMAKE_STRIP = echo

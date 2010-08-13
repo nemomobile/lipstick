@@ -17,36 +17,21 @@
 **
 ****************************************************************************/
 
-#ifndef XEVENTLISTENER_H_
-#define XEVENTLISTENER_H_
+#include "homeapplication.h"
+#include "xeventlistener.h"
 
-#include <X11/Xlib.h>
-
-/*!
- * An interface for listening to X events.
- * Objects of this class receive X events throughout their lifecycle as the events
- * arrive.
- */
-class XEventListener
+XEventListener::XEventListener()
 {
-public:
-    /*!
-     * Constructs a new listener and starts receiving X events.
-     */
-    XEventListener();
+    HomeApplication *app = dynamic_cast<HomeApplication*>(qApp);
+    if (app) {
+        app->addXEventListener(this);
+    }
+}
 
-    /*!
-     * Destructor.
-     */
-    virtual ~XEventListener();
-
-    /*!
-     * A handler method for X events.
-     * Return \c true if the event got handled and \c false if not.
-     * \param event the X event
-     * \return \c true if the event got handled
-     */
-    virtual bool handleXEvent(XEvent &event) = 0;
-};
-
-#endif /* X11EVENTLISTENER_H_ */
+XEventListener::~XEventListener()
+{
+    HomeApplication *app = dynamic_cast<HomeApplication*>(qApp);
+    if (app) {
+        app->removeXEventListener(this);
+    }
+}

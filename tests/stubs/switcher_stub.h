@@ -22,6 +22,7 @@
 #include <stubbase.h>
 #include <switcher.h>
 #include <windowinfo.h>
+#include "xeventlistener_stub.h"
 
 class SwitcherStub : public StubBase
 {

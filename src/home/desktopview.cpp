@@ -36,7 +36,6 @@
 #include "mdesktopbackgroundextensioninterface.h"
 #include "mfiledatastore.h"
 #include "applicationpackagemonitor.h"
-#include "homeapplication.h"
 
 #include <MViewCreator>
 #include <MDeviceProfile>
@@ -116,12 +115,6 @@ DesktopView::DesktopView(Desktop *desktop) :
     quickLaunchBarWindow(new MOverlay),
     backgroundExtensionArea(new MApplicationExtensionArea("com.meego.core.MDesktopBackgroundExtensionInterface/1.0"))
 {
-    // TODO this registration seems odd here. Try to find a better place for it
-    HomeApplication *app = dynamic_cast<HomeApplication*>(qApp);
-    if (app) {
-        app->addXEventListener(switcher);
-    }
-
     // Add the switcher into a scene window
     switcher->setObjectName("OverviewSwitcher");
     QGraphicsLinearLayout *windowLayout = new QGraphicsLinearLayout();
@@ -181,11 +174,6 @@ DesktopView::DesktopView(Desktop *desktop) :
 
 DesktopView::~DesktopView()
 {
-    HomeApplication *app = dynamic_cast<HomeApplication*>(qApp);
-    if (app) {
-        app->removeXEventListener(switcher);
-    }
-
     delete switcherWindow;
     delete launcherWindow;
     delete quickLaunchBarWindow;

@@ -17,36 +17,37 @@
 **
 ****************************************************************************/
 
-#ifndef XEVENTLISTENER_H_
-#define XEVENTLISTENER_H_
+#ifndef UT_XEVENTLISTENER_H
+#define UT_XEVENTLISTENER_H
 
-#include <X11/Xlib.h>
+#include <QObject>
 
-/*!
- * An interface for listening to X events.
- * Objects of this class receive X events throughout their lifecycle as the events
- * arrive.
- */
-class XEventListener
+class HomeApplication;
+class XEventListener;
+
+class Ut_XEventListener : public QObject
 {
-public:
-    /*!
-     * Constructs a new listener and starts receiving X events.
-     */
-    XEventListener();
+    Q_OBJECT
 
-    /*!
-     * Destructor.
-     */
-    virtual ~XEventListener();
+private slots:
+    // Called before the first testfunction is executed
+    void initTestCase();
+    // Called after the last testfunction was executed
+    void cleanupTestCase();
+    // Called before each testfunction is executed
+    void init();
+    // Called after every testfunction
+    void cleanup();
 
-    /*!
-     * A handler method for X events.
-     * Return \c true if the event got handled and \c false if not.
-     * \param event the X event
-     * \return \c true if the event got handled
-     */
-    virtual bool handleXEvent(XEvent &event) = 0;
+    // Test cases
+    void testListenerAutoRegistersWhenConstructed();
+    void testListenerUnregistersWhenDestructed();
+
+private:
+    HomeApplication *app;
+
+    // The object being tested
+    XEventListener *m_subject;
 };
 
-#endif /* X11EVENTLISTENER_H_ */
+#endif

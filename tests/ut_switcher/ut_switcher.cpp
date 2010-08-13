@@ -25,6 +25,7 @@
 #include "mscenemanager_stub.h"
 #include "mwindow_stub.h"
 #include "homewindowmonitor_stub.h"
+#include "xeventlistener_stub.h"
 #include <MApplication>
 #include "x11wrapper.h"
 

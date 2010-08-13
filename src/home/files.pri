@@ -77,7 +77,8 @@ SOURCES += homeapplication.cpp \
     homescreenservice.cpp \
     homescreenadaptor.cpp \
     homewindowmonitor.cpp \
-    applicationpackagemonitor.cpp
+    applicationpackagemonitor.cpp \
+    xeventlistener.cpp
 MODEL_HEADERS += desktopmodel.h \
     launcherbuttonmodel.h \
     launchermodel.h \

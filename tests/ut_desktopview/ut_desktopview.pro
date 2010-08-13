@@ -32,7 +32,6 @@ HEADERS += \
     $$SRCDIR/desktop.h \
     $$SRCDIR/desktopmodel.h \
     $$SRCDIR/desktopstyle.h \
-    $$SRCDIR/homeapplication.h \
     $$SRCDIR/mainwindow.h \
     $$SRCDIR/switcher.h \
     $$SRCDIR/quicklaunchbar.h \
