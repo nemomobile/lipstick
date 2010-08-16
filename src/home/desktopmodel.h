@@ -27,9 +27,6 @@ class DesktopModel : public MWidgetModel
 {
     Q_OBJECT
     M_MODEL(DesktopModel)
-
-    //! Set to true when the notification area is open, the desktop will then draw the background underneath the notification area
-    M_MODEL_PROPERTY(bool, notificationAreaOpen, NotificationAreaOpen, true, false)
 };
 
 #endif /* DESKTOPMODEL_H_ */
