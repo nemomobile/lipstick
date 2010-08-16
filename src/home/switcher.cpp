@@ -16,6 +16,7 @@
 ** of this file.
 **
 ****************************************************************************/
+
 #include <QX11Info>
 #include <QEvent>
 #include "switcher.h"
@@ -77,6 +78,8 @@ Switcher::Switcher(const WindowMonitor *windowMonitor, MWidget *parent) : MWidge
 Switcher::~Switcher()
 {
     delete windowMonitor;
+
+    qDeleteAll(windowInfoMap);
 
     switcher = NULL;
 }
@@ -305,7 +308,7 @@ void Switcher::updateWindowInfoMap()
                 updateButtons();
             }
         } else if (!windowMonitor->isOwnWindow(topmostWindow)) {
-            // The view might also need to react (== pan to the correct page) if no buttons were added 
+            // The view might also need to react (== pan to the correct page) if no buttons were added
             // but the stacking order was changed, i.e. due to app chaining or some other activity
 
             model()->setTopmostWindow(topmostWindow);

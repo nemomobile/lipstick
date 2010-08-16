@@ -663,7 +663,7 @@ void Ut_Switcher::testWindowStackingOrder()
 
     QCOMPARE(r.stackingCount, 1);
     QCOMPARE(r.stackingWindowList.count(), VALID_WINDOWS);
-    
+
     WindowInfo first = r.stackingWindowList.first();
     WindowInfo last = r.stackingWindowList.last();
 

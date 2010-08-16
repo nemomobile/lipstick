@@ -22,17 +22,21 @@
 #include "windowinfo.h"
 #include <stubbase.h>
 
-Atom WindowInfo::TypeAtom;
-Atom WindowInfo::StateAtom;
-Atom WindowInfo::NormalAtom;
-Atom WindowInfo::DesktopAtom;
-Atom WindowInfo::NotificationAtom;
-Atom WindowInfo::DialogAtom;
-Atom WindowInfo::CallAtom;
-Atom WindowInfo::DockAtom;
-Atom WindowInfo::MenuAtom;
-Atom WindowInfo::SkipTaskbarAtom;
-Atom WindowInfo::NameAtom;
+Atom WindowInfo::TypeAtom = 1;
+Atom WindowInfo::StateAtom = 2;
+Atom WindowInfo::NormalAtom = 3;
+Atom WindowInfo::DesktopAtom = 4;
+Atom WindowInfo::NotificationAtom = 5;
+Atom WindowInfo::DialogAtom = 6;
+Atom WindowInfo::CallAtom = 7;
+Atom WindowInfo::DockAtom = 8;
+Atom WindowInfo::MenuAtom = 9;
+Atom WindowInfo::SkipTaskbarAtom = 10;
+Atom WindowInfo::NameAtom = 11;
+
+class WindowData : public QSharedData
+{
+};
 
 // 1. DECLARE STUB
 // FIXME - stubgen is not yet finished
@@ -40,13 +44,14 @@ class WindowInfoStub : public StubBase
 {
 public:
     virtual void WindowInfoConstructor(Window window);
-    virtual void WindowInfoConstructor();
+    virtual void WindowInfoConstructor(const WindowInfo &other);
     virtual void WindowInfoDestructor();
     virtual void initializeAtoms();
     virtual const QString &title() const;
     virtual QList<Atom> types() const;
     virtual QList<Atom> states() const;
     virtual Window window() const;
+    virtual Window transientFor() const;
     virtual bool updateWindowTitle();
     virtual void updateWindowProperties();
 };
@@ -57,8 +62,9 @@ void WindowInfoStub::WindowInfoConstructor(Window window)
     Q_UNUSED(window);
 }
 
-void WindowInfoStub::WindowInfoConstructor()
+void WindowInfoStub::WindowInfoConstructor(const WindowInfo &other)
 {
+    Q_UNUSED(other);
 }
 
 void WindowInfoStub::WindowInfoDestructor()
@@ -81,6 +87,12 @@ Window WindowInfoStub::window() const
 {
     stubMethodEntered("window");
     return stubReturnValue<Window>("window");
+}
+
+Window WindowInfoStub::transientFor() const
+{
+    stubMethodEntered("transientFor");
+    return stubReturnValue<Window>("transientFor");
 }
 
 QList<Atom> WindowInfoStub::types() const
@@ -117,9 +129,9 @@ WindowInfo::WindowInfo(Window window)
     gWindowInfoStub->WindowInfoConstructor(window);
 }
 
-WindowInfo::WindowInfo()
+WindowInfo::WindowInfo(const WindowInfo &other)
 {
-    gWindowInfoStub->WindowInfoConstructor();
+    gWindowInfoStub->WindowInfoConstructor(other);
 }
 
 WindowInfo::~WindowInfo()
@@ -150,6 +162,11 @@ QList<Atom> WindowInfo::types() const
 QList<Atom> WindowInfo::states() const
 {
     return gWindowInfoStub->states();
+}
+
+Window WindowInfo::transientFor() const
+{
+    return gWindowInfoStub->transientFor();
 }
 
 bool WindowInfo::updateWindowTitle()
