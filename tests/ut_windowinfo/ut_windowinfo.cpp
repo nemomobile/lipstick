@@ -90,8 +90,11 @@ Status X11Wrapper::XGetWMName(Display *, Window, XTextProperty *textProperty)
     return 1;
 }
 
+int gXGetTextPropertyCallCount = 0;
 Status X11Wrapper::XGetTextProperty(Display *, Window , XTextProperty *text_prop_return, Atom atom)
 {
+    ++gXGetTextPropertyCallCount;
+
     if (!textValueFromGetTextProperty || atom != ATOM_TYPE_TEXT_PROPERTY) {
         return 0;
     }
@@ -156,22 +159,23 @@ Status X11Wrapper::XGetTransientForHint(Display *, Window, Window *prop_return)
 
 void Ut_WindowInfo::initTestCase()
 {
-    WindowInfo::initializeAtoms();
-    windowInfo = new WindowInfo(1);
 }
 
 void Ut_WindowInfo::cleanupTestCase()
 {
-    delete windowInfo;
 }
 
 void Ut_WindowInfo::init()
 {
     x11WrapperTransientForHint = 0;
+    WindowInfo::initializeAtoms();
+    windowInfo = new WindowInfo(1);
+    gXGetTextPropertyCallCount = 0;
 }
 
 void Ut_WindowInfo::cleanup()
 {
+    delete windowInfo;
 }
 
 void Ut_WindowInfo::testGetters()
@@ -191,6 +195,12 @@ void Ut_WindowInfo::testGetters()
     x11WrapperTransientForHint = 5;
     windowInfo->updateWindowProperties();
     QCOMPARE(windowInfo->transientFor(), x11WrapperTransientForHint);
+}
+
+void Ut_WindowInfo::testCreatingAnotherWindowInfoWithSameWindowIdDoesNotQueryX()
+{
+    WindowInfo anotherWindowInfo(windowInfo->window());
+    QCOMPARE(gXGetTextPropertyCallCount, 0);
 }
 
 QTEST_MAIN(Ut_WindowInfo)

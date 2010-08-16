@@ -40,6 +40,7 @@ private slots:
     void cleanup();
     // Test getters
     void testGetters();
+    void testCreatingAnotherWindowInfoWithSameWindowIdDoesNotQueryX();
 
 private:
     WindowInfo* windowInfo;

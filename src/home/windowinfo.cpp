@@ -16,10 +16,49 @@
 ** of this file.
 **
 ****************************************************************************/
-#include <cstring>
+
+#include <QHash>
 #include "windowinfo.h"
 #include "x11wrapper.h"
 #include <QX11Info>
+
+
+/*!
+  The window data is explicitly shared between window info objects through this class
+ */
+class WindowData : public QSharedData
+{
+
+public:
+    //! Constructs a window data object
+    WindowData(Window id) :
+            window(id)
+    {
+    }
+
+    //! Copy constructor
+    WindowData(const WindowData& source) : QSharedData(source),
+            window(source.window), transientFor(source.transientFor),
+            types(source.types), states(source.states) {}
+
+    //! Destructor
+    ~WindowData() {}
+
+    //! The X window ID
+    Window window;
+
+    //! The ID of the window this window is transient for
+    Window transientFor;
+
+    //! The title of the window
+    QString title;
+
+    //! The window types associated with this window
+    QList<Atom> types;
+
+    //! The status atoms of this window
+    QList<Atom> states;
+};
 
 
 static bool atomsInitialized;
@@ -55,21 +94,41 @@ void WindowInfo::initializeAtoms()
     }
 }
 
+QHash<Window, QExplicitlySharedDataPointer<WindowData> > WindowInfo::windowDatas;
+
 WindowInfo::WindowInfo(Window window)
 {
-    d = new WindowData;
-    d->window = window;
-    updateWindowTitle();
-    updateWindowProperties();
+    if (QExplicitlySharedDataPointer<WindowData> data = windowDatas.value(window)) {
+        d = data;
+    } else {
+        d = new WindowData(window);
+        updateWindowTitle();
+        updateWindowProperties();
+        windowDatas[window] = d;
+    }
 }
 
-WindowInfo::WindowInfo()
+WindowInfo::WindowInfo(const WindowInfo &other) :
+        d(other.d)
 {
-    d = new WindowData;
 }
 
 WindowInfo::~WindowInfo()
 {
+    // If the data object's reference count is two, it means that the only alive
+    // references are in this object and the global container. That means that this
+    // object is the last WindowInfo object containing a reference to the data object.
+    // We don't want to leave a dangling data object to the global container so we'll
+    // remove the data object here.
+    if (d->ref == 2) {
+        windowDatas.remove(d->window);
+    }
+}
+
+WindowInfo& WindowInfo::operator=(const WindowInfo &rhs)
+{
+    d = rhs.d;
+    return *this;
 }
 
 const QString& WindowInfo::title() const
