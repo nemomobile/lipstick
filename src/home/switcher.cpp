@@ -43,8 +43,8 @@ Switcher::Switcher(const WindowMonitor *windowMonitor, MWidget *parent) : MWidge
 {
     switcher = this;
 
-    if (windowMonitor == NULL) {
-        windowMonitor = new HomeWindowMonitor;
+    if (this->windowMonitor == NULL) {
+        this->windowMonitor = new HomeWindowMonitor;
     }
 
     // Get the X11 Atoms for closing and activating a window and for other switcher functionalities
