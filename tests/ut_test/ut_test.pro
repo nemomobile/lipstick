@@ -8,7 +8,6 @@ DEFINES += APPLICATIONS_DIRECTORY=\'$$quote(\"/usr/share/applications/\")\'
 DEFINES += NOTIFICATIONS_EVENT_TYPES=\'$$quote(\"$$M_NOTIFICATIONS_EVENT_TYPES_DIR\")\'
 
 INCLUDEPATH += $$SRCDIR/notifications
-HOME_SRC_DIR = $$SRCDIR
 
 include($$SRCDIR/files.pri)
 

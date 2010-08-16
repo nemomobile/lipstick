@@ -65,7 +65,7 @@ public:
 class TestSwitcherButton : public SwitcherButton
 {
 public:
-    TestSwitcherButton(const QString &title, MWidget *parent = NULL, Window window = 0);
+    TestSwitcherButton(QGraphicsItem *parent = NULL);
 
     TestSwitcherButtonView *getView();
     void emitDisplayEntered();

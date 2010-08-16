@@ -1,0 +1,14 @@
+#!/bin/sh
+
+FILENAME=localconfig.pri
+
+rm -f ${FILENAME}
+touch ${FILENAME}
+
+VERSION=`head -n 1 debian/changelog | sed -e "s/.*(\(.*\)[-~].*).*/\1/"`
+
+echo VERSION = ${VERSION} > ${FILENAME}
+
+echo Configured duihome as follows:
+echo ==============================
+cat ${FILENAME}

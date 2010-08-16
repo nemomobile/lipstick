@@ -19,7 +19,8 @@
 
 #include "pagepositionindicator.h"
 
-#include "pagepositionindicatorview.h"
+#include <MWidgetCreator>
+M_REGISTER_WIDGET(PagePositionIndicator)
 
 PagePositionIndicator::PagePositionIndicator(QGraphicsItem *parent)
         : MPositionIndicator(parent)

@@ -27,8 +27,10 @@
 // FIXME - stubgen is not yet finished
 class LauncherStub : public StubBase {
   public:
-  virtual void LauncherConstructor(LauncherDataStore *dataStore, ApplicationPackageMonitor *packageMonitor, QGraphicsItem *parent);
+  virtual void LauncherConstructor(QGraphicsItem *parent);
   virtual void LauncherDestructor();
+  virtual void setLauncherDataStore(LauncherDataStore *dataStore);
+  virtual void setApplicationPackageMonitor(ApplicationPackageMonitor *packageMonitor);
   virtual void setDownloadProgress(const QString& packageName, const QString& desktopEntryPath, int bytesLoaded, int bytesTotal);
   virtual void setInstallProgress(const QString& packageName, const QString& desktopEntryPath, int percentage);
   virtual void setOperationSuccess(const QString& packageName, const QString& desktopEntryPath);
@@ -45,14 +47,25 @@ class LauncherStub : public StubBase {
 }; 
 
 // 2. IMPLEMENT STUB
-void LauncherStub::LauncherConstructor(LauncherDataStore *dataStore, ApplicationPackageMonitor *packageMonitor, QGraphicsItem *parent) {
-  Q_UNUSED(dataStore);
-  Q_UNUSED(packageMonitor);
+void LauncherStub::LauncherConstructor(QGraphicsItem *parent) {
   Q_UNUSED(parent);
-
 }
 void LauncherStub::LauncherDestructor() {
 
+}
+
+void LauncherStub::setLauncherDataStore(LauncherDataStore *dataStore)
+{
+    QList<ParameterBase*> params;
+    params.append( new Parameter<LauncherDataStore *>(dataStore));
+    stubMethodEntered("setLauncherDataStore", params);
+}
+
+void LauncherStub::setApplicationPackageMonitor(ApplicationPackageMonitor *packageMonitor)
+{
+    QList<ParameterBase*> params;
+    params.append( new Parameter<ApplicationPackageMonitor *>(packageMonitor));
+    stubMethodEntered("setApplicationPackageMonitor", params);
 }
 
 void LauncherStub::setDownloadProgress(const QString& packageName, const QString& desktopEntryPath, int bytesLoaded, int bytesTotal)
@@ -151,12 +164,22 @@ LauncherStub* gLauncherStub = &gDefaultLauncherStub;
 
 
 // 4. CREATE A PROXY WHICH CALLS THE STUB
-Launcher::Launcher(LauncherDataStore *dataStore, ApplicationPackageMonitor *packageMonitor, QGraphicsItem *parent) {
-  gLauncherStub->LauncherConstructor(dataStore, packageMonitor, parent);
+Launcher::Launcher(QGraphicsItem *parent) {
+  gLauncherStub->LauncherConstructor(parent);
 }
 
 Launcher::~Launcher() {
   gLauncherStub->LauncherDestructor();
+}
+
+void Launcher::setLauncherDataStore(LauncherDataStore *dataStore)
+{
+  gLauncherStub->setLauncherDataStore(dataStore);
+}
+
+void Launcher::setApplicationPackageMonitor(ApplicationPackageMonitor *packageMonitor)
+{
+  gLauncherStub->setApplicationPackageMonitor(packageMonitor);
 }
 
 void Launcher::setDownloadProgress(const QString& packageName, const QString& desktopEntryPath, int bytesLoaded, int bytesTotal)

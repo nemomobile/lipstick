@@ -3,7 +3,6 @@ load(meegotouch_defines)
 # duihome specific directories
 unix {
      MEEGOHOME_DIR = $$M_INSTALL_DATA/duihome
-     MEEGOHOME_THEMES_DIR = /usr/share/themes/base/meegotouch/duihome
 }
 mac {
      # Do mac stuff here

@@ -134,13 +134,10 @@ Qt::GestureState QGesture::state() const
 }
 
 // SwitcherButton stubs
-SwitcherButton::SwitcherButton(const QString &title, MWidget *parent, Window window) :
-    MButton(title, parent)
+SwitcherButton::SwitcherButton(QGraphicsItem *parent) :
+    MButton(parent)
 {
-    Q_UNUSED(title);
     Q_UNUSED(parent);
-
-    g_windowButtonMap[this] = window;
 }
 
 SwitcherButton::~SwitcherButton()
@@ -170,6 +167,11 @@ void SwitcherButton::enterDisplayEvent()
 
 void SwitcherButton::exitDisplayEvent()
 {
+}
+
+void SwitcherButton::setXWindow(Window window)
+{
+    g_windowButtonMap[this] = window;
 }
 
 Window SwitcherButton::xWindow()
@@ -274,7 +276,9 @@ void Ut_SwitcherView::appendMoreButtonsToList(int newButtons, QList< QSharedPoin
 {
     int newCount = buttonList.count() + newButtons;
     for(int i = buttonList.count(); i < newCount; i++) {
-        QSharedPointer<SwitcherButton> button(new SwitcherButton(QString("Title %1").arg(i), NULL, i));
+        QSharedPointer<SwitcherButton> button(new SwitcherButton);
+        button->setText(QString("Title %1").arg(i));
+        button->setXWindow(i);
         button.data()->setModel(new SwitcherButtonModel());
         buttonList.append(button);
     }
@@ -533,7 +537,9 @@ void Ut_SwitcherView::testPanningStoppedInOverView()
  */
 void Ut_SwitcherView::testDetailToOverviewModeChange()
 {
-    SwitcherButton item1("button", NULL,1);
+    SwitcherButton item1;
+    item1.setText("button");
+    item1.setXWindow(1);
     items_.append(&item1);
     g_switcherModel->setSwitcherMode(SwitcherModel::Detailview);
     g_switcherModel->setButtons(createButtonList(4));
@@ -561,7 +567,9 @@ void Ut_SwitcherView::testDetailToOverviewModeChange()
 
 void Ut_SwitcherView::testOverviewToDetailModeChange()
 {
-    SwitcherButton item1("button", NULL,1);
+    SwitcherButton item1;
+    item1.setText("button");
+    item1.setXWindow(1);
     items_.append(&item1);
     g_switcherModel->setSwitcherMode(SwitcherModel::Overview);
 
@@ -585,7 +593,9 @@ void Ut_SwitcherView::testOverviewToDetailModeChange()
 
 void Ut_SwitcherView::testModeChangeCancel()
 {
-    SwitcherButton item1("button", NULL,1);
+    SwitcherButton item1;
+    item1.setText("button");
+    item1.setXWindow(1);
     items_.append(&item1);
     // Overview->Detailview gesture cancellation
    g_switcherModel->setSwitcherMode(SwitcherModel::Overview);

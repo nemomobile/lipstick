@@ -1,5 +1,3 @@
-VERSION = 0.1.0
-
 QMAKE_STRIP = echo
 OBJECTS_DIR = .obj
 MOC_DIR = .moc

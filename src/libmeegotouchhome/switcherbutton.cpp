@@ -25,10 +25,13 @@
 #include "x11wrapper.h"
 #include <QX11Info>
 
+#include <MWidgetCreator>
+M_REGISTER_WIDGET(SwitcherButton)
+
 Atom SwitcherButton::visibleAtom = 0;
 
-SwitcherButton::SwitcherButton(const QString &title, MWidget *parent, Window window) :
-    MButton(title, parent, new SwitcherButtonModel)
+SwitcherButton::SwitcherButton(QGraphicsItem *parent) :
+    MButton(parent, new SwitcherButtonModel)
 {
     // Configure timers
     windowCloseTimer.setSingleShot(true);
@@ -38,9 +41,6 @@ SwitcherButton::SwitcherButton(const QString &title, MWidget *parent, Window win
         // Get the icon geometry X11 Atom if it doesn't exist yet
         visibleAtom = X11Wrapper::XInternAtom(QX11Info::display(), "_MEEGOTOUCH_VISIBLE_IN_SWITCHER", False);
     }
-
-    // Update the window title and pixmap
-    model()->setXWindow(window);
 
     connect(this, SIGNAL(clicked()), this, SLOT(switchToWindow()));
 }

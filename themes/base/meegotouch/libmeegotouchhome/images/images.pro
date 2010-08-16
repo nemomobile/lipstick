@@ -1,12 +1,10 @@
-include(../../mconfig.pri)
+include(../paths.pri)
 
 TEMPLATE = subdirs
+INSTALLS += images
 
-INSTALLS += \
-    svg
-
-svg.files =*.svg
-svg.path = $$MEEGOHOME_THEMES_DIR/svg
+images.files = *.png
+images.path = $$THEME_DIR/images
 
 QMAKE_EXTRA_TARGETS += check
 check.commands = $$system(true)

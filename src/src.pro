@@ -2,6 +2,6 @@ CONFIG += ordered
 TEMPLATE = subdirs
 SUBDIRS = \
     libmeegotouchhome \
+    libmeegotouchhome/translations \
     home \
-    home/translations \
     extensions \

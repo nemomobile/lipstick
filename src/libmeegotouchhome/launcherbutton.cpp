@@ -25,6 +25,9 @@
 #include <QDateTime>
 #include <QFileInfo>
 
+#include <MWidgetCreator>
+M_REGISTER_WIDGET(LauncherButton)
+
 LauncherButton::LauncherButton(MWidget *parent) : MButton(parent, new LauncherButtonModel)
 {
     init();

@@ -69,7 +69,9 @@ void Ut_Launcher::init()
     launcherDataStore = new LauncherDataStore(new MockDataStore);
     packageMonitor = new ApplicationPackageMonitor();
     // Create a launcher and connect the signals
-    launcher = new Launcher(launcherDataStore, packageMonitor);
+    launcher = new Launcher;
+    launcher->setLauncherDataStore(launcherDataStore);
+    launcher->setApplicationPackageMonitor(packageMonitor);
     connect(this, SIGNAL(directoryChanged(const QString)), launcher, SLOT(updatePagesFromDataStore()));
 
     qProcessProgramStarted.clear();

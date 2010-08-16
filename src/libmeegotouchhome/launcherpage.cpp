@@ -24,6 +24,9 @@
 #include <MDesktopEntry>
 #include <QFileInfo>
 
+#include <MWidgetCreator>
+M_REGISTER_WIDGET(LauncherPage)
+
 LauncherPage::LauncherPage(MWidget *parent) : MWidgetController(new LauncherPageModel, parent)
 {
 }

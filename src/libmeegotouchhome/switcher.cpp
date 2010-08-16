@@ -26,6 +26,9 @@
 #include "homewindowmonitor.h"
 #include "x11wrapper.h"
 
+#include <MWidgetCreator>
+M_REGISTER_WIDGET(Switcher)
+
 // The time to wait until updating the model when a new application is started
 #define UPDATE_DELAY_MS 700
 
@@ -299,7 +302,6 @@ void Switcher::updateWindowInfoMap()
             }
         }
 
-        topmostWindow = stackingWindowList.last().window();
         if (added || removed) {
             if (!removed) {
                 // If windows have been added but not removed, update the switcher with a delay
@@ -308,11 +310,13 @@ void Switcher::updateWindowInfoMap()
                 // If windows have been removed update the switcher instantly
                 updateButtons();
             }
-        } else if (!windowMonitor->isOwnWindow(topmostWindow)) {
-            // The view might also need to react (== pan to the correct page) if no buttons were added
-            // but the stacking order was changed, i.e. due to app chaining or some other activity
-
-            model()->setTopmostWindow(topmostWindow);
+        } else if (!stackingWindowList.isEmpty()){
+            topmostWindow = stackingWindowList.last().window();
+            if (!windowMonitor->isOwnWindow(topmostWindow)) {
+                // The view might also need to react (== pan to the correct page) if no buttons were added
+                // but the stacking order was changed, i.e. due to app chaining or some other activity
+                model()->setTopmostWindow(topmostWindow);
+            }
         }
 
         emit windowStackingOrderChanged(stackingWindowList);
@@ -400,7 +404,9 @@ void Switcher::updateButtons()
                 validOldButtons.append(button);
                 newSwitcherButtonMap.insert(windowInfo.window(), button);
             } else {
-                QSharedPointer<SwitcherButton> button(new SwitcherButton(topmostWindowInfo->title(), NULL, topmostWindowInfo->window()));
+                QSharedPointer<SwitcherButton> button(new SwitcherButton);
+                button->setText(topmostWindowInfo->title());
+                button->setXWindow(topmostWindowInfo->window());
                 connect(button.data(), SIGNAL(windowToFront(Window)), this, SLOT(windowToFront(Window)));
                 connect(button.data(), SIGNAL(closeWindow(Window)), this, SLOT(closeWindow(Window)));
 

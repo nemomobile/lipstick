@@ -2,6 +2,8 @@
 # Main projectfile
 # ####################################################################
 
+system(./configure)
+
 include(mconfig.pri)
 
 CONFIG += ordered

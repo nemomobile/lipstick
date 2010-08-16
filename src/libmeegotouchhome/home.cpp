@@ -23,6 +23,9 @@
 #include <mstatusbar.h>
 #include <QGraphicsLinearLayout>
 
+#include <MWidgetCreator>
+M_REGISTER_WIDGET(Home)
+
 Home::Home(QGraphicsItem *parent) :
     MSceneWindow(parent),
     statusBar(new MStatusBar),

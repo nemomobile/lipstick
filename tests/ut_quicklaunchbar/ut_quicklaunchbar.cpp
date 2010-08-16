@@ -39,7 +39,8 @@ void Ut_QuickLaunchBar::init()
 {
     launcherDataStore = new LauncherDataStore(new MockDataStore);
 
-    m_subject = new QuickLaunchBar(launcherDataStore);
+    m_subject = new QuickLaunchBar;
+    m_subject->setLauncherDataStore(launcherDataStore);
     connect(this, SIGNAL(updateWidgetList()), m_subject, SLOT(updateWidgetList()));
     connect(this, SIGNAL(launcherDataStoreChanged()), launcherDataStore, SIGNAL(dataStoreChanged()));
 }

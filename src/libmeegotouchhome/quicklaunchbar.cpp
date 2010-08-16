@@ -22,13 +22,16 @@
 #include "launcherbutton.h"
 #include <MDesktopEntry>
 
+#include <MWidgetCreator>
+M_REGISTER_WIDGET(QuickLaunchBar)
+
 const int QuickLaunchBar::NUMBER_OF_LAUNCHER_BUTTONS = 4;
 const QString QuickLaunchBar::LOCATION_IDENTIFIER = "quicklaunchbar";
 const char QuickLaunchBar::SECTION_SEPARATOR = '/';
 
-QuickLaunchBar::QuickLaunchBar(LauncherDataStore *configuration, QGraphicsItem *parent) :
+QuickLaunchBar::QuickLaunchBar(QGraphicsItem *parent) :
         MWidgetController(new QuickLaunchBarModel, parent),
-        dataStore(configuration)
+        dataStore(NULL)
 {
     // Fill in the model with empty widgets
     QList<MWidget *> widgets;
@@ -36,17 +39,27 @@ QuickLaunchBar::QuickLaunchBar(LauncherDataStore *configuration, QGraphicsItem *
         widgets.append(new MWidget);
     }
     model()->setWidgets(widgets);
-
-    // Listen to changes in data store contents
-    connect(dataStore, SIGNAL(dataStoreChanged()), this, SLOT(updateWidgetList()));
 }
 
 QuickLaunchBar::~QuickLaunchBar()
 {
 }
 
+void QuickLaunchBar::setLauncherDataStore(LauncherDataStore *dataStore)
+{
+    if (this->dataStore != NULL) {
+        disconnect(dataStore, SIGNAL(dataStoreChanged()), this, SLOT(updateWidgetList()));
+    }
+    this->dataStore = dataStore;
+    connect(dataStore, SIGNAL(dataStoreChanged()), this, SLOT(updateWidgetList()));
+}
+
 void QuickLaunchBar::updateWidgetList()
 {
+    if (dataStore == NULL) {
+        return;
+    }
+
     // Temporarily disable the listening of the change signals from the configuration to prevent a recursive call to this method
     dataStore->disconnect(this);
 

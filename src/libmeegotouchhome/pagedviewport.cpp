@@ -22,7 +22,9 @@
 #include "pagedviewportstyle.h"
 #include "mpositionindicator.h"
 #include "pagepositionindicator.h"
-#include "pagedviewportview.h"
+
+#include <MWidgetCreator>
+M_REGISTER_WIDGET(PagedViewport)
 
 PagedViewport::PagedViewport(QGraphicsItem *parent) : MPannableViewport(parent), pages_(0)
 {

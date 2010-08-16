@@ -1,5 +1,14 @@
+include(paths.pri)
+
 TEMPLATE = subdirs
-SUBDIRS = base
+SUBDIRS = \
+    ./images \
+    ./style \
+    ./svg
+
+INSTALLS += conf
+conf.files = *.conf
+conf.path = $$THEME_DIR
 
 QMAKE_EXTRA_TARGETS += check
 check.commands = $$system(true)

@@ -1,5 +1,10 @@
+include(../paths.pri)
+
 TEMPLATE = subdirs
-SUBDIRS = base
+INSTALLS += style
+
+style.files = *.css
+style.path = $$THEME_DIR/style
 
 QMAKE_EXTRA_TARGETS += check
 check.commands = $$system(true)

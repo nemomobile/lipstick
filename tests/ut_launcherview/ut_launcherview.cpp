@@ -111,7 +111,9 @@ void Ut_LauncherView::cleanupTestCase()
 void Ut_LauncherView::init()
 {
     launcherDataStore = new LauncherDataStore(new MockDataStore);
-    controller = new Launcher(launcherDataStore, new ApplicationPackageMonitor());
+    controller = new Launcher;
+    controller->setLauncherDataStore(launcherDataStore);
+    controller->setApplicationPackageMonitor(new ApplicationPackageMonitor);
     view = new LauncherView(controller);
     controller->setView(view);
     showWindowCount = 0;

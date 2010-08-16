@@ -20,6 +20,9 @@
 #include "desktop.h"
 #include "desktopmodel.h"
 
+#include <MWidgetCreator>
+M_REGISTER_WIDGET(Desktop)
+
 Desktop::Desktop(MWidget *parent) : MWidgetController(new DesktopModel, parent)
 {
 }

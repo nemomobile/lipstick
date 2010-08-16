@@ -1,5 +1,10 @@
+include(../paths.pri)
+
 TEMPLATE = subdirs
-SUBDIRS = base
+INSTALLS += svg
+
+svg.files = *.svg
+svg.path = $$THEME_DIR/svg
 
 QMAKE_EXTRA_TARGETS += check
 check.commands = $$system(true)

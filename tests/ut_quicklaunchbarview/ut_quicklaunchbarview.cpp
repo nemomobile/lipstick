@@ -43,7 +43,8 @@ void Ut_QuickLaunchBarView::cleanupTestCase()
 void Ut_QuickLaunchBarView::init()
 {
     launcherDataStore = new LauncherDataStore(new MockDataStore);
-    controller = new QuickLaunchBar(launcherDataStore);
+    controller = new QuickLaunchBar;
+    controller->setLauncherDataStore(launcherDataStore);
     m_subject = new QuickLaunchBarView(controller);
     connect(this, SIGNAL(updateData(const QList<const char *>&)), m_subject, SLOT(updateData(const QList<const char *>&)));
 }

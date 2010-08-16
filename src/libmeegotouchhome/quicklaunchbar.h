@@ -44,16 +44,25 @@ public:
     };
 
     /*!
-     * Constructs a new QuickLaunchBar.
-     * \param configuration an object that is used for configuration.
+     * Constructs a new QuickLaunchBar. The QuickLaunchBar will not
+     * store/restore launcher button positions and entries before a
+     * LauncherDataStore has been set using setLauncherDataStore().
+     *
      * \param parent the parent object for this object if any.
      */
-    explicit QuickLaunchBar(LauncherDataStore* configuration, QGraphicsItem *parent = NULL);
+    explicit QuickLaunchBar(QGraphicsItem *parent = NULL);
 
     /*!
      * Destroys the QuickLaunchBar.
      */
     ~QuickLaunchBar();
+
+    /*!
+     * Takes a LauncherDataStore into use.
+     *
+     * \param dataStore LauncherDataStore for storing launcher button positions and entries
+     */
+    void setLauncherDataStore(LauncherDataStore *dataStore);
 
 signals:
     /*!

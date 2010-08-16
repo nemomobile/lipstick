@@ -1,5 +1,5 @@
 MOC_DIR = .moc
-DUIGEN_OUTDIR = .gen
+M_MGEN_OUTDIR = .gen
 OBJECTS_DIR = .obj
 
 TEMPLATE = lib

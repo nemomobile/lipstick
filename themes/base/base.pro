@@ -1,5 +1,5 @@
 TEMPLATE = subdirs
-SUBDIRS = base
+SUBDIRS = meegotouch
 
 QMAKE_EXTRA_TARGETS += check
 check.commands = $$system(true)

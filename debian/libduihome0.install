@@ -1,1 +1,5 @@
 usr/lib/libmeegotouchhome.so*
+usr/share/themes/base/meegotouch/libmeegotouchhome/*.conf
+usr/share/themes/base/meegotouch/libmeegotouchhome/images/*.png
+usr/share/themes/base/meegotouch/libmeegotouchhome/style/*.css
+usr/share/themes/base/meegotouch/libmeegotouchhome/svg/*.svg

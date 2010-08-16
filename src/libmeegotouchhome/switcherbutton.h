@@ -38,11 +38,9 @@ public:
     /*!
      * Constructs an SwitcherButton.
      *
-     * \param title the Title of the window represented by this button
      * \param parent parent MWidget
-     * \param window the X Window represented by this button
      */
-    SwitcherButton(const QString &title, MWidget *parent = NULL, Window window = 0);
+    SwitcherButton(QGraphicsItem *parent = NULL);
 
     /*!
      * Destroys the SwitcherButton.

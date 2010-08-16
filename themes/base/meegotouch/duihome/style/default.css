@@ -1,0 +1,186 @@
+MSceneWindowStyle#Home {
+    minimum-size: 100% 100%;
+    preferred-size: 100% 100%;
+    maximum-size: 100% 100%;
+}
+
+MPannableWidgetStyle {
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+MOverlayStyle#QuickLaunchBarOverlay {
+    minimum-size: 100% -1;
+    preferred-size: 100% -1;
+    maximum-size: 100% -1;
+    offset: 0 0;
+    vertical-align: bottom;
+    horizontal-align: left;
+}
+
+MSceneWindowStyle#SwitcherWindow {
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    /* Add top padding so that the launcher does not go under the status area */
+    padding-top: 2.8mm;
+    padding-bottom: 8.8mm; /* 76 + 12 == quick launch bar + ?;*/
+}
+
+MSceneWindowStyle#LauncherWindow {
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+MButtonIconStyle {
+    glow-color: #ffffff;
+    horizontal-text-align: center;
+}
+
+MButtonStyle#ToggleLauncherButton {
+    icon-size: 4.8mm 4.8mm;
+    preferred-size: 7.2mm 7.2mm;
+    maximum-size: 7.2mm 7.2mm;
+    minimum-size: 7.2mm 7.2mm;
+}
+
+PagedViewportStyle#LauncherPagedViewport {
+    background-opacity: 0;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    minimum-size: 100% 100%;
+    maximum-size: 100% 100%;
+}
+
+MAbstractLayoutPolicyStyle#LauncherPageFlowLayoutPolicy {
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+MAbstractLayoutPolicyStyle#LauncherPageFlowLayoutPolicy.Portrait {
+    vertical-spacing: 5.7mm;
+    horizontal-spacing: 0.8mm;
+}
+
+MAbstractLayoutPolicyStyle#LauncherPageFlowLayoutPolicy.Landscape {
+    vertical-spacing: 3.9mm;
+    horizontal-spacing: 0.8mm;
+}
+
+MButtonStyle#LauncherBackButton {
+    icon-size: 4.0mm 4.0mm;
+    preferred-size: 6.4mm 6.4mm;
+    minimum-size: 6.4mm 6.4mm;
+    maximum-size: 6.4mm 6.4mm;
+}
+
+MOverlayStyle#LauncherBackButtonOverlay {
+    minimum-size: 6.4mm 6.4mm;
+    preferred-size: 6.4mm 6.4mm;
+    maximum-size: 6.4mm 6.4mm;
+    offset: 0 0;
+}
+
+MSpinnerStyle#LauncherButtonProgressIndicator {
+    period: 8000;
+    bg-pixmap: meegotouch-progressindicator-spinner-hollow-background;
+    progress-pixmap: meegotouch-progressindicator-spinner-hollow-progress;
+}
+
+MSpinnerStyle#QuickLaunchBarButtonProgressIndicator {
+    period: 8000;
+    bg-pixmap: meegotouch-progressindicator-spinner-hollow-background-small;
+    progress-pixmap: meegotouch-progressindicator-spinner-hollow-progress-small;
+}
+
+MAbstractLayoutPolicyStyle#OverviewPolicy {
+    margin-top: 6.4mm;
+    margin-bottom: 3mm;
+    vertical-spacing: 0.0;
+    horizontal-spacing: 0.0;
+}
+
+MAbstractLayoutPolicyStyle#DetailviewPolicy {
+    margin-top: 6.4mm;
+    margin-bottom: 3mm;
+    vertical-spacing: 0.0;
+    horizontal-spacing: 0.0;
+}
+
+MButtonIconStyle#CloseButtonOverview
+{
+    minimum-size: 4.8mm 4.8mm;
+    preferred-size: 4.8mm 4.8mm;
+    maximum-size: 4.8mm 4.8mm;
+
+    icon-size: 1.8mm 1.8mm;
+
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+MButtonIconStyle#CloseButtonDetailview
+{
+    minimum-size: 4.8mm 4.8mm;
+    preferred-size: 4.8mm 4.8mm;
+    maximum-size: 4.8mm 4.8mm;
+
+    icon-size: $SIZE_ICON_DEFAULT $SIZE_ICON_DEFAULT;
+
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+MLabelStyle#SwitcherButtonTitleLabelDetailview {
+    font: $FONT_DEFAULT;
+    color: #FFFFFF;
+
+    preferred-size: -1 3mm;
+    minimum-size: -1 3mm;
+    maximum-size: -1 3mm;
+
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 0.6mm;
+    margin-right: 0.6mm;
+}
+
+MLabelStyle#SwitcherButtonTitleLabelOverview {
+    font: $FONT_XSMALL;
+    color: #FFFFFF;
+
+    preferred-size: -1 2.3mm;
+    minimum-size: -1 2.3mm;
+    maximum-size: -1 2.3mm;
+
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 0.1mm;
+    /* adjust to overlap the close button horizontal offset */
+    margin-right: -1.3mm;
+}

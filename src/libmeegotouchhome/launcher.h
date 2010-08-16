@@ -68,17 +68,33 @@ public:
     };
 
     /*!
-     * Constructs a Launcher widget.
+     * Constructs a Launcher widget. The Launcher will not store/restore
+     * launcher button positions and entries before a LauncherDataStore
+     * has been set using setLauncherDataStore().
      *
-     * \param dataStore LauncherDataStore for storing launcher button positions and entries
      * \param parent Parent for the widget, defaults to NULL
      */
-    Launcher(LauncherDataStore *dataStore, ApplicationPackageMonitor *packageMonitor, QGraphicsItem *parent = NULL);
+    Launcher(QGraphicsItem *parent = NULL);
 
     /*!
      * Destroys the Launcher.
      */
     virtual ~Launcher();
+
+    /*!
+     * Takes a LauncherDataStore into use.
+     *
+     * \param dataStore LauncherDataStore for storing launcher button positions and entries
+     */
+    void setLauncherDataStore(LauncherDataStore *dataStore);
+
+    /*!
+     * Connects the Launcher to an ApplicationPackageMonitor for monitoring
+     * installation and update progress of application packages.
+     *
+     * \param packageMonitor an application package monitoring class to connect to
+     */
+    void setApplicationPackageMonitor(ApplicationPackageMonitor *packageMonitor);
 
 signals:
     /*!

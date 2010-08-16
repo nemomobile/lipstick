@@ -207,8 +207,8 @@ void MWidgetView::update(const QRectF &)
 }
 
 // Test switcher button implementation
-TestSwitcherButton::TestSwitcherButton(const QString &title, MWidget *parent, Window window) :
-    SwitcherButton(title, parent, window)
+TestSwitcherButton::TestSwitcherButton(QGraphicsItem *parent) :
+    SwitcherButton(parent)
 {
     view = new TestSwitcherButtonView(*this);
     setView(view);
@@ -283,7 +283,8 @@ QPixmap QPixmap::fromX11Pixmap(Qt::HANDLE, ShareMode)
 
 void Ut_SwitcherButtonView::init()
 {
-    button = new TestSwitcherButton("Test");
+    button = new TestSwitcherButton;
+    button->setText("Test");
     m_subject = button->getView();
     connect(this, SIGNAL(windowVisibilityChanged(Window)), m_subject, SLOT(windowVisibilityChanged(Window)));
 

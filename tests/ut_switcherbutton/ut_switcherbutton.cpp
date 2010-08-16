@@ -88,7 +88,8 @@ MainWindow *Ut_SwitcherButton::mainWindow;
 
 void Ut_SwitcherButton::init()
 {
-    button = new SwitcherButton("Test");
+    button = new SwitcherButton;
+    button->setText("Test");
     // TODO This really shouldn't be necessary, but apparently libdui needs something
     // as stupid as this since commit 9aa354a239 to get the updateData signal
     // connected. If libdui gets fixed this can be removed.

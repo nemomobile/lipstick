@@ -108,10 +108,10 @@ DesktopView::DesktopView(Desktop *desktop) :
     switcherWindow(new MSceneWindow),
     switcherHasContent(false),
     launcherDataStore(NULL),
-    launcher(NULL),
+    launcher(new Launcher),
     launcherWindow(new MSceneWindow),
     launcherVisible(false),
-    quickLaunchBar(NULL),
+    quickLaunchBar(new QuickLaunchBar),
     quickLaunchBarWindow(new MOverlay),
     backgroundExtensionArea(new MApplicationExtensionArea("com.meego.core.MDesktopBackgroundExtensionInterface/1.0"))
 {
@@ -131,7 +131,7 @@ DesktopView::DesktopView(Desktop *desktop) :
     packageMonitor = new ApplicationPackageMonitor();
 
     // Create a quick launch bar and put it in a scene window
-    quickLaunchBar = new QuickLaunchBar(launcherDataStore);
+    quickLaunchBar->setLauncherDataStore(launcherDataStore);
     connect(quickLaunchBar, SIGNAL(toggleLauncherButtonClicked()), this, SLOT(toggleLauncher()));
     windowLayout = new QGraphicsLinearLayout();
     windowLayout->setContentsMargins(0, 0, 0, 0);
@@ -141,7 +141,8 @@ DesktopView::DesktopView(Desktop *desktop) :
     MainWindow::instance()->sceneManager()->appearSceneWindowNow(quickLaunchBarWindow);
 
     // Add the launcher into a scene window
-    launcher = new Launcher(launcherDataStore, packageMonitor);
+    launcher->setLauncherDataStore(launcherDataStore);
+    launcher->setApplicationPackageMonitor(packageMonitor);
     connect(qApp, SIGNAL(focusToLauncherAppRequested(const QString &)), this, SLOT(showLauncherAndPanToPage(const QString &)));
     connect(switcher, SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), this, SLOT(updateLauncherVisiblity(const QList<WindowInfo> &)));
     connect(switcher, SIGNAL(windowListUpdated(const QList<WindowInfo> &)), this, SLOT(setSwitcherHasContent(const QList<WindowInfo> &)));

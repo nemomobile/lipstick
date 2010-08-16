@@ -1,12 +1,6 @@
-include(../../mconfig.pri)
-
 TEMPLATE = subdirs
 
-INSTALLS += \
-    images
-
-images.files = *.png
-images.path = $$MEEGOHOME_THEMES_DIR/images
+SUBDIRS = ./style
 
 QMAKE_EXTRA_TARGETS += check
 check.commands = $$system(true)
