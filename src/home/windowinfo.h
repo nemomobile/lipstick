@@ -21,12 +21,42 @@
 #define WINDOWINFO_H_
 
 #include <QString>
-#include <QHash>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include <QVector>
 #include <QExplicitlySharedDataPointer>
 
-class WindowData;
+/*!
+  The window data is explicitly shared between window info objects through this class
+ */
+class WindowData : public QSharedData
+{
+
+public:
+    //! Constructs a window data object
+    WindowData() {}
+    //! Copy constructor
+    WindowData(const WindowData& source) : QSharedData(source),
+            window(source.window), transientFor(source.transientFor),
+            types(source.types), states(source.states) {}
+    //! Destructor
+    ~WindowData() {}
+
+    //! The X window ID
+    Window window;
+
+    //! The ID of the window this window is transient for
+    Window transientFor;
+
+    //! The title of the window
+    QString title;
+
+    //! The window types associated with this window
+    QList<Atom> types;
+
+    //! The status atoms of this window
+    QList<Atom> states;
+};
 
 /*!
  * WindowInfo is a helper class for storing information about an open window.
@@ -49,25 +79,22 @@ public:
 
     /*!
      * Constructs a WindowInfo that contains information about an open window.
+     * This is needed to satisfy the Qt's default constructed value paradigm in
+     * its containers.
+     */
+    WindowInfo();
+
+    /*!
+     * Constructs a WindowInfo that contains information about an open window.
      *
      * \param window The X window id
      */
     WindowInfo(Window window);
 
     /*!
-     * Copy constructor.
-     */
-    WindowInfo(const WindowInfo &other);
-
-    /*!
      * Destroys a WindowInfo object.
      */
     ~WindowInfo();
-
-    /*!
-     * Assignment operator.
-     */
-    WindowInfo& operator=(const WindowInfo &rhs);
 
     /*!
      * Initializes the X11 atoms
@@ -112,17 +139,13 @@ public:
      * if this failes then XGetWMName will be used.
      */
     bool updateWindowTitle();
-
+    
     /*!
      * Updates the window types and window states from the window manager
      */
     void updateWindowProperties();
 
 private:
-    //! Storage for the WindowInfo data objects. A central storage enables constructing
-    //! new WindowInfo objects with shared data.
-    static QHash<Window, QExplicitlySharedDataPointer<WindowData> > windowDatas;
-
     /*!
      * Gets the atoms and places them into the list
      */
@@ -130,7 +153,7 @@ private:
 
     //! The explicitly shared data object \c WindowData
     QExplicitlySharedDataPointer<WindowData> d;
-
+    
 };
 
 //! Comparison operator for WindowInfo objects
