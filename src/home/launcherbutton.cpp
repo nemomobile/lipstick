@@ -76,6 +76,8 @@ void LauncherButton::launch()
         connect(Switcher::instance(), SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), this, SLOT(stopLaunchProgressIfObscured(const QList<WindowInfo> &)));
 
         action().trigger();
+    } else if (model()->buttonState() == LauncherButtonModel::Broken) {
+        action().trigger();
     }
 }
 

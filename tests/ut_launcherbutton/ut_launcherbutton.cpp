@@ -408,6 +408,24 @@ void Ut_LauncherButton::testLaunch()
 
     emit clicked();
     QVERIFY(!disconnect(Switcher::instance(), SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), m_subject, SLOT(stopLaunchProgressIfObscured(const QList<WindowInfo> &))));
+
+    m_subject->stopLaunchProgress();
+    m_subject->model()->setButtonState(LauncherButtonModel::Broken);
+    emit clicked();
+    QCOMPARE(contentActionTriggerCalls, 2);
+    QVERIFY(!disconnect(Switcher::instance(), SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), m_subject, SLOT(stopLaunchProgressIfObscured(const QList<WindowInfo> &))));
+
+    m_subject->stopLaunchProgress();
+    m_subject->model()->setButtonState(LauncherButtonModel::Downloading);
+    emit clicked();
+    QCOMPARE(contentActionTriggerCalls, 2);
+    QVERIFY(!disconnect(Switcher::instance(), SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), m_subject, SLOT(stopLaunchProgressIfObscured(const QList<WindowInfo> &))));
+
+    m_subject->stopLaunchProgress();
+    m_subject->model()->setButtonState(LauncherButtonModel::Installing);
+    emit clicked();
+    QCOMPARE(contentActionTriggerCalls, 2);
+    QVERIFY(!disconnect(Switcher::instance(), SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), m_subject, SLOT(stopLaunchProgressIfObscured(const QList<WindowInfo> &))));
 }
 
 void Ut_LauncherButton::testStopLaunchProgress()
