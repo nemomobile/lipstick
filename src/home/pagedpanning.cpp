@@ -62,6 +62,7 @@ void PagedPanning::integrateAxis(Qt::Orientation orientation,
 
     pageWidth = (rangeEnd - rangeStart) / qMax(1, pageCount_-1);
 
+
     if (position >= rangeStart && position <= rangeEnd) {
         // Inside range
         if (pointerPressed) {
@@ -77,24 +78,16 @@ void PagedPanning::integrateAxis(Qt::Orientation orientation,
         force = -borderFriction() * velocity;
     }
 
-    if (previousRange != range()) {
-
-        previousRange = range();
-
-        if( pageWidth != 0 && previousPageWidth != pageWidth ) {
-            /* A change in the page width means the orientation has
-               changed - move the view to the correct position immediately */
-            position = pageWidth * currentPage;
-            force = 0;
-            velocity = 0;
-            acceleration = 0;
-        } else {
-            /* If the page width has remained the same, the number of
-               pages must have changed */
-            snapMode = true;
-        }
-
-        targetPage = currentPage;
+    if( pageWidth != 0 && previousPageWidth != pageWidth ) {
+        /* 
+           A change in the page width means the orientation has
+           changed - move the view to the correct position immediately 
+           otherwise there can be some visible 'sliding' effects.
+        */
+        position = pageWidth * currentPage;
+        force = 0;
+        velocity = 0;
+        acceleration = 0;
     }
 
     if (pointerPressed) {

@@ -463,8 +463,12 @@ void Ut_PagedPanning::testSetRange()
     qreal pointerSpring = 0.0;
 
     fillDefaultIntegrationParameters(m_subject, 11, 0, 1000);
-
+    // In order for this test to work the setup has to be set up
+    // so that the integrators internal state is consistent
+    // -> when there is no movement the target page and the 
+    // currentPage are the same
     m_subject->currentPage = 2;
+    m_subject->targetPage = 2;
     m_subject->setPosition(QPointF(currentPosition, 0));
 
     m_subject->setRange(QRectF(0, 0, 550, 0));
