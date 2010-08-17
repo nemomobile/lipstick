@@ -22,6 +22,7 @@
 #include "launcherpageview.h"
 #include "launcherbutton.h"
 #include <MDesktopEntry>
+#include <QFileInfo>
 
 LauncherPage::LauncherPage(MWidget *parent) : MWidgetController(new LauncherPageModel, parent)
 {
@@ -90,4 +91,21 @@ bool LauncherPage::updateButton(const QString &desktopEntryPath)
     }
 
     return contains;
+}
+
+int LauncherPage::launcherButtonPosition(const QString &desktopEntryPath)
+{
+    int position = -1;
+    int buttonIndex = 0;
+
+    QString desktopFileName = QFileInfo(desktopEntryPath).fileName();
+    foreach(QSharedPointer<LauncherButton> button, model()->launcherButtons()) {
+        if (QFileInfo(button->desktopEntry()).fileName() == desktopFileName) {
+            position = buttonIndex;
+            break;
+        }
+        buttonIndex++;
+    }
+
+    return position;
 }

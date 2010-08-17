@@ -87,6 +87,16 @@ public:
      * \return True if button representing the given desktop entry was found from the page
      */
     bool updateButton(const QString &desktopEntryPath);
+
+
+    /*!
+     * Get position of button from launcher page.
+     *
+     *\param desktopEntryPath Desktop entry path of button.
+     *\return int position of button on page. Returns -1 if button is not found.
+     */
+
+    int launcherButtonPosition(const QString &desktopEntryPath);
 };
 
 #endif

@@ -194,14 +194,15 @@ private:
     void addLauncherButtonToPages(const QString &desktopEntryPath, QList<QSharedPointer<LauncherPage> > &pages);
 
     /*!
-     * Returns page number of requested application by searching application's
-     * desktop file entry path from launcher's datastorage.
+     * Returns Placement for button.
      *
      * \param desktopFileEntry is application's desktop file.
      * Name should be given in format "filename.desktop" or in absolute path.
      * Default applications directory path is used if only file name is given.
+     *\return Placement object. If placement is not found for button, placement
+     * is initialized with placement.page=-1 and placement.position=-1
      */
-    int pageNumber(const QString &desktopFileEntry);
+    Placement buttonPlacement(const QString &desktopEntryFile);
 
     /*!
      * Update the given pages list by putting the desktop entries with known

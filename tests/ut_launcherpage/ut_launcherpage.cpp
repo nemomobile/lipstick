@@ -108,11 +108,29 @@ void Ut_LauncherPage::testUpdateButton()
     QCOMPARE(gLauncherButtonStub->stubCallCount("updateFromDesktopEntry"), 1);
 }
 
+void Ut_LauncherPage::testLauncherButtonPosition()
+{
+    QString desktopEntryPath = "test.desktop";
+
+    QSharedPointer<LauncherButton> button1 = createLauncherButton(desktopEntryPath);
+    m_subject->appendButton(button1);
+
+    gLauncherButtonStub->stubSetReturnValue("desktopEntry", QString(""));
+    int result = m_subject->launcherButtonPosition(desktopEntryPath);
+    QCOMPARE(result, -1);
+
+    gLauncherButtonStub->stubSetReturnValue("desktopEntry", QString(desktopEntryPath));
+    result = m_subject->launcherButtonPosition(desktopEntryPath);
+    QCOMPARE(result, 0);
+}
+
+
 static QSharedPointer<LauncherButton> createLauncherButton(QString desktopFileName)
 {
     QSharedPointer<LauncherButton> button(new LauncherButton);
     button->setObjectName(desktopFileName);
     return button;
 }
+
 
 QTEST_APPLESS_MAIN(Ut_LauncherPage)

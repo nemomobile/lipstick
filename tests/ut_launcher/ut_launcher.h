@@ -41,12 +41,12 @@ private:
 
     void writeDesktopFile(QString fileName, QString type, QString name, QString iconName, QString exec);
     int buttonsCount();
-    // Create default set of desktop file entries for panToPage tests
-    void createdDefaultSetOfDesktopEntries();
     // Convience function for pantToPage tests to check that signal has correct page as an argument
     void comparePageNumberArgument(QSignalSpy &spy, int page);
     // adds buttons to launcher
     void addButtonsToLauncher(int amount);
+    // Create default set of desktop file entries for panToPage tests
+    void createdDefaultSetOfDesktopEntries();
 
 signals:
     void directoryLaunched(const QString &directory, const QString &title = QString(), const QString &iconId = QString());
@@ -69,19 +69,10 @@ private slots:
     void testPaging();
     // Test that empty page is removed from launcher
     void testEmptyPage();
-    // Test that launcher sends a request to pan to correct page
-    // when absolute filepath is given
-    void testPanToPageWithAbsoluteFilePathEntry();
-    // Test that launcher sends a request to pan to correct page
-    // when only desktop file name is given
-    void testPanToPageWithOnlyDesktopFileName();
-    // Test that launcher sends a request to pan to correct page
-    // multiple times a row
-    void testPanToPageMultipleTimes();
-    // Test that no pan request is send when bad desktop filename is given
-    void testPanToPageWithNonExistentFileName();
-    // Test that no pan request is send when empty string is given
-    void testPanToPageWithEmptyFileName();
+    // Test buttonPlacement() with full desktopEntryPath, with name of the file and faulty name.
+    void testButtonPlacement();
+    // Test panToPage() with successfull and unsuccessfull case.
+    void testPanToPage();
     // Test that launcher button is updated when signal received
     void testUpdatingLauncherButton();
     // Test adding buttons

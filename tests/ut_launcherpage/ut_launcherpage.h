@@ -45,7 +45,9 @@ private slots:
     void testAddButtonWhenPageIsFull();
     void testRemoveButton();
     void testUpdateButton();
-  
+    // Tests that position is returned for desktop entry file.
+    void testLauncherButtonPosition();
+
 private:
     // MApplication
     MApplication *app;

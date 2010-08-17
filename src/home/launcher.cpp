@@ -280,7 +280,9 @@ QMap<Launcher::Placement, QString> Launcher::createPlacementMap(const QHash<QStr
 
 int Launcher::panToPage(const QString &desktopFileEntry)
 {
-    int page = pageNumber(desktopFileEntry);
+
+    Placement placement = buttonPlacement(desktopFileEntry);
+    int page = placement.page;
     if (page >= 0) {
         emit panningRequested((uint)page);
     }
@@ -292,22 +294,27 @@ void Launcher::setFirstPage()
     emit focusToFirstPageRequested();
 }
 
-int Launcher::pageNumber(const QString &desktopFileEntry)
+Launcher::Placement Launcher::buttonPlacement(const QString &desktopFileEntry)
 {
-    QString desktopFile = QString(desktopFileEntry);
-    if(!QFileInfo(desktopFileEntry).isAbsolute()) {
-        desktopFile = QString(desktopFileEntry).prepend(APPLICATIONS_DIRECTORY);
+    int pageNum = -1;
+    int position = -1;
+
+    if (!desktopFileEntry.isEmpty()) {
+        QList<QSharedPointer<LauncherPage> > pages = model()->launcherPages();
+        int pageIndex = 0;
+        foreach (QSharedPointer<LauncherPage> page, pages) {
+            position = page->launcherButtonPosition(desktopFileEntry);
+            if (position > -1 ) {
+                pageNum = pageIndex;
+                break;
+            }
+            pageIndex++;
+        }
     }
 
-    int page = -1;
+    Placement placement(PLACEMENT_TEMPLATE.arg(pageNum).arg(position));
 
-    QHash<QString, QVariant> allDesktopEntries = dataStore->dataForAllDesktopEntries();
-    if(allDesktopEntries.contains(desktopFile)) {
-        Placement placement(allDesktopEntries.value(desktopFile).toString());
-        page = placement.page;
-    }
-
-    return page;
+    return placement;
 }
 
 
