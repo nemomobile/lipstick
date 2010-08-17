@@ -38,6 +38,15 @@ public:
     LauncherPage(MWidget *parent = NULL);
 
     /*!
+     * Sets the maximum number of buttons on the page.
+     * The page is not resized if it already has more than the desired maximum
+     * number of items.
+     *
+     * \param maximumButtonCount the maximum number of buttons on the page.
+     */
+    void setMaximumButtonCount(int maximumButtonCount);
+
+    /*!
      * Add button to page.
      * Fixed positions for buttons are not maintained, so when multiple buttons are added,
      * adding order must be position index order to assure inserting to correct index in button list.
@@ -45,7 +54,7 @@ public:
      * \li If the position index is higher than the maximum items allowed per page,
      * \li If the page is full
      *
-     * The maximum items per page is currently defined as 12
+     * The default maximum number of items per page is currently defined as 12.
      *
      * \param button Button to be added.
      * \param positionIndex Position where button is to be added.
@@ -88,14 +97,12 @@ public:
      */
     bool updateButton(const QString &desktopEntryPath);
 
-
     /*!
      * Get position of button from launcher page.
      *
      *\param desktopEntryPath Desktop entry path of button.
      *\return int position of button on page. Returns -1 if button is not found.
      */
-
     int launcherButtonPosition(const QString &desktopEntryPath);
 };
 

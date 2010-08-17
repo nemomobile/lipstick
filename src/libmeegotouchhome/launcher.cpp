@@ -32,7 +32,8 @@ const QString Launcher::PLACEMENT_TEMPLATE = LOCATION_IDENTIFIER + SECTION_SEPAR
 Launcher::Launcher(QGraphicsItem *parent) :
     MWidgetController(new LauncherModel, parent),
     dataStore(NULL),
-    packageMonitor(NULL)
+    packageMonitor(NULL),
+    maximumPageSize(-1)
 {
 }
 
@@ -60,6 +61,17 @@ void Launcher::setApplicationPackageMonitor(ApplicationPackageMonitor *packageMo
             this, SLOT(setOperationSuccess(const QString&, const QString&)));
     connect(packageMonitor, SIGNAL(operationError(const QString&, const QString&, const QString&)),
             this, SLOT(setOperationError(const QString&, const QString&, const QString&)));
+}
+
+void Launcher::setMaximumPageSize(int maximumPageSize)
+{
+    this->maximumPageSize = maximumPageSize;
+
+    if (maximumPageSize >= 0) {
+        foreach (QSharedPointer<LauncherPage> page, model()->launcherPages()) {
+            page->setMaximumButtonCount(maximumPageSize);
+        }
+    }
 }
 
 void Launcher::setDownloadProgress(const QString& packageName, const QString &desktopEntryPath, int bytesLoaded, int bytesTotal)
@@ -115,9 +127,10 @@ void Launcher::addPlaceholderButtonToLauncher(QSharedPointer<LauncherButton> but
     }
 
     if (!added) {
-        page = QSharedPointer<LauncherPage>(new LauncherPage());
-        pages.append(page);
+        page = QSharedPointer<LauncherPage>(new LauncherPage);
+        setMaximumPageSizeIfNecessary(page);
         page->appendButton(button);
+        pages.append(page);
     }
 
     model()->setLauncherPages(pages);
@@ -153,7 +166,9 @@ void Launcher::addDesktopEntriesWithKnownPlacements(QList<QSharedPointer<Launche
         if (placement.page >= 0) {
             while (placement.page >= pages.count()) {
                 // Create pages until the desired page exists. This may create empty pages which must be removed in the end
-                pages.append(QSharedPointer<LauncherPage>(new LauncherPage));
+                QSharedPointer<LauncherPage> page = QSharedPointer<LauncherPage>(new LauncherPage);
+                setMaximumPageSizeIfNecessary(page);
+                pages.append(page);
             }
 
             // Create a launcher button for the desktop entry
@@ -241,9 +256,10 @@ void Launcher::addLauncherButtonToPages(const QString &desktopEntryPath, QList<Q
     }
 
     if (!added) {
-        page = QSharedPointer<LauncherPage>(new LauncherPage());
-        pages.append(page);
+        page = QSharedPointer<LauncherPage>(new LauncherPage);
+        setMaximumPageSizeIfNecessary(page);
         page->appendButton(launcherButton);
+        pages.append(page);
     }
 
     if (dataStore != NULL) {
@@ -315,6 +331,13 @@ int Launcher::panToPage(const QString &desktopFileEntry)
 void Launcher::setFirstPage()
 {
     emit focusToFirstPageRequested();
+}
+
+void Launcher::setMaximumPageSizeIfNecessary(QSharedPointer<LauncherPage> &page)
+{
+    if (maximumPageSize >= 0) {
+        page->setMaximumButtonCount(maximumPageSize);
+    }
 }
 
 Launcher::Placement Launcher::buttonPlacement(const QString &desktopFileEntry)

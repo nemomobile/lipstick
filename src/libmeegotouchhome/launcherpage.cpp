@@ -31,6 +31,11 @@ LauncherPage::LauncherPage(MWidget *parent) : MWidgetController(new LauncherPage
 {
 }
 
+void LauncherPage::setMaximumButtonCount(int maximumButtonCount)
+{
+    model()->setMaxButtons(maximumButtonCount);
+}
+
 int LauncherPage::insertButton(QSharedPointer<LauncherButton> button, int positionIndex)
 {
     QList< QSharedPointer<LauncherButton> > buttons(model()->launcherButtons());

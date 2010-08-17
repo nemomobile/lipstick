@@ -96,6 +96,15 @@ public:
      */
     void setApplicationPackageMonitor(ApplicationPackageMonitor *packageMonitor);
 
+    /*!
+     * Sets the maximum size of the Launcher pages. Negative values are ignored.
+     * If a LauncherPage already has more items than the desired maximum the
+     * page is not resized.
+     *
+     * \param maximumPageSize the maximum number of buttons on a single LauncherPage
+     */
+    void setMaximumPageSize(int maximumPageSize);
+
 signals:
     /*!
      * Signal sent when a launcher button was clicked.
@@ -198,7 +207,6 @@ private slots:
     void updatePagesFromDataStore();
 
 private:
-
     /*!
      * Add a launcher button to given pages.
      *
@@ -279,6 +287,13 @@ private:
      */
     void addPlaceholderButtonToLauncher(QSharedPointer<LauncherButton> button);
 
+    /*!
+     * Sets the maximum page size of a LauncherPage if defined.
+     *
+     * \param page the LauncherPage whose maximum size should be set
+     */
+    void setMaximumPageSizeIfNecessary(QSharedPointer<LauncherPage> &page);
+
     //! A mapping from packageName to launcher buttons
     QMap<QString, QSharedPointer<LauncherButton> > launcherButtonMap;
 
@@ -297,9 +312,11 @@ private:
     //! PackageMonitor from which launcher receives signals
     ApplicationPackageMonitor *packageMonitor;
 
+    //! The maximum page size of each LauncherPage
+    int maximumPageSize;
+
     //! Whether the launcher has been initialized or not
     bool initialized;
-
 
 #ifdef UNIT_TEST
     friend class Ut_Launcher;

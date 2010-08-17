@@ -155,10 +155,10 @@ void Ut_Launcher::testEmptyPage()
     // Fake a directory change notification
     emit directoryChanged(APPLICATIONS_DIRECTORY);
 
-    // There should be three launcher pages with 12, 12 and 1 items on them
+    // There should be three launcher pages with BUTTONS_PER_PAGE, BUTTONS_PER_PAGE and 1 items on them
     QCOMPARE(launcher->model()->launcherPages().count(), 3);
-    QCOMPARE(launcher->model()->launcherPages().at(0)->model()->launcherButtons().count(), 12);
-    QCOMPARE(launcher->model()->launcherPages().at(1)->model()->launcherButtons().count(), 12);
+    QCOMPARE(launcher->model()->launcherPages().at(0)->model()->launcherButtons().count(), BUTTONS_PER_PAGE);
+    QCOMPARE(launcher->model()->launcherPages().at(1)->model()->launcherButtons().count(), BUTTONS_PER_PAGE);
     QCOMPARE(launcher->model()->launcherPages().at(2)->model()->launcherButtons().count(), 1);
 
     // Don't put desktop files 12-23 in the "desktop file directory"
@@ -173,9 +173,9 @@ void Ut_Launcher::testEmptyPage()
     // Fake a directory change notification
     emit directoryChanged(APPLICATIONS_DIRECTORY);
 
-    // There should be two launcher pages with 12 and 1 buttons on them
+    // There should be two launcher pages with BUTTONS_PER_PAGE and 1 buttons on them
     QCOMPARE(launcher->model()->launcherPages().count(), 2);
-    QCOMPARE(launcher->model()->launcherPages().at(0)->model()->launcherButtons().count(), 12);
+    QCOMPARE(launcher->model()->launcherPages().at(0)->model()->launcherButtons().count(), BUTTONS_PER_PAGE);
     QCOMPARE(launcher->model()->launcherPages().at(1)->model()->launcherButtons().count(), 1);
 }
 
@@ -436,6 +436,29 @@ void Ut_Launcher::testSetOperationError()
     launcher->setOperationError("testPackage", "test.desktop", "error_message");
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<LauncherButtonModel::State>(0), LauncherButtonModel::Broken);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<int>(1), 0);
+}
+
+void Ut_Launcher::testSetMaximumPageSize()
+{
+    int maximumPageSize = 4;
+    launcher->setEnabled(true);
+    launcher->setMaximumPageSize(maximumPageSize);
+
+    // Add 9 desktop files in the "desktop file directory"
+    QHash<QString, QVariant> dataForAllDesktopEntries;
+    for (int i = 0; i < 9; i++) {
+        dataForAllDesktopEntries.insert(QString("noPlacement%1").arg(i), QVariant());
+    }
+    gLauncherDataStoreStub->stubSetReturnValue("dataForAllDesktopEntries", dataForAllDesktopEntries);
+
+    // Fake a directory change notification
+    emit directoryChanged(APPLICATIONS_DIRECTORY);
+
+    // There should be three launcher pages with maximumPageSize, maximumPageSize and 1 items on them
+    QCOMPARE(launcher->model()->launcherPages().count(), 3);
+    QCOMPARE(launcher->model()->launcherPages().at(0)->model()->launcherButtons().count(), maximumPageSize);
+    QCOMPARE(launcher->model()->launcherPages().at(1)->model()->launcherButtons().count(), maximumPageSize);
+    QCOMPARE(launcher->model()->launcherPages().at(2)->model()->launcherButtons().count(), 1);
 }
 
 QTEST_MAIN(Ut_Launcher)

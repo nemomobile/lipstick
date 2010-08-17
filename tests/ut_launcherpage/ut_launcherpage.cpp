@@ -50,7 +50,7 @@ void Ut_LauncherPage::cleanup()
 
 void Ut_LauncherPage::testAddButtonWhenPageNotFull()
 {
-    m_subject->model()->setMaxButtons(2);
+    m_subject->setMaximumButtonCount(2);
     QSharedPointer<LauncherButton> button1 = createLauncherButton();
     bool added = m_subject->appendButton(button1);
     QVERIFY(added);
@@ -64,7 +64,7 @@ void Ut_LauncherPage::testAddButtonWhenPageNotFull()
 
 void Ut_LauncherPage::testAddButtonWhenPageIsFull()
 {
-    m_subject->model()->setMaxButtons(1);
+    m_subject->setMaximumButtonCount(1);
     QSharedPointer<LauncherButton> button1 = createLauncherButton();
     bool added = m_subject->appendButton(button1);
     QVERIFY(added);
@@ -78,7 +78,7 @@ void Ut_LauncherPage::testAddButtonWhenPageIsFull()
 
 void Ut_LauncherPage::testRemoveButton()
 {
-    m_subject->model()->setMaxButtons(1);
+    m_subject->setMaximumButtonCount(1);
     QSharedPointer<LauncherButton> button = createLauncherButton("my-entry-name");
     bool added = m_subject->appendButton(button);
     QVERIFY(added);
@@ -131,6 +131,5 @@ static QSharedPointer<LauncherButton> createLauncherButton(QString desktopFileNa
     button->setObjectName(desktopFileName);
     return button;
 }
-
 
 QTEST_APPLESS_MAIN(Ut_LauncherPage)

@@ -16,7 +16,6 @@
 ** of this file.
 **
 ****************************************************************************/
-
 #ifndef LAUNCHERVIEW_H
 #define LAUNCHERVIEW_H
 
@@ -25,21 +24,12 @@
 #include "launchermodel.h"
 
 class Launcher;
-class MFlowLayoutPolicy;
-class MLayout;
-class Switcher;
-class QGraphicsLinearLayout;
-class MOverlay;
-class MButton;
-class MWidget;
 class PagedViewport;
 class MLayout;
 class MLinearLayoutPolicy;
 
 /*!
- * The launcher view draws a background for the container and
- * manages a layout related to the container. The widgets are inside a flow
- * layout. The view also contains an exit button for closing the container.
+ * The launcher manages a layout for the launcher pages.
  */
 class LauncherView : public MWidgetView
 {
@@ -48,7 +38,7 @@ class LauncherView : public MWidgetView
 
 public:
     /*!
-     * Constructs an LauncherView.
+     * Constructs a LauncherView.
      *
      * \param container the Launcher controller to be used
      */
@@ -65,24 +55,23 @@ protected slots:
     //! \reimp_end
 
 private slots:
-
-    /*! Pans launcher to requested page.
+    /*!
+     * Pans launcher to the requested page.
      *
      * \param page number of requested page
      */
     void panToPage(uint page);
 
     /*!
-     * Focus launcher to first page
+     * Focuses launcher to the first page.
      */
     void focusFirstPage();
 
 private:
-
     /*!
      * Updates layout from models page list.
      *
-     * Adds new pages and removes non-exitent.
+     * Adds new pages and removes non-existent ones.
      */
     void updateLayoutFromModel();
 
@@ -97,13 +86,12 @@ private:
 
     //! A layout for the widgets
     MLayout *layout;
-    //! A layout policy for page
+    //! A layout policy for pages
     MLinearLayoutPolicy *policy;
-    //! The widget that be inside the paged viewport. This will contain all of the launcher items
+    //! The widget that is inside the paged viewport. This will contain all of the launcher pages.
     MWidget* pannedWidget;
-    //! The paged view port used to diaply the pannedWidget
+    //! The paged viewport used to display the pannedWidget
     PagedViewport* pagedViewport;
-
 };
 
 #endif // LAUNCHERVIEW_H

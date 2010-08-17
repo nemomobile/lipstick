@@ -101,5 +101,7 @@ private slots:
     void testSetOperationSuccess();
     // Test handling of operationError signal
     void testSetOperationError();
+    // Test setting the maximum page size
+    void testSetMaximumPageSize();
 };
 #endif //_UT_LAUNCHER_
