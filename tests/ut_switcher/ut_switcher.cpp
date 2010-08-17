@@ -32,7 +32,7 @@
 // The numbers of different windows the stubs are testing
 #define INVALID_WINDOWS 16
 #define APPLICATION_WINDOWS 2
-#define NON_APPLICATION_WINDOWS 5
+#define NON_APPLICATION_WINDOWS 6
 #define VALID_WINDOWS (NON_APPLICATION_WINDOWS + APPLICATION_WINDOWS)
 #define NUMBER_OF_WINDOWS (INVALID_WINDOWS + VALID_WINDOWS)
 
@@ -48,6 +48,7 @@
 #define ATOM_TYPE_DIALOG 0x00010004
 #define ATOM_TYPE_DOCK 0x00010005
 #define ATOM_TYPE_MENU 0x00010006
+#define ATOM_TYPE_INPUT_WINDOW 0x00010007
 #define ATOM_TYPE_INVALID 0x0001ffff
 #define ATOM_CLIENT_LIST 0x00020000
 #define ATOM_CLIENT_LIST_STACKING 0x00030000
@@ -106,6 +107,8 @@ Atom X11Wrapper::XInternAtom(Display *, const char *atom_name, Bool)
         return  ATOM_TYPE_MENU;
     } else if (strcmp(atom_name, "_NET_WM_WINDOW_TYPE_DOCK") == 0) {
         return ATOM_TYPE_DOCK;
+    } else if (strcmp(atom_name, "_NET_WM_WINDOW_TYPE_INPUT") == 0) {
+        return ATOM_TYPE_INPUT_WINDOW;
     }
     return ATOM_TYPE_INVALID;
 }
@@ -443,6 +446,7 @@ void Ut_Switcher::init()
     g_windowTypeMap[FIRST_NON_APPLICATION_WINDOW + 2][0] = ATOM_TYPE_DIALOG;
     g_windowTypeMap[FIRST_NON_APPLICATION_WINDOW + 3][0] = ATOM_TYPE_DOCK;
     g_windowTypeMap[FIRST_NON_APPLICATION_WINDOW + 4][0] = ATOM_TYPE_MENU;
+    g_windowTypeMap[FIRST_NON_APPLICATION_WINDOW + 5][0] = ATOM_TYPE_INPUT_WINDOW;
     g_windowStateMap.clear();
 
     // Configure stubs

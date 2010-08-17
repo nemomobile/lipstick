@@ -74,6 +74,7 @@ Atom WindowInfo::DockAtom;
 Atom WindowInfo::MenuAtom;
 Atom WindowInfo::SkipTaskbarAtom;
 Atom WindowInfo::NameAtom;
+Atom WindowInfo::InputWindowAtom;
 
 void WindowInfo::initializeAtoms()
 {
@@ -90,6 +91,7 @@ void WindowInfo::initializeAtoms()
         MenuAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_MENU", False);
         SkipTaskbarAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_STATE_SKIP_TASKBAR", False);
         NameAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_NAME", False);
+        InputWindowAtom = X11Wrapper::XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_INPUT", False);
         atomsInitialized = true;
     }
 }

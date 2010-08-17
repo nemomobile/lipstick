@@ -64,6 +64,7 @@ Switcher::Switcher(const WindowMonitor *windowMonitor, MWidget *parent) : MWidge
     excludeAtoms.insert(WindowInfo::DialogAtom);
     excludeAtoms.insert(WindowInfo::NotificationAtom);
     excludeAtoms.insert(WindowInfo::SkipTaskbarAtom);
+    excludeAtoms.insert(WindowInfo::InputWindowAtom);
 
     // Configure the update buttons timer
     updateButtonsTimer.setSingleShot(true);

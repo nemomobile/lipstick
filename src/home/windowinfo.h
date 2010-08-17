@@ -45,6 +45,7 @@ public:
     static Atom DockAtom;
     static Atom MenuAtom;
     static Atom SkipTaskbarAtom;
+    static Atom InputWindowAtom;
     static Atom NameAtom;
 
     /*!
