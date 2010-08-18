@@ -253,6 +253,7 @@ void Ut_LauncherView::testUpdateData()
     MLayout* mainLayout = dynamic_cast<MLayout *>(
         dynamic_cast<PagedViewport *>(
             controller->childItems().at(0))->widget()->layout());
+    QVERIFY(mainLayout != NULL);
     QCOMPARE(mainLayout->count(), 2);
     mainLayout->removeItem(page1.data());
     mainLayout->removeItem(page2.data());

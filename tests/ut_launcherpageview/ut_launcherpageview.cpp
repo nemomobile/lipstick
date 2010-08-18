@@ -116,11 +116,11 @@ void Ut_LauncherPageView::testRemovingButtonFromLayout()
     widgets.append(widget2);
     controller->model()->setLauncherButtons(widgets);
 
-    MLayout* mainLayout = dynamic_cast<MLayout *>(controller->layout());
-
     widgets.removeOne(widget1);
     controller->model()->setLauncherButtons(widgets);
 
+    MLayout* mainLayout = dynamic_cast<MLayout *>(controller->layout());
+    QVERIFY(mainLayout != NULL);
     QCOMPARE(mainLayout->count(), 1);
     QCOMPARE(mainLayout->itemAt(0), widget2.data());
     // verify that button destructor has not been called when there is still ref in QSharedPointer
@@ -151,6 +151,7 @@ void Ut_LauncherPageView::testUpdateData()
     controller->model()->setLauncherButtons(widgets);
 
     MLayout* mainLayout = dynamic_cast<MLayout *>(controller->layout());
+    QVERIFY(mainLayout != NULL);
     QCOMPARE(mainLayout->count(), 2);
     mainLayout->removeItem(widget1.data());
     mainLayout->removeItem(widget2.data());
