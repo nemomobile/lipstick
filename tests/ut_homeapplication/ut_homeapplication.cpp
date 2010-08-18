@@ -218,15 +218,20 @@ void Ut_HomeApplication::testNonUpstartStartup()
     compareDbusValues();
 }
 
-void Ut_HomeApplication::testXEventFilterReturnsFalseWhenNoEventListenerExists()
+void Ut_HomeApplication::testWhenNoEventListenerExistsXEventFilterReturnsMApplicationReturnValue()
 {
     XEvent event;
 
     gMApplicationStub->stubSetReturnValue("x11EventFilter", false);
     QCOMPARE(m_subject->x11EventFilter(&event), false);
+    QCOMPARE(gMApplicationStub->stubCallCount("x11EventFilter"), 1);
+
+    gMApplicationStub->stubSetReturnValue("x11EventFilter", true);
+    QCOMPARE(m_subject->x11EventFilter(&event), true);
+    QCOMPARE(gMApplicationStub->stubCallCount("x11EventFilter"), 2);
 }
 
-void Ut_HomeApplication::testXEventFilterReturnsFalseWhenEventFilterReturnsFalse()
+void Ut_HomeApplication::testWhenEventFilterReturnsFalseXEventFilterReturnsMApplicationReturnValue()
 {
     MockXEventListener mockXEventListener;
     mockXEventListener.stubSetReturnValue("handleXEvent", false);
@@ -236,6 +241,13 @@ void Ut_HomeApplication::testXEventFilterReturnsFalseWhenEventFilterReturnsFalse
     QCOMPARE(m_subject->x11EventFilter(&event), false);
     QCOMPARE(mockXEventListener.stubCallCount("handleXEvent"), 1);
     QCOMPARE(mockXEventListener.stubLastCallTo("handleXEvent").parameter<const XEvent*>(0), &event);
+    QCOMPARE(gMApplicationStub->stubCallCount("x11EventFilter"), 1);
+
+    gMApplicationStub->stubSetReturnValue("x11EventFilter", true);
+    QCOMPARE(m_subject->x11EventFilter(&event), true);
+    QCOMPARE(mockXEventListener.stubCallCount("handleXEvent"), 2);
+    QCOMPARE(mockXEventListener.stubLastCallTo("handleXEvent").parameter<const XEvent*>(0), &event);
+    QCOMPARE(gMApplicationStub->stubCallCount("x11EventFilter"), 2);
 
     m_subject->removeXEventListener(&mockXEventListener);
 }
