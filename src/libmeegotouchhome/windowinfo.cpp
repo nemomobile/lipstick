@@ -32,17 +32,27 @@ class WindowData : public QSharedData
 public:
     //! Constructs a window data object
     WindowData(Window id) :
-            window(id)
+            window(id),
+            transientFor(0),
+            title(),
+            types(),
+            states()
     {
     }
 
     //! Copy constructor
     WindowData(const WindowData& source) : QSharedData(source),
-            window(source.window), transientFor(source.transientFor),
-            types(source.types), states(source.states) {}
+            window(source.window),
+            transientFor(source.transientFor),
+            types(source.types),
+            states(source.states)
+    {
+    }
 
     //! Destructor
-    ~WindowData() {}
+    ~WindowData()
+    {
+    }
 
     //! The X window ID
     Window window;
