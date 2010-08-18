@@ -30,7 +30,7 @@ class Ut_QuickLaunchBar : public QObject
     Q_OBJECT
 
 signals:
-    void updateWidgetList();
+    void updateButtons();
     void launcherDataStoreChanged();
 
 private slots:
@@ -44,7 +44,6 @@ private slots:
     void cleanup();
 
     // Test cases
-    void testInitialization();
     void testLauncherDataStoreChanged();
 
 private:

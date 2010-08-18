@@ -59,6 +59,9 @@ private:
     //! The index of the toggle launcher button in the launcher button layout
     static const int TOGGLE_LAUNCHER_BUTTON_INDEX;
 
+    //! The number of buttons in quicklaunch bar
+    static const int NUMBER_OF_QUICKLAUNCH_BUTTONS;
+
     //! Layout for the launcher buttons
     QGraphicsLinearLayout *launcherButtonLayout;
 

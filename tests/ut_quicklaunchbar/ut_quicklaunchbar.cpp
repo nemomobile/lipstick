@@ -41,7 +41,7 @@ void Ut_QuickLaunchBar::init()
 
     m_subject = new QuickLaunchBar;
     m_subject->setLauncherDataStore(launcherDataStore);
-    connect(this, SIGNAL(updateWidgetList()), m_subject, SLOT(updateWidgetList()));
+    connect(this, SIGNAL(updateWidgetList()), m_subject, SLOT(updateButtons()));
     connect(this, SIGNAL(launcherDataStoreChanged()), launcherDataStore, SIGNAL(dataStoreChanged()));
 }
 
@@ -53,27 +53,17 @@ void Ut_QuickLaunchBar::cleanup()
     m_subject = NULL;
 }
 
-void Ut_QuickLaunchBar::testInitialization()
-{
-    // Initially there should be 4 widgets but no LauncherButtons
-    QCOMPARE(m_subject->model()->widgets().count(), 4);
-    QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(0)) == NULL);
-    QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(1)) == NULL);
-    QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(2)) == NULL);
-    QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(3)) == NULL);
-}
-
 void Ut_QuickLaunchBar::testLauncherDataStoreChanged()
 {
     QHash<QString, QVariant> dataForAllDesktopEntries;
     dataForAllDesktopEntries.insert("validPlacement", QVariant("quicklaunchbar/3"));
     gLauncherDataStoreStub->stubSetReturnValue("dataForAllDesktopEntries", dataForAllDesktopEntries);
     emit launcherDataStoreChanged();
-    QCOMPARE(m_subject->model()->widgets().count(), 4);
-    QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(0)) == NULL);
-    QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(1)) == NULL);
-    QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(2)) == NULL);
-    QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->widgets().at(3)) != NULL);
+    QCOMPARE(m_subject->model()->buttons().count(), 1);
+    QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->buttons().value(0).data()) == NULL);
+    QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->buttons().value(1).data()) == NULL);
+    QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->buttons().value(2).data()) == NULL);
+    QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->buttons().value(3).data()) != NULL);
 }
 
 QTEST_MAIN(Ut_QuickLaunchBar)

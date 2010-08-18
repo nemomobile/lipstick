@@ -55,34 +55,44 @@ void Ut_QuickLaunchBarView::cleanup()
     delete launcherDataStore;
 }
 
-void Ut_QuickLaunchBarView::testUpdateData()
+void Ut_QuickLaunchBarView::testInitialization()
 {
+     // Initially there should be 5 widgets but no LauncherButtons
+    QMap<int, QSharedPointer<LauncherButton> > buttons;
     QuickLaunchBarModel model;
     m_subject->setModel(&model);
-    QList<MWidget *> widgets;
-    MWidget *widget1 = new MWidget;
-    MWidget *widget2 = new MWidget;
-    MWidget *widget3 = new MWidget;
-    widgets << widget1;
-    widgets << widget2;
-    widgets << widget3;
-    model.setWidgets(widgets);
-
-    QList<const char *> modifications;
-    modifications << QuickLaunchBarModel::Widgets;
-    emit updateData(modifications);
-
+    model.setButtons(buttons);
     QGraphicsLinearLayout *layout = dynamic_cast<QGraphicsLinearLayout *>(controller->layout());
     QVERIFY(layout != NULL);
     QVERIFY(layout->count() > 0);
     QGraphicsLinearLayout *quickLaunchButtonLayout = dynamic_cast<QGraphicsLinearLayout *>(layout->itemAt(0));
     QVERIFY(quickLaunchButtonLayout != NULL);
-    // The widgets plus a launcher button should be there
-    QCOMPARE(quickLaunchButtonLayout->count(), 4);
-    QCOMPARE(quickLaunchButtonLayout->itemAt(0), widget1);
-    QCOMPARE(quickLaunchButtonLayout->itemAt(1), widget2);
-    // The launcher button is the third item so widget3 is fourth
-    QCOMPARE(quickLaunchButtonLayout->itemAt(3), widget3);
+    QCOMPARE(quickLaunchButtonLayout->count(), 5);
+}
+
+void Ut_QuickLaunchBarView::testUpdateData()
+{
+    QuickLaunchBarModel model;
+    m_subject->setModel(&model);
+    QMap<int, QSharedPointer<LauncherButton> > buttons;
+    QSharedPointer<LauncherButton> button1 = QSharedPointer<LauncherButton>(new LauncherButton);
+    QSharedPointer<LauncherButton> button2 = QSharedPointer<LauncherButton>(new LauncherButton);
+    QSharedPointer<LauncherButton> button3 = QSharedPointer<LauncherButton>(new LauncherButton);
+    buttons.insert(0, button1);
+    buttons.insert(1, button2);
+    buttons.insert(2, button3);
+    model.setButtons(buttons);
+
+    QGraphicsLinearLayout *layout = dynamic_cast<QGraphicsLinearLayout *>(controller->layout());
+    QGraphicsLinearLayout *quickLaunchButtonLayout = dynamic_cast<QGraphicsLinearLayout *>(layout->itemAt(0));
+    QVERIFY(quickLaunchButtonLayout != NULL);
+    // Three buttons + toggleLauncherButton + placeholder widget = 5
+    QCOMPARE(quickLaunchButtonLayout->count(), 5);
+    QCOMPARE(quickLaunchButtonLayout->itemAt(0), button1.data());
+    QCOMPARE(quickLaunchButtonLayout->itemAt(1), button2.data());
+    // The toggleLauncherbutton is the third item so buttons3 is fourth
+    QCOMPARE(quickLaunchButtonLayout->itemAt(3), button3.data());
+
 }
 
 QTEST_APPLESS_MAIN(Ut_QuickLaunchBarView)

@@ -30,7 +30,7 @@ class QuickLaunchBarStub : public StubBase {
   virtual void QuickLaunchBarConstructor(QGraphicsItem *parent);
   virtual void QuickLaunchBarDestructor();
   virtual void setLauncherDataStore(LauncherDataStore *dataStore);
-  virtual void updateWidgetList();
+  virtual void updateButtons();
   virtual LauncherButton * createLauncherButton(const QString &desktopEntryPath);
   virtual QMap<QuickLaunchBar::Placement, QString> createPlacementMap(const QHash<QString, QVariant> &desktopEntryPlacements);
 }; 
@@ -50,8 +50,8 @@ void QuickLaunchBarStub::setLauncherDataStore(LauncherDataStore *dataStore)
     stubMethodEntered("setLauncherDataStore", params);
 }
 
-void QuickLaunchBarStub::updateWidgetList() {
-  stubMethodEntered("updateWidgetList");
+void QuickLaunchBarStub::updateButtons() {
+  stubMethodEntered("updateButtons");
 }
 
 LauncherButton * QuickLaunchBarStub::createLauncherButton(const QString &desktopEntryPath) {
@@ -89,8 +89,8 @@ void QuickLaunchBar::setLauncherDataStore(LauncherDataStore *dataStore)
   gQuickLaunchBarStub->setLauncherDataStore(dataStore);
 }
 
-void QuickLaunchBar::updateWidgetList() {
-  gQuickLaunchBarStub->updateWidgetList();
+void QuickLaunchBar::updateButtons() {
+  gQuickLaunchBarStub->updateButtons();
 }
 
 LauncherButton * QuickLaunchBar::createLauncherButton(const QString &desktopEntryPath) {

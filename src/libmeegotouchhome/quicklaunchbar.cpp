@@ -33,12 +33,6 @@ QuickLaunchBar::QuickLaunchBar(QGraphicsItem *parent) :
         MWidgetController(new QuickLaunchBarModel, parent),
         dataStore(NULL)
 {
-    // Fill in the model with empty widgets
-    QList<MWidget *> widgets;
-    for (int i = 0; i < NUMBER_OF_LAUNCHER_BUTTONS; i++) {
-        widgets.append(new MWidget);
-    }
-    model()->setWidgets(widgets);
 }
 
 QuickLaunchBar::~QuickLaunchBar()
@@ -48,13 +42,13 @@ QuickLaunchBar::~QuickLaunchBar()
 void QuickLaunchBar::setLauncherDataStore(LauncherDataStore *dataStore)
 {
     if (this->dataStore != NULL) {
-        disconnect(dataStore, SIGNAL(dataStoreChanged()), this, SLOT(updateWidgetList()));
+        disconnect(dataStore, SIGNAL(dataStoreChanged()), this, SLOT(updateButtons()));
     }
     this->dataStore = dataStore;
-    connect(dataStore, SIGNAL(dataStoreChanged()), this, SLOT(updateWidgetList()));
+    connect(dataStore, SIGNAL(dataStoreChanged()), this, SLOT(updateButtons()));
 }
 
-void QuickLaunchBar::updateWidgetList()
+void QuickLaunchBar::updateButtons()
 {
     if (dataStore == NULL) {
         return;
@@ -63,43 +57,23 @@ void QuickLaunchBar::updateWidgetList()
     // Temporarily disable the listening of the change signals from the configuration to prevent a recursive call to this method
     dataStore->disconnect(this);
 
-    // Get the old widgets so that they can be removed
-    QList<MWidget *> oldWidgets(model()->widgets());
+    // Construct a map of buttons and their positions
+    QMap< int, QSharedPointer<LauncherButton> > newButtons;
 
-    // Construct a list of new widgets
-    QList<MWidget *> newWidgets;
-
-    // Put the desktop entries with known placements in place first
+    // Add the desktop entries with known placements to the map
     QMapIterator<Placement, QString> iterator(createPlacementMap(dataStore->dataForAllDesktopEntries()));
     while (iterator.hasNext()) {
         iterator.next();
         Placement placement(iterator.key());
         QString desktopEntryPath(iterator.value());
-
-        while (placement.position > newWidgets.size()) {
-            newWidgets.append(new MWidget);
-        }
-        newWidgets.append(createLauncherButton(desktopEntryPath));
+        newButtons.insert(placement.position, QSharedPointer<LauncherButton>(createLauncherButton(desktopEntryPath)));
     }
 
-    // Fill in the rest with empty buttons
-    while (newWidgets.size() < NUMBER_OF_LAUNCHER_BUTTONS) {
-        newWidgets.append(new MWidget);
-    }
-
-    // Set the object names
-    foreach(MWidget *widget, newWidgets) {
-        widget->setObjectName("QuickLaunchBarButton");
-    }
-
-    // Take the new widgets into use
-    model()->setWidgets(newWidgets);
-
-    // Delete the old widgets
-    qDeleteAll(oldWidgets);
+    // Take the new buttons into use
+    model()->setButtons(newButtons);
 
     // Reconnect signals
-    connect(dataStore, SIGNAL(dataStoreChanged()), this, SLOT(updateWidgetList()));
+    connect(dataStore, SIGNAL(dataStoreChanged()), this, SLOT(updateButtons()));
 }
 
 LauncherButton *QuickLaunchBar::createLauncherButton(const QString &desktopEntryPath)

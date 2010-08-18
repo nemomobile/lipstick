@@ -27,6 +27,7 @@
 #include <MViewCreator>
 
 const int QuickLaunchBarView::TOGGLE_LAUNCHER_BUTTON_INDEX = 2;
+const int QuickLaunchBarView::NUMBER_OF_QUICKLAUNCH_BUTTONS = 4;
 
 QuickLaunchBarView::QuickLaunchBarView(QuickLaunchBar *controller) : MWidgetView(controller),
     launcherButtonLayout(new QGraphicsLinearLayout(Qt::Horizontal)),
@@ -53,13 +54,18 @@ QuickLaunchBarView::QuickLaunchBarView(QuickLaunchBar *controller) : MWidgetView
 
 QuickLaunchBarView::~QuickLaunchBarView()
 {
+    // remove buttons from layout to avoid multi deletion (buttons are in model as QSharedPointer's)
+    foreach (QSharedPointer<LauncherButton> button, model()->buttons().values()) {
+        launcherButtonLayout->removeItem(button.data());
+        button->setParentItem(0);
+    }
 }
 
 void QuickLaunchBarView::setupModel()
 {
     MWidgetView::setupModel();
     QList<const char *> modifications;
-    modifications << QuickLaunchBarModel::Widgets;
+    modifications << QuickLaunchBarModel::Buttons;
     updateData(modifications);
 }
 
@@ -68,19 +74,23 @@ void QuickLaunchBarView::updateData(const QList<const char *>& modifications)
     MWidgetView::updateData(modifications);
     const char *member;
     foreach(member, modifications) {
-        if (member == QuickLaunchBarModel::Widgets) {
+        if (member == QuickLaunchBarModel::Buttons) {
             // Remove everything from the launcher button layout
             while (launcherButtonLayout->count() > 0) {
                 launcherButtonLayout->removeAt(0);
             }
 
-            // Add all launcher buttons to the launcher button layout
-            foreach (MWidget *widget, model()->widgets()) {
-                launcherButtonLayout->addItem(widget);
-
-                if (launcherButtonLayout->count() == TOGGLE_LAUNCHER_BUTTON_INDEX) {
-                    // Add a launcher button in the expected index
+            // Add launcher buttons to the layout and empty placeholder items into positions that have no buttons
+            for (int buttonIndex = 0, layoutIndex = 0; buttonIndex < NUMBER_OF_QUICKLAUNCH_BUTTONS ; layoutIndex++) {
+                if (layoutIndex == TOGGLE_LAUNCHER_BUTTON_INDEX) {
                     launcherButtonLayout->addItem(toggleLauncherButton);
+                } else if (model()->buttons().contains(buttonIndex)) {
+                    launcherButtonLayout->addItem(model()->buttons().value(buttonIndex).data());
+                    buttonIndex++;
+                } else {
+                    MWidget *widget = new MWidget();
+                    launcherButtonLayout->addItem(widget);
+                    buttonIndex++;
                 }
             }
         }

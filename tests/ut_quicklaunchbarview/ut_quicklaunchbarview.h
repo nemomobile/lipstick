@@ -46,6 +46,7 @@ private slots:
     void cleanup();
 
     // Test cases
+    void testInitialization();
     void testUpdateData();
 private:
     // MApplication

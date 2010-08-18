@@ -74,7 +74,7 @@ private slots:
     /*!
      * \brief Updates the widget list based on the contents of the data store
      */
-    void updateWidgetList();
+    void updateButtons();
 
 private:
     /*!

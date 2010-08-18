@@ -21,8 +21,9 @@
 #define QUICKLAUNCHBARMODEL_H_
 
 #include <MWidgetModel>
+#include "launcherbutton.h"
 
-typedef QList<MWidget *> WidgetList;
+typedef QMap<int, QSharedPointer<LauncherButton> > ButtonMap;
 
 /*!
  * A model for the QuickLaunchBar widget.
@@ -32,8 +33,8 @@ class QuickLaunchBarModel : public MWidgetModel
     Q_OBJECT
     M_MODEL(QuickLaunchBarModel)
 
-    //! The list of widgets to show in the quick launch bar
-    M_MODEL_PROPERTY(WidgetList, widgets, Widgets, true, QList<MWidget *>())
+    //! Mapping of buttons to positions
+    M_MODEL_PROPERTY(ButtonMap, buttons, Buttons, true, ButtonMap())
 };
 
 #endif /* QUICKLAUNCHBARMODEL_H_ */
