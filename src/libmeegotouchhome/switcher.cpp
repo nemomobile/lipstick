@@ -286,6 +286,10 @@ void Switcher::updateWindowInfoMap()
             }
         }
 
+        if (!stackingWindowList.isEmpty()){
+            topmostWindow = stackingWindowList.last().window();
+        }
+
         if (added || removed) {
             if (!removed) {
                 // If windows have been added but not removed, update the switcher with a delay
@@ -294,8 +298,7 @@ void Switcher::updateWindowInfoMap()
                 // If windows have been removed update the switcher instantly
                 updateButtons();
             }
-        } else if (!stackingWindowList.isEmpty()){
-            topmostWindow = stackingWindowList.last().window();
+        } else if (!stackingWindowList.isEmpty()) {
             if (!windowMonitor->isOwnWindow(topmostWindow)) {
                 // The view might also need to react (== pan to the correct page) if no buttons were added
                 // but the stacking order was changed, i.e. due to app chaining or some other activity
