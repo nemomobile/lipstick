@@ -54,7 +54,7 @@ QString LauncherButtonStub::desktopEntry() const {
 
 void LauncherButtonStub::updateFromDesktopEntry(const QString &desktopEntryPath) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const QString & >(desktopEntryPath));
+  params.append( new Parameter<QString >(desktopEntryPath));
   stubMethodEntered("updateFromDesktopEntry",params);
 }
 

@@ -387,17 +387,17 @@ void Ut_LauncherDataStore::testUpdatingDataForDesktopEntry()
     QCOMPARE(data.count(), 1);
     QSignalSpy spy(&dataStore, SIGNAL(dataStoreChanged()));
 
-    // Updating an inexisting entry should fail
-    QCOMPARE(dataStore.updateDataForDesktopEntry("/dev/null", "test"), false);
+    // Updating an inexisting entry should add a new value but not send any signals
+    dataStore.updateDataForDesktopEntry("/dev/null", "test");
     data = dataStore.dataForAllDesktopEntries();
-    QCOMPARE(data.count(), 1);
+    QCOMPARE(data.count(), 2);
     QCOMPARE(data.contains(fileNameWithPath("regularApplication.desktop")), true);
     QCOMPARE(spy.count(), 0);
 
-    // Updating an existing entry should succeed but not send any signals
-    QCOMPARE(dataStore.updateDataForDesktopEntry(fileNameWithPath("regularApplication.desktop"), "test"), true);
+    // Updating an existing entry should succeed but not add new value or send any signals
+    dataStore.updateDataForDesktopEntry(fileNameWithPath("regularApplication.desktop"), "test");
     data = dataStore.dataForAllDesktopEntries();
-    QCOMPARE(data.count(), 1);
+    QCOMPARE(data.count(), 2);
     QCOMPARE(data.contains(fileNameWithPath("regularApplication.desktop")), true);
     QCOMPARE(data.value(fileNameWithPath("regularApplication.desktop")), QVariant("test"));
     QCOMPARE(spy.count(), 0);
@@ -405,7 +405,7 @@ void Ut_LauncherDataStore::testUpdatingDataForDesktopEntry()
     // Updating the data store directly should reflect in changed data
     mockStore->setValue("DesktopEntries" + fileNameWithPath("regularApplication.desktop"), QVariant("modifiedTest"));
     data = dataStore.dataForAllDesktopEntries();
-    QCOMPARE(data.count(), 1);
+    QCOMPARE(data.count(), 2);
     QCOMPARE(data.contains(fileNameWithPath("regularApplication.desktop")), true);
     QCOMPARE(data.value(fileNameWithPath("regularApplication.desktop")), QVariant("modifiedTest"));
     QCOMPARE(spy.count(), 1);

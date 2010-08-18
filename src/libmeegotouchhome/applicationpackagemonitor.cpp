@@ -16,6 +16,7 @@
 ** of this file.
 **
 ****************************************************************************/
+
 #include "applicationpackagemonitor.h"
 #include "launcherdatastore.h"
 #include <QDir>
@@ -33,12 +34,15 @@ static const QString OPERATION_UNINSTALL = "Uninstall";
 static const QString OPERATION_REFRESH = "Refresh";
 static const QString OPERATION_UPGRADE = "Upgrade";
 
+static const QString DESKTOPENTRY_PREFIX = "DesktopEntries";
 static const QString PACKAGE_PREFIX = "Packages/";
 static const QString INSTALLER_EXTRA = "installer-extra/";
 
 static const QString CONFIG_PATH = "/.config/duihome";
 
 static const QString PACKAGE_STATE_INSTALLED = "installed";
+static const QString PACKAGE_STATE_INSTALLABLE = "installable";
+static const QString PACKAGE_STATE_BROKEN = "broken";
 
 static const QString DESKTOP_ENTRY_KEY_PACKAGE_STATE = "PackageState";
 static const QString DESKTOP_ENTRY_KEY_PACKAGE_NAME = "Package";
@@ -53,7 +57,6 @@ public:
 protected:
     virtual bool isDesktopEntryValid(const MDesktopEntry &entry, const QStringList &acceptedTypes);
 };
-
 
 ApplicationPackageMonitor::ApplicationPackageMonitor()
 : con(QDBusConnection::systemBus())
@@ -86,6 +89,23 @@ ApplicationPackageMonitor::ApplicationPackageMonitor()
 
 ApplicationPackageMonitor::~ApplicationPackageMonitor()
 {
+}
+
+void ApplicationPackageMonitor::updatePackageStates()
+{
+    QStringList keyList(dataStore->allKeys());
+
+    foreach (QString key, keyList) {
+        if (key.contains(PACKAGE_PREFIX)) {
+            QString desktopEntryPath = dataStore->value(key).toString();
+            QString state = dataStore->value(DESKTOPENTRY_PREFIX + desktopEntryPath).toString();
+            if (state == PACKAGE_STATE_BROKEN) {
+                QString packageName = key.remove(PACKAGE_PREFIX);
+                // emit operation error for a broken package
+                emit operationError(packageName, desktopEntryPath, QString());
+            }
+        }
+    }
 }
 
 ApplicationPackageMonitor::PackageProperties &ApplicationPackageMonitor::activePackageProperties(const QString packageName)
@@ -152,7 +172,7 @@ void ApplicationPackageMonitor::packageOperationComplete(const QString &operatio
     if (isValidOperation(properties, operation)) {
         if (!error.isEmpty()) {
             emit operationError(packageName, properties.desktopEntryName, error);
-        } else if (activePackages[packageName].installing) {
+        } else {
             emit operationSuccess(packageName,
                                   properties.desktopEntryName.replace(INSTALLER_EXTRA, QString()));
         }
@@ -182,15 +202,15 @@ void ApplicationPackageMonitor::updatePackageState(const QString &desktopEntryPa
     if (!packageName.isEmpty()) {
         QString pkgKey = PACKAGE_PREFIX+packageName;
 
-        if (packageState == "installable") {
-            dataStore->remove(pkgKey);
-        } else {
-            dataStore->createValue(pkgKey, desktopEntryPath);
+        if (packageState == PACKAGE_STATE_BROKEN) {
+            // emit operation error for a broken package
+            emit operationError(packageName, desktopEntryPath, QString());
+        }
+        dataStore->createValue(pkgKey, desktopEntryPath);
 
-            if (activePackages.contains(packageName)) {
-                // Package is being installed, add the desktop entry path directly
-                activePackages[packageName].desktopEntryName = desktopEntryPath;
-            }
+        if (activePackages.contains(packageName)) {
+            // Package is being installed, add the desktop entry path directly
+            activePackages[packageName].desktopEntryName = desktopEntryPath;
         }
     }
 

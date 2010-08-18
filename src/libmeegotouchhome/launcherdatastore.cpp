@@ -64,22 +64,16 @@ QHash<QString, QVariant> LauncherDataStore::dataForAllDesktopEntries()
     return data;
 }
 
-bool LauncherDataStore::updateDataForDesktopEntry(const QString &entryPath, const QVariant &data)
+void LauncherDataStore::updateDataForDesktopEntry(const QString &entryPath, const QVariant &data)
 {
-    QString key = entryPathToKey(entryPath);
-    if (store->contains(key)) {
-        // Disconnect the dataStoreChanged() signal connection during updates
-        store->disconnect(this);
+    // Disconnect the dataStoreChanged() signal connection during updates
+    store->disconnect(this);
 
-        // Update the data store
-        store->createValue(key, data);
+    // Update the data store
+    store->createValue(entryPathToKey(entryPath), data);
 
-        // Emit a dataStoreChanged() signal if something changes in the data store
-        connect(store, SIGNAL(valueChanged(QString, QVariant)), this, SIGNAL(dataStoreChanged()));
-        return true;
-    } else {
-        return false;
-    }
+    // Emit a dataStoreChanged() signal if something changes in the data store
+    connect(store, SIGNAL(valueChanged(QString, QVariant)), this, SIGNAL(dataStoreChanged()));
 }
 
 void LauncherDataStore::updateDataFromDesktopEntryFiles()
@@ -109,7 +103,6 @@ void LauncherDataStore::processUpdateQueue()
         // If the update queue is empty do nothing
         return;
     }
-
 
     // Disconnect the dataStoreChanged() signal connection during updates
     store->disconnect(this);

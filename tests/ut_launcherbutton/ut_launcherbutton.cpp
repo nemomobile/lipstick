@@ -25,6 +25,7 @@
 #include "launcher_stub.h"
 #include "homewindowmonitor_stub.h"
 #include "x11wrapper.h"
+#include "launcher.h"
 
 #include "launcherbuttonmodel.h"
 Q_DECLARE_METATYPE(LauncherButtonModel::State);

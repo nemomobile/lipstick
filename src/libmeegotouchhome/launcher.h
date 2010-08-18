@@ -60,11 +60,16 @@ public:
     //! A class for storing, parsing and ordering the placement information of the items
     class Placement {
     public:
+        Placement();
         Placement(const QString &placement);
 
         QString location;
         int page;
         int position;
+
+        bool isNull() {
+            return (page < 0 || position < 0);
+        }
     };
 
     /*!
@@ -208,14 +213,22 @@ private slots:
 
 private:
     /*!
-     * Add a launcher button to given pages.
-     *
-     * Finds first available space from last page or adds a new page if last page doesn't have space.
+     * Add a new launcher button to given pages.
      *
      * \param desktopEntryPath Path to desktop entry that button should represent
      * \param pages List of pages where button is to be added
      */
-    void addLauncherButtonToPages(const QString &desktopEntryPath, QList<QSharedPointer<LauncherPage> > &pages);
+    void addNewLauncherButtonToPages(const QString &desktopEntryPath, QList<QSharedPointer<LauncherPage> > &pages);
+
+    /*!
+     * Appends given launcher button to given pages.
+     *
+     * Finds first available space from last page or adds a new page if last page doesn't have space.
+     *
+     * \param button Button to be appended
+     * \param pages List of pages where button is to be appended
+     */
+    void appendButtonToPages(QSharedPointer<LauncherButton> button, QList<QSharedPointer<LauncherPage> > &pages);
 
     /*!
      * Returns Placement for button.
@@ -283,9 +296,29 @@ private:
 
     /*!
      * Adds a placeholder button to launcher
-     * \param button Placeholder button to be added to launcher
+     * \param packageName Name of the package that placeholder represents
+     * \param desktopEntryPath Path to the desktop entry
      */
-    void addPlaceholderButtonToLauncher(QSharedPointer<LauncherButton> button);
+    void addPlaceholderButton(const QString& packageName, const QString& desktopEntryPath);
+
+    /*!
+     * Updates button placement to the launcher data store.
+     *
+     * If button is not already in store, a new value is created.
+     *
+     * \param desktopEntryPath Desktop entry path to the desktop entry that button represents
+     */
+    void updateButtonPlacementInStore(const QString &desktopEntryPath);
+
+    /*!
+     * Gets a placeholder button for a given desktop entry.
+     * Button matches if desktop entry file names match.
+     *
+     * \param desktopEntryPath Path to desktop entry to be checked.
+     *
+     * \return Placeholder button
+     */
+    QSharedPointer<LauncherButton> placeholderButton(const QString &desktopEntryPath);
 
     /*!
      * Sets the maximum page size of a LauncherPage if defined.
@@ -294,8 +327,8 @@ private:
      */
     void setMaximumPageSizeIfNecessary(QSharedPointer<LauncherPage> &page);
 
-    //! A mapping from packageName to launcher buttons
-    QMap<QString, QSharedPointer<LauncherButton> > launcherButtonMap;
+    //! A mapping from packageName to placeholder launcher buttons
+    QMap<QString, QSharedPointer<LauncherButton> > placeholderMap;
 
     //! A string used for identifying content to be placed in the launcher
     static const QString LOCATION_IDENTIFIER;

@@ -79,7 +79,7 @@ public:
      * \param data the data to update the desktop entry with
      * \return \c true if the update was successful, \c false otherwise
      */
-    bool updateDataForDesktopEntry(const QString &entryPath, const QVariant &data);
+    void updateDataForDesktopEntry(const QString &entryPath, const QVariant &data);
 
 signals:
     /*!
