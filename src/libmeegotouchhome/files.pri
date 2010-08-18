@@ -50,7 +50,6 @@ HEADERS += homeapplication.h \
     windowmonitor.h \
     applicationpackagemonitor.h \
     xeventlistener.h \
-    applicationpackagemonitor.h \
     launcherbuttonprogressindicatorview.h \
     launcherbuttonprogressindicatorstyle.h \
     launcherbuttonprogressindicator.h \
