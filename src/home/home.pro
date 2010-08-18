@@ -9,7 +9,6 @@ SOURCES += main.cpp
 
 TEMPLATE = app
 TARGET = duihome
-DESTDIR = ../../
 INCLUDEPATH += ../libmeegotouchhome
 QMAKE_LIBDIR += ../../lib
 LIBS += -lmeegotouchhome

@@ -1,4 +1,4 @@
-*Makefile
+Makefile
 *.o
 *gen_*.h
 *gen_*.cpp
@@ -14,10 +14,7 @@ lib/lib*.so*
 *.gcda
 duihome
 *.pro.user
-tests/ut_desktop/ut_desktop
-tests/ut_launcher/ut_launcher
-tests/ut_statusarea/ut_statusarea
-tests/ut_notificationmanager/ut_notificationmanager
-tests/ut_switcher/ut_switcher
-tests/ut_switcherbutton/ut_switcherbutton
 configure-stamp
+localconfig.pri
+.project
+.cproject
