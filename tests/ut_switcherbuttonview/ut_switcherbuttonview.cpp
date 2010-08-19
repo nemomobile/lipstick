@@ -32,8 +32,6 @@ bool Ut_SwitcherButtonView::timerImmediateTimeout = false;
 bool Ut_SwitcherButtonView::timerStarted = false;
 MainWindow *Ut_SwitcherButtonView::mainWindow = NULL;
 
-const int NAVIGATION_BAR_HEIGHT = 100;
-
 #define TEST_ANY_OTHER_ATOM 1
 #define TEST_NET_WM_ICON_GEOMETRY_ATOM 303
 
@@ -286,6 +284,8 @@ void Ut_SwitcherButtonView::init()
     button = new TestSwitcherButton;
     button->setText("Test");
     m_subject = button->getView();
+    m_subject->modifiableStyle()->setTitleBarHeight(0);
+    titleBarHeight = m_subject->modifiableStyle()->titleBarHeight();
 
     timerImmediateTimeout = false;
     timerStarted = false;
@@ -404,20 +404,31 @@ void Ut_SwitcherButtonView::testViewModeChange()
 
 void Ut_SwitcherButtonView::testApplyingStyle()
 {
+    QVERIFY(!m_subject->closeButton->isVisible());
+    QVERIFY(!m_subject->titleLabel->isVisible());
+
     button->setObjectName("OverviewButton");
+    m_subject->modifiableStyle()->setTitleBarHeight(100);
+    button->getView()->applyStyle();
+    QVERIFY(m_subject->closeButton->isVisible());
+    QVERIFY(m_subject->titleLabel->isVisible());
     QCOMPARE(m_subject->closeButton->objectName(), QString("CloseButtonOverviewLarge"));
     QCOMPARE(m_subject->titleLabel->objectName(), QString("SwitcherButtonTitleLabelOverviewLarge"));
 
     button->setObjectName("DetailviewButton");
     button->model()->setViewMode(SwitcherButtonModel::Large);
+    m_subject->modifiableStyle()->setTitleBarHeight(100);
     button->getView()->applyStyle();
     QVERIFY(m_subject->closeButton->isVisible());
+    QVERIFY(m_subject->titleLabel->isVisible());
     QCOMPARE(m_subject->closeButton->objectName(), QString("CloseButtonDetailview"));
     QCOMPARE(m_subject->titleLabel->objectName(), QString("SwitcherButtonTitleLabelDetailview"));
 
     button->model()->setViewMode(SwitcherButtonModel::Medium);
+    m_subject->modifiableStyle()->setTitleBarHeight(100);
     button->getView()->applyStyle();
     QVERIFY(!m_subject->closeButton->isVisible());
+    QVERIFY(m_subject->titleLabel->isVisible());
 }
 
 void Ut_SwitcherButtonView::testDamageEventForKnownDamage()
@@ -544,11 +555,11 @@ void Ut_SwitcherButtonView::testDrawBackground_data()
 
     QTest::newRow("landscape0") << M::Landscape << M::Angle0
             << QRectF(0, 0, thumbnailStyleWidth, thumbnailStyleHeight)
-            << QRectF(0, NAVIGATION_BAR_HEIGHT, Ut_SwitcherButtonView::returnedPixmapWidth, Ut_SwitcherButtonView::returnedPixmapHeight - NAVIGATION_BAR_HEIGHT);
+            << QRectF(0, titleBarHeight, Ut_SwitcherButtonView::returnedPixmapWidth, Ut_SwitcherButtonView::returnedPixmapHeight - titleBarHeight);
 
     QTest::newRow("landscape90") << M::Landscape << M::Angle90
             << QRectF(0, 0, thumbnailStyleWidth, thumbnailStyleHeight)
-            << QRectF(0, 0, Ut_SwitcherButtonView::returnedPixmapWidth - NAVIGATION_BAR_HEIGHT, Ut_SwitcherButtonView::returnedPixmapHeight);
+            << QRectF(0, 0, Ut_SwitcherButtonView::returnedPixmapWidth - titleBarHeight, Ut_SwitcherButtonView::returnedPixmapHeight);
 
     // FIXME: add tests for portrait and other angles
 }

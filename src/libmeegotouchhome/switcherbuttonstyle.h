@@ -45,6 +45,9 @@ class SwitcherButtonStyle : public MButtonStyle
 
     //! The image to be drawn as the container for the button
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, containerImage, ContainerImage)
+
+    //! The height of the title bar
+    M_STYLE_ATTRIBUTE(int, titleBarHeight, TitleBarHeight)
 };
 
 class SwitcherButtonStyleContainer : public MButtonStyleContainer

@@ -154,10 +154,10 @@ private:
     // Sets up the tests dealing with handling the visibility notify XEvents
     XEvent setupVisibilityNotifyTest();
 
-signals:
-    // Signal for notifying about window visibility changed
-    void windowVisibilityChanged(Window window);
+    // The current title bar height
+    int titleBarHeight;
 
+signals:
     // Signal for notifying about close button presses
     void closeButtonPressed();
 

@@ -256,6 +256,9 @@ SwitcherButtonStyle {
 
     close-button-h-offset: 0mm;
     close-button-v-offset: 0mm;
+
+    /* The height of the title bar for cropping the thumbnail */
+    title-bar-height: 100;
 }
 
 /* The default values for the switcher button in the overview mode */

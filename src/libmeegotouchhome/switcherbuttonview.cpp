@@ -79,8 +79,6 @@ public:
 bool SwitcherButtonView::badMatchOccurred = false;
 #endif
 
-// The height of the navigation bar for cropping the thumbnail
-static const int NAVIGATION_BAR_HEIGHT = 100;
 // Time between icon geometry updates in milliseconds
 static const int ICON_GEOMETRY_UPDATE_INTERVAL = 200;
 // Time between icon pixmap fetch retries in milliseconds
@@ -164,34 +162,35 @@ void SwitcherButtonView::drawBackground(QPainter *painter, const QStyleOptionGra
         size.transpose();
     }
 
+    int titleBarHeight = style()->titleBarHeight();
     QPoint pos;
     QPoint iconPos(thumbnailPosition());
     QRect source(0, 0, qWindowPixmap.width(), qWindowPixmap.height());
     switch (manager->orientationAngle()) {
         case M::Angle90:
             pos -= QPoint(iconPos.y() + size.width(), -iconPos.x());
-            if (qWindowPixmap.width() > NAVIGATION_BAR_HEIGHT) {
-                source.setWidth(qWindowPixmap.width() - NAVIGATION_BAR_HEIGHT);
+            if (qWindowPixmap.width() > titleBarHeight) {
+                source.setWidth(qWindowPixmap.width() - titleBarHeight);
             }
             break;
         case M::Angle180:
             pos -= QPoint(iconPos.x() + size.width(), iconPos.y() + size.height());
-            if (qWindowPixmap.height() > NAVIGATION_BAR_HEIGHT) {
-                source.setHeight(qWindowPixmap.height() - NAVIGATION_BAR_HEIGHT);
+            if (qWindowPixmap.height() > titleBarHeight) {
+                source.setHeight(qWindowPixmap.height() - titleBarHeight);
             }
             break;
         case M::Angle270:
             pos -= QPoint(-iconPos.y(), iconPos.x() + size.height());
-            if (qWindowPixmap.width() > NAVIGATION_BAR_HEIGHT) {
-                source.setLeft(NAVIGATION_BAR_HEIGHT);
-                source.setWidth(qWindowPixmap.width() - NAVIGATION_BAR_HEIGHT);
+            if (qWindowPixmap.width() > titleBarHeight) {
+                source.setLeft(titleBarHeight);
+                source.setWidth(qWindowPixmap.width() - titleBarHeight);
             }
             break;
         default:
             pos += iconPos;
-            if (qWindowPixmap.height() > NAVIGATION_BAR_HEIGHT) {
-                source.setTop(NAVIGATION_BAR_HEIGHT);
-                source.setHeight(qWindowPixmap.height() - NAVIGATION_BAR_HEIGHT);
+            if (qWindowPixmap.height() > titleBarHeight) {
+                source.setTop(titleBarHeight);
+                source.setHeight(qWindowPixmap.height() - titleBarHeight);
             }
             break;
     }
@@ -249,28 +248,35 @@ void SwitcherButtonView::applyStyle()
 {
     MWidgetView::applyStyle();
 
-    // Apply style to close button
-    if (controller->objectName() == "DetailviewButton") {
-        closeButton->setObjectName("CloseButtonDetailview");
-        if (model()->viewMode() == SwitcherButtonModel::Large) {
+    if (style()->titleBarHeight() > 0) {
+        titleLabel->show();
+
+        // Apply style to close button
+        if (controller->objectName() == "DetailviewButton") {
+            closeButton->setObjectName("CloseButtonDetailview");
+            if (model()->viewMode() == SwitcherButtonModel::Large) {
+                closeButton->show();
+            } else {
+                closeButton->hide();
+            }
+            titleLabel->setObjectName("SwitcherButtonTitleLabelDetailview");
+
+        } else {
+            if(model()->viewMode() == SwitcherButtonModel::Medium) {
+                closeButton->setObjectName("CloseButtonOverviewMedium");
+                titleLabel->setObjectName("SwitcherButtonTitleLabelOverviewMedium");
+            } else {
+                closeButton->setObjectName("CloseButtonOverviewLarge");
+                titleLabel->setObjectName("SwitcherButtonTitleLabelOverviewLarge");
+            }
+
             closeButton->show();
-        } else {
-            closeButton->hide();
         }
-        titleLabel->setObjectName("SwitcherButtonTitleLabelDetailview");
-
+        closeButton->setIconID(style()->closeIcon());
     } else {
-        if(model()->viewMode() == SwitcherButtonModel::Medium) {
-            closeButton->setObjectName("CloseButtonOverviewMedium");
-            titleLabel->setObjectName("SwitcherButtonTitleLabelOverviewMedium");
-        } else {
-            closeButton->setObjectName("CloseButtonOverviewLarge");
-            titleLabel->setObjectName("SwitcherButtonTitleLabelOverviewLarge");
-        }
-
-        closeButton->show();
+        titleLabel->hide();
+        closeButton->hide();
     }
-    closeButton->setIconID(style()->closeIcon());
 
     update();
 }
