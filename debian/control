@@ -7,19 +7,19 @@ Build-Depends: debhelper (>= 5), doxygen (>=1.5.9),
   libqt4-dev (>= 4.6), libqt4-opengl-dev,
   libxcomposite-dev, libxext-dev,
   libcontextsubscriber-dev, libcontentaction-dev (>= 0.1.9)
-Standards-Version: 3.7.2
+Standards-Version: 3.8.0
 
 Package: duihomescreen
 Architecture: any
 Depends: ${shlibs:Depends},
   ui-fonts,
   dsme,
-  duihomescreen-l10n-engineering-english (= ${Source-Version})
+  duihomescreen-l10n-engineering-english (= ${binary:Version})
 Description: MeeGo Touch Home screen
  MeeGo Touch Home screen
 
 Package: duihomescreen-l10n-engineering-english
-Section: devel
+Section: localization
 Architecture: any
 Enhances: duihomescreen
 Description: Engineering English translations for MeeGo Touch Home screen
@@ -27,28 +27,28 @@ Description: Engineering English translations for MeeGo Touch Home screen
 
 Package: duihomescreen-dbg
 Architecture: any
-Section: devel
+Section: debug
 Depends: duihomescreen (= ${binary:Version})
 Description: MeeGo Touch Home screen debug info
  MeeGo Touch Home screen debug information
 
 Package: libduihome0
 Architecture: any
-Section: devel
+Section: libs
 Depends: ${shlibs:Depends}
 Description: MeeGo Touch Home library
  MeeGo Touch Home library
 
 Package: libduihome0-dbg
 Architecture: any
-Section: devel
+Section: debug
 Depends: libduihome0 (= ${binary:Version})
 Description: MeeGo Touch Home library debug info
  MeeGo Touch Home library debug information
 
 Package: libduihome-dev
 Architecture: any
-Section: devel
+Section: libdevel
 Depends: libduihome0 (= ${binary:Version}), libmeegotouch-dev
 Description: MeeGo Touch Home library dev package
  MeeGo Touch home library development package
@@ -61,7 +61,8 @@ Description: API documentation for libduihome
 Package: duihomescreen-tests
 Section: devel
 Architecture: any
-Depends: ci-testing, testrunner, duihomescreen (= ${binary:Version}),
+Depends: ${shlibs:Depends},
+  ci-testing, testrunner, duihomescreen (= ${binary:Version}),
   meego-env-dimming
 XB-Maemo-CI-Packages: duihomescreen
 XB-Maemo-CI-Stage: fast, staging
