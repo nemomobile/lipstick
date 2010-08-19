@@ -93,6 +93,8 @@ private slots:
     void testUpdatingPlaceholderIcons_data();
     void testUpdatingPlaceholderIcons();
     void testUpdatingIconFromActionAfterPlaceholderIcon();
+    void testEnablingAccordingToState_data();
+    void testEnablingAccordingToState();
 
 signals:
     void frameChanged(int frame);

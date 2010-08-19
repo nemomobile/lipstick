@@ -346,4 +346,23 @@ void Ut_LauncherButtonView::testUpdatingIconFromActionAfterPlaceholderIcon()
     QCOMPARE(m_subject->model()->iconID(), QString("icon"));
 }
 
+void Ut_LauncherButtonView::testEnablingAccordingToState_data()
+{
+     QTest::addColumn<LauncherButtonModel::State>("state");
+     QTest::addColumn<bool>("enabled");
+     QTest::newRow("Installed") << LauncherButtonModel::Installed << true;
+     QTest::newRow("Launching") << LauncherButtonModel::Launching << false;
+     QTest::newRow("Installing") << LauncherButtonModel::Installing << false;
+     QTest::newRow("Downloading") << LauncherButtonModel::Downloading << false;
+     QTest::newRow("Broken") << LauncherButtonModel::Broken << true;
+}
+
+void Ut_LauncherButtonView::testEnablingAccordingToState()
+{
+    QFETCH(LauncherButtonModel::State, state);
+    QFETCH(bool, enabled);
+    m_subject->model()->setButtonState(state);
+    QCOMPARE(m_subject->controller->isEnabled(), enabled);
+}
+
 QTEST_APPLESS_MAIN(Ut_LauncherButtonView)

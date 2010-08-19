@@ -89,7 +89,16 @@ void LauncherButtonView::updateData(const QList<const char *>& modifications)
 
             if (model()->buttonState() == LauncherButtonModel::Launching) {
                 launchProgressTimeoutTimer.start();
+                controller->setEnabled(false);
             } else {
+                if (model()->buttonState()
+                    == LauncherButtonModel::Installed
+                    || model()->buttonState()
+                    == LauncherButtonModel::Broken) {
+                    controller->setEnabled(true);
+                } else {
+                    controller->setEnabled(false);
+                }
                 // stop launch timer in case we were launching
                 if (launchProgressTimeoutTimer.isActive()) {
                     launchProgressTimeoutTimer.stop();
