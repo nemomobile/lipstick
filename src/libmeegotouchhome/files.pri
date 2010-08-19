@@ -32,6 +32,8 @@ HEADERS += homeapplication.h \
     switcherbuttonmodel.h \
     switcherbuttonview.h \
     switcherbuttonstyle.h \
+    switcherbuttonwithtitlebarview.h \
+    switcherbuttonwithtitlebarstyle.h \
     transformlayoutanimation.h \
     transformlayoutanimationstyle.h \
     x11wrapper.h \
@@ -74,6 +76,7 @@ SOURCES += homeapplication.cpp \
     switcherview.cpp \
     switcherbutton.cpp \
     switcherbuttonview.cpp \
+    switcherbuttonwithtitlebarview.cpp \
     transformlayoutanimation.cpp \
     x11wrapper.cpp \
     launcherpage.cpp \
@@ -103,6 +106,7 @@ STYLE_HEADERS += desktopstyle.h \
     launcherpagestyle.h \
     quicklaunchbarstyle.h \
     switcherbuttonstyle.h \
+    switcherbuttonwithtitlebarstyle.h \
     switcherstyle.h \
     pagepositionindicatorstyle.h \
     pagedviewportstyle.h \

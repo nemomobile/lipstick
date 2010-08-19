@@ -82,9 +82,6 @@ class Ut_SwitcherButtonView : public QObject
 public:
     static const MScalableImage *drawnScalableImage;
 
-    // Switch for making the close timer timeout to occur immediately or not
-    static bool timerImmediateTimeout;
-
     // For checking whether a timer is started even if it has already been started
     static bool timerStarted;
 
@@ -122,15 +119,6 @@ public:
     // Main window
     static MainWindow *mainWindow;
 
-    // Previous QPainter opacity
-    static qreal painterOpacity;
-
-    // Previous QPainter text
-    static QString painterText;
-
-    // Opacity for the previous QPainter text
-    static qreal painterTextOpacity;
-
     // To see whether update() was called for the view
     static bool viewUpdateCalled;
 
@@ -154,30 +142,17 @@ private:
     // Sets up the tests dealing with handling the visibility notify XEvents
     XEvent setupVisibilityNotifyTest();
 
-    // The current title bar height
-    int titleBarHeight;
-
-signals:
-    // Signal for notifying about close button presses
-    void closeButtonPressed();
-
 private slots:
     void init();
     void cleanup();
     void initTestCase();
     void cleanupTestCase();
-    void testClosingWithTimeout();
-    void testClosingWithoutTimeout();
     void testXWindow();
     void testViewModeChange();
-    void testApplyingStyle();
     void testDamageEventForKnownDamage();
     void testDamageEventForUnknownDamage();
     void testEnterExitDisplay();
     void testXDamageSubtractWhenDisplayEntered();
-    void testCloseButtonTranslate();
-    void testBoundingRect();
-    void testThumbnailPosition();
     void testSignalConnections();
     void testDrawBackground_data();
     void testDrawBackground();

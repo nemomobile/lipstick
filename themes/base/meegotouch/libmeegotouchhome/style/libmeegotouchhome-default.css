@@ -237,6 +237,8 @@ PagedViewportStyle {
 }
 
 SwitcherButtonStyle {
+    margin-bottom: 0;
+    margin-left: 0;
     margin-left: 0;
     margin-right: 0;
 
@@ -251,28 +253,20 @@ SwitcherButtonStyle {
     /* The image to be drawn as the container for the button */
     container-image:;
 
+    /* The height of the navigation bar for cropping the thumbnail */
+    cropping-top: 100;
+}
+
+SwitcherButtonWithTitleBarStyle {
     /* The close button icon */
     close-icon: ;
 
     close-button-h-offset: 0mm;
     close-button-v-offset: 0mm;
-
-    /* The height of the title bar for cropping the thumbnail */
-    title-bar-height: 100;
 }
 
 /* The default values for the switcher button in the overview mode */
-SwitcherButtonStyle#OverviewButton {
-    margin-bottom: 0;
-    margin-left: 0;
-    margin-right: 0;
-    margin-top: 0;
-
-    padding-bottom: 0;
-    padding-left: 0;
-    padding-right: 0;
-    padding-top: 0;
-
+SwitcherButtonWithTitleBarStyle#OverviewButton {
     close-icon: "icon-s-framework-close-thumbnail";
 }
 
@@ -281,7 +275,9 @@ SwitcherButtonStyle#OverviewButton.Portrait:medium {
     minimum-size: 15.56mm 28.0mm;
     maximum-size: 15.56mm 28.0mm;
     icon-size: 15.56mm 28.0mm;
+}
 
+SwitcherButtonWithTitleBarStyle#OverviewButton.Portrait:medium {
     close-button-v-offset: 1.3mm;
     close-button-h-offset: 1.3mm;
 }
@@ -291,7 +287,9 @@ SwitcherButtonStyle#OverviewButton.Portrait:large {
     minimum-size: 21mm 37.8mm;
     maximum-size: 21mm 37.8mm;
     icon-size: 21mm 37.8mm;
+}
 
+SwitcherButtonWithTitleBarStyle#OverviewButton.Portrait:large {
     close-button-v-offset: 1.3mm;
     close-button-h-offset: 1.3mm;
 }
@@ -301,7 +299,9 @@ SwitcherButtonStyle#OverviewButton.Landscape:medium {
     minimum-size: 21.8mm 12.1mm;
     maximum-size: 21.8mm 12.1mm;
     icon-size: 21.8mm 12.1mm;
+}
 
+SwitcherButtonWithTitleBarStyle#OverviewButton.Landscape:medium {
     close-button-v-offset: 1.3mm;
     close-button-h-offset: 1.3mm;
 }
@@ -311,13 +311,15 @@ SwitcherButtonStyle#OverviewButton.Landscape:large {
     minimum-size: 37.8mm 21mm;
     maximum-size: 37.8mm 21mm;
     icon-size: 37.8mm 21mm;
+}
 
+SwitcherButtonWithTitleBarStyle#OverviewButton.Landscape:large {
     close-button-v-offset: 1.3mm;
     close-button-h-offset: 1.3mm;
 }
 
 /* Switcher buttons in the detail viewmode */
-SwitcherButtonStyle#DetailviewButton {
+SwitcherButtonWithTitleBarStyle#DetailviewButton {
     close-button-v-offset: 0mm;
     close-button-h-offset: 0mm;
 }
@@ -327,10 +329,9 @@ SwitcherButtonStyle#DetailviewButton.Portrait {
     minimum-size: 28.77mm 51.8mm;
     maximum-size: 28.77mm 51.8mm;
     icon-size: 28.77mm 51.8mm;
-    close-icon: "";
 }
 
-SwitcherButtonStyle#DetailviewButton.Portrait:large {
+SwitcherButtonWithTitleBarStyle#DetailviewButton.Portrait:large {
     close-icon: "icon-m-framework-close-thumbnail";
 }
 
@@ -339,10 +340,9 @@ SwitcherButtonStyle#DetailviewButton.Landscape {
     minimum-size: 51.8mm 28.77mm;
     maximum-size: 51.8mm 28.77mm;
     icon-size: 51.8mm 28.77mm;
-    close-icon: "";
 }
 
-SwitcherButtonStyle#DetailviewButton.Landscape:large {
+SwitcherButtonWithTitleBarStyle#DetailviewButton.Landscape:large {
     close-icon: "icon-m-framework-close-thumbnail";
 }
 

@@ -23,6 +23,7 @@ SUBDIRS = \
     ut_switcher \
     ut_switcherbutton \
     ut_switcherbuttonview \
+    ut_switcherbuttonwithtitlebarview \
     ut_switcherview \
     ut_transformlayoutanimation \
     ut_windowinfo \

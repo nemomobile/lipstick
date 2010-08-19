@@ -19,21 +19,18 @@
 
 #include <cmath>
 #include <QGraphicsSceneMouseEvent>
+#include <QGraphicsLinearLayout>
 #include "mainwindow.h"
 #include <QX11Info>
 #include <QPainter>
-#include <MApplication>
+#include <QApplication>
 #include <MScalableImage>
 #include <MCancelEvent>
 #include <MSceneManager>
-#include <MLayout>
-#include <MLabel>
-#include <QGraphicsLinearLayout>
 #include "switcherbuttonview.h"
 #include "switcherbutton.h"
 #include "xeventlistener.h"
 #include "x11wrapper.h"
-
 
 /*!
  * An X event listener for the switcher button view. Reacts to visibility
@@ -96,24 +93,13 @@ SwitcherButtonView::SwitcherButtonView(SwitcherButton *button) :
     updateXWindowPixmapRetryCount(0),
     xEventListener(new SwitcherButtonViewXEventListener(*this))
 {
+    QGraphicsLinearLayout *titleBarLayout = new QGraphicsLinearLayout(Qt::Horizontal, controller);
+    titleBarLayout->setContentsMargins(0,0,0,0);
+    titleBarLayout->addStretch();
+    controller->setLayout(titleBarLayout);
+
     // Show interest in X pixmap change signals
     connect(qApp, SIGNAL(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)), this, SLOT(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)));
-
-    titleBarLayout = new QGraphicsLinearLayout(Qt::Horizontal, controller);
-    titleBarLayout->setContentsMargins(0,0,0,0);
-
-    titleLabel = new MLabel(controller);
-    titleLabel->setContentsMargins(0,0,0,0);
-    titleLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-    titleBarLayout->addItem(titleLabel);
-
-    closeButton = new MButton();
-    closeButton->setViewType(MButton::iconType);
-    connect(closeButton, SIGNAL(clicked()), controller, SLOT(close()));
-    titleBarLayout->addItem(closeButton);
-    titleBarLayout->setAlignment(closeButton, Qt::AlignVCenter);
-
-    controller->setLayout(titleBarLayout);
 
     // Enable or disable reception of damage events based on whether the switcher button is on the screen or not
     connect(button, SIGNAL(displayEntered()), this, SLOT(setOnDisplay()));
@@ -162,35 +148,35 @@ void SwitcherButtonView::drawBackground(QPainter *painter, const QStyleOptionGra
         size.transpose();
     }
 
-    int titleBarHeight = style()->titleBarHeight();
+    int croppingTop = style()->croppingTop();
     QPoint pos;
     QPoint iconPos(thumbnailPosition());
     QRect source(0, 0, qWindowPixmap.width(), qWindowPixmap.height());
     switch (manager->orientationAngle()) {
         case M::Angle90:
             pos -= QPoint(iconPos.y() + size.width(), -iconPos.x());
-            if (qWindowPixmap.width() > titleBarHeight) {
-                source.setWidth(qWindowPixmap.width() - titleBarHeight);
+            if (qWindowPixmap.width() > croppingTop) {
+                source.setWidth(qWindowPixmap.width() - croppingTop);
             }
             break;
         case M::Angle180:
             pos -= QPoint(iconPos.x() + size.width(), iconPos.y() + size.height());
-            if (qWindowPixmap.height() > titleBarHeight) {
-                source.setHeight(qWindowPixmap.height() - titleBarHeight);
+            if (qWindowPixmap.height() > croppingTop) {
+                source.setHeight(qWindowPixmap.height() - croppingTop);
             }
             break;
         case M::Angle270:
             pos -= QPoint(-iconPos.y(), iconPos.x() + size.height());
-            if (qWindowPixmap.width() > titleBarHeight) {
-                source.setLeft(titleBarHeight);
-                source.setWidth(qWindowPixmap.width() - titleBarHeight);
+            if (qWindowPixmap.width() > croppingTop) {
+                source.setLeft(croppingTop);
+                source.setWidth(qWindowPixmap.width() - croppingTop);
             }
             break;
         default:
             pos += iconPos;
-            if (qWindowPixmap.height() > titleBarHeight) {
-                source.setTop(titleBarHeight);
-                source.setHeight(qWindowPixmap.height() - titleBarHeight);
+            if (qWindowPixmap.height() > croppingTop) {
+                source.setTop(croppingTop);
+                source.setHeight(qWindowPixmap.height() - croppingTop);
             }
             break;
     }
@@ -220,65 +206,9 @@ void SwitcherButtonView::drawContents(QPainter *painter, const QStyleOptionGraph
     painter->restore();
 }
 
-void SwitcherButtonView::translateCloseButton()
-{
-    int verticalOffset = -style()->closeButtonVOffset();
-    int horizontalOffset = style()->closeButtonHOffset();
-
-    // Horizontal offset needs to be handled differently for different layout directions
-    if (MApplication::layoutDirection() == Qt::RightToLeft) {
-        horizontalOffset = -horizontalOffset;
-    }
-    closeButton->translate(horizontalOffset, verticalOffset);
-}
-
-QRectF SwitcherButtonView::boundingRect() const
-{
-    int titleLabelHeight = titleLabel->size().height();
-    int thumbnailHeight = style()->iconSize().height();
-    return QRectF(0, 0, style()->iconSize().width(), thumbnailHeight + titleLabelHeight);
-}
-
 QPoint SwitcherButtonView::thumbnailPosition() const
 {
-    return QPoint(0, titleLabel->size().height());
-}
-
-void SwitcherButtonView::applyStyle()
-{
-    MWidgetView::applyStyle();
-
-    if (style()->titleBarHeight() > 0) {
-        titleLabel->show();
-
-        // Apply style to close button
-        if (controller->objectName() == "DetailviewButton") {
-            closeButton->setObjectName("CloseButtonDetailview");
-            if (model()->viewMode() == SwitcherButtonModel::Large) {
-                closeButton->show();
-            } else {
-                closeButton->hide();
-            }
-            titleLabel->setObjectName("SwitcherButtonTitleLabelDetailview");
-
-        } else {
-            if(model()->viewMode() == SwitcherButtonModel::Medium) {
-                closeButton->setObjectName("CloseButtonOverviewMedium");
-                titleLabel->setObjectName("SwitcherButtonTitleLabelOverviewMedium");
-            } else {
-                closeButton->setObjectName("CloseButtonOverviewLarge");
-                titleLabel->setObjectName("SwitcherButtonTitleLabelOverviewLarge");
-            }
-
-            closeButton->show();
-        }
-        closeButton->setIconID(style()->closeIcon());
-    } else {
-        titleLabel->hide();
-        closeButton->hide();
-    }
-
-    update();
+    return QPoint();
 }
 
 void SwitcherButtonView::setupModel()
@@ -289,10 +219,24 @@ void SwitcherButtonView::setupModel()
         updateXWindowPixmap();
     }
     updateViewMode();
+}
 
-    translateCloseButton();
+void SwitcherButtonView::updateData(const QList<const char *>& modifications)
+{
+    MWidgetView::updateData(modifications);
+    const char *member;
+    foreach(member, modifications) {
+        if (member == SwitcherButtonModel::XWindow && model()->xWindow() != 0) {
+            updateXWindowPixmap();
+        } else if (member == SwitcherButtonModel::ViewMode) {
+            updateViewMode();
+        }
+    }
+}
 
-    titleLabel->setText(model()->text());
+void SwitcherButtonView::applyStyle()
+{
+    MWidgetView::applyStyle();
 }
 
 void SwitcherButtonView::updateViewMode()
@@ -311,21 +255,6 @@ void SwitcherButtonView::updateViewMode()
 
     // When the style mode changes, the style is not automatically applied -> call it explicitly
     applyStyle();
-}
-
-void SwitcherButtonView::updateData(const QList<const char *>& modifications)
-{
-    MWidgetView::updateData(modifications);
-    const char *member;
-    foreach(member, modifications) {
-        if (member == SwitcherButtonModel::XWindow && model()->xWindow() != 0) {
-            updateXWindowPixmap();
-        } else if (member == SwitcherButtonModel::ViewMode) {
-            updateViewMode();
-        } else if(member == SwitcherButtonModel::Text) {
-            titleLabel->setText(model()->text());
-        }
-    }
 }
 
 void SwitcherButtonView::updateXWindowPixmap()

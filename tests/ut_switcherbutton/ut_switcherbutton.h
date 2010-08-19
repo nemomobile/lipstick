@@ -46,6 +46,8 @@ class Ut_SwitcherButton : public QObject
     Q_OBJECT
 
 public:
+    // Whether QTimer times out immediately
+    static bool timerImmediateTimeout;
     // Whether prepareGeometryChange has been called
     static bool prepareGeometryChangeCalled;
 
@@ -76,7 +78,8 @@ private slots:
     void cleanupTestCase();
     void testXWindow();
     void testSwitchToWindow();
-    void testClose();
+    void testClosingWithTimeout();
+    void testClosingWithoutTimeout();
     void testPrepareGeometryChange();
     // Test that X11 properties are set correctly if visible in switcher
     void testSetVisibleInSwitcherProperty();

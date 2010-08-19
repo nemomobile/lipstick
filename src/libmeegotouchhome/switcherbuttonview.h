@@ -16,6 +16,7 @@
 ** of this file.
 **
 ****************************************************************************/
+
 #ifndef SWITCHERBUTTONVIEW_H
 #define SWITCHERBUTTONVIEW_H
 
@@ -26,10 +27,6 @@
 #include "x11wrapper.h"
 
 class SwitcherButton;
-class MButton;
-class MLayout;
-class MLabel;
-class QGraphicsLinearLayout;
 class XEventListener;
 
 /*!
@@ -58,12 +55,8 @@ public:
     //! \reimp
     virtual void drawBackground(QPainter *painter, const QStyleOptionGraphicsItem *option) const;
     virtual void drawContents(QPainter *painter, const QStyleOptionGraphicsItem *option) const;
-    virtual QRectF boundingRect() const;
     virtual void applyStyle();
     //! \reimp_end
-
-    //! Returns the bounding rectangle of the thumbnail
-    QRectF thumbnailRect() const;
 
     /*!
      * A method for notifying that a window got fully obscured. If the fully obscured window
@@ -114,26 +107,22 @@ protected:
      */
     void destroyDamage();
 
+    //! Returns the thumbnail position in parent coordinates.
+    virtual QPoint thumbnailPosition() const;
+
     //! \reimp
     virtual void setupModel();
     //! \reimp_end
 
+    //! SwitcherButton controller
+    SwitcherButton *controller;
 
 private:
     //! Starts a timer for updating the icon geometry if the icon geometry has changed after the last update
     void updateXWindowIconGeometryIfNecessary() const;
 
-    //! Translates close button according to offset attributes in style.
-    void translateCloseButton();
-
-    //! Returns the thumbnail position in parent coordinates.
-    QPoint thumbnailPosition() const;
-
     //! Updates the button style to reflect the current view mode.
     void updateViewMode();
-
-    //! Returns the bounding rectangle of the window title
-    QRectF titleRect() const;
 
 #ifdef Q_WS_X11
     //! Handles X BadMatch errors
@@ -142,9 +131,6 @@ private:
     //! Whether a BadMatch X error has occurred
     static bool badMatchOccurred;
 #endif
-
-    //! SwitcherButton controller
-    SwitcherButton *controller;
 
     //! The X window's pixmap
     Pixmap xWindowPixmap;
@@ -158,17 +144,8 @@ private:
     //! The point where dragging started
     QPointF dragStartPos;
 
-    //! Button for closing the window
-    MButton *closeButton;
-
-    //! Title label
-    MLabel *titleLabel;
-
     //! Whether the button is being displayed or not
     bool onDisplay;
-
-    //! Title bar layout
-    QGraphicsLinearLayout *titleBarLayout;
 
     //! Timer for updating the icon's position in scene coordination
     mutable QTimer updateXWindowIconGeometryTimer;

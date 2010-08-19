@@ -39,6 +39,7 @@ public:
     virtual int XFreePixmap(Display *display, Pixmap pixmap);
     virtual Pixmap XCompositeNameWindowPixmap(Display *dpy, Window window);
     virtual Damage XDamageCreate(Display *dpy, Drawable drawable, int level);
+    virtual void XDamageSubtract(Display *display, Damage damage, XserverRegion repair, XserverRegion parts);
     virtual void XDamageDestroy(Display *dpy, Damage damage);
     virtual int XSync(Display *display, Bool discard);
     virtual XErrorHandler XSetErrorHandler(XErrorHandler handler);
@@ -162,6 +163,16 @@ Damage X11WrapperStub::XDamageCreate(Display *dpy, Drawable drawable, int level)
     return stubReturnValue<Damage>("XDamageCreate");
 }
 
+void X11WrapperStub::XDamageSubtract(Display *display, Damage damage, XserverRegion repair, XserverRegion parts)
+{
+    QList<ParameterBase *> params;
+    params.append(new Parameter<Display * >(display));
+    params.append(new Parameter<Damage >(damage));
+    params.append(new Parameter<XserverRegion >(repair));
+    params.append(new Parameter<XserverRegion >(parts));
+    stubMethodEntered("XDamageSubtract", params);
+}
+
 void X11WrapperStub::XDamageDestroy(Display *dpy, Damage damage)
 {
     QList<ParameterBase *> params;
@@ -275,6 +286,11 @@ Pixmap X11Wrapper::XCompositeNameWindowPixmap(Display *dpy, Window window)
 Damage X11Wrapper::XDamageCreate(Display *dpy, Drawable drawable, int level)
 {
     return gX11WrapperStub->XDamageCreate(dpy, drawable, level);
+}
+
+void X11Wrapper::XDamageSubtract(Display *display, Damage damage, XserverRegion repair, XserverRegion parts)
+{
+    gX11WrapperStub->XDamageSubtract(display, damage, repair, parts);
 }
 
 void X11Wrapper::XDamageDestroy(Display *dpy, Damage damage)

@@ -20,13 +20,8 @@
 #ifndef SWITCHERBUTTONSTYLE_H_
 #define SWITCHERBUTTONSTYLE_H_
 
-#include <QFont>
-#include <QColor>
-#include <QPointF>
-#include <QSize>
 #include <mbuttonstyle.h>
 
-class QPixmap;
 class MScalableImage;
 
 class SwitcherButtonStyle : public MButtonStyle
@@ -34,20 +29,11 @@ class SwitcherButtonStyle : public MButtonStyle
     Q_OBJECT
     M_STYLE(SwitcherButtonStyle)
 
-    //! Close button vertical offset relative to top-right corner of switcher button
-    M_STYLE_ATTRIBUTE(qreal, closeButtonVOffset, CloseButtonVOffset)
-
-    //! Close button horizontal offset relative to top-right corner of switcher button
-    M_STYLE_ATTRIBUTE(qreal, closeButtonHOffset, CloseButtonHOffset)
-
-    //! The close button icon
-    M_STYLE_ATTRIBUTE(QString, closeIcon, CloseIcon)
-
-    //! The image to be drawn as the container for the button
+     //! The image to be drawn as the container for the button
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, containerImage, ContainerImage)
 
-    //! The height of the title bar
-    M_STYLE_ATTRIBUTE(int, titleBarHeight, TitleBarHeight)
+    //! The amount of pixels to be cropped from the top of the window
+    M_STYLE_ATTRIBUTE(int, croppingTop, CroppingTop)
 };
 
 class SwitcherButtonStyleContainer : public MButtonStyleContainer

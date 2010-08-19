@@ -35,6 +35,21 @@ QStringList QCoreApplication::arguments()
     return QStringList();
 }
 
+// QTimer stubs (used by Ut_SwitcherButton)
+void QTimer::start(int)
+{
+    if (Ut_SwitcherButton::timerImmediateTimeout) {
+        emit timeout();
+    }
+
+    id = 0;
+}
+
+void QTimer::stop()
+{
+    id = -1;
+}
+
 void QGraphicsItem::prepareGeometryChange()
 {
     Ut_SwitcherButton::prepareGeometryChangeCalled = true;
@@ -75,6 +90,7 @@ void TestSignalReceiver::closeWindow(Window window)
     closedWindow = window;
 }
 
+bool Ut_SwitcherButton::timerImmediateTimeout = false;
 bool Ut_SwitcherButton::prepareGeometryChangeCalled = false;
 Display *Ut_SwitcherButton::xChangePropertyDisplay;
 Window Ut_SwitcherButton::xChangePropertyWindow;
@@ -101,6 +117,7 @@ void Ut_SwitcherButton::init()
 
     signalReceiver.closedWindow = 0;
     signalReceiver.switchedWindow = 0;
+    timerImmediateTimeout = false;
     prepareGeometryChangeCalled = false;
     xChangePropertyDisplay = 0;
     xChangePropertyWindow = 0;
@@ -149,11 +166,26 @@ void Ut_SwitcherButton::testSwitchToWindow()
     QCOMPARE(signalReceiver.switchedWindow, (Window)2);
 }
 
-void Ut_SwitcherButton::testClose()
+void Ut_SwitcherButton::testClosingWithTimeout()
 {
+    timerImmediateTimeout = true;
     button->setXWindow(3);
     button->close();
     QCOMPARE(signalReceiver.closedWindow, (Window)3);
+
+    // The window close timeout occurs immediately: check that after the timeout button is not closed and still visible
+    QCOMPARE(button->isVisible(), true);
+}
+
+void Ut_SwitcherButton::testClosingWithoutTimeout()
+{
+    timerImmediateTimeout = false;
+    button->setXWindow(3);
+    button->close();
+    QCOMPARE(signalReceiver.closedWindow, (Window)3);
+
+    // The window close timeout does not occur: check that button is closed and invisible
+    QCOMPARE(button->isVisible(), false);
 }
 
 void Ut_SwitcherButton::testPrepareGeometryChange()
