@@ -137,4 +137,7 @@ private:
 //! Comparison operator for WindowInfo objects
 bool operator==(const WindowInfo &, const WindowInfo &);
 
+//! Calculates a hash of a WindowInfo
+uint qHash(WindowInfo wi);
+
 #endif /* WINDOWINFO_H_ */

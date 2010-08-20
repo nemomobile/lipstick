@@ -85,10 +85,10 @@ void Ut_LauncherPageView::cleanup()
 
 void Ut_LauncherPageView::testAddButtonsToPage()
 {
-    QSharedPointer<LauncherButton> widget1(new LauncherButton);
-    QSharedPointer<LauncherButton> widget2(new LauncherButton);
-    QSharedPointer<LauncherButton> widget3(new LauncherButton);
-    QSharedPointer<LauncherButton> widget4(new LauncherButton);
+    QSharedPointer<LauncherButton> widget1(new LauncherButton(""));
+    QSharedPointer<LauncherButton> widget2(new LauncherButton(""));
+    QSharedPointer<LauncherButton> widget3(new LauncherButton(""));
+    QSharedPointer<LauncherButton> widget4(new LauncherButton(""));
     LauncherPageModel::LauncherButtonList widgets;
     widgets.append(widget1);
     controller->model()->setLauncherButtons(widgets);
@@ -109,8 +109,8 @@ void Ut_LauncherPageView::testAddButtonsToPage()
 
 void Ut_LauncherPageView::testRemovingButtonFromLayout()
 {
-    QSharedPointer<LauncherButton> widget1(new LauncherButton);
-    QSharedPointer<LauncherButton> widget2(new LauncherButton);
+    QSharedPointer<LauncherButton> widget1(new LauncherButton(""));
+    QSharedPointer<LauncherButton> widget2(new LauncherButton(""));
     LauncherPageModel::LauncherButtonList widgets;
     widgets.append(widget1);
     widgets.append(widget2);
@@ -129,7 +129,7 @@ void Ut_LauncherPageView::testRemovingButtonFromLayout()
 
 void Ut_LauncherPageView::testRemovingButtonFromLayoutInDestructor()
 {
-    QSharedPointer<LauncherButton> widget(new LauncherButton);
+    QSharedPointer<LauncherButton> widget(new LauncherButton(""));
     LauncherPageModel::LauncherButtonList widgets;
     widgets.append(widget);
     controller->model()->setLauncherButtons(widgets);
@@ -143,8 +143,8 @@ void Ut_LauncherPageView::testRemovingButtonFromLayoutInDestructor()
 
 void Ut_LauncherPageView::testUpdateData()
 {
-    QSharedPointer<LauncherButton> widget1(new LauncherButton);
-    QSharedPointer<LauncherButton> widget2(new LauncherButton);
+    QSharedPointer<LauncherButton> widget1(new LauncherButton(""));
+    QSharedPointer<LauncherButton> widget2(new LauncherButton(""));
     LauncherPageModel::LauncherButtonList widgets;
     widgets.append(widget1);
     widgets.append(widget2);

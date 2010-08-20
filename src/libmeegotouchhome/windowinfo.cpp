@@ -219,3 +219,7 @@ QList<Atom> WindowInfo::getWindowProperties(Window winId, Atom propertyAtom, lon
     }
     return properties;
 }
+
+uint qHash(WindowInfo wi) {
+    return static_cast<uint>(wi.window());
+}

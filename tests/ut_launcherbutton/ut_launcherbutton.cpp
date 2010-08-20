@@ -23,7 +23,7 @@
 #include "ut_launcherbutton.h"
 #include "launcherbutton.h"
 #include "launcher_stub.h"
-#include "switcher_stub.h"
+#include "homewindowmonitor_stub.h"
 #include "x11wrapper.h"
 
 #include "launcherbuttonmodel.h"
@@ -213,8 +213,8 @@ struct ContentAction::ActionPrivate
                   QString icon) :
         isValid_(isValid), name_(name),
         english_(english), nonEnglish_(nonEnglish),
-        icon_(icon) {};
-    virtual ~ActionPrivate() {};
+        icon_(icon) {}
+    virtual ~ActionPrivate() {}
 
     virtual bool isValid() const { return isValid_; }
     virtual QString name() const { return  name_; }
@@ -235,9 +235,9 @@ struct ContentAction::ActionPrivate
 };
 
 bool Action::isValid() const { return d->isValid(); }
-QString Action::name() const { return d->name(); } 
-QString Action::localizedName() const { return d->localizedName(); } 
-QString Action::icon() const { return d->icon(); } 
+QString Action::name() const { return d->name(); }
+QString Action::localizedName() const { return d->localizedName(); }
+QString Action::icon() const { return d->icon(); }
 
 Action::Action()
     : d(new ActionPrivate(false, "", "", "", ""))
@@ -277,7 +277,7 @@ void Action::trigger() const
 void addActionPrivate(QString fileName, bool isValid, QString name,
                       QString english, QString nonEnglish, QString icon)
 {
-    ActionPrivate* priv = new ActionPrivate(isValid, 
+    ActionPrivate* priv = new ActionPrivate(isValid,
                                             name,
                                             english,
                                             nonEnglish,
@@ -305,10 +305,10 @@ void Ut_LauncherButton::init()
     contentActionPrivate.clear();
     contentActionTriggerCalls = 0;
 
-    m_subject = new LauncherButton();
+    m_subject = new LauncherButton("");
     m_subject->model()->setButtonState(LauncherButtonModel::Installed);
     connect(this, SIGNAL(clicked()), m_subject, SLOT(launch()));
-    connect(this, SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), m_subject, SLOT(stopLaunchProgressIfObscured(const QList<WindowInfo> &)));
+    connect(this, SIGNAL(obscured()), m_subject->windowMonitor.data(), SIGNAL(fullscreenWindowOnTopOfOwnWindow()));
 }
 
 void Ut_LauncherButton::cleanup()
@@ -335,76 +335,46 @@ void Ut_LauncherButton::testInitialization()
     QCOMPARE(m_subject->model()->action().name(), QString("name"));
 }
 
-void Ut_LauncherButton::testLaunch()
+void Ut_LauncherButton::testWhenLauncherButtonIsClickedContentActionIsTriggered()
 {
     emit clicked();
     QCOMPARE(contentActionTriggerCalls, 1);
-    QVERIFY(disconnect(Switcher::instance(), SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), m_subject, SLOT(stopLaunchProgressIfObscured(const QList<WindowInfo> &))));
 }
 
-void Ut_LauncherButton::testButtonClickWhenLaunching()
+void Ut_LauncherButton::testWhenLauncherButtonIsClickedInBrokenStateContentActionIsTriggered()
 {
-    emit clicked();
-    QVERIFY(disconnect(Switcher::instance(), SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), m_subject, SLOT(stopLaunchProgressIfObscured(const QList<WindowInfo> &))));
-    QCOMPARE(contentActionTriggerCalls, 1);
-
-    emit clicked();
-    QVERIFY(!disconnect(Switcher::instance(), SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), m_subject, SLOT(stopLaunchProgressIfObscured(const QList<WindowInfo> &))));
-    QCOMPARE(contentActionTriggerCalls, 1);
-
-    m_subject->stopLaunchProgress();
     m_subject->model()->setButtonState(LauncherButtonModel::Broken);
     emit clicked();
-    QCOMPARE(contentActionTriggerCalls, 2);
-    QVERIFY(!disconnect(Switcher::instance(), SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), m_subject, SLOT(stopLaunchProgressIfObscured(const QList<WindowInfo> &))));
+    QCOMPARE(contentActionTriggerCalls, 1);
+}
 
-    m_subject->stopLaunchProgress();
+void Ut_LauncherButton::testWhenLauncherButtonIsClickedInDownloadingStateContentActionIsNotTriggered()
+{
     m_subject->model()->setButtonState(LauncherButtonModel::Downloading);
     emit clicked();
-    QCOMPARE(contentActionTriggerCalls, 2);
-    QVERIFY(!disconnect(Switcher::instance(), SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), m_subject, SLOT(stopLaunchProgressIfObscured(const QList<WindowInfo> &))));
+    QCOMPARE(contentActionTriggerCalls, 0);
+}
 
-    m_subject->stopLaunchProgress();
+void Ut_LauncherButton::testWhenLauncherButtonIsClickedInInstallingStateContentActionIsNotTriggered()
+{
     m_subject->model()->setButtonState(LauncherButtonModel::Installing);
     emit clicked();
-    QCOMPARE(contentActionTriggerCalls, 2);
-    QVERIFY(!disconnect(Switcher::instance(), SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), m_subject, SLOT(stopLaunchProgressIfObscured(const QList<WindowInfo> &))));
-}
-
-void Ut_LauncherButton::testStopLaunchProgress()
-{
-    emit clicked();
-    m_subject->stopLaunchProgress();
-    QCOMPARE(m_subject->buttonState(), LauncherButtonModel::Installed);
-    QVERIFY(!disconnect(Switcher::instance(), SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), m_subject, SLOT(stopLaunchProgressIfObscured(const QList<WindowInfo> &))));
-}
-
-void Ut_LauncherButton::testStopLaunchProgressIfObscured_data()
-{
-    QTest::addColumn<int>("topMostWindowId");
-    QTest::addColumn<LauncherButtonModel::State>("state");
-
-    QTest::newRow("_NEW_WM_WINDOW_TYPE_NORMAL") << 1 << LauncherButtonModel::Installed;
-    QTest::newRow("_NEW_WM_WINDOW_TYPE_NOTIFICATION") << 2 << LauncherButtonModel::Launching;
-    QTest::newRow("_NEW_WM_WINDOW_TYPE_MENU") << 3 << LauncherButtonModel::Launching;
-    QTest::newRow("_NEW_WM_WINDOW_TYPE_DIALOG") << 4 << LauncherButtonModel::Launching;
-    QTest::newRow("_NEW_WM_WINDOW_TYPE_DESKTOP") << 5 << LauncherButtonModel::Launching;
-    QTest::newRow("_NEW_WM_WINDOW_TYPE_DEFAULT") << 6 << LauncherButtonModel::Installed;
+    QCOMPARE(contentActionTriggerCalls, 0);
 }
 
 void Ut_LauncherButton::testStopLaunchProgressIfObscured()
 {
-    QFETCH(int, topMostWindowId);
-    QFETCH(LauncherButtonModel::State, state);
-
     emit clicked();
     QCOMPARE(m_subject->buttonState(), LauncherButtonModel::Launching);
 
-    QList<WindowInfo> windowList;
-    windowList.append(WindowInfo(topMostWindowId));
-    emit windowStackingOrderChanged(windowList);
+    emit obscured();
+    QCOMPARE(m_subject->buttonState(), LauncherButtonModel::Installed);
 
-    QCOMPARE(m_subject->buttonState(), state);
+    // Change the button state artificially so something else and see that another
+    // obscured signal does nothing
+    m_subject->model()->setButtonState(LauncherButtonModel::Downloading);
+    emit obscured();
+    QCOMPARE(m_subject->buttonState(), LauncherButtonModel::Downloading);
 }
 
 void Ut_LauncherButton::testLanguageChange()

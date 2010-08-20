@@ -22,8 +22,17 @@
 
 #include <QObject>
 
+#include "windowinfo.h"
 class HomeWindowMonitor;
 class MWindow;
+
+class WindowStackingOrderListener : public QObject, public QList<QList<WindowInfo> >
+{
+    Q_OBJECT
+
+public slots:
+    void stackingOrderChanged(QList<WindowInfo> windowList);
+};
 
 class Ut_HomeWindowMonitor : public QObject
 {
@@ -43,11 +52,20 @@ private slots:
     void testWindowIdInWindowListIsRecognizedAsOwnWindow();
     void testWindowIdNotInWindowListIsNotRecognizedAsOwnWindow();
 
+    void testReceivingNonStackingOrderXEventDoesNotEmitSignal();
+    void testReceivingStackingOrderXEventEmitsStackingOrderSignal();
+    void testReceivingStackingOrderXEventEmitsFullscreenWindowOnTopSignal();
+
+    void testNonFullscreenWindowOnTopDoesNotEmitFullscreenWindowOnTopSignal_data();
+    void testNonFullscreenWindowOnTopDoesNotEmitFullscreenWindowOnTopSignal();
+
 private:
     // The object being tested
     HomeWindowMonitor *m_subject;
 
     QList<MWindow*> windowList;
+
+    XEvent clientListStackingEvent;
 };
 
 #endif

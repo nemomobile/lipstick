@@ -19,8 +19,9 @@ HEADERS += \
     $$SRCDIR/launcherbutton.h \
     $$SRCDIR/launcherbuttonmodel.h \
     $$SRCDIR/launcher.h \
+    $$SRCDIR/homewindowmonitor.h \
     $$SRCDIR/windowinfo.h \
     $$SRCDIR/x11wrapper.h \
-    $$SRCDIR/switcher.h
+    $$SRCDIR/windowmonitor.h
 
 include(../common_bot.pri)

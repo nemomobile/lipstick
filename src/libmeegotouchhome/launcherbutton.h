@@ -24,6 +24,7 @@
 #include <MButton>
 #include "launcherbuttonmodel.h"
 #include "windowinfo.h"
+#include "homewindowmonitor.h"
 
 class MDesktopEntry;
 class LauncherAction;
@@ -48,19 +49,12 @@ class LauncherButton : public MButton
 
 public:
     /*!
-     * Constructs a LauncherButton widget.
-     *
-     * \param parent the parent widget, defaults to NULL
-     */
-    LauncherButton(MWidget *parent = 0);
-
-    /*!
      * Creates a launcher button instance from a MDesktopEntry.
      *
      * \param desktopEntryPath Path to the desktop entry to create a launcher button from
      * \param parent the parent widget, defaults to NULL
      */
-    LauncherButton(const QString &desktopEntryPath, MWidget *parent = 0);
+    LauncherButton(const QString &desktopEntryPath = QString(), MWidget *parent = 0);
 
     /*!
      * Destroys the Launcher.
@@ -69,7 +63,7 @@ public:
 
     /*!
      * \brief Sets the action to launch the application described by the
-     * desktop file. 
+     * desktop file.
      *
      * \param action The action to launch the application
      */
@@ -131,11 +125,6 @@ private slots:
      */
     void stopLaunchProgress();
 
-    /*!
-     * Stops the launch animation if the window list contains only normal windows
-     */
-    void stopLaunchProgressIfObscured(const QList<WindowInfo> &windowList);
-
 private:
     /*!
      * Initializes the launcher button.
@@ -148,6 +137,11 @@ private:
      * \param action the LauncherAction to update the icon based on
      */
     void updateIcon(const LauncherAction &action);
+
+    //! A window monitor for monitoring when windows appear on top of the window where
+    //! this button is
+    QSharedPointer<HomeWindowMonitor> windowMonitor;
+
 
 #ifdef UNIT_TEST
     friend class Ut_LauncherButton;

@@ -121,8 +121,9 @@ private slots:
     // Test X11EventFilter with ClientMessage events
     void testX11EventFilterWithClientMessage();
 
-    // Test the stacking order signal
-    void testWindowStackingOrder();
+    // Test the stacking order signal is hanled correctly
+    void testWhenStackingOrderChangesCorrectWindowsAreStored();
+    void testWhenStackingOrderChangesTopmostWindowGetsUpdated();
 
     // Test data for test testX11EventWindowNameChange
     void testX11EventWindowNameChange_data();

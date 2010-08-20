@@ -37,8 +37,6 @@ public:
     virtual void widgetInserted(uint index);
     virtual void widgetAboutToBeRemoved(uint index);
     virtual QSizeF sizeHint(Qt::SizeHint which, const QSizeF &constraint) const;
-    DesktopViewPrivate *d_ptr ;
-    QPointF pos ;
 };
 
 // 2. IMPLEMENT STUB

@@ -16,6 +16,7 @@
 ** of this file.
 **
 ****************************************************************************/
+
 #ifndef STUBBASE_H
 #define STUBBASE_H
 
@@ -42,6 +43,9 @@ public:
 
     // Access parameters of the last method call
     MethodCall &stubLastCallTo(const QString &method) const;
+
+    // Return a list of calls to a particular method call
+    QList<MethodCall *> stubCallsTo(const QString &method) const;
 
     // Return the number of times a method has been called
     int stubCallCount(const QString &method) const;
@@ -88,7 +92,7 @@ T &StubBase::stubReturnValue(const QString &methodName) const
     Parameter<T>* param = dynamic_cast<Parameter<T>*>(base);
     if (!param) {
         QString msg = QString("StubBase::") + __func__ + ": failed dynamic_cast, check that return value type matches the method; check also that you have used stubSetReturnValue(" + methodName + ")";
-        qFatal(qPrintable(msg));
+        qFatal("%s", qPrintable(msg));
     }
     return param->data;
 

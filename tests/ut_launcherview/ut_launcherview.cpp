@@ -145,8 +145,8 @@ void Ut_LauncherView::testPagedViewportObjectName()
 
 void Ut_LauncherView::testSetButtons()
 {
-    QSharedPointer<LauncherButton> button1(new LauncherButton());
-    QSharedPointer<LauncherButton> button2(new LauncherButton());
+    QSharedPointer<LauncherButton> button1(new LauncherButton(""));
+    QSharedPointer<LauncherButton> button2(new LauncherButton(""));
     QList< QSharedPointer<LauncherPage> > pages;
     QSharedPointer<LauncherPage> page(new LauncherPage());
     page->appendButton(button1);
@@ -174,7 +174,7 @@ void Ut_LauncherView::testAddPages()
     for (int iter1 = 0; iter1 < NUM_ITEMS; iter1++){
         QSharedPointer<LauncherPage> page(new LauncherPage());
         for (int iter2 = 0; iter2 < NUM_ITEMS; iter2++) {
-            QSharedPointer<LauncherButton> button(new LauncherButton());
+            QSharedPointer<LauncherButton> button(new LauncherButton(""));
             page->appendButton(button);
         }
         pages.append(page);

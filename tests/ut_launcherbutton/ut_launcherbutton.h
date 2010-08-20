@@ -43,17 +43,17 @@ private slots:
     // Test cases
     void testInitialization();
     void testLanguageChange();
-    void testLaunch();
-    void testButtonClickWhenLaunching();
-    void testStopLaunchProgress();
+    void testWhenLauncherButtonIsClickedContentActionIsTriggered();
+    void testWhenLauncherButtonIsClickedInBrokenStateContentActionIsTriggered();
+    void testWhenLauncherButtonIsClickedInDownloadingStateContentActionIsNotTriggered();
+    void testWhenLauncherButtonIsClickedInInstallingStateContentActionIsNotTriggered();
     void testStopLaunchProgressIfObscured();
-    void testStopLaunchProgressIfObscured_data();
     void testSettingButtonStateAndProgress();
     void testSettingButtonStateAndProgressWithInvalidValues();
 
 signals:
     void clicked();
-    void windowStackingOrderChanged(const QList<WindowInfo> &windowList);
+    void obscured();
 
 private:
     // Application

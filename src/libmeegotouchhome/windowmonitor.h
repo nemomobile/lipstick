@@ -21,6 +21,8 @@
 #define WINDOWMONITOR_H
 
 #include <QWidget>
+#include <QObject>
+#include "windowinfo.h"
 
 /*!
  * An interface defining window monitoring functionality.
@@ -28,7 +30,10 @@
  * various things when something happens to the windows. It is only a
  * monitor: it doesn't change anything on the windows.
  */
-class WindowMonitor {
+class WindowMonitor : public QObject {
+
+    Q_OBJECT
+
 public:
     /*!
      * Queries if the window specified by \a wid belongs to the application
@@ -37,6 +42,20 @@ public:
      * \return \c true if the window belongs to this application
      */
     virtual bool isOwnWindow(WId wid) const = 0;
+
+signals:
+    /*!
+     * A signal that gets emitted when the stacking order of the windows changes.
+     * The topmost window is the last one in the argument list.
+     */
+    void windowStackingOrderChanged(QList<WindowInfo>);
+
+    /*!
+     * A signal that gets emitted when a fullscreen window appears on top of application's
+     * own window's and covers it completely.
+     * \param window the WindowInfo for the window that appeared.
+     */
+    void fullscreenWindowOnTopOfOwnWindow();
 };
 
 #endif // WINDOWMONITOR_H

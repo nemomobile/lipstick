@@ -11,7 +11,6 @@
 // FIXME - stubgen is not yet finished
 class LauncherButtonStub : public StubBase {
   public:
-  virtual void LauncherButtonConstructor(MWidget *parent);
   virtual void LauncherButtonConstructor(const QString &desktopEntryPath, MWidget *parent);
   virtual void LauncherButtonDestructor();
   virtual void setAction(const LauncherAction &action);
@@ -21,19 +20,14 @@ class LauncherButtonStub : public StubBase {
   virtual void retranslateUi();
   virtual void launch();
   virtual void stopLaunchProgress();
-  virtual void stopLaunchProgressIfObscured(const QList<WindowInfo> &windowList);
   virtual void setState(LauncherButtonModel::State state, int progress);
   virtual int operationProgress() const;
   virtual void init();
   virtual void updateIcon(const LauncherAction &action);
   virtual LauncherButtonModel::State buttonState() const;
-}; 
+};
 
 // 2. IMPLEMENT STUB
-void LauncherButtonStub::LauncherButtonConstructor(MWidget *parent) {
-  Q_UNUSED(parent);
-
-}
 void LauncherButtonStub::LauncherButtonConstructor(const QString &desktopEntryPath, MWidget *parent) {
   Q_UNUSED(desktopEntryPath);
   Q_UNUSED(parent);
@@ -76,12 +70,6 @@ void LauncherButtonStub::stopLaunchProgress() {
   stubMethodEntered("stopLaunchProgress");
 }
 
-void LauncherButtonStub::stopLaunchProgressIfObscured(const QList<WindowInfo> &windowList) {
-  QList<ParameterBase*> params;
-  params.append( new Parameter<const QList<WindowInfo> & >(windowList));
-  stubMethodEntered("stopLaunchProgressIfObscured",params);
-}
-
 void LauncherButtonStub::init() {
   stubMethodEntered("init");
 }
@@ -115,10 +103,6 @@ LauncherButtonStub* gLauncherButtonStub = &gDefaultLauncherButtonStub;
 
 
 // 4. CREATE A PROXY WHICH CALLS THE STUB
-LauncherButton::LauncherButton(MWidget *parent) {
-  gLauncherButtonStub->LauncherButtonConstructor(parent);
-}
-
 LauncherButton::LauncherButton(const QString &desktopEntryPath, MWidget *parent) {
   gLauncherButtonStub->LauncherButtonConstructor(desktopEntryPath, parent);
 }
@@ -153,10 +137,6 @@ void LauncherButton::launch() {
 
 void LauncherButton::stopLaunchProgress() {
   gLauncherButtonStub->stopLaunchProgress();
-}
-
-void LauncherButton::stopLaunchProgressIfObscured(const QList<WindowInfo> &windowList) {
-  gLauncherButtonStub->stopLaunchProgressIfObscured(windowList);
 }
 
 void LauncherButton::init() {

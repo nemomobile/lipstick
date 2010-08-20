@@ -425,7 +425,7 @@ void Ut_SwitcherView::init()
 {
     g_panRequested = false;
     // Create test switcher
-    switcher = Switcher::instance();
+    switcher = new Switcher();
     g_switcherModel = new SwitcherModel;
     switcher->setModel(g_switcherModel);
     m_subject = new TestSwitcherView(switcher);
@@ -832,7 +832,7 @@ void Ut_SwitcherView::testPanToSwitcherPageInOverviewMode()
 
     g_panRequested = false;
 
-    // Lets delete something from the first page to see if we pan -> we shouldn't 
+    // Lets delete something from the first page to see if we pan -> we shouldn't
     // as the top most window does not change.
     list.removeAt(2);
     verifyPanningResult(list, false, -1);
@@ -856,7 +856,7 @@ void Ut_SwitcherView::testPanToSwitcherPageInDetailviewMode()
 
     g_panRequested = false;
 
-    // Lets delete something from the first page to see if we pan -> we shouldn't 
+    // Lets delete something from the first page to see if we pan -> we shouldn't
     // as the top most window does not change.
     list.removeAt(2);
     verifyPanningResult(list, false, -1);

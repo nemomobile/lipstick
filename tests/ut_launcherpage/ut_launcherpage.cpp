@@ -127,7 +127,7 @@ void Ut_LauncherPage::testLauncherButtonPosition()
 
 static QSharedPointer<LauncherButton> createLauncherButton(QString desktopFileName)
 {
-    QSharedPointer<LauncherButton> button(new LauncherButton);
+    QSharedPointer<LauncherButton> button(new LauncherButton(""));
     button->setObjectName(desktopFileName);
     return button;
 }

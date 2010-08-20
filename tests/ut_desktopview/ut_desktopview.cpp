@@ -38,6 +38,7 @@
 #include "mwindow_stub.h"
 #include "mscenemanager_stub.h"
 #include "applicationpackagemonitor_stub.h"
+#include "homewindowmonitor_stub.h"
 #include <QDBusConnection>
 #include "x11wrapper.h"
 
@@ -319,8 +320,6 @@ void Ut_DesktopView::init()
     desktopView = new TestDesktopView(desktop);
     desktop->setView(desktopView);
     desktopView->modifiableStyle()->setDesktopBackgroundImage(backgroundImage);
-    connect(this, SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)),
-            desktopView, SLOT(updateLauncherVisiblity(const QList<WindowInfo> &)));
     connect(this, SIGNAL(windowListUpdated(const QList<WindowInfo> &)),
             desktopView, SLOT(setSwitcherHasContent(const QList<WindowInfo> &)));
     // For QWidget activateWindow() and raise() stubs
@@ -366,31 +365,6 @@ void Ut_DesktopView::testBoundingRectAndDrawBackground()
     QCOMPARE(extension2.boundingRect, br);
 }
 
-void Ut_DesktopView::testUpdatingLauncherVisibilityWithApplicationOnTop()
-{
-    verifyLauncherVisibility(1, false);
-}
-
-void Ut_DesktopView::testUpdatingLauncherVisibilityWithNotificationOnTop()
-{
-    verifyLauncherVisibility(2, true);
-}
-
-void Ut_DesktopView::testUpdatingLauncherVisibilityWithStatusIndicatorMenuOnTop()
-{
-    verifyLauncherVisibility(3, true);
-}
-
-void Ut_DesktopView::testUpdatingLauncherVisibilityWithDialogOnTop()
-{
-    verifyLauncherVisibility(4, true);
-}
-
-void Ut_DesktopView::testUpdatingLauncherVisibilityWithDesktopOnTop()
-{
-    verifyLauncherVisibility(0xfeedbeef, true);
-}
-
 void Ut_DesktopView::verifyAppearDisappear(MSceneWindow *appear, MSceneWindow *disappear)
 {
     QCOMPARE(gMSceneManagerStub->stubCallCount("appearSceneWindow"), 1);
@@ -400,28 +374,21 @@ void Ut_DesktopView::verifyAppearDisappear(MSceneWindow *appear, MSceneWindow *d
     gMSceneManagerStub->stubReset();
 }
 
-void Ut_DesktopView::verifyLauncherVisibility(int topMostWindowId, bool shouldBeVisible)
+void Ut_DesktopView::testWhenFullscreenWindowAppearsLauncherGetsHidden()
 {
     desktopView->showLauncher();
-
-    verifyAppearDisappear(desktopView->launcherWindow, desktopView->switcherWindow);
-
+    gMSceneManagerStub->stubReset();
     gQGraphicsItemIsVisible = true;
-    QList<WindowInfo> windowList;
-    windowList.append(WindowInfo(topMostWindowId));
-    emit windowStackingOrderChanged(windowList);
 
-    if (!shouldBeVisible) {
-        verifyAppearDisappear(desktopView->switcherWindow, desktopView->launcherWindow);
-    }
+    connect(this, SIGNAL(obscured()), desktopView->homeWindowMonitor.data(), SIGNAL(fullscreenWindowOnTopOfOwnWindow()));
+    emit obscured();
+
+    verifyAppearDisappear(desktopView->switcherWindow, desktopView->launcherWindow);
 }
 
 void Ut_DesktopView::testShowLauncherAndPanToPageWithCorrectDesktopFile()
 {
     gLauncherStub->stubSetReturnValue("panToPage", 1);
-    desktopView->hideLauncher();
-
-    verifyAppearDisappear(desktopView->switcherWindow, desktopView->launcherWindow);
 
     desktopView->showLauncherAndPanToPage("correctFileName");
     gQGraphicsItemIsVisible = true;
@@ -467,11 +434,14 @@ void Ut_DesktopView::testDefocusing()
     TestDesktopBackgroundExtension extension;
     desktopView->addExtension(&extension);
 
+    gQGraphicsItemIsVisible = false;
     desktopView->showLauncher();
     QVERIFY(extensionDefocused);
+    gQGraphicsItemIsVisible = true;
 
     desktopView->hideLauncher();
     QVERIFY(!extensionDefocused);
+    gQGraphicsItemIsVisible = false;
 
     QList<WindowInfo> windowList;
     windowList.append(WindowInfo(0));
@@ -480,6 +450,7 @@ void Ut_DesktopView::testDefocusing()
 
     desktopView->showLauncher();
     QVERIFY(extensionDefocused);
+    gQGraphicsItemIsVisible = true;
 
     windowList.clear();
     emit windowListUpdated(windowList);

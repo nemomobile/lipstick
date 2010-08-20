@@ -17,7 +17,10 @@ SOURCES += \
 # unit test and unit classes
 HEADERS += \
     ut_switcher.h \
-    $$SRCDIR/switcher.h
+    $$SRCDIR/switcher.h \
+    $$SRCDIR/homewindowmonitor.h \
+    $$SRCDIR/windowinfo.h \
+    $$SRCDIR/windowmonitor.h
 
 # service classes
 HEADERS += \

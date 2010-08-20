@@ -24,10 +24,10 @@
 #include "desktopmodel.h"
 #include "desktopstyle.h"
 #include "mdesktopbackgroundextensioninterface.h"
+#include "homewindowmonitor.h"
 #include "windowinfo.h"
 
 class Desktop;
-class HomeWindowMonitor;
 class Switcher;
 class QuickLaunchBar;
 class LauncherDataStore;
@@ -75,14 +75,21 @@ public:
     //! \reimp_end
 
 private slots:
-    //! Hides the launcher if applicable, based on the top most window
-    void updateLauncherVisiblity(const QList<WindowInfo> &windowList);
-
     //! Sets whether the switcher has content or not based on the window list
     void setSwitcherHasContent(const QList<WindowInfo> &windowList);
 
     //! Toggles the launcher visibility
     void toggleLauncher();
+
+    /*!
+     * \brief Shows the application launcher
+     */
+    void showLauncher();
+
+    /*!
+     * \brief Hides the application launcher
+     */
+    void hideLauncher();
 
     /*!
      * Registers a desktop background extension.
@@ -115,16 +122,6 @@ private slots:
 
 private:
     /*!
-     * \brief Shows the application launcher
-     */
-    void showLauncher();
-
-    /*!
-     * \brief Hides the application launcher
-     */
-    void hideLauncher();
-
-    /*!
      * \brief Rearranges the Z order of the scene window
      */
     void setSceneWindowOrder();
@@ -142,7 +139,7 @@ private:
     LauncherDataStore *createLauncherDataStore();
 
     //! The window manager
-    HomeWindowMonitor *windowMonitor;
+    QSharedPointer<HomeWindowMonitor> homeWindowMonitor;
 
     //! The switcher widget
     Switcher *switcher;

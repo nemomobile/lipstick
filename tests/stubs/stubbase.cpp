@@ -16,6 +16,7 @@
 ** of this file.
 **
 ****************************************************************************/
+
 #include <assert.h>
 #include "stubbase.h"
 #include "methodcall.h"
@@ -65,6 +66,7 @@ ParameterBase *StubBase::stubReturnValue(const QString &methodName) const
 
     if (_stubReturnValues.contains(methodName))
         retVal = _stubReturnValues[methodName];
+
     return retVal;
 }
 
@@ -88,4 +90,16 @@ MethodCall &StubBase::stubLastCallTo(const QString &method) const
     qDebug() << "StubBase::lastCallTo: call not found to:" << method;
     return *((MethodCall *)0);
 }
+
+QList<MethodCall *> StubBase::stubCallsTo(const QString &method) const
+{
+    QList<MethodCall *> calls;
+    for (int i = 0; i < _stubCallHistory.count(); i++) {
+        if (_stubCallHistory.at(i)->name() == method) {
+            calls.append(_stubCallHistory.at(i));
+        }
+    }
+    return calls;
+}
+
 

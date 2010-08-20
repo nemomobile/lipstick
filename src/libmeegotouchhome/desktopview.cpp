@@ -104,6 +104,7 @@ void DesktopView::stopBenchmarking()
 
 DesktopView::DesktopView(Desktop *desktop) :
     MWidgetView(desktop),
+    homeWindowMonitor(new HomeWindowMonitor),
     switcher(new Switcher),
     switcherWindow(new MSceneWindow),
     switcherHasContent(false),
@@ -144,7 +145,7 @@ DesktopView::DesktopView(Desktop *desktop) :
     launcher->setLauncherDataStore(launcherDataStore);
     launcher->setApplicationPackageMonitor(packageMonitor);
     connect(qApp, SIGNAL(focusToLauncherAppRequested(const QString &)), this, SLOT(showLauncherAndPanToPage(const QString &)));
-    connect(switcher, SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), this, SLOT(updateLauncherVisiblity(const QList<WindowInfo> &)));
+    connect(homeWindowMonitor.data(), SIGNAL(fullscreenWindowOnTopOfOwnWindow()), SLOT(hideLauncher()));
     connect(switcher, SIGNAL(windowListUpdated(const QList<WindowInfo> &)), this, SLOT(setSwitcherHasContent(const QList<WindowInfo> &)));
     windowLayout = new QGraphicsLinearLayout();
     windowLayout->setContentsMargins(0, 0, 0, 0);
@@ -221,19 +222,6 @@ void DesktopView::showLauncherAndPanToPage(const QString &desktopFileEntry)
     }
 }
 
-void DesktopView::updateLauncherVisiblity(const QList<WindowInfo> &windowList)
-{
-    if (launcherWindow->isVisible() && !windowList.isEmpty()) {
-        const QList<Atom>& windowTypes = windowList.last().types();
-        if (!windowTypes.contains(WindowInfo::NotificationAtom) &&
-            !windowTypes.contains(WindowInfo::DesktopAtom) &&
-            !windowTypes.contains(WindowInfo::DialogAtom) &&
-            !windowTypes.contains(WindowInfo::MenuAtom)) {
-            hideLauncher();
-        }
-    }
-}
-
 void DesktopView::toggleLauncher()
 {
     if (launcherWindow->isVisible()) {
@@ -246,22 +234,26 @@ void DesktopView::toggleLauncher()
 
 void DesktopView::showLauncher()
 {
-    MainWindow::instance()->sceneManager()->appearSceneWindow(launcherWindow);
-    MainWindow::instance()->sceneManager()->disappearSceneWindow(switcherWindow);
-    setSceneWindowOrder();
+    if (!launcherWindow->isVisible()) {
+        MainWindow::instance()->sceneManager()->appearSceneWindow(launcherWindow);
+        MainWindow::instance()->sceneManager()->disappearSceneWindow(switcherWindow);
+        setSceneWindowOrder();
 
-    launcherVisible = true;
-    setDefocused();
+        launcherVisible = true;
+        setDefocused();
+    }
 }
 
 void DesktopView::hideLauncher()
 {
-    MainWindow::instance()->sceneManager()->disappearSceneWindow(launcherWindow);
-    MainWindow::instance()->sceneManager()->appearSceneWindow(switcherWindow);
-    setSceneWindowOrder();
+    if (launcherWindow->isVisible()) {
+        MainWindow::instance()->sceneManager()->disappearSceneWindow(launcherWindow);
+        MainWindow::instance()->sceneManager()->appearSceneWindow(switcherWindow);
+        setSceneWindowOrder();
 
-    launcherVisible = false;
-    setDefocused();
+        launcherVisible = false;
+        setDefocused();
+    }
 }
 
 void DesktopView::setSceneWindowOrder()

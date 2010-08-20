@@ -21,6 +21,7 @@
 #define HOMEWINDOWMONITOR_STUB
 
 #include "homewindowmonitor.h"
+#include "xeventlistener_stub.h"
 #include <stubbase.h>
 
 
@@ -29,6 +30,7 @@
 class HomeWindowMonitorStub : public StubBase {
 public:
     virtual bool isOwnWindow(WId wid);
+    virtual bool handleXEvent(const XEvent& event);
 };
 
 // 2. IMPLEMENT STUB
@@ -36,8 +38,14 @@ bool HomeWindowMonitorStub::isOwnWindow(WId wid) {
     QList<ParameterBase*> params;
     params.append(new Parameter<WId>(wid));
     stubMethodEntered("isOwnWindow", params);
-    stubReturnValue<bool>("isOwnWindow");
     return stubReturnValue<bool>("isOwnWindow");
+}
+
+bool HomeWindowMonitorStub::handleXEvent(const XEvent& event) {
+    QList<ParameterBase*> params;
+    params.append(new Parameter<const XEvent&>(event));
+    stubMethodEntered("handleXEvent", params);
+    return stubReturnValue<bool>("handleXEvent");
 }
 
 // 3. CREATE A STUB INSTANCE
@@ -45,8 +53,25 @@ HomeWindowMonitorStub gDefaultHomeWindowMonitorStub;
 HomeWindowMonitorStub* gHomeWindowMonitorStub = &gDefaultHomeWindowMonitorStub;
 
 // 4. CREATE A PROXY WHICH CALLS THE STUB
+HomeWindowMonitor::HomeWindowMonitor() : netClientListStacking (0)
+{
+}
+
+HomeWindowMonitor::~HomeWindowMonitor()
+{
+}
+
 bool HomeWindowMonitor::isOwnWindow(WId wid) const {
     return gHomeWindowMonitorStub->isOwnWindow(wid);
+}
+
+bool HomeWindowMonitor::handleXEvent(const XEvent &event)
+{
+    return gHomeWindowMonitorStub->handleXEvent(event);
+}
+
+QList<Window> HomeWindowMonitor::windowStackingOrder() {
+    return QList<Window>();
 }
 
 #endif

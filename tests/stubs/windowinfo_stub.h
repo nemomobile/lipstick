@@ -19,8 +19,8 @@
 #ifndef WINDOWINFO_STUB
 #define WINDOWINFO_STUB
 
-#include "windowinfo.h"
 #include <stubbase.h>
+#include "windowinfo.h"
 
 Atom WindowInfo::TypeAtom = 1;
 Atom WindowInfo::StateAtom = 2;
@@ -56,15 +56,20 @@ public:
     virtual void updateWindowProperties();
 };
 
+
 // 2. IMPLEMENT STUB
 void WindowInfoStub::WindowInfoConstructor(Window window)
 {
-    Q_UNUSED(window);
+    QList<ParameterBase*> params;
+    params.append(new Parameter<Window>(window));
+    stubMethodEntered("WindowInfoConstructor(Window)", params);
 }
 
 void WindowInfoStub::WindowInfoConstructor(const WindowInfo &other)
 {
-    Q_UNUSED(other);
+    QList<ParameterBase*> params;
+    params.append(new Parameter<const WindowInfo&>(other));
+    stubMethodEntered("WindowInfoCopyConstructor", params);
 }
 
 void WindowInfoStub::WindowInfoDestructor()

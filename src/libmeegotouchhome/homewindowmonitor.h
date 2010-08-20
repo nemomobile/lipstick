@@ -20,18 +20,47 @@
 #ifndef HOMEWINDOWMONITOR_H
 #define HOMEWINDOWMONITOR_H
 
+#include <QObject>
+#include <QSet>
 #include "windowmonitor.h"
+#include "xeventlistener.h"
 
 /*!
  * A window monitor implementation to be used with the home screen application.
  */
-class HomeWindowMonitor : public WindowMonitor
+class HomeWindowMonitor : public WindowMonitor, public XEventListener
 {
+    Q_OBJECT
+
 public:
+    /*!
+     * Constructor.
+     */
+    HomeWindowMonitor();
+
+    /*!
+     * Destructor.
+     */
+    virtual ~HomeWindowMonitor();
+
     //! \reimp
     virtual bool isOwnWindow(WId wid) const;
+    virtual bool handleXEvent(const XEvent& event);
     //! \reimp_end
 
+private:
+    //! The window types for windows that are not considered to be full screen
+    //! application windows
+    const QSet<Atom> nonFullscreenApplicationWindowTypes;
+
+    //! An X atom for _NET_CLIENT_LIST_STACKING
+    const Atom netClientListStacking;
+
+    /*!
+     * Queries the current window stacking order from X and returns the windows
+     * in that order. The topmost window is the last one in the list.
+     */
+    QList<Window> windowStackingOrder();
 };
 
 #endif // HOMEWINDOWMONITOR_H

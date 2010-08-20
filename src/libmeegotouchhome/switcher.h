@@ -23,10 +23,10 @@
 #include <MWidgetController>
 #include "switchermodel.h"
 #include "xeventlistener.h"
+#include "windowinfo.h"
 #include <X11/Xlib.h>
 
 class WindowMonitor;
-class WindowInfo;
 
 /*!
  * Switcher is a widget that shows the available windows.
@@ -37,13 +37,6 @@ class Switcher : public MWidgetController, public XEventListener
     M_CONTROLLER(Switcher)
 
 public:
-    /*!
-     * Returns an instance of the Switcher.
-     *
-     * \return an instance of the Switcher
-     */
-    static Switcher *instance();
-
     /*!
      * Constructs a Switcher widget.
      * \param windowMonitor a window monitor instance to be used by this switcher.
@@ -71,10 +64,16 @@ signals:
      */
     void windowListUpdated(const QList<WindowInfo> &windowList);
 
+public slots:
     /*!
-     * \brief A signal to indicate that the window ordering has changed
+     * Gets the current stacked client window list as parameter and checks
+     * whether new windows are added or removed.
+     * Adds and removes such windows from the switcher and emits the updated stacked window list.
+     *
+     * \param newWindowList QList<WindowInfo> that contains all windows in stacking order
+     * \see WindowMonitor::handleWindowInfoList()
      */
-    void windowStackingOrderChanged(const QList<WindowInfo> &windowList);
+    void handleWindowInfoList(QList<WindowInfo> newWindowList);
 
 private slots:
     /*!
@@ -99,7 +98,7 @@ private:
      * \param windows the set of windows to add to the Switcher
      * \return \c true if the application window list was changed, \c false otherwise
      */
-    bool addWindows(const QSet<Window> &windows);
+    bool addWindowsInfo(QSet<WindowInfo> &windowInfos);
 
     /*!
      * Adds a window to the set of windows tracked by the Switcher.
@@ -107,7 +106,7 @@ private:
      * \param window the ID of the window to be added
      * \return \c true if the application window list was changed, \c false otherwise
      */
-    bool addWindow(Window window);
+    bool addWindowInfo(WindowInfo window);
 
     /*!
      * Removes all windows in the given set to the Switcher.
@@ -115,7 +114,7 @@ private:
      * \param windows the set of windows to remove from the Switcher
      * \return \c true if the application window list was changed, \c false otherwise
      */
-    bool removeWindows(const QSet<Window> &windows);
+    bool removeWindows(QSet<WindowInfo> &windowInfos);
 
     /*!
      * Removes a window from the set of windows tracked by the Switcher.
@@ -123,8 +122,7 @@ private:
      * \param window the ID of the window to be removed
      * \return \c true if the application window list was changed, \c false otherwise
      */
-    bool removeWindow(Window window);
-
+    bool removeWindowInfo(WindowInfo window);
     /*!
      * Marks a window as being closed.
      *
@@ -183,12 +181,6 @@ private:
     void scheduleUpdateButtons();
 
     /*!
-     * Gets the current stacked client window list from X and checks whether new windows are added or removed.
-     * Adds and removes such windows from the switcher and emits the updated stacked window list.
-     */
-    void updateWindowInfoMap();
-
-    /*!
      * Update the title of the given window and emit \c windowTitleChanged
      * \param window The X window to update
      */
@@ -200,10 +192,7 @@ private:
      */
     void updateWindowProperties(Window window);
 
-    //! A singleton switcher instance
-    static Switcher *switcher;
-
-    //! The window manager instance this switcher uses
+    //! The window monitor instance this switcher uses
     const WindowMonitor *windowMonitor;
 
     //! X11 Atom for the close window message type
@@ -214,18 +203,17 @@ private:
 
     //! X11 Atoms for window types
     Atom clientListAtom;
-    Atom stackedClientListAtom;
     Atom netWindowNameAtom;
     Atom windowNameAtom;
 
     //! A mapping from known X Window IDs to SwitcherButtons
-    QMap<Window, SwitcherButton *> switcherButtonMap;
+    QHash<Window, SwitcherButton *> switcherButtonMap;
 
     //! A list of windows that are being closed
-    QSet<Window> windowsBeingClosed;
+    QSet<WindowInfo> windowsInfoBeingClosed;
 
     //! Mapping of the current X windows
-    QMap<Window, WindowInfo *> windowInfoMap;
+    QSet<WindowInfo> windowInfoSet;
 
     //! List of application windows
     QList<WindowInfo> applicationWindows;
@@ -234,7 +222,7 @@ private:
     QSet<Atom> excludeAtoms;
 
     //! The list of windows which are transient for a window
-    QMap<Window, QList<Window> > transientMap;
+    QHash<Window, QList<Window> > transientMap;
 
     //! A timer for scheduling button updates
     QTimer updateButtonsTimer;

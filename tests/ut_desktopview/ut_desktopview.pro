@@ -8,8 +8,7 @@ STYLE_HEADERS += $$SRCDIR/desktopstyle.h
 # unit test and unit
 SOURCES += \
     ut_desktopview.cpp \
-    $$SRCDIR/desktopview.cpp \
-    $$SRCDIR/windowinfo.cpp
+    $$SRCDIR/desktopview.cpp
 
 # base classes
 SOURCES += \
@@ -24,7 +23,9 @@ HEADERS += \
 HEADERS += \
 
 # service classes
-SOURCES += ../stubs/stubbase.cpp
+SOURCES += \
+    $$STUBSDIR/stubbase.cpp \
+    $$SRCDIR/windowinfo.cpp
 
 # service classes
 HEADERS += \
@@ -37,7 +38,9 @@ HEADERS += \
     $$SRCDIR/quicklaunchbar.h \
     $$SRCDIR/launcher.h \
     $$SRCDIR/launcherdatastore.h \
-    $$SRCDIR/applicationpackagemonitor.h
+    $$SRCDIR/applicationpackagemonitor.h \
+    $$SRCDIR/windowmonitor.h \
+    $$SRCDIR/homewindowmonitor.h
 
 DEFINES += APPLICATIONS_DIRECTORY=\'$$quote(\"/tmp/ut_desktopview/applications/\")\'
 

@@ -32,21 +32,10 @@ M_REGISTER_WIDGET(Switcher)
 // The time to wait until updating the model when a new application is started
 #define UPDATE_DELAY_MS 700
 
-// For getting a singleton Switcher instance
-Switcher *Switcher::switcher = NULL;
-Switcher *Switcher::instance()
-{
-    if (switcher == NULL) {
-        qFatal("Switcher::instance called before it was constructed");
-    }
-    return switcher;
-}
-
-Switcher::Switcher(const WindowMonitor *windowMonitor, MWidget *parent) : MWidgetController(new SwitcherModel, parent),
+Switcher::Switcher(const WindowMonitor *windowMonitor, MWidget *parent) :
+        MWidgetController(new SwitcherModel, parent),
         windowMonitor(windowMonitor)
 {
-    switcher = this;
-
     if (this->windowMonitor == NULL) {
         this->windowMonitor = new HomeWindowMonitor;
     }
@@ -56,7 +45,6 @@ Switcher::Switcher(const WindowMonitor *windowMonitor, MWidget *parent) : MWidge
     closeWindowAtom = X11Wrapper::XInternAtom(display, "_NET_CLOSE_WINDOW", False);
     activeWindowAtom = X11Wrapper::XInternAtom(display, "_NET_ACTIVE_WINDOW", False);
     clientListAtom = X11Wrapper::XInternAtom(display, "_NET_CLIENT_LIST", False);
-    stackedClientListAtom = X11Wrapper::XInternAtom(display, "_NET_CLIENT_LIST_STACKING", False);
     netWindowNameAtom = X11Wrapper::XInternAtom(display, "_NET_WM_NAME", False);
     windowNameAtom = X11Wrapper::XInternAtom(display, "WM_NAME", False);
 
@@ -74,6 +62,10 @@ Switcher::Switcher(const WindowMonitor *windowMonitor, MWidget *parent) : MWidge
     updateButtonsTimer.setInterval(UPDATE_DELAY_MS);
     connect(&updateButtonsTimer, SIGNAL(timeout()), this, SLOT(updateButtons()));
 
+    connect(this->windowMonitor, SIGNAL(windowStackingOrderChanged(QList<WindowInfo>)),
+            this, SLOT(handleWindowInfoList(QList<WindowInfo>)));
+
+
     // This stuff is necessary to receive touch events
     setAcceptTouchEvents(true);
     grabGesture(Qt::PinchGesture);
@@ -82,10 +74,6 @@ Switcher::Switcher(const WindowMonitor *windowMonitor, MWidget *parent) : MWidge
 Switcher::~Switcher()
 {
     delete windowMonitor;
-
-    qDeleteAll(windowInfoMap);
-
-    switcher = NULL;
 }
 
 bool Switcher::handleXEvent(const XEvent &event)
@@ -94,23 +82,20 @@ bool Switcher::handleXEvent(const XEvent &event)
 
     if (event.type == CreateNotify) {
         // A window has been created so add it to the switcher if it has not been added already
-        if (isRelevantWindow(event.xcreatewindow.window) && addWindow(event.xcreatewindow.window)) {
+        if (isRelevantWindow(event.xcreatewindow.window)
+            && addWindowInfo(WindowInfo(event.xcreatewindow.window))) {
             scheduleUpdateButtons();
         }
         eventWasHandled = true;
     } else if (event.type == DestroyNotify) {
         // A window has been destroyed so completely remove it from the switcher
-        if (removeWindow(event.xdestroywindow.window)) {
+        if (removeWindowInfo(WindowInfo(event.xdestroywindow.window))) {
             // Update the switcher buttons instantly
             updateButtons();
         }
         eventWasHandled = true;
     } else if (event.type == PropertyNotify) {
-        if (event.xproperty.atom == stackedClientListAtom && event.xproperty.window == DefaultRootWindow(QX11Info::display())) {
-            // The client list of the root window has changed so update the window list
-            updateWindowInfoMap();
-            eventWasHandled = true;
-        } else if (event.xproperty.atom == WindowInfo::TypeAtom || event.xproperty.atom == WindowInfo::StateAtom || event.xproperty.atom == XA_WM_TRANSIENT_FOR) {
+        if (event.xproperty.atom == WindowInfo::TypeAtom || event.xproperty.atom == WindowInfo::StateAtom || event.xproperty.atom == XA_WM_TRANSIENT_FOR) {
             // The type, state or transiency of a window has changed so update that window's properties
             updateWindowProperties(event.xproperty.window);
             eventWasHandled = true;
@@ -128,79 +113,69 @@ bool Switcher::handleXEvent(const XEvent &event)
     return eventWasHandled;
 }
 
-bool Switcher::addWindows(const QSet<Window> &windows)
+bool Switcher::addWindowsInfo(QSet<WindowInfo> &windows)
 {
     bool applicationWindowListChanged = false;
-    foreach(Window window, windows) {
-        applicationWindowListChanged |= addWindow(window);
+    foreach(WindowInfo wi, windows) {
+        applicationWindowListChanged |= addWindowInfo(wi);
     }
     return applicationWindowListChanged;
 }
 
-bool Switcher::addWindow(Window window)
+bool Switcher::addWindowInfo(WindowInfo wi)
 {
     bool applicationWindowListChanged = false;
-
-    // Window that are already tracked can be ignored
-    if (!windowInfoMap.contains(window)) {
-        // Add the window to the map of tracked windows
-        WindowInfo *windowInfo = new WindowInfo(window);
-        windowInfoMap.insert(window, windowInfo);
-
-        if (windowInfo->transientFor() != 0) {
-            markWindowTransientFor(window, windowInfo->transientFor());
+    if (!windowInfoSet.contains(wi)) {
+        windowInfoSet.insert(wi);
+        if (wi.transientFor() != 0) {
+            markWindowTransientFor(wi.window(), wi.transientFor());
             applicationWindowListChanged = true;
-        } else if (isApplicationWindow(*windowInfo)) {
+        } else if (isApplicationWindow(wi)) {
             // Add the window to the application window list in case it is one
-            applicationWindows.append(*windowInfo);
+            applicationWindows.append(wi);
 
-            if (windowMonitor != NULL && !windowMonitor->isOwnWindow(window)) {
-                // The Switcher needs to know about Visibility and property changes of other applications' windows (but not of the homescreen window)
-                X11Wrapper::XSelectInput(QX11Info::display(), window, VisibilityChangeMask | PropertyChangeMask);
+            if (windowMonitor != NULL && !windowMonitor->isOwnWindow(wi.window())) {
+                // The Switcher needs to know about Visibility and
+                //property changes of other applications' windows
+                //(but not of the homescreen window)
+                X11Wrapper::XSelectInput(QX11Info::display(), wi.window(),
+                                         VisibilityChangeMask | PropertyChangeMask);
             }
-
             applicationWindowListChanged = true;
         }
-    }
-
-    return applicationWindowListChanged;
-}
-
-bool Switcher::removeWindows(const QSet<Window> &windows)
-{
-    bool applicationWindowListChanged = false;
-    foreach(Window window, windows) {
-        applicationWindowListChanged |= removeWindow(window);
     }
     return applicationWindowListChanged;
 }
 
-bool Switcher::removeWindow(Window window)
+bool Switcher::removeWindows(QSet<WindowInfo> &windows)
 {
     bool applicationWindowListChanged = false;
-
-    // Remove the window from the tracked windows
-    windowsBeingClosed.remove(window);
-    WindowInfo *windowInfo = windowInfoMap.take(window);
-    if (windowInfo != NULL) {
-        if (windowInfo->transientFor() != 0) {
-            unmarkWindowTransientFor(window, windowInfo->transientFor());
-            applicationWindowListChanged = true;
-        } else if (applicationWindows.contains(*windowInfo)) {
-            applicationWindows.removeOne(*windowInfo);
-            applicationWindowListChanged = true;
-        }
-        delete windowInfo;
+    foreach(WindowInfo window, windows) {
+        applicationWindowListChanged |= removeWindowInfo(window);
     }
+    return applicationWindowListChanged;
+}
 
+bool Switcher::removeWindowInfo(WindowInfo windowInfo)
+{
+    windowInfoSet.remove(windowInfo);
+    bool applicationWindowListChanged = false;
+    windowsInfoBeingClosed.remove(windowInfo);
+    if (windowInfo.transientFor() != 0) {
+        unmarkWindowTransientFor(windowInfo.window(), windowInfo.transientFor());
+        applicationWindowListChanged = true;
+    } else if (applicationWindows.contains(windowInfo)) {
+        applicationWindows.removeOne(windowInfo);
+        applicationWindowListChanged = true;
+    }
     return applicationWindowListChanged;
 }
 
 void Switcher::markWindowBeingClosed(Window window)
 {
     // Add the window to the windows being closed list
-    if (!windowsBeingClosed.contains(window)) {
-        windowsBeingClosed.insert(window);
+    if (!windowsInfoBeingClosed.contains(window)) {
+        windowsInfoBeingClosed.insert(WindowInfo(window));
     }
 }
 
@@ -244,114 +219,101 @@ void Switcher::scheduleUpdateButtons()
     }
 }
 
-void Switcher::updateWindowInfoMap()
+void Switcher::handleWindowInfoList(QList<WindowInfo> newWindowList)
 {
-    // Get a list of all windows
-    Display *display = QX11Info::display();
-    Atom actualType;
-    int actualFormat;
-    unsigned long numWindowItems, bytesLeft;
-    unsigned char *windowData = NULL;
-    Status result = X11Wrapper::XGetWindowProperty(display, DefaultRootWindow(display), stackedClientListAtom,
-                                                0, 0x7fffffff, False, XA_WINDOW,
-                                                &actualType, &actualFormat, &numWindowItems, &bytesLeft, &windowData);
-
-    if (result == Success && windowData != None) {
-        // We need to keep the stacking order of the windows -> hence the list
-        QList<Window> newWindowList;
-        Window *windows = (Window *)windowData;
-        for (unsigned int i = 0; i < numWindowItems; i++) {
-            if (isRelevantWindow(windows[i])) {
-                newWindowList.append(windows[i]);
-            }
+    foreach(WindowInfo wi, newWindowList) {
+        if (!isRelevantWindow(wi.window())) {
+            newWindowList.removeOne(wi);
         }
+    }
 
-        // Check whether windows have been opened or closed
-        QSet<Window> newWindowSet = newWindowList.toSet() - windowsBeingClosed;
-        QSet<Window> oldWindowSet = windowInfoMap.keys().toSet();
-        QSet<Window> closedWindowSet = oldWindowSet - newWindowSet;
-        QSet<Window> openedWindowSet = newWindowSet - oldWindowSet;
-        windowsBeingClosed -= closedWindowSet;
+    QSet<WindowInfo> newWindowSet = newWindowList.toSet() - windowsInfoBeingClosed;
+    QSet<WindowInfo> oldWindowSet = windowInfoSet;
+    QSet<WindowInfo> closedWindowSet = oldWindowSet - newWindowSet;
+    QSet<WindowInfo> openedWindowSet = newWindowSet - oldWindowSet;
 
-        bool added = addWindows(openedWindowSet);
-        bool removed = removeWindows(closedWindowSet);
+    windowsInfoBeingClosed -= closedWindowSet;
 
-        // The stacking order needs to be cleared out before we start updating the
-        // buttons as the topmostWindow is set in the 'updateButtons()' method and
-        // the method call is scheduled with a timer in the case of an addition
-        QList<WindowInfo> stackingWindowList;
-        foreach (Window window, newWindowList) {
-            if (!windowsBeingClosed.contains(window)) {
-                stackingWindowList.append(*windowInfoMap.value(window));
-            }
+    bool added = addWindowsInfo(openedWindowSet);
+    bool removed = removeWindows(closedWindowSet);
+
+    // The stacking order needs to be cleared out before we start updating the
+    // buttons as the topmostWindow is set in the 'updateButtons()' method and
+    // the method call is scheduled with a timer in the case of an addition
+    QList<WindowInfo> stackingWindowList;
+    foreach (WindowInfo window, newWindowList) {
+        if (!windowsInfoBeingClosed.contains(window)) {
+            stackingWindowList.append(window);
         }
+    }
 
-        if (!stackingWindowList.isEmpty()){
-            topmostWindow = stackingWindowList.last().window();
+    if (!stackingWindowList.isEmpty()){
+        topmostWindow = stackingWindowList.last().window();
+    }
+
+    if (added || removed) {
+        if (!removed) {
+            // If windows have been added but not removed, update the switcher with a delay
+            scheduleUpdateButtons();
+        } else {
+            // If windows have been removed update the switcher instantly
+            updateButtons();
         }
-
-        if (added || removed) {
-            if (!removed) {
-                // If windows have been added but not removed, update the switcher with a delay
-                scheduleUpdateButtons();
-            } else {
-                // If windows have been removed update the switcher instantly
-                updateButtons();
-            }
-        } else if (!stackingWindowList.isEmpty()) {
-            if (!windowMonitor->isOwnWindow(topmostWindow)) {
-                // The view might also need to react (== pan to the correct page) if no buttons were added
-                // but the stacking order was changed, i.e. due to app chaining or some other activity
-                model()->setTopmostWindow(topmostWindow);
-            }
+    } else if (!stackingWindowList.isEmpty()) {
+        if (!windowMonitor->isOwnWindow(topmostWindow)) {
+            // The view might also need to react (== pan to the correct page) if no buttons were added
+            // but the stacking order was changed, i.e. due to app chaining or some other activity
+            model()->setTopmostWindow(topmostWindow);
         }
-
-        emit windowStackingOrderChanged(stackingWindowList);
     }
 }
 
 void Switcher::updateWindowTitle(Window window)
 {
-    WindowInfo *windowInfo = windowInfoMap.value(window);
-    if (windowInfo != NULL && windowInfo->updateWindowTitle() && switcherButtonMap.contains(window)) {
-        switcherButtonMap.value(window)->setText(windowInfo->title());
-        switcherButtonMap.value(window)->update();
+    if (windowInfoSet.contains(window)) {
+        WindowInfo windowInfo = WindowInfo(window);
+        if (windowInfo.updateWindowTitle() && switcherButtonMap.contains(window)) {
+            switcherButtonMap.value(window)->setText(windowInfo.title());
+            switcherButtonMap.value(window)->update();
+        }
     }
 }
 
+
 void Switcher::updateWindowProperties(Window window)
 {
-    WindowInfo *windowInfo = windowInfoMap.value(window);
-    if (windowInfo != NULL) {
+    if (windowInfoSet.contains(window)) {
+        WindowInfo windowInfo = WindowInfo(window);
+
         // Get the old properties
-        bool wasApplication = isApplicationWindow(*windowInfo);
-        Window wasTransientFor = windowInfo->transientFor();
+        bool wasApplication = isApplicationWindow(windowInfo);
+        Window wasTransientFor = windowInfo.transientFor();
 
         // Update the properties
-        windowInfo->updateWindowProperties();
+        windowInfo.updateWindowProperties();
 
         // Get the current properties
-        bool isApplication = isApplicationWindow(*windowInfo);
-        Window isTransientFor = windowInfo->transientFor();
+        bool isApplication = isApplicationWindow(windowInfo);
+        Window isTransientFor = windowInfo.transientFor();
 
         if (wasApplication != isApplication) {
             // Update the window list if the window has changed from an application window to something else or vice versa
             if (isApplication) {
-                applicationWindows.append(*windowInfo);
+                applicationWindows.append(windowInfo);
             } else {
-                applicationWindows.removeOne(*windowInfo);
+                applicationWindows.removeOne(windowInfo);
             }
         }
 
         if (wasTransientFor != isTransientFor) {
             if (wasTransientFor != 0) {
                 // Remove this window from the list of transient windows for the previous transient for window
-                unmarkWindowTransientFor(windowInfo->window(), wasTransientFor);
+                unmarkWindowTransientFor(windowInfo.window(), wasTransientFor);
             }
 
             if (isTransientFor != 0) {
                 // Add this window as the transient window for another window
-                markWindowTransientFor(windowInfo->window(), isTransientFor);
+                markWindowTransientFor(windowInfo.window(), isTransientFor);
             }
         }
 
@@ -371,29 +333,30 @@ void Switcher::updateButtons()
     QList< QSharedPointer<SwitcherButton> > newButtons;
 
     // The new mapping of known windows to the buttons
-    QMap<Window, SwitcherButton *> newSwitcherButtonMap;
+    QHash<Window, SwitcherButton *> newSwitcherButtonMap;
 
     // Go through the windows and create new buttons for new windows
     foreach (const WindowInfo &windowInfo, applicationWindows) {
-        WindowInfo *topmostWindowInfo = windowInfoMap.value(topmostTransientWindowFor(windowInfo.window()));
-        if (topmostWindowInfo != NULL) {
+        Window w = topmostTransientWindowFor(windowInfo.window());
+        WindowInfo topmostWindowInfo = WindowInfo(w);
+        if (windowInfoSet.contains(topmostWindowInfo)) {
             if (switcherButtonMap.contains(windowInfo.window())) {
                 SwitcherButton *button = switcherButtonMap[windowInfo.window()];
 
                 // Button already exists - set title (as it may have changed)
-                button->setText(topmostWindowInfo->title());
+                button->setText(topmostWindowInfo.title());
 
                 // Change the window id if replaced by a transient
-                if (button->xWindow() != topmostWindowInfo->window()) {
-                    button->setXWindow(topmostWindowInfo->window());
+                if (button->xWindow() != topmostWindowInfo.window()) {
+                    button->setXWindow(topmostWindowInfo.window());
                 }
 
                 validOldButtons.append(button);
                 newSwitcherButtonMap.insert(windowInfo.window(), button);
             } else {
                 QSharedPointer<SwitcherButton> button(new SwitcherButton);
-                button->setText(topmostWindowInfo->title());
-                button->setXWindow(topmostWindowInfo->window());
+                button->setText(topmostWindowInfo.title());
+                button->setXWindow(topmostWindowInfo.window());
                 connect(button.data(), SIGNAL(windowToFront(Window)), this, SLOT(windowToFront(Window)));
                 connect(button.data(), SIGNAL(closeWindow(Window)), this, SLOT(closeWindow(Window)));
 
@@ -449,9 +412,9 @@ void Switcher::closeWindow(Window window)
     X11Wrapper::XSendEvent(QX11Info::display(), rootWin, False, SubstructureRedirectMask, &ev);
 
     // Close also the window this one is transient for, if any
-    WindowInfo *windowInfo = windowInfoMap.value(window);
-    if (windowInfo != NULL && windowInfo->transientFor() != 0 && windowInfo->transientFor() != window) {
-        closeWindow(windowInfo->transientFor());
+    WindowInfo windowInfo = WindowInfo(window);
+    if (windowInfo.transientFor() != 0 && windowInfo.transientFor() != window) {
+        closeWindow(windowInfo.transientFor());
     }
 }
 

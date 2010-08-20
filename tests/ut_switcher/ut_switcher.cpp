@@ -483,13 +483,22 @@ void Ut_Switcher::cleanupTestCase()
     delete app;
 }
 
+void populateWindowList(QList<WindowInfo> &newInfoWindowList)
+{
+    foreach (Window window, g_windows) {
+        newInfoWindowList.append(WindowInfo(window));
+    }
+}
+
 void Ut_Switcher::updateWindowList()
 {
     XEvent event;
     event.xproperty.atom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_CLIENT_LIST_STACKING", False);
     event.xproperty.window = DefaultRootWindow(QX11Info::display());
     event.type = PropertyNotify;
-    QVERIFY(switcher->handleXEvent(event));
+    QList<WindowInfo> newWindowList;
+    populateWindowList(newWindowList);
+    switcher->handleWindowInfoList(newWindowList);
 }
 
 void Ut_Switcher::testWindowToFront()
@@ -540,9 +549,11 @@ void Ut_Switcher::verifyModel(const QList<WindowInfo> &windowList)
 void Ut_Switcher::testX11EventFilterWithPropertyNotify()
 {
     WindowListReceiver r;
-    connect(switcher, SIGNAL(windowListUpdated(const QList<WindowInfo> &)), &r, SLOT(windowListUpdated(const QList<WindowInfo> &)));
+    connect(switcher, SIGNAL(windowListUpdated(const QList<WindowInfo> &)), &r,
+            SLOT(windowListUpdated(const QList<WindowInfo> &)));
 
-    // Verify that X11EventFilter only reacts to events it's supposed to react on (type, window and atom are all set correctly)
+    // Verify that X11EventFilter only reacts to events it's supposed to react on
+    // (type, window and atom are all set correctly)
     XEvent event;
     event.type = 0;
     event.xproperty.window = 0;
@@ -564,7 +575,10 @@ void Ut_Switcher::testX11EventFilterWithPropertyNotify()
     QVERIFY(!switcher->handleXEvent(event));
 
     event.xproperty.window = DefaultRootWindow(QX11Info::display());
-    QVERIFY(switcher->handleXEvent(event));
+
+    QList<WindowInfo> newWindowList;
+    populateWindowList(newWindowList);
+    switcher->handleWindowInfoList(newWindowList);
 
     // Make sure the window list change signal was emitted
     QCOMPARE(r.count, 1);
@@ -577,6 +591,7 @@ void Ut_Switcher::testX11EventFilterWithPropertyNotify()
     g_windowStateMap[FIRST_APPLICATION_WINDOW] = states;
     event.xproperty.window = INVALID_WINDOWS;
     event.xproperty.atom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_WM_STATE", False);
+
     QVERIFY(switcher->handleXEvent(event));
     QCOMPARE(r.count, 2);
     QCOMPARE(r.windowList.count(), APPLICATION_WINDOWS - 1);
@@ -622,36 +637,38 @@ void Ut_Switcher::testX11EventFilterWithClientMessage()
     verifyModel(r.windowList);
 }
 
-void Ut_Switcher::testWindowStackingOrder()
+void Ut_Switcher::testWhenStackingOrderChangesCorrectWindowsAreStored()
 {
-    WindowListReceiver r;
-    connect(switcher, SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), &r, SLOT(stackingWindowListUpdated(const QList<WindowInfo> &)));
+    QList<WindowInfo> windowInfoList;
+    populateWindowList(windowInfoList);
 
-    updateWindowList();
+    switcher->handleWindowInfoList(windowInfoList);
 
-    QCOMPARE(r.stackingCount, 1);
-    QCOMPARE(r.stackingWindowList.count(), VALID_WINDOWS);
+    QCOMPARE(switcher->windowInfoSet.count(), VALID_WINDOWS);
+    for (Window window = FIRST_APPLICATION_WINDOW; window < (Window)g_windows.count(); ++window) {
+        QVERIFY(switcher->windowInfoSet.contains(WindowInfo(window)));
+    }
+}
 
-    WindowInfo first = r.stackingWindowList.first();
-    WindowInfo last = r.stackingWindowList.last();
+void Ut_Switcher::testWhenStackingOrderChangesTopmostWindowGetsUpdated()
+{
+    QList<WindowInfo> windowInfoList;
+    populateWindowList(windowInfoList);
 
-    QCOMPARE(first.window(), (unsigned long)(FIRST_APPLICATION_WINDOW));
-    QCOMPARE(last.window(), (unsigned long)g_windows.count() - 1);
+    switcher->handleWindowInfoList(windowInfoList);
 
-    QCOMPARE(switcher->model()->topmostWindow(), last.window());
+    QCOMPARE(switcher->model()->topmostWindow(), g_windows[FIRST_NON_APPLICATION_WINDOW + NON_APPLICATION_WINDOWS - 1]);
 
     Window tmp = g_windows[FIRST_APPLICATION_WINDOW];
     g_windows[FIRST_APPLICATION_WINDOW] = g_windows.last();
     g_windows[g_windows.count() - 1] = tmp;
 
-    updateWindowList();
-    QCOMPARE(r.stackingCount, 2);
-    QCOMPARE(r.stackingWindowList.count(), VALID_WINDOWS);
+    windowInfoList.clear();
+    populateWindowList(windowInfoList);
 
-    QCOMPARE(first.window(), r.stackingWindowList.last().window());
-    QCOMPARE(last.window(), r.stackingWindowList.first().window());
+    switcher->handleWindowInfoList(windowInfoList);
 
-    QCOMPARE(switcher->model()->topmostWindow(), r.stackingWindowList.last().window());
+    QCOMPARE(switcher->model()->topmostWindow(), g_windows[FIRST_NON_APPLICATION_WINDOW + NON_APPLICATION_WINDOWS - 1]);
 }
 
 void Ut_Switcher::testX11EventWindowNameChange_data()
@@ -685,7 +702,8 @@ void Ut_Switcher::testX11EventWindowNameChange()
     QFETCH(QString, newTitle);
 
     WindowListReceiver r;
-    connect(switcher, SIGNAL(windowListUpdated(const QList<WindowInfo> &)), &r, SLOT(windowListUpdated(const QList<WindowInfo> &)));
+    connect(switcher, SIGNAL(windowListUpdated(const QList<WindowInfo> &)), &r,
+            SLOT(windowListUpdated(const QList<WindowInfo> &)));
     x11WrapperWMName[window] = oldTitle;
 
     // Change the client list so that a window exists

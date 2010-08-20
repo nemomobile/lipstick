@@ -20,19 +20,14 @@
 #include "launcherbutton.h"
 #include "launcheraction.h"
 #include "launcher.h"
-#include "switcher.h"
 #include <MDesktopEntry>
 
 #include <MWidgetCreator>
 M_REGISTER_WIDGET(LauncherButton)
 
-LauncherButton::LauncherButton(MWidget *parent) : MButton(parent, new LauncherButtonModel)
-{
-    init();
-}
-
 LauncherButton::LauncherButton(const QString &desktopEntryPath, MWidget *parent) :
-        MButton(parent, new LauncherButtonModel)
+        MButton(parent, new LauncherButtonModel),
+        windowMonitor(new HomeWindowMonitor)
 {
     init();
 
@@ -74,7 +69,7 @@ void LauncherButton::launch()
     if (model()->buttonState() == LauncherButtonModel::Installed) {
         model()->setButtonState(LauncherButtonModel::Launching);
 
-        connect(Switcher::instance(), SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), this, SLOT(stopLaunchProgressIfObscured(const QList<WindowInfo> &)));
+        connect(windowMonitor.data(), SIGNAL(fullscreenWindowOnTopOfOwnWindow()), SLOT(stopLaunchProgress()));
 
         action().trigger();
     } else if (model()->buttonState() == LauncherButtonModel::Broken) {
@@ -86,20 +81,7 @@ void LauncherButton::stopLaunchProgress()
 {
     model()->setButtonState(LauncherButtonModel::Installed);
 
-    disconnect(Switcher::instance(), SIGNAL(windowStackingOrderChanged(const QList<WindowInfo> &)), this, SLOT(stopLaunchProgressIfObscured(const QList<WindowInfo> &)));
-}
-
-void LauncherButton::stopLaunchProgressIfObscured(const QList<WindowInfo> &windowList)
-{
-    if (!windowList.isEmpty()) {
-        const QList<Atom>& windowTypes = windowList.last().types();
-        if (!windowTypes.contains(WindowInfo::NotificationAtom) &&
-            !windowTypes.contains(WindowInfo::DesktopAtom) &&
-            !windowTypes.contains(WindowInfo::DialogAtom) &&
-            !windowTypes.contains(WindowInfo::MenuAtom)) {
-            stopLaunchProgress();
-        }
-    }
+    disconnect(windowMonitor.data(), SIGNAL(fullscreenWindowOnTopOfOwnWindow()), this, SLOT(stopLaunchProgress()));
 }
 
 void LauncherButton::retranslateUi()

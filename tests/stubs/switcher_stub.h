@@ -34,6 +34,7 @@ public:
     virtual void windowToFront(Window window);
     virtual void closeWindow(Window window);
     virtual void scheduleUpdateButtons();
+    virtual void handleWindowInfoList(QList<WindowInfo> newWindowList);
 };
 
 void SwitcherStub::switcherConstructor(const WindowMonitor *windowMonitor, MWidget *parent)
@@ -81,30 +82,24 @@ void SwitcherStub::scheduleUpdateButtons()
     stubMethodEntered("scheduleUpdateButtons");
 }
 
+void SwitcherStub::handleWindowInfoList(QList<WindowInfo> windowList)
+{
+    QList<ParameterBase *> params;
+    params.append(new Parameter< QList<WindowInfo> > (windowList));
+    stubMethodEntered("handleWindowInfoList", params);
+}
+
 SwitcherStub gDefaultSwitcherStub;
 SwitcherStub *gSwitcherStub = &gDefaultSwitcherStub;
-Switcher *gSwitcherInstance = NULL;
 
 Switcher::Switcher(const WindowMonitor *windowMonitor, MWidget *parent) : MWidgetController(parent)
 {
     gSwitcherStub->switcherConstructor(windowMonitor, parent);
-    if (gSwitcherInstance == NULL) {
-        gSwitcherInstance = this;
-    }
 }
 
 Switcher::~Switcher()
 {
     gSwitcherStub->switcherDestructor();
-    gSwitcherInstance = NULL;
-}
-
-Switcher *Switcher::instance()
-{
-    if (gSwitcherInstance == NULL) {
-        gSwitcherInstance = new Switcher(NULL);
-    }
-    return gSwitcherInstance;
 }
 
 bool Switcher::handleXEvent(const XEvent &event)
@@ -125,6 +120,11 @@ void Switcher::closeWindow(Window window)
 void Switcher::updateButtons()
 {
     gSwitcherStub->updateButtons();
+}
+
+void Switcher::handleWindowInfoList(QList<WindowInfo> windowList)
+{
+    gSwitcherStub->handleWindowInfoList(windowList);
 }
 
 void Switcher::scheduleUpdateButtons()

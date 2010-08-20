@@ -78,12 +78,7 @@ private slots:
     void testToggleLauncher();
     // Test bounding rectangle and background drawing
     void testBoundingRectAndDrawBackground();
-    // Test showing and hiding launcher
-    void testUpdatingLauncherVisibilityWithApplicationOnTop();
-    void testUpdatingLauncherVisibilityWithNotificationOnTop();
-    void testUpdatingLauncherVisibilityWithStatusIndicatorMenuOnTop();
-    void testUpdatingLauncherVisibilityWithDialogOnTop();
-    void testUpdatingLauncherVisibilityWithDesktopOnTop();
+    void testWhenFullscreenWindowAppearsLauncherGetsHidden();
     // Test showing launcher when showLauncherAndPanToPage is called
     void testShowLauncherAndPanToPageWithCorrectDesktopFile();
     // Test that launcher is not shown when bad desktop file is given
@@ -97,8 +92,8 @@ public:
     static MainWindow *mainWindow;
 
 signals:
-    void windowStackingOrderChanged(const QList<WindowInfo> &);
     void windowListUpdated(const QList<WindowInfo> &);
+    void obscured();
 
 private:
     void verifyAppearDisappear(MSceneWindow *appear, MSceneWindow *disappear);
