@@ -91,6 +91,8 @@ private slots:
     void testUpdateButtonState();
     // Test adding palceholder button to launcher
     void testAddPlaceholderButtonToLauncher();
+    // Test checking if desktop entry exists in datastore
+    void testEntryExistsInDatastore();
     // Test handling of downloadProgress signal
     void testSetDownloadProgress();
     // Test handling of downloadProgress signal with invalid values

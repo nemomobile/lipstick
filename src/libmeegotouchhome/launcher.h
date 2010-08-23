@@ -212,6 +212,15 @@ private slots:
     void updatePagesFromDataStore();
 
 private:
+
+    /*!
+     * Check if desktop entry already exists in datastore
+     *
+     * \param desktopEntryPath Path to desktop entry
+     * \return Whether the entry was found in datastore
+     */
+    bool entryExistsInDatastore(const QString &desktopEntryPath);
+
     /*!
      * Add a new launcher button to given pages.
      *

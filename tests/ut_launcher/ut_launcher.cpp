@@ -332,19 +332,29 @@ void Ut_Launcher::testUpdateButtonState()
     const QString desktopEntry = "test.desktop";
     int progress = 50;
 
-    //First update state for button that doesn't exist in the placeholderMap
+    //First update state for button that doesn't exist in the placeholderMap or datastore
     QVERIFY(launcher->placeholderMap.isEmpty());
+
     launcher->updateButtonState(packageName, desktopEntry, LauncherButtonModel::Downloading, progress);
     QCOMPARE(launcher->placeholderMap.count(), 1);
     QCOMPARE(gLauncherButtonStub->stubCallCount("setState"), 1);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<LauncherButtonModel::State>(0), LauncherButtonModel::Downloading);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<int>(1), progress);
 
+    //Add button to datastore
+    QHash<QString, QVariant> dataForAllDesktopEntries;
+    dataForAllDesktopEntries.insert(QString(APPLICATIONS_DIRECTORY) + QString(desktopEntry), QVariant("launcher/0/0"));
+    gLauncherDataStoreStub->stubSetReturnValue("dataForAllDesktopEntries", dataForAllDesktopEntries);
+    //Shouldn't get added to map since it exists in datastore
+    launcher->updateButtonState(packageName, desktopEntry, LauncherButtonModel::Downloading, progress);
+    QCOMPARE(launcher->placeholderMap.count(), 1);
+    QCOMPARE(gLauncherButtonStub->stubCallCount("setState"), 2);
+
     //Update button's state and progress
     progress = 10;
     launcher->updateButtonState(packageName, desktopEntry, LauncherButtonModel::Installing, progress);
     QCOMPARE(launcher->placeholderMap.count(), 1);
-    QCOMPARE(gLauncherButtonStub->stubCallCount("setState"), 2);
+    QCOMPARE(gLauncherButtonStub->stubCallCount("setState"), 3);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<LauncherButtonModel::State>(0), LauncherButtonModel::Installing);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<int>(1), progress);
 }
@@ -365,6 +375,15 @@ void Ut_Launcher::testAddPlaceholderButtonToLauncher()
     QCOMPARE(launcher->model()->launcherPages().at(0)->model()->launcherButtons().count(), 2);
 }
 
+void Ut_Launcher::testEntryExistsInDatastore()
+{
+    QVERIFY(!launcher->entryExistsInDatastore("validPlacement"));
+    QHash<QString, QVariant> dataForAllDesktopEntries;
+    dataForAllDesktopEntries.insert("validPlacement", QVariant("launcher/1/1"));
+    gLauncherDataStoreStub->stubSetReturnValue("dataForAllDesktopEntries", dataForAllDesktopEntries);
+    QVERIFY(launcher->entryExistsInDatastore("validPlacement"));
+}
+
 void Ut_Launcher::testSetDownloadProgress()
 {
     int loaded = 50;
@@ -373,18 +392,6 @@ void Ut_Launcher::testSetDownloadProgress()
     launcher->setDownloadProgress("testPackage", "test.desktop", loaded, total);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<LauncherButtonModel::State>(0), LauncherButtonModel::Downloading);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<int>(1), percentage);
-
-    //test with invalid values
-    total = 0;
-    launcher->setDownloadProgress("testPackage", "test.desktop", loaded, total);
-    QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<LauncherButtonModel::State>(0), LauncherButtonModel::Downloading);
-    QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<int>(1), -1);
-
-    loaded = 100;
-    total = 50;
-    launcher->setDownloadProgress("testPackage", "test.desktop", loaded, total);
-    QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<LauncherButtonModel::State>(0), LauncherButtonModel::Downloading);
-    QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<int>(1), -1);
 }
 
 void Ut_Launcher::testSetDownloadProgressWithInvalidValues()
@@ -412,6 +419,9 @@ void Ut_Launcher::testSetInstallProgress()
 
 void Ut_Launcher::testSetOperationSuccess()
 {
+    QHash<QString, QVariant> dataForAllDesktopEntries;
+    gLauncherDataStoreStub->stubSetReturnValue("dataForAllDesktopEntries", dataForAllDesktopEntries);
+
     //First call setInstallProgress to get package added to map
     launcher->setInstallProgress("testPackage", "test.desktop", 99);
     QCOMPARE(launcher->placeholderMap.count(), 1);

@@ -24,6 +24,7 @@
 
 class QuickLaunchBar;
 class LauncherDataStore;
+class ApplicationPackageMonitor;
 
 class Ut_QuickLaunchBar : public QObject
 {
@@ -45,12 +46,22 @@ private slots:
 
     // Test cases
     void testLauncherDataStoreChanged();
+    void testSettingApplicationPackageMonitor();
+    void testUpdateButtonState();
+    void testSetDownloadProgress();
+    void testSetInstallProgress();
+    void testSetOperationSuccess();
+    void testSetOperationError();
 
 private:
+    // Helper function for adding a button
+    void addButton(const QString entryPath, int position);
     // The object being tested
     QuickLaunchBar *m_subject;
     // The datastore object used by the test subject
     LauncherDataStore *launcherDataStore;
+    // Application package monitor used by test subject
+    ApplicationPackageMonitor *packageMonitor;
 };
 
 #endif

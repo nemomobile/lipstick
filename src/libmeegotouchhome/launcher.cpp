@@ -108,11 +108,24 @@ void Launcher::setOperationError(const QString& packageName, const QString& desk
 
 void Launcher::updateButtonState(const QString &packageName, const QString &desktopEntryPath, LauncherButtonModel::State state, int progress)
 {
-    if (!placeholderMap.contains(packageName)) {
+    if (!placeholderMap.contains(packageName) && !entryExistsInDatastore(desktopEntryPath)) {
         addPlaceholderButton(packageName, desktopEntryPath);
     }
 
     placeholderMap.value(packageName)->setState(state, progress);
+}
+
+bool Launcher::entryExistsInDatastore(const QString &desktopEntryPath)
+{
+    bool exists = false;
+    QString entryFileName = QFileInfo(desktopEntryPath).fileName();
+    QHash<QString, QVariant> allDesktopEntryPlacements = dataStore->dataForAllDesktopEntries();
+    foreach (const QString &desktopEntryPath, allDesktopEntryPlacements.keys()) {
+        if (QFileInfo(desktopEntryPath).fileName() == entryFileName) {
+            exists = true;
+        }
+    }
+    return exists;
 }
 
 void Launcher::addPlaceholderButton(const QString& packageName, const QString& desktopEntryPath)

@@ -17,6 +17,7 @@ SOURCES += \
 HEADERS += \
     ut_quicklaunchbar.h \
     $$SRCDIR/quicklaunchbar.h \
+    $$SRCDIR/applicationpackagemonitor.h
 
 # service classes
 HEADERS += \
