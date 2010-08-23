@@ -64,6 +64,9 @@ private slots:
     void testOverpinchOverview();
     void testOverpinchDetailview();
 
+    // Tests that correct number of buttons are in overview and detailview modes
+    void testButtonCounts();
+
     // Test case for event handler
     void testEvent();
 

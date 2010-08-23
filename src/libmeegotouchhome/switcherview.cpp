@@ -52,13 +52,15 @@ static const qreal MAX_Z_VALUE = 1.0;
 
 
 SwitcherView::SwitcherView(Switcher *switcher) :
-        MWidgetView(switcher), controller(switcher), mainLayout(new QGraphicsLinearLayout(Qt::Vertical)), pannedWidget(new MWidget), viewport(new PagedViewport)
+        MWidgetView(switcher), controller(switcher), mainLayout(new QGraphicsLinearLayout(Qt::Vertical)), pannedWidget(new MWidget), viewport(new PagedViewport),
+        overviewStyle(0)
 {
     mainLayout->setContentsMargins(0, 0, 0, 0);
     switcher->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     switcher->setLayout(mainLayout);
 
     connect(viewport, SIGNAL(pageChanged(int)), this, SLOT(updateFocusedButton(int)));
+    connect(viewport, SIGNAL(panningStopped()), this, SLOT(panningStopped()));
     connect(MainWindow::instance()->sceneManager(), SIGNAL(orientationChanged(M::Orientation)), this, SLOT(updateButtons()));
 
     // We have custom values for this view port in the style
@@ -95,6 +97,10 @@ SwitcherView::SwitcherView(Switcher *switcher) :
 SwitcherView::~SwitcherView()
 {
     removeButtonsFromLayout();
+
+    if(overviewStyle) {
+        MTheme::releaseStyle(overviewStyle);
+    }
 }
 
 bool SwitcherView::event(QEvent *e)
@@ -125,11 +131,9 @@ void SwitcherView::setupModel()
 void SwitcherView::applySwitcherMode()
 {
     if (model()->switcherMode() == SwitcherModel::Detailview) {
-        connect(viewport, SIGNAL(panningStopped()), this, SLOT(panningStopped()));
         pannedLayout->setPolicy(detailPolicy);
         controller->setObjectName("DetailviewSwitcher");
     } else {
-        disconnect(viewport, 0, this, 0);
         pannedLayout->setPolicy(overviewPolicy);
         controller->setObjectName("OverviewSwitcher");
     }
@@ -177,6 +181,13 @@ void SwitcherView::repositionSwitcher()
 
 void SwitcherView::updateButtons()
 {
+    if(overviewStyle) {
+        MTheme::releaseStyle(overviewStyle);
+    }
+
+    // Cache the overview style because addButtonInOverviewPolicy needs information from this style even though we might be in detailview mode
+    overviewStyle = static_cast<const SwitcherStyle*>(MTheme::style("SwitcherStyle", "OverviewSwitcher", "", "", MainWindow::instance()->orientation()));
+
     focusedSwitcherButton = std::min(focusedSwitcherButton, model()->buttons().size() - 1);
     focusedSwitcherButton = std::max(focusedSwitcherButton, 0);
 
@@ -334,8 +345,9 @@ void SwitcherView::updateOverviewContentsMarginsAndSpacings()
 
 void SwitcherView::addButtonInOverviewPolicy(QSharedPointer<SwitcherButton> button)
 {
-    int colsPerPage = style()->columnsPerPage();
-    int rows = style()->rowsPerPage();
+    int colsPerPage = overviewStyle->columnsPerPage();
+    int rows = overviewStyle->rowsPerPage();
+
     if (rows > 0 && colsPerPage > 0) {
         int location = model()->buttons().indexOf(button);
         int page = location / (colsPerPage * rows);

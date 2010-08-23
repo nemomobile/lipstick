@@ -189,6 +189,9 @@ private:
 
     /*! Animation for the bounce when going to overview mode and when overpinching */
     QPropertyAnimation *bounceAnimation;
+
+    /*! Style of the switcher in overview mode */
+    const SwitcherStyle *overviewStyle;
 };
 
 #endif // SWITCHERVIEW_H
