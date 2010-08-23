@@ -1,4 +1,5 @@
 usr/bin/duihome
+usr/share/themes/base/meegotouch/duihome/*.conf
 usr/share/themes/base/meegotouch/duihome/style/*.css
 usr/lib/meegotouch/applicationextensions/*.so
 usr/share/meegotouch/applicationextensions/*.desktop

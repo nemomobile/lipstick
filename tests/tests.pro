@@ -2,6 +2,7 @@ TEMPLATE = subdirs
 SUBDIRS = \
     ut_desktop \
     ut_desktopview \
+    ut_extendedbuttonview \
     ut_home \
     ut_homeapplication \
     ut_homescreenservice \

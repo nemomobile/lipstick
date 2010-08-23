@@ -260,9 +260,6 @@ SwitcherButtonStyle {
 SwitcherButtonWithTitleBarStyle {
     /* The close button icon */
     close-icon: ;
-
-    close-button-h-offset: 0mm;
-    close-button-v-offset: 0mm;
 }
 
 /* The default values for the switcher button in the overview mode */
@@ -277,21 +274,11 @@ SwitcherButtonStyle#OverviewButton.Portrait:medium {
     icon-size: 15.56mm 28.0mm;
 }
 
-SwitcherButtonWithTitleBarStyle#OverviewButton.Portrait:medium {
-    close-button-v-offset: 1.3mm;
-    close-button-h-offset: 1.3mm;
-}
-
 SwitcherButtonStyle#OverviewButton.Portrait:large {
     preferred-size: 21mm 37.8mm;
     minimum-size: 21mm 37.8mm;
     maximum-size: 21mm 37.8mm;
     icon-size: 21mm 37.8mm;
-}
-
-SwitcherButtonWithTitleBarStyle#OverviewButton.Portrait:large {
-    close-button-v-offset: 1.3mm;
-    close-button-h-offset: 1.3mm;
 }
 
 SwitcherButtonStyle#OverviewButton.Landscape:medium {
@@ -301,11 +288,6 @@ SwitcherButtonStyle#OverviewButton.Landscape:medium {
     icon-size: 21.8mm 12.1mm;
 }
 
-SwitcherButtonWithTitleBarStyle#OverviewButton.Landscape:medium {
-    close-button-v-offset: 1.3mm;
-    close-button-h-offset: 1.3mm;
-}
-
 SwitcherButtonStyle#OverviewButton.Landscape:large {
     preferred-size: 37.8mm 21mm;
     minimum-size: 37.8mm 21mm;
@@ -313,17 +295,7 @@ SwitcherButtonStyle#OverviewButton.Landscape:large {
     icon-size: 37.8mm 21mm;
 }
 
-SwitcherButtonWithTitleBarStyle#OverviewButton.Landscape:large {
-    close-button-v-offset: 1.3mm;
-    close-button-h-offset: 1.3mm;
-}
-
 /* Switcher buttons in the detail viewmode */
-SwitcherButtonWithTitleBarStyle#DetailviewButton {
-    close-button-v-offset: 0mm;
-    close-button-h-offset: 0mm;
-}
-
 SwitcherButtonStyle#DetailviewButton.Portrait {
     preferred-size: 28.77mm 51.8mm;
     minimum-size: 28.77mm 51.8mm;
@@ -346,3 +318,9 @@ SwitcherButtonWithTitleBarStyle#DetailviewButton.Landscape:large {
     close-icon: "icon-m-framework-close-thumbnail";
 }
 
+ExtendedButtonStyle {
+    extend-left: 1.3mm;
+    extend-right: 1.3mm;
+    extend-top: 1.3mm;
+    extend-bottom: 1.3mm;
+}

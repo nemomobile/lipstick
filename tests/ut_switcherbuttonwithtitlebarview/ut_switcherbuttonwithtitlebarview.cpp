@@ -142,20 +142,6 @@ void Ut_SwitcherButtonWithTitleBarView::testApplyingStyle()
     QVERIFY(m_subject->titleLabel->isVisible());
 }
 
-void Ut_SwitcherButtonWithTitleBarView::testCloseButtonTranslate()
-{
-    const qreal translation = 20.0;
-    QPointF initialPosition = m_subject->closeButton->scenePos();
-
-    m_subject->modifiableStyle()->setCloseButtonHOffset(translation);
-    m_subject->modifiableStyle()->setCloseButtonVOffset(translation);
-
-    m_subject->translateCloseButton();
-
-    QPointF translatedPosition(initialPosition + QPointF(translation, -translation));
-    QCOMPARE(m_subject->closeButton->scenePos(), translatedPosition);
-}
-
 void Ut_SwitcherButtonWithTitleBarView::testThumbnailPosition()
 {
     const int titleHeight = m_subject->titleLabel->size().height();

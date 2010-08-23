@@ -6,6 +6,8 @@ HEADERS += homeapplication.h \
     desktopmodel.h \
     desktopview.h \
     desktopstyle.h \
+    extendedbuttonview.h \
+    extendedbuttonstyle.h \
     mainwindow.h \
     launcher.h \
     launcherview.h \
@@ -61,6 +63,7 @@ SOURCES += homeapplication.cpp \
     home.cpp \
     desktop.cpp \
     desktopview.cpp \
+    extendedbuttonview.cpp \
     mainwindow.cpp \
     launcher.cpp \
     launcherview.cpp \
@@ -101,6 +104,7 @@ MODEL_HEADERS += desktopmodel.h \
     pagepositionindicatormodel.h \
     launcherbuttonprogressindicatormodel.h
 STYLE_HEADERS += desktopstyle.h \
+    extendedbuttonstyle.h \
     launcherstyle.h \
     launcherbuttonstyle.h \
     launcherpagestyle.h \
