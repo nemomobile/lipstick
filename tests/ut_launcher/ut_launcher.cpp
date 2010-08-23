@@ -315,27 +315,25 @@ void Ut_Launcher::testSettingLauncherToFirstPage()
 
 void Ut_Launcher::testPackageMonitorSignalConnections()
 {
-    QVERIFY(disconnect(packageMonitor, SIGNAL(downloadProgress(const QString&, const QString &, int, int)),
-            launcher, SLOT(setDownloadProgress(const QString&, const QString &, int, int))));
-    QVERIFY(disconnect(packageMonitor, SIGNAL(installProgress(const QString&, const QString &, int)),
-            launcher, SLOT(setInstallProgress(const QString&, const QString &, int))));
-    QVERIFY(disconnect(packageMonitor, SIGNAL(operationSuccess(const QString&, const QString&)),
-            launcher, SLOT(setOperationSuccess(const QString&, const QString&))));
-    QVERIFY(disconnect(packageMonitor, SIGNAL(operationError(const QString&, const QString&, const QString&)),
-            launcher, SLOT(setOperationError(const QString&, const QString&, const QString&))));
+    QVERIFY(disconnect(packageMonitor, SIGNAL(downloadProgress(const QString &, int, int)),
+            launcher, SLOT(setDownloadProgress(const QString &, int, int))));
+    QVERIFY(disconnect(packageMonitor, SIGNAL(installProgress(const QString &, int)),
+            launcher, SLOT(setInstallProgress(const QString &, int))));
+    QVERIFY(disconnect(packageMonitor, SIGNAL(operationSuccess(const QString&)),
+            launcher, SLOT(setOperationSuccess(const QString&))));
+    QVERIFY(disconnect(packageMonitor, SIGNAL(operationError(const QString&, const QString&)),
+            launcher, SLOT(setOperationError(const QString&, const QString&))));
 }
 
 void Ut_Launcher::testUpdateButtonState()
 {
     gLauncherButtonStub->stubReset();
-    const QString packageName = "testPackage";
     const QString desktopEntry = "test.desktop";
     int progress = 50;
 
     //First update state for button that doesn't exist in the placeholderMap or datastore
     QVERIFY(launcher->placeholderMap.isEmpty());
-
-    launcher->updateButtonState(packageName, desktopEntry, LauncherButtonModel::Downloading, progress);
+    launcher->updateButtonState(desktopEntry, LauncherButtonModel::Downloading, progress);
     QCOMPARE(launcher->placeholderMap.count(), 1);
     QCOMPARE(gLauncherButtonStub->stubCallCount("setState"), 1);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<LauncherButtonModel::State>(0), LauncherButtonModel::Downloading);
@@ -346,13 +344,13 @@ void Ut_Launcher::testUpdateButtonState()
     dataForAllDesktopEntries.insert(QString(APPLICATIONS_DIRECTORY) + QString(desktopEntry), QVariant("launcher/0/0"));
     gLauncherDataStoreStub->stubSetReturnValue("dataForAllDesktopEntries", dataForAllDesktopEntries);
     //Shouldn't get added to map since it exists in datastore
-    launcher->updateButtonState(packageName, desktopEntry, LauncherButtonModel::Downloading, progress);
+    launcher->updateButtonState(desktopEntry, LauncherButtonModel::Downloading, progress);
     QCOMPARE(launcher->placeholderMap.count(), 1);
     QCOMPARE(gLauncherButtonStub->stubCallCount("setState"), 2);
 
     //Update button's state and progress
     progress = 10;
-    launcher->updateButtonState(packageName, desktopEntry, LauncherButtonModel::Installing, progress);
+    launcher->updateButtonState(desktopEntry, LauncherButtonModel::Installing, progress);
     QCOMPARE(launcher->placeholderMap.count(), 1);
     QCOMPARE(gLauncherButtonStub->stubCallCount("setState"), 3);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<LauncherButtonModel::State>(0), LauncherButtonModel::Installing);
@@ -364,13 +362,13 @@ void Ut_Launcher::testAddPlaceholderButtonToLauncher()
     QVERIFY(launcher->model()->launcherPages().isEmpty());
     QString entry1 = "entry1.desktop";
 
-    launcher->addPlaceholderButton("pkg1", entry1);
+    launcher->addPlaceholderButton(entry1);
     launcher->model()->launcherPages().at(0)->model();
     QCOMPARE(launcher->model()->launcherPages().count(), 1);
     QCOMPARE(launcher->model()->launcherPages().at(0)->model()->launcherButtons().count(), 1);
 
     QString entry2 = "entry2.desktop";
-    launcher->addPlaceholderButton("pkg2", entry2);
+    launcher->addPlaceholderButton(entry2);
     QCOMPARE(launcher->model()->launcherPages().count(), 1);
     QCOMPARE(launcher->model()->launcherPages().at(0)->model()->launcherButtons().count(), 2);
 }
@@ -389,22 +387,34 @@ void Ut_Launcher::testSetDownloadProgress()
     int loaded = 50;
     int total = 100;
     int percentage = ((double)loaded / (double)total) * 100;
-    launcher->setDownloadProgress("testPackage", "test.desktop", loaded, total);
+    launcher->setDownloadProgress("test.desktop", loaded, total);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<LauncherButtonModel::State>(0), LauncherButtonModel::Downloading);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<int>(1), percentage);
+
+    //test with invalid values
+    total = 0;
+    launcher->setDownloadProgress("test.desktop", loaded, total);
+    QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<LauncherButtonModel::State>(0), LauncherButtonModel::Downloading);
+    QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<int>(1), -1);
+
+    loaded = 100;
+    total = 50;
+    launcher->setDownloadProgress("test.desktop", loaded, total);
+    QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<LauncherButtonModel::State>(0), LauncherButtonModel::Downloading);
+    QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<int>(1), -1);
 }
 
 void Ut_Launcher::testSetDownloadProgressWithInvalidValues()
 {
     int loaded = 50;
     int total = 0;
-    launcher->setDownloadProgress("testPackage", "test.desktop", loaded, total);
+    launcher->setDownloadProgress("test.desktop", loaded, total);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<LauncherButtonModel::State>(0), LauncherButtonModel::Downloading);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<int>(1), -1);
 
     loaded = 100;
     total = 50;
-    launcher->setDownloadProgress("testPackage", "test.desktop", loaded, total);
+    launcher->setDownloadProgress("test.desktop", loaded, total);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<LauncherButtonModel::State>(0), LauncherButtonModel::Downloading);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<int>(1), -1);
 }
@@ -412,7 +422,7 @@ void Ut_Launcher::testSetDownloadProgressWithInvalidValues()
 void Ut_Launcher::testSetInstallProgress()
 {
     int percentage = 25;
-    launcher->setInstallProgress("testPackage", "test.desktop", percentage);
+    launcher->setInstallProgress("test.desktop", percentage);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<LauncherButtonModel::State>(0), LauncherButtonModel::Installing);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<int>(1), percentage);
 }
@@ -423,11 +433,11 @@ void Ut_Launcher::testSetOperationSuccess()
     gLauncherDataStoreStub->stubSetReturnValue("dataForAllDesktopEntries", dataForAllDesktopEntries);
 
     //First call setInstallProgress to get package added to map
-    launcher->setInstallProgress("testPackage", "test.desktop", 99);
+    launcher->setInstallProgress("test.desktop", 99);
     QCOMPARE(launcher->placeholderMap.count(), 1);
 
     //After calling setOperationSuccess state should be "Installed" and progress 0
-    launcher->setOperationSuccess("testPackage", "test.desktop");
+    launcher->setOperationSuccess("test.desktop");
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<LauncherButtonModel::State>(0), LauncherButtonModel::Installed);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<int>(1), 0);
     QCOMPARE(gLauncherButtonStub->stubCallCount("updateFromDesktopEntry"), 1);
@@ -436,7 +446,7 @@ void Ut_Launcher::testSetOperationSuccess()
 
 void Ut_Launcher::testSetOperationError()
 {
-    launcher->setOperationError("testPackage", "test.desktop", "error_message");
+    launcher->setOperationError("test.desktop", "error_message");
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<LauncherButtonModel::State>(0), LauncherButtonModel::Broken);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<int>(1), 0);
 }
@@ -467,10 +477,9 @@ void Ut_Launcher::testSetMaximumPageSize()
 void Ut_Launcher::testSetOperationErrorWhenButtonFoundFromLauncher()
 {
     QString entry = "test.desktop";
-    QString pkg = "pkg";
     launcher->addLauncherButton(entry);
 
-    launcher->setOperationError(pkg, entry, "error_message");
+    launcher->setOperationError(entry, "error_message");
 
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<LauncherButtonModel::State>(0), LauncherButtonModel::Broken);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<int>(1), 0);
@@ -479,29 +488,12 @@ void Ut_Launcher::testSetOperationErrorWhenButtonFoundFromLauncher()
 void Ut_Launcher::testSetOperationErrorWhenButtonHasPlaceholder()
 {
     QString entry = "test.desktop";
-    QString pkg = "pkg";
-    launcher->addPlaceholderButton(pkg, entry);
+    launcher->addPlaceholderButton(entry);
 
-    launcher->setOperationError(pkg, entry, "error_message");
+    launcher->setOperationError(entry, "error_message");
 
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<LauncherButtonModel::State>(0), LauncherButtonModel::Broken);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<int>(1), 0);
-}
-
-void Ut_Launcher::testReplacingDesktopEntryForPlaceholderButton()
-{
-    QString installerExtraEntry = "installer-extra/entry.desktop";
-    QString applicationsEntry = "applications/entry.desktop";
-
-    launcher->addPlaceholderButton("pkg", installerExtraEntry);
-
-    gLauncherButtonStub->stubSetReturnValue("desktopEntry", installerExtraEntry);
-    launcher->addLauncherButton(applicationsEntry);
-    // Verify that no new button was added
-    QCOMPARE(launcher->model()->launcherPages().count(), 1);
-    QCOMPARE(launcher->model()->launcherPages().at(0)->model()->launcherButtons().count(), 1);
-    // Verify that desktop entry was updated for button
-    QCOMPARE(gLauncherButtonStub->stubLastCallTo("updateFromDesktopEntry").parameter<QString>(0), applicationsEntry);
 }
 
 QTEST_MAIN(Ut_Launcher)

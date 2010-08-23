@@ -83,38 +83,34 @@ public slots:
     /*!
      * Set button state to "downloading", and calculate and set it's progress
      *
-     * \param packageName Name of package related to the operation
      * \param desktopEntryName Desktop entry of the application button represents
      * \param bytesLoaded Amount of bytes loaded
      * \param bytesTotal Total amount of bytes to download
      */
-    void setDownloadProgress(const QString& packageName, const QString& desktopEntryPath, int bytesLoaded, int bytesTotal);
+    void setDownloadProgress(const QString& desktopEntryPath, int bytesLoaded, int bytesTotal);
 
     /*!
      * Set button state to "installing", and set it's progress
      *
-     * \param packageName Name of package related to the operation
      * \param desktopEntryName Desktop entry of the application button represents
      * \param percentage Percentage of installation completed
      */
-    void setInstallProgress(const QString& packageName, const QString& desktopEntryPath, int percentage);
+    void setInstallProgress(const QString& desktopEntryPath, int percentage);
 
     /*!
      * Set button state to "installed"
      *
-     * \param packageName Name of package related to the operation
      * \param desktopEntryName Desktop entry of the application button represents
      */
-    void setOperationSuccess(const QString& packageName, const QString& desktopEntryPath);
+    void setOperationSuccess(const QString& desktopEntryPath);
 
     /*!
      * Set button state to "broken"
      *
-     * \param packageName Name of package related to the operation
      * \param desktopEntryName Desktop entry of the application button represents
      * \param error Error message
      */
-    void setOperationError(const QString& packageName, const QString& desktopEntryPath, const QString& error);
+    void setOperationError(const QString& desktopEntryPath, const QString& error);
 
 private slots:
     /*!

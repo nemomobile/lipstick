@@ -31,10 +31,10 @@ class QuickLaunchBarStub : public StubBase {
   virtual void QuickLaunchBarDestructor();
   virtual void setLauncherDataStore(LauncherDataStore *dataStore);
   virtual void setApplicationPackageMonitor(ApplicationPackageMonitor *packageMonitor);
-  virtual void setDownloadProgress(const QString& packageName, const QString& desktopEntryPath, int bytesLoaded, int bytesTotal);
-  virtual void setInstallProgress(const QString& packageName, const QString& desktopEntryPath, int percentage);
-  virtual void setOperationSuccess(const QString& packageName, const QString& desktopEntryPath);
-  virtual void setOperationError(const QString& packageName, const QString& desktopEntryPath, const QString& error);
+  virtual void setDownloadProgress(const QString& desktopEntryPath, int bytesLoaded, int bytesTotal);
+  virtual void setInstallProgress(const QString& desktopEntryPath, int percentage);
+  virtual void setOperationSuccess(const QString& desktopEntryPath);
+  virtual void setOperationError(const QString& desktopEntryPath, const QString& error);
   virtual void updateButtons();
   virtual LauncherButton * createLauncherButton(const QString &desktopEntryPath);
   virtual QMap<QuickLaunchBar::Placement, QString> createPlacementMap(const QHash<QString, QVariant> &desktopEntryPlacements);
@@ -62,37 +62,33 @@ void QuickLaunchBarStub::setApplicationPackageMonitor(ApplicationPackageMonitor 
     stubMethodEntered("setApplicationPackageMonitor", params);
 }
 
-void QuickLaunchBarStub::setDownloadProgress(const QString& packageName, const QString& desktopEntryPath, int bytesLoaded, int bytesTotal)
+void QuickLaunchBarStub::setDownloadProgress(const QString& desktopEntryPath, int bytesLoaded, int bytesTotal)
 {
   QList<ParameterBase*> params;
-  params.append( new Parameter<QString>(packageName));
   params.append( new Parameter<QString>(desktopEntryPath));
   params.append( new Parameter<int>(bytesLoaded));
   params.append( new Parameter<int>(bytesTotal));
   stubMethodEntered("setDownloadProgress", params);
 }
 
-void QuickLaunchBarStub::setInstallProgress(const QString& packageName, const QString& desktopEntryPath, int percentage)
+void QuickLaunchBarStub::setInstallProgress(const QString& desktopEntryPath, int percentage)
 {
   QList<ParameterBase*> params;
-  params.append( new Parameter<QString>(packageName));
   params.append( new Parameter<QString>(desktopEntryPath));
   params.append( new Parameter<int>(percentage));
   stubMethodEntered("setInstallProgress", params);
 }
 
-void QuickLaunchBarStub::setOperationSuccess(const QString& packageName, const QString& desktopEntryPath)
+void QuickLaunchBarStub::setOperationSuccess(const QString& desktopEntryPath)
 {
   QList<ParameterBase*> params;
-  params.append( new Parameter<QString>(packageName));
   params.append( new Parameter<QString>(desktopEntryPath));
   stubMethodEntered("setOperationSuccess", params);
 }
 
-void QuickLaunchBarStub::setOperationError(const QString& packageName, const QString& desktopEntryPath, const QString& error)
+void QuickLaunchBarStub::setOperationError(const QString& desktopEntryPath, const QString& error)
 {
   QList<ParameterBase*> params;
-  params.append( new Parameter<QString>(packageName));
   params.append( new Parameter<QString>(desktopEntryPath));
   params.append( new Parameter<QString>(error));
   stubMethodEntered("setOperationError", params);
@@ -142,24 +138,24 @@ void QuickLaunchBar::setApplicationPackageMonitor(ApplicationPackageMonitor *pac
   gQuickLaunchBarStub->setApplicationPackageMonitor(packageMonitor);
 }
 
-void QuickLaunchBar::setDownloadProgress(const QString& packageName, const QString& desktopEntryPath, int bytesLoaded, int bytesTotal)
+void QuickLaunchBar::setDownloadProgress(const QString& desktopEntryPath, int bytesLoaded, int bytesTotal)
 {
-  gQuickLaunchBarStub->setDownloadProgress(packageName, desktopEntryPath, bytesLoaded, bytesTotal);
+  gQuickLaunchBarStub->setDownloadProgress(desktopEntryPath, bytesLoaded, bytesTotal);
 }
 
-void QuickLaunchBar::setInstallProgress(const QString& packageName, const QString& desktopEntryPath, int percentage)
+void QuickLaunchBar::setInstallProgress(const QString& desktopEntryPath, int percentage)
 {
-  gQuickLaunchBarStub->setInstallProgress(packageName, desktopEntryPath, percentage);
+  gQuickLaunchBarStub->setInstallProgress(desktopEntryPath, percentage);
 }
 
-void QuickLaunchBar::setOperationSuccess(const QString& packageName, const QString& desktopEntryPath)
+void QuickLaunchBar::setOperationSuccess(const QString& desktopEntryPath)
 {
-  gQuickLaunchBarStub->setOperationSuccess(packageName, desktopEntryPath);
+  gQuickLaunchBarStub->setOperationSuccess(desktopEntryPath);
 }
 
-void QuickLaunchBar::setOperationError(const QString& packageName, const QString& desktopEntryPath, const QString& error)
+void QuickLaunchBar::setOperationError(const QString& desktopEntryPath, const QString& error)
 {
-  gQuickLaunchBarStub->setOperationError(packageName, desktopEntryPath, error);
+  gQuickLaunchBarStub->setOperationError(desktopEntryPath, error);
 }
 
 void QuickLaunchBar::updateButtons() {
