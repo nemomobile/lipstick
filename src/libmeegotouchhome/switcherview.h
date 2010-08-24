@@ -127,7 +127,7 @@ private:
     qint16 buttonIndex(const SwitcherButton* button) const;
 
     //! Returns the switcher button which is underneath point centerPoint or NULL
-    const SwitcherButton *buttonAt(QPointF centerPoint) const;
+    SwitcherButton *buttonAt(QPointF centerPoint) const;
 
     //! Calculates which switcher button is nearest to point centerPoint
     void calculateNearestButtonAt(QPointF centerPoint);

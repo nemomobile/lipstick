@@ -365,7 +365,7 @@ qint16 SwitcherView::buttonIndex(const SwitcherButton* button) const
     return -1;
 }
 
-const SwitcherButton *SwitcherView::buttonAt(QPointF centerPoint) const
+SwitcherButton *SwitcherView::buttonAt(QPointF centerPoint) const
 {
     QList<QGraphicsItem*> items = MainWindow::instance()->items(centerPoint.x(), centerPoint.y());
     foreach(QGraphicsItem* item, items) {
@@ -427,6 +427,7 @@ void SwitcherView::calculateNearestButtonAt(QPointF centerPoint)
             pinchedButtonPosition = buttonPosition;
         }
     }
+	return;
 }
 
 void SwitcherView::pinchGestureEvent(QGestureEvent *event, QPinchGesture* gesture)
@@ -506,7 +507,10 @@ void SwitcherView::pinchGestureEvent(QGestureEvent *event, QPinchGesture* gestur
         }
         viewport->setEnabled(true);
         activeGesture = 0;
-
+		SwitcherButton* pinchedButton = buttonAt(gesture->centerPoint());
+		if(pinchedButton) {
+			pinchedButton->setDown(false);
+		}
         break;
     }
     event->accept(gesture);

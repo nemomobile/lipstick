@@ -899,4 +899,24 @@ void Ut_SwitcherView::testWhenPinchingOnEmptyAreaNearestButtonIsDetected()
     QCOMPARE(m_subject->pinchedButtonPosition, qint16(1));
 }
 
+void Ut_SwitcherView::testButtonPressCancelationWhenPinching() {
+    SwitcherButton item1;
+    item1.setText("button");
+    item1.setXWindow(1);
+    items_.append(&item1);
+    g_switcherModel->setSwitcherMode(SwitcherModel::Detailview);
+    gTransformLayoutAnimationStub->stubSetReturnValue("manualControl", true);
+
+    item1.setGeometry(QRectF(0,0,100,100));
+    item1.setDown(true);
+
+    mPinch->setCenterPoint(QPointF(30,30));
+
+    pinchGesture(0.5,Qt::GestureStarted);
+    pinchGesture(0.5,Qt::GestureUpdated);
+    pinchGesture(0.5,Qt::GestureFinished);
+
+    QVERIFY(!item1.isDown());
+}
+
 QTEST_APPLESS_MAIN(Ut_SwitcherView)

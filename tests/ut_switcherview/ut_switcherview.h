@@ -85,6 +85,9 @@ private slots:
     // Test when pinching empty area nearest button is detected
     void testWhenPinchingOnEmptyAreaNearestButtonIsDetected();
 
+    // Test that button under the pinch gesture is not pressed after pinch
+    void testButtonPressCancelationWhenPinching();
+
 private:
     void verifyButtonModesInOverviewMode(M::Orientation orientation);
     void verifyButtonModesInOverviewMode(QList< QSharedPointer<SwitcherButton> > &buttonList);
