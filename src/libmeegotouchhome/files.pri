@@ -116,3 +116,4 @@ STYLE_HEADERS += desktopstyle.h \
     pagedviewportstyle.h \
     transformlayoutanimationstyle.h \
     launcherbuttonprogressindicatorstyle.h
+INSTALL_HEADERS += $$HEADERS
