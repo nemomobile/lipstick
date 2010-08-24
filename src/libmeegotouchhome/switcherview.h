@@ -124,7 +124,7 @@ private:
     void applySwitcherMode();
 
     /*! Returns the index of a SwitcherButton in the model or -1, if not found */
-    qint16 buttonIndex(const SwitcherButton* button) const;
+    int buttonIndex(const SwitcherButton* button) const;
 
     //! Returns the switcher button which is underneath point centerPoint or NULL
     const SwitcherButton *buttonAt(QPointF centerPoint) const;
@@ -170,8 +170,8 @@ private:
     /*! The current focused switcher button */
     int focusedSwitcherButton;
 
-    /*! The button being currently pinched*/
-    qint16 pinchedButtonPosition;
+    /*! The button being currently pinched */
+    int pinchedButtonPosition;
 
     /*! The target mode for pinch gesture */
     SwitcherModel::Mode pinchGestureTargetMode;

@@ -366,11 +366,11 @@ void SwitcherView::removeButtonsFromLayout()
     }
 }
 
-qint16 SwitcherView::buttonIndex(const SwitcherButton* button) const
+int SwitcherView::buttonIndex(const SwitcherButton* button) const
 {
     QList<QSharedPointer<SwitcherButton> > buttons = model()->buttons();
-    for(qint16 i=0;i< buttons.count();++i) {
-        if(buttons.at(i) == button) {
+    for (int i = 0; i < buttons.count(); ++i) {
+        if (buttons.at(i) == button) {
             return i;
         }
     }

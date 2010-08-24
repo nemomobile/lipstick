@@ -936,10 +936,10 @@ void Ut_SwitcherView::testWhenPinchingOnEmptyAreaNearestButtonIsDetected()
     g_switcherModel->setButtons(buttons);
     // When clicking topLeft area button 1 should be detected
     m_subject->calculateNearestButtonAt(QPointF(140,124));
-    QCOMPARE(m_subject->pinchedButtonPosition, qint16(0));
+    QCOMPARE(m_subject->pinchedButtonPosition, 0);
     // When clicking bottomRight area button 3 should be selected
     m_subject->calculateNearestButtonAt(QPointF(593,313));
-    QCOMPARE(m_subject->pinchedButtonPosition, qint16(2));
+    QCOMPARE(m_subject->pinchedButtonPosition, 2);
 
     gMWindowStub->stubSetReturnValue("orientation", M::Portrait);
     m_subject->viewport->setGeometry(QRectF(0,0,480,748));
@@ -949,7 +949,7 @@ void Ut_SwitcherView::testWhenPinchingOnEmptyAreaNearestButtonIsDetected()
     g_switcherModel->setButtons(buttons);
     // When clicking topRight area button 2 should be detected
     m_subject->calculateNearestButtonAt(QPointF(60,72));
-    QCOMPARE(m_subject->pinchedButtonPosition, qint16(1));
+    QCOMPARE(m_subject->pinchedButtonPosition, 1);
 }
 
 QTEST_APPLESS_MAIN(Ut_SwitcherView)
