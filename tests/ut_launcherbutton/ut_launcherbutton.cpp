@@ -307,7 +307,6 @@ void Ut_LauncherButton::init()
     contentActionTriggerCalls = 0;
 
     m_subject = new LauncherButton("");
-    m_subject->model()->setButtonState(LauncherButtonModel::Installed);
     connect(this, SIGNAL(clicked()), m_subject, SLOT(launch()));
     connect(this, SIGNAL(obscured()), m_subject->windowMonitor.data(), SIGNAL(fullscreenWindowOnTopOfOwnWindow()));
 }
@@ -427,6 +426,28 @@ void Ut_LauncherButton::testSettingButtonStateAndProgressWithInvalidValues()
     m_subject->setState(LauncherButtonModel::Downloading, progress);
     QCOMPARE(m_subject->model()->buttonState(), LauncherButtonModel::Downloading);
     QCOMPARE(m_subject->model()->operationProgress(), 0);
+}
+
+void Ut_LauncherButton::testLaunchingMultipleTimes()
+{
+    emit clicked();
+    QCOMPARE(contentActionTriggerCalls, 1);
+
+    emit obscured();
+
+    emit clicked();
+    QCOMPARE(contentActionTriggerCalls, 2);
+}
+
+void Ut_LauncherButton::testTryingToLaunchSecondActionWhileLaunching()
+{
+    QSharedPointer<LauncherButton> secondTestButton = QSharedPointer<LauncherButton>(new LauncherButton(""));
+
+    emit clicked();
+    QCOMPARE(contentActionTriggerCalls, 1);
+
+    secondTestButton->launch();
+    QCOMPARE(contentActionTriggerCalls, 1);
 }
 
 QTEST_APPLESS_MAIN(Ut_LauncherButton)

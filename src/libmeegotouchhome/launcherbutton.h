@@ -142,6 +142,8 @@ private:
     //! this button is
     QSharedPointer<HomeWindowMonitor> windowMonitor;
 
+    //! Whether an object represented by any launcher button is being launched or not
+    static bool launching;
 
 #ifdef UNIT_TEST
     friend class Ut_LauncherButton;

@@ -25,6 +25,8 @@
 #include <MWidgetCreator>
 M_REGISTER_WIDGET(LauncherButton)
 
+bool LauncherButton::launching = false;
+
 LauncherButton::LauncherButton(const QString &desktopEntryPath, MWidget *parent) :
         MButton(parent, new LauncherButtonModel),
         windowMonitor(new HomeWindowMonitor)
@@ -66,20 +68,25 @@ LauncherButtonModel::State LauncherButton::buttonState() const
 
 void LauncherButton::launch()
 {
-    if (model()->buttonState() == LauncherButtonModel::Installed) {
-        model()->setButtonState(LauncherButtonModel::Launching);
+    if (!launching) {
+        if (model()->buttonState() == LauncherButtonModel::Installed) {
+            model()->setButtonState(LauncherButtonModel::Launching);
 
-        connect(windowMonitor.data(), SIGNAL(fullscreenWindowOnTopOfOwnWindow()), SLOT(stopLaunchProgress()));
+            connect(windowMonitor.data(), SIGNAL(fullscreenWindowOnTopOfOwnWindow()), SLOT(stopLaunchProgress()));
 
-        action().trigger();
-    } else if (model()->buttonState() == LauncherButtonModel::Broken) {
-        action().trigger();
+            launching = true;
+            action().trigger();
+        } else if (model()->buttonState() == LauncherButtonModel::Broken) {
+            action().trigger();
+        }
     }
 }
 
 void LauncherButton::stopLaunchProgress()
 {
     model()->setButtonState(LauncherButtonModel::Installed);
+
+    launching = false;
 
     disconnect(windowMonitor.data(), SIGNAL(fullscreenWindowOnTopOfOwnWindow()), this, SLOT(stopLaunchProgress()));
 }
