@@ -90,8 +90,9 @@ bool LauncherPage::removeButton(const QString &desktopEntryPath)
 bool LauncherPage::updateButton(const QString &desktopEntryPath)
 {
     bool contains = false;
+    QString entryFileName = QFileInfo(desktopEntryPath).fileName();
     foreach(QSharedPointer<LauncherButton> button, model()->launcherButtons()) {
-        if (button->desktopEntry() == desktopEntryPath) {
+        if (QFileInfo(button->desktopEntry()).fileName() == entryFileName) {
             button->updateFromDesktopEntry(desktopEntryPath);
             contains = true;
             break;

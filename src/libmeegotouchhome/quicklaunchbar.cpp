@@ -52,19 +52,18 @@ void QuickLaunchBar::setLauncherDataStore(LauncherDataStore *dataStore)
 void QuickLaunchBar::setApplicationPackageMonitor(ApplicationPackageMonitor *packageMonitor)
 {
     this->packageMonitor = packageMonitor;
-    connect(packageMonitor, SIGNAL(downloadProgress(const QString&, const QString &, int, int)),
-            this, SLOT(setDownloadProgress(const QString&, const QString &, int, int)));
-    connect(packageMonitor, SIGNAL(installProgress(const QString&, const QString &, int)),
-            this, SLOT(setInstallProgress(const QString&, const QString &, int)));
-    connect(packageMonitor, SIGNAL(operationSuccess(const QString&, const QString&)),
-            this, SLOT(setOperationSuccess(const QString&, const QString&)));
-    connect(packageMonitor, SIGNAL(operationError(const QString&, const QString&, const QString&)),
-            this, SLOT(setOperationError(const QString&, const QString&, const QString&)));
+    connect(packageMonitor, SIGNAL(downloadProgress(const QString &, int, int)),
+            this, SLOT(setDownloadProgress(const QString &, int, int)));
+    connect(packageMonitor, SIGNAL(installProgress(const QString &, int)),
+            this, SLOT(setInstallProgress(const QString &, int)));
+    connect(packageMonitor, SIGNAL(operationSuccess(const QString&)),
+            this, SLOT(setOperationSuccess(const QString&)));
+    connect(packageMonitor, SIGNAL(operationError(const QString&, const QString&)),
+            this, SLOT(setOperationError(const QString&, const QString&)));
 }
 
-void QuickLaunchBar::setDownloadProgress(const QString& packageName, const QString &desktopEntryPath, int bytesLoaded, int bytesTotal)
+void QuickLaunchBar::setDownloadProgress(const QString &desktopEntryPath, int bytesLoaded, int bytesTotal)
 {
-    Q_UNUSED(packageName)
     int percentage = -1;
     if (bytesTotal > 0 && bytesLoaded <= bytesTotal) {
         percentage = ((double)bytesLoaded / (double)bytesTotal) * 100;
@@ -72,21 +71,18 @@ void QuickLaunchBar::setDownloadProgress(const QString& packageName, const QStri
     updateButtonState(desktopEntryPath, LauncherButtonModel::Downloading, percentage);
 }
 
-void QuickLaunchBar::setInstallProgress(const QString& packageName, const QString &desktopEntryPath, int percentage)
+void QuickLaunchBar::setInstallProgress(const QString &desktopEntryPath, int percentage)
 {
-    Q_UNUSED(packageName)
     updateButtonState(desktopEntryPath, LauncherButtonModel::Installing, percentage);
 }
 
-void QuickLaunchBar::setOperationSuccess(const QString& packageName, const QString& desktopEntryPath)
+void QuickLaunchBar::setOperationSuccess(const QString& desktopEntryPath)
 {
-    Q_UNUSED(packageName)
     updateButtonState(desktopEntryPath, LauncherButtonModel::Installed, 0);
 }
 
-void QuickLaunchBar::setOperationError(const QString& packageName, const QString& desktopEntryPath, const QString& error)
+void QuickLaunchBar::setOperationError(const QString& desktopEntryPath, const QString& error)
 {
-    Q_UNUSED(packageName)
     Q_UNUSED(error)
     updateButtonState(desktopEntryPath, LauncherButtonModel::Broken, 0);
 }

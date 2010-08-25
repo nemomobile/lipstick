@@ -83,14 +83,14 @@ void Ut_QuickLaunchBar::testLauncherDataStoreChanged()
 
 void Ut_QuickLaunchBar::testSettingApplicationPackageMonitor()
 {
-    QVERIFY(disconnect(packageMonitor, SIGNAL(downloadProgress(const QString&, const QString &, int, int)),
-            m_subject, SLOT(setDownloadProgress(const QString&, const QString &, int, int))));
-    QVERIFY(disconnect(packageMonitor, SIGNAL(installProgress(const QString&, const QString &, int)),
-            m_subject, SLOT(setInstallProgress(const QString&, const QString &, int))));
-    QVERIFY(disconnect(packageMonitor, SIGNAL(operationSuccess(const QString&, const QString&)),
-            m_subject, SLOT(setOperationSuccess(const QString&, const QString&))));
-    QVERIFY(disconnect(packageMonitor, SIGNAL(operationError(const QString&, const QString&, const QString&)),
-            m_subject, SLOT(setOperationError(const QString&, const QString&, const QString&))));
+    QVERIFY(disconnect(packageMonitor, SIGNAL(downloadProgress(const QString &, int, int)),
+            m_subject, SLOT(setDownloadProgress(const QString &, int, int))));
+    QVERIFY(disconnect(packageMonitor, SIGNAL(installProgress(const QString &, int)),
+            m_subject, SLOT(setInstallProgress(const QString &, int))));
+    QVERIFY(disconnect(packageMonitor, SIGNAL(operationSuccess(const QString&)),
+            m_subject, SLOT(setOperationSuccess(const QString&))));
+    QVERIFY(disconnect(packageMonitor, SIGNAL(operationError(const QString&, const QString&)),
+            m_subject, SLOT(setOperationError(const QString&, const QString&))));
 }
 
 void Ut_QuickLaunchBar::testUpdateButtonState()
@@ -117,19 +117,19 @@ void Ut_QuickLaunchBar::testSetDownloadProgress()
     int loaded = 50;
     int total = 100;
     int percentage = ((double)loaded / (double)total) * 100;
-    m_subject->setDownloadProgress("testPackage", "test.desktop", loaded, total);
+    m_subject->setDownloadProgress("test.desktop", loaded, total);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<LauncherButtonModel::State>(0), LauncherButtonModel::Downloading);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<int>(1), percentage);
 
     //test with invalid values
     total = 0;
-    m_subject->setDownloadProgress("testPackage", "test.desktop", loaded, total);
+    m_subject->setDownloadProgress("test.desktop", loaded, total);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<LauncherButtonModel::State>(0), LauncherButtonModel::Downloading);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<int>(1), -1);
 
     loaded = 100;
     total = 50;
-    m_subject->setDownloadProgress("testPackage", "test.desktop", loaded, total);
+    m_subject->setDownloadProgress("test.desktop", loaded, total);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<LauncherButtonModel::State>(0), LauncherButtonModel::Downloading);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<int>(1), -1);
 }
@@ -139,7 +139,7 @@ void Ut_QuickLaunchBar::testSetInstallProgress()
     addButton("/dev/null/test.desktop", 1);
 
     int percentage = 25;
-    m_subject->setInstallProgress("testPackage", "test.desktop", percentage);
+    m_subject->setInstallProgress("test.desktop", percentage);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<LauncherButtonModel::State>(0), LauncherButtonModel::Installing);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<int>(1), percentage);
 }
@@ -149,7 +149,7 @@ void Ut_QuickLaunchBar::testSetOperationSuccess()
     addButton("/dev/null/test.desktop", 1);
 
     //After calling setOperationSuccess state should be "Installed" and progress 0
-    m_subject->setOperationSuccess("testPackage", "test.desktop");
+    m_subject->setOperationSuccess("test.desktop");
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<LauncherButtonModel::State>(0), LauncherButtonModel::Installed);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<int>(1), 0);
 }
@@ -158,7 +158,7 @@ void Ut_QuickLaunchBar::testSetOperationError()
 {
     addButton("/dev/null/test.desktop", 1);
 
-    m_subject->setOperationError("testPackage", "test.desktop", "error_message");
+    m_subject->setOperationError("test.desktop", "error_message");
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<LauncherButtonModel::State>(0), LauncherButtonModel::Broken);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<int>(1), 0);
 }

@@ -102,7 +102,7 @@ void ApplicationPackageMonitor::updatePackageStates()
             if (state == PACKAGE_STATE_BROKEN) {
                 QString packageName = key.remove(PACKAGE_PREFIX);
                 // emit operation error for a broken package
-                emit operationError(packageName, desktopEntryPath, QString());
+                emit operationError(desktopEntryPath, QString());
             }
         }
     }
@@ -129,7 +129,7 @@ void ApplicationPackageMonitor::packageDownloadProgress(const QString &operation
     PackageProperties &properties = activePackageProperties(packageName);
 
     if (isValidOperation(properties, operation)) {
-        emit downloadProgress(packageName, properties.desktopEntryName, already, total);
+        emit downloadProgress(properties.desktopEntryName, already, total);
     }
 }
 
@@ -153,7 +153,7 @@ void ApplicationPackageMonitor::packageOperationProgress(const QString &operatio
 
     if (isValidOperation(properties, operation)) {
         properties.installing = true;
-        emit installProgress(packageName, properties.desktopEntryName, percentage);
+        emit installProgress(properties.desktopEntryName, percentage);
     }
 }
 
@@ -171,10 +171,9 @@ void ApplicationPackageMonitor::packageOperationComplete(const QString &operatio
 
     if (isValidOperation(properties, operation)) {
         if (!error.isEmpty()) {
-            emit operationError(packageName, properties.desktopEntryName, error);
+            emit operationError(properties.desktopEntryName, error);
         } else {
-            emit operationSuccess(packageName,
-                                  properties.desktopEntryName.replace(INSTALLER_EXTRA, QString()));
+            emit operationSuccess(properties.desktopEntryName.replace(INSTALLER_EXTRA, QString()));
         }
     }
 
@@ -204,7 +203,7 @@ void ApplicationPackageMonitor::updatePackageState(const QString &desktopEntryPa
 
         if (packageState == PACKAGE_STATE_BROKEN) {
             // emit operation error for a broken package
-            emit operationError(packageName, desktopEntryPath, QString());
+            emit operationError(desktopEntryPath, QString());
         }
         dataStore->createValue(pkgKey, desktopEntryPath);
 

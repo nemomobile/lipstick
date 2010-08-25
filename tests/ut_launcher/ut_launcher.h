@@ -109,7 +109,5 @@ private slots:
     void testSetOperationErrorWhenButtonFoundFromLauncher();
     // Test handling of operation error when entry has a placeholder launcher
     void testSetOperationErrorWhenButtonHasPlaceholder();
-    // Test that when desktop entry is got for a placeholder, we update the desktop entry
-    void testReplacingDesktopEntryForPlaceholderButton();
 };
 #endif //_UT_LAUNCHER_

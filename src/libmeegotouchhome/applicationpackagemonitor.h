@@ -62,27 +62,27 @@ signals:
      *\param bytesLoaded is current amount of bytes downloaded.
      *\param bytesTotal is size of downloading package in bytes.
      */
-    void downloadProgress(const QString &packageName, const QString &packageExtraPath, int bytesLoaded, int bytesTotal);
+    void downloadProgress(const QString &packageExtraPath, int bytesLoaded, int bytesTotal);
     /*!
      * Status of install progress of package being installed.
      *
      *\param desktopEntryName is name of preliminary desktop entry file under installer-extra/.
      *\param percentage is install completion level.
      */
-    void installProgress(const QString &packageName, const QString &packageExtraPath, int percentage);
+    void installProgress(const QString &packageExtraPath, int percentage);
     /*!
      * Notifies about success in installing a package.
      *
      *\param desktopEntryName is name of the installed desktop entry file.
      */
-    void operationSuccess(const QString &packageName, const QString &packageExtraPath);
+    void operationSuccess(const QString &packageExtraPath);
     /*!
      * Notifies about error in installing and downloading package.
      *
      *\param desktopEntryName is name of preliminary desktop entry file under installer-extra/.
      *\param error is string format description of error occured.
      */
-    void operationError(const QString &packageName, const QString &packageExtraPath, const QString& error);
+    void operationError(const QString &packageExtraPath, const QString& error);
 
 private slots:
     /*!

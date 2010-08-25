@@ -150,38 +150,34 @@ public slots:
     /*!
      * Set button state to "downloading", and calculate and set it's progress
      *
-     * \param packageName Name of package related to the operation
      * \param desktopEntryName Desktop entry of the application button represents
      * \param bytesLoaded Amount of bytes loaded
      * \param bytesTotal Total amount of bytes to download
      */
-    void setDownloadProgress(const QString& packageName, const QString& desktopEntryPath, int bytesLoaded, int bytesTotal);
+    void setDownloadProgress(const QString& desktopEntryPath, int bytesLoaded, int bytesTotal);
 
     /*!
      * Set button state to "installing", and set it's progress
      *
-     * \param packageName Name of package related to the operation
      * \param desktopEntryName Desktop entry of the application button represents
      * \param percentage Percentage of installation completed
      */
-    void setInstallProgress(const QString& packageName, const QString& desktopEntryPath, int percentage);
+    void setInstallProgress(const QString& desktopEntryPath, int percentage);
 
     /*!
      * Set button state to "installed"
      *
-     * \param packageName Name of package related to the operation
      * \param desktopEntryName Desktop entry of the application button represents
      */
-    void setOperationSuccess(const QString& packageName, const QString& desktopEntryPath);
+    void setOperationSuccess(const QString& desktopEntryPath);
 
     /*!
      * Set button state to "broken"
      *
-     * \param packageName Name of package related to the operation
      * \param desktopEntryName Desktop entry of the application button represents
      * \param error Error message
      */
-    void setOperationError(const QString& packageName, const QString& desktopEntryPath, const QString& error);
+    void setOperationError(const QString& desktopEntryPath, const QString& error);
 
 private slots:
 
@@ -203,8 +199,10 @@ private slots:
      * Updates a launcher button from a .desktop entry file.
      *
      * \param desktopEntryPath Entry the path of the .desktop entry file to update the launcher button from
+     *
+     * \return Whether button for the desktop entry was found
      */
-    void updateLauncherButton(const QString &desktopEntryPath);
+    bool updateLauncherButton(const QString &desktopEntryPath);
 
     /*!
      * Updates pages according to the contents of the data store.
@@ -296,19 +294,17 @@ private:
      * Updates the state and operation progress of a launcher button.
      * Creates a new placeholder button if one doesn't exist for the given desktopentryfile.
      *
-     * \param packageName Name of the package that button represents
      * \param desktopEntryPath Desktop entry of the package that button represents
      * \param state State button should be set to
      * \param progress Progress of operation
      */
-    void updateButtonState(const QString &packageName, const QString& desktopEntryPath, LauncherButtonModel::State state, int progress);
+    void updateButtonState(const QString& desktopEntryPath, LauncherButtonModel::State state, int progress);
 
     /*!
      * Adds a placeholder button to launcher
-     * \param packageName Name of the package that placeholder represents
      * \param desktopEntryPath Path to the desktop entry
      */
-    void addPlaceholderButton(const QString& packageName, const QString& desktopEntryPath);
+    void addPlaceholderButton(const QString& desktopEntryPath);
 
     /*!
      * Updates button placement to the launcher data store.
@@ -320,23 +316,13 @@ private:
     void updateButtonPlacementInStore(const QString &desktopEntryPath);
 
     /*!
-     * Gets a placeholder button for a given desktop entry.
-     * Button matches if desktop entry file names match.
-     *
-     * \param desktopEntryPath Path to desktop entry to be checked.
-     *
-     * \return Placeholder button
-     */
-    QSharedPointer<LauncherButton> placeholderButton(const QString &desktopEntryPath);
-
-    /*!
      * Sets the maximum page size of a LauncherPage if defined.
      *
      * \param page the LauncherPage whose maximum size should be set
      */
     void setMaximumPageSizeIfNecessary(QSharedPointer<LauncherPage> &page);
 
-    //! A mapping from packageName to placeholder launcher buttons
+    //! A mapping from desktop entry file name to placeholder launcher buttons
     QMap<QString, QSharedPointer<LauncherButton> > placeholderMap;
 
     //! A string used for identifying content to be placed in the launcher

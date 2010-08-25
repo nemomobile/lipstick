@@ -157,23 +157,21 @@ void Ut_ApplicationPackageMonitor::testUpdatingPackageStates()
     g_fileDataStoreData.insert("Packages/pkg_3", QVariant("/test_entry3.desktop"));
     g_fileDataStoreData.insert("Packages/pkg_4", QVariant("/test_entry4.desktop"));
 
-    QSignalSpy spyError(m_subject, SIGNAL(operationError(QString, QString, QString)));
+    QSignalSpy spyError(m_subject, SIGNAL(operationError(QString, QString)));
 
     m_subject->updatePackageStates();
 
     QCOMPARE(spyError.count(), 2);
     QList<QVariant> arguments = spyError.at(0);
-    QCOMPARE(arguments.at(0).toString(), QString("pkg_2"));
-    QCOMPARE(arguments.at(1).toString(), QString("/test_entry2.desktop"));
+    QCOMPARE(arguments.at(0).toString(), QString("/test_entry2.desktop"));
 
     arguments = spyError.at(1);
-    QCOMPARE(arguments.at(0).toString(), QString("pkg_4"));
-    QCOMPARE(arguments.at(1).toString(), QString("/test_entry4.desktop"));
+    QCOMPARE(arguments.at(0).toString(), QString("/test_entry4.desktop"));
 }
 
 void Ut_ApplicationPackageMonitor::installUnsuccessfully(const QString &name)
 {
-    QSignalSpy spyDownload(m_subject, SIGNAL(downloadProgress(const QString&, const QString&, int, int)));
+    QSignalSpy spyDownload(m_subject, SIGNAL(downloadProgress(const QString&, int, int)));
 
     QString extraDesktopEntryFilename = APPLICATIONS_DIRECTORY+INSTALLER_EXTRA+name+".desktop";
 
@@ -183,24 +181,22 @@ void Ut_ApplicationPackageMonitor::installUnsuccessfully(const QString &name)
 
     QCOMPARE(spyDownload.count(), 1);
     QList<QVariant> arguments = spyDownload.takeFirst();
-    QCOMPARE(arguments.at(0).toString(), name);
-    QCOMPARE(arguments.at(1).toString(), extraDesktopEntryFilename);
-    QVERIFY(arguments.at(2).toInt() == 12);
-    QVERIFY(arguments.at(3).toInt() == 24);
+    QCOMPARE(arguments.at(0).toString(), extraDesktopEntryFilename);
+    QVERIFY(arguments.at(1).toInt() == 12);
+    QVERIFY(arguments.at(2).toInt() == 24);
 
     arguments.clear();
-    QSignalSpy spyInstall(m_subject, SIGNAL(installProgress(const QString&, const QString&,  int)));
+    QSignalSpy spyInstall(m_subject, SIGNAL(installProgress(const QString&,  int)));
 
     m_subject->packageOperationProgress("Install", name, "version", 50);
 
     QCOMPARE(spyInstall.count(), 1);
     arguments = spyInstall.takeFirst();
-    QCOMPARE(arguments.at(0).toString(), name);
-    QCOMPARE(arguments.at(1).toString(), extraDesktopEntryFilename);
-    QVERIFY(arguments.at(2).toInt() == 50);
+    QCOMPARE(arguments.at(0).toString(), extraDesktopEntryFilename);
+    QVERIFY(arguments.at(1).toInt() == 50);
 
     arguments.clear();
-    QSignalSpy spyError(m_subject, SIGNAL(operationError(const QString&, const QString&, const QString&)));
+    QSignalSpy spyError(m_subject, SIGNAL(operationError(const QString&, const QString&)));
 
     m_subject->packageOperationComplete("Install", name, "version", "Error", 0);
 
@@ -209,14 +205,13 @@ void Ut_ApplicationPackageMonitor::installUnsuccessfully(const QString &name)
     // We should receive two signals, one from dbus signal and one from desktop entry monitor
     QCOMPARE(spyError.count(), 2);
     arguments = spyError.takeFirst();
-    QCOMPARE(arguments.at(0).toString(), name);
-    QCOMPARE(arguments.at(1).toString(), extraDesktopEntryFilename);
-    QVERIFY(arguments.at(2).toString() == "Error");
+    QCOMPARE(arguments.at(0).toString(), extraDesktopEntryFilename);
+    QVERIFY(arguments.at(1).toString() == "Error");
 }
 
 void Ut_ApplicationPackageMonitor::installSuccessfully(const QString &name)
 {
-    QSignalSpy spyDownload(m_subject, SIGNAL(downloadProgress(const QString&, const QString&, int, int)));
+    QSignalSpy spyDownload(m_subject, SIGNAL(downloadProgress(const QString&, int, int)));
 
     QString desktopEntryFilename = APPLICATIONS_DIRECTORY+name+".desktop";
     QString extraDesktopEntryFilename = APPLICATIONS_DIRECTORY+INSTALLER_EXTRA+name+".desktop";
@@ -227,36 +222,33 @@ void Ut_ApplicationPackageMonitor::installSuccessfully(const QString &name)
 
     QCOMPARE(spyDownload.count(), 1);
     QList<QVariant> arguments = spyDownload.takeFirst();
-    QCOMPARE(arguments.at(0).toString(), name);
-    QCOMPARE(arguments.at(1).toString(), extraDesktopEntryFilename);
-    QVERIFY(arguments.at(2).toInt() == 12);
-    QVERIFY(arguments.at(3).toInt() == 24);
+    QCOMPARE(arguments.at(0).toString(), extraDesktopEntryFilename);
+    QVERIFY(arguments.at(1).toInt() == 12);
+    QVERIFY(arguments.at(2).toInt() == 24);
 
     arguments.clear();
-    QSignalSpy spyInstall(m_subject, SIGNAL(installProgress(const QString&, const QString&, int)));
+    QSignalSpy spyInstall(m_subject, SIGNAL(installProgress(const QString&, int)));
 
     m_subject->packageOperationProgress("Install", name, "version", 50);
 
     QCOMPARE(spyInstall.count(), 1);
     arguments = spyInstall.takeFirst();
-    QVERIFY(arguments.at(0).toString() == name);
-    QCOMPARE(arguments.at(1).toString(), extraDesktopEntryFilename);
-    QVERIFY(arguments.at(2).toInt() == 50);
+    QCOMPARE(arguments.at(0).toString(), extraDesktopEntryFilename);
+    QVERIFY(arguments.at(1).toInt() == 50);
 
     arguments.clear();
-    QSignalSpy spySuccess(m_subject, SIGNAL(operationSuccess(const QString&, const QString&)));
+    QSignalSpy spySuccess(m_subject, SIGNAL(operationSuccess(const QString&)));
 
     m_subject->packageOperationComplete("Install", name, "version", "", 0);
 
     QCOMPARE(spySuccess.count(), 1);
     arguments = spySuccess.takeFirst();
-    QVERIFY(arguments.at(0).toString() == name);
-    QCOMPARE(arguments.at(1).toString(), desktopEntryFilename);
+    QCOMPARE(arguments.at(0).toString(), desktopEntryFilename);
 }
 
 void Ut_ApplicationPackageMonitor::installSuccessfullyWithOperationCompleteAfterDownload(const QString &name)
 {
-    QSignalSpy spyDownload(m_subject, SIGNAL(downloadProgress(const QString&, const QString&, int, int)));
+    QSignalSpy spyDownload(m_subject, SIGNAL(downloadProgress(const QString&, int, int)));
 
     QString desktopEntryFilename = APPLICATIONS_DIRECTORY+name+".desktop";
     QString extraDesktopEntryFilename = APPLICATIONS_DIRECTORY+INSTALLER_EXTRA+name+".desktop";
@@ -267,42 +259,39 @@ void Ut_ApplicationPackageMonitor::installSuccessfullyWithOperationCompleteAfter
 
     QCOMPARE(spyDownload.count(), 1);
     QList<QVariant> arguments = spyDownload.takeFirst();
-    QVERIFY(arguments.at(0).toString() == name);
-    QCOMPARE(arguments.at(1).toString(), extraDesktopEntryFilename);
-    QVERIFY(arguments.at(2).toInt() == 12);
-    QVERIFY(arguments.at(3).toInt() == 24);
+    QCOMPARE(arguments.at(0).toString(), extraDesktopEntryFilename);
+    QVERIFY(arguments.at(1).toInt() == 12);
+    QVERIFY(arguments.at(2).toInt() == 24);
 
     arguments.clear();
-    QSignalSpy spyComplete(m_subject, SIGNAL(operationSuccess(const QString&, const QString&)));
+    QSignalSpy spyComplete(m_subject, SIGNAL(operationSuccess(const QString&)));
 
     m_subject->packageOperationComplete("Install", name, "version", "", 0);
     QCOMPARE(spyComplete.count(), 1);
 
-    QSignalSpy spyInstall(m_subject, SIGNAL(installProgress(const QString&, const QString&, int)));
+    QSignalSpy spyInstall(m_subject, SIGNAL(installProgress(const QString&, int)));
 
     m_subject->packageOperationProgress("Install", name, "version", 50);
 
     QCOMPARE(spyInstall.count(), 1);
     arguments = spyInstall.takeFirst();
-    QVERIFY(arguments.at(0).toString() == name);
-    QCOMPARE(arguments.at(1).toString(), extraDesktopEntryFilename);
-    QVERIFY(arguments.at(2).toInt() == 50);
+    QCOMPARE(arguments.at(0).toString(), extraDesktopEntryFilename);
+    QVERIFY(arguments.at(1).toInt() == 50);
 
     arguments.clear();
-    QSignalSpy spySuccess(m_subject, SIGNAL(operationSuccess(const QString&, const QString&)));
+    QSignalSpy spySuccess(m_subject, SIGNAL(operationSuccess(const QString&)));
 
     m_subject->packageOperationComplete("Install", name, "version", "", 0);
 
     QCOMPARE(spySuccess.count(), 1);
     arguments = spySuccess.takeFirst();
-    QVERIFY(arguments.at(0).toString() == name);
-    QCOMPARE(arguments.at(1).toString(), desktopEntryFilename);
+    QCOMPARE(arguments.at(0).toString(), desktopEntryFilename);
 }
 
 
 void Ut_ApplicationPackageMonitor::uninstall(const QString &name)
 {
-    QSignalSpy spyDownload(m_subject, SIGNAL(downloadProgress(const QString&, const QString&, int, int)));
+    QSignalSpy spyDownload(m_subject, SIGNAL(downloadProgress(const QString&, int, int)));
 
     uninstallPackageExtra(name);
 
@@ -310,13 +299,13 @@ void Ut_ApplicationPackageMonitor::uninstall(const QString &name)
 
     QCOMPARE(spyDownload.count(), 0);
 
-    QSignalSpy spyInstall(m_subject, SIGNAL(installProgress(const QString&, const QString&, int)));
+    QSignalSpy spyInstall(m_subject, SIGNAL(installProgress(const QString&, int)));
 
     m_subject->packageOperationProgress("Uninstall", name, "version", 50);
 
     QCOMPARE(spyInstall.count(), 0);
 
-    QSignalSpy spySuccess(m_subject, SIGNAL(operationSuccess(const QString&, const QString&)));
+    QSignalSpy spySuccess(m_subject, SIGNAL(operationSuccess(const QString&)));
 
     m_subject->packageOperationComplete("Uninstall", name, "version", "", 0);
     QCOMPARE(spySuccess.count(), 0);
@@ -424,16 +413,15 @@ void Ut_ApplicationPackageMonitor::testErrorSignalsForNewBrokenDesktopEntry()
 {
     QString name("BrokenTestPackage");
     QString extraDesktopEntryFilename = APPLICATIONS_DIRECTORY+INSTALLER_EXTRA+name+".desktop";
-    QSignalSpy spyError(m_subject, SIGNAL(operationError(const QString&, const QString&, const QString&)));
+    QSignalSpy spyError(m_subject, SIGNAL(operationError(const QString&, const QString&)));
 
     installPackageExtra("BrokenTestPackage", "broken");
 
     QCOMPARE(spyError.count(), 1);
     QList<QVariant> arguments = spyError.takeFirst();
-    QCOMPARE(arguments.at(0).toString(), name);
-    QCOMPARE(arguments.at(1).toString(), extraDesktopEntryFilename);
+    QCOMPARE(arguments.at(0).toString(), extraDesktopEntryFilename);
     // We don't know the error when desktop entry changes to broken
-    QVERIFY(arguments.at(2).toString() == "");
+    QVERIFY(arguments.at(1).toString() == "");
 }
 
 void Ut_ApplicationPackageMonitor::testErrorSignalsForDesktopEntryChangingToBrokenState()
@@ -442,16 +430,15 @@ void Ut_ApplicationPackageMonitor::testErrorSignalsForDesktopEntryChangingToBrok
     QString extraDesktopEntryFilename = APPLICATIONS_DIRECTORY+INSTALLER_EXTRA+name+".desktop";
     installPackageExtra(name);
 
-    QSignalSpy spyError(m_subject, SIGNAL(operationError(const QString&, const QString&, const QString&)));
+    QSignalSpy spyError(m_subject, SIGNAL(operationError(const QString&, const QString&)));
 
     breakPackageExtra(name);
 
     QCOMPARE(spyError.count(), 1);
     QList<QVariant> arguments = spyError.takeFirst();
-    QCOMPARE(arguments.at(0).toString(), name);
-    QCOMPARE(arguments.at(1).toString(), extraDesktopEntryFilename);
+    QCOMPARE(arguments.at(0).toString(), extraDesktopEntryFilename);
     // We don't know the error when desktop entry changes to broken
-    QVERIFY(arguments.at(2).toString() == "");
+    QVERIFY(arguments.at(1).toString() == "");
 }
 
 QTEST_APPLESS_MAIN(Ut_ApplicationPackageMonitor)
