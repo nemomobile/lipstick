@@ -4,6 +4,12 @@
 #include "applicationpackagemonitor.h"
 #include <stubbase.h>
 
+class ApplicationPackageMonitor::ExtraDirWatcher
+{
+public:
+    ExtraDirWatcher(){}
+    ~ExtraDirWatcher(){}
+};
 
 // 1. DECLARE STUB
 // FIXME - stubgen is not yet finished
@@ -17,6 +23,7 @@ class ApplicationPackageMonitorStub : public StubBase {
   virtual void packageOperationComplete(const QString &operation, const QString &packageName, const QString &packageVersion, const QString &error, bool need_reboot);
   virtual void updatePackageState(const QString &desktopEntryPath);
   virtual QString desktopEntryName(const QString &packageName);
+  void updatePackageStates();
 }; 
 
 // 2. IMPLEMENT STUB
@@ -77,6 +84,10 @@ QString ApplicationPackageMonitorStub::desktopEntryName(const QString &packageNa
   return stubReturnValue<QString>("desktopEntryName");
 }
 
+void ApplicationPackageMonitorStub::updatePackageStates() {
+  stubMethodEntered("updatePackageStates");
+}
+
 // 3. CREATE A STUB INSTANCE
 ApplicationPackageMonitorStub gDefaultApplicationPackageMonitorStub;
 ApplicationPackageMonitorStub* gApplicationPackageMonitorStub = &gDefaultApplicationPackageMonitorStub;
@@ -114,4 +125,7 @@ QString ApplicationPackageMonitor::desktopEntryName(const QString &packageName) 
   return gApplicationPackageMonitorStub->desktopEntryName(packageName);
 }
 
+void ApplicationPackageMonitor::updatePackageStates(){
+    gApplicationPackageMonitorStub->updatePackageStates();
+}
 #endif

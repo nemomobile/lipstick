@@ -102,7 +102,6 @@ private slots:
     void cleanupTestCase();
     void testClosing();
     void testApplyingStyle();
-    void testCloseButtonTranslate();
     void testThumbnailPosition();
 };
 

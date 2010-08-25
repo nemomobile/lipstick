@@ -20,6 +20,7 @@
 #include "quicklaunchbar.h"
 #include "launcherdatastore.h"
 #include "launcherbutton.h"
+#include "applicationpackagemonitor.h"
 #include <MDesktopEntry>
 
 #include <MWidgetCreator>
@@ -46,6 +47,60 @@ void QuickLaunchBar::setLauncherDataStore(LauncherDataStore *dataStore)
     }
     this->dataStore = dataStore;
     connect(dataStore, SIGNAL(dataStoreChanged()), this, SLOT(updateButtons()));
+}
+
+void QuickLaunchBar::setApplicationPackageMonitor(ApplicationPackageMonitor *packageMonitor)
+{
+    this->packageMonitor = packageMonitor;
+    connect(packageMonitor, SIGNAL(downloadProgress(const QString&, const QString &, int, int)),
+            this, SLOT(setDownloadProgress(const QString&, const QString &, int, int)));
+    connect(packageMonitor, SIGNAL(installProgress(const QString&, const QString &, int)),
+            this, SLOT(setInstallProgress(const QString&, const QString &, int)));
+    connect(packageMonitor, SIGNAL(operationSuccess(const QString&, const QString&)),
+            this, SLOT(setOperationSuccess(const QString&, const QString&)));
+    connect(packageMonitor, SIGNAL(operationError(const QString&, const QString&, const QString&)),
+            this, SLOT(setOperationError(const QString&, const QString&, const QString&)));
+}
+
+void QuickLaunchBar::setDownloadProgress(const QString& packageName, const QString &desktopEntryPath, int bytesLoaded, int bytesTotal)
+{
+    Q_UNUSED(packageName)
+    int percentage = -1;
+    if (bytesTotal > 0 && bytesLoaded <= bytesTotal) {
+        percentage = ((double)bytesLoaded / (double)bytesTotal) * 100;
+    }
+    updateButtonState(desktopEntryPath, LauncherButtonModel::Downloading, percentage);
+}
+
+void QuickLaunchBar::setInstallProgress(const QString& packageName, const QString &desktopEntryPath, int percentage)
+{
+    Q_UNUSED(packageName)
+    updateButtonState(desktopEntryPath, LauncherButtonModel::Installing, percentage);
+}
+
+void QuickLaunchBar::setOperationSuccess(const QString& packageName, const QString& desktopEntryPath)
+{
+    Q_UNUSED(packageName)
+    updateButtonState(desktopEntryPath, LauncherButtonModel::Installed, 0);
+}
+
+void QuickLaunchBar::setOperationError(const QString& packageName, const QString& desktopEntryPath, const QString& error)
+{
+    Q_UNUSED(packageName)
+    Q_UNUSED(error)
+    updateButtonState(desktopEntryPath, LauncherButtonModel::Broken, 0);
+}
+
+void QuickLaunchBar::updateButtonState(const QString &desktopEntryPath, LauncherButtonModel::State state, int progress)
+{
+    //If there is a quicklaunch button for desktopEntryPath, update it's state
+    QList<QSharedPointer<LauncherButton> > buttons = model()->buttons().values();
+    QString entryFileName = QFileInfo(desktopEntryPath).fileName();
+    for (int i = 0 ; i < buttons.count() ; i++) {
+        if (QFileInfo(buttons.at(i)->desktopEntry()).fileName() == entryFileName) {
+            buttons.at(i)->setState(state, progress);
+        }
+    }
 }
 
 void QuickLaunchBar::updateButtons()

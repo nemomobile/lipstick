@@ -67,9 +67,6 @@ protected:
     //! \reimp_end
 
 private:
-    //! Translates close button according to offset attributes in style.
-    void translateCloseButton();
-
     //! Button for closing the window
     MButton *closeButton;
 

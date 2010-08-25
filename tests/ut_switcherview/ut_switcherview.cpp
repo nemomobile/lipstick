@@ -36,6 +36,7 @@
 #include "transformlayoutanimation_stub.h"
 #include <QGestureEvent>
 #include <QPinchGesture>
+#include <mclassfactory.h>
 
 static void setSwitcherButtonSize(QList< QSharedPointer<SwitcherButton> > &buttonList, const QSizeF &size);
 static void verifyEqualContentMarginValues(qreal first, qreal second, qreal target);
@@ -45,6 +46,33 @@ QMap<SwitcherButton *, Window> g_windowButtonMap;
 QRectF g_switcherGeometry;
 bool g_panRequested;
 uint g_panRequestIndex;
+
+
+// MTheme stubs
+const MStyle *MTheme::style(const char *styleClassName,
+                            const QString &objectName,
+                            const QString &/*mode*/,
+                            const QString &/*type*/,
+                            M::Orientation orientation,
+                            const MWidgetController */*parent*/)
+{
+    MStyle *style = MClassFactory::instance()->createStyle(styleClassName);
+
+    if(QString(styleClassName) == "SwitcherStyle") {
+        SwitcherStyle *switcherStyle = static_cast<SwitcherStyle*>(style);
+        if(objectName == "DetailviewSwitcher") {
+            switcherStyle->setRowsPerPage(1);
+            switcherStyle->setColumnsPerPage(1);
+        } else {
+            switcherStyle->setRowsPerPage(2);
+            switcherStyle->setColumnsPerPage(2);
+        }
+        switcherStyle->setPinchLength(1.0f);
+        switcherStyle->setPinchCancelThreshold(0.25f);
+    }
+
+    return style;
+}
 
 class Ut_SwitcherStyle : public SwitcherStyle
 {
@@ -96,7 +124,6 @@ void PagedViewport::setPanDirection(const Qt::Orientations &panDirection)
 
 void PagedViewport::updatePageCount(int pages)
 {
-    Q_UNUSED(pages)
 }
 
 int PagedViewport::currentPage()
@@ -439,18 +466,6 @@ void Ut_SwitcherView::init()
     gestures.append(mPinch);
     mEvent = new QGestureEvent(gestures);
     items_.clear();
-
-    // Some test cases switch between switcher modes, must set the styles here, can't use modifiablestyle
-    SwitcherStyle *s = const_cast<SwitcherStyle*>(static_cast<const SwitcherStyle*>(MTheme::style("SwitcherStyle", "DetailviewSwitcher")));
-    s->setRowsPerPage(1);
-    s->setColumnsPerPage(1);
-    s->setPinchLength(1.0f);
-    s->setPinchCancelThreshold(0.25f);
-    s = const_cast<SwitcherStyle*>(static_cast<const SwitcherStyle*>(MTheme::style("SwitcherStyle", "OverviewSwitcher")));
-    s->setRowsPerPage(1);
-    s->setColumnsPerPage(1);
-    s->setPinchLength(1.0f);
-    s->setPinchCancelThreshold(0.25f);
 }
 
 void Ut_SwitcherView::cleanup()
@@ -727,8 +742,6 @@ void Ut_SwitcherView::testSwitcherButtonAlignment()
 {
     g_switcherModel->setSwitcherMode(SwitcherModel::Overview);
     gMSceneManagerStub->stubSetReturnValue("orientation", M::Landscape);
-    m_subject->modifiableStyle()->setRowsPerPage(2);
-    m_subject->modifiableStyle()->setColumnsPerPage(2);
 
     qreal verticalSpacing = 10;
     m_subject->modifiableStyle()->setButtonVerticalSpacing(verticalSpacing);
@@ -780,6 +793,46 @@ void Ut_SwitcherView::testSwitcherButtonAlignment()
     QSize notSizeAtAll;
     verifyLayoutPolicyContentMargins(notSizeAtAll);
 }
+
+void Ut_SwitcherView::testButtonCounts()
+{
+    // Set overview mode in portrait orientation
+    g_switcherModel->setSwitcherMode(SwitcherModel::Overview);
+    gMSceneManagerStub->stubSetReturnValue("orientation", M::Portrait);
+
+    // Create 4 buttons
+    QList< QSharedPointer<SwitcherButton> > buttonList = createButtonList(4);
+    g_switcherModel->setButtons(buttonList);
+
+    QCOMPARE(m_subject->overviewPolicy->columnCount(), 2);
+    QCOMPARE(m_subject->overviewPolicy->rowCount(), 2);
+    QCOMPARE(m_subject->detailPolicy->count(), 4);
+
+    // Set detailview mode in portrait orientation
+    g_switcherModel->setSwitcherMode(SwitcherModel::Detailview);
+    m_subject->updateButtons();
+
+    QCOMPARE(m_subject->overviewPolicy->columnCount(), 2);
+    QCOMPARE(m_subject->overviewPolicy->rowCount(), 2);
+    QCOMPARE(m_subject->detailPolicy->count(), 4);
+
+    // Set landscape orientation
+    gMSceneManagerStub->stubSetReturnValue("orientation", M::Landscape);
+    m_subject->updateButtons();
+
+    QCOMPARE(m_subject->overviewPolicy->columnCount(), 2);
+    QCOMPARE(m_subject->overviewPolicy->rowCount(), 2);
+    QCOMPARE(m_subject->detailPolicy->count(), 4);
+
+    // Set overview mode
+    g_switcherModel->setSwitcherMode(SwitcherModel::Overview);
+    m_subject->updateButtons();
+
+    QCOMPARE(m_subject->overviewPolicy->columnCount(), 2);
+    QCOMPARE(m_subject->overviewPolicy->rowCount(), 2);
+    QCOMPARE(m_subject->detailPolicy->count(), 4);
+}
+
 
 void Ut_SwitcherView::testRemovingButtons()
 {
@@ -883,10 +936,10 @@ void Ut_SwitcherView::testWhenPinchingOnEmptyAreaNearestButtonIsDetected()
     g_switcherModel->setButtons(buttons);
     // When clicking topLeft area button 1 should be detected
     m_subject->calculateNearestButtonAt(QPointF(140,124));
-    QCOMPARE(m_subject->pinchedButtonPosition, qint16(0));
+    QCOMPARE(m_subject->pinchedButtonPosition, 0);
     // When clicking bottomRight area button 3 should be selected
     m_subject->calculateNearestButtonAt(QPointF(593,313));
-    QCOMPARE(m_subject->pinchedButtonPosition, qint16(2));
+    QCOMPARE(m_subject->pinchedButtonPosition, 2);
 
     gMWindowStub->stubSetReturnValue("orientation", M::Portrait);
     m_subject->viewport->setGeometry(QRectF(0,0,480,748));
@@ -896,7 +949,7 @@ void Ut_SwitcherView::testWhenPinchingOnEmptyAreaNearestButtonIsDetected()
     g_switcherModel->setButtons(buttons);
     // When clicking topRight area button 2 should be detected
     m_subject->calculateNearestButtonAt(QPointF(60,72));
-    QCOMPARE(m_subject->pinchedButtonPosition, qint16(1));
+    QCOMPARE(m_subject->pinchedButtonPosition, 1);
 }
 
 void Ut_SwitcherView::testButtonPressCancelationWhenPinching() {

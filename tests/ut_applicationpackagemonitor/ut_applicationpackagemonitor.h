@@ -43,6 +43,8 @@ private slots:
 
     //Tests created dbus connections.
     void testConstruction();
+    //Tests that calling updatePackageStates() sends correct signals
+    void testUpdatingPackageStates();
     //Tests successfull install with multiple packages.
     void testSuccessfullInstall();
     //Tests unsuccessfull install with multiple packages
@@ -54,6 +56,10 @@ private slots:
     //Tests installing multiple packages successfully with operation
     //complete signal received after download progress.
     void testSuccessfullInstallWithOperationCompletedAfterDownload();
+    // Test that monitor sents correct signals when new broken desktop entry appears
+    void testErrorSignalsForNewBrokenDesktopEntry();
+    // Test that monitor sents correct signals when existing desktop entry changes state to broken
+    void testErrorSignalsForDesktopEntryChangingToBrokenState();
 
 signals:
 
@@ -81,7 +87,7 @@ private:
     void uninstall(const QString&);
 
     // Mimicks an installation of the extra desktop file for a package
-    void installPackageExtra(QString packageName);
+    void installPackageExtra(const QString &packageName, const QString &state = "installed");
 
     // Mimicks the change in the extra desktop file for a package when it is uninstalled
     void uninstallPackageExtra(QString packageName);

@@ -36,7 +36,7 @@ SwitcherButtonWithTitleBarView::SwitcherButtonWithTitleBarView(SwitcherButton *b
     titleBarLayout->addItem(titleLabel);
 
     closeButton = new MButton();
-    closeButton->setViewType(MButton::iconType);
+    closeButton->setViewType("extended");
     connect(closeButton, SIGNAL(clicked()), controller, SLOT(close()));
     titleBarLayout->addItem(closeButton);
     titleBarLayout->setAlignment(closeButton, Qt::AlignVCenter);
@@ -90,8 +90,6 @@ void SwitcherButtonWithTitleBarView::setupModel()
 {
     SwitcherButtonView::setupModel();
 
-    translateCloseButton();
-
     titleLabel->setText(model()->text());
 }
 
@@ -109,18 +107,6 @@ void SwitcherButtonWithTitleBarView::updateData(const QList<const char *>& modif
 QPoint SwitcherButtonWithTitleBarView::thumbnailPosition() const
 {
     return QPoint(0, titleLabel->size().height());
-}
-
-void SwitcherButtonWithTitleBarView::translateCloseButton()
-{
-    int verticalOffset = -style()->closeButtonVOffset();
-    int horizontalOffset = style()->closeButtonHOffset();
-
-    // Horizontal offset needs to be handled differently for different layout directions
-    if (MApplication::layoutDirection() == Qt::RightToLeft) {
-        horizontalOffset = -horizontalOffset;
-    }
-    closeButton->translate(horizontalOffset, verticalOffset);
 }
 
 M_REGISTER_VIEW_NEW(SwitcherButtonWithTitleBarView, SwitcherButton)

@@ -90,50 +90,61 @@ void Launcher::setInstallProgress(const QString& packageName, const QString &des
 
 void Launcher::setOperationSuccess(const QString& packageName, const QString& desktopEntryPath)
 {
-    if (launcherButtonMap.contains(packageName)) {
-        launcherButtonMap.value(packageName)->updateFromDesktopEntry(desktopEntryPath);
-        launcherButtonMap.value(packageName)->setState(LauncherButtonModel::Installed, 0);
-        launcherButtonMap.remove(packageName);
+    if (placeholderMap.contains(packageName)) {
+        placeholderMap.value(packageName)->updateFromDesktopEntry(desktopEntryPath);
+        placeholderMap.value(packageName)->setState(LauncherButtonModel::Installed, 0);
+        placeholderMap.remove(packageName);
+
+        // Update placement in data store when application is fully installed
+        updateButtonPlacementInStore(desktopEntryPath);
     }
 }
 
 void Launcher::setOperationError(const QString& packageName, const QString& desktopEntryPath, const QString& error)
 {
     Q_UNUSED(error)
-    int progress = 0;
-    updateButtonState(packageName, desktopEntryPath, LauncherButtonModel::Broken, progress);
+    updateButtonState(packageName, desktopEntryPath, LauncherButtonModel::Broken, 0);
 }
 
 void Launcher::updateButtonState(const QString &packageName, const QString &desktopEntryPath, LauncherButtonModel::State state, int progress)
 {
-    if (!launcherButtonMap.contains(packageName)) {
-        QSharedPointer<LauncherButton> button = createLauncherButton(desktopEntryPath);
-        launcherButtonMap.insert(packageName, button);
-        addPlaceholderButtonToLauncher(button);
+    if (!placeholderMap.contains(packageName) && !entryExistsInDatastore(desktopEntryPath)) {
+        addPlaceholderButton(packageName, desktopEntryPath);
     }
-    launcherButtonMap.value(packageName)->setState(state, progress);
+
+    placeholderMap.value(packageName)->setState(state, progress);
 }
 
-void Launcher::addPlaceholderButtonToLauncher(QSharedPointer<LauncherButton> button)
+bool Launcher::entryExistsInDatastore(const QString &desktopEntryPath)
 {
-    QList<QSharedPointer<LauncherPage> > pages = model()->launcherPages();
+    bool exists = false;
+    QString entryFileName = QFileInfo(desktopEntryPath).fileName();
+    QHash<QString, QVariant> allDesktopEntryPlacements = dataStore->dataForAllDesktopEntries();
+    foreach (const QString &desktopEntryPath, allDesktopEntryPlacements.keys()) {
+        if (QFileInfo(desktopEntryPath).fileName() == entryFileName) {
+            exists = true;
+        }
+    }
+    return exists;
+}
 
-    QSharedPointer<LauncherPage> page;
-
-    bool added = false;
-    if (!pages.isEmpty()) {
-        page = pages.last();
-        added = page->appendButton(button);
+void Launcher::addPlaceholderButton(const QString& packageName, const QString& desktopEntryPath)
+{
+    QSharedPointer<LauncherButton> button;
+    Launcher::Placement placement(buttonPlacement(QFileInfo(desktopEntryPath).fileName()));
+    if (!placement.isNull()) {
+        // If button for package is already found in launcher, then just update/add the button to placeholders.
+        QSharedPointer<LauncherPage> page = model()->launcherPages().at(placement.page);
+        button = page->model()->launcherButtons().at(placement.position);
+    } else {
+        // If there is no button yet for the application, then we need to create a placeholder
+        button = createLauncherButton(desktopEntryPath);
+        QList<QSharedPointer<LauncherPage> > pages = model()->launcherPages();
+        appendButtonToPages(button, pages);
+        model()->setLauncherPages(pages);
     }
 
-    if (!added) {
-        page = QSharedPointer<LauncherPage>(new LauncherPage);
-        setMaximumPageSizeIfNecessary(page);
-        page->appendButton(button);
-        pages.append(page);
-    }
-
-    model()->setLauncherPages(pages);
+    placeholderMap.insert(packageName, button);
 }
 
 void Launcher::updatePagesFromDataStore()
@@ -152,6 +163,9 @@ void Launcher::updatePagesFromDataStore()
     addDesktopEntriesWithUnknownPlacements(pages);
     removeEmptyPages(pages);
     model()->setLauncherPages(pages);
+
+    // After initializing launcher we can update the states from package monitor
+    packageMonitor->updatePackageStates();
 }
 
 void Launcher::addDesktopEntriesWithKnownPlacements(QList<QSharedPointer<LauncherPage> > &pages)
@@ -190,7 +204,7 @@ void Launcher::addDesktopEntriesWithUnknownPlacements(QList<QSharedPointer<Launc
         foreach (const QString &desktopEntryPath, allDesktopEntryPlacements.keys()) {
             Placement placement(allDesktopEntryPlacements.value(desktopEntryPath).toString());
             if ((placement.location.isEmpty() || placement.location == LOCATION_IDENTIFIER) && placement.page < 0) {
-                addLauncherButtonToPages(desktopEntryPath, pages);
+                addNewLauncherButtonToPages(desktopEntryPath, pages);
             }
         }
     }
@@ -214,7 +228,7 @@ void Launcher::removeEmptyPages(QList<QSharedPointer<LauncherPage> > &pages)
     }
 
     if (dataStore != NULL) {
-        // Locations of switcher buttons on subsequent pages have changed so update all of them
+        // Locations of launcher buttons on subsequent pages have changed so update all of them
         if (firstRemovedPage >= 0) {
             for (int page = firstRemovedPage; page < pages.count(); page++) {
                 const QList<QSharedPointer<LauncherButton> > &launcherButtons = pages.at(page)->model()->launcherButtons();
@@ -236,37 +250,43 @@ QSharedPointer<LauncherButton> Launcher::createLauncherButton(const QString &des
 
 void Launcher::addLauncherButton(const QString &desktopEntryPath)
 {
-    QList<QSharedPointer<LauncherPage> > pages = model()->launcherPages();
-
-    addLauncherButtonToPages(desktopEntryPath, pages);
-
-    model()->setLauncherPages(pages);
+    QSharedPointer<LauncherButton> button = placeholderButton(desktopEntryPath);
+    if (button) {
+        // If button already has a placeholder than just update the desktop entry for the button and store the placement
+        button->updateFromDesktopEntry(desktopEntryPath);
+        updateButtonPlacementInStore(desktopEntryPath);
+    } else {
+        QList<QSharedPointer<LauncherPage> > pages = model()->launcherPages();
+        addNewLauncherButtonToPages(desktopEntryPath, pages);
+        model()->setLauncherPages(pages);
+    }
 }
 
-void Launcher::addLauncherButtonToPages(const QString &desktopEntryPath, QList<QSharedPointer<LauncherPage> > &pages)
+void Launcher::addNewLauncherButtonToPages(const QString &desktopEntryPath, QList<QSharedPointer<LauncherPage> > &pages)
 {
     // Create a launcher button for the desktop entry
     QSharedPointer<LauncherButton> launcherButton = createLauncherButton(desktopEntryPath);
+
+    appendButtonToPages(launcherButton, pages);
+
+    updateButtonPlacementInStore(desktopEntryPath);
+}
+
+void Launcher::appendButtonToPages(QSharedPointer<LauncherButton> button, QList<QSharedPointer<LauncherPage> > &pages)
+{
     QSharedPointer<LauncherPage> page;
 
     bool added = false;
     if (!pages.isEmpty()) {
         page = pages.last();
-        added = page->appendButton(launcherButton);
+        added = page->appendButton(button);
     }
 
     if (!added) {
-        page = QSharedPointer<LauncherPage>(new LauncherPage);
+        page = QSharedPointer<LauncherPage>(new LauncherPage());
         setMaximumPageSizeIfNecessary(page);
-        page->appendButton(launcherButton);
         pages.append(page);
-    }
-
-    if (dataStore != NULL) {
-        // Set the launcher button location in the data store
-        int pageIndex = pages.count() - 1;
-        int buttonIndex = page->model()->launcherButtons().count() - 1;
-        dataStore->updateDataForDesktopEntry(desktopEntryPath, PLACEMENT_TEMPLATE.arg(pageIndex).arg(buttonIndex));
+        page->appendButton(button);
     }
 }
 
@@ -363,6 +383,32 @@ Launcher::Placement Launcher::buttonPlacement(const QString &desktopFileEntry)
     return placement;
 }
 
+QSharedPointer<LauncherButton> Launcher::placeholderButton(const QString &desktopEntryPath)
+{
+    QSharedPointer<LauncherButton> button;
+
+    QString fileName(QFileInfo(desktopEntryPath).fileName());
+
+    QMapIterator<QString, QSharedPointer<LauncherButton> > iterator(placeholderMap);
+    while (iterator.hasNext()) {
+        iterator.next();
+        if (QFileInfo(iterator.value()->desktopEntry()).fileName() == fileName) {
+            button = iterator.value();
+        }
+    }
+
+    return button;
+}
+
+void Launcher::updateButtonPlacementInStore(const QString &desktopEntryPath)
+{
+    Placement placement = buttonPlacement(desktopEntryPath);
+
+    dataStore->updateDataForDesktopEntry(desktopEntryPath, PLACEMENT_TEMPLATE.arg(placement.page).arg(placement.position));
+}
+
+Launcher::Placement::Placement() : page(-1), position(-1) {
+}
 
 Launcher::Placement::Placement(const QString &placement) : page(-1), position(-1) {
     location = placement.section(SECTION_SEPARATOR, 0, 0);

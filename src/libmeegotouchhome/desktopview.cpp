@@ -133,6 +133,7 @@ DesktopView::DesktopView(Desktop *desktop) :
 
     // Create a quick launch bar and put it in a scene window
     quickLaunchBar->setLauncherDataStore(launcherDataStore);
+    quickLaunchBar->setApplicationPackageMonitor(packageMonitor);
     connect(quickLaunchBar, SIGNAL(toggleLauncherButtonClicked()), this, SLOT(toggleLauncher()));
     windowLayout = new QGraphicsLinearLayout();
     windowLayout->setContentsMargins(0, 0, 0, 0);

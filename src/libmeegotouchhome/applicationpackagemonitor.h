@@ -27,8 +27,12 @@
 class MFileDataStore;
 
 /*!
- * ApplicationPackageMonitor listens dbus signals from Package Manager to be used
- * updating Launcher Button statuses.
+ * ApplicationPackageMonitor listens dbus signals from Package Manager and watches installer-extra
+ * folder to receive info on package installation states and signaling relevant changes.
+ *
+ * Some events may be communicated through both dbus signal and changes in desktop entries.
+ * This can lead to same package having multiple signals for same event (like progress error).
+ * Signal listener is responsible for handling such cases.
  */
 class ApplicationPackageMonitor : public QObject
 {
@@ -42,6 +46,13 @@ public:
      * Destroys ApplicationPackageMonitor.
      */
     virtual ~ApplicationPackageMonitor();
+
+    /*!
+     * Emit's state signals for packages in relevat states.
+     *
+     * (eg. emits operationError() for all the packages in 'broken' state)
+     */
+    void updatePackageStates();
 
 signals:
     /*!

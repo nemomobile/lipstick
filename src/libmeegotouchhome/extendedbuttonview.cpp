@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of mhome.
+** This file is part of duihome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -17,23 +17,21 @@
 **
 ****************************************************************************/
 
-#ifndef SWITCHERBUTTONWITHTITLEBARSTYLE_H_
-#define SWITCHERBUTTONWITHTITLEBARSTYLE_H_
+#include "extendedbuttonview.h"
+#include <MButton>
 
-#include "switcherbuttonstyle.h"
-
-class SwitcherButtonWithTitleBarStyle : public SwitcherButtonStyle
+ExtendedButtonView::ExtendedButtonView(MButton *controller) :
+    MButtonIconView(controller)
 {
-    Q_OBJECT
-    M_STYLE(SwitcherButtonWithTitleBarStyle)
+}
 
-    //! The close button icon
-    M_STYLE_ATTRIBUTE(QString, closeIcon, CloseIcon)
-};
-
-class SwitcherButtonWithTitleBarStyleContainer : public SwitcherButtonStyleContainer
+ExtendedButtonView::~ExtendedButtonView()
 {
-    M_STYLE_CONTAINER(SwitcherButtonWithTitleBarStyle)
-};
+}
 
-#endif /* SWITCHERBUTTONWITHTITLEBARSTYLE_H_ */
+QRectF ExtendedButtonView::boundingRect() const
+{
+    return MButtonIconView::boundingRect().adjusted(-style()->extendLeft(), -style()->extendTop(), style()->extendRight(), style()->extendBottom());
+}
+
+M_REGISTER_VIEW_NEW(ExtendedButtonView, MButton)

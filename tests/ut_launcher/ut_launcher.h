@@ -91,6 +91,8 @@ private slots:
     void testUpdateButtonState();
     // Test adding palceholder button to launcher
     void testAddPlaceholderButtonToLauncher();
+    // Test checking if desktop entry exists in datastore
+    void testEntryExistsInDatastore();
     // Test handling of downloadProgress signal
     void testSetDownloadProgress();
     // Test handling of downloadProgress signal with invalid values
@@ -103,5 +105,11 @@ private slots:
     void testSetOperationError();
     // Test setting the maximum page size
     void testSetMaximumPageSize();
+    // Test handling of operation error when button is already found in launcher
+    void testSetOperationErrorWhenButtonFoundFromLauncher();
+    // Test handling of operation error when entry has a placeholder launcher
+    void testSetOperationErrorWhenButtonHasPlaceholder();
+    // Test that when desktop entry is got for a placeholder, we update the desktop entry
+    void testReplacingDesktopEntryForPlaceholderButton();
 };
 #endif //_UT_LAUNCHER_

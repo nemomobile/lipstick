@@ -30,7 +30,7 @@ class LauncherDataStoreStub : public StubBase {
   virtual void LauncherDataStoreConstructor(MDataStore *dataStore, const QString &directoryPath);
   virtual void LauncherDataStoreDestructor();
   virtual QHash<QString, QVariant> dataForAllDesktopEntries();
-  virtual bool updateDataForDesktopEntry(const QString &entryPath, const QVariant &data);
+  virtual void updateDataForDesktopEntry(const QString &entryPath, const QVariant &data);
   virtual void updateDataFromDesktopEntryFiles();
   virtual void processUpdateQueue();
   virtual void startProcessingUpdateQueue();
@@ -54,12 +54,11 @@ QHash<QString, QVariant> LauncherDataStoreStub::dataForAllDesktopEntries() {
   return stubReturnValue<QHash<QString, QVariant> >("dataForAllDesktopEntries");
 }
 
-bool LauncherDataStoreStub::updateDataForDesktopEntry(const QString &entryPath, const QVariant &data) {
+void LauncherDataStoreStub::updateDataForDesktopEntry(const QString &entryPath, const QVariant &data) {
   QList<ParameterBase*> params;
   params.append( new Parameter<const QString & >(entryPath));
   params.append( new Parameter<const QVariant & >(data));
   stubMethodEntered("updateDataForDesktopEntry",params);
-  return stubReturnValue<bool>("updateDataForDesktopEntry");
 }
 
 void LauncherDataStoreStub::updateDataFromDesktopEntryFiles() {
@@ -127,8 +126,8 @@ QHash<QString, QVariant> LauncherDataStore::dataForAllDesktopEntries() {
   return gLauncherDataStoreStub->dataForAllDesktopEntries();
 }
 
-bool LauncherDataStore::updateDataForDesktopEntry(const QString &entryPath, const QVariant &data) {
-  return gLauncherDataStoreStub->updateDataForDesktopEntry(entryPath, data);
+void LauncherDataStore::updateDataForDesktopEntry(const QString &entryPath, const QVariant &data) {
+  gLauncherDataStoreStub->updateDataForDesktopEntry(entryPath, data);
 }
 
 void LauncherDataStore::updateDataFromDesktopEntryFiles() {

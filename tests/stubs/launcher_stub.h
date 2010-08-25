@@ -31,19 +31,28 @@ class LauncherStub : public StubBase {
   virtual void LauncherDestructor();
   virtual void setLauncherDataStore(LauncherDataStore *dataStore);
   virtual void setApplicationPackageMonitor(ApplicationPackageMonitor *packageMonitor);
-  virtual void setDownloadProgress(const QString& packageName, const QString& desktopEntryPath, int bytesLoaded, int bytesTotal);
-  virtual void setInstallProgress(const QString& packageName, const QString& desktopEntryPath, int percentage);
-  virtual void setOperationSuccess(const QString& packageName, const QString& desktopEntryPath);
-  virtual void setOperationError(const QString& packageName, const QString& desktopEntryPath, const QString& error);
-  virtual void updatePagesFromDataStore();
-  virtual int panToPage(const QString &fileEntryPath);
+  virtual int panToPage(const QString &desktopFileEntry);
   virtual void setFirstPage();
+  virtual void setDownloadProgress(const QString &packageName, const QString &desktopEntryPath, int bytesLoaded, int bytesTotal);
+  virtual void setInstallProgress(const QString &packageName, const QString &desktopEntryPath, int percentage);
+  virtual void setOperationSuccess(const QString &packageName, const QString &desktopEntryPath);
+  virtual void setOperationError(const QString &packageName, const QString &desktopEntryPath, const QString &error);
+  virtual void addLauncherButton(const QString &desktopEntryPath);
+  virtual void removeLauncherButton(const QString &desktopEntryPath);
+  virtual void updateLauncherButton(const QString &desktopEntryPath);
+  virtual void updatePagesFromDataStore();
+  virtual void addNewLauncherButtonToPages(const QString &desktopEntryPath, QList<QSharedPointer<LauncherPage> > &pages);
+  virtual void appendButtonToPages(QSharedPointer<LauncherButton> button, QList<QSharedPointer<LauncherPage> > &pages);
+  virtual Launcher::Placement buttonPlacement(const QString &desktopEntryFile);
+  virtual void addDesktopEntriesWithKnownPlacements(QList<QSharedPointer<LauncherPage> > &pages);
+  virtual void addDesktopEntriesWithUnknownPlacements(QList<QSharedPointer<LauncherPage> > &pages);
+  virtual void removeEmptyPages(QList<QSharedPointer<LauncherPage> > &pages);
   virtual QSharedPointer<LauncherButton> createLauncherButton(const QString &desktopEntryPath);
   virtual QMap<Launcher::Placement, QString> createPlacementMap(const QHash<QString, QVariant> &desktopEntryPlacements);
-  virtual void updateLauncherButton(const QString &desktopEntryPath);
-  virtual void addLauncherButton(const QString &desktopEntryPath);
-  virtual void addLauncherButtonToPages(const QString &desktopEntryPath, QList<QSharedPointer<LauncherPage> > &pages);
-  virtual void removeLauncherButton(const QString &desktopEntryPath);
+  virtual void updateButtonState(const QString &packageName, const QString &desktopEntryPath, LauncherButtonModel::State state, int progress);
+  virtual void addPlaceholderButton(const QString &packageName, const QString &desktopEntryPath);
+  virtual void updateButtonPlacementInStore(const QString &desktopEntryPath);
+  virtual QSharedPointer<LauncherButton> placeholderButton(const QString &desktopEntryPath);
 }; 
 
 // 2. IMPLEMENT STUB
@@ -67,50 +76,113 @@ void LauncherStub::setApplicationPackageMonitor(ApplicationPackageMonitor *packa
     params.append( new Parameter<ApplicationPackageMonitor *>(packageMonitor));
     stubMethodEntered("setApplicationPackageMonitor", params);
 }
-
-void LauncherStub::setDownloadProgress(const QString& packageName, const QString& desktopEntryPath, int bytesLoaded, int bytesTotal)
-{
+int LauncherStub::panToPage(const QString &desktopFileEntry) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<QString>(packageName));
-  params.append( new Parameter<QString>(desktopEntryPath));
-  params.append( new Parameter<int>(bytesLoaded));
-  params.append( new Parameter<int>(bytesTotal));
-  stubMethodEntered("setDownloadProgress", params);
+  params.append( new Parameter<const QString & >(desktopFileEntry));
+  stubMethodEntered("panToPage",params);
+  return stubReturnValue<int>("panToPage");
 }
 
-void LauncherStub::setInstallProgress(const QString& packageName, const QString& desktopEntryPath, int percentage)
-{
-  QList<ParameterBase*> params;
-  params.append( new Parameter<QString>(packageName));
-  params.append( new Parameter<QString>(desktopEntryPath));
-  params.append( new Parameter<int>(percentage));
-  stubMethodEntered("setInstallProgress", params);
+void LauncherStub::setFirstPage() {
+  stubMethodEntered("setFirstPage");
 }
 
-void LauncherStub::setOperationSuccess(const QString& packageName, const QString& desktopEntryPath)
-{
+void LauncherStub::setDownloadProgress(const QString &packageName, const QString &desktopEntryPath, int bytesLoaded, int bytesTotal) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<QString>(packageName));
-  params.append( new Parameter<QString>(desktopEntryPath));
-  stubMethodEntered("setOperationSuccess", params);
+  params.append( new Parameter<const QString & >(packageName));
+  params.append( new Parameter<const QString & >(desktopEntryPath));
+  params.append( new Parameter<int >(bytesLoaded));
+  params.append( new Parameter<int >(bytesTotal));
+  stubMethodEntered("setDownloadProgress",params);
 }
 
-void LauncherStub::setOperationError(const QString& packageName, const QString& desktopEntryPath, const QString& error)
-{
+void LauncherStub::setInstallProgress(const QString &packageName, const QString &desktopEntryPath, int percentage) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<QString>(packageName));
-  params.append( new Parameter<QString>(desktopEntryPath));
-  params.append( new Parameter<QString>(error));
-  stubMethodEntered("setOperationError", params);
+  params.append( new Parameter<const QString & >(packageName));
+  params.append( new Parameter<const QString & >(desktopEntryPath));
+  params.append( new Parameter<int >(percentage));
+  stubMethodEntered("setInstallProgress",params);
+}
+
+void LauncherStub::setOperationSuccess(const QString &packageName, const QString &desktopEntryPath) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<const QString & >(packageName));
+  params.append( new Parameter<const QString & >(desktopEntryPath));
+  stubMethodEntered("setOperationSuccess",params);
+}
+
+void LauncherStub::setOperationError(const QString &packageName, const QString &desktopEntryPath, const QString &error) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<const QString & >(packageName));
+  params.append( new Parameter<const QString & >(desktopEntryPath));
+  params.append( new Parameter<const QString & >(error));
+  stubMethodEntered("setOperationError",params);
+}
+
+void LauncherStub::addLauncherButton(const QString &desktopEntryPath) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<const QString & >(desktopEntryPath));
+  stubMethodEntered("addLauncherButton",params);
+}
+
+void LauncherStub::removeLauncherButton(const QString &desktopEntryPath) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<const QString & >(desktopEntryPath));
+  stubMethodEntered("removeLauncherButton",params);
+}
+
+void LauncherStub::updateLauncherButton(const QString &desktopEntryPath) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<const QString & >(desktopEntryPath));
+  stubMethodEntered("updateLauncherButton",params);
 }
 
 void LauncherStub::updatePagesFromDataStore() {
   stubMethodEntered("updatePagesFromDataStore");
 }
 
+void LauncherStub::addNewLauncherButtonToPages(const QString &desktopEntryPath, QList<QSharedPointer<LauncherPage> > &pages) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<const QString & >(desktopEntryPath));
+  params.append( new Parameter<QList<QSharedPointer<LauncherPage> > & >(pages));
+  stubMethodEntered("addNewLauncherButtonToPages",params);
+}
+
+void LauncherStub::appendButtonToPages(QSharedPointer<LauncherButton> button, QList<QSharedPointer<LauncherPage> > &pages) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<QSharedPointer<LauncherButton> >(button));
+  params.append( new Parameter<QList<QSharedPointer<LauncherPage> > >(pages));
+  stubMethodEntered("appendButtonToPages",params);
+}
+
+Launcher::Placement LauncherStub::buttonPlacement(const QString &desktopEntryFile) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<const QString & >(desktopEntryFile));
+  stubMethodEntered("buttonPlacement",params);
+  return stubReturnValue<Launcher::Placement>("buttonPlacement");
+}
+
+void LauncherStub::addDesktopEntriesWithKnownPlacements(QList<QSharedPointer<LauncherPage> > &pages) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<QList<QSharedPointer<LauncherPage> > & >(pages));
+  stubMethodEntered("addDesktopEntriesWithKnownPlacements",params);
+}
+
+void LauncherStub::addDesktopEntriesWithUnknownPlacements(QList<QSharedPointer<LauncherPage> > &pages) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<QList<QSharedPointer<LauncherPage> > & >(pages));
+  stubMethodEntered("addDesktopEntriesWithUnknownPlacements",params);
+}
+
+void LauncherStub::removeEmptyPages(QList<QSharedPointer<LauncherPage> > &pages) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<QList<QSharedPointer<LauncherPage> > & >(pages));
+  stubMethodEntered("removeEmptyPages",params);
+}
+
 QSharedPointer<LauncherButton> LauncherStub::createLauncherButton(const QString &desktopEntryPath) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<QString>(desktopEntryPath));
+  params.append( new Parameter<const QString & >(desktopEntryPath));
   stubMethodEntered("createLauncherButton",params);
   return stubReturnValue<QSharedPointer<LauncherButton> >("createLauncherButton");
 }
@@ -122,41 +194,36 @@ QMap<Launcher::Placement, QString> LauncherStub::createPlacementMap(const QHash<
   return stubReturnValue<QMap<Launcher::Placement, QString> >("createPlacementMap");
 }
 
-int LauncherStub::panToPage(const QString &fileEntryPath) {
+void LauncherStub::updateButtonState(const QString &packageName, const QString &desktopEntryPath, LauncherButtonModel::State state, int progress) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<QString>(fileEntryPath));
-  stubMethodEntered("panToPage",params);
-  return stubReturnValue<int>("panToPage");
+  params.append( new Parameter<const QString & >(packageName));
+  params.append( new Parameter<const QString & >(desktopEntryPath));
+  params.append( new Parameter<LauncherButtonModel::State >(state));
+  params.append( new Parameter<int >(progress));
+  stubMethodEntered("updateButtonState",params);
 }
 
-void LauncherStub::setFirstPage() {
-  stubMethodEntered("setFirstPage");
+void LauncherStub::addPlaceholderButton(const QString &packageName, const QString &desktopEntryPath) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<const QString & >(packageName));
+  params.append( new Parameter<const QString & >(desktopEntryPath));
+  stubMethodEntered("addPlaceholderButton",params);
 }
 
-void LauncherStub::updateLauncherButton(const QString &fileEntryPath) {
+void LauncherStub::updateButtonPlacementInStore(const QString &desktopEntryPath) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<QString>(fileEntryPath));
-  stubMethodEntered("updateLauncherButton",params);
+  params.append( new Parameter<const QString & >(desktopEntryPath));
+  stubMethodEntered("updateButtonPlacementInStore",params);
 }
 
-void LauncherStub::addLauncherButton(const QString &desktopEntryPath) {
+QSharedPointer<LauncherButton> LauncherStub::placeholderButton(const QString &desktopEntryPath) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<QString>(desktopEntryPath));
-  stubMethodEntered("addLauncherButton",params);
+  params.append( new Parameter<const QString & >(desktopEntryPath));
+  stubMethodEntered("placeholderButton",params);
+  return stubReturnValue<QSharedPointer<LauncherButton> >("placeholderButton");
 }
 
-void LauncherStub::addLauncherButtonToPages(const QString &desktopEntryPath, QList<QSharedPointer<LauncherPage> > &pages) {
-  QList<ParameterBase*> params;
-  params.append( new Parameter<QString>(desktopEntryPath));
-  params.append( new Parameter<QList<QSharedPointer<LauncherPage> > &>(pages));
-  stubMethodEntered("addLauncherButtonToPages",params);
-}
 
-void LauncherStub::removeLauncherButton(const QString &desktopEntryPath) {
-  QList<ParameterBase*> params;
-  params.append( new Parameter<QString>(desktopEntryPath));
-  stubMethodEntered("removeLauncherButton",params);
-}
 
 // 3. CREATE A STUB INSTANCE
 LauncherStub gDefaultLauncherStub;
@@ -182,28 +249,68 @@ void Launcher::setApplicationPackageMonitor(ApplicationPackageMonitor *packageMo
   gLauncherStub->setApplicationPackageMonitor(packageMonitor);
 }
 
-void Launcher::setDownloadProgress(const QString& packageName, const QString& desktopEntryPath, int bytesLoaded, int bytesTotal)
-{
+int Launcher::panToPage(const QString &desktopFileEntry) {
+  return gLauncherStub->panToPage(desktopFileEntry);
+}
+
+void Launcher::setFirstPage() {
+  gLauncherStub->setFirstPage();
+}
+
+void Launcher::setDownloadProgress(const QString &packageName, const QString &desktopEntryPath, int bytesLoaded, int bytesTotal) {
   gLauncherStub->setDownloadProgress(packageName, desktopEntryPath, bytesLoaded, bytesTotal);
 }
 
-void Launcher::setInstallProgress(const QString& packageName, const QString& desktopEntryPath, int percentage)
-{
+void Launcher::setInstallProgress(const QString &packageName, const QString &desktopEntryPath, int percentage) {
   gLauncherStub->setInstallProgress(packageName, desktopEntryPath, percentage);
 }
 
-void Launcher::setOperationSuccess(const QString& packageName, const QString& desktopEntryPath)
-{
+void Launcher::setOperationSuccess(const QString &packageName, const QString &desktopEntryPath) {
   gLauncherStub->setOperationSuccess(packageName, desktopEntryPath);
 }
 
-void Launcher::setOperationError(const QString& packageName, const QString& desktopEntryPath, const QString& error)
-{
+void Launcher::setOperationError(const QString &packageName, const QString &desktopEntryPath, const QString &error) {
   gLauncherStub->setOperationError(packageName, desktopEntryPath, error);
+}
+
+void Launcher::addLauncherButton(const QString &desktopEntryPath) {
+  gLauncherStub->addLauncherButton(desktopEntryPath);
+}
+
+void Launcher::removeLauncherButton(const QString &desktopEntryPath) {
+  gLauncherStub->removeLauncherButton(desktopEntryPath);
+}
+
+void Launcher::updateLauncherButton(const QString &desktopEntryPath) {
+  gLauncherStub->updateLauncherButton(desktopEntryPath);
 }
 
 void Launcher::updatePagesFromDataStore() {
   gLauncherStub->updatePagesFromDataStore();
+}
+
+void Launcher::addNewLauncherButtonToPages(const QString &desktopEntryPath, QList<QSharedPointer<LauncherPage> > &pages) {
+  gLauncherStub->addNewLauncherButtonToPages(desktopEntryPath, pages);
+}
+
+void Launcher::appendButtonToPages(QSharedPointer<LauncherButton> button, QList<QSharedPointer<LauncherPage> > &pages) {
+  gLauncherStub->appendButtonToPages(button, pages);
+}
+
+Launcher::Placement Launcher::buttonPlacement(const QString &desktopEntryFile) {
+  return gLauncherStub->buttonPlacement(desktopEntryFile);
+}
+
+void Launcher::addDesktopEntriesWithKnownPlacements(QList<QSharedPointer<LauncherPage> > &pages) {
+  gLauncherStub->addDesktopEntriesWithKnownPlacements(pages);
+}
+
+void Launcher::addDesktopEntriesWithUnknownPlacements(QList<QSharedPointer<LauncherPage> > &pages) {
+  gLauncherStub->addDesktopEntriesWithUnknownPlacements(pages);
+}
+
+void Launcher::removeEmptyPages(QList<QSharedPointer<LauncherPage> > &pages) {
+  gLauncherStub->removeEmptyPages(pages);
 }
 
 QSharedPointer<LauncherButton> Launcher::createLauncherButton(const QString &desktopEntryPath) {
@@ -214,28 +321,27 @@ QMap<Launcher::Placement, QString> Launcher::createPlacementMap(const QHash<QStr
   return gLauncherStub->createPlacementMap(desktopEntryPlacements);
 }
 
-int Launcher::panToPage(const QString &fileEntryPath) {
-  return gLauncherStub->panToPage(fileEntryPath);
+void Launcher::updateButtonState(const QString &packageName, const QString &desktopEntryPath, LauncherButtonModel::State state, int progress) {
+  gLauncherStub->updateButtonState(packageName, desktopEntryPath, state, progress);
 }
 
-void Launcher::setFirstPage() {
-  gLauncherStub->setFirstPage();
+void Launcher::addPlaceholderButton(const QString &packageName, const QString &desktopEntryPath) {
+  gLauncherStub->addPlaceholderButton(packageName, desktopEntryPath);
 }
 
-void Launcher::updateLauncherButton(const QString &fileEntryPath) {
-  gLauncherStub->updateLauncherButton(fileEntryPath);
+void Launcher::updateButtonPlacementInStore(const QString &desktopEntryPath) {
+  gLauncherStub->updateButtonPlacementInStore(desktopEntryPath);
 }
 
-void Launcher::addLauncherButton(const QString &desktopEntryPath) {
-  gLauncherStub->addLauncherButton(desktopEntryPath);
+QSharedPointer<LauncherButton> Launcher::placeholderButton(const QString &desktopEntryPath) {
+  return gLauncherStub->placeholderButton(desktopEntryPath);
 }
 
-void Launcher::addLauncherButtonToPages(const QString &desktopEntryPath, QList<QSharedPointer<LauncherPage> > &pages) {
-  gLauncherStub->addLauncherButtonToPages(desktopEntryPath, pages);
+Launcher::Placement::Placement() {
 }
 
-void Launcher::removeLauncherButton(const QString &desktopEntryPath) {
-  gLauncherStub->removeLauncherButton(desktopEntryPath);
+Launcher::Placement::Placement(const QString &placement) {
+    Q_UNUSED(placement);
 }
 
 #endif

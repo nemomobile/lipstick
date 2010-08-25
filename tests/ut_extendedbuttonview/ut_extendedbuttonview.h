@@ -17,23 +17,38 @@
 **
 ****************************************************************************/
 
-#ifndef SWITCHERBUTTONWITHTITLEBARSTYLE_H_
-#define SWITCHERBUTTONWITHTITLEBARSTYLE_H_
+#ifndef UT_EXTENDEDBUTTONVIEW_H
+#define UT_EXTENDEDBUTTONVIEW_H
 
-#include "switcherbuttonstyle.h"
+#include <QObject>
 
-class SwitcherButtonWithTitleBarStyle : public SwitcherButtonStyle
+class MApplication;
+class MButton;
+class ExtendedButtonView;
+
+class Ut_ExtendedButtonView : public QObject
 {
     Q_OBJECT
-    M_STYLE(SwitcherButtonWithTitleBarStyle)
 
-    //! The close button icon
-    M_STYLE_ATTRIBUTE(QString, closeIcon, CloseIcon)
+private slots:
+    // Called before the first testfunction is executed
+    void initTestCase();
+    // Called after the last testfunction was executed
+    void cleanupTestCase();
+    // Called before each testfunction is executed
+    void init();
+    // Called after every testfunction
+    void cleanup();
+
+    // Test cases
+    void testBoundingRect();
+private:
+    // MApplication
+    MApplication *app;
+    // Controller for the view
+    MButton *controller;
+    // The object being tested
+    ExtendedButtonView *view;
 };
 
-class SwitcherButtonWithTitleBarStyleContainer : public SwitcherButtonStyleContainer
-{
-    M_STYLE_CONTAINER(SwitcherButtonWithTitleBarStyle)
-};
-
-#endif /* SWITCHERBUTTONWITHTITLEBARSTYLE_H_ */
+#endif
