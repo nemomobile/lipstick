@@ -63,6 +63,8 @@ public:
         Placement();
         Placement(const QString &placement);
 
+        void setPlacement(const QString &placementString);
+
         QString location;
         int page;
         int position;
@@ -198,12 +200,12 @@ private slots:
 private:
 
     /*!
-     * Check if desktop entry already exists in datastore
+     * Get desktop entry placement in datastore
      *
      * \param desktopEntryPath Path to desktop entry
-     * \return Whether the entry was found in datastore
+     * \return Placement of the entry, if entry is not in datastore then null placement is returned
      */
-    bool entryExistsInDatastore(const QString &desktopEntryPath);
+    Launcher::Placement entryPlacementInDatastore(const QString &desktopEntryPath);
 
     /*!
      * Add a new launcher button to given pages.

@@ -74,32 +74,46 @@ void Launcher::setMaximumPageSize(int maximumPageSize)
 
 void Launcher::updateButtonState(const QString &desktopEntryPath, LauncherButtonModel::State state, int progress)
 {
-    QString desktopEntryFilename = QFileInfo(desktopEntryPath).fileName();
-    if (state == LauncherButtonModel::Installed && placeholderMap.contains(desktopEntryFilename)) {
-        placeholderMap.value(desktopEntryFilename)->updateFromDesktopEntry(desktopEntryPath);
-        placeholderMap.value(desktopEntryFilename)->setState(LauncherButtonModel::Installed, 0);
-        placeholderMap.remove(desktopEntryFilename);
+    QFileInfo desktopEntryFileInfo = QFileInfo(desktopEntryPath);
+    QString desktopEntryFilename = desktopEntryFileInfo.fileName();
+    if (placeholderMap.contains(desktopEntryFilename)) {
+        placeholderMap.value(desktopEntryFilename)->setState(state, progress);
 
-        // Update placement in data store when application is fully installed
-        updateButtonPlacementInStore(desktopEntryPath);
-    } else if (!placeholderMap.contains(desktopEntryFilename) && !entryExistsInDatastore(desktopEntryPath)) {
-        addPlaceholderButton(desktopEntryPath);
+        if (state == LauncherButtonModel::Installed) {
+            if (desktopEntryFileInfo.exists()) {
+                // If package is fully installed and has desktop entry in applications folder,
+                // then also update the desktop entry for button and add placement to store
+                placeholderMap.value(desktopEntryFilename)->updateFromDesktopEntry(desktopEntryPath);
+                placeholderMap.remove(desktopEntryFilename);
+                updateButtonPlacementInStore(desktopEntryPath);
+            } else {
+                // In error case that package doesn't have desktop entry yet,
+                // just remove button from launcher and placeholders and let launcher data store
+                // to handle button addition when/if desktop entry comes available
+                removeLauncherButton(placeholderMap.value(desktopEntryFilename)->desktopEntry());
+            }
+        }
+    } else {
+        // Check that button is not stored in some other location before adding placeholder and setting state
+        Launcher::Placement buttonPlacementInDatastore = entryPlacementInDatastore(desktopEntryPath);
+        if (buttonPlacementInDatastore.location.isEmpty() || buttonPlacementInDatastore.location == Launcher::LOCATION_IDENTIFIER) {
+            addPlaceholderButton(desktopEntryPath);
+            placeholderMap.value(desktopEntryFilename)->setState(state, progress);
+        }
     }
-
-    placeholderMap.value(desktopEntryFilename)->setState(state, progress);
 }
 
-bool Launcher::entryExistsInDatastore(const QString &desktopEntryPath)
+Launcher::Placement Launcher::entryPlacementInDatastore(const QString &desktopEntryPath)
 {
-    bool exists = false;
+    Launcher::Placement placement;
     QString entryFileName = QFileInfo(desktopEntryPath).fileName();
     QHash<QString, QVariant> allDesktopEntryPlacements = dataStore->dataForAllDesktopEntries();
     foreach (const QString &desktopEntryPath, allDesktopEntryPlacements.keys()) {
         if (QFileInfo(desktopEntryPath).fileName() == entryFileName) {
-            exists = true;
+            placement.setPlacement(allDesktopEntryPlacements.value(desktopEntryPath).toString());
         }
     }
-    return exists;
+    return placement;
 }
 
 void Launcher::addPlaceholderButton(const QString& desktopEntryPath)
@@ -124,14 +138,14 @@ void Launcher::addPlaceholderButton(const QString& desktopEntryPath)
 void Launcher::removePlaceholderButton(const QString &desktopEntryPath)
 {
     /*
-     * If button is not in the launcher datastore, meaning it's not installed,
-     * then it is a placeholder button that is removed.
-     * placeholderMap entry for button is always removed.
+     * If button is NOT in the launcher datastore, meaning it's not installed,
+     * then it is a placeholder button that can be removed. If button is in the launcher datastore
+     * we can't remove it here from launcher or placeholder, but launcher datastore handles button removal.
      */
-    if (!entryExistsInDatastore(desktopEntryPath)) {
+    if (entryPlacementInDatastore(desktopEntryPath).isNull()) {
         removeLauncherButton(desktopEntryPath);
+        placeholderMap.remove(QFileInfo(desktopEntryPath).fileName());
     }
-    placeholderMap.remove(QFileInfo(desktopEntryPath).fileName());
 }
 
 void Launcher::updatePagesFromDataStore()
@@ -386,11 +400,16 @@ void Launcher::updateButtonPlacementInStore(const QString &desktopEntryPath)
 Launcher::Placement::Placement() : page(-1), position(-1) {
 }
 
-Launcher::Placement::Placement(const QString &placement) : page(-1), position(-1) {
-    location = placement.section(SECTION_SEPARATOR, 0, 0);
+Launcher::Placement::Placement(const QString &placementString) : page(-1), position(-1) {
+    setPlacement(placementString);
+}
+
+void Launcher::Placement::setPlacement(const QString &placementString)
+{
+    location = placementString.section(SECTION_SEPARATOR, 0, 0);
     if (location == LOCATION_IDENTIFIER) {
-        page = placement.section(SECTION_SEPARATOR, 1, 1).toInt();
-        position = placement.section(SECTION_SEPARATOR, 2, 2).toInt();
+        page = placementString.section(SECTION_SEPARATOR, 1, 1).toInt();
+        position = placementString.section(SECTION_SEPARATOR, 2, 2).toInt();
     }
 }
 

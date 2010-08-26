@@ -340,7 +340,6 @@ void Ut_Launcher::testPackageMonitorListenerSignalConnections()
 
 void Ut_Launcher::testUpdateButtonState()
 {
-    gLauncherButtonStub->stubReset();
     const QString desktopEntry = "test.desktop";
     int progress = 50;
 
@@ -352,22 +351,34 @@ void Ut_Launcher::testUpdateButtonState()
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<LauncherButtonModel::State>(0), LauncherButtonModel::Downloading);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<int>(1), progress);
 
-    //Add button to datastore
-    QHash<QString, QVariant> dataForAllDesktopEntries;
-    dataForAllDesktopEntries.insert(QString(APPLICATIONS_DIRECTORY) + QString(desktopEntry), QVariant("launcher/0/0"));
-    gLauncherDataStoreStub->stubSetReturnValue("dataForAllDesktopEntries", dataForAllDesktopEntries);
-    //Shouldn't get added to map since it exists in datastore
-    launcher->updateButtonState(desktopEntry, LauncherButtonModel::Downloading, progress);
+    //Update button's state and progress
+    launcher->updateButtonState(desktopEntry, LauncherButtonModel::Installing, 0);
     QCOMPARE(launcher->placeholderMap.count(), 1);
     QCOMPARE(gLauncherButtonStub->stubCallCount("setState"), 2);
-
-    //Update button's state and progress
-    progress = 10;
-    launcher->updateButtonState(desktopEntry, LauncherButtonModel::Installing, progress);
-    QCOMPARE(launcher->placeholderMap.count(), 1);
-    QCOMPARE(gLauncherButtonStub->stubCallCount("setState"), 3);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<LauncherButtonModel::State>(0), LauncherButtonModel::Installing);
-    QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<int>(1), progress);
+}
+
+void Ut_Launcher::testUpdateButtonStateForButtonInLauncher()
+{
+    addButtonsToLauncher(1);
+
+    const QString desktopEntry = "testApp0.desktop";
+    launcher->updateButtonState(desktopEntry, LauncherButtonModel::Installing, 0);
+    QCOMPARE(launcher->placeholderMap.count(), 1);
+    QCOMPARE(gLauncherButtonStub->stubCallCount("setState"), 1);
+    QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<LauncherButtonModel::State>(0), LauncherButtonModel::Installing);
+}
+
+void Ut_Launcher::testUpdateButtonStateForButtonThatHasOtherLocationInDatastore()
+{
+    //Add button to datastore
+    QString desktopEntry = "test.desktop";
+    QHash<QString, QVariant> dataForAllDesktopEntries;
+    dataForAllDesktopEntries.insert(QString(APPLICATIONS_DIRECTORY) + QString(desktopEntry), QVariant("quicklaunchbar/0/0"));
+    gLauncherDataStoreStub->stubSetReturnValue("dataForAllDesktopEntries", dataForAllDesktopEntries);
+    //Shouldn't get added to map since it exists in datastore
+    launcher->updateButtonState(desktopEntry, LauncherButtonModel::Installing, 0);
+    QCOMPARE(gLauncherButtonStub->stubCallCount("setState"), 0);
 }
 
 void Ut_Launcher::testAddPlaceholderButtonToLauncher()
@@ -386,13 +397,18 @@ void Ut_Launcher::testAddPlaceholderButtonToLauncher()
     QCOMPARE(launcher->model()->launcherPages().at(0)->model()->launcherButtons().count(), 2);
 }
 
-void Ut_Launcher::testEntryExistsInDatastore()
+void Ut_Launcher::testEntryPlamenentInDatastoreMethod()
 {
-    QVERIFY(!launcher->entryExistsInDatastore("validPlacement"));
     QHash<QString, QVariant> dataForAllDesktopEntries;
-    dataForAllDesktopEntries.insert("validPlacement", QVariant("launcher/1/1"));
+    QString location = "launcher";
+    int page = 1;
+    int position = 1;
+    dataForAllDesktopEntries.insert("validPlacement", QVariant(QString("%1/%2/%3").arg(location).arg(page).arg(position)));
     gLauncherDataStoreStub->stubSetReturnValue("dataForAllDesktopEntries", dataForAllDesktopEntries);
-    QVERIFY(launcher->entryExistsInDatastore("validPlacement"));
+    Launcher::Placement placement = launcher->entryPlacementInDatastore("validPlacement");
+    QCOMPARE(placement.location, location);
+    QCOMPARE(placement.page, page);
+    QCOMPARE(placement.position, position);
 }
 
 void Ut_Launcher::testSetMaximumPageSize()
@@ -506,7 +522,7 @@ void Ut_Launcher::testThatLauncherButtonIsNotRemovedWhenApplicationIsInstalledAn
 
     launcher->removePlaceholderButton(entry);
 
-    QCOMPARE(launcher->placeholderMap.count(), 0);
+    QCOMPARE(launcher->placeholderMap.count(), 1);
     QCOMPARE(launcher->model()->launcherPages().count(), 1);
     QCOMPARE(launcher->model()->launcherPages().at(0)->model()->launcherButtons().count(), BUTTONS_PER_PAGE);
 }
@@ -525,6 +541,19 @@ void Ut_Launcher::testRemovingNonExistentPlaceholderButton()
     QCOMPARE(launcher->model()->launcherPages().at(0)->model()->launcherButtons().count(), BUTTONS_PER_PAGE);
     QCOMPARE(launcher->placeholderMap.count(), 1);
 
+}
+
+void Ut_Launcher::testOperationSuccessForButtonWithoutDesktopEntry()
+{
+    // Add placeholder launcher button
+    QString installExtraEntry = "/dev/null/applications/install-extra/test.desktop";
+    QString applicationsEntry = "/dev/null/applications/test.desktop";
+    launcher->addPlaceholderButton(installExtraEntry);
+
+    launcher->updateButtonState(applicationsEntry, LauncherButtonModel::Installed, 0);
+
+    // Verify that button (and page) was removed
+    QCOMPARE(launcher->model()->launcherPages().count(), 0);
 }
 
 QTEST_MAIN(Ut_Launcher)

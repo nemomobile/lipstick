@@ -91,10 +91,14 @@ private slots:
     void testPackageMonitorListenerSignalConnections();
     // Test updating button state
     void testUpdateButtonState();
+    // Test updating button state for a button just in launcher (not a placeholder)
+    void testUpdateButtonStateForButtonInLauncher();
+    // Test trying to update button state for a button that is in other location (eg. quicklaunchbar)
+    void testUpdateButtonStateForButtonThatHasOtherLocationInDatastore();
     // Test adding palceholder button to launcher
     void testAddPlaceholderButtonToLauncher();
-    // Test checking if desktop entry exists in datastore
-    void testEntryExistsInDatastore();
+    // Test getting entrys placement in datastore
+    void testEntryPlamenentInDatastoreMethod();
     // Test setting the maximum page size
     void testSetMaximumPageSize();
     // Test handling of operation error when button is already found in launcher
@@ -112,5 +116,7 @@ private slots:
     // Test that removePlaceholderButton functions correctly when non-existent button is tried
     // to be removed.
     void testRemovingNonExistentPlaceholderButton();
+    // Test that when we get an operation error for a button that doesn't yet have a desktop entry, we remove the button
+    void testOperationSuccessForButtonWithoutDesktopEntry();
 };
 #endif //_UT_LAUNCHER_
