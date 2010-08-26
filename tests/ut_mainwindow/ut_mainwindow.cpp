@@ -67,5 +67,9 @@ void Ut_MainWindow::cleanupTestCase()
     delete app;
 }
 
+void Ut_MainWindow::testWhenKeyPressedCallUILaunched()
+{
+
+}
 
 QTEST_APPLESS_MAIN(Ut_MainWindow)

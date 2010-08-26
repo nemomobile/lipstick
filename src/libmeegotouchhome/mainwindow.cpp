@@ -117,3 +117,9 @@ void MainWindow::changeNetWmState(bool set, Atom one, Atom two)
     X11Wrapper::XSendEvent(display, RootWindow(display, x11Info().screen()), FALSE, (SubstructureNotifyMask | SubstructureRedirectMask), &e);
     X11Wrapper::XSync(display, FALSE);
 }
+
+void MainWindow::keyPressEvent(QKeyEvent *event)
+{
+    Q_UNUSED(event)
+    return;
+}

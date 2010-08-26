@@ -57,6 +57,10 @@ public:
      */
     static QGLContext *glContext();
 
+    //! \reimp
+    virtual void keyPressEvent(QKeyEvent *event);
+    //! \reimp_end
+
 private:
     //! The MainWindow instance
     static MainWindow *mainWindowInstance;

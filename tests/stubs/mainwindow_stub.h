@@ -33,6 +33,7 @@ public:
     virtual void MainWindowConstructor(QWidget *parent);
     virtual void excludeFromTaskBar();
     virtual void changeNetWmState(bool set, Atom one, Atom two);
+    virtual void keyPressEvent(QKeyEvent *event);
 };
 
 // 2. IMPLEMENT STUB
@@ -73,7 +74,12 @@ void MainWindowStub::changeNetWmState(bool set, Atom one, Atom two)
     stubMethodEntered("changeNetWmState", params);
 }
 
-
+void MainWindowStub::keyPressEvent(QKeyEvent *event)
+{
+    QList<ParameterBase *> params;
+    params.append(new Parameter<QKeyEvent*>(event));
+    stubMethodEntered("keyPressEvent", params);
+}
 
 // 3. CREATE A STUB INSTANCE
 MainWindowStub gDefaultMainWindowStub;
@@ -117,5 +123,9 @@ void MainWindow::changeNetWmState(bool set, Atom one, Atom two)
     gMainWindowStub->changeNetWmState(set, one, two);
 }
 
+void MainWindow::keyPressEvent(QKeyEvent *event)
+{
+    gMainWindowStub->keyPressEvent(event);
+}
 
 #endif

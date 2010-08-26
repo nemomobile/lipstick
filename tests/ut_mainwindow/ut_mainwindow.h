@@ -33,6 +33,7 @@ class Ut_MainWindow : public QObject
 private slots:
     void initTestCase();
     void cleanupTestCase();
+    void testWhenKeyPressedCallUILaunched();
 
 private:
     // The object being tested
