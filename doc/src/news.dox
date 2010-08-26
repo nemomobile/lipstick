@@ -3,7 +3,7 @@
 \section v02117 0.21.17
 
 \subsection bugs Bugs fixed
-- Closing window thumbnail in Switcher doesn't move the Switcher to the last page any more
+- Closing a window thumbnail in Switcher took the user to the last page
 
 \section v02116 0.21.16
 
