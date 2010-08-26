@@ -142,6 +142,15 @@ MButtonIconStyle#CloseButtonOverviewMedium
     preferred-size: $SIZE_ICON_XSMALL $SIZE_ICON_XSMALL;
     maximum-size:   $SIZE_ICON_XSMALL $SIZE_ICON_XSMALL;
     icon-size:      $SIZE_ICON_XSMALL $SIZE_ICON_XSMALL;
+    margin-right: 0.25mm;
+}
+
+MButtonIconStyle#CloseButtonOverviewMedium.Landscape
+{
+   minimum-size:   1.4mm 1.4mm;
+   preferred-size: 1.4mm 1.4mm;
+   maximum-size:   1.4mm 1.4mm;
+   icon-size:      1.4mm 1.4mm;
 }
 
 MButtonIconStyle#CloseButtonOverviewLarge
@@ -150,6 +159,7 @@ MButtonIconStyle#CloseButtonOverviewLarge
     preferred-size: $SIZE_ICON_SMALL $SIZE_ICON_SMALL;
     maximum-size:   $SIZE_ICON_SMALL $SIZE_ICON_SMALL;
     icon-size:      $SIZE_ICON_SMALL $SIZE_ICON_SMALL;
+    margin-right: 0.25mm;
 }
 
 MButtonIconStyle#CloseButtonDetailview
@@ -174,9 +184,8 @@ MLabelStyle#SwitcherButtonTitleLabelDetailview {
     preferred-size: -1 4.255mm;
     minimum-size:   -1 4.255mm;
     maximum-size:   -1 4.255mm;
-
-    margin-left:  0.6mm;
-    margin-right: 0.6mm;
+    margin-right: 0.4mm;
+    margin-left:  0.4mm;
 }
 
 MLabelStyle#SwitcherButtonTitleLabelDetailview.Landscape {
@@ -190,7 +199,7 @@ MLabelStyle#SwitcherButtonTitleLabelOverviewMedium {
     minimum-size:   -1 2.3mm;
     maximum-size:   -1 2.3mm;
 
-    margin-left: 0.1mm;
+    margin-left: 0.25mm;
 }
 
 MLabelStyle#SwitcherButtonTitleLabelOverviewMedium.Landscape {
@@ -208,7 +217,7 @@ MLabelStyle#SwitcherButtonTitleLabelOverviewLarge {
     minimum-size:   -1 3.1mm;
     maximum-size:   -1 3.1mm;
 
-    margin-left: 0.1mm;
+    margin-left: 0.25mm;
 }
 
 MLabelStyle#SwitcherButtonTitleLabelOverviewLarge.Landscape {

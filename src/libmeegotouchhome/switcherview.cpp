@@ -222,9 +222,10 @@ void SwitcherView::updateButtonModesAndPageCount()
     int buttonCount = model()->buttons().count();
     if (buttonCount > 0) {
         if (model()->switcherMode() == SwitcherModel::Detailview) {
-            foreach (QSharedPointer<SwitcherButton> button, model()->buttons()) {
+            for (int i = 0; i < model()->buttons().count(); i++) {
+                QSharedPointer<SwitcherButton> button = model()->buttons().at(i);
                 button->setObjectName("DetailviewButton");
-                button->model()->setViewMode(SwitcherButtonModel::Medium);
+                button->model()->setViewMode(i == focusedSwitcherButton ? SwitcherButtonModel::Large : SwitcherButtonModel::Medium);
             }
 
             qreal buttonWidth = model()->buttons().first()->preferredSize().width();
