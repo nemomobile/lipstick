@@ -77,7 +77,13 @@ void QuickLaunchBarView::updateData(const QList<const char *>& modifications)
         if (member == QuickLaunchBarModel::Buttons) {
             // Remove everything from the launcher button layout
             while (launcherButtonLayout->count() > 0) {
+                QGraphicsObject* obj =
+                    launcherButtonLayout->itemAt(0)->graphicsItem()->toGraphicsObject();
                 launcherButtonLayout->removeAt(0);
+                // If this was a placeholder widget, delete it
+                if (obj && obj->property("placeholder").isValid()) {
+                    delete obj;
+                }
             }
 
             // Add launcher buttons to the layout and empty placeholder items into positions that have no buttons
@@ -91,6 +97,9 @@ void QuickLaunchBarView::updateData(const QList<const char *>& modifications)
                     MWidget *widget = new MWidget();
                     launcherButtonLayout->addItem(widget);
                     buttonIndex++;
+                    // Mark this as a placeholder quick launchbar button
+                    widget->setProperty("placeholder", QVariant(true));
+                    widget->setObjectName(QString("QuickLaunchBarButton"));
                 }
             }
         }
