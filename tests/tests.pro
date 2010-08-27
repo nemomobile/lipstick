@@ -30,6 +30,7 @@ SUBDIRS = \
     ut_windowinfo \
     ut_pagepositionindicatorview \
     ut_applicationpackagemonitor \
+    ut_applicationpackagemonitorlistener \
     ut_xeventlistener \
     ut_test \
     ut_launcherbuttonprogressindicatorview

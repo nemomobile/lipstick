@@ -30,13 +30,9 @@ class LauncherStub : public StubBase {
   virtual void LauncherConstructor(QGraphicsItem *parent);
   virtual void LauncherDestructor();
   virtual void setLauncherDataStore(LauncherDataStore *dataStore);
-  virtual void setApplicationPackageMonitor(ApplicationPackageMonitor *packageMonitor);
+  virtual void setApplicationPackageMonitorListener(ApplicationPackageMonitorListener *packageMonitorListener);
   virtual int panToPage(const QString &desktopFileEntry);
   virtual void setFirstPage();
-  virtual void setDownloadProgress(const QString &desktopEntryPath, int bytesLoaded, int bytesTotal);
-  virtual void setInstallProgress(const QString &desktopEntryPath, int percentage);
-  virtual void setOperationSuccess(const QString &desktopEntryPath);
-  virtual void setOperationError(const QString &desktopEntryPath, const QString &error);
   virtual void addLauncherButton(const QString &desktopEntryPath);
   virtual void removeLauncherButton(const QString &desktopEntryPath);
   virtual bool updateLauncherButton(const QString &desktopEntryPath);
@@ -70,11 +66,11 @@ void LauncherStub::setLauncherDataStore(LauncherDataStore *dataStore)
     stubMethodEntered("setLauncherDataStore", params);
 }
 
-void LauncherStub::setApplicationPackageMonitor(ApplicationPackageMonitor *packageMonitor)
+void LauncherStub::setApplicationPackageMonitorListener(ApplicationPackageMonitorListener *packageMonitorListener)
 {
     QList<ParameterBase*> params;
-    params.append( new Parameter<ApplicationPackageMonitor *>(packageMonitor));
-    stubMethodEntered("setApplicationPackageMonitor", params);
+    params.append( new Parameter<ApplicationPackageMonitorListener *>(packageMonitorListener));
+    stubMethodEntered("setApplicationPackageMonitorListener", params);
 }
 int LauncherStub::panToPage(const QString &desktopFileEntry) {
   QList<ParameterBase*> params;
@@ -85,34 +81,6 @@ int LauncherStub::panToPage(const QString &desktopFileEntry) {
 
 void LauncherStub::setFirstPage() {
   stubMethodEntered("setFirstPage");
-}
-
-void LauncherStub::setDownloadProgress(const QString &desktopEntryPath, int bytesLoaded, int bytesTotal) {
-  QList<ParameterBase*> params;
-  params.append( new Parameter<const QString & >(desktopEntryPath));
-  params.append( new Parameter<int >(bytesLoaded));
-  params.append( new Parameter<int >(bytesTotal));
-  stubMethodEntered("setDownloadProgress",params);
-}
-
-void LauncherStub::setInstallProgress(const QString &desktopEntryPath, int percentage) {
-  QList<ParameterBase*> params;
-  params.append( new Parameter<const QString & >(desktopEntryPath));
-  params.append( new Parameter<int >(percentage));
-  stubMethodEntered("setInstallProgress",params);
-}
-
-void LauncherStub::setOperationSuccess(const QString &desktopEntryPath) {
-  QList<ParameterBase*> params;
-  params.append( new Parameter<const QString & >(desktopEntryPath));
-  stubMethodEntered("setOperationSuccess",params);
-}
-
-void LauncherStub::setOperationError(const QString &desktopEntryPath, const QString &error) {
-  QList<ParameterBase*> params;
-  params.append( new Parameter<const QString & >(desktopEntryPath));
-  params.append( new Parameter<const QString & >(error));
-  stubMethodEntered("setOperationError",params);
 }
 
 void LauncherStub::addLauncherButton(const QString &desktopEntryPath) {
@@ -237,9 +205,9 @@ void Launcher::setLauncherDataStore(LauncherDataStore *dataStore)
   gLauncherStub->setLauncherDataStore(dataStore);
 }
 
-void Launcher::setApplicationPackageMonitor(ApplicationPackageMonitor *packageMonitor)
+void Launcher::setApplicationPackageMonitorListener(ApplicationPackageMonitorListener *packageMonitorListener)
 {
-  gLauncherStub->setApplicationPackageMonitor(packageMonitor);
+  gLauncherStub->setApplicationPackageMonitorListener(packageMonitorListener);
 }
 
 int Launcher::panToPage(const QString &desktopFileEntry) {
@@ -248,22 +216,6 @@ int Launcher::panToPage(const QString &desktopFileEntry) {
 
 void Launcher::setFirstPage() {
   gLauncherStub->setFirstPage();
-}
-
-void Launcher::setDownloadProgress(const QString &desktopEntryPath, int bytesLoaded, int bytesTotal) {
-  gLauncherStub->setDownloadProgress(desktopEntryPath, bytesLoaded, bytesTotal);
-}
-
-void Launcher::setInstallProgress(const QString &desktopEntryPath, int percentage) {
-  gLauncherStub->setInstallProgress(desktopEntryPath, percentage);
-}
-
-void Launcher::setOperationSuccess(const QString &desktopEntryPath) {
-  gLauncherStub->setOperationSuccess(desktopEntryPath);
-}
-
-void Launcher::setOperationError( const QString &desktopEntryPath, const QString &error) {
-  gLauncherStub->setOperationError(desktopEntryPath, error);
 }
 
 void Launcher::addLauncherButton(const QString &desktopEntryPath) {

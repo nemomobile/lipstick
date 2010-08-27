@@ -20,7 +20,7 @@
 #include "launcher.h"
 #include "launcherbutton.h"
 #include "launcherdatastore.h"
-#include "applicationpackagemonitor.h"
+#include "applicationpackagemonitorlistener.h"
 
 #include <MWidgetCreator>
 M_REGISTER_WIDGET(Launcher)
@@ -32,7 +32,7 @@ const QString Launcher::PLACEMENT_TEMPLATE = LOCATION_IDENTIFIER + SECTION_SEPAR
 Launcher::Launcher(QGraphicsItem *parent) :
     MWidgetController(new LauncherModel, parent),
     dataStore(NULL),
-    packageMonitor(NULL),
+    packageMonitorListener(NULL),
     maximumPageSize(-1)
 {
 }
@@ -50,19 +50,15 @@ void Launcher::setLauncherDataStore(LauncherDataStore *dataStore)
     connect(dataStore, SIGNAL(dataStoreChanged()), this, SLOT(updatePagesFromDataStore()));
 }
 
-void Launcher::setApplicationPackageMonitor(ApplicationPackageMonitor *packageMonitor)
+void Launcher::setApplicationPackageMonitorListener(ApplicationPackageMonitorListener *packageMonitorListener)
 {
-    this->packageMonitor = packageMonitor;
-    connect(packageMonitor, SIGNAL(downloadProgress(const QString &, int, int)),
-            this, SLOT(setDownloadProgress(const QString &, int, int)));
-    connect(packageMonitor, SIGNAL(installProgress(const QString &, int)),
-            this, SLOT(setInstallProgress(const QString &, int)));
-    connect(packageMonitor, SIGNAL(operationSuccess(const QString&)),
-            this, SLOT(setOperationSuccess(const QString&)));
-    connect(packageMonitor, SIGNAL(operationError(const QString&, const QString&)),
-            this, SLOT(setOperationError(const QString&, const QString&)));
-    connect(packageMonitor, SIGNAL(installExtraEntryRemoved(const QString&)),
-            this, SLOT(removePlaceholderButton(const QString&)));
+    this->packageMonitorListener = packageMonitorListener;
+
+    connect(packageMonitorListener, SIGNAL(packageStateChanged(QString, LauncherButtonModel::State, int)),
+        this, SLOT(updateButtonState(QString, LauncherButtonModel::State, int)));
+
+    connect(packageMonitorListener, SIGNAL(installExtraEntryRemoved(QString)),
+        this, SLOT(removePlaceholderButton(QString)));
 }
 
 void Launcher::setMaximumPageSize(int maximumPageSize)
@@ -76,43 +72,17 @@ void Launcher::setMaximumPageSize(int maximumPageSize)
     }
 }
 
-void Launcher::setDownloadProgress(const QString &desktopEntryPath, int bytesLoaded, int bytesTotal)
-{
-    int percentage = -1;
-    if (bytesTotal > 0 && bytesLoaded <= bytesTotal) {
-        percentage = ((double)bytesLoaded / (double)bytesTotal) * 100;
-    }
-    updateButtonState(desktopEntryPath, LauncherButtonModel::Downloading, percentage);
-}
-
-void Launcher::setInstallProgress(const QString &desktopEntryPath, int percentage)
-{
-    updateButtonState(desktopEntryPath, LauncherButtonModel::Installing, percentage);
-}
-
-void Launcher::setOperationSuccess(const QString& desktopEntryPath)
+void Launcher::updateButtonState(const QString &desktopEntryPath, LauncherButtonModel::State state, int progress)
 {
     QString desktopEntryFilename = QFileInfo(desktopEntryPath).fileName();
-    if (placeholderMap.contains(desktopEntryFilename)) {
+    if (state == LauncherButtonModel::Installed && placeholderMap.contains(desktopEntryFilename)) {
         placeholderMap.value(desktopEntryFilename)->updateFromDesktopEntry(desktopEntryPath);
         placeholderMap.value(desktopEntryFilename)->setState(LauncherButtonModel::Installed, 0);
         placeholderMap.remove(desktopEntryFilename);
 
         // Update placement in data store when application is fully installed
         updateButtonPlacementInStore(desktopEntryPath);
-    }
-}
-
-void Launcher::setOperationError(const QString& desktopEntryPath, const QString& error)
-{
-    Q_UNUSED(error)
-    updateButtonState(desktopEntryPath, LauncherButtonModel::Broken, 0);
-}
-
-void Launcher::updateButtonState(const QString &desktopEntryPath, LauncherButtonModel::State state, int progress)
-{
-    QString desktopEntryFilename = QFileInfo(desktopEntryPath).fileName();
-    if (!placeholderMap.contains(desktopEntryFilename) && !entryExistsInDatastore(desktopEntryPath)) {
+    } else if (!placeholderMap.contains(desktopEntryFilename) && !entryExistsInDatastore(desktopEntryPath)) {
         addPlaceholderButton(desktopEntryPath);
     }
 
@@ -182,7 +152,7 @@ void Launcher::updatePagesFromDataStore()
     model()->setLauncherPages(pages);
 
     // After initializing launcher we can update the states from package monitor
-    packageMonitor->updatePackageStates();
+    packageMonitorListener->updatePackageStates();
 }
 
 void Launcher::addDesktopEntriesWithKnownPlacements(QList<QSharedPointer<LauncherPage> > &pages)

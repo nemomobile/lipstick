@@ -25,7 +25,7 @@
 
 class LauncherDataStore;
 class LauncherButton;
-class ApplicationPackageMonitor;
+class ApplicationPackageMonitorListener;
 
 /*!
  * A widget for showing a quick launch bar.
@@ -66,12 +66,12 @@ public:
     void setLauncherDataStore(LauncherDataStore *dataStore);
 
     /*!
-     * Connects the QuickLaunchBar to an ApplicationPackageMonitor for monitoring
+     * Sets the ApplicationPackageMonitorListener for monitoring
      * installation and update progress of application packages.
      *
-     * \param packageMonitor an application package monitoring class to connect to
+     * \param packageMonitorListener Listens to signals from application package monitor
      */
-    void setApplicationPackageMonitor(ApplicationPackageMonitor *packageMonitor);
+    void setApplicationPackageMonitorListener(ApplicationPackageMonitorListener *packageMonitorListener);
 
 signals:
     /*!
@@ -81,36 +81,13 @@ signals:
 
 public slots:
     /*!
-     * Set button state to "downloading", and calculate and set it's progress
+     * Finds the correct button based on desktop entry path and updates it's state and operation progress
      *
-     * \param desktopEntryName Desktop entry of the application button represents
-     * \param bytesLoaded Amount of bytes loaded
-     * \param bytesTotal Total amount of bytes to download
+     * \param desktopEntryPath Desktop entry of the package that button represents
+     * \param state State button should be set to
+     * \param progress Progress of operation
      */
-    void setDownloadProgress(const QString& desktopEntryPath, int bytesLoaded, int bytesTotal);
-
-    /*!
-     * Set button state to "installing", and set it's progress
-     *
-     * \param desktopEntryName Desktop entry of the application button represents
-     * \param percentage Percentage of installation completed
-     */
-    void setInstallProgress(const QString& desktopEntryPath, int percentage);
-
-    /*!
-     * Set button state to "installed"
-     *
-     * \param desktopEntryName Desktop entry of the application button represents
-     */
-    void setOperationSuccess(const QString& desktopEntryPath);
-
-    /*!
-     * Set button state to "broken"
-     *
-     * \param desktopEntryName Desktop entry of the application button represents
-     * \param error Error message
-     */
-    void setOperationError(const QString& desktopEntryPath, const QString& error);
+    void updateButtonState(const QString &desktopEntryPath, LauncherButtonModel::State state, int progress);
 
 private slots:
     /*!
@@ -137,15 +114,6 @@ private:
      */
     QMap<QuickLaunchBar::Placement, QString> createPlacementMap(const QHash<QString, QVariant> &desktopEntryPlacements);
 
-    /*!
-     * Finds the correct button based on desktop entry path and updates it's state and operation progress
-     *
-     * \param desktopEntryPath Desktop entry of the package that button represents
-     * \param state State button should be set to
-     * \param progress Progress of operation
-     */
-    void updateButtonState(const QString &desktopEntryPath, LauncherButtonModel::State state, int progress);
-
     //! The number of launcher buttons in the quick launch bar
     static const int NUMBER_OF_LAUNCHER_BUTTONS;
 
@@ -158,8 +126,8 @@ private:
     //! The data store for quick launch bar configuration
     LauncherDataStore *dataStore;
 
-    //! PackageMonitor from which QuickLaunchBar receives signals
-    ApplicationPackageMonitor *packageMonitor;
+    //! PackageMonitorListener which listens to signals from application package monitor
+    ApplicationPackageMonitorListener *packageMonitorListener;
 
 #ifdef UNIT_TEST
     friend class Ut_QuickLaunchBar;

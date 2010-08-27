@@ -28,6 +28,7 @@
 #include "launcheraction_stub.h"
 #include "launcherdatastore_stub.h"
 #include "applicationpackagemonitor_stub.h"
+#include "applicationpackagemonitorlistener_stub.h"
 #include "homeapplication_stub.h"
 #include "mainwindow_stub.h"
 #include "launcherview.h"
@@ -117,7 +118,7 @@ void Ut_LauncherView::init()
     launcherDataStore = new LauncherDataStore(new MockDataStore);
     controller = new Launcher;
     controller->setLauncherDataStore(launcherDataStore);
-    controller->setApplicationPackageMonitor(new ApplicationPackageMonitor);
+    controller->setApplicationPackageMonitorListener(new ApplicationPackageMonitorListener);
     view = new LauncherView(controller);
     controller->setView(view);
     showWindowCount = 0;

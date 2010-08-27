@@ -17,22 +17,20 @@
 **
 ****************************************************************************/
 
-#ifndef UT_QUICKLAUNCHBAR_H
-#define UT_QUICKLAUNCHBAR_H
+#ifndef UT_APPLICATIONPACKAGEMONITORLISTENER_H
+#define UT_APPLICATIONPACKAGEMONITORLISTENER_H
 
 #include <QObject>
+#include "launcherbuttonmodel.h"
 
-class QuickLaunchBar;
-class LauncherDataStore;
+Q_DECLARE_METATYPE(LauncherButtonModel::State);
+
+class MApplication;
 class ApplicationPackageMonitorListener;
 
-class Ut_QuickLaunchBar : public QObject
+class Ut_ApplicationPackageMonitorListener : public QObject
 {
     Q_OBJECT
-
-signals:
-    void updateButtons();
-    void launcherDataStoreChanged();
 
 private slots:
     // Called before the first testfunction is executed
@@ -45,19 +43,19 @@ private slots:
     void cleanup();
 
     // Test cases
-    void testLauncherDataStoreChanged();
-    void testSettingApplicationPackageMonitor();
-    void testUpdateButtonState();
+    void testSignalConnections();
+    void testSetDownloadProgress_data();
+    void testSetDownloadProgress();
+    void testSetInstallProgress();
+    void testSetOperationSuccess();
+    void testSetOperationError();
+    void testUpdatePackageStates();
 
 private:
-    // Helper function for adding a button
-    void addButton(const QString entryPath, int position);
+    // MApplication
+    MApplication *app;
     // The object being tested
-    QuickLaunchBar *m_subject;
-    // The datastore object used by the test subject
-    LauncherDataStore *launcherDataStore;
-    // Application package monitor used by test subject
-    ApplicationPackageMonitorListener *packageMonitorListener;
+    ApplicationPackageMonitorListener *m_subject;
 };
 
 #endif

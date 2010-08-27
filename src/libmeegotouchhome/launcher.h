@@ -27,7 +27,7 @@
 
 class MDesktopEntry;
 class LauncherDataStore;
-class ApplicationPackageMonitor;
+class ApplicationPackageMonitorListener;
 
 /*!
  * Widget for launching and browsing installed applications.
@@ -97,9 +97,9 @@ public:
      * Connects the Launcher to an ApplicationPackageMonitor for monitoring
      * installation and update progress of application packages.
      *
-     * \param packageMonitor an application package monitoring class to connect to
+     * \param packageMonitorListener Listens to signals from application package monitor
      */
-    void setApplicationPackageMonitor(ApplicationPackageMonitor *packageMonitor);
+    void setApplicationPackageMonitorListener(ApplicationPackageMonitorListener *packageMonitorListener);
 
     /*!
      * Sets the maximum size of the Launcher pages. Negative values are ignored.
@@ -148,36 +148,14 @@ public slots:
     void setFirstPage();
 
     /*!
-     * Set button state to "downloading", and calculate and set it's progress
+     * Updates the state and operation progress of a launcher button.
+     * Creates a new placeholder button if one doesn't exist for the given desktopentryfile.
      *
-     * \param desktopEntryName Desktop entry of the application button represents
-     * \param bytesLoaded Amount of bytes loaded
-     * \param bytesTotal Total amount of bytes to download
+     * \param desktopEntryPath Desktop entry of the package that button represents
+     * \param state State button should be set to
+     * \param progress Progress of operation
      */
-    void setDownloadProgress(const QString& desktopEntryPath, int bytesLoaded, int bytesTotal);
-
-    /*!
-     * Set button state to "installing", and set it's progress
-     *
-     * \param desktopEntryName Desktop entry of the application button represents
-     * \param percentage Percentage of installation completed
-     */
-    void setInstallProgress(const QString& desktopEntryPath, int percentage);
-
-    /*!
-     * Set button state to "installed"
-     *
-     * \param desktopEntryName Desktop entry of the application button represents
-     */
-    void setOperationSuccess(const QString& desktopEntryPath);
-
-    /*!
-     * Set button state to "broken"
-     *
-     * \param desktopEntryName Desktop entry of the application button represents
-     * \param error Error message
-     */
-    void setOperationError(const QString& desktopEntryPath, const QString& error);
+    void updateButtonState(const QString& desktopEntryPath, LauncherButtonModel::State state, int progress);
 
     /*!
      * Removes placeholder launcher button for an application if application is not installed.
@@ -299,16 +277,6 @@ private:
     QMap<Launcher::Placement, QString> createPlacementMap(const QHash<QString, QVariant> &desktopEntryPlacements);
 
     /*!
-     * Updates the state and operation progress of a launcher button.
-     * Creates a new placeholder button if one doesn't exist for the given desktopentryfile.
-     *
-     * \param desktopEntryPath Desktop entry of the package that button represents
-     * \param state State button should be set to
-     * \param progress Progress of operation
-     */
-    void updateButtonState(const QString& desktopEntryPath, LauncherButtonModel::State state, int progress);
-
-    /*!
      * Adds a placeholder button to launcher
      * \param desktopEntryPath Path to the desktop entry
      */
@@ -345,8 +313,8 @@ private:
     //! LauncherDataStore for storing launcher button positions and entries
     LauncherDataStore *dataStore;
 
-    //! PackageMonitor from which launcher receives signals
-    ApplicationPackageMonitor *packageMonitor;
+    //! PackageMonitorListener which listens to signals from application package monitor
+    ApplicationPackageMonitorListener *packageMonitorListener;
 
     //! The maximum page size of each LauncherPage
     int maximumPageSize;

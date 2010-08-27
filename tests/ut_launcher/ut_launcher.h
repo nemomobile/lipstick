@@ -25,7 +25,7 @@
 
 class Launcher;
 class LauncherDataStore;
-class ApplicationPackageMonitor;
+class ApplicationPackageMonitorListener;
 class MApplication;
 class MWidget;
 
@@ -36,7 +36,7 @@ class Ut_Launcher : public QObject
 private:
     Launcher *launcher;
     LauncherDataStore *launcherDataStore;
-    ApplicationPackageMonitor *packageMonitor;
+    ApplicationPackageMonitorListener *packageMonitorListener;
     MApplication *app;
 
     void writeDesktopFile(QString fileName, QString type, QString name, QString iconName, QString exec);
@@ -88,23 +88,13 @@ private slots:
     // Test setting launcher to show first page
     void testSettingLauncherToFirstPage();
     // Test signal connections
-    void testPackageMonitorSignalConnections();
+    void testPackageMonitorListenerSignalConnections();
     // Test updating button state
     void testUpdateButtonState();
     // Test adding palceholder button to launcher
     void testAddPlaceholderButtonToLauncher();
     // Test checking if desktop entry exists in datastore
     void testEntryExistsInDatastore();
-    // Test handling of downloadProgress signal
-    void testSetDownloadProgress();
-    // Test handling of downloadProgress signal with invalid values
-    void testSetDownloadProgressWithInvalidValues();
-    // Test handling of installProgress signal
-    void testSetInstallProgress();
-    // Test handling of operationSuccess signal
-    void testSetOperationSuccess();
-    // Test handling of operationError signal
-    void testSetOperationError();
     // Test setting the maximum page size
     void testSetMaximumPageSize();
     // Test handling of operation error when button is already found in launcher

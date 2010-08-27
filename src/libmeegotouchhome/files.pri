@@ -53,6 +53,7 @@ HEADERS += homeapplication.h \
     homewindowmonitor.h \
     windowmonitor.h \
     applicationpackagemonitor.h \
+    applicationpackagemonitorlistener.h \
     xeventlistener.h \
     launcherbuttonprogressindicatorview.h \
     launcherbuttonprogressindicatorstyle.h \
@@ -91,6 +92,7 @@ SOURCES += homeapplication.cpp \
     homescreenadaptor.cpp \
     homewindowmonitor.cpp \
     applicationpackagemonitor.cpp \
+    applicationpackagemonitorlistener.cpp \
     xeventlistener.cpp \
     launcherbuttonprogressindicatorview.cpp \
     launcherbuttonprogressindicator.cpp
