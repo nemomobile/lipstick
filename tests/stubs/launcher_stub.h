@@ -52,7 +52,8 @@ class LauncherStub : public StubBase {
   virtual void updateButtonState(const QString &desktopEntryPath, LauncherButtonModel::State state, int progress);
   virtual void addPlaceholderButton(const QString &desktopEntryPath);
   virtual void updateButtonPlacementInStore(const QString &desktopEntryPath);
-}; 
+  virtual void removePlaceholderButton(const QString &desktopEntryPath);
+};
 
 // 2. IMPLEMENT STUB
 void LauncherStub::LauncherConstructor(QGraphicsItem *parent) {
@@ -210,6 +211,12 @@ void LauncherStub::updateButtonPlacementInStore(const QString &desktopEntryPath)
   stubMethodEntered("updateButtonPlacementInStore",params);
 }
 
+void LauncherStub::removePlaceholderButton(const QString &desktopEntryPath) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<const QString & >(desktopEntryPath));
+  stubMethodEntered("removePlaceholderButton",params);
+}
+
 
 // 3. CREATE A STUB INSTANCE
 LauncherStub gDefaultLauncherStub;
@@ -319,11 +326,16 @@ void Launcher::updateButtonPlacementInStore(const QString &desktopEntryPath) {
   gLauncherStub->updateButtonPlacementInStore(desktopEntryPath);
 }
 
+void Launcher::removePlaceholderButton(const QString &desktopEntryPath) {
+  gLauncherStub->removePlaceholderButton(desktopEntryPath);
+}
+
 Launcher::Placement::Placement() {
 }
 
 Launcher::Placement::Placement(const QString &placement) {
     Q_UNUSED(placement);
 }
+
 
 #endif

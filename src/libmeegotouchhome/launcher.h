@@ -179,6 +179,14 @@ public slots:
      */
     void setOperationError(const QString& desktopEntryPath, const QString& error);
 
+    /*!
+     * Removes placeholder launcher button for an application if application is not installed.
+     * Removes placeholder's installer extra entry to launcher button mapping.
+     *
+     * \param desktopEntryPath of an application
+     */
+    void removePlaceholderButton(const QString &desktopEntryPath);
+
 private slots:
 
     /*!

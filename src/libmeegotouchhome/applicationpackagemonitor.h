@@ -84,6 +84,13 @@ signals:
      */
     void operationError(const QString &packageExtraPath, const QString& error);
 
+    /*!
+     * Notifes about removal of install extra desktop entry.
+     *
+     * \param desktopEntryPath path of removed install extra file.
+     */
+    void installExtraEntryRemoved(const QString &desktopEntryPath);
+
 private slots:
     /*!
      * Slot to handle PackageManagers download_progress signal.
@@ -106,6 +113,12 @@ private slots:
      * Update the cached package information from the given desktop file.
      */
     void updatePackageState(const QString &desktopEntryPath);
+
+    /*!
+     * Slot is called when entry from dataStore is removed.
+     * Removes activePackages entry if package has one.
+     */
+    void packageRemoved(const QString &desktopEntryPath);
 
 private:
 

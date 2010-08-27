@@ -53,6 +53,24 @@ void Ut_Launcher::addButtonsToLauncher(int amount)
     }
 }
 
+void Ut_Launcher::addButtonsToLauncherAndSetDataForAllDesktopEntries(int amount)
+{
+    QHash<QString, QVariant> dataForAllDesktopEntries;
+    int page = 0;
+    int pos = 0;
+    for (int i = 0; i < amount; i++) {
+        if (pos >= BUTTONS_PER_PAGE) {
+            page++;
+            pos = i - (page * BUTTONS_PER_PAGE);
+        }
+        QString testApp = QString("testApp%1%2.desktop").arg(page).arg(pos);
+        launcher->addLauncherButton(testApp);
+        dataForAllDesktopEntries.insert(QString(APPLICATIONS_DIRECTORY) + testApp, QVariant(QString("launcher/%1/%2").arg(page).arg(pos)));
+        pos++;
+    }
+    gLauncherDataStoreStub->stubSetReturnValue("dataForAllDesktopEntries", dataForAllDesktopEntries);
+}
+
 // Tests
 void Ut_Launcher::initTestCase()
 {
@@ -494,6 +512,93 @@ void Ut_Launcher::testSetOperationErrorWhenButtonHasPlaceholder()
 
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<LauncherButtonModel::State>(0), LauncherButtonModel::Broken);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<int>(1), 0);
+}
+
+void Ut_Launcher::testRemovingPlaceholderMapEntryWhenButtonIsRemoved()
+{
+    QString installExtraEntry = "install-extra/testRemoveInstallExtra.desktop";
+    QString applicationsEntry = "applications/testRemoveInstallExtra.desktop";
+
+    addButtonsToLauncher(BUTTONS_PER_PAGE-1);
+    launcher->addPlaceholderButton(installExtraEntry);
+    launcher->addLauncherButton(applicationsEntry);
+
+    QCOMPARE(launcher->placeholderMap.count(), 1);
+    QCOMPARE(launcher->model()->launcherPages().at(0)->model()->launcherButtons().count(), BUTTONS_PER_PAGE);
+
+    gLauncherButtonStub->stubSetReturnValue("desktopEntry", applicationsEntry);
+    launcher->removeLauncherButton(applicationsEntry);
+
+    QCOMPARE(launcher->placeholderMap.count(), 0);
+    QCOMPARE(launcher->model()->launcherPages().at(0)->model()->launcherButtons().count(), BUTTONS_PER_PAGE-1);
+}
+
+void Ut_Launcher::testRemovingLauncherButtonPlaceholderWhenInstallExtraEntryIsRemoved()
+{
+    QString entry = "testRemoveInstallExtra.desktop";
+    addButtonsToLauncher(BUTTONS_PER_PAGE-1);
+
+    QCOMPARE(launcher->placeholderMap.count(), 0);
+
+    gLauncherButtonStub->stubSetReturnValue("desktopEntry", QString(""));
+
+    launcher->addPlaceholderButton(entry);
+    QCOMPARE(launcher->placeholderMap.count(), 1);
+    QCOMPARE(launcher->model()->launcherPages().at(0)->model()->launcherButtons().count(), BUTTONS_PER_PAGE);
+
+    gLauncherButtonStub->stubSetReturnValue("desktopEntry", entry);
+    launcher->removePlaceholderButton(entry);
+
+    QCOMPARE(launcher->placeholderMap.count(), 0);
+    QCOMPARE(launcher->model()->launcherPages().count(), 1);
+    QCOMPARE(launcher->model()->launcherPages().at(0)->model()->launcherButtons().count(), BUTTONS_PER_PAGE-1);
+}
+
+void Ut_Launcher::testThatLauncherButtonIsNotRemovedWhenApplicationIsInstalledAndWhenInstallExtraEntryIsRemoved()
+{
+    QString entry = QString(APPLICATIONS_DIRECTORY)+"testRemoveInstallExtra.desktop";
+    addButtonsToLauncherAndSetDataForAllDesktopEntries(BUTTONS_PER_PAGE-1);
+
+    QHash<QString, QVariant> dataStore = launcher->dataStore->dataForAllDesktopEntries();
+    dataStore.insert(entry, QVariant("launcher/0/11"));
+    gLauncherDataStoreStub->stubSetReturnValue("dataForAllDesktopEntries", dataStore);
+
+    // Application is installed and has a launcher button.
+    launcher->addLauncherButton(entry);
+
+    QCOMPARE(launcher->model()->launcherPages().at(0)->model()->launcherButtons().count(), BUTTONS_PER_PAGE);
+    QCOMPARE(launcher->placeholderMap.count(), 0);
+
+    // launcher button is already in launcher
+    // this sets LauncherPage::launcherButtonPosition to find button
+    gLauncherButtonStub->stubSetReturnValue("desktopEntry", entry);
+
+    // Add placeholder launcher button for already installed application
+    launcher->addPlaceholderButton(entry);
+    QCOMPARE(launcher->placeholderMap.count(), 1);
+    QCOMPARE(launcher->model()->launcherPages().at(0)->model()->launcherButtons().count(), BUTTONS_PER_PAGE);
+
+    launcher->removePlaceholderButton(entry);
+
+    QCOMPARE(launcher->placeholderMap.count(), 0);
+    QCOMPARE(launcher->model()->launcherPages().count(), 1);
+    QCOMPARE(launcher->model()->launcherPages().at(0)->model()->launcherButtons().count(), BUTTONS_PER_PAGE);
+}
+
+void Ut_Launcher::testRemovingNonExistentPlaceholderButton()
+{
+    addButtonsToLauncherAndSetDataForAllDesktopEntries(BUTTONS_PER_PAGE-1);
+    launcher->addPlaceholderButton("test.desktop");
+
+    QCOMPARE(launcher->model()->launcherPages().at(0)->model()->launcherButtons().count(), BUTTONS_PER_PAGE);
+    QCOMPARE(launcher->placeholderMap.count(), 1);
+
+    gLauncherButtonStub->stubSetReturnValue("desktopEntry", QString("test.desktop"));
+    launcher->removePlaceholderButton("nonExistent.desktop");
+
+    QCOMPARE(launcher->model()->launcherPages().at(0)->model()->launcherButtons().count(), BUTTONS_PER_PAGE);
+    QCOMPARE(launcher->placeholderMap.count(), 1);
+
 }
 
 QTEST_MAIN(Ut_Launcher)

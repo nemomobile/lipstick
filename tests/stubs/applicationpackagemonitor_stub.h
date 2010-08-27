@@ -23,8 +23,9 @@ class ApplicationPackageMonitorStub : public StubBase {
   virtual void packageOperationComplete(const QString &operation, const QString &packageName, const QString &packageVersion, const QString &error, bool need_reboot);
   virtual void updatePackageState(const QString &desktopEntryPath);
   virtual QString desktopEntryName(const QString &packageName);
+  virtual void packageRemoved(const QString &desktopEntryPath);
   void updatePackageStates();
-}; 
+};
 
 // 2. IMPLEMENT STUB
 void ApplicationPackageMonitorStub::ApplicationPackageMonitorConstructor() {
@@ -84,6 +85,12 @@ QString ApplicationPackageMonitorStub::desktopEntryName(const QString &packageNa
   return stubReturnValue<QString>("desktopEntryName");
 }
 
+void ApplicationPackageMonitorStub::packageRemoved(const QString &desktopEntryPath) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<const QString & >(desktopEntryPath));
+  stubMethodEntered("packageRemoved",params);
+}
+
 void ApplicationPackageMonitorStub::updatePackageStates() {
   stubMethodEntered("updatePackageStates");
 }
@@ -125,7 +132,12 @@ QString ApplicationPackageMonitor::desktopEntryName(const QString &packageName) 
   return gApplicationPackageMonitorStub->desktopEntryName(packageName);
 }
 
+void ApplicationPackageMonitor::packageRemoved(const QString &desktopEntryPath) {
+    gApplicationPackageMonitorStub->packageRemoved(desktopEntryPath);
+}
+
 void ApplicationPackageMonitor::updatePackageStates(){
     gApplicationPackageMonitorStub->updatePackageStates();
 }
+
 #endif

@@ -61,6 +61,8 @@ void Launcher::setApplicationPackageMonitor(ApplicationPackageMonitor *packageMo
             this, SLOT(setOperationSuccess(const QString&)));
     connect(packageMonitor, SIGNAL(operationError(const QString&, const QString&)),
             this, SLOT(setOperationError(const QString&, const QString&)));
+    connect(packageMonitor, SIGNAL(installExtraEntryRemoved(const QString&)),
+            this, SLOT(removePlaceholderButton(const QString&)));
 }
 
 void Launcher::setMaximumPageSize(int maximumPageSize)
@@ -147,6 +149,19 @@ void Launcher::addPlaceholderButton(const QString& desktopEntryPath)
     }
 
     placeholderMap.insert(QFileInfo(desktopEntryPath).fileName(), button);
+}
+
+void Launcher::removePlaceholderButton(const QString &desktopEntryPath)
+{
+    /*
+     * If button is not in the launcher datastore, meaning it's not installed,
+     * then it is a placeholder button that is removed.
+     * placeholderMap entry for button is always removed.
+     */
+    if (!entryExistsInDatastore(desktopEntryPath)) {
+        removeLauncherButton(desktopEntryPath);
+    }
+    placeholderMap.remove(QFileInfo(desktopEntryPath).fileName());
 }
 
 void Launcher::updatePagesFromDataStore()
@@ -298,6 +313,8 @@ void Launcher::removeLauncherButton(const QString &desktopEntryPath)
     int pageIndex = 0;
     foreach (QSharedPointer<LauncherPage> page, pages) {
         if (page->removeButton(desktopEntryPath)) {
+
+            placeholderMap.remove(QFileInfo(desktopEntryPath).fileName());
 
             QList<QSharedPointer<LauncherButton> > buttons = page->model()->launcherButtons();
             if (buttons.count() == 0) {

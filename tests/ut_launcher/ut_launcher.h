@@ -45,6 +45,8 @@ private:
     void comparePageNumberArgument(QSignalSpy &spy, int page);
     // adds buttons to launcher
     void addButtonsToLauncher(int amount);
+
+    void addButtonsToLauncherAndSetDataForAllDesktopEntries(int amount);
     // Create default set of desktop file entries for panToPage tests
     void createdDefaultSetOfDesktopEntries();
 
@@ -109,5 +111,16 @@ private slots:
     void testSetOperationErrorWhenButtonFoundFromLauncher();
     // Test handling of operation error when entry has a placeholder launcher
     void testSetOperationErrorWhenButtonHasPlaceholder();
+    // Test that placeholder map entry is removed for launcher button.
+    void testRemovingPlaceholderMapEntryWhenButtonIsRemoved();
+    // Test that when application's install extra file is removed, placeholder
+    // launcher button for that application is removed when application is not installed.
+    void testRemovingLauncherButtonPlaceholderWhenInstallExtraEntryIsRemoved();
+    // Test that when application's install extra file is removed, launcher button
+    // for that application is not removed when application is installed.
+    void testThatLauncherButtonIsNotRemovedWhenApplicationIsInstalledAndWhenInstallExtraEntryIsRemoved();
+    // Test that removePlaceholderButton functions correctly when non-existent button is tried
+    // to be removed.
+    void testRemovingNonExistentPlaceholderButton();
 };
 #endif //_UT_LAUNCHER_

@@ -60,6 +60,14 @@ private slots:
     void testErrorSignalsForNewBrokenDesktopEntry();
     // Test that monitor sents correct signals when existing desktop entry changes state to broken
     void testErrorSignalsForDesktopEntryChangingToBrokenState();
+    // Tests that correct signals are emitted for already installed application when it's upgraded.
+    void testUpgradingPackage();
+    // Test scenarios when downloading is cancelled and launcher button set to successfull state.
+    void testCancelDownloadingSuccessfully();
+    // Test scenarios when downloading is cancelled and launcher button set to broken state.
+    void testCancelDownloadingUnsuccessfully();
+    // Test that right signal is emitted when installer extra file is removed.
+    void testRemovingInstallerExtraFile();
 
 signals:
 
@@ -86,8 +94,14 @@ private:
     //Simulates slots called when uninstalling
     void uninstall(const QString&);
 
+    //Simulates upgrading package.
+    void upgradePackageSuccessfully(const QString&);
+
+    //Simulates cancelling operation.
+    void cancelOperation(const QString &name, const QString &operation, const QString &state);
+
     // Mimicks an installation of the extra desktop file for a package
-    void installPackageExtra(const QString &packageName, const QString &state = "installed");
+    void installPackageExtra(const QString &packageName, const QString &state = "installable");
 
     // Mimicks the change in the extra desktop file for a package when it is uninstalled
     void uninstallPackageExtra(QString packageName);

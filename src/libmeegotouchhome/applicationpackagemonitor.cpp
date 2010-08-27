@@ -43,6 +43,7 @@ static const QString CONFIG_PATH = "/.config/duihome";
 static const QString PACKAGE_STATE_INSTALLED = "installed";
 static const QString PACKAGE_STATE_INSTALLABLE = "installable";
 static const QString PACKAGE_STATE_BROKEN = "broken";
+static const QString PACKAGE_STATE_UPDATEABLE = "updateable";
 
 static const QString DESKTOP_ENTRY_KEY_PACKAGE_STATE = "PackageState";
 static const QString DESKTOP_ENTRY_KEY_PACKAGE_NAME = "Package";
@@ -85,10 +86,32 @@ ApplicationPackageMonitor::ApplicationPackageMonitor()
 
     connect(extraDirWatcher.data(), SIGNAL(desktopEntryAdded(QString)), this, SLOT(updatePackageState(QString)), Qt::UniqueConnection);
     connect(extraDirWatcher.data(), SIGNAL(desktopEntryChanged(QString)), this, SLOT(updatePackageState(QString)), Qt::UniqueConnection);
+    connect(extraDirWatcher.data(), SIGNAL(desktopEntryRemoved(QString)), this, SLOT(packageRemoved(QString)), Qt::UniqueConnection);
 }
 
 ApplicationPackageMonitor::~ApplicationPackageMonitor()
 {
+}
+
+
+void ApplicationPackageMonitor::packageRemoved(const QString &desktopEntryPath)
+{
+    QString packageKey;
+
+    foreach(const QString &pkgKey, dataStore->allKeys()) {
+        if(pkgKey.contains(PACKAGE_PREFIX)) {
+            if(dataStore->value(pkgKey).toString() == desktopEntryPath) {
+                packageKey = pkgKey;
+                break;
+            }
+        }
+    }
+
+    dataStore->remove(DESKTOPENTRY_PREFIX+desktopEntryPath);
+    dataStore->remove(packageKey);
+    activePackages.remove(packageKey.remove(PACKAGE_PREFIX));
+
+    emit installExtraEntryRemoved(desktopEntryPath);
 }
 
 void ApplicationPackageMonitor::updatePackageStates()
@@ -165,16 +188,29 @@ void ApplicationPackageMonitor::packageOperationComplete(const QString &operatio
 {
     Q_UNUSED(packageVersion)
     Q_UNUSED(need_reboot)
-    Q_UNUSED(operation)
 
     PackageProperties &properties = activePackageProperties(packageName);
 
-    if (isValidOperation(properties, operation)) {
-        if (!error.isEmpty()) {
+    if (!isValidOperation(properties, operation)) {
+        return;
+    }
+
+    if (!error.isEmpty()) {
+        if (properties.installing) {
             emit operationError(properties.desktopEntryName, error);
-        } else {
-            emit operationSuccess(properties.desktopEntryName.replace(INSTALLER_EXTRA, QString()));
         }
+        else {
+            // Downloading
+            QString packageState = dataStore->value(DESKTOPENTRY_PREFIX+properties.desktopEntryName).toString();
+            if (packageState == PACKAGE_STATE_INSTALLED || packageState == PACKAGE_STATE_UPDATEABLE) {
+                // Application is previously installed. Downloading update failed but application still usable.
+                emit operationSuccess(properties.desktopEntryName.replace(INSTALLER_EXTRA, QString()));
+            } else {
+                emit operationError(properties.desktopEntryName, error);
+            }
+        }
+    } else {
+        emit operationSuccess(properties.desktopEntryName.replace(INSTALLER_EXTRA, QString()));
     }
 
     activePackages.remove(packageName);
