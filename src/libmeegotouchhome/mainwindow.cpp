@@ -21,12 +21,16 @@
 #include "home.h"
 
 #include <QGLWidget>
+#include <QDBusInterface>
 #include <MApplication>
 #include <MSceneManager>
 #include "x11wrapper.h"
 
 MainWindow *MainWindow::mainWindowInstance = NULL;
 QGLContext *MainWindow::openGLContext = NULL;
+const QString MainWindow::CONTENT_SEARCH_DBUS_SERVICE = "com.nokia.maemo.meegotouch.ContentSearch";
+const QString MainWindow::CONTENT_SEARCH_DBUS_PATH = "/";
+const QString MainWindow::CONTENT_SEARCH_DBUS_INTERFACE = "com.nokia.maemo.meegotouch.ContentSearchInterface";
 
 MainWindow::MainWindow(QWidget *parent) :
     MWindow(parent)
@@ -120,6 +124,18 @@ void MainWindow::changeNetWmState(bool set, Atom one, Atom two)
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-    Q_UNUSED(event)
-    return;
+    if (isContentSearchLaunchingKey(event->key())) {
+        launchContentSearch(event->text());
+    }
+}
+
+bool MainWindow::isContentSearchLaunchingKey(int key)
+{
+    return key >= Qt::Key_A && key <= Qt::Key_Z;
+}
+
+void MainWindow::launchContentSearch(const QString &searchString)
+{
+    QDBusInterface interface(CONTENT_SEARCH_DBUS_SERVICE, CONTENT_SEARCH_DBUS_PATH, CONTENT_SEARCH_DBUS_INTERFACE, QDBusConnection::sessionBus());
+    interface.call(QDBus::NoBlock, "launch", searchString);
 }

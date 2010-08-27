@@ -62,6 +62,13 @@ public:
     //! \reimp_end
 
 private:
+    //! The DBus service of the content search application
+    static const QString CONTENT_SEARCH_DBUS_SERVICE;
+    //! The DBus path of the content search application
+    static const QString CONTENT_SEARCH_DBUS_PATH;
+    //! The DBus interface of the content search application
+    static const QString CONTENT_SEARCH_DBUS_INTERFACE;
+
     //! The MainWindow instance
     static MainWindow *mainWindowInstance;
 
@@ -92,6 +99,25 @@ private:
      * \param two the second Atom to put in the value
      */
     void changeNetWmState(bool set, Atom one, Atom two = 0);
+
+    /*!
+     * Returns whether the given key should launch the content search.
+     *
+     * \param key a key to check
+     * \return \c true if content search should be launched, \c false otherwise
+     */
+    static bool isContentSearchLaunchingKey(int key);
+
+    /*!
+     * Launches content search with the given search string.
+     *
+     * \param searchString the search string to send to content search
+     */
+    void launchContentSearch(const QString &searchString);
+
+#ifdef UNIT_TEST
+    friend class Ut_MainWindow;
+#endif
 };
 
 #endif // MAINWINDOW_H

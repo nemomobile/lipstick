@@ -33,13 +33,16 @@ class Ut_MainWindow : public QObject
 private slots:
     void initTestCase();
     void cleanupTestCase();
-    void testWhenKeyPressedCallUILaunched();
+    void testCallUILaunching();
+    void testContentSearchLaunchedWhenAToZPressed();
+    void testNothingLaunchedWhenSomethingElsePressed();
 
 private:
+    // Application for the test
+    MApplication *app;
+
     // The object being tested
     MainWindow *mainWindow;
-
-    MApplication *app;
 };
 
 #endif
