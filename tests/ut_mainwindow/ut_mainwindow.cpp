@@ -120,7 +120,8 @@ void Ut_MainWindow::cleanupTestCase()
 
 void Ut_MainWindow::init()
 {
-    mainWindow->markSearchStringSentAndSendRemainingSearchString();
+    mainWindow->searchStringBeingSent.clear();
+    mainWindow->searchStringToBeSent.clear();
     resetDBusStub();
 }
 
@@ -136,10 +137,41 @@ void addIntRangeToSet(QSet<int> &set, int from, int to)
     }
 }
 
-void removeIntRangeFromSet(QSet<int> &set, int from, int to)
+void Ut_MainWindow::testCallUILaunchedWhenCallRelatedKeyPressed()
 {
-    for (int i = from; i <= to; i++) {
-        set.remove(i);
+    // Add a relevant set of keys to the map
+    QSet<int> keys;
+    addIntRangeToSet(keys, Qt::Key_Space, Qt::Key_QuoteDbl);
+    addIntRangeToSet(keys, Qt::Key_Dollar, Qt::Key_ParenRight);
+    addIntRangeToSet(keys, Qt::Key_Comma, Qt::Key_Slash);
+    addIntRangeToSet(keys, Qt::Key_Colon, Qt::Key_At);
+    addIntRangeToSet(keys, Qt::Key_BracketLeft, Qt::Key_ydiaeresis);
+    addIntRangeToSet(keys, Qt::Key_Escape, Qt::Key_MediaLast);
+    addIntRangeToSet(keys, Qt::Key_Context1, Qt::Key_Flip);
+
+    foreach (int key, keys.values()) {
+        // Create a key event for the key. The test uses the string " " as the text produced for most keys.
+        QKeyEvent keyEvent(QEvent::KeyPress, key, Qt::NoModifier, key < Qt::Key_Context1 ? " " : "");
+        mainWindow->keyPressEvent(&keyEvent);
+
+        QString searchString = keyEvent.text();
+        if (!searchString.isEmpty() && (key < Qt::Key_Escape || key == Qt::Key_Return) && ((key >= Qt::Key_0 && key <= Qt::Key_9) || key == Qt::Key_Asterisk || key == Qt::Key_Plus || key == Qt::Key_NumberSign)) {
+            // The call UI should only be launched if the key is a call related one (0-9, +, * and #)
+            QCOMPARE(dBusCallMade, true);
+            QCOMPARE(dBusService, MainWindow::CALL_UI_DBUS_SERVICE);
+            QCOMPARE(dBusPath, MainWindow::CALL_UI_DBUS_PATH);
+            QCOMPARE(dBusInterface, MainWindow::CALL_UI_DBUS_INTERFACE);
+            QCOMPARE(dBusMethod, QString("dialer"));
+            QCOMPARE(dBusArguments.at(0).toString(), searchString);
+            mainWindow->markSearchStringSentAndSendRemainingSearchString();
+        } else {
+            // Otherwise a call may or may not occur but it should not be to the call UI
+            QVERIFY(dBusService != MainWindow::CALL_UI_DBUS_SERVICE);
+            QVERIFY(dBusPath != MainWindow::CALL_UI_DBUS_PATH);
+            QVERIFY(dBusInterface != MainWindow::CALL_UI_DBUS_INTERFACE);
+        }
+
+        resetDBusStub();
     }
 }
 
@@ -152,7 +184,8 @@ void Ut_MainWindow::testContentSearchLaunchedWhenNonCallRelatedKeyPressed()
     addIntRangeToSet(keys, Qt::Key_Comma, Qt::Key_Slash);
     addIntRangeToSet(keys, Qt::Key_Colon, Qt::Key_At);
     addIntRangeToSet(keys, Qt::Key_BracketLeft, Qt::Key_ydiaeresis);
-    addIntRangeToSet(keys, Qt::Key_Context1, Qt::Key_Hangup);
+    addIntRangeToSet(keys, Qt::Key_Escape, Qt::Key_MediaLast);
+    addIntRangeToSet(keys, Qt::Key_Context1, Qt::Key_Flip);
 
     foreach (int key, keys.values()) {
         // Create a key event for the key. The test uses the string " " as the text produced for most keys.
@@ -160,7 +193,7 @@ void Ut_MainWindow::testContentSearchLaunchedWhenNonCallRelatedKeyPressed()
         mainWindow->keyPressEvent(&keyEvent);
 
         QString searchString = keyEvent.text();
-        if (!searchString.isEmpty() && !((key >= Qt::Key_0 && key <= Qt::Key_9) || key == Qt::Key_Asterisk || key == Qt::Key_Plus || key == Qt::Key_NumberSign)) {
+        if (!searchString.isEmpty() && (key < Qt::Key_Escape || key == Qt::Key_Return) && !((key >= Qt::Key_0 && key <= Qt::Key_9) || key == Qt::Key_Asterisk || key == Qt::Key_Plus || key == Qt::Key_NumberSign)) {
             // The search should only occur if the key is not a call related one (0-9, +, * and #)
             QCOMPARE(dBusCallMade, true);
             QCOMPARE(dBusService, MainWindow::CONTENT_SEARCH_DBUS_SERVICE);
@@ -239,97 +272,24 @@ void Ut_MainWindow::testNothingLaunchedWhenOnlyModifierPressed()
     modifiers << Qt::GroupSwitchModifier;
 
     foreach (Qt::KeyboardModifier modifier, modifiers.values()) {
-        resetDBusStub();
         QKeyEvent keyEvent(QEvent::KeyPress, 0, modifier);
         mainWindow->keyPressEvent(&keyEvent);
         QCOMPARE(dBusCallMade, false);
-    }
-}
-
-QVector<int> Ut_MainWindow::ignoredKeysForCallUI()
-{
-    QVector<int> ignoredKeys;
-    ignoredKeys.append(Qt::Key_Space);
-    ignoredKeys.append(Qt::Key_Any);
-    ignoredKeys.append(Qt::Key_Exclam);
-    ignoredKeys.append(Qt::Key_QuoteDbl);
-    ignoredKeys.append(Qt::Key_Dollar);
-    ignoredKeys.append(Qt::Key_Percent);
-    ignoredKeys.append(Qt::Key_Ampersand);
-    ignoredKeys.append(Qt::Key_Apostrophe);
-    ignoredKeys.append(Qt::Key_Comma);
-    ignoredKeys.append(Qt::Key_Minus);
-    ignoredKeys.append(Qt::Key_Period);
-    ignoredKeys.append(Qt::Key_Slash);
-    ignoredKeys.append(Qt::Key_Colon);
-    ignoredKeys.append(Qt::Key_Semicolon);
-    ignoredKeys.append(Qt::Key_Less);
-    ignoredKeys.append(Qt::Key_Equal);
-    ignoredKeys.append(Qt::Key_Greater);
-    ignoredKeys.append(Qt::Key_Question);
-    ignoredKeys.append(Qt::Key_At);
-    ignoredKeys.append(Qt::Key_BracketLeft);
-    ignoredKeys.append(Qt::Key_Backslash);
-    ignoredKeys.append(Qt::Key_BracketRight);
-    ignoredKeys.append(Qt::Key_Underscore);
-    ignoredKeys.append(Qt::Key_QuoteLeft);
-    ignoredKeys.append(Qt::Key_BraceLeft);
-    ignoredKeys.append(Qt::Key_Bar);
-    ignoredKeys.append(Qt::Key_BraceRight);
-    ignoredKeys.append(Qt::Key_AsciiTilde);
-    return ignoredKeys;
-}
-
-QVector<int> Ut_MainWindow::acceptedKeysForCallUI()
-{
-    QVector<int> acceptedKeys;
-    acceptedKeys.append(Qt::Key_Asterisk);
-    acceptedKeys.append(Qt::Key_NumberSign);
-    acceptedKeys.append(Qt::Key_Plus);
-    return acceptedKeys;
-}
-
-void Ut_MainWindow::testWhenKeyPressedCallUILaunched()
-{
-    // Test other keys
-    QVector<int> ignoreKeys = ignoredKeysForCallUI();
-    foreach(int key, ignoreKeys) {
-        QKeyEvent ignoreKeyEvent(QEvent::KeyPress, key, Qt::NoModifier);
-        mainWindow->keyPressEvent(&ignoreKeyEvent);
-        QCOMPARE(dBusCallMade, false);
-    }
-
-    // Test letter keys
-    for(int i=Qt::Key_A; i <=Qt::Key_Z;++i) {
-        QKeyEvent letterKeyEvent(QEvent::KeyPress, i, Qt::NoModifier);
-        mainWindow->keyPressEvent(&letterKeyEvent);
-        QCOMPARE(dBusService == MainWindow::CALL_UI_DBUS_SERVICE, false);
-    }
-
-    // Test number keys
-    for(int i=Qt::Key_0; i <= Qt::Key_9;++i) {
-        QKeyEvent numberKeyEvent(QEvent::KeyPress, i, Qt::NoModifier);
-        mainWindow->keyPressEvent(&numberKeyEvent);
-        QCOMPARE(dBusCallMade, true);
-        QCOMPARE(dBusService, MainWindow::CALL_UI_DBUS_SERVICE);
-        QCOMPARE(dBusPath, MainWindow::CALL_UI_DBUS_PATH);
-        QCOMPARE(dBusInterface, MainWindow::CALL_UI_DBUS_INTERFACE);
-        QCOMPARE(dBusMethod, QString("dialer"));
-        QCOMPARE(dBusArguments.at(0).toString(), QString(numberKeyEvent.key()));
         resetDBusStub();
     }
+}
 
-    // Test other accepted keys
-    QVector<int> acceptKeys = acceptedKeysForCallUI();
-    foreach(int key, acceptKeys) {
-        QKeyEvent acceptKeyEvent(QEvent::KeyPress, key, Qt::NoModifier);
-        mainWindow->keyPressEvent(&acceptKeyEvent);
-        QCOMPARE(dBusCallMade, true);
-        QCOMPARE(dBusService, MainWindow::CALL_UI_DBUS_SERVICE);
-        QCOMPARE(dBusPath, MainWindow::CALL_UI_DBUS_PATH);
-        QCOMPARE(dBusInterface, MainWindow::CALL_UI_DBUS_INTERFACE);
-        QCOMPARE(dBusMethod, QString("dialer"));
-        QCOMPARE(dBusArguments.at(0).toString(), QString(acceptKeyEvent.key()));
+void Ut_MainWindow::testNothingLaunchedWhenMediaKeyPressed()
+{
+    QSet<int> keys;
+    addIntRangeToSet(keys, Qt::Key_Escape, Qt::Key_MediaLast);
+    addIntRangeToSet(keys, Qt::Key_Context1, Qt::Key_Flip);
+    keys.remove(Qt::Key_Return);
+
+    foreach (int key, keys.values()) {
+        QKeyEvent keyEvent(QEvent::KeyPress, key, Qt::NoModifier);
+        mainWindow->keyPressEvent(&keyEvent);
+        QCOMPARE(dBusCallMade, false);
         resetDBusStub();
     }
 }

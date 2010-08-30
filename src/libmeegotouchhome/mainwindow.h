@@ -121,21 +121,12 @@ private:
     void changeNetWmState(bool set, Atom one, Atom two = 0);
 
     /*!
-     * Returns whether the given key should launch the content search.
+     * Returns whether the given key should launch the Call UI dialer.
      *
      * \param key a key to check
-     * \return \c true if content search should be launched, \c false otherwise
+     * \return \c true if call UI should be launched, \c false otherwise
      */
-    static bool isContentSearchLaunchingKey(int key);
-
-     /*!
-     * Returns whether the given key should launch the call ui dialer
-     *
-     * \param key a key to check
-     * \return \c true if call ui should be launched, \c false otherwise
-     */
-    static bool isSuitableKeyForCallUI(int key);
-
+    static bool isCallUILaunchingKey(int key);
 
     /*!
      * Launches content search with the search string to be sent.
@@ -143,11 +134,11 @@ private:
     void launchContentSearch();
 
     /*!
-     * Launches call ui with the given digits
+     * Launches call UI with the given digits
      *
-     * \param key the digits to send to call ui dialer
+     * \param digits the digits to send to call UI dialer
      */
-    void launchCallUI(int key);
+    void launchCallUI(const QString &digits);
 
 #ifdef UNIT_TEST
     friend class Ut_MainWindow;

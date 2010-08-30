@@ -126,37 +126,37 @@ void MainWindow::changeNetWmState(bool set, Atom one, Atom two)
     X11Wrapper::XSync(display, FALSE);
 }
 
-bool MainWindow::isSuitableKeyForCallUI(int key)
+bool MainWindow::isCallUILaunchingKey(int key)
 {
+    // Numbers, *, + and # will launch the call UI
     return ((key >= Qt::Key_0 && key <= Qt::Key_9) || key == Qt::Key_Asterisk || key == Qt::Key_Plus || key == Qt::Key_NumberSign);
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-    if (isContentSearchLaunchingKey(event->key())) {
+    int key = event->key();
+    if (key < Qt::Key_Escape || key == Qt::Key_Return) {
+        // Special keys should do nothing but the return key should launch the content search
         QString searchString = event->text();
         if (!searchString.isEmpty()) {
-            // Only launch the search if the key press produced a string (not if only a modifier was pressed)
-            searchStringToBeSent.append(searchString);
-            launchContentSearch();
+            // Only launch something if the key press produced a string
+            if (isCallUILaunchingKey(key)) {
+                launchCallUI(searchString);
+            } else {
+                searchStringToBeSent.append(searchString);
+                launchContentSearch();
+            }
         }
     }
-
-    if(isSuitableKeyForCallUI(event->key())) {
-        launchCallUI(event->key());
-    }
-}
-
-bool MainWindow::isContentSearchLaunchingKey(int key)
-{
-    // All keys except numbers, *, + and # will launch the content search
-    return !((key >= Qt::Key_0 && key <= Qt::Key_9) || key == Qt::Key_Asterisk || key == Qt::Key_Plus || key == Qt::Key_NumberSign);
 }
 
 void MainWindow::launchContentSearch()
 {
     // Only one content search launch may be active at a time
     if (searchStringBeingSent.isEmpty() && !searchStringToBeSent.isEmpty()) {
+        // Remove carriage returns from the search string
+        searchStringToBeSent.remove('\r');
+
         // Make an asynchronous call to the content search and send the search string to be sent
         QDBusInterface interface(CONTENT_SEARCH_DBUS_SERVICE, CONTENT_SEARCH_DBUS_PATH, CONTENT_SEARCH_DBUS_INTERFACE, QDBusConnection::sessionBus());
         interface.callWithCallback("launch", (QList<QVariant>() << searchStringToBeSent), this, SLOT(markSearchStringSentAndSendRemainingSearchString()), SLOT(markSearchStringNotSent()));
@@ -166,10 +166,10 @@ void MainWindow::launchContentSearch()
     }
 }
 
-void MainWindow::launchCallUI(int key)
+void MainWindow::launchCallUI(const QString &digits)
 {
    QDBusInterface interface(CALL_UI_DBUS_SERVICE, CALL_UI_DBUS_PATH, CALL_UI_DBUS_INTERFACE, QDBusConnection::sessionBus());
-   interface.call(QDBus::NoBlock, "dialer", QString(key));
+   interface.call(QDBus::NoBlock, "dialer", digits);
 }
 
 void MainWindow::markSearchStringSentAndSendRemainingSearchString()

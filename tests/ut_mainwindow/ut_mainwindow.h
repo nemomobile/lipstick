@@ -35,11 +35,12 @@ private slots:
     void cleanupTestCase();
     void init();
     void cleanup();
-    void testWhenKeyPressedCallUILaunched();
+    void testCallUILaunchedWhenCallRelatedKeyPressed();
     void testContentSearchLaunchedWhenNonCallRelatedKeyPressed();
     void testContentSearchLaunchQueuedWhenAlreadyLaunching();
     void testContentSearchLaunchQueuedWhenLaunchingFailed();
     void testNothingLaunchedWhenOnlyModifierPressed();
+    void testNothingLaunchedWhenMediaKeyPressed();
 
 private:
     // Application for the test
@@ -47,10 +48,6 @@ private:
 
     // The object being tested
     MainWindow *mainWindow;
-
-    QVector<int> acceptedKeysForCallUI();
-    QVector<int> ignoredKeysForCallUI();
-
 };
 
 #endif
