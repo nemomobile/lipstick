@@ -2,6 +2,7 @@ duihome (0.21.18~1) unstable; urgency=low
 
   * [UNRELEASED]
   * Implemented: SWP#DUI-3433 Apply switcher transitions
+  * Implemented: SWP#DUI-2415 Automatic opening of search client when typing text on HW keyboard
   * Separated most of the code to a shared library
 
  -- Aki Koskinen <aki.koskinen@nokia.com>  Thu, 26 Aug 2010 16:47:00 +0300
