@@ -125,17 +125,45 @@ void MainWindow::changeNetWmState(bool set, Atom one, Atom two)
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
     if (isContentSearchLaunchingKey(event->key())) {
-        launchContentSearch(event->text());
+        QString searchString = event->text();
+        if (!searchString.isEmpty()) {
+            // Only launch the search if the key press produced a string (not if only a modifier was pressed)
+            searchStringToBeSent.append(searchString);
+            launchContentSearch();
+        }
     }
 }
 
 bool MainWindow::isContentSearchLaunchingKey(int key)
 {
-    return key >= Qt::Key_A && key <= Qt::Key_Z;
+    // All keys except numbers, *, + and # will launch the content search
+    return !((key >= Qt::Key_0 && key <= Qt::Key_9) || key == Qt::Key_Asterisk || key == Qt::Key_Plus || key == Qt::Key_NumberSign);
 }
 
-void MainWindow::launchContentSearch(const QString &searchString)
+void MainWindow::launchContentSearch()
 {
-    QDBusInterface interface(CONTENT_SEARCH_DBUS_SERVICE, CONTENT_SEARCH_DBUS_PATH, CONTENT_SEARCH_DBUS_INTERFACE, QDBusConnection::sessionBus());
-    interface.call(QDBus::NoBlock, "launch", searchString);
+    // Only one content search launch may be active at a time
+    if (searchStringBeingSent.isEmpty() && !searchStringToBeSent.isEmpty()) {
+        // Make an asynchronous call to the content search and send the search string to be sent
+        QDBusInterface interface(CONTENT_SEARCH_DBUS_SERVICE, CONTENT_SEARCH_DBUS_PATH, CONTENT_SEARCH_DBUS_INTERFACE, QDBusConnection::sessionBus());
+        interface.callWithCallback("launch", (QList<QVariant>() << searchStringToBeSent), this, SLOT(markSearchStringSentAndSendRemainingSearchString()), SLOT(markSearchStringNotSent()));
+
+        searchStringBeingSent = searchStringToBeSent;
+        searchStringToBeSent.clear();
+    }
+}
+
+void MainWindow::markSearchStringSentAndSendRemainingSearchString()
+{
+    searchStringBeingSent.clear();
+
+    // Send the search string still to be sent (if any)
+    launchContentSearch();
+}
+
+void MainWindow::markSearchStringNotSent()
+{
+    // Since content search didn't launch prepend the sent search string to the search string to be sent but don't retry
+    searchStringToBeSent.prepend(searchStringBeingSent);
+    searchStringBeingSent.clear();
 }

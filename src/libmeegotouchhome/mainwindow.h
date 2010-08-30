@@ -61,6 +61,13 @@ public:
     virtual void keyPressEvent(QKeyEvent *event);
     //! \reimp_end
 
+private slots:
+    //! Clears searchStringBeingSent and sends searchStringToBeSent (if any)
+    void markSearchStringSentAndSendRemainingSearchString();
+
+    //! Moves searchStringBeingSent to the beginning of searchStringToBeSent
+    void markSearchStringNotSent();
+
 private:
     //! The DBus service of the content search application
     static const QString CONTENT_SEARCH_DBUS_SERVICE;
@@ -77,6 +84,12 @@ private:
 
     //! The OpenGL context
     static QGLContext *openGLContext;
+
+    //! Search string not sent to the search client yet
+    QString searchStringToBeSent;
+
+    //! Search string being sent to the search client
+    QString searchStringBeingSent;
 
     /*!
      * Constructs a main window for the Home application.
@@ -109,11 +122,9 @@ private:
     static bool isContentSearchLaunchingKey(int key);
 
     /*!
-     * Launches content search with the given search string.
-     *
-     * \param searchString the search string to send to content search
+     * Launches content search with the search string to be sent.
      */
-    void launchContentSearch(const QString &searchString);
+    void launchContentSearch();
 
 #ifdef UNIT_TEST
     friend class Ut_MainWindow;

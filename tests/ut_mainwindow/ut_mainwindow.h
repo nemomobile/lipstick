@@ -33,9 +33,13 @@ class Ut_MainWindow : public QObject
 private slots:
     void initTestCase();
     void cleanupTestCase();
+    void init();
+    void cleanup();
     void testCallUILaunching();
-    void testContentSearchLaunchedWhenAToZPressed();
-    void testNothingLaunchedWhenSomethingElsePressed();
+    void testContentSearchLaunchedWhenNonCallRelatedKeyPressed();
+    void testContentSearchLaunchQueuedWhenAlreadyLaunching();
+    void testContentSearchLaunchQueuedWhenLaunchingFailed();
+    void testNothingLaunchedWhenOnlyModifierPressed();
 
 private:
     // Application for the test

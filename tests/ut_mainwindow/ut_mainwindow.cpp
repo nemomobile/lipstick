@@ -29,28 +29,17 @@ bool dBusCallMade = false;
 QString dBusService = QString();
 QString dBusPath = QString();
 QString dBusInterface = QString();
-QDBus::CallMode callMode = QDBus::Block;
 QString dBusMethod = QString();
 QList<QVariant> dBusArguments = QList<QVariant>();
-QDBusMessage QDBusAbstractInterface::call(QDBus::CallMode callmode, const QString &method,
-        const QVariant &arg1,
-        const QVariant &arg2,
-        const QVariant &arg3,
-        const QVariant &arg4,
-        const QVariant &arg5,
-        const QVariant &arg6,
-        const QVariant &arg7,
-        const QVariant &arg8)
+bool QDBusAbstractInterface::callWithCallback(const QString &method, const QList<QVariant> &args, QObject *, const char *, const char *)
 {
     dBusCallMade = true;
     dBusInterface = this->interface();
     dBusService = this->service();
     dBusPath = this->path();
-    callMode = callmode;
     dBusMethod = method;
-    dBusArguments << arg1 << arg2 << arg3 << arg4 << arg5 << arg6 << arg7 << arg8;
-    QDBusMessage message;
-    return message;
+    dBusArguments = args;
+    return true;
 }
 
 void resetDBusStub()
@@ -59,7 +48,6 @@ void resetDBusStub()
     dBusService = QString();
     dBusPath = QString();
     dBusInterface = QString();
-    callMode = QDBus::Block;
     dBusMethod = QString();
     dBusArguments = QList<QVariant>();
 }
@@ -105,26 +93,21 @@ void Ut_MainWindow::cleanupTestCase()
     delete app;
 }
 
+void Ut_MainWindow::init()
+{
+    mainWindow->markSearchStringSentAndSendRemainingSearchString();
+    resetDBusStub();
+}
+
+void Ut_MainWindow::cleanup()
+{
+}
+
 void Ut_MainWindow::testCallUILaunching()
 {
 }
 
 #undef KeyPress
-void Ut_MainWindow::testContentSearchLaunchedWhenAToZPressed()
-{
-    for (int key = Qt::Key_A; key <= Qt::Key_Z; key++) {
-        resetDBusStub();
-        QKeyEvent keyEvent(QEvent::KeyPress, key, Qt::NoModifier);
-        mainWindow->keyPressEvent(&keyEvent);
-        QCOMPARE(dBusCallMade, true);
-        QCOMPARE(dBusService, MainWindow::CONTENT_SEARCH_DBUS_SERVICE);
-        QCOMPARE(dBusPath, MainWindow::CONTENT_SEARCH_DBUS_PATH);
-        QCOMPARE(dBusInterface, MainWindow::CONTENT_SEARCH_DBUS_INTERFACE);
-        QCOMPARE(dBusMethod, QString("launch"));
-        QCOMPARE(dBusArguments.at(0).toString(), keyEvent.text());
-    }
-}
-
 void addIntRangeToSet(QSet<int> &set, int from, int to)
 {
     for (int i = from; i <= to; i++) {
@@ -132,18 +115,109 @@ void addIntRangeToSet(QSet<int> &set, int from, int to)
     }
 }
 
-void Ut_MainWindow::testNothingLaunchedWhenSomethingElsePressed()
+void removeIntRangeFromSet(QSet<int> &set, int from, int to)
 {
+    for (int i = from; i <= to; i++) {
+        set.remove(i);
+    }
+}
+
+void Ut_MainWindow::testContentSearchLaunchedWhenNonCallRelatedKeyPressed()
+{
+    // Add a relevant set of keys to the map
     QSet<int> keys;
     addIntRangeToSet(keys, Qt::Key_Space, Qt::Key_Slash);
     addIntRangeToSet(keys, Qt::Key_Colon, Qt::Key_At);
     addIntRangeToSet(keys, Qt::Key_BracketLeft, Qt::Key_ydiaeresis);
-    addIntRangeToSet(keys, Qt::Key_Escape, Qt::Key_Dead_Horn);
     addIntRangeToSet(keys, Qt::Key_Context1, Qt::Key_Hangup);
 
     foreach (int key, keys.values()) {
+        // Create a key event for the key. The test uses the string " " as the text produced for most keys.
+        QKeyEvent keyEvent(QEvent::KeyPress, key, Qt::NoModifier, key < Qt::Key_Context1 ? " " : "");
+        mainWindow->keyPressEvent(&keyEvent);
+
+        QString searchString = keyEvent.text();
+        if (!searchString.isEmpty() && !((key >= Qt::Key_0 && key <= Qt::Key_9) || key == Qt::Key_Asterisk || key == Qt::Key_Plus || key == Qt::Key_NumberSign)) {
+            // The search should only occur if the key is not a call related one (0-9, +, * and #)
+            QCOMPARE(dBusCallMade, true);
+            QCOMPARE(dBusService, MainWindow::CONTENT_SEARCH_DBUS_SERVICE);
+            QCOMPARE(dBusPath, MainWindow::CONTENT_SEARCH_DBUS_PATH);
+            QCOMPARE(dBusInterface, MainWindow::CONTENT_SEARCH_DBUS_INTERFACE);
+            QCOMPARE(dBusMethod, QString("launch"));
+            QCOMPARE(dBusArguments.at(0).toString(), searchString);
+            mainWindow->markSearchStringSentAndSendRemainingSearchString();
+        } else {
+            // Otherwise a call may or may not occur but it should not be to the content search service
+            QVERIFY(dBusService != MainWindow::CONTENT_SEARCH_DBUS_SERVICE);
+            QVERIFY(dBusPath != MainWindow::CONTENT_SEARCH_DBUS_PATH);
+            QVERIFY(dBusInterface != MainWindow::CONTENT_SEARCH_DBUS_INTERFACE);
+        }
+
         resetDBusStub();
-        QKeyEvent keyEvent(QEvent::KeyPress, key, Qt::NoModifier);
+    }
+}
+
+void Ut_MainWindow::testContentSearchLaunchQueuedWhenAlreadyLaunching()
+{
+    // Pressing the key A should try to launch the content search with the search string A
+    QKeyEvent keyEventA(QEvent::KeyPress, Qt::Key_A, Qt::NoModifier, "A");
+    mainWindow->keyPressEvent(&keyEventA);
+    QCOMPARE(dBusCallMade, true);
+    QCOMPARE(dBusArguments.at(0).toString(), QString("A"));
+
+    resetDBusStub();
+
+    // Pressing the keys B and C before the content search has launched should not launch another content search
+    QKeyEvent keyEventB(QEvent::KeyPress, Qt::Key_B, Qt::NoModifier, "B");
+    mainWindow->keyPressEvent(&keyEventB);
+    QKeyEvent keyEventC(QEvent::KeyPress, Qt::Key_B, Qt::NoModifier, "C");
+    mainWindow->keyPressEvent(&keyEventC);
+    QCOMPARE(dBusCallMade, false);
+
+    // When the content search has successfully launched (with the search string A) the content search should be relaunched with the search string BC
+    mainWindow->markSearchStringSentAndSendRemainingSearchString();
+    QCOMPARE(dBusCallMade, true);
+    QCOMPARE(dBusArguments.at(0).toString(), QString("BC"));
+}
+
+void Ut_MainWindow::testContentSearchLaunchQueuedWhenLaunchingFailed()
+{
+    // Pressing the key A should try to launch the content search with the search string A
+    QKeyEvent keyEventA(QEvent::KeyPress, Qt::Key_A, Qt::NoModifier, "A");
+    mainWindow->keyPressEvent(&keyEventA);
+
+    resetDBusStub();
+
+    // Pressing the key B before the content search has launched should not launch another content search
+    QKeyEvent keyEventB(QEvent::KeyPress, Qt::Key_B, Qt::NoModifier, "B");
+    mainWindow->keyPressEvent(&keyEventB);
+
+    // When the content search launching fails (with the search string A) no new content search should occur
+    mainWindow->markSearchStringNotSent();
+    QCOMPARE(dBusCallMade, false);
+
+    resetDBusStub();
+
+    // Pressing the key C should try to launch the content search with the search string ABC
+    QKeyEvent keyEventC(QEvent::KeyPress, Qt::Key_B, Qt::NoModifier, "C");
+    mainWindow->keyPressEvent(&keyEventC);
+    QCOMPARE(dBusCallMade, true);
+    QCOMPARE(dBusArguments.at(0).toString(), QString("ABC"));
+}
+
+void Ut_MainWindow::testNothingLaunchedWhenOnlyModifierPressed()
+{
+    QSet<Qt::KeyboardModifier> modifiers;
+    modifiers << Qt::ShiftModifier;
+    modifiers << Qt::ControlModifier;
+    modifiers << Qt::AltModifier;
+    modifiers << Qt::MetaModifier;
+    modifiers << Qt::KeypadModifier;
+    modifiers << Qt::GroupSwitchModifier;
+
+    foreach (Qt::KeyboardModifier modifier, modifiers.values()) {
+        resetDBusStub();
+        QKeyEvent keyEvent(QEvent::KeyPress, 0, modifier);
         mainWindow->keyPressEvent(&keyEvent);
         QCOMPARE(dBusCallMade, false);
     }
