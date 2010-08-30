@@ -17,6 +17,8 @@
 **
 ****************************************************************************/
 
+#include <QKeyEvent>
+#include <QEvent>
 #include "ut_mainwindow.h"
 #include "x11wrapper_stub.h"
 #include "mainwindow.h"
@@ -31,6 +33,7 @@ QString dBusPath = QString();
 QString dBusInterface = QString();
 QString dBusMethod = QString();
 QList<QVariant> dBusArguments = QList<QVariant>();
+QDBus::CallMode dBusCallMode = QDBus::NoBlock;
 bool QDBusAbstractInterface::callWithCallback(const QString &method, const QList<QVariant> &args, QObject *, const char *, const char *)
 {
     dBusCallMade = true;
@@ -40,6 +43,28 @@ bool QDBusAbstractInterface::callWithCallback(const QString &method, const QList
     dBusMethod = method;
     dBusArguments = args;
     return true;
+}
+
+QDBusMessage QDBusAbstractInterface::call(QDBus::CallMode mode,
+                  const QString &method,
+                  const QVariant &arg1,
+                  const QVariant &arg2,
+                  const QVariant &arg3,
+                  const QVariant &arg4,
+                  const QVariant &arg5,
+                  const QVariant &arg6,
+                  const QVariant &arg7,
+                  const QVariant &arg8)
+{
+    dBusCallMade = true;
+    dBusCallMode = mode;
+    dBusInterface = this->interface();
+    dBusService = this->service();
+    dBusPath = this->path();
+    dBusMethod = method;
+    dBusArguments << arg1 << arg2 << arg3 << arg4 << arg5 << arg6 << arg7 << arg8;
+    QDBusMessage message;
+    return message;
 }
 
 void resetDBusStub()
@@ -103,10 +128,6 @@ void Ut_MainWindow::cleanup()
 {
 }
 
-void Ut_MainWindow::testCallUILaunching()
-{
-}
-
 #undef KeyPress
 void addIntRangeToSet(QSet<int> &set, int from, int to)
 {
@@ -126,7 +147,9 @@ void Ut_MainWindow::testContentSearchLaunchedWhenNonCallRelatedKeyPressed()
 {
     // Add a relevant set of keys to the map
     QSet<int> keys;
-    addIntRangeToSet(keys, Qt::Key_Space, Qt::Key_Slash);
+    addIntRangeToSet(keys, Qt::Key_Space, Qt::Key_QuoteDbl);
+    addIntRangeToSet(keys, Qt::Key_Dollar, Qt::Key_ParenRight);
+    addIntRangeToSet(keys, Qt::Key_Comma, Qt::Key_Slash);
     addIntRangeToSet(keys, Qt::Key_Colon, Qt::Key_At);
     addIntRangeToSet(keys, Qt::Key_BracketLeft, Qt::Key_ydiaeresis);
     addIntRangeToSet(keys, Qt::Key_Context1, Qt::Key_Hangup);
@@ -220,6 +243,94 @@ void Ut_MainWindow::testNothingLaunchedWhenOnlyModifierPressed()
         QKeyEvent keyEvent(QEvent::KeyPress, 0, modifier);
         mainWindow->keyPressEvent(&keyEvent);
         QCOMPARE(dBusCallMade, false);
+    }
+}
+
+QVector<int> Ut_MainWindow::ignoredKeysForCallUI()
+{
+    QVector<int> ignoredKeys;
+    ignoredKeys.append(Qt::Key_Space);
+    ignoredKeys.append(Qt::Key_Any);
+    ignoredKeys.append(Qt::Key_Exclam);
+    ignoredKeys.append(Qt::Key_QuoteDbl);
+    ignoredKeys.append(Qt::Key_Dollar);
+    ignoredKeys.append(Qt::Key_Percent);
+    ignoredKeys.append(Qt::Key_Ampersand);
+    ignoredKeys.append(Qt::Key_Apostrophe);
+    ignoredKeys.append(Qt::Key_Comma);
+    ignoredKeys.append(Qt::Key_Minus);
+    ignoredKeys.append(Qt::Key_Period);
+    ignoredKeys.append(Qt::Key_Slash);
+    ignoredKeys.append(Qt::Key_Colon);
+    ignoredKeys.append(Qt::Key_Semicolon);
+    ignoredKeys.append(Qt::Key_Less);
+    ignoredKeys.append(Qt::Key_Equal);
+    ignoredKeys.append(Qt::Key_Greater);
+    ignoredKeys.append(Qt::Key_Question);
+    ignoredKeys.append(Qt::Key_At);
+    ignoredKeys.append(Qt::Key_BracketLeft);
+    ignoredKeys.append(Qt::Key_Backslash);
+    ignoredKeys.append(Qt::Key_BracketRight);
+    ignoredKeys.append(Qt::Key_Underscore);
+    ignoredKeys.append(Qt::Key_QuoteLeft);
+    ignoredKeys.append(Qt::Key_BraceLeft);
+    ignoredKeys.append(Qt::Key_Bar);
+    ignoredKeys.append(Qt::Key_BraceRight);
+    ignoredKeys.append(Qt::Key_AsciiTilde);
+    return ignoredKeys;
+}
+
+QVector<int> Ut_MainWindow::acceptedKeysForCallUI()
+{
+    QVector<int> acceptedKeys;
+    acceptedKeys.append(Qt::Key_Asterisk);
+    acceptedKeys.append(Qt::Key_NumberSign);
+    acceptedKeys.append(Qt::Key_Plus);
+    return acceptedKeys;
+}
+
+void Ut_MainWindow::testWhenKeyPressedCallUILaunched()
+{
+    // Test other keys
+    QVector<int> ignoreKeys = ignoredKeysForCallUI();
+    foreach(int key, ignoreKeys) {
+        QKeyEvent ignoreKeyEvent(QEvent::KeyPress, key, Qt::NoModifier);
+        mainWindow->keyPressEvent(&ignoreKeyEvent);
+        QCOMPARE(dBusCallMade, false);
+    }
+
+    // Test letter keys
+    for(int i=Qt::Key_A; i <=Qt::Key_Z;++i) {
+        QKeyEvent letterKeyEvent(QEvent::KeyPress, i, Qt::NoModifier);
+        mainWindow->keyPressEvent(&letterKeyEvent);
+        QCOMPARE(dBusService == MainWindow::CALL_UI_DBUS_SERVICE, false);
+    }
+
+    // Test number keys
+    for(int i=Qt::Key_0; i <= Qt::Key_9;++i) {
+        QKeyEvent numberKeyEvent(QEvent::KeyPress, i, Qt::NoModifier);
+        mainWindow->keyPressEvent(&numberKeyEvent);
+        QCOMPARE(dBusCallMade, true);
+        QCOMPARE(dBusService, MainWindow::CALL_UI_DBUS_SERVICE);
+        QCOMPARE(dBusPath, MainWindow::CALL_UI_DBUS_PATH);
+        QCOMPARE(dBusInterface, MainWindow::CALL_UI_DBUS_INTERFACE);
+        QCOMPARE(dBusMethod, QString("dialer"));
+        QCOMPARE(dBusArguments.at(0).toString(), QString(numberKeyEvent.key()));
+        resetDBusStub();
+    }
+
+    // Test other accepted keys
+    QVector<int> acceptKeys = acceptedKeysForCallUI();
+    foreach(int key, acceptKeys) {
+        QKeyEvent acceptKeyEvent(QEvent::KeyPress, key, Qt::NoModifier);
+        mainWindow->keyPressEvent(&acceptKeyEvent);
+        QCOMPARE(dBusCallMade, true);
+        QCOMPARE(dBusService, MainWindow::CALL_UI_DBUS_SERVICE);
+        QCOMPARE(dBusPath, MainWindow::CALL_UI_DBUS_PATH);
+        QCOMPARE(dBusInterface, MainWindow::CALL_UI_DBUS_INTERFACE);
+        QCOMPARE(dBusMethod, QString("dialer"));
+        QCOMPARE(dBusArguments.at(0).toString(), QString(acceptKeyEvent.key()));
+        resetDBusStub();
     }
 }
 

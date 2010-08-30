@@ -76,6 +76,13 @@ private:
     //! The DBus interface of the content search application
     static const QString CONTENT_SEARCH_DBUS_INTERFACE;
 
+    //! The DBus service of the call ui dialer
+    static const QString CALL_UI_DBUS_SERVICE;
+    //! The DBus path of the call ui dialer
+    static const QString CALL_UI_DBUS_PATH;
+    //! The DBus interface of the call ui dialer
+    static const QString CALL_UI_DBUS_INTERFACE;
+
     //! The MainWindow instance
     static MainWindow *mainWindowInstance;
 
@@ -121,10 +128,26 @@ private:
      */
     static bool isContentSearchLaunchingKey(int key);
 
+     /*!
+     * Returns whether the given key should launch the call ui dialer
+     *
+     * \param key a key to check
+     * \return \c true if call ui should be launched, \c false otherwise
+     */
+    static bool isSuitableKeyForCallUI(int key);
+
+
     /*!
      * Launches content search with the search string to be sent.
      */
     void launchContentSearch();
+
+    /*!
+     * Launches call ui with the given digits
+     *
+     * \param key the digits to send to call ui dialer
+     */
+    void launchCallUI(int key);
 
 #ifdef UNIT_TEST
     friend class Ut_MainWindow;

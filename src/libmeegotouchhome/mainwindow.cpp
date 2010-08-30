@@ -32,6 +32,10 @@ const QString MainWindow::CONTENT_SEARCH_DBUS_SERVICE = "com.nokia.maemo.meegoto
 const QString MainWindow::CONTENT_SEARCH_DBUS_PATH = "/";
 const QString MainWindow::CONTENT_SEARCH_DBUS_INTERFACE = "com.nokia.maemo.meegotouch.ContentSearchInterface";
 
+const QString MainWindow::CALL_UI_DBUS_SERVICE = "com.nokia.telephony.callhistory";
+const QString MainWindow::CALL_UI_DBUS_PATH = "/callhistory";
+const QString MainWindow::CALL_UI_DBUS_INTERFACE = "com.nokia.telephony.callhistory";
+
 MainWindow::MainWindow(QWidget *parent) :
     MWindow(parent)
 {
@@ -122,6 +126,11 @@ void MainWindow::changeNetWmState(bool set, Atom one, Atom two)
     X11Wrapper::XSync(display, FALSE);
 }
 
+bool MainWindow::isSuitableKeyForCallUI(int key)
+{
+    return ((key >= Qt::Key_0 && key <= Qt::Key_9) || key == Qt::Key_Asterisk || key == Qt::Key_Plus || key == Qt::Key_NumberSign);
+}
+
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
     if (isContentSearchLaunchingKey(event->key())) {
@@ -131,6 +140,10 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             searchStringToBeSent.append(searchString);
             launchContentSearch();
         }
+    }
+
+    if(isSuitableKeyForCallUI(event->key())) {
+        launchCallUI(event->key());
     }
 }
 
@@ -151,6 +164,12 @@ void MainWindow::launchContentSearch()
         searchStringBeingSent = searchStringToBeSent;
         searchStringToBeSent.clear();
     }
+}
+
+void MainWindow::launchCallUI(int key)
+{
+   QDBusInterface interface(CALL_UI_DBUS_SERVICE, CALL_UI_DBUS_PATH, CALL_UI_DBUS_INTERFACE, QDBusConnection::sessionBus());
+   interface.call(QDBus::NoBlock, "dialer", QString(key));
 }
 
 void MainWindow::markSearchStringSentAndSendRemainingSearchString()
