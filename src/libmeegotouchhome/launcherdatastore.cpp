@@ -92,18 +92,11 @@ void LauncherDataStore::startProcessingUpdateQueue()
     updatePending = false;
     updateQueue = QDir(directoryPath, FILE_FILTER).entryInfoList(QDir::Files);
     updateValidKeys.clear();
-    if (!updateQueue.isEmpty()) {
-        processUpdateQueueTimer.start();
-    }
+    processUpdateQueueTimer.start();
 }
 
 void LauncherDataStore::processUpdateQueue()
 {
-    if (updateQueue.isEmpty()) {
-        // If the update queue is empty do nothing
-        return;
-    }
-
     // Disconnect the dataStoreChanged() signal connection during updates
     store->disconnect(this);
 

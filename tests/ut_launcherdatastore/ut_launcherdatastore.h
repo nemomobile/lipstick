@@ -41,10 +41,8 @@ private slots:
     void cleanup();
 
     // Test cases
-    void testUpdateStartedDuringInitializationWhenApplicationsDirectoryNotEmpty();
-    void testUpdateNotStartedDuringInitializationWhenApplicationsDirectoryEmpty();
+    void testUpdateStartedDuringInitialization();
     void testUpdateStartedWhenApplicationsDirectoryChanges();
-    void testUpdateNotStartedWhenApplicationsDirectoryEmpty();
     void testUpdateNotStartedWhenInProgress();
     void testProcessUpdateQueueDoesNothingWhenQueueEmpty();
     void testProcessUpdateQueueProcessesNFilesAtATime();
@@ -57,6 +55,7 @@ private slots:
     void testAddingWatcherDesktopEntryPaths();
     void testUpdatingDesktopEntry();
     void testUpdatingInvalidEntry();
+    void testRemovingEntriesWhenApplicationsDirectoryGetsEmpty();
 
 signals:
     void directoryChanged();

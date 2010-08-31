@@ -192,17 +192,11 @@ void removeDesktopEntries()
     desktopFileInfoList.clear();
 }
 
-void Ut_LauncherDataStore::testUpdateStartedDuringInitializationWhenApplicationsDirectoryNotEmpty()
+void Ut_LauncherDataStore::testUpdateStartedDuringInitialization()
 {
     addDesktopEntry("testApplication.desktop", "Test0", "Application", "Icon-camera", "test0");
     LauncherDataStore dataStore(mockStore);
     QVERIFY(qTimerStarted);
-}
-
-void Ut_LauncherDataStore::testUpdateNotStartedDuringInitializationWhenApplicationsDirectoryEmpty()
-{
-    LauncherDataStore dataStore(mockStore);
-    QVERIFY(!qTimerStarted);
 }
 
 void Ut_LauncherDataStore::testUpdateStartedWhenApplicationsDirectoryChanges()
@@ -212,14 +206,6 @@ void Ut_LauncherDataStore::testUpdateStartedWhenApplicationsDirectoryChanges()
     addDesktopEntry("testApplication.desktop", "Test0", "Application", "Icon-camera", "test0");
     emit directoryChanged();
     QVERIFY(qTimerStarted);
-}
-
-void Ut_LauncherDataStore::testUpdateNotStartedWhenApplicationsDirectoryEmpty()
-{
-    LauncherDataStore dataStore(mockStore);
-    connect(this, SIGNAL(directoryChanged()), &dataStore, SLOT(updateDataFromDesktopEntryFiles()));
-    emit directoryChanged();
-    QVERIFY(!qTimerStarted);
 }
 
 void Ut_LauncherDataStore::testUpdateNotStartedWhenInProgress()
@@ -506,6 +492,27 @@ void Ut_LauncherDataStore::testUpdatingInvalidEntry()
 
     QCOMPARE(spyDesktopEntryRemoved.count(), 1);
     QCOMPARE(spyDataStoreChanged.count(), 2);
+}
+
+void Ut_LauncherDataStore::testRemovingEntriesWhenApplicationsDirectoryGetsEmpty()
+{
+    // Add desktop entries
+    addDesktopEntry("testApplication1.desktop", "Test1", "Application", "Icon-camera", "test1");
+    addDesktopEntry("testApplication2.desktop", "Test2", "Application", "Icon-camera", "test2");
+    LauncherDataStore dataStore(mockStore);
+    connect(this, SIGNAL(directoryChanged()), &dataStore, SLOT(updateDataFromDesktopEntryFiles()));
+    connect(this, SIGNAL(timeout()), &dataStore, SLOT(processUpdateQueue()));
+    emit timeout();
+
+    QSignalSpy spyDesktopEntryRemoved(&dataStore, SIGNAL(desktopEntryRemoved(QString)));
+    QSignalSpy spyDataStoreChanged(&dataStore, SIGNAL(dataStoreChanged()));
+
+    removeDesktopEntries();
+    emit directoryChanged();
+    emit timeout();
+
+    QCOMPARE(spyDesktopEntryRemoved.count(), 2);
+    QCOMPARE(spyDataStoreChanged.count(), 1);
 }
 
 QTEST_APPLESS_MAIN(Ut_LauncherDataStore)
