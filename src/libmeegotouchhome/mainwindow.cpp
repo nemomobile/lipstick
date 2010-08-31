@@ -135,8 +135,8 @@ bool MainWindow::isCallUILaunchingKey(int key)
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
     int key = event->key();
-    if (key < Qt::Key_Escape || key == Qt::Key_Return) {
-        // Special keys should do nothing but the return key should launch the content search
+    if (key < Qt::Key_Escape) {
+        // Special keys should do nothing
         QString searchString = event->text();
         if (!searchString.isEmpty()) {
             // Only launch something if the key press produced a string
@@ -154,9 +154,6 @@ void MainWindow::launchContentSearch()
 {
     // Only one content search launch may be active at a time
     if (searchStringBeingSent.isEmpty() && !searchStringToBeSent.isEmpty()) {
-        // Remove carriage returns from the search string
-        searchStringToBeSent.remove('\r');
-
         // Make an asynchronous call to the content search and send the search string to be sent
         QDBusInterface interface(CONTENT_SEARCH_DBUS_SERVICE, CONTENT_SEARCH_DBUS_PATH, CONTENT_SEARCH_DBUS_INTERFACE, QDBusConnection::sessionBus());
         interface.callWithCallback("launch", (QList<QVariant>() << searchStringToBeSent), this, SLOT(markSearchStringSentAndSendRemainingSearchString()), SLOT(markSearchStringNotSent()));

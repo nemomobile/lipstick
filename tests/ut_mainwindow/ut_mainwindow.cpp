@@ -155,7 +155,7 @@ void Ut_MainWindow::testCallUILaunchedWhenCallRelatedKeyPressed()
         mainWindow->keyPressEvent(&keyEvent);
 
         QString searchString = keyEvent.text();
-        if (!searchString.isEmpty() && (key < Qt::Key_Escape || key == Qt::Key_Return) && ((key >= Qt::Key_0 && key <= Qt::Key_9) || key == Qt::Key_Asterisk || key == Qt::Key_Plus || key == Qt::Key_NumberSign)) {
+        if (!searchString.isEmpty() && key < Qt::Key_Escape && ((key >= Qt::Key_0 && key <= Qt::Key_9) || key == Qt::Key_Asterisk || key == Qt::Key_Plus || key == Qt::Key_NumberSign)) {
             // The call UI should only be launched if the key is a call related one (0-9, +, * and #)
             QCOMPARE(dBusCallMade, true);
             QCOMPARE(dBusService, MainWindow::CALL_UI_DBUS_SERVICE);
@@ -193,7 +193,7 @@ void Ut_MainWindow::testContentSearchLaunchedWhenNonCallRelatedKeyPressed()
         mainWindow->keyPressEvent(&keyEvent);
 
         QString searchString = keyEvent.text();
-        if (!searchString.isEmpty() && (key < Qt::Key_Escape || key == Qt::Key_Return) && !((key >= Qt::Key_0 && key <= Qt::Key_9) || key == Qt::Key_Asterisk || key == Qt::Key_Plus || key == Qt::Key_NumberSign)) {
+        if (!searchString.isEmpty() && key < Qt::Key_Escape && !((key >= Qt::Key_0 && key <= Qt::Key_9) || key == Qt::Key_Asterisk || key == Qt::Key_Plus || key == Qt::Key_NumberSign)) {
             // The search should only occur if the key is not a call related one (0-9, +, * and #)
             QCOMPARE(dBusCallMade, true);
             QCOMPARE(dBusService, MainWindow::CONTENT_SEARCH_DBUS_SERVICE);
@@ -284,7 +284,6 @@ void Ut_MainWindow::testNothingLaunchedWhenMediaKeyPressed()
     QSet<int> keys;
     addIntRangeToSet(keys, Qt::Key_Escape, Qt::Key_MediaLast);
     addIntRangeToSet(keys, Qt::Key_Context1, Qt::Key_Flip);
-    keys.remove(Qt::Key_Return);
 
     foreach (int key, keys.values()) {
         QKeyEvent keyEvent(QEvent::KeyPress, key, Qt::NoModifier);
