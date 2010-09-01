@@ -54,4 +54,9 @@ D-Bus interface:
 
 - The <a href="http://standards.freedesktop.org/desktop-entry-spec/latest/">freedesktop.org desktop entry standard</a>
 
+\subsection installation-progress Showing installation and update progress of application in launcher and quicklaunchbar
+
+ApplicationPackageMonitor listens to dbus signals from Package Manager and watches <tt>/usr/share/applications/installer-extra</tt> folder to receive info on package installation states and progress. Relevant information is signalled to %Launcher and %QuickLaunchBar, and state and progress information is stored for the button that represents this package. If we are installing a new package, a placeholder button is added to %Launcher. %Launcher buttons reflect the state and progress by using different icons and a progress indicator.
+
+Note: %Launcher assumes that <tt>installer-extra</tt> folder is created before starting Duihomescreen. Otherwise, %Launcher doesn't react to entries in the <tt>installer-extra</tt> folder before next startup.
 */
