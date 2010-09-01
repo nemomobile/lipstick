@@ -109,7 +109,7 @@ private slots:
     void testRemovingLauncherButtonPlaceholderWhenInstallExtraEntryIsRemoved();
     // Test that when application's install extra file is removed, launcher button
     // for that application is not removed when application is installed.
-    void testThatLauncherButtonIsNotRemovedWhenApplicationIsInstalledAndWhenInstallExtraEntryIsRemoved();
+    void testWhenApplicationIsInstalledAndInstallExtraEntryIsRemovedThenLauncherButtonIsNotRemoved();
     // Test that removePlaceholderButton functions correctly when non-existent button is tried
     // to be removed.
     void testRemovingNonExistentPlaceholderButton();

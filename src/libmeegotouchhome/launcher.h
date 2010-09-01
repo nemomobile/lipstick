@@ -280,10 +280,13 @@ private:
     QMap<Launcher::Placement, QString> createPlacementMap(const QHash<QString, QVariant> &desktopEntryPlacements);
 
     /*!
-     * Adds a placeholder button to launcher
-     * \param desktopEntryPath Path to the desktop entry
+     * Gets a placeholder button for given entry.
+     * Finds and returns a button that represents the given entry. If button is not yet found in launcher
+     * we add a new placeholder button.
+     *
+     * \param desktopEntryPath Path to the buttons desktop entry
      */
-    void addPlaceholderButton(const QString& desktopEntryPath);
+    QSharedPointer<LauncherButton> placeholderButton(const QString& desktopEntryPath);
 
     /*!
      * Updates button placement to the launcher data store.
@@ -300,9 +303,6 @@ private:
      * \param page the LauncherPage whose maximum size should be set
      */
     void setMaximumPageSizeIfNecessary(QSharedPointer<LauncherPage> &page);
-
-    //! A mapping from desktop entry file name to placeholder launcher buttons
-    QMap<QString, QSharedPointer<LauncherButton> > placeholderMap;
 
     //! A string used for identifying content to be placed in the launcher
     static const QString LOCATION_IDENTIFIER;

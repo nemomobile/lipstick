@@ -76,12 +76,10 @@ void LauncherPage::removeButton(QSharedPointer<LauncherButton> button)
 bool LauncherPage::removeButton(const QString &desktopEntryPath)
 {
     bool contains = false;
-    foreach(QSharedPointer<LauncherButton> button, model()->launcherButtons()) {
-        if (button->desktopEntry() == desktopEntryPath) {
-            removeButton(button);
-            contains = true;
-            break;
-        }
+    int buttonPosition = launcherButtonPosition(desktopEntryPath);
+    if (buttonPosition >= 0) {
+        contains = true;
+        removeButton(model()->launcherButtons().at(buttonPosition));
     }
 
     return contains;
@@ -90,15 +88,11 @@ bool LauncherPage::removeButton(const QString &desktopEntryPath)
 bool LauncherPage::updateButton(const QString &desktopEntryPath)
 {
     bool contains = false;
-    QString entryFileName = QFileInfo(desktopEntryPath).fileName();
-    foreach(QSharedPointer<LauncherButton> button, model()->launcherButtons()) {
-        if (QFileInfo(button->desktopEntry()).fileName() == entryFileName) {
-            button->updateFromDesktopEntry(desktopEntryPath);
-            contains = true;
-            break;
-        }
+    int buttonPosition = launcherButtonPosition(desktopEntryPath);
+    if (buttonPosition >= 0) {
+        contains = true;
+        model()->launcherButtons().at(buttonPosition)->updateFromDesktopEntry(desktopEntryPath);;
     }
-
     return contains;
 }
 

@@ -46,7 +46,7 @@ class LauncherStub : public StubBase {
   virtual QSharedPointer<LauncherButton> createLauncherButton(const QString &desktopEntryPath);
   virtual QMap<Launcher::Placement, QString> createPlacementMap(const QHash<QString, QVariant> &desktopEntryPlacements);
   virtual void updateButtonState(const QString &desktopEntryPath, LauncherButtonModel::State state, int progress);
-  virtual void addPlaceholderButton(const QString &desktopEntryPath);
+  virtual QSharedPointer<LauncherButton> placeholderButton(const QString &desktopEntryPath);
   virtual void updateButtonPlacementInStore(const QString &desktopEntryPath);
   virtual void removePlaceholderButton(const QString &desktopEntryPath);
 };
@@ -171,10 +171,11 @@ void LauncherStub::updateButtonState(const QString &desktopEntryPath, LauncherBu
   stubMethodEntered("updateButtonState",params);
 }
 
-void LauncherStub::addPlaceholderButton(const QString &desktopEntryPath) {
+QSharedPointer<LauncherButton> LauncherStub::placeholderButton(const QString &desktopEntryPath) {
   QList<ParameterBase*> params;
   params.append( new Parameter<const QString & >(desktopEntryPath));
   stubMethodEntered("addPlaceholderButton",params);
+  return stubReturnValue<QSharedPointer<LauncherButton> >("placeholderButton");
 }
 
 void LauncherStub::updateButtonPlacementInStore(const QString &desktopEntryPath) {
@@ -274,8 +275,8 @@ void Launcher::updateButtonState(const QString &desktopEntryPath, LauncherButton
   gLauncherStub->updateButtonState(desktopEntryPath, state, progress);
 }
 
-void Launcher::addPlaceholderButton(const QString &desktopEntryPath) {
-  gLauncherStub->addPlaceholderButton(desktopEntryPath);
+QSharedPointer<LauncherButton> Launcher::placeholderButton(const QString &desktopEntryPath) {
+  gLauncherStub->placeholderButton(desktopEntryPath);
 }
 
 void Launcher::updateButtonPlacementInStore(const QString &desktopEntryPath) {
