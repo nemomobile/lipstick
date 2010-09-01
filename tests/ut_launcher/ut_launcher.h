@@ -87,8 +87,6 @@ private slots:
     void testRemovingButtons();
     // Test setting launcher to show first page
     void testSettingLauncherToFirstPage();
-    // Test signal connections
-    void testPackageMonitorListenerSignalConnections();
     // Test updating button state
     void testUpdateButtonState();
     // Test updating button state for a button just in launcher (not a placeholder)
@@ -118,5 +116,7 @@ private slots:
     void testRemovingNonExistentPlaceholderButton();
     // Test that when we get an operation error for a button that doesn't yet have a desktop entry, we remove the button
     void testOperationSuccessForButtonWithoutDesktopEntry();
+    // Test correct signal connections to data store and package listener after launcher initialization
+    void testConnectionsAfterLauncherInitialization();
 };
 #endif //_UT_LAUNCHER_

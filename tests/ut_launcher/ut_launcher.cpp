@@ -332,12 +332,6 @@ void Ut_Launcher::testSettingLauncherToFirstPage()
     QCOMPARE(spy.count(), 1);
 }
 
-void Ut_Launcher::testPackageMonitorListenerSignalConnections()
-{
-    QVERIFY(disconnect(packageMonitorListener, SIGNAL(packageStateChanged(const QString&, LauncherButtonModel::State, int)),
-            launcher, SLOT(updateButtonState(const QString, LauncherButtonModel::State, int))));
-}
-
 void Ut_Launcher::testUpdateButtonState()
 {
     const QString desktopEntry = "test.desktop";
@@ -554,6 +548,23 @@ void Ut_Launcher::testOperationSuccessForButtonWithoutDesktopEntry()
 
     // Verify that button (and page) was removed
     QCOMPARE(launcher->model()->launcherPages().count(), 0);
+}
+
+void Ut_Launcher::testConnectionsAfterLauncherInitialization()
+{
+    launcher->updatePagesFromDataStore();
+
+    // Connections to launcher data store
+    QVERIFY(connect(launcherDataStore, SIGNAL(dataStoreChanged()), launcher, SLOT(updatePagesFromDataStore())));
+    QVERIFY(disconnect(launcherDataStore, SIGNAL(desktopEntryAdded(QString)), launcher, SLOT(addLauncherButton(QString))));
+    QVERIFY(disconnect(launcherDataStore, SIGNAL(desktopEntryRemoved(QString)), launcher, SLOT(removeLauncherButton(QString))));
+    QVERIFY(disconnect(launcherDataStore, SIGNAL(desktopEntryChanged(QString)), launcher, SLOT(updateLauncherButton(QString))));
+
+    // Connections to package monitor listener
+    QVERIFY(disconnect(packageMonitorListener, SIGNAL(packageStateChanged(QString, LauncherButtonModel::State, int)),
+            launcher, SLOT(updateButtonState(QString, LauncherButtonModel::State, int))));
+    QVERIFY(disconnect(packageMonitorListener, SIGNAL(installExtraEntryRemoved(QString)),
+            launcher, SLOT(removePlaceholderButton(QString))));
 }
 
 QTEST_MAIN(Ut_Launcher)

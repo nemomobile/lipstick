@@ -53,12 +53,6 @@ void Launcher::setLauncherDataStore(LauncherDataStore *dataStore)
 void Launcher::setApplicationPackageMonitorListener(ApplicationPackageMonitorListener *packageMonitorListener)
 {
     this->packageMonitorListener = packageMonitorListener;
-
-    connect(packageMonitorListener, SIGNAL(packageStateChanged(QString, LauncherButtonModel::State, int)),
-        this, SLOT(updateButtonState(QString, LauncherButtonModel::State, int)));
-
-    connect(packageMonitorListener, SIGNAL(installExtraEntryRemoved(QString)),
-        this, SLOT(removePlaceholderButton(QString)));
 }
 
 void Launcher::setMaximumPageSize(int maximumPageSize)
@@ -165,8 +159,15 @@ void Launcher::updatePagesFromDataStore()
     removeEmptyPages(pages);
     model()->setLauncherPages(pages);
 
-    // After initializing launcher we can update the states from package monitor
-    packageMonitorListener->updatePackageStates();
+    // After updating launcher from launcher data store we can connect package listener and update the states
+    if (packageMonitorListener != NULL) {
+        connect(packageMonitorListener, SIGNAL(packageStateChanged(QString, LauncherButtonModel::State, int)),
+            this, SLOT(updateButtonState(QString, LauncherButtonModel::State, int)), Qt::UniqueConnection);
+        connect(packageMonitorListener, SIGNAL(installExtraEntryRemoved(QString)),
+            this, SLOT(removePlaceholderButton(QString)), Qt::UniqueConnection);
+
+        packageMonitorListener->updatePackageStates();
+    }
 }
 
 void Launcher::addDesktopEntriesWithKnownPlacements(QList<QSharedPointer<LauncherPage> > &pages)
