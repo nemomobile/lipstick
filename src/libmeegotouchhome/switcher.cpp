@@ -268,6 +268,20 @@ void Switcher::handleWindowInfoList(QList<WindowInfo> newWindowList)
     }
 }
 
+bool Switcher::sceneEvent(QEvent *event)
+{
+    bool handled = false;
+
+    if (event->type() == QEvent::TouchEnd) {
+        foreach (const QSharedPointer<SwitcherButton> &button, model()->buttons()) {
+            button->removeSceneEventFilter(this);
+        }
+        handled = true;
+    }
+
+    return handled || MWidgetController::sceneEvent(event);
+}
+
 void Switcher::updateWindowTitle(Window window)
 {
     if (windowInfoSet.contains(window)) {
@@ -278,7 +292,6 @@ void Switcher::updateWindowTitle(Window window)
         }
     }
 }
-
 
 void Switcher::updateWindowProperties(Window window)
 {

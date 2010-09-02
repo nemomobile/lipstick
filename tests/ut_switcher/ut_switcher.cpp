@@ -417,6 +417,12 @@ void QTimer::stop()
     id = -1;
 }
 
+QList<QPair<QGraphicsItem*, QGraphicsItem*> > gQGraphicsItem_removeSceneEventFilter;
+void QGraphicsItem::removeSceneEventFilter(QGraphicsItem *filterItem)
+{
+    gQGraphicsItem_removeSceneEventFilter.append(qMakePair(this, filterItem));
+}
+
 QList<Window> Ut_Switcher::visibilityNotifyWindows;
 int Ut_Switcher::clientListNumberOfWindows;
 void Ut_Switcher::init()
@@ -453,6 +459,8 @@ void Ut_Switcher::init()
     x11WrapperWMName.clear();
     x11WrapperSendEventCalls.clear();
     x11WrapperTransientForHint.clear();
+
+    gQGraphicsItem_removeSceneEventFilter.clear();
 }
 
 void Ut_Switcher::cleanup()
@@ -821,6 +829,31 @@ void Ut_Switcher::testTransientWindowClosing()
         QCOMPARE(sec.event.xclient.data.l[1], (long)QX11Info::appRootWindow(QX11Info::appScreen()));
         QCOMPARE(sec.event.xclient.data.l[2], 0L);
     }
+}
+
+#undef None
+void Ut_Switcher::testWhenNonTouchEndSceneEventArrivesThenSceneEventFilteringForSwitcherButtonsIsNotAffected()
+{
+    QList<QSharedPointer<SwitcherButton> > buttons;
+    buttons.append(QSharedPointer<SwitcherButton>(new SwitcherButton));
+    switcher->model()->setButtons(buttons);
+
+    QEvent nonTouchEndEvent(QEvent::None);
+    QCOMPARE(switcher->sceneEvent(&nonTouchEndEvent), false);
+    QCOMPARE(gQGraphicsItem_removeSceneEventFilter.count(), 0);
+}
+
+void Ut_Switcher::testWhenTouchEndSceneEventArrivesThenSceneEventFilteringForSwitcherButtonStops()
+{
+    QList<QSharedPointer<SwitcherButton> > buttons;
+    buttons.append(QSharedPointer<SwitcherButton>(new SwitcherButton));
+    switcher->model()->setButtons(buttons);
+
+    QEvent touchEndEvent(QEvent::TouchEnd);
+    QCOMPARE(switcher->sceneEvent(&touchEndEvent), true);
+    QCOMPARE(gQGraphicsItem_removeSceneEventFilter.count(), 1);
+    QCOMPARE(gQGraphicsItem_removeSceneEventFilter.at(0).first, buttons.at(0).data());
+    QCOMPARE(gQGraphicsItem_removeSceneEventFilter.at(0).second, switcher);
 }
 
 QTEST_APPLESS_MAIN(Ut_Switcher)

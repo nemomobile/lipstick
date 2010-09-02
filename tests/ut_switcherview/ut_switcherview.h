@@ -91,6 +91,12 @@ private slots:
     void testWhenPinchGestureHasBeenPerformedOnTopOfPressedSwitcherButtonThenSwitcherButtonIsUp();
     void testWhenPinchGestureHasBeenPerformedOnTopOfNonPressedSwitcherButtonThenAllOfTheSwitcherButtonsAreUp();
 
+    void testWhenPinchGestureStartsThenSceneEventFilteringForSwitcherButtonStarts();
+    void testGraphicsSceneMouseMoveEventsDoNotGetFilteredForSwitcherButtonsByDefault();
+    void testGraphicsSceneMouseMoveEventsGetFilteredForSwitcherButtons();
+    void testOtherThanGraphicsSceneMouseMoveEventsDoNotGetFilteredForSwitcherButtons();
+    void testGraphicsSceneMouseMoveEventsDoNotGetFilteredForOtherThanSwitcherButtons();
+
 private:
     void verifyButtonModesInOverviewMode(M::Orientation orientation);
     void verifyButtonModesInOverviewMode(QList< QSharedPointer<SwitcherButton> > &buttonList);

@@ -465,6 +465,9 @@ void SwitcherView::pinchGestureEvent(QGestureEvent *event, QPinchGesture* gestur
             viewport->setEnabled(false);
             calculateNearestButtonAt(gesture->centerPoint());
 
+            foreach (const QSharedPointer<SwitcherButton> &button, model()->buttons()) {
+                button->installSceneEventFilter(controller);
+            }
             break;
         }
     case Qt::GestureUpdated:
@@ -524,8 +527,27 @@ void SwitcherView::pinchGestureEvent(QGestureEvent *event, QPinchGesture* gestur
             button->setDown(false);
         }
         break;
+
+    default:
+        break;
     }
     event->accept(gesture);
+}
+
+bool SwitcherView::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
+{
+    bool filtered = false;
+
+    if (event->type() == QEvent::GraphicsSceneMouseMove) {
+        foreach (const QSharedPointer<SwitcherButton> &button, model()->buttons()) {
+            if (button == watched) {
+                filtered = true;
+                break;
+            }
+        }
+    }
+
+    return filtered;
 }
 
 void SwitcherView::applyPinchGestureTargetMode()

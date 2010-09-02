@@ -142,6 +142,9 @@ private slots:
     // Test that closing a transient window will close all the windows it is transient for
     void testTransientWindowClosing();
 
+    void testWhenNonTouchEndSceneEventArrivesThenSceneEventFilteringForSwitcherButtonsIsNotAffected();
+    void testWhenTouchEndSceneEventArrivesThenSceneEventFilteringForSwitcherButtonStops();
+
 private:
     MSceneManager *mSceneManager;
 };

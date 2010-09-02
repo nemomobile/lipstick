@@ -16,6 +16,7 @@
 ** of this file.
 **
 ****************************************************************************/
+#include <QGraphicsSceneMouseEvent>
 #include <MApplication>
 #include <MApplicationPage>
 #include <MGridLayoutPolicy>
@@ -23,20 +24,19 @@
 #include <QGraphicsLayout>
 #include "mwindow_stub.h"
 #include "ut_switcherview.h"
-#include "mainwindow_stub.h"
 #include "mscenemanager_stub.h"
 #include "switcherview.h"
 #include "switcherstyle.h"
 #include "switcher_stub.h"
 #include "switcherbutton.h"
-#include "x11wrapper_stub.h"
-#include "windowinfo_stub.h"
 #include "pagedpanning.h"
 #include "pagedviewport.h"
 #include "transformlayoutanimation_stub.h"
 #include <QGestureEvent>
 #include <QPinchGesture>
 #include <mclassfactory.h>
+#include "mainwindow_stub.h"
+#include "windowinfo_stub.h"
 
 static void setSwitcherButtonSize(QList< QSharedPointer<SwitcherButton> > &buttonList, const QSizeF &size);
 static void verifyEqualContentMarginValues(qreal first, qreal second, qreal target);
@@ -301,12 +301,18 @@ float PagedPanning::pageWidth() const
     return 0;
 }
 
+void PagedPanning::setPage(uint)
+{
+}
+
 QList<QGraphicsItem *> items_;
 QList<QGraphicsItem *> QGraphicsView::items(const QPoint &/*pos*/) const
 { return items_;}
 
-void PagedPanning::setPage(uint)
+QList<QPair<QGraphicsItem*, QGraphicsItem*> > gQGraphicsItem_installSceneEventFilter;
+void QGraphicsItem::installSceneEventFilter(QGraphicsItem *filterItem)
 {
+    gQGraphicsItem_installSceneEventFilter.append(qMakePair(this, filterItem));
 }
 
 void PagedPanning::setPanThreshold(qreal value)
@@ -470,6 +476,7 @@ void Ut_SwitcherView::init()
     gestures.append(mPinch);
     mEvent = new QGestureEvent(gestures);
     items_.clear();
+    gQGraphicsItem_installSceneEventFilter.clear();
 }
 
 void Ut_SwitcherView::cleanup()
@@ -1008,6 +1015,53 @@ void Ut_SwitcherView::testWhenPinchGestureHasBeenPerformedOnTopOfNonPressedSwitc
 
     QCOMPARE(buttons.at(0)->isDown(), false);
     QCOMPARE(buttons.at(1)->isDown(), false);
+}
+
+void Ut_SwitcherView::testWhenPinchGestureStartsThenSceneEventFilteringForSwitcherButtonStarts()
+{
+    QList<QSharedPointer<SwitcherButton> > buttons = createButtonList(1);
+    g_switcherModel->setButtons(buttons);
+
+    pinchGesture(0.5, Qt::GestureStarted);
+
+    QCOMPARE(gQGraphicsItem_installSceneEventFilter.count(), 1);
+    QCOMPARE(gQGraphicsItem_installSceneEventFilter.at(0).first, buttons.at(0).data());
+    QCOMPARE(gQGraphicsItem_installSceneEventFilter.at(0).second, switcher);
+}
+
+void Ut_SwitcherView::testGraphicsSceneMouseMoveEventsDoNotGetFilteredForSwitcherButtonsByDefault()
+{
+    QList<QSharedPointer<SwitcherButton> > buttons = createButtonList(1);
+    g_switcherModel->setButtons(buttons);
+
+    QGraphicsSceneMouseEvent mouseMoveEvent(QEvent::GraphicsSceneMouseMove);
+    QCOMPARE(m_subject->sceneEventFilter(buttons.at(0).data(), &mouseMoveEvent), true);
+}
+
+void Ut_SwitcherView::testGraphicsSceneMouseMoveEventsGetFilteredForSwitcherButtons()
+{
+    QList<QSharedPointer<SwitcherButton> > buttons = createButtonList(1);
+    g_switcherModel->setButtons(buttons);
+
+    QGraphicsSceneMouseEvent mouseMoveEvent(QEvent::GraphicsSceneMouseMove);
+    QCOMPARE(m_subject->sceneEventFilter(buttons.at(0).data(), &mouseMoveEvent), true);
+}
+
+#undef None
+void Ut_SwitcherView::testOtherThanGraphicsSceneMouseMoveEventsDoNotGetFilteredForSwitcherButtons()
+{
+    QList<QSharedPointer<SwitcherButton> > buttons = createButtonList(1);
+    g_switcherModel->setButtons(buttons);
+
+    QEvent event(QEvent::None);
+    QCOMPARE(m_subject->sceneEventFilter(buttons.at(0).data(), &event), false);
+}
+
+void Ut_SwitcherView::testGraphicsSceneMouseMoveEventsDoNotGetFilteredForOtherThanSwitcherButtons()
+{
+    QGraphicsSceneMouseEvent mouseMoveEvent(QEvent::GraphicsSceneMouseMove);
+    QGraphicsWidget item;
+    QCOMPARE(m_subject->sceneEventFilter(&item, &mouseMoveEvent), false);
 }
 
 QTEST_APPLESS_MAIN(Ut_SwitcherView)

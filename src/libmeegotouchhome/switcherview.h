@@ -69,15 +69,19 @@ protected:
      * Re-implemented here to get an update when the model is set
      */
     virtual void setupModel();
-    //! \reimp_end
 
-    /*! \reimp
+    /*!
       * Re-implemented to handle the mode switch
       *
       * \param event Gesture event class for general event handling.
       * \param gesture Pinch gesture class. Contains all pinch specific information
       */
     virtual void pinchGestureEvent(QGestureEvent *event, QPinchGesture* gesture);
+
+    /*!
+     * Filters QGraphicsSceneMouseMove events from SwitcherButtons.
+     */
+    virtual bool sceneEventFilter(QGraphicsItem *watched, QEvent *event);
     //! \reimp_end
 
 protected slots:

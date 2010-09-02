@@ -75,6 +75,15 @@ public slots:
      */
     void handleWindowInfoList(QList<WindowInfo> newWindowList);
 
+protected:
+    //! \reimp
+    /*!
+     * When QEvent::TouchEnd event arrives, stops the Switcher from being an event
+     * filter for the SwitcherButtons
+     */
+    virtual bool sceneEvent(QEvent *event);
+    //! \reimp_end
+
 private slots:
     /*!
      * \brief Updates the buttons in the model based on the current window list
