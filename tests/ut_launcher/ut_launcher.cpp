@@ -223,9 +223,9 @@ void Ut_Launcher::testButtonPlacement()
     QCOMPARE(placement.position, -1);
 }
 
-void Ut_Launcher::testPanToPage()
+void Ut_Launcher::testFocusToPage()
 {
-    QSignalSpy spy(launcher, SIGNAL(panningRequested(uint)));
+    QSignalSpy spy(launcher, SIGNAL(focusToPageRequested(uint)));
 
     QString testAppName("testApp.desktop");
     QString badAppName("nonExistentApp.desktop");
@@ -234,11 +234,11 @@ void Ut_Launcher::testPanToPage()
     addButtonsToLauncher(6);
     gLauncherButtonStub->stubSetReturnValue("desktopEntry", fullPathName);
 
-    int result = launcher->panToPage(fullPathName);
+    int result = launcher->focusToPage(fullPathName);
     QCOMPARE(result, 0);
     comparePageNumberArgument(spy, 0);
 
-    result = launcher->panToPage(badAppName);
+    result = launcher->focusToPage(badAppName);
     QCOMPARE(result, -1);
     QCOMPARE(spy.count(), 0);
 }
@@ -327,9 +327,11 @@ void Ut_Launcher::testRemovingButtons()
 
 void Ut_Launcher::testSettingLauncherToFirstPage()
 {
-    QSignalSpy spy(launcher, SIGNAL(focusToFirstPageRequested()));
-    launcher->setFirstPage();
+    QSignalSpy spy(launcher, SIGNAL(focusToPageRequested(uint)));
+    launcher->setPage(0);
     QCOMPARE(spy.count(), 1);
+    QList<QVariant> arguments = spy.takeFirst();
+    QCOMPARE(arguments.at(0).toUInt(), (uint)0);
 }
 
 void Ut_Launcher::testUpdateButtonState()

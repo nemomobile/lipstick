@@ -54,7 +54,6 @@ signals:
     void directoryLaunched(const QString &directory, const QString &title = QString(), const QString &iconId = QString());
     void directoryChanged(const QString path);
     void buttonClicked();
-    void testPanToPageSignal(const QString &filePath);
     void updateButton(const QString &filePath);
 
 private slots:
@@ -74,7 +73,7 @@ private slots:
     // Test buttonPlacement() with full desktopEntryPath, with name of the file and faulty name.
     void testButtonPlacement();
     // Test panToPage() with successfull and unsuccessfull case.
-    void testPanToPage();
+    void testFocusToPage();
     // Test that launcher button is updated when signal received
     void testUpdatingLauncherButton();
     // Test adding buttons

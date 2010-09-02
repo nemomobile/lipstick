@@ -342,7 +342,7 @@ void Ut_DesktopView::testToggleLauncher()
 {
     gQGraphicsItemIsVisible = false;
     desktopView->toggleLauncher();
-    QCOMPARE(1, gLauncherStub->stubCallCount("setFirstPage"));
+    QCOMPARE(gLauncherStub->stubLastCallTo("setPage").parameter<uint>(0), (uint)0);
     verifyAppearDisappear(desktopView->launcherWindow, desktopView->switcherWindow);
 
     gQGraphicsItemIsVisible = true;
@@ -389,9 +389,9 @@ void Ut_DesktopView::testWhenFullscreenWindowAppearsLauncherGetsHidden()
 
 void Ut_DesktopView::testShowLauncherAndPanToPageWithCorrectDesktopFile()
 {
-    gLauncherStub->stubSetReturnValue("panToPage", 1);
+    gLauncherStub->stubSetReturnValue("focusToPage", 1);
 
-    desktopView->showLauncherAndPanToPage("correctFileName");
+    desktopView->showLauncherAndFocusToPage("correctFileName");
     gQGraphicsItemIsVisible = true;
 
     QCOMPARE(windowActivated, true);
@@ -402,13 +402,13 @@ void Ut_DesktopView::testShowLauncherAndPanToPageWithCorrectDesktopFile()
 
 void Ut_DesktopView::testShowLauncherAndPanToPageWithBadDesktopFile()
 {
-    gLauncherStub->stubSetReturnValue("panToPage", -1);
+    gLauncherStub->stubSetReturnValue("focusToPage", -1);
 
     desktopView->launcher->setVisible(false);
 
     QCOMPARE(desktopView->launcherWindow->isVisible(), false);
 
-    desktopView->showLauncherAndPanToPage("badFileName");
+    desktopView->showLauncherAndFocusToPage("badFileName");
 
     QCOMPARE(windowActivated, false);
     QCOMPARE(windowRaised, false);
@@ -417,11 +417,11 @@ void Ut_DesktopView::testShowLauncherAndPanToPageWithBadDesktopFile()
 
 void Ut_DesktopView::testShowLauncherAndPanToPageWithEmptyDesktopFile()
 {
-    gLauncherStub->stubSetReturnValue("panToPage", -1);
+    gLauncherStub->stubSetReturnValue("focusToPage", -1);
 
     QCOMPARE(desktopView->launcherWindow->isVisible(), false);
 
-    desktopView->showLauncherAndPanToPage("");
+    desktopView->showLauncherAndFocusToPage("");
     gQGraphicsItemIsVisible = true;
 
     QCOMPARE(windowActivated, true);

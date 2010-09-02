@@ -31,8 +31,8 @@ class LauncherStub : public StubBase {
   virtual void LauncherDestructor();
   virtual void setLauncherDataStore(LauncherDataStore *dataStore);
   virtual void setApplicationPackageMonitorListener(ApplicationPackageMonitorListener *packageMonitorListener);
-  virtual int panToPage(const QString &desktopFileEntry);
-  virtual void setFirstPage();
+  virtual void setPage(uint page);
+  virtual int focusToPage(const QString &dekstopFileEntry);
   virtual void addLauncherButton(const QString &desktopEntryPath);
   virtual void removeLauncherButton(const QString &desktopEntryPath);
   virtual bool updateLauncherButton(const QString &desktopEntryPath);
@@ -72,15 +72,19 @@ void LauncherStub::setApplicationPackageMonitorListener(ApplicationPackageMonito
     params.append( new Parameter<ApplicationPackageMonitorListener *>(packageMonitorListener));
     stubMethodEntered("setApplicationPackageMonitorListener", params);
 }
-int LauncherStub::panToPage(const QString &desktopFileEntry) {
+
+void LauncherStub::setPage(uint page) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const QString & >(desktopFileEntry));
-  stubMethodEntered("panToPage",params);
-  return stubReturnValue<int>("panToPage");
+  params.append( new Parameter<uint>(page));
+  stubMethodEntered("setPage",params);
 }
 
-void LauncherStub::setFirstPage() {
-  stubMethodEntered("setFirstPage");
+int LauncherStub::focusToPage(const QString &desktopFileEntry)
+{
+  QList<ParameterBase*> params;
+  params.append( new Parameter<const QString & >(desktopFileEntry));
+  stubMethodEntered("focusToPage",params);
+  return stubReturnValue<int>("focusToPage");
 }
 
 void LauncherStub::addLauncherButton(const QString &desktopEntryPath) {
@@ -210,12 +214,12 @@ void Launcher::setApplicationPackageMonitorListener(ApplicationPackageMonitorLis
   gLauncherStub->setApplicationPackageMonitorListener(packageMonitorListener);
 }
 
-int Launcher::panToPage(const QString &desktopFileEntry) {
-  return gLauncherStub->panToPage(desktopFileEntry);
+void Launcher::setPage(uint page) {
+  gLauncherStub->setPage(page);
 }
 
-void Launcher::setFirstPage() {
-  gLauncherStub->setFirstPage();
+int Launcher::focusToPage(const QString &desktopEntryFile) {
+    return gLauncherStub->focusToPage(desktopEntryFile);
 }
 
 void Launcher::addLauncherButton(const QString &desktopEntryPath) {

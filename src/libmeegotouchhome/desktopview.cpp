@@ -145,7 +145,7 @@ DesktopView::DesktopView(Desktop *desktop) :
     // Add the launcher into a scene window
     launcher->setLauncherDataStore(launcherDataStore);
     launcher->setApplicationPackageMonitorListener(packageMonitorListener);
-    connect(qApp, SIGNAL(focusToLauncherAppRequested(const QString &)), this, SLOT(showLauncherAndPanToPage(const QString &)));
+    connect(qApp, SIGNAL(focusToLauncherAppRequested(const QString &)), this, SLOT(showLauncherAndFocusToPage(const QString &)));
     connect(homeWindowMonitor.data(), SIGNAL(fullscreenWindowOnTopOfOwnWindow()), SLOT(hideLauncher()));
     connect(switcher, SIGNAL(windowListUpdated(const QList<WindowInfo> &)), this, SLOT(setSwitcherHasContent(const QList<WindowInfo> &)));
     windowLayout = new QGraphicsLinearLayout();
@@ -214,9 +214,9 @@ void DesktopView::drawBackground(QPainter *painter, const QStyleOptionGraphicsIt
     }
 }
 
-void DesktopView::showLauncherAndPanToPage(const QString &desktopFileEntry)
+void DesktopView::showLauncherAndFocusToPage(const QString &desktopFileEntry)
 {
-    if(launcher->panToPage(desktopFileEntry) >= 0 || desktopFileEntry.isEmpty()) {
+    if(launcher->focusToPage(desktopFileEntry) >= 0 || desktopFileEntry.isEmpty()) {
         showLauncher();
         MainWindow::instance()->activateWindow();
         MainWindow::instance()->raise();
@@ -228,7 +228,7 @@ void DesktopView::toggleLauncher()
     if (launcherWindow->isVisible()) {
         hideLauncher();
     } else {
-        launcher->setFirstPage();
+        launcher->setPage(0);
         showLauncher();
     }
 }

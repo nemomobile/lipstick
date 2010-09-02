@@ -345,20 +345,18 @@ QMap<Launcher::Placement, QString> Launcher::createPlacementMap(const QHash<QStr
     return placementMap;
 }
 
-int Launcher::panToPage(const QString &desktopFileEntry)
+int Launcher::focusToPage(const QString &desktopFileEntry)
 {
-
-    Placement placement = buttonPlacement(desktopFileEntry);
-    int page = placement.page;
+    int page = buttonPlacement(desktopFileEntry).page;
     if (page >= 0) {
-        emit panningRequested((uint)page);
+        setPage((uint)page);
     }
     return page;
 }
 
-void Launcher::setFirstPage()
+void Launcher::setPage(uint page)
 {
-    emit focusToFirstPageRequested();
+    emit focusToPageRequested(page);
 }
 
 void Launcher::setMaximumPageSizeIfNecessary(QSharedPointer<LauncherPage> &page)

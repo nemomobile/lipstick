@@ -126,28 +126,29 @@ signals:
     void panningRequested(uint page);
 
     /*!
-     * Signal to request moving launcher focus to first page
+     * Signal to request moving launcher focus to a page
      */
-    void focusToFirstPageRequested();
+    void focusToPageRequested(uint page);
 
 public slots:
 
     /*!
-     * Open launcher and pan to page where launcher button of requested application is placed
+     * Opens Launcher from the page where Launcher Button of requested application is placed.
      *
      * \param desktopFileEntry is application's desktop file.
      * Name should be given in format "filename.desktop" or in absolute path.
-     * Default applications directory path is used if only file name given.
      *
-     * \return number of page that contains application. Returns -1 if .desktop
-     * file is not found.
+     * \return index of page that contains application. Returns -1 if buttons
+     * is not found from launcher.
      */
-    int panToPage(const QString &desktopFileEntry);
+    int focusToPage(const QString &desktopFileEntry);
 
     /*!
-     * Set launcher to show first page
+     * Set launcher to show a page.
+     *
+     *\param number of page to show.
      */
-    void setFirstPage();
+    void setPage(uint page);
 
     /*!
      * Updates the state and operation progress of a launcher button.

@@ -72,8 +72,10 @@ void PagedViewport::panToPage(uint page)
     Q_UNUSED(page)
 }
 
-void PagedViewport::setPage(uint)
+int gSetPageCalled = -1;
+void PagedViewport::setPage(uint page)
 {
+    gSetPageCalled = page;
 }
 
 bool gFocusFirstPageCalled = false;
@@ -124,6 +126,7 @@ void Ut_LauncherView::init()
     showWindowCount = 0;
     hideWindowCount = 0;
     gFocusFirstPageCalled = false;
+    gSetPageCalled = -1;
     connect(this, SIGNAL(updateDataRequested(const QList<const char *>&)),
             view, SLOT(updateData(const QList<const char *>&)));
 }
@@ -230,16 +233,16 @@ void Ut_LauncherView::testRemovingPagesFromLayoutInDestructor()
 
 void Ut_LauncherView::testSignalConnection()
 {
-    QVERIFY(disconnect(controller, SIGNAL(focusToFirstPageRequested()), view, SLOT(focusFirstPage())));
-    connect(controller, SIGNAL(focusToFirstPageRequested()), view, SLOT(focusFirstPage()));
+    QVERIFY(disconnect(controller, SIGNAL(focusToPageRequested(uint)), view, SLOT(focusToPage(uint))));
+    connect(controller, SIGNAL(focusToPageRequested(uint)), view, SLOT(focusToPage(uint)));
 }
 
-void Ut_LauncherView::testFocusFirstPage()
+void Ut_LauncherView::testSetPage()
 {
     // Test that focusToFirstPageRequested() signal goes to correct slot from
-    // which pagedViewport->focusFirstPage() is called
-    controller->setFirstPage();
-    QCOMPARE(gFocusFirstPageCalled, true);
+    // which pagedViewport->setPage() is called.
+    controller->setPage(2);
+    QCOMPARE(gSetPageCalled, 2);
 }
 
 void Ut_LauncherView::testUpdateData()

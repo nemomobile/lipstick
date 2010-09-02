@@ -52,7 +52,7 @@ private slots:
     void testRemovingPages();
     void testRemovingPagesFromLayoutInDestructor();
     void testSignalConnection();
-    void testFocusFirstPage();
+    void testSetPage();
     void testUpdateData();
 
 private:
