@@ -331,7 +331,7 @@ void SwitcherButtonView::damageEvent(Qt::HANDLE &damage, short &x, short &y, uns
     Q_UNUSED(height);
 #ifdef Q_WS_X11
     if (xWindowPixmapDamage == damage) {
-        X11Wrapper::XDamageSubtract(QX11Info::display(), xWindowPixmapDamage, NULL, NULL);
+        X11Wrapper::XDamageSubtract(QX11Info::display(), xWindowPixmapDamage, None, None);
         update();
     }
 #else
