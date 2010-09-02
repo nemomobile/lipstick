@@ -54,7 +54,7 @@ duihome (0.21.13-1) unstable; urgency=low
 
 duihome (0.21.12-1) unstable; urgency=low
 
-  * Implemented: SWP#3148 Verify tappability of switcher thumbnail close button
+  * Implemented: SWP#DUI-3148 Verify tappability of switcher thumbnail close button
   * Implemented: SWP#DUI-3336 Application start-up indication
   * Implemented: SWP#DUI-3244 Remove customized handling of call UI windows in switcher
   * Fixes: NB#176177 - Launcher buttons are not placed in their expected positions
