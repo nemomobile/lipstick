@@ -3,7 +3,7 @@
 \section v02118 0.21.18
 
 \subsection New
-- The switcher transitions have been implemented
+- Switching between Switcher overview and detailview modes can be performed by pinching
 - The search client can be opened by typing on the hardware keyboard
 - The call UI can be opened by typing numbers on the hardware keyboard
 - Showing installation and update progress of application in launcher and quicklaunchbar
