@@ -464,6 +464,7 @@ void SwitcherView::pinchGestureEvent(QGestureEvent *event, QPinchGesture* gestur
             activeGesture = gesture;
             viewport->setEnabled(false);
             calculateNearestButtonAt(gesture->centerPoint());
+
             break;
         }
     case Qt::GestureUpdated:
@@ -503,8 +504,7 @@ void SwitcherView::pinchGestureEvent(QGestureEvent *event, QPinchGesture* gestur
 
             break;
         }
-    default:
-        // Gesture finished.
+    case Qt::GestureFinished:
         layoutAnimation->setManualControl(false);
 
         if(bounceAnimation->state() == QAbstractAnimation::Paused) {
@@ -520,11 +520,8 @@ void SwitcherView::pinchGestureEvent(QGestureEvent *event, QPinchGesture* gestur
         viewport->setEnabled(true);
         activeGesture = 0;
 
-        // Pinch gesture leaks a mouse press event to button(s) that are directly underneath the pinch center.
-        // We need to check if there's a button under pinch, and if so, cancel the mouse event.
-        SwitcherButton* pinchedButton = buttonAt(gesture->centerPoint());
-        if(pinchedButton) {
-            pinchedButton->setDown(false);
+        foreach (const QSharedPointer<SwitcherButton> &button, model()->buttons()) {
+            button->setDown(false);
         }
         break;
     }

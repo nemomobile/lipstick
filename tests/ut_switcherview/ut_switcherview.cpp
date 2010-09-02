@@ -329,7 +329,7 @@ void Ut_SwitcherView::appendMoreButtonsToList(int newButtons, QList< QSharedPoin
         QSharedPointer<SwitcherButton> button(new SwitcherButton);
         button->setText(QString("Title %1").arg(i));
         button->setXWindow(i);
-        button.data()->setModel(new SwitcherButtonModel());
+        button->setModel(new SwitcherButtonModel());
         buttonList.append(button);
     }
 }
@@ -956,24 +956,58 @@ void Ut_SwitcherView::testWhenPinchingOnEmptyAreaNearestButtonIsDetected()
     QCOMPARE(m_subject->pinchedButtonPosition, 1);
 }
 
-void Ut_SwitcherView::testButtonPressCancelationWhenPinching() {
-    SwitcherButton item1;
-    item1.setText("button");
-    item1.setXWindow(1);
-    items_.append(&item1);
+void Ut_SwitcherView::testWhenPinchGestureHasBeenPerformedOnTopOfPressedSwitcherButtonThenSwitcherButtonIsUp() {
+    const qreal BUTTON_WIDTH = 100.0;
+    const qreal BUTTON_HEIGHT = 100.0;
+
+    QList<QSharedPointer<SwitcherButton> > buttons = createButtonList(1);
+
+    buttons.at(0)->setGeometry(QRectF(0.0, 0.0, BUTTON_WIDTH, BUTTON_HEIGHT));
+    buttons.at(0)->setDown(true);
+
+    g_switcherModel->setButtons(buttons);
+
     g_switcherModel->setSwitcherMode(SwitcherModel::Detailview);
     gTransformLayoutAnimationStub->stubSetReturnValue("manualControl", true);
 
-    item1.setGeometry(QRectF(0,0,100,100));
-    item1.setDown(true);
+    // Pinch in the middle of the button
+    mPinch->setCenterPoint(QPointF(BUTTON_WIDTH / 2.0, BUTTON_HEIGHT / 2.0));
 
-    mPinch->setCenterPoint(QPointF(30,30));
+    pinchGesture(0.5, Qt::GestureStarted);
+    pinchGesture(0.5, Qt::GestureUpdated);
+    pinchGesture(0.5, Qt::GestureFinished);
 
-    pinchGesture(0.5,Qt::GestureStarted);
-    pinchGesture(0.5,Qt::GestureUpdated);
-    pinchGesture(0.5,Qt::GestureFinished);
+    QCOMPARE(buttons.at(0)->isDown(), false);
+}
 
-    QVERIFY(!item1.isDown());
+void Ut_SwitcherView::testWhenPinchGestureHasBeenPerformedOnTopOfNonPressedSwitcherButtonThenAllOfTheSwitcherButtonsAreUp()
+{
+    const qreal BUTTON_WIDTH = 100.0;
+    const qreal BUTTON_HEIGHT = 100.0;
+
+    QList<QSharedPointer<SwitcherButton> > buttons = createButtonList(2);
+
+    buttons.at(0)->setGeometry(QRectF(0.0, 0.0, BUTTON_WIDTH, BUTTON_HEIGHT));
+    buttons.at(0)->setDown(false);
+
+    buttons.at(1)->setGeometry(QRectF(0.0, BUTTON_HEIGHT, BUTTON_WIDTH, BUTTON_HEIGHT));
+    // Set down the bottommost button
+    buttons.at(1)->setDown(true);
+
+    g_switcherModel->setButtons(buttons);
+
+    g_switcherModel->setSwitcherMode(SwitcherModel::Overview);
+    gTransformLayoutAnimationStub->stubSetReturnValue("manualControl", true);
+
+    // Pinch in the middle of the upmost button
+    mPinch->setCenterPoint(QPointF(BUTTON_WIDTH / 2.0, BUTTON_HEIGHT / 2.0));
+
+    pinchGesture(0.5, Qt::GestureStarted);
+    pinchGesture(0.5, Qt::GestureUpdated);
+    pinchGesture(0.5, Qt::GestureFinished);
+
+    QCOMPARE(buttons.at(0)->isDown(), false);
+    QCOMPARE(buttons.at(1)->isDown(), false);
 }
 
 QTEST_APPLESS_MAIN(Ut_SwitcherView)
