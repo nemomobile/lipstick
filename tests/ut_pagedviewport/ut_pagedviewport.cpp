@@ -130,7 +130,7 @@ void PagedPanning::setPage(uint page)
     gPagedPanningSetPage = page;
 }
 
-void PagedPanning::setPanTreshold(qreal value)
+void PagedPanning::setPanThreshold(qreal value)
 {
     Q_UNUSED(value)
 }

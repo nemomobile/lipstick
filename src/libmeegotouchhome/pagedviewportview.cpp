@@ -39,7 +39,7 @@ void PagedViewportView::applyStyle()
         physics->setVelocityThreshold(style()->velocityThreshold());
         physics->setPageSnapSpringK(style()->pageSnapSpringK());
         physics->setPageSnapFriction(style()->pageSnapFrictionC());
-        physics->setPanTreshold(style()->panThreshold());
+        physics->setPanThreshold(style()->panThreshold());
     }
 
     MPannableWidgetView::applyStyle();

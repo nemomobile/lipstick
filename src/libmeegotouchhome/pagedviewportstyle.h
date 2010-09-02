@@ -36,6 +36,8 @@
           to a page, affects the damping of the snap.
       \li slide-limit - defines the maximum number of pages to change per gesture,
           value of zero means there's no limit.
+      \li pan-threshold - defines the length of swipe before it taken determined
+          to be panning
 
     \sa MPannableWidgetStyle
 */
@@ -49,6 +51,7 @@ class PagedViewportStyle : public MPannableWidgetStyle
     M_STYLE_ATTRIBUTE(int,   slideLimit,        SlideLimit)
     M_STYLE_ATTRIBUTE(qreal, pageSnapSpringK,   PageSnapSpringK)
     M_STYLE_ATTRIBUTE(qreal, pageSnapFrictionC, PageSnapFrictionC)
+    M_STYLE_ATTRIBUTE(qreal, panThreshold, PanThreshold)
 };
 
 class PagedViewportStyleContainer : public MPannableWidgetStyleContainer

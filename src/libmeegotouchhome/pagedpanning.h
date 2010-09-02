@@ -96,7 +96,7 @@ public:
     /*!
      * Sets the pan treshold value
      */
-    void setPanTreshold(qreal value);
+    void setPanThreshold(qreal value);
 
     /*!
      * \return the currently active page
@@ -163,7 +163,7 @@ private:
     qreal velocityThreshold_;
 
     //! Panning treshold
-    qreal panTreshold;
+    qreal panThreshold;
 
     //! Snap activation drag threshold
     qreal dragThreshold_;

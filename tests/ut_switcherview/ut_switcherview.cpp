@@ -309,7 +309,7 @@ void PagedPanning::setPage(uint)
 {
 }
 
-void PagedPanning::setPanTreshold(qreal value)
+void PagedPanning::setPanThreshold(qreal value)
 {
     Q_UNUSED(value)
 }
