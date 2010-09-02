@@ -261,6 +261,26 @@ void Ut_MainWindow::testContentSearchLaunchQueuedWhenLaunchingFailed()
     QCOMPARE(dBusArguments.at(0).toString(), QString("ABC"));
 }
 
+void Ut_MainWindow::testNothingLaunchedWhenControlModifierPressed()
+{
+    // Add a relevant set of keys to the map
+    QSet<int> keys;
+    addIntRangeToSet(keys, Qt::Key_Space, Qt::Key_QuoteDbl);
+    addIntRangeToSet(keys, Qt::Key_Dollar, Qt::Key_ParenRight);
+    addIntRangeToSet(keys, Qt::Key_Comma, Qt::Key_Slash);
+    addIntRangeToSet(keys, Qt::Key_Colon, Qt::Key_At);
+    addIntRangeToSet(keys, Qt::Key_BracketLeft, Qt::Key_ydiaeresis);
+    addIntRangeToSet(keys, Qt::Key_Escape, Qt::Key_MediaLast);
+    addIntRangeToSet(keys, Qt::Key_Context1, Qt::Key_Flip);
+
+    foreach (int key, keys.values()) {
+        // Create a key event for the key with the Control on. The test uses the string " " as the text produced for most keys.
+        QKeyEvent keyEvent(QEvent::KeyPress, key, Qt::ControlModifier, " ");
+        mainWindow->keyPressEvent(&keyEvent);
+        QCOMPARE(dBusCallMade, false);
+    }
+}
+
 void Ut_MainWindow::testNothingLaunchedWhenOnlyModifierPressed()
 {
     QSet<Qt::KeyboardModifier> modifiers;

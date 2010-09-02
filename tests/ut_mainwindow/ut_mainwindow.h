@@ -39,6 +39,7 @@ private slots:
     void testContentSearchLaunchedWhenNonCallRelatedKeyPressed();
     void testContentSearchLaunchQueuedWhenAlreadyLaunching();
     void testContentSearchLaunchQueuedWhenLaunchingFailed();
+    void testNothingLaunchedWhenControlModifierPressed();
     void testNothingLaunchedWhenOnlyModifierPressed();
     void testNothingLaunchedWhenMediaKeyPressed();
 

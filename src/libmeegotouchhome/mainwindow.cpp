@@ -135,8 +135,8 @@ bool MainWindow::isCallUILaunchingKey(int key)
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
     int key = event->key();
-    if (key < Qt::Key_Escape) {
-        // Special keys should do nothing
+    if (key < Qt::Key_Escape && !event->modifiers().testFlag(Qt::ControlModifier)) {
+        // Special keys and CTRL-anything should do nothing
         QString searchString = event->text();
         if (!searchString.isEmpty()) {
             // Only launch something if the key press produced a string
