@@ -32,7 +32,8 @@ PagedPanning::PagedPanning(QObject* parent) : MPhysics2DPanning(parent),
                                               pageSnapFriction_(0.7),
                                               previousPosition(0),
                                               targetPage(0),
-                                              pageWidth_(0)
+                                              pageWidth_(0),
+                                              panTreshold(30)
 {
     // Whenever panning stops for reason or the other, make sure the
     // view ends up on top of a page.
@@ -193,6 +194,11 @@ void PagedPanning::setVelocityThreshold(qreal value)
     velocityThreshold_ = value;
 }
 
+void PagedPanning::setPanTreshold(qreal value)
+{
+    panTreshold = value;
+}
+
 void PagedPanning::setDragThreshold(qreal value)
 {
     dragThreshold_ = qBound((qreal)0.0, (qreal)std::fabs(value), (qreal)1.0);
@@ -240,7 +246,7 @@ qreal PagedPanning::slideDistance(qreal initialVelocity, qreal friction)
     if (initialVelocity == 0)
         return 0;
 
-    qreal b = 1.0-qMin((qreal)1.0, friction);
+    qreal b = 1.0 - qMin((qreal)1.0, friction);
     qreal logb = std::log(b);
     qreal t = std::log(SLIDE_FINAL_VELOCITY / std::fabs(initialVelocity)) / logb;
 
@@ -265,16 +271,20 @@ void PagedPanning::pointerMove(const QPointF &pos)
 
     /* Target the next page if the view has been dragged over the
        dragThreshold. */
-    qreal distanceToInitialPage = position().x() - initialPage*pageWidth_;
+
+    qreal distanceToInitialPage = position().x() - initialPage * pageWidth_;
+
+    latestSwipeLenght = distanceToInitialPage;
+
     int draggedPages;
 
     if (distanceToInitialPage > 0) {
-        draggedPages = (int)(distanceToInitialPage/pageWidth_ + (1.0-dragThreshold_));
+        draggedPages = (int)(distanceToInitialPage / pageWidth_ + (1.0 - dragThreshold_));
     } else {
-        draggedPages = (int)(distanceToInitialPage/pageWidth_ - (1.0-dragThreshold_));
+        draggedPages = (int)(distanceToInitialPage/pageWidth_ - (1.0 - dragThreshold_));
     }
 
-    targetPage = qBound(0, initialPage + draggedPages, pageCount_-1);
+    targetPage = qBound(0, initialPage + draggedPages, pageCount_ - 1);
 
     if( currentPage != targetPage) {
         emit pageChanged(targetPage);
@@ -282,30 +292,41 @@ void PagedPanning::pointerMove(const QPointF &pos)
     }
 }
 
+void PagedPanning::goToNextPageWithStongEnoughFlick()
+{
+    /* Pan to the next page if a strong enough flick was performed and pan treshold is exeeded. */
+    if (targetPage == initialPage
+        && std::fabs(velocity().x()) > velocityThreshold_
+        && std::fabs(latestSwipeLenght) > panTreshold) {
+        targetPage += velocity().x() > 0 ? 1 : -1;
+        snapMode = true;
+    }
+}
+
 void PagedPanning::pointerRelease()
 {
     MPhysics2DPanning::pointerRelease();
 
+
     // The number of pages to slide
-    qreal slidePages = slideDistance(velocity().x(), slidingFriction())/pageWidth_;
+    qreal slidePages = slideDistance(velocity().x(), slidingFriction()) / pageWidth_;
     // Remove half a page; only slide over the center of a page if really going
     // to the next one
     slidePages -= slidePages > 0 ? 0.5 : -0.5;
 
     targetPage = currentPage + (int)slidePages;
 
-    /* Pan to the next page if a strong enough flick was performed. */
-    if ( targetPage == initialPage
-            && std::fabs(velocity().x()) > velocityThreshold_ ) {
-        targetPage += velocity().x() > 0 ? 1 : -1;
-        snapMode = true;
-    }
+    goToNextPageWithStongEnoughFlick();
 
-    if (slideLimit_ > 0)
-        targetPage = qBound(initialPage-slideLimit_,
+
+    if (slideLimit_ > 0) {
+        targetPage = qBound(initialPage - slideLimit_,
                             targetPage,
-                            initialPage+slideLimit_);
+                            initialPage + slideLimit_);
+    }
 }
+
+
 
 void PagedPanning::setPage(uint page)
 {

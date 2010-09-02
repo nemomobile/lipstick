@@ -94,6 +94,11 @@ public:
     void setPageSnapFriction(qreal value);
 
     /*!
+     * Sets the pan treshold value
+     */
+    void setPanTreshold(qreal value);
+
+    /*!
      * \return the currently active page
      */
     int activePage() const;
@@ -138,6 +143,9 @@ private slots:
     void panToCurrentPage();
 
 private:
+    void goToNextPageWithStongEnoughFlick();
+
+private:
 
     //! The number of pages
     int pageCount_;
@@ -153,6 +161,9 @@ private:
 
     //! Snap activation velocity threshold
     qreal velocityThreshold_;
+
+    //! Panning treshold
+    qreal panTreshold;
 
     //! Snap activation drag threshold
     qreal dragThreshold_;
@@ -185,6 +196,9 @@ private:
      *  initial velocity and friction factor.
      */
     qreal slideDistance(qreal initialVelocity, qreal friction);
+
+    //! Lenght of latest swipe gesture
+    qreal latestSwipeLenght;
 
 #ifdef UNIT_TEST
     //! Test unit is defined as a friend of production code to access private members

@@ -153,7 +153,6 @@ void PagedViewport::setPage(uint page)
     Q_UNUSED(page)
 }
 
-
 // Home stubs
 class Home : public MApplicationPage
 {
@@ -308,6 +307,11 @@ QList<QGraphicsItem *> QGraphicsView::items(const QPoint &/*pos*/) const
 
 void PagedPanning::setPage(uint)
 {
+}
+
+void PagedPanning::setPanTreshold(qreal value)
+{
+    Q_UNUSED(value)
 }
 
 

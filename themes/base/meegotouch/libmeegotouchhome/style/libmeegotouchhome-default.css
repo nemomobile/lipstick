@@ -221,7 +221,7 @@ TransformLayoutAnimationStyle#SwitcherLayoutAnimation {
 
 
 PagedViewportStyle {
-    pan-threshold: 15.0;
+    pan-threshold: 30.0;
     pan-click-threshold: 0.1;
     pointer-spring-k: 0.6;
     friction-c: 0.9;

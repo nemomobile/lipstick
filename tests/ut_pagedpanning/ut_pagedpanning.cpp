@@ -277,7 +277,6 @@ void Ut_PagedPanning::performMovement(PagedPanning* pagedPanning,
                                       qreal moveAmount,
                                       bool leftToRight,
                                       qreal speed)
-
 {
     Ut_MPhysics2DPanning physicsDriver(pagedPanning);
 
@@ -287,15 +286,20 @@ void Ut_PagedPanning::performMovement(PagedPanning* pagedPanning,
 
     pagedPanning->pointerPress(QPointF(movePosition, 0));
 
+
+    //Simulate the movements of mouse
     while (pointerPressControl || pagedPanning->velocity().x() != 0.0) {
-        if (i++ < moveAmount/speed) {
+        if (i++ < (moveAmount / speed)) {
+            //If we have not reached the end position calculate the next mouse position
             movePosition += leftToRight ? speed : -speed;
         } else if (pointerPressControl) {
+            //We have reached the end position so release the mouse
             pagedPanning->pointerRelease();
             pointerPressControl = false;
         }
 
         if (pointerPressControl) {
+            //Simulate the swipe by updating mouse location
             pagedPanning->pointerMove(QPointF(movePosition, 0));
         }
 
@@ -374,8 +378,9 @@ void Ut_PagedPanning::testVelocityThreshold()
 
     m_subject->currentPage = 1;
     m_subject->setPosition(QPointF(currentPosition, 0));
-    m_subject->setVelocityThreshold(10.0);
+    m_subject->setVelocityThreshold(9.0);
     m_subject->setPointerSpringK(1.0);
+
 
     QSignalSpy spy(m_subject, SIGNAL(pageChanged(int)));
 
@@ -388,9 +393,9 @@ void Ut_PagedPanning::testVelocityThreshold()
     QCOMPARE(m_subject->position().x(), 100.0);
 
     performMovement(m_subject,
-                    1,    // amount to move
+                    31,    // amount to move
                     false, // left-to-right
-                    11.0); // more speed
+                    10.0); // more speed
 
     // Should end up on the next page now
     QCOMPARE(m_subject->position().x(), 200.0);
