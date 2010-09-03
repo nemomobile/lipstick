@@ -287,6 +287,8 @@ void Launcher::appendButtonToPages(QSharedPointer<LauncherButton> button, QList<
         page = QSharedPointer<LauncherPage>(new LauncherPage());
         setMaximumPageSizeIfNecessary(page);
         pages.append(page);
+        //We created a page so update the model
+        model()->setLauncherPages(pages);
         page->appendButton(button);
     }
 }
@@ -383,7 +385,6 @@ Launcher::Placement Launcher::buttonPlacement(const QString &desktopFileEntry)
             pageIndex++;
         }
     }
-
     Placement placement(PLACEMENT_TEMPLATE.arg(pageNum).arg(position));
 
     return placement;
