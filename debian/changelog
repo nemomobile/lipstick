@@ -1,6 +1,7 @@
 duihome (0.21.19~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Implemented: SWP#DUI-2406 Progress of installation and update of applications indicated in launcher
   * Implemented: SWP#DUI-2010 Switching between switcher overview and detail view
   * Fixes NB#187700 - Minimal horizontal finger move over the icon causes launcher page turn when trying to launch an application
 
