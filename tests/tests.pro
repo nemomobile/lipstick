@@ -1,5 +1,6 @@
 TEMPLATE = subdirs
 SUBDIRS = \
+    stubs \
     ut_desktop \
     ut_desktopview \
     ut_extendedbuttonview \
