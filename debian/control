@@ -12,8 +12,6 @@ Standards-Version: 3.8.0
 Package: duihomescreen
 Architecture: any
 Depends: ${shlibs:Depends},
-  ui-fonts,
-  dsme,
   duihomescreen-l10n-engineering-english (= ${binary:Version})
 Description: MeeGo Touch Home screen
  MeeGo Touch Home screen
