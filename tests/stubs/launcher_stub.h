@@ -38,7 +38,7 @@ class LauncherStub : public StubBase {
   virtual bool updateLauncherButton(const QString &desktopEntryPath);
   virtual void updatePagesFromDataStore();
   virtual void addNewLauncherButtonToPages(const QString &desktopEntryPath, QList<QSharedPointer<LauncherPage> > &pages);
-  virtual void appendButtonToPages(QSharedPointer<LauncherButton> button, QList<QSharedPointer<LauncherPage> > &pages);
+  virtual Launcher::Placement appendButtonToPages(QSharedPointer<LauncherButton> button, QList<QSharedPointer<LauncherPage> > &pages);
   virtual Launcher::Placement buttonPlacement(const QString &desktopEntryFile);
   virtual void addDesktopEntriesWithKnownPlacements(QList<QSharedPointer<LauncherPage> > &pages);
   virtual void addDesktopEntriesWithUnknownPlacements(QList<QSharedPointer<LauncherPage> > &pages);
@@ -117,11 +117,12 @@ void LauncherStub::addNewLauncherButtonToPages(const QString &desktopEntryPath, 
   stubMethodEntered("addNewLauncherButtonToPages",params);
 }
 
-void LauncherStub::appendButtonToPages(QSharedPointer<LauncherButton> button, QList<QSharedPointer<LauncherPage> > &pages) {
+Launcher::Placement LauncherStub::appendButtonToPages(QSharedPointer<LauncherButton> button, QList<QSharedPointer<LauncherPage> > &pages) {
   QList<ParameterBase*> params;
   params.append( new Parameter<QSharedPointer<LauncherButton> >(button));
   params.append( new Parameter<QList<QSharedPointer<LauncherPage> > >(pages));
   stubMethodEntered("appendButtonToPages",params);
+  return stubReturnValue<Launcher::Placement>("appendButtonToPages");
 }
 
 Launcher::Placement LauncherStub::buttonPlacement(const QString &desktopEntryFile) {
@@ -243,8 +244,8 @@ void Launcher::addNewLauncherButtonToPages(const QString &desktopEntryPath, QLis
   gLauncherStub->addNewLauncherButtonToPages(desktopEntryPath, pages);
 }
 
-void Launcher::appendButtonToPages(QSharedPointer<LauncherButton> button, QList<QSharedPointer<LauncherPage> > &pages) {
-  gLauncherStub->appendButtonToPages(button, pages);
+Launcher::Placement Launcher::appendButtonToPages(QSharedPointer<LauncherButton> button, QList<QSharedPointer<LauncherPage> > &pages) {
+  return gLauncherStub->appendButtonToPages(button, pages);
 }
 
 Launcher::Placement Launcher::buttonPlacement(const QString &desktopEntryFile) {

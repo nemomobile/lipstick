@@ -416,7 +416,6 @@ void Ut_Launcher::testEntryPlamenentInDatastoreMethod()
 void Ut_Launcher::testSetMaximumPageSize()
 {
     int maximumPageSize = 4;
-    launcher->setEnabled(true);
     launcher->setMaximumPageSize(maximumPageSize);
 
     // Add 9 desktop files in the "desktop file directory"
@@ -563,6 +562,26 @@ void Ut_Launcher::testConnectionsAfterLauncherInitialization()
             launcher, SLOT(updateButtonState(QString, LauncherButtonModel::State, int))));
     QVERIFY(disconnect(packageMonitorListener, SIGNAL(installExtraEntryRemoved(QString)),
             launcher, SLOT(removePlaceholderButton(QString))));
+}
+
+void Ut_Launcher::testInitializingLauncherWithButtonsInUnknownLocation()
+{
+    // Initialize desktop entries and restart launcher
+    QHash<QString, QVariant> dataForAllDesktopEntries;
+    for (int i = 0; i < 2; i++) {
+        dataForAllDesktopEntries.insert(QString("noPlacement%1").arg(i), QVariant());
+    }
+    delete launcher;
+    launcher = new Launcher;
+    launcher->setLauncherDataStore(launcherDataStore);
+    launcher->setApplicationPackageMonitorListener(packageMonitorListener);
+    connect(this, SIGNAL(directoryChanged(const QString)), launcher, SLOT(updatePagesFromDataStore()));
+
+    gLauncherDataStoreStub->stubSetReturnValue("dataForAllDesktopEntries", dataForAllDesktopEntries);
+    emit directoryChanged(APPLICATIONS_DIRECTORY);
+
+    QCOMPARE(launcher->model()->launcherPages().count(), 1);
+    QCOMPARE(launcher->model()->launcherPages().at(0)->model()->launcherButtons().count(), 2);
 }
 
 QTEST_MAIN(Ut_Launcher)

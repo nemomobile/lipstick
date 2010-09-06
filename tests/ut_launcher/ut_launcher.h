@@ -117,5 +117,7 @@ private slots:
     void testOperationSuccessForButtonWithoutDesktopEntry();
     // Test correct signal connections to data store and package listener after launcher initialization
     void testConnectionsAfterLauncherInitialization();
+    // Test initializing launcher with buttons that have no location yet(are not stored in data store)
+    void testInitializingLauncherWithButtonsInUnknownLocation();
 };
 #endif //_UT_LAUNCHER_

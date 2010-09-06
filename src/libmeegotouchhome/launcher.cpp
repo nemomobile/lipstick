@@ -198,9 +198,12 @@ void Launcher::addDesktopEntriesWithUnknownPlacements(QList<QSharedPointer<Launc
         // Put the desktop entries with no known placement on the last page
         QHash<QString, QVariant> allDesktopEntryPlacements = dataStore->dataForAllDesktopEntries();
         foreach (const QString &desktopEntryPath, allDesktopEntryPlacements.keys()) {
-            Placement placement(allDesktopEntryPlacements.value(desktopEntryPath).toString());
-            if ((placement.location.isEmpty() || placement.location == LOCATION_IDENTIFIER) && placement.page < 0) {
-                addNewLauncherButtonToPages(desktopEntryPath, pages);
+            Placement placementInDatastore(allDesktopEntryPlacements.value(desktopEntryPath).toString());
+            if (placementInDatastore.location.isEmpty() || placementInDatastore.location == LOCATION_IDENTIFIER) {
+                if (placementInDatastore.isNull()) {
+                    Placement placementInPages = appendButtonToPages(createLauncherButton(desktopEntryPath), pages);
+                    dataStore->updateDataForDesktopEntry(desktopEntryPath, placementInPages.toString());
+                }
             }
         }
     }
@@ -249,22 +252,14 @@ void Launcher::addLauncherButton(const QString &desktopEntryPath)
     // First try to update button if it already exists in launcher
     if (!updateLauncherButton(desktopEntryPath)) {
         QList<QSharedPointer<LauncherPage> > pages = model()->launcherPages();
-        addNewLauncherButtonToPages(desktopEntryPath, pages);
+        appendButtonToPages(createLauncherButton(desktopEntryPath), pages);
         model()->setLauncherPages(pages);
+
+        updateButtonPlacementInStore(desktopEntryPath);
     }
 }
 
-void Launcher::addNewLauncherButtonToPages(const QString &desktopEntryPath, QList<QSharedPointer<LauncherPage> > &pages)
-{
-    // Create a launcher button for the desktop entry
-    QSharedPointer<LauncherButton> launcherButton = createLauncherButton(desktopEntryPath);
-
-    appendButtonToPages(launcherButton, pages);
-
-    updateButtonPlacementInStore(desktopEntryPath);
-}
-
-void Launcher::appendButtonToPages(QSharedPointer<LauncherButton> button, QList<QSharedPointer<LauncherPage> > &pages)
+Launcher::Placement Launcher::appendButtonToPages(QSharedPointer<LauncherButton> button, QList<QSharedPointer<LauncherPage> > &pages)
 {
     QSharedPointer<LauncherPage> page;
 
@@ -282,6 +277,10 @@ void Launcher::appendButtonToPages(QSharedPointer<LauncherButton> button, QList<
         model()->setLauncherPages(pages);
         page->appendButton(button);
     }
+
+    int pageIndex =  pages.count() - 1;
+    int position = page->launcherButtonPosition(button->desktopEntry());
+    return Placement(pageIndex, position);
 }
 
 void Launcher::removeLauncherButton(const QString &desktopEntryPath)
@@ -383,7 +382,7 @@ void Launcher::updateButtonPlacementInStore(const QString &desktopEntryPath)
 {
     Placement placement = buttonPlacement(desktopEntryPath);
 
-    dataStore->updateDataForDesktopEntry(desktopEntryPath, PLACEMENT_TEMPLATE.arg(placement.page).arg(placement.position));
+    dataStore->updateDataForDesktopEntry(desktopEntryPath, placement.toString());
 }
 
 Launcher::Placement::Placement() : page(-1), position(-1) {
@@ -393,6 +392,10 @@ Launcher::Placement::Placement(const QString &placementString) : page(-1), posit
     setPlacement(placementString);
 }
 
+Launcher::Placement::Placement(int page, int position)
+        : location(LOCATION_IDENTIFIER), page(page), position(position) {
+}
+
 void Launcher::Placement::setPlacement(const QString &placementString)
 {
     location = placementString.section(SECTION_SEPARATOR, 0, 0);
@@ -400,6 +403,11 @@ void Launcher::Placement::setPlacement(const QString &placementString)
         page = placementString.section(SECTION_SEPARATOR, 1, 1).toInt();
         position = placementString.section(SECTION_SEPARATOR, 2, 2).toInt();
     }
+}
+
+QString Launcher::Placement::toString()
+{
+    return PLACEMENT_TEMPLATE.arg(page).arg(position);
 }
 
 inline bool operator<(const Launcher::Placement &p1, const Launcher::Placement &p2)

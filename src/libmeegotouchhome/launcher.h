@@ -62,8 +62,10 @@ public:
     public:
         Placement();
         Placement(const QString &placement);
+        Placement(int page, int position);
 
         void setPlacement(const QString &placementString);
+        QString toString();
 
         QString location;
         int page;
@@ -223,8 +225,9 @@ private:
      *
      * \param button Button to be appended
      * \param pages List of pages where button is to be appended
+     * \return placement where button was added
      */
-    void appendButtonToPages(QSharedPointer<LauncherButton> button, QList<QSharedPointer<LauncherPage> > &pages);
+    Launcher::Placement appendButtonToPages(QSharedPointer<LauncherButton> button, QList<QSharedPointer<LauncherPage> > &pages);
 
     /*!
      * Returns Placement for button.
