@@ -1,3 +1,9 @@
+duihome (0.21.20~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Aki Koskinen <aki.koskinen@nokia.com>  Mon, 06 Sep 2010 17:35:48 +0300
+
 duihome (0.21.19-1) unstable; urgency=low
 
   * Implemented: SWP#DUI-2406 Progress of installation and update of applications indicated in launcher
