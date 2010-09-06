@@ -40,6 +40,7 @@
 #include "applicationpackagemonitor_stub.h"
 #include "applicationpackagemonitorlistener_stub.h"
 #include "homewindowmonitor_stub.h"
+#include "desktop_stub.h"
 #include <QDBusConnection>
 #include "x11wrapper.h"
 
@@ -247,15 +248,6 @@ bool QDBusConnection::registerObject(QString const &, QObject *, QFlags<QDBusCon
 
 // MTheme stubs
 void MTheme::releasePixmap(const QPixmap *)
-{
-}
-
-// Desktop stubs
-Desktop::Desktop(MWidget *parent) : MWidgetController(new DesktopModel, parent)
-{
-}
-
-Desktop::~Desktop()
 {
 }
 

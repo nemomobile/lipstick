@@ -32,9 +32,6 @@ class Ut_Home : public QObject
 {
     Q_OBJECT
 
-public:
-    static MainWindow *mainWin;
-
 private slots:
     // Called before the first testfunction is executed
     void initTestCase();

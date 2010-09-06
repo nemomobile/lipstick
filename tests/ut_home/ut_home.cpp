@@ -26,7 +26,7 @@
 #include "ut_home.h"
 #include "homeapplication_stub.h"
 #include "home.h"
-#include "desktop.h"
+#include "desktop_stub.h"
 #include "windowinfo_stub.h"
 #include "x11wrapper_stub.h"
 
@@ -35,21 +35,7 @@ void XSetWMProperties(Display *, Window, XTextProperty *, XTextProperty *, char 
 {
 }
 
-// Desktop stubs
-Desktop *desktopWidget = NULL;
-
-Desktop::Desktop(MWidget *parent) : MWidgetController(new DesktopModel, parent)
-{
-    desktopWidget = this;
-}
-
-Desktop::~Desktop()
-{
-}
-
 // Tests
-MainWindow *Ut_Home::mainWin = NULL;
-
 void Ut_Home::initTestCase()
 {
     static int argc = 1;

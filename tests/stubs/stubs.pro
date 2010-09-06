@@ -3,6 +3,7 @@ TEMPLATE = subdirs
 INSTALL_HEADERS += \
   applicationpackagemonitorlistener_stub.h \
   applicationpackagemonitor_stub.h \
+  desktop_stub.h \
   desktopview_stub.h \
   homeapplication_stub.h \
   homewindowmonitor_stub.h \
