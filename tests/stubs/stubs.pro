@@ -22,8 +22,10 @@ INSTALL_HEADERS += \
   mwindow_stub.h \
   parameter.h \
   quicklaunchbar_stub.h \
+  stubbase.cpp \
   stubbase.h \
   switcher_stub.h \
+  testcontextitem.cpp \
   testcontextitem.h \
   transformlayoutanimation_stub.h \
   windowinfo_stub.h \
