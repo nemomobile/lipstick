@@ -44,6 +44,8 @@ static const QString PACKAGE_STATE_INSTALLED = "installed";
 static const QString PACKAGE_STATE_INSTALLABLE = "installable";
 static const QString PACKAGE_STATE_BROKEN = "broken";
 static const QString PACKAGE_STATE_UPDATEABLE = "updateable";
+static const QString PACKAGE_STATE_INSTALLING ="installing";
+static const QString PACKAGE_STATE_DOWNLOADING ="downloading";
 
 static const QString DESKTOP_ENTRY_KEY_PACKAGE_STATE = "PackageState";
 static const QString DESKTOP_ENTRY_KEY_PACKAGE_NAME = "Package";
@@ -123,9 +125,12 @@ void ApplicationPackageMonitor::updatePackageStates()
             QString desktopEntryPath = dataStore->value(key).toString();
             QString state = dataStore->value(DESKTOPENTRY_PREFIX + desktopEntryPath).toString();
             if (state == PACKAGE_STATE_BROKEN) {
-                QString packageName = key.remove(PACKAGE_PREFIX);
                 // emit operation error for a broken package
                 emit operationError(desktopEntryPath, QString());
+            } else if(state == PACKAGE_STATE_DOWNLOADING) {
+                emit downloadProgress(desktopEntryPath, 0, 0);
+            } else if(state == PACKAGE_STATE_INSTALLING) {
+                emit installProgress(desktopEntryPath, 0);
             }
         }
     }
@@ -154,6 +159,8 @@ void ApplicationPackageMonitor::packageDownloadProgress(const QString &operation
     if (isValidOperation(properties, operation)) {
         emit downloadProgress(properties.desktopEntryName, already, total);
     }
+
+    storePackageState(packageName, PACKAGE_STATE_DOWNLOADING);
 }
 
 void ApplicationPackageMonitor::packageOperationStarted(const QString &operation,
@@ -177,6 +184,7 @@ void ApplicationPackageMonitor::packageOperationProgress(const QString &operatio
     if (isValidOperation(properties, operation)) {
         properties.installing = true;
         emit installProgress(properties.desktopEntryName, percentage);
+        storePackageState(packageName, PACKAGE_STATE_INSTALLING);
     }
 }
 
@@ -216,6 +224,12 @@ void ApplicationPackageMonitor::packageOperationComplete(const QString &operatio
     activePackages.remove(packageName);
 }
 
+void ApplicationPackageMonitor::storePackageState(const QString& packageName, const QString& state)
+{
+    QString path = dataStore->value(PACKAGE_PREFIX + packageName).toString();
+    extraDirWatcher->updateDataForDesktopEntry(path, state);
+}
+
 bool ApplicationPackageMonitor::isValidOperation(const PackageProperties &properties, const QString &operation)
 {
     if ((operation.compare(OPERATION_INSTALL, Qt::CaseInsensitive) == 0 ||
@@ -241,6 +255,7 @@ void ApplicationPackageMonitor::updatePackageState(const QString &desktopEntryPa
             // emit operation error for a broken package
             emit operationError(desktopEntryPath, QString());
         }
+
         dataStore->createValue(pkgKey, desktopEntryPath);
 
         if (activePackages.contains(packageName)) {

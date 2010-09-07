@@ -68,6 +68,8 @@ private slots:
     void testCancelDownloadingUnsuccessfully();
     // Test that right signal is emitted when installer extra file is removed.
     void testRemovingInstallerExtraFile();
+    // Test that right signals are emitted according to package states when update of package states is requested.
+    void testEmitPackageStateWhenAllPackageStatesAreUpdated();
 
 signals:
 
@@ -108,6 +110,8 @@ private:
 
     // Mimicks the change in the extra desktop file for a package when it is broken
     void breakPackageExtra(QString packageName);
+
+    void comparePackageState(const QString&, const QString&);
 
     // MApplication
     MApplication *app;

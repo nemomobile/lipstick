@@ -160,6 +160,14 @@ private:
      */
     QString desktopEntryName(const QString &packageName);
 
+    /*!
+     * Stores package's current state to the dataStore.
+     *
+     *\param name of the package.
+     *\param state of the package.
+     */
+    void storePackageState(const QString &packageName, const QString &state);
+
 
     //! Mapping of installing package names and installing phase properties
     QMap<QString, PackageProperties> activePackages;

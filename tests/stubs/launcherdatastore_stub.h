@@ -56,8 +56,8 @@ QHash<QString, QVariant> LauncherDataStoreStub::dataForAllDesktopEntries() {
 
 void LauncherDataStoreStub::updateDataForDesktopEntry(const QString &entryPath, const QVariant &data) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const QString & >(entryPath));
-  params.append( new Parameter<const QVariant & >(data));
+  params.append( new Parameter<QString>(entryPath));
+  params.append( new Parameter<QVariant>(data));
   stubMethodEntered("updateDataForDesktopEntry",params);
 }
 
