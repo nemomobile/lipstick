@@ -25,6 +25,7 @@ INSTALL_HEADERS += \
   stubbase.cpp \
   stubbase.h \
   switcher_stub.h \
+  switcherview_stub.h \
   testcontextitem.cpp \
   testcontextitem.h \
   transformlayoutanimation_stub.h \

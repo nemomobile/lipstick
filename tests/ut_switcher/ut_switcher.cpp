@@ -21,7 +21,7 @@
 #include "windowmonitor.h"
 #include "switcher.h"
 #include "switcherbutton.h"
-#include "switcherview.h"
+#include "switcherview_stub.h"
 #include "mscenemanager_stub.h"
 #include "mwindow_stub.h"
 #include "homewindowmonitor_stub.h"
