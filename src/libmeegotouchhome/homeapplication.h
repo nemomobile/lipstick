@@ -40,8 +40,9 @@ public:
      *
      * \param argc number of arguments passed to the application from the command line
      * \param argv argument strings passed to the application from the command line
+     * \param appIdentifier An optional identifier for the application
      */
-    HomeApplication(int &argc, char **argv);
+    HomeApplication(int &argc, char **argv,const QString& appIdentifier = QString());
 
     /*!
      * Destroys the HomeApplication.

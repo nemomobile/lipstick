@@ -27,7 +27,7 @@
 class HomeApplicationStub : public StubBase
 {
 public:
-    virtual void HomeApplicationConstructor(int &argc, char **argv);
+    virtual void HomeApplicationConstructor(int &argc, char **argv, const QString& appIdentifier = QString());
     virtual void HomeApplicationDestructor();
     virtual void addXEventListener(XEventListener *listener);
     virtual void removeXEventListener(XEventListener *listener);
@@ -36,10 +36,11 @@ public:
 };
 
 // 2. IMPLEMENT STUB
-void HomeApplicationStub::HomeApplicationConstructor(int &argc, char **argv)
+void HomeApplicationStub::HomeApplicationConstructor(int &argc, char **argv, const QString& appIdentifier)
 {
     Q_UNUSED(argc);
     Q_UNUSED(argv);
+    Q_UNUSED(appIdentifier);
 }
 void HomeApplicationStub::HomeApplicationDestructor()
 {
@@ -78,9 +79,9 @@ HomeApplicationStub *gHomeApplicationStub = &gDefaultHomeApplicationStub;
 
 
 // 4. CREATE A PROXY WHICH CALLS THE STUB
-HomeApplication::HomeApplication(int &argc, char **argv) : MApplication(argc, argv)
+HomeApplication::HomeApplication(int &argc, char **argv, const QString& appIdentifier) : MApplication(argc, argv, appIdentifier)
 {
-    gHomeApplicationStub->HomeApplicationConstructor(argc, argv);
+    gHomeApplicationStub->HomeApplicationConstructor(argc, argv, appIdentifier);
 }
 
 HomeApplication::~HomeApplication()

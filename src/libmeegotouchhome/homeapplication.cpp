@@ -75,8 +75,8 @@ static bool isUpstartMode(int argc, char *argv[])
     return false;
 }
 
-HomeApplication::HomeApplication(int &argc, char **argv) :
-    MApplication(argc, argv),
+HomeApplication::HomeApplication(int &argc, char **argv, const QString& appIdentifier) :
+    MApplication(argc, argv, appIdentifier),
     homeScreenService(new HomeScreenService),
     xEventListeners(),
     iteratorActiveForEventListenerContainer(false),
