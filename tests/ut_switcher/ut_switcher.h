@@ -112,8 +112,11 @@ private slots:
     // Test bringing windows to front
     void testWindowToFront();
 
-    // Test bringing windows to front
+    // Test closing windows
     void testCloseWindow();
+
+    // Test closing all windows
+    void testCloseAllWindows();
 
     // Test X11EventFilter with PropertyNotify events
     void testX11EventFilterWithPropertyNotify();

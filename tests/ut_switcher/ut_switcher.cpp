@@ -541,6 +541,37 @@ void Ut_Switcher::testCloseWindow()
     QCOMPARE(sec.event.xclient.data.l[2], 0L);
 }
 
+void Ut_Switcher::testCloseAllWindows()
+{
+    int numWindows = 5;
+
+    // Add some windows to the model
+    QList<QSharedPointer<SwitcherButton> > buttons;
+    for (int window = 1; window <= numWindows; window++) {
+        QSharedPointer<SwitcherButton> button(new SwitcherButton);
+        button->setXWindow(window);
+        buttons.append(button);
+    }
+
+    switcher->model()->setButtons(buttons);
+    switcher->closeAllWindows();
+
+    // Each window should be closed
+    for (int window = 1; window <= numWindows; window++) {
+        const SendEventCall &sec = x11WrapperSendEventCalls.at(window - 1);
+        QCOMPARE(sec.window, DefaultRootWindow(QX11Info::display()));
+        QCOMPARE(sec.propagate, False);
+        QCOMPARE(sec.event_mask, SubstructureRedirectMask);
+        QCOMPARE(sec.event.xclient.type, ClientMessage);
+        QCOMPARE(sec.event.xclient.window, (Window)window);
+        QCOMPARE(sec.event.xclient.message_type, (Atom)ATOM_CLOSE_WINDOW);
+        QCOMPARE(sec.event.xclient.format, 32);
+        QCOMPARE(sec.event.xclient.data.l[0], CurrentTime);
+        QCOMPARE(sec.event.xclient.data.l[1], (long)QX11Info::appRootWindow(QX11Info::appScreen()));
+        QCOMPARE(sec.event.xclient.data.l[2], 0L);
+    }
+}
+
 void Ut_Switcher::verifyModel(const QList<WindowInfo> &windowList)
 {
     // There given windows should be in the switcher model

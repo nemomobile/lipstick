@@ -372,6 +372,7 @@ void Switcher::updateButtons()
                 button->setXWindow(topmostWindowInfo.window());
                 connect(button.data(), SIGNAL(windowToFront(Window)), this, SLOT(windowToFront(Window)));
                 connect(button.data(), SIGNAL(closeWindow(Window)), this, SLOT(closeWindow(Window)));
+                connect(button.data(), SIGNAL(closeAllWindows()), this, SLOT(closeAllWindows()));
 
                 newButtons.append(button);
                 newSwitcherButtonMap.insert(windowInfo.window(), button.data());
@@ -428,6 +429,13 @@ void Switcher::closeWindow(Window window)
     WindowInfo windowInfo = WindowInfo(window);
     if (windowInfo.transientFor() != 0 && windowInfo.transientFor() != window) {
         closeWindow(windowInfo.transientFor());
+    }
+}
+
+void Switcher::closeAllWindows()
+{
+    foreach (const QSharedPointer<SwitcherButton> &button, model()->buttons()) {
+        closeWindow(button->xWindow());
     }
 }
 

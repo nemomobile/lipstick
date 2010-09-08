@@ -80,6 +80,11 @@ signals:
      */
     void closeWindow(Window window);
 
+    /*!
+     * \brief A signal for notifying that all windows should be closed
+     */
+    void closeAllWindows();
+
 public slots:
     /*!
      * \brief Slot for notifying that the window represented by this button should be brought to front

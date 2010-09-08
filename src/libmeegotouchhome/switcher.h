@@ -91,14 +91,19 @@ private slots:
     void updateButtons();
 
     /*!
-     * \brief A slot for notifying that a window should be brought to front
+     * \brief Requests a window to be brought to front
      */
     void windowToFront(Window window);
 
     /*!
-     * \brief A slot for notifying that a window should be closed
+     * \brief Requests a window should be closed
      */
     void closeWindow(Window window);
+
+    /*!
+     * \brief Requests all windows to be closed
+     */
+    void closeAllWindows();
 
 private:
     /*!

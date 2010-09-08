@@ -33,6 +33,7 @@ public:
     virtual void updateButtons();
     virtual void windowToFront(Window window);
     virtual void closeWindow(Window window);
+    virtual void closeAllWindows();
     virtual void scheduleUpdateButtons();
     virtual void handleWindowInfoList(QList<WindowInfo> newWindowList);
     virtual bool sceneEvent(QEvent *event);
@@ -71,6 +72,11 @@ void SwitcherStub::closeWindow(Window window)
     QList<ParameterBase *> params;
     params.append(new Parameter<Window>(window));
     stubMethodEntered("closeWindow", params);
+}
+
+void SwitcherStub::closeAllWindows()
+{
+    stubMethodEntered("closeAllWindows");
 }
 
 void SwitcherStub::updateButtons()
@@ -124,6 +130,11 @@ void Switcher::windowToFront(Window window)
 void Switcher::closeWindow(Window window)
 {
     gSwitcherStub->closeWindow(window);
+}
+
+void Switcher::closeAllWindows()
+{
+    gSwitcherStub->closeAllWindows();
 }
 
 void Switcher::updateButtons()
