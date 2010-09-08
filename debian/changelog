@@ -1,3 +1,9 @@
+duihome (0.21.21~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Aki Koskinen <aki.koskinen@nokia.com>  Wed, 08 Sep 2010 15:34:44 +0300
+
 duihome (0.21.20-1) unstable; urgency=low
 
   * The stubs are now included with the -dev package
