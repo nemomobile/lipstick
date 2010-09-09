@@ -14,7 +14,7 @@ duihome (0.21.19-1) unstable; urgency=low
 
   * Implemented: SWP#DUI-2406 Progress of installation and update of applications indicated in launcher
   * Implemented: SWP#DUI-2010 Switching between switcher overview and detail view
-  * Fixes NB#187700 - Minimal horizontal finger move over the icon causes launcher page turn when trying to launch an application
+  * Fixes: NB#187700 - Minimal horizontal finger move over the icon causes launcher page turn when trying to launch an application
 
  -- Vesa Halttunen <vesa.halttunen@nokia.com>  Mon, 6 Sep 2010 17:35:51 +0300
 
@@ -29,8 +29,8 @@ duihome (0.21.18-1) unstable; urgency=low
 
 duihome (0.21.17-1) unstable; urgency=low
 
-  * Fixes NB#183617 - Closing window thumbnail takes user to the last page of switcher
-  * Fixes NB#185701 - Task switcher should not add special window types to its view
+  * Fixes: NB#183617 - Closing window thumbnail takes user to the last page of switcher
+  * Fixes: NB#185701 - Task switcher should not add special window types to its view
 
  -- Aki Koskinen <aki.koskinen@nokia.com>  Thu, 26 Aug 2010 16:34:00 +0300
 
