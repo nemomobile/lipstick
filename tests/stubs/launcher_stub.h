@@ -277,7 +277,7 @@ void Launcher::updateButtonState(const QString &desktopEntryPath, LauncherButton
 }
 
 QSharedPointer<LauncherButton> Launcher::placeholderButton(const QString &desktopEntryPath) {
-  gLauncherStub->placeholderButton(desktopEntryPath);
+  return gLauncherStub->placeholderButton(desktopEntryPath);
 }
 
 void Launcher::updateButtonPlacementInStore(const QString &desktopEntryPath) {
