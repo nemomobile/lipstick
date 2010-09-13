@@ -11,7 +11,7 @@ export DH_VERBOSE=1
 
 
 DEBDIR=..
-CFLAGS = -Wall -Werror -g
+CFLAGS = -Wall -Werror -Wno-deprecated-declarations -g
 
 ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
         CFLAGS += -O0
@@ -35,7 +35,7 @@ major=0
 configure: configure-stamp
 configure-stamp:
 	dh_testdir
-	qmake  -recursive $(QMAKE_OPTIONS) 
+	qmake  -recursive  QMAKE_CFLAGS="$(CFLAGS)" QMAKE_CXXFLAGS="$(CFLAGS)" $(QMAKE_OPTIONS) 
 	touch configure-stamp
 
 
