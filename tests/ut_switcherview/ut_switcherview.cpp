@@ -53,7 +53,7 @@ const MStyle *MTheme::style(const char *styleClassName,
                             const QString &objectName,
                             const QString &/*mode*/,
                             const QString &/*type*/,
-                            M::Orientation orientation,
+                            M::Orientation /*orientation*/,
                             const MWidgetController */*parent*/)
 {
     MStyle *style = MClassFactory::instance()->createStyle(styleClassName);
@@ -124,6 +124,7 @@ void PagedViewport::setPanDirection(const Qt::Orientations &panDirection)
 
 void PagedViewport::updatePageCount(int pages)
 {
+    Q_UNUSED(pages)
 }
 
 int PagedViewport::currentPage()
