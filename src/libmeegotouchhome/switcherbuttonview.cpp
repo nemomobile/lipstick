@@ -89,7 +89,7 @@ SwitcherButtonView::SwitcherButtonView(SwitcherButton *button) :
     controller(button),
     xWindowPixmap(0),
     xWindowPixmapDamage(0),
-    onDisplay(true),
+    onDisplay(false),
     updateXWindowPixmapRetryCount(0),
     xEventListener(new SwitcherButtonViewXEventListener(*this))
 {
@@ -97,9 +97,6 @@ SwitcherButtonView::SwitcherButtonView(SwitcherButton *button) :
     titleBarLayout->setContentsMargins(0,0,0,0);
     titleBarLayout->addStretch();
     controller->setLayout(titleBarLayout);
-
-    // Show interest in X pixmap change signals
-    connect(qApp, SIGNAL(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)), this, SLOT(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)));
 
     // Enable or disable reception of damage events based on whether the switcher button is on the screen or not
     connect(button, SIGNAL(displayEntered()), this, SLOT(setOnDisplay()));
@@ -343,6 +340,8 @@ void SwitcherButtonView::setOnDisplay()
 {
     onDisplay = true;
     createDamage();
+    // Show interest in X pixmap change signals
+    connect(qApp, SIGNAL(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)), this, SLOT(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)));
     update();
 }
 
@@ -350,6 +349,8 @@ void SwitcherButtonView::unsetOnDisplay()
 {
     onDisplay = false;
     destroyDamage();
+    // disconnect the damage signal so that off-screen buttons aren't signalled by damage notifications of other buttons
+    disconnect(qApp, SIGNAL(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)), this, SLOT(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)));
 }
 
 void SwitcherButtonView::createDamage()

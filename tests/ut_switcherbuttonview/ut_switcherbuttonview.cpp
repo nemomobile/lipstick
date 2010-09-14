@@ -268,7 +268,6 @@ void Ut_SwitcherButtonView::init()
     xErrorHandler = NULL;
     damageCreated = false;
     viewUpdateCalled = false;
-    damageCreated = false;
     damageDestroyed = false;
     damageDisplay = NULL;
     damageSubtracted = false;
@@ -338,6 +337,7 @@ void Ut_SwitcherButtonView::testDamageEventForKnownDamage()
 {
     // Create a known damage handle
     button->model()->setXWindow(1);
+    button->emitDisplayEntered();
 
     // Known damage events while being displayed should cause a view update
     viewUpdateCalled = false;
@@ -374,6 +374,8 @@ void Ut_SwitcherButtonView::testEnterExitDisplay()
     button->emitDisplayExited();
     QVERIFY(damageDestroyed);
     QCOMPARE(damageHandle, (unsigned long)0);
+
+    QVERIFY(!disconnect(qApp, SIGNAL(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)), m_subject, SLOT(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &))));
 }
 
 void Ut_SwitcherButtonView::testXDamageSubtractWhenDisplayEntered()
@@ -388,13 +390,20 @@ void Ut_SwitcherButtonView::testXDamageSubtractWhenDisplayEntered()
     QVERIFY(damageSubtracted);
     QCOMPARE(damageDisplay, damageSubtractDisplay);
     QCOMPARE(damageHandle, damageSubtractHandle);
+
+    QVERIFY(disconnect(qApp, SIGNAL(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)), m_subject, SLOT(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &))));
+}
+
+void Ut_SwitcherButtonView::testDamageCreationUponConstruction()
+{
+    // The damage is not created unless there is a window
+    button->model()->setXWindow(1);
+    QVERIFY(!damageCreated);
+    QCOMPARE(damageHandle, (unsigned long)0);
 }
 
 void Ut_SwitcherButtonView::testSignalConnections()
 {
-    // verify qApp connections
-    QVERIFY(disconnect(qApp, SIGNAL(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)), m_subject, SLOT(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &))));
-
     QVERIFY(disconnect(button, SIGNAL(displayEntered()), m_subject, SLOT(setOnDisplay())));
     QVERIFY(disconnect(button, SIGNAL(displayExited()), m_subject, SLOT(unsetOnDisplay())));
     QVERIFY(disconnect(&m_subject->updateXWindowIconGeometryTimer,

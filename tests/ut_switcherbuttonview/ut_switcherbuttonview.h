@@ -159,6 +159,7 @@ private slots:
     void testUpdateXWindowIconGeometryIfNecessary();
     void testUpdateXWindowIconGeometry();
     void testUpdateXWindowPixmap();
+    void testDamageCreationUponConstruction();
     void testSwitcherButtonsVisibilityEventCausesUpdateToBeCalled();
     void testSwitcherButtonsVisibilityEventWithIncorrectTypeDoesNotCauseUpdateToBeCalled();
     void testSwitcherButtonsVisibilityEventWithIncorrectVisibilityStateDoesNotCauseUpdateToBeCalled();
