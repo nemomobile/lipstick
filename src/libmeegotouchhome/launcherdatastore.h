@@ -206,9 +206,6 @@ private:
     //! The update queue
     QFileInfoList updateQueue;
 
-    //! Valid keys found during the update
-    QSet<QString> updateValidKeys;
-
     //! The directory being watched
     QString directoryPath;
 };

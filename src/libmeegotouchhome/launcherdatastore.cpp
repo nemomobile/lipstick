@@ -91,7 +91,6 @@ void LauncherDataStore::startProcessingUpdateQueue()
 {
     updatePending = false;
     updateQueue = QDir(directoryPath, FILE_FILTER).entryInfoList(QDir::Files);
-    updateValidKeys.clear();
     processUpdateQueueTimer.start();
 }
 
@@ -110,26 +109,24 @@ void LauncherDataStore::processUpdateQueue()
             if (isDesktopEntryValid(desktopEntry, supportedDesktopEntryFileTypes)) {
                 // Add the entry with an unknown location
                 store->createValue(key, QVariant());
-                // Keep track of all valid desktop entries
-                updateValidKeys.insert(key);
-
                 emit desktopEntryAdded(desktopEntryPath);
+            } else {
+                store->remove(key);
+                emit desktopEntryRemoved(keyToEntryPath(key));
             }
-        } else {
-            // Keep track of all valid desktop entries (consider already added desktop entries to be valid)
-            updateValidKeys.insert(key);
         }
 
         addFilePathToWatcher(desktopEntryPath);
     }
 
     if (updateQueue.isEmpty()) {
-        // When the update queue has been processed remove all desktop entries that are not valid
+        // When the update queue has been processed remove all non-existent desktop entries
         QStringList allKeys(store->allKeys());
         foreach (const QString &key, allKeys) {
-            if (key.startsWith(KEY_PREFIX) && !updateValidKeys.contains(key)) {
+            QString desktopEntryPath = keyToEntryPath(key);
+            if (key.startsWith(KEY_PREFIX) && !QFileInfo(desktopEntryPath).exists()) {
                 store->remove(key);
-                emit desktopEntryRemoved(keyToEntryPath(key));
+                emit desktopEntryRemoved(desktopEntryPath);
             }
         }
 
@@ -191,7 +188,6 @@ void LauncherDataStore::updateDesktopEntry(const QString &desktopEntryPath)
                 emit desktopEntryChanged(desktopEntryPath);
             } else {
                 // remove existing but now invalid entry
-                updateValidKeys.remove(key);
                 store->remove(key);
                 emit desktopEntryRemoved(keyToEntryPath(key));
             }
@@ -200,8 +196,6 @@ void LauncherDataStore::updateDesktopEntry(const QString &desktopEntryPath)
             if (isDesktopEntryValid(desktopEntry, supportedDesktopEntryFileTypes)) {
                 // if entry has been invalid before, but is now valid, add entry as a new entry
                 store->createValue(key, QVariant());
-                updateValidKeys.insert(key);
-
 		emit desktopEntryAdded(desktopEntryPath);
             }
         }

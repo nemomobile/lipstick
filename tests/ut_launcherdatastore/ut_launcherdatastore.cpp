@@ -109,6 +109,32 @@ QFileInfoList QDir::entryInfoList(Filters, SortFlags) const
     return desktopFileInfoList;
 }
 
+// QFileInfo stubs
+bool QFileInfo::exists() const
+{
+    bool contains = false;
+    foreach (QFileInfo file, desktopFileInfoList) {
+        if (file.absoluteFilePath() == absoluteFilePath()) {
+            contains = true;
+            break;
+        }
+    }
+    return contains;
+}
+
+// QFile stubs
+bool QFile::exists(const QString &file)
+{
+    bool contains = false;
+    foreach (QFileInfo fileInfo, desktopFileInfoList) {
+        if (fileInfo.absoluteFilePath() == file) {
+            contains = true;
+            break;
+        }
+    }
+    return contains;
+}
+
 // QFileSystemWatcher stubs
 void QFileSystemWatcher::addPath(const QString &path)
 {
@@ -118,11 +144,6 @@ void QFileSystemWatcher::addPath(const QString &path)
 QStringList QFileSystemWatcher::files() const
 {
     return addedWatcherPathCalls;
-}
-
-bool QFile::exists(const QString &)
-{
-    return true;
 }
 
 // QTimer stubs
@@ -450,7 +471,9 @@ void Ut_LauncherDataStore::testUpdatingDesktopEntry()
     addDesktopEntry("testApplication1.desktop", "Test1", "Application", "Icon-camera", "test1");
     addDesktopEntry("testApplication2.desktop", "Test2", "Application", "Icon-camera", "test2");
     LauncherDataStore dataStore(mockStore);
+    connect(this, SIGNAL(directoryChanged()), &dataStore, SLOT(updateDataFromDesktopEntryFiles()));
     connect(this, SIGNAL(timeout()), &dataStore, SLOT(processUpdateQueue()));
+    emit directoryChanged();
     emit timeout();
 
     QSignalSpy spyDesktopEntryChanged(&dataStore, SIGNAL(desktopEntryChanged(QString)));
