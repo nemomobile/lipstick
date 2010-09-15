@@ -115,22 +115,26 @@ LauncherButtonStyle {
 }
 
 MSpinnerStyle#LauncherButtonProgressIndicator {
+    refresh-rate: 300;
     period: 8000;
     bg-pixmap: meegotouch-progressindicator-spinner-hollow-background;
     progress-pixmap: meegotouch-progressindicator-spinner-hollow-progress;
 }
 
 MSpinnerStyle#LauncherButtonProgressIndicator:installing {
+    refresh-rate: 100;
     period: 16000;
 }
 
 MSpinnerStyle#QuickLaunchBarButtonProgressIndicator {
+    refresh-rate: 300;
     period: 8000;
     bg-pixmap: meegotouch-progressindicator-spinner-hollow-background-small;
     progress-pixmap: meegotouch-progressindicator-spinner-hollow-progress-small;
 }
 
 MSpinnerStyle#QuickLaunchBarButtonProgressIndicator:installing {
+    refresh-rate: 100;
     period: 16000;
 }
 				
