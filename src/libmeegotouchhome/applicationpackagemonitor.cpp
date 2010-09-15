@@ -206,19 +206,24 @@ void ApplicationPackageMonitor::packageOperationComplete(const QString &operatio
     if (!error.isEmpty()) {
         if (properties.installing) {
             emit operationError(properties.desktopEntryName, error);
+            storePackageState(packageName, PACKAGE_STATE_BROKEN);
         }
         else {
             // Downloading
-            QString packageState = dataStore->value(DESKTOPENTRY_PREFIX+properties.desktopEntryName).toString();
+            MDesktopEntry entry(properties.desktopEntryName);
+            QString packageState = entry.value(DESKTOP_ENTRY_GROUP_MEEGO, DESKTOP_ENTRY_KEY_PACKAGE_STATE);
             if (packageState == PACKAGE_STATE_INSTALLED || packageState == PACKAGE_STATE_UPDATEABLE) {
                 // Application is previously installed. Downloading update failed but application still usable.
                 emit operationSuccess(properties.desktopEntryName.replace(INSTALLER_EXTRA, QString()));
+                storePackageState(packageName, packageState);
             } else {
                 emit operationError(properties.desktopEntryName, error);
+                storePackageState(packageName, PACKAGE_STATE_BROKEN);
             }
         }
     } else {
         emit operationSuccess(properties.desktopEntryName.replace(INSTALLER_EXTRA, QString()));
+        storePackageState(packageName, PACKAGE_STATE_INSTALLED);
     }
 
     activePackages.remove(packageName);

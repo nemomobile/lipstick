@@ -97,7 +97,7 @@ private:
     void uninstall(const QString&);
 
     //Simulates upgrading package.
-    void upgradePackageSuccessfully(const QString&);
+    void upgradePackageSuccessfully(const QString&, const QString&);
 
     //Simulates cancelling operation.
     void cancelOperation(const QString &name, const QString &operation, const QString &state);
@@ -111,7 +111,8 @@ private:
     // Mimicks the change in the extra desktop file for a package when it is broken
     void breakPackageExtra(QString packageName);
 
-    void comparePackageState(const QString&, const QString&);
+    // Compares packages given 'state' to packages state in datastore.
+    void comparePackageStateInDataStore(const QString &packageName, const QString &state);
 
     // MApplication
     MApplication *app;
