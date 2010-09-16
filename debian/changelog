@@ -2,6 +2,7 @@ duihome (0.21.21~1) unstable; urgency=low
 
   * [UNRELEASED]
   * Fixes: NB#187573 - duihome eating CPU at the background when panning foreground application
+  * Fixes: NB#189334 - Launcher startup indicator updated too often
 
  -- Aki Koskinen <aki.koskinen@nokia.com>  Wed, 08 Sep 2010 15:34:44 +0300
 
