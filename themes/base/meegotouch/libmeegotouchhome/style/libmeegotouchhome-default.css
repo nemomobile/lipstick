@@ -93,15 +93,15 @@ LauncherButtonStyle {
     text-margin-right: 0;
     text-margin-bottom: 0;
 
-    minimum-size: 11.75mm 10.6mm;
-    preferred-size: 11.75mm 10.6mm;
-    maximum-size: 11.75mm 10.6mm;
+    minimum-size: 11.8mm 10.6mm;
+    preferred-size: 11.8mm 10.6mm;
+    maximum-size: 11.8mm 10.6mm;
 
     /* The size of the icon if the button represents a shortcut */
     icon-size: 8mm 8mm;
     /* The size of the progress indicator icon */
     /* (due implementation reasons progress indicator might be of different size than button icon) */
-    progress-indicator-icon-size: 94 94;
+    progress-indicator-icon-size: 9.4mm 9.4mm;
 
     press-feedback: press;
     release-feedback: release;
