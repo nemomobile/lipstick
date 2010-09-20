@@ -48,6 +48,11 @@ SwitcherView::SwitcherView(Switcher *switcher) :
         SwitcherViewBase(switcher), pagedViewport(new PagedViewport), overviewStyle(0)
 {
     viewport = pagedViewport;
+    // Fixes NB#186716, Disable the viewport initially so that does not cause unwated screen updates
+    // when trying to pan an empty switcher. The disabling of the panning must be
+    // prior to the event connections as disabling will cause the vp to emit 'panningStopped'
+    // and our slot might not have the view available at that time yet.
+    viewport->setEnabled(false);
     connect(pagedViewport, SIGNAL(pageChanged(int)), this, SLOT(updateFocusedButton(int)));
     connect(pagedViewport, SIGNAL(panningStopped()), this, SLOT(panningStopped()));
     connect(MainWindow::instance()->sceneManager(), SIGNAL(orientationChanged(M::Orientation)), this, SLOT(updateButtons()));
@@ -71,7 +76,6 @@ SwitcherView::SwitcherView(Switcher *switcher) :
     viewport->setWidget(pannedWidget);
 
     viewport->positionIndicator()->setObjectName("SwitcherOverviewPageIndicator");
-
     focusedSwitcherButton = 0;
     pinchedButtonPosition = -1;
 }
@@ -172,7 +176,8 @@ void SwitcherView::updateButtons()
     }
 
     updateButtonModesAndPageCount();
-
+    // Fixes NB#186716, no point in trying to pan the switcher if there are no buttons
+    viewport->setEnabled(model()->buttons().count() > 0);
     delete tmp;
 }
 

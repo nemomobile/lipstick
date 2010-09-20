@@ -45,6 +45,18 @@ static void verifyEqualContentMarginValues(qreal first, qreal second, qreal targ
 SwitcherModel* g_switcherModel;
 QMap<SwitcherButton *, Window> g_windowButtonMap;
 QRectF g_switcherGeometry;
+struct CallOrderData {
+    QObject* callee;
+    QString param;
+};
+//static bool gMPannableViewportSetEnabled = false;
+bool operator==(const CallOrderData& d1, const CallOrderData& d2)
+{
+    return d1.callee == d2.callee && d1.param == d2.param;
+}
+static QList<CallOrderData>* g_ConstructorCallOrder = NULL;
+static QString PANNING_STOPPED_SIGNAL = "2panningStopped()";
+static QString MPANNABLEWIDGET_SET_ENABLED = "setEnabled=%1";
 
 // MTheme stubs
 const MStyle *MTheme::style(const char *styleClassName,
@@ -52,7 +64,7 @@ const MStyle *MTheme::style(const char *styleClassName,
                             const QString &/*mode*/,
                             const QString &/*type*/,
                             M::Orientation /*orientation*/,
-                            const MWidgetController */*parent*/)
+                            const MWidgetController* /*parent*/)
 {
     MStyle *style = MClassFactory::instance()->createStyle(styleClassName);
 
@@ -106,6 +118,27 @@ public:
         g_switcherGeometry = rect;
     }
 };
+
+//MPannableWidget stubs
+void MPannableWidget::setEnabled(bool enabled)
+{
+    CallOrderData cd;
+    cd.callee = this;
+    cd.param = MPANNABLEWIDGET_SET_ENABLED.arg(enabled);
+    g_ConstructorCallOrder->append(cd);
+}
+
+// QObject stubs
+void QObject::connectNotify ( const char * signal )
+{
+    if (!g_ConstructorCallOrder) {
+        return;
+    }
+    CallOrderData cd;
+    cd.callee = this;
+    cd.param = QString(signal);
+    g_ConstructorCallOrder->append(cd);
+}
 
 // Home stubs
 class Home : public MApplicationPage
@@ -316,6 +349,7 @@ void Ut_SwitcherView::initTestCase()
 {
     static int argc = 1;
     static char *app_name = (char *)"./ut_switcherview";
+    g_ConstructorCallOrder = new QList<CallOrderData>;
     app = new MApplication(argc, &app_name);
     mSceneManager = new MSceneManager(NULL, NULL);
     gMWindowStub->stubSetReturnValue("sceneManager", mSceneManager);
@@ -327,10 +361,12 @@ void Ut_SwitcherView::initTestCase()
 void Ut_SwitcherView::cleanupTestCase()
 {
     delete app;
+    delete g_ConstructorCallOrder;
 }
 
 void Ut_SwitcherView::init()
 {
+    g_ConstructorCallOrder->clear();
     // Create test switcher
     switcher = new Switcher();
     g_switcherModel = new SwitcherModel;
@@ -416,6 +452,21 @@ void Ut_SwitcherView::testPanningStoppedInDetailView()
 /*
  * Switcher overview tests
  */
+void Ut_SwitcherView::testPanningDisabledWhenNoSwitcherButtons_NB186716()
+{
+    CallOrderData cd;
+    cd.callee = m_subject->viewport;
+    cd.param = MPANNABLEWIDGET_SET_ENABLED.arg(0);
+    int indexOfDisableCall = g_ConstructorCallOrder->indexOf(cd);
+
+    CallOrderData signalCallData;
+    signalCallData.callee = m_subject->viewport;
+    signalCallData.param = PANNING_STOPPED_SIGNAL;
+    int indexOfSignalConnect = g_ConstructorCallOrder->indexOf(signalCallData, indexOfDisableCall);
+
+    bool disableCallHappenedBeforeSignalConnect = indexOfDisableCall < indexOfSignalConnect;
+    QVERIFY(disableCallHappenedBeforeSignalConnect);
+}
 
 void Ut_SwitcherView::testButtonModesInOverviewMode()
 {
@@ -554,10 +605,14 @@ void Ut_SwitcherView::testModeChangeCancel()
 void Ut_SwitcherView::testTransitionControl()
 {
     g_switcherModel->setSwitcherMode(SwitcherModel::Overview);
-
+    g_ConstructorCallOrder->clear();
     mPinch->setLastScaleFactor(1.0);
     pinchGesture(1.0, Qt::GestureStarted);
-    QVERIFY(!m_subject->viewport->isEnabled());
+    // Test that once the pinch starts the viewport gets disabled
+    QCOMPARE(g_ConstructorCallOrder->size(), 1);
+    CallOrderData cd = g_ConstructorCallOrder->at(0);
+    QCOMPARE(cd.param, MPANNABLEWIDGET_SET_ENABLED.arg(0));
+    
     gTransformLayoutAnimationStub->stubSetReturnValue("manualControl", true);
     pinchGesture(1.1, Qt::GestureUpdated);
     QVERIFY(gTransformLayoutAnimationStub->stubLastCallTo("setManualControl").parameter<bool>(0));
@@ -568,7 +623,11 @@ void Ut_SwitcherView::testTransitionControl()
 
     pinchGesture(1.3, Qt::GestureFinished);
     QVERIFY(!gTransformLayoutAnimationStub->stubLastCallTo("setManualControl").parameter<bool>(0));
-    QVERIFY(m_subject->viewport->isEnabled());
+
+    // Test that we are enabled after the pinch operation
+    QCOMPARE(g_ConstructorCallOrder->size(), 2);
+    CallOrderData cd2 = g_ConstructorCallOrder->at(1);
+    QCOMPARE(cd2.param, MPANNABLEWIDGET_SET_ENABLED.arg(1));
 }
 
 void Ut_SwitcherView::testBounceAnimation()

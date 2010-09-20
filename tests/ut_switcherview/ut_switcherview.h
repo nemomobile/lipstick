@@ -94,6 +94,7 @@ private slots:
     void testOtherThanGraphicsSceneMouseMoveEventsDoNotGetFilteredForSwitcherButtons();
     void testGraphicsSceneMouseMoveEventsDoNotGetFilteredForOtherThanSwitcherButtons();
 
+    void testPanningDisabledWhenNoSwitcherButtons_NB186716();
 private:
     void verifyButtonModesInOverviewMode(M::Orientation orientation);
     void verifyButtonModesInOverviewMode(QList< QSharedPointer<SwitcherButton> > &buttonList);
