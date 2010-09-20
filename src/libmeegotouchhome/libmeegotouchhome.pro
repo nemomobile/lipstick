@@ -10,12 +10,11 @@ SOURCES += library.cpp
 TEMPLATE = lib
 TARGET = meegotouchhome
 CONFIG += meegotouch
-INCLUDEPATH += ../include \
-    . \
+INCLUDEPATH += .
 DEPENDPATH += .
 
 # For setting the coverage flag ON
-contains(COV_OPTION, on) { 
+contains(COV_OPTION, on) {
     LIBS += -lgcov
     QMAKE_CXXFLAGS += -ftest-coverage \
         -fprofile-arcs
