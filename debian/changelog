@@ -1,6 +1,7 @@
 duihome (0.21.22~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#190663 - aspect ratio of the clock is not maintained when minimised
 
  -- Aki Koskinen <aki.koskinen@nokia.com>  Thu, 16 Sep 2010 17:20:04 +0300
 

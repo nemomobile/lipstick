@@ -272,39 +272,39 @@ SwitcherButtonWithTitleBarStyle#OverviewButton {
 }
 
 SwitcherButtonStyle#OverviewButton.Portrait:medium {
-    preferred-size: 15.56mm 28.0mm;
-    minimum-size: 15.56mm 28.0mm;
-    maximum-size: 15.56mm 28.0mm;
-    icon-size: 15.56mm 28.0mm;
+    preferred-size: 17.4mm 28mm;
+    minimum-size: 17.4mm 28mm;
+    maximum-size: 17.4mm 28mm;
+    icon-size: 17.4mm 28mm;
 }
 
 SwitcherButtonStyle#OverviewButton.Portrait:large {
-    preferred-size: 21mm 37.8mm;
-    minimum-size: 21mm 37.8mm;
-    maximum-size: 21mm 37.8mm;
-    icon-size: 21mm 37.8mm;
+    preferred-size: 17.4mm 28mm;
+    minimum-size: 17.4mm 28mm;
+    maximum-size: 17.4mm 28mm;
+    icon-size: 17.4mm 28mm;
 }
 
 SwitcherButtonStyle#OverviewButton.Landscape:medium {
-    preferred-size: 21.8mm 12.1mm;
-    minimum-size: 21.8mm 12.1mm;
-    maximum-size: 21.8mm 12.1mm;
-    icon-size: 21.8mm 12.1mm;
+    preferred-size: 21.8mm 9.8mm;
+    minimum-size: 21.8mm 9.8mm;
+    maximum-size: 21.8mm 9.8mm;
+    icon-size: 21.8mm 9.8mm;
 }
 
 SwitcherButtonStyle#OverviewButton.Landscape:large {
-    preferred-size: 37.8mm 21mm;
-    minimum-size: 37.8mm 21mm;
-    maximum-size: 37.8mm 21mm;
-    icon-size: 37.8mm 21mm;
+    preferred-size: 21.8mm 9.8mm;
+    minimum-size: 21.8mm 9.8mm;
+    maximum-size: 21.8mm 9.8mm;
+    icon-size: 21.8mm 9.8mm;
 }
 
 /* Switcher buttons in the detail viewmode */
 SwitcherButtonStyle#DetailviewButton.Portrait {
-    preferred-size: 28.77mm 51.8mm;
-    minimum-size: 28.77mm 51.8mm;
-    maximum-size: 28.77mm 51.8mm;
-    icon-size: 28.77mm 51.8mm;
+    preferred-size: 27.0mm 44.2mm;
+    minimum-size: 27.0mm 44.2mm;
+    maximum-size: 27.0mm 44.2mm;
+    icon-size: 27.0mm 44.2mm;
 }
 
 SwitcherButtonWithTitleBarStyle#DetailviewButton.Portrait:large {
@@ -312,10 +312,10 @@ SwitcherButtonWithTitleBarStyle#DetailviewButton.Portrait:large {
 }
 
 SwitcherButtonStyle#DetailviewButton.Landscape {
-    preferred-size: 51.8mm 28.77mm;
-    minimum-size: 51.8mm 28.77mm;
-    maximum-size: 51.8mm 28.77mm;
-    icon-size: 51.8mm 28.77mm;
+    preferred-size: 51.8mm 24.1mm;
+    minimum-size: 51.8mm 24.1mm;
+    maximum-size: 51.8mm 24.1mm;
+    icon-size: 51.8mm 24.1mm;
 }
 
 SwitcherButtonWithTitleBarStyle#DetailviewButton.Landscape:large {
