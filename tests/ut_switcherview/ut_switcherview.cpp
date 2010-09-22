@@ -16,6 +16,7 @@
 ** of this file.
 **
 ****************************************************************************/
+
 #include <QGraphicsSceneMouseEvent>
 #include <MApplication>
 #include <MApplicationPage>
@@ -32,20 +33,17 @@
 #include "pagedpanning.h"
 #include "pagedviewport.h"
 #include "transformlayoutanimation_stub.h"
+#include "pagedviewport_stub.h"
 #include <QGestureEvent>
 #include <QPinchGesture>
 #include <mclassfactory.h>
 #include "mainwindow_stub.h"
 #include "windowinfo_stub.h"
 
-static void setSwitcherButtonSize(QList< QSharedPointer<SwitcherButton> > &buttonList, const QSizeF &size);
 static void verifyEqualContentMarginValues(qreal first, qreal second, qreal target);
-static void verifyPanningResult(QList<QSharedPointer<SwitcherButton> > list, bool panningShouldHappen, int targetPage);
 SwitcherModel* g_switcherModel;
 QMap<SwitcherButton *, Window> g_windowButtonMap;
 QRectF g_switcherGeometry;
-bool g_panRequested;
-uint g_panRequestIndex;
 
 
 // MTheme stubs
@@ -108,51 +106,6 @@ public:
         g_switcherGeometry = rect;
     }
 };
-
-//PagedViewport stubs
-PagedViewport::PagedViewport(QGraphicsItem *parent)
-{
-    Q_UNUSED(parent)
-}
-
-PagedViewport::~PagedViewport() { }
-
-void PagedViewport::setPanDirection(const Qt::Orientations &panDirection)
-{
-    Q_UNUSED(panDirection)
-}
-
-void PagedViewport::updatePageCount(int pages)
-{
-    Q_UNUSED(pages)
-}
-
-int PagedViewport::currentPage() const
-{
-    return 0;
-}
-
-void PagedViewport::panToPage(uint page)
-{
-    Q_UNUSED(page)
-    g_panRequested = true;
-    g_panRequestIndex = page;
-}
-
-void PagedViewport::focusFirstPage()
-{
-
-}
-
-float PagedViewport::pageWidth() const
-{
-    return 0;
-}
-
-void PagedViewport::setPage(uint page)
-{
-    Q_UNUSED(page)
-}
 
 // Home stubs
 class Home : public MApplicationPage
@@ -237,8 +190,6 @@ PagedPanning::~PagedPanning()
 }
 
 void PagedPanning::panToPage(int itemIndex) {
-    g_panRequested = true;
-    g_panRequestIndex = itemIndex;
     emit pageChanged(itemIndex);
 }
 
@@ -461,16 +412,18 @@ void Ut_SwitcherView::cleanupTestCase()
 
 void Ut_SwitcherView::init()
 {
-    g_panRequested = false;
     // Create test switcher
     switcher = new Switcher();
     g_switcherModel = new SwitcherModel;
     switcher->setModel(g_switcherModel);
     m_subject = new TestSwitcherView(switcher);
     switcher->setView(m_subject);
+
     gSwitcherStub->stubReset();
     gTransformLayoutAnimationStub->stubReset();
     gTransformLayoutAnimationStub->stubSetReturnValue("duration", -1);
+    gPagedViewportStub->stubReset();
+
     mPinch = new QPinchGesture();
     mPinch->setCenterPoint(QPointF(100,100));
     QList<QGesture*> gestures;
@@ -845,7 +798,6 @@ void Ut_SwitcherView::testButtonCounts()
     QCOMPARE(m_subject->detailPolicy->count(), 4);
 }
 
-
 void Ut_SwitcherView::testRemovingButtons()
 {
     QList< QSharedPointer<SwitcherButton> > list(createButtonList(2));
@@ -862,16 +814,16 @@ void Ut_SwitcherView::testRemovingButtons()
     QVERIFY(!removedButton.isNull());
 }
 
-void verifyPanningResult(QList<QSharedPointer<SwitcherButton> > list, bool panningShouldHappen, int targetPage)
+void verifyPanningResult(QList<QSharedPointer<SwitcherButton> > list, bool panningShouldHappen, uint targetPage)
 {
     g_switcherModel->setButtons(list);
     gWindowInfoStub->stubSetReturnValue("window", g_windowButtonMap.value(list.last().data()));
     Window topmost = list.last().data()->xWindow();
     g_switcherModel->setTopmostWindow(topmost);
     QCOMPARE(g_windowButtonMap.count(), list.count());
-    QCOMPARE(g_panRequested, panningShouldHappen);
+    QCOMPARE(gPagedViewportStub->stubCallCount("panToPage"), panningShouldHappen ? 1 : 0);
     if (panningShouldHappen) {
-        QCOMPARE(g_panRequestIndex, uint(targetPage));
+        QCOMPARE(gPagedViewportStub->stubLastCallTo("panToPage").parameter<uint>(0), targetPage);
     }
 }
 
@@ -889,13 +841,13 @@ void Ut_SwitcherView::testPanToSwitcherPageInOverviewMode()
     QList< QSharedPointer<SwitcherButton> > list(createButtonList(buttons));
     verifyPanningResult(list, true, firstPageIndex);
 
-    g_panRequested = false;
+    gPagedViewportStub->stubReset();
 
     int moreButtons = 3;
     appendMoreButtonsToList(moreButtons, list);
     verifyPanningResult(list, true, secondPageIndex);
 
-    g_panRequested = false;
+    gPagedViewportStub->stubReset();
 
     // Lets delete something from the first page to see if we pan -> we shouldn't
     // as the top most window does not change.
@@ -913,13 +865,13 @@ void Ut_SwitcherView::testPanToSwitcherPageInDetailviewMode()
 
     verifyPanningResult(list, true, 3);
 
-    g_panRequested = false;
+    gPagedViewportStub->stubReset();
 
     int moreButtons = 3;
     appendMoreButtonsToList(moreButtons, list);
     verifyPanningResult(list, true, 6);
 
-    g_panRequested = false;
+    gPagedViewportStub->stubReset();
 
     // Lets delete something from the first page to see if we pan -> we shouldn't
     // as the top most window does not change.
