@@ -82,13 +82,22 @@ MethodCall &StubBase::stubLastCall() const
 
 MethodCall &StubBase::stubLastCallTo(const QString &method) const
 {
-    for (int i = _stubCallHistory.count() - 1; i >= 0; i--) {
+    int i = _stubCallHistory.count() - 1;
+    bool found = false;
+
+    for (; i >= 0; i--) {
         if (_stubCallHistory.at(i)->name() == method) {
-            return *(_stubCallHistory.at(i));
+            found = true;
+            break;
         }
     }
-    qDebug() << "StubBase::lastCallTo: call not found to:" << method;
-    return *((MethodCall *)0);
+
+    if (!found) {
+        QString msg = QString("StubBase::") + __func__ + ": no calls found to '" + method + "'";
+        qFatal("%s", qPrintable(msg));
+    }
+
+    return *(_stubCallHistory.at(i));
 }
 
 QList<MethodCall *> StubBase::stubCallsTo(const QString &method) const
@@ -101,5 +110,3 @@ QList<MethodCall *> StubBase::stubCallsTo(const QString &method) const
     }
     return calls;
 }
-
-
