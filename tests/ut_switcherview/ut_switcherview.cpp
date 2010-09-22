@@ -127,7 +127,7 @@ void PagedViewport::updatePageCount(int pages)
     Q_UNUSED(pages)
 }
 
-int PagedViewport::currentPage()
+int PagedViewport::currentPage() const
 {
     return 0;
 }

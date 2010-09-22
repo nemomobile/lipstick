@@ -75,7 +75,7 @@ void PagedViewport::updatePageCount(int pages)
     emit pageCountChanged(pages);
 }
 
-int PagedViewport::currentPage()
+int PagedViewport::currentPage() const
 {
     return pagedPanning->activePage();
 }

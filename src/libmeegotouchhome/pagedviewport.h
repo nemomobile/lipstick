@@ -25,18 +25,18 @@ class PagedPanning;
 
 /*!
  * \class PagedViewport
- * \brief PagedViewport creates a view that allows any widget to be panned a set 
+ * \brief PagedViewport creates a view that allows any widget to be panned a set
  * of pages.
  *
  * The PagedViewport extends the MPannableViewport functionality so that it
  * pans the widget inside the viewport through pages. The page within this class
- * refres to the visual appearance only. 
+ * refres to the visual appearance only.
  *
  * The widget inside the MPannableViewport
  * is not split into multiple component or widgets. The PagedViewport only modifies the
  * movement of the MPannableViewport so that the widget being panned appears to
  * consist of multiple pages.
- * 
+ *
  * Currently only horizontal paging is supported.
  */
 class PagedViewport : public MPannableViewport
@@ -59,7 +59,7 @@ public:
     /*! \reimp
      * Sets pan direction to horizontal regardles of user's wishes.
      * Setting direction to vertical has undetermined effects since
-     * it's currently not supported 
+     * it's currently not supported
      */
     void setPanDirection(const Qt::Orientations &panDirection);
     //! \reimp_end
@@ -74,7 +74,7 @@ public:
     /*!
      * Returns the currently active page
      */
-    int currentPage();
+    int currentPage() const;
 
     /*!
      * Returns the page width
