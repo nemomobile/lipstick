@@ -164,7 +164,10 @@ public slots:
 
     /*!
      * Removes placeholder launcher button for an application if application is not installed.
-     * Removes placeholder's installer extra entry to launcher button mapping.
+     *
+     * We can only remove button if it is found from launcher and desktop entry file paths match.
+     * Different desktop entry file paths means that button is not placeholder and hence needs to be removed by
+     * launcher data store.
      *
      * \param desktopEntryPath of an application
      */
@@ -174,6 +177,9 @@ private slots:
 
     /*!
      * Add a launcher button to launcher.
+     *
+     * Button is not added if it already exists in launcher.
+     * updateLauncherButton() and updateButtonState() are used to update existing buttons.
      *
      * \param desktopEntryPath Path to desktop entry that button should represent
      */
@@ -299,6 +305,13 @@ private:
      * \param desktopEntryPath Desktop entry path to the desktop entry that button represents
      */
     void updateButtonPlacementInStore(const QString &desktopEntryPath);
+
+    /*!
+     * Removes button placement from the launcher data store.
+     *
+     * \param desktopEntryPath Desktop entry path to the desktop entry that button represents
+     */
+    void removeButtonPlacementFromStore(const QString &desktopEntryPath);
 
     /*!
      * Sets the maximum page size of a LauncherPage if defined.

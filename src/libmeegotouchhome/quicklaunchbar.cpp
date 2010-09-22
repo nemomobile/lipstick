@@ -64,7 +64,7 @@ void QuickLaunchBar::updateButtonState(const QString &desktopEntryPath, Launcher
     QString entryFileName = QFileInfo(desktopEntryPath).fileName();
     for (int i = 0 ; i < buttons.count() ; i++) {
         if (QFileInfo(buttons.at(i)->desktopEntry()).fileName() == entryFileName) {
-            buttons.at(i)->setState(state, progress);
+            buttons.at(i)->setState(state, progress, desktopEntryPath);
         }
     }
 }

@@ -50,7 +50,6 @@ int LauncherPage::insertButton(QSharedPointer<LauncherButton> button, int positi
         } else {
             insertIndex = buttonsCount;
         }
-
         model()->setLauncherButtons(buttons);
     }
     return insertIndex;
@@ -91,7 +90,7 @@ bool LauncherPage::updateButton(const QString &desktopEntryPath)
     int buttonPosition = launcherButtonPosition(desktopEntryPath);
     if (buttonPosition >= 0) {
         contains = true;
-        model()->launcherButtons().at(buttonPosition)->updateFromDesktopEntry(desktopEntryPath);;
+        model()->launcherButtons().at(buttonPosition)->updateFromDesktopEntry(desktopEntryPath);
     }
     return contains;
 }

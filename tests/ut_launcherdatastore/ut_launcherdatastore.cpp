@@ -418,6 +418,20 @@ void Ut_LauncherDataStore::testUpdatingDataForDesktopEntry()
     QCOMPARE(spy.count(), 1);
 }
 
+void Ut_LauncherDataStore::testRemovingDataForDesktopEntry()
+{
+    addDesktopEntry("test.desktop", "Test0", "Application", "Icon-camera", "test0");
+
+    LauncherDataStore dataStore(mockStore);
+    connect(this, SIGNAL(timeout()), &dataStore, SLOT(processUpdateQueue()));
+    emit timeout();
+    QSignalSpy spy(&dataStore, SIGNAL(dataStoreChanged()));
+
+    dataStore.removeDataForDesktopEntry(fileNameWithPath("test.desktop"));
+    QCOMPARE(dataStore.dataForAllDesktopEntries().count(), 0);
+    QCOMPARE(spy.count(), 0);
+}
+
 void Ut_LauncherDataStore::testOnlyPrefixedKeys()
 {
     // Test applications

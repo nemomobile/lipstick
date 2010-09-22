@@ -66,11 +66,23 @@ QHash<QString, QVariant> LauncherDataStore::dataForAllDesktopEntries()
 
 void LauncherDataStore::updateDataForDesktopEntry(const QString &entryPath, const QVariant &data)
 {
-    // Disconnect the dataStoreChanged() signal connection during updates
-    store->disconnect(this);
+    // Disconnect listening store changes during the store is updated.
+    disconnect(store, SIGNAL(valueChanged(QString, QVariant)), this, SIGNAL(dataStoreChanged()));
 
     // Update the data store
     store->createValue(entryPathToKey(entryPath), data);
+
+    // Emit a dataStoreChanged() signal if something changes in the data store
+    connect(store, SIGNAL(valueChanged(QString, QVariant)), this, SIGNAL(dataStoreChanged()));
+}
+
+void LauncherDataStore::removeDataForDesktopEntry(const QString &entryPath)
+{
+    // Disconnect listening store changes during the store is updated.
+    disconnect(store, SIGNAL(valueChanged(QString, QVariant)), this, SIGNAL(dataStoreChanged()));
+
+    // Remove value from the data store
+    store->remove(entryPathToKey(entryPath));
 
     // Emit a dataStoreChanged() signal if something changes in the data store
     connect(store, SIGNAL(valueChanged(QString, QVariant)), this, SIGNAL(dataStoreChanged()));
@@ -96,8 +108,8 @@ void LauncherDataStore::startProcessingUpdateQueue()
 
 void LauncherDataStore::processUpdateQueue()
 {
-    // Disconnect the dataStoreChanged() signal connection during updates
-    store->disconnect(this);
+    // Disconnect listening store changes during the store is updated.
+    disconnect(store, SIGNAL(valueChanged(QString, QVariant)), this, SIGNAL(dataStoreChanged()));
 
     for (int i = 0; i < FILES_PROCESSED_AT_ONCE && !updateQueue.isEmpty(); i++) {
         QFileInfo fileInfo = updateQueue.takeFirst();
@@ -153,20 +165,16 @@ bool LauncherDataStore::isDesktopEntryValid(const MDesktopEntry &entry, const QS
     (entry.notShowIn().count() == 0 || !(entry.notShowIn().contains("X-DUI") || entry.notShowIn().contains("X-MeeGo")));
 }
 
-QString LauncherDataStore::entryPathToKey(QString entryPath)
+QString LauncherDataStore::entryPathToKey(const QString &entryPath)
 {
     // add key prefix to the entry path
     return QString(KEY_PREFIX + entryPath);
 }
 
-QString LauncherDataStore::keyToEntryPath(QString key)
+QString LauncherDataStore::keyToEntryPath(const QString &key)
 {
-    // remove key prefix from the key if if is found
-    if (key.indexOf(KEY_PREFIX) == 0) {
-        return key.replace(0, KEY_PREFIX.length(), "");
-    }
-
-    return key;
+    // remove key prefix from the key if it is found
+    return QString(key).remove(KEY_PREFIX);
 }
 
 void LauncherDataStore::addFilePathToWatcher(const QString &filePath)

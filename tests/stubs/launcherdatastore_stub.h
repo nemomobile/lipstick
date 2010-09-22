@@ -35,10 +35,11 @@ class LauncherDataStoreStub : public StubBase {
   virtual void processUpdateQueue();
   virtual void startProcessingUpdateQueue();
   virtual bool isDesktopEntryValid(const MDesktopEntry &entry, const QStringList &acceptedTypes);
-  virtual QString entryPathToKey(QString entryPath);
-  virtual QString keyToEntryPath(QString key);
+  virtual QString entryPathToKey(const QString &entryPath);
+  virtual QString keyToEntryPath(const QString &key);
   virtual void updateDesktopEntry(const QString &desktopEntryPath);
-  bool isInQueue(const QString &key);
+  virtual bool isInQueue(const QString &key);
+  virtual void removeDataForDesktopEntry(const QString &entryPath);
 };
 
 // 2. IMPLEMENT STUB
@@ -81,14 +82,14 @@ bool LauncherDataStoreStub::isDesktopEntryValid(const MDesktopEntry &entry, cons
   return stubReturnValue<bool>("isDesktopEntryValid");
 }
 
-QString LauncherDataStoreStub::entryPathToKey(QString entryPath) {
+QString LauncherDataStoreStub::entryPathToKey(const QString &entryPath) {
   QList<ParameterBase*> params;
   params.append( new Parameter<QString >(entryPath));
   stubMethodEntered("entryPathToKey",params);
   return stubReturnValue<QString>("entryPathToKey");
 }
 
-QString LauncherDataStoreStub::keyToEntryPath(QString key) {
+QString LauncherDataStoreStub::keyToEntryPath(const QString &key) {
   QList<ParameterBase*> params;
   params.append( new Parameter<QString >(key));
   stubMethodEntered("keyToEntryPath",params);
@@ -107,6 +108,13 @@ bool LauncherDataStoreStub::isInQueue(const QString &key) {
     stubMethodEntered("isInQueue",params);
     return stubReturnValue<bool>("isInQueue");
 }
+
+void LauncherDataStoreStub::removeDataForDesktopEntry(const QString &entryPath) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<const QString >(entryPath));
+  stubMethodEntered("removeDataForDesktopEntry",params);
+}
+
 
 // 3. CREATE A STUB INSTANCE
 LauncherDataStoreStub gDefaultLauncherDataStoreStub;
@@ -146,11 +154,11 @@ bool LauncherDataStore::isDesktopEntryValid(const MDesktopEntry &entry, const QS
   return gLauncherDataStoreStub->isDesktopEntryValid(entry, acceptedTypes);
 }
 
-QString LauncherDataStore::entryPathToKey(QString entryPath) {
+QString LauncherDataStore::entryPathToKey(const QString &entryPath) {
   return gLauncherDataStoreStub->entryPathToKey(entryPath);
 }
 
-QString LauncherDataStore::keyToEntryPath(QString key) {
+QString LauncherDataStore::keyToEntryPath(const QString &key) {
   return gLauncherDataStoreStub->keyToEntryPath(key);
 }
 
@@ -162,4 +170,7 @@ bool LauncherDataStore::isInQueue(const QString &key) {
     return gLauncherDataStoreStub->isInQueue(key);
 }
 
+void LauncherDataStore::removeDataForDesktopEntry(const QString &entryPath) {
+    gLauncherDataStoreStub->removeDataForDesktopEntry(entryPath);
+}
 #endif

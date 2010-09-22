@@ -102,7 +102,6 @@ void LauncherButton::retranslateUi()
 void LauncherButton::updateFromDesktopEntry(const QString &desktopEntryPath)
 {
     if (!desktopEntryPath.isEmpty()) {
-
         LauncherAction action(desktopEntryPath);
 
         setText(action.localizedName());
@@ -112,11 +111,16 @@ void LauncherButton::updateFromDesktopEntry(const QString &desktopEntryPath)
     }
 }
 
-void LauncherButton::setState(LauncherButtonModel::State state, int progress)
+void LauncherButton::setState(LauncherButtonModel::State state, int progress, const QString &desktopEntryPath)
 {
     model()->setButtonState(state);
     if (progress >= 0 && progress <= 100) {
         model()->setOperationProgress(progress);
+    }
+
+    // Override the current desktop entry when changing to broken or installed state
+    if (state == LauncherButtonModel::Broken || state == LauncherButtonModel::Installed) {
+        updateFromDesktopEntry(desktopEntryPath);
     }
 }
 

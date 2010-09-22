@@ -50,6 +50,8 @@ private slots:
     void testStopLaunchProgressIfObscured();
     void testSettingButtonStateAndProgress();
     void testSettingButtonStateAndProgressWithInvalidValues();
+    void testSettingButtonStateWithUpdatingDesktopEntry_data();
+    void testSettingButtonStateWithUpdatingDesktopEntry();
     void testLaunchingMultipleTimes();
     void testTryingToLaunchSecondActionWhileLaunching();
 

@@ -77,9 +77,16 @@ public:
      *
      * \param entryPath the path of the desktop entry to update
      * \param data the data to update the desktop entry with
-     * \return \c true if the update was successful, \c false otherwise
      */
     void updateDataForDesktopEntry(const QString &entryPath, const QVariant &data);
+
+    /*!
+     * Removes the data for a desktop entry in the data store.
+     *
+     * \param entryPath the path of the desktop entry to remove
+     */
+    void removeDataForDesktopEntry(const QString &entryPath);
+
 
 signals:
     /*!
@@ -158,7 +165,7 @@ private:
       * \param entryPath The absolute entry path of the desktop entry (eg. "/usr/share/applications/deskentry.desktop").
       * \return The key for the entry.
       */
-    QString entryPathToKey(QString entryPath);
+    static QString entryPathToKey(const QString &entryPath);
 
     /*!
       * This helper method gets entry path from key by removing key prefix.
@@ -169,7 +176,7 @@ private:
       * \param key The key as key prefix and entry path (eg. "KEY_PREFIX/usr/share/applications/deskentry.desktop").
       * \return The entry path.
       */
-    QString keyToEntryPath(QString key);
+    static QString keyToEntryPath(const QString &key);
 
     /*!
       * Add path to watcher, if path isn't already watched.

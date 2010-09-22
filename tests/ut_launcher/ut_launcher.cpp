@@ -72,6 +72,13 @@ void Ut_Launcher::addButtonsToLauncherAndSetDataForAllDesktopEntries(int amount)
     gLauncherDataStoreStub->stubSetReturnValue("dataForAllDesktopEntries", dataForAllDesktopEntries);
 }
 
+// QFile stubs
+bool fileExists;
+bool QFileInfo::exists() const
+{
+    return fileExists;
+}
+
 // Tests
 void Ut_Launcher::initTestCase()
 {
@@ -96,6 +103,8 @@ void Ut_Launcher::init()
 
     gLauncherButtonStub->stubReset();
     gLauncherDataStoreStub->stubReset();
+
+    fileExists = true;
 }
 
 void Ut_Launcher::cleanup()
@@ -497,23 +506,24 @@ void Ut_Launcher::testRemovingLauncherButtonPlaceholderWhenInstallExtraEntryIsRe
 
 void Ut_Launcher::testWhenApplicationIsInstalledAndInstallExtraEntryIsRemovedThenLauncherButtonIsNotRemoved()
 {
-    QString entry = QString(APPLICATIONS_DIRECTORY)+"testRemoveInstallExtra.desktop";
+    QString installedEntry = QString(APPLICATIONS_DIRECTORY)+ "testRemoveInstallExtra.desktop";
+    QString placeholderEntry = QString(APPLICATIONS_DIRECTORY)+ "extra/"+"testRemoveInstallExtra.desktop";
     addButtonsToLauncherAndSetDataForAllDesktopEntries(BUTTONS_PER_PAGE-1);
 
     QHash<QString, QVariant> dataStore = launcher->dataStore->dataForAllDesktopEntries();
-    dataStore.insert(entry, QVariant("launcher/0/11"));
+    dataStore.insert(installedEntry, QVariant("launcher/0/11"));
     gLauncherDataStoreStub->stubSetReturnValue("dataForAllDesktopEntries", dataStore);
 
     // Application is installed and has a launcher button and desktop entry.
-    launcher->addLauncherButton(entry);
+    launcher->addLauncherButton(installedEntry);
 
     QCOMPARE(launcher->model()->launcherPages().at(0)->model()->launcherButtons().count(), BUTTONS_PER_PAGE);
 
     // launcher button is already in launcher
     // this sets LauncherPage::launcherButtonPosition to find button
-    gLauncherButtonStub->stubSetReturnValue("desktopEntry", entry);
+    gLauncherButtonStub->stubSetReturnValue("desktopEntry", installedEntry);
 
-    launcher->removePlaceholderButton(entry);
+    launcher->removePlaceholderButton(placeholderEntry);
 
     QCOMPARE(launcher->model()->launcherPages().count(), 1);
     QCOMPARE(launcher->model()->launcherPages().at(0)->model()->launcherButtons().count(), BUTTONS_PER_PAGE);
@@ -538,9 +548,11 @@ void Ut_Launcher::testOperationSuccessForButtonWithoutDesktopEntry()
     // Add placeholder launcher button
     QString installExtraEntry = "/dev/null/applications/install-extra/test.desktop";
     gLauncherButtonStub->stubSetReturnValue("desktopEntry", installExtraEntry);
-    QString applicationsEntry = "/dev/null/applications/test.desktop";
     launcher->placeholderButton(installExtraEntry);
 
+    // Try operation success for entry that has no desktop entry file
+    QString applicationsEntry = "/dev/null/applications/test.desktop";
+    fileExists = false;
     launcher->updateButtonState(applicationsEntry, LauncherButtonModel::Installed, 0);
 
     // Verify that button (and page) was removed

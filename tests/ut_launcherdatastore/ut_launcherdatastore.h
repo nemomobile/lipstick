@@ -51,6 +51,7 @@ private slots:
     void testProcessUpdateQueueRestartsIfRequested();
     void testProcessUpdateQueueFiltersDesktopFiles();
     void testUpdatingDataForDesktopEntry();
+    void testRemovingDataForDesktopEntry();
     void testOnlyPrefixedKeys();
     void testAddingWatcherDesktopEntryPaths();
     void testUpdatingDesktopEntry();
