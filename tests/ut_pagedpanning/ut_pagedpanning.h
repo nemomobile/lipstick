@@ -105,6 +105,16 @@ private slots:
     void testMovementExcatlyPageWidth();
 
     /*!
+     * Tests page wrapping at last page
+     */
+    void testMovementWithWrappingRightToLeft();
+
+    /*!
+     * Tests page wrapping at first page
+     */
+    void testMovementWithWrappingLeftToRight();
+
+    /*!
      * Tests movement that is exctly the threshold and it should advance to the next
      * snap position
      */

@@ -33,7 +33,9 @@ PagedPanning::PagedPanning(QObject* parent) : MPhysics2DPanning(parent),
                                               pageSnapFriction_(0.7),
                                               previousPosition(0),
                                               targetPage(0),
-                                              pageWidth_(0)
+                                              pageWidth_(0),
+                                              wrapMode(false),
+                                              pageWrapping(false)
 
 {
     // Whenever panning stops for reason or the other, make sure the
@@ -47,6 +49,15 @@ PagedPanning::~PagedPanning()
 
 }
 
+// Wraps x into the range [0,length)
+static int wrap(int x, int length)
+{
+    int a = x / length;
+
+    x += (x < 0 ? (-a + 1) : -a) * length;
+
+    return x;
+}
 
 void PagedPanning::integrateAxis(Qt::Orientation orientation,
                                  qreal &position,
@@ -220,6 +231,11 @@ void PagedPanning::setPageSnapFriction(qreal value)
     pageSnapFriction_ = value;
 }
 
+void PagedPanning::setPageWrapMode(bool enable)
+{
+    wrapMode = enable;
+}
+
 qreal PagedPanning::slideDistance(qreal initialVelocity, qreal friction)
 {
     /*
@@ -264,6 +280,8 @@ void PagedPanning::pointerPress(const QPointF &pos)
 
     // Stop the automatic panning when the pointer comes down
     snapMode = false;
+
+    pageWrapping = false;
 }
 
 void PagedPanning::pointerMove(const QPointF &pos)
@@ -282,12 +300,20 @@ void PagedPanning::pointerMove(const QPointF &pos)
     if (distanceToInitialPage > 0) {
         draggedPages = (int)(distanceToInitialPage / pageWidth_ + (1.0 - dragThreshold_));
     } else {
-        draggedPages = (int)(distanceToInitialPage/pageWidth_ - (1.0 - dragThreshold_));
+        draggedPages = (int)(distanceToInitialPage / pageWidth_ - (1.0 - dragThreshold_));
     }
 
-    targetPage = qBound(0, initialPage + draggedPages, pageCount_ - 1);
+    targetPage = initialPage + draggedPages;
 
-    if( currentPage != targetPage) {
+    if(wrapMode) {
+        int wrappedPage = wrap(targetPage, pageCount_);
+        pageWrapping = targetPage != wrappedPage;
+        targetPage = wrappedPage;
+    } else {
+        targetPage = qBound(0, targetPage, pageCount_ - 1);
+    }
+
+    if(currentPage != targetPage) {
         emit pageChanged(targetPage);
         currentPage = targetPage;
     }
@@ -308,7 +334,6 @@ void PagedPanning::pointerRelease()
 {
     MPhysics2DPanning::pointerRelease();
 
-
     // The number of pages to slide
     qreal slidePages = slideDistance(velocity().x(), slidingFriction()) / pageWidth_;
     // Remove half a page; only slide over the center of a page if really going
@@ -319,15 +344,19 @@ void PagedPanning::pointerRelease()
 
     goToNextPageWithStongEnoughFlick();
 
-
     if (slideLimit_ > 0) {
         targetPage = qBound(initialPage - slideLimit_,
                             targetPage,
                             initialPage + slideLimit_);
     }
+
+    // if wrapmode is on, and the pointer movement or the above logic caused page wrapping,
+    // move the current position to the opposite side of the pannable area
+    if(wrapMode && (pageWrapping || targetPage >= pageCount_ || targetPage < 0)) {
+        targetPage = wrap(targetPage, pageCount_);
+        setPosition(QPointF(position().x() + (initialPage > targetPage ? -1 : 1) * pageWidth() * pageCount() , position().y()));
+    }
 }
-
-
 
 void PagedPanning::setPage(uint page)
 {

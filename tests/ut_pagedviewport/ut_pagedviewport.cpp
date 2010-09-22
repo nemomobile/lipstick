@@ -99,6 +99,11 @@ void PagedPanning::setPageSnapFriction(qreal)
 {
 }
 
+void PagedPanning::setPageWrapMode(bool /*enable*/)
+{
+}
+
+
 void PagedPanning::pointerPress(const QPointF &pos)
 {
     Q_UNUSED(pos);

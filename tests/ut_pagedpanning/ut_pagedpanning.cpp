@@ -135,6 +135,36 @@ void Ut_PagedPanning::testMovementExcatlyPageWidth()
                  1);               // Target page index after move
 }
 
+void Ut_PagedPanning::testMovementWithWrappingRightToLeft()
+{
+    m_subject->setPageWrapMode(true);
+
+    qreal currentPosition = 1000.0;
+
+    testMovement(m_subject,
+                 11,               // Page count
+                 currentPosition,  // The position where the movement starts
+                 100.0,            // Move amount
+                 0.0,              // Where the current position should end up after movement
+                 false,            // Left to right
+                 0);               // Target page index after move
+}
+
+void Ut_PagedPanning::testMovementWithWrappingLeftToRight()
+{
+    m_subject->setPageWrapMode(true);
+
+    qreal currentPosition = 0.0;
+
+    testMovement(m_subject,
+                 11,               // Page count
+                 currentPosition,  // The position where the movement starts
+                 100.0,            // Move amount
+                 1000.0,           // Where the current position should end up after movement
+                 true,             // Left to right
+                 10);              // Target page index after move
+}
+
 void Ut_PagedPanning::testAutoPanning()
 {
     qreal velocity = 0;
@@ -232,16 +262,11 @@ void Ut_PagedPanning::testMovement(PagedPanning* pagedPanning,
 
     int pageCrossings;
 
-    if(leftToRight) {
-        pageCrossings = qBound((qreal)0.0,
-                               (qreal)moveAmount,
-                               (qreal)currentPosition)/pageWidth;
+    if(m_subject->wrapMode) {
+        pageCrossings = (qreal)moveAmount / pageWidth;
     } else {
-        pageCrossings = qBound((qreal)0.0,
-                               (qreal)moveAmount,
-                               (qreal)(rangeEnd-currentPosition))/pageWidth;
+        pageCrossings = qBound((qreal)0.0, (qreal)moveAmount, leftToRight ? currentPosition : rangeEnd - currentPosition) / pageWidth;
     }
-
 
     velocity = 0;
     pointerSpring = 0;
@@ -258,7 +283,7 @@ void Ut_PagedPanning::testMovement(PagedPanning* pagedPanning,
     QCOMPARE(spy.count(), pageCrossings);
     if (pageCrossings > 0) {
         QList<QVariant> arguments = spy.takeLast();
-        QVERIFY(arguments.at(0).toInt() == targetPage);
+        QCOMPARE(arguments.at(0).toInt(), targetPage);
     }
 }
 

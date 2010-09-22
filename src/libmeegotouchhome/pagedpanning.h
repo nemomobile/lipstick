@@ -108,6 +108,13 @@ public:
      */
     float pageWidth() const;
 
+    /*!
+     * Enables or disables the page wrapping mode.
+     *
+     * \param enable enables or disables the mode
+     */
+    void setPageWrapMode(bool enable);
+
 protected:
 
     //! \reimp
@@ -199,6 +206,12 @@ private:
 
     //! Lenght of latest swipe gesture
     qreal latestSwipeLenght;
+
+    //! If true, panning wraps the page around the edges
+    bool wrapMode;
+
+    //! If true, the page is currently being wrapped
+    bool pageWrapping;
 
 #ifdef UNIT_TEST
     //! Test unit is defined as a friend of production code to access private members

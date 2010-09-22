@@ -71,12 +71,23 @@ public:
      */
     void updatePageCount(int pages);
 
+    /*!
+     * Returns the currently active page
+     */
     int currentPage();
 
     /*!
      * Returns the page width
      */
     float pageWidth() const;
+
+    /*!
+     * Enables or disables the page wrapping mode. When enabled, the pannable
+     * viewport wraps back to the first or the last page when panning over the opposite side.
+     *
+     * \param enable enables or disables the mode
+     */
+    void setPageWrapMode(bool enable);
 
 Q_SIGNALS:
 

@@ -84,3 +84,8 @@ float PagedViewport::pageWidth() const
 {
     return pagedPanning->pageWidth();
 }
+
+void PagedViewport::setPageWrapMode(bool enable)
+{
+    pagedPanning->setPageWrapMode(enable);
+}
