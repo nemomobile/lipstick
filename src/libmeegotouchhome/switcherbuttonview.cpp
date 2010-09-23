@@ -214,6 +214,9 @@ void SwitcherButtonView::setupModel()
 
     if (model()->xWindow() != 0) {
         updateXWindowPixmap();
+
+        // Each window should always have at least some kind of a value for _NET_WM_ICON_GEOMETRY
+        updateXWindowIconGeometry();
     }
     updateViewMode();
 }
@@ -225,6 +228,9 @@ void SwitcherButtonView::updateData(const QList<const char *>& modifications)
     foreach(member, modifications) {
         if (member == SwitcherButtonModel::XWindow && model()->xWindow() != 0) {
             updateXWindowPixmap();
+
+            // Each window should always have at least some kind of a value for _NET_WM_ICON_GEOMETRY
+            updateXWindowIconGeometry();
         } else if (member == SwitcherButtonModel::ViewMode) {
             updateViewMode();
         }
