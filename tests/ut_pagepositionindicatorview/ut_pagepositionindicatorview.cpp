@@ -69,6 +69,7 @@ public:
         setView(view);
         getView()->modifiableStyle()->setUnfocusedIndicatorImage(unfocusedIndicator);
         getView()->modifiableStyle()->setFocusedIndicatorImage(focusedIndicator);
+        getView()->modifiableStyle()->setFocusedBetweenPages(false);
     }
 
     TestPagePositionIndicatorView *getView()
@@ -209,10 +210,15 @@ void Ut_PagePositionIndicatorView::testPositionIndicatorFocusing()
     verifyPositionIndicatorDrawing(1, amountOfPages);
 }
 
-void Ut_PagePositionIndicatorView::testWhenPageIsPanningOnlyUnfocusedIconsAreDrawn()
+void Ut_PagePositionIndicatorView::testFocusBetweenPagesStyleChanges()
 {
     bool ret = m_subject->disconnect(positionIndicator, SIGNAL(pageIsPanning(bool)), m_subject, SLOT(setForceUnfocusedIcon(bool)));
+    QCOMPARE(ret, false);
+    positionIndicator->getView()->modifiableStyle()->setFocusedBetweenPages(true);
+    m_subject->applyStyle();
+    ret = m_subject->disconnect(positionIndicator, SIGNAL(pageIsPanning(bool)), m_subject, SLOT(setForceUnfocusedIcon(bool)));
     QCOMPARE(ret, true);
+    QCOMPARE(m_subject->forceUnfocusedIcon, false);
 }
 
 void Ut_PagePositionIndicatorView::testWhenDrawUnFocusedIconOnlyIsTrueOnlyUnfocusedIconsAreDrawn()

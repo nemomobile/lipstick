@@ -50,6 +50,7 @@ protected:
     //! \reimp
     virtual void drawContents(QPainter *painter, const QStyleOptionGraphicsItem *option) const;
     void updateData(const QList<const char *>& modifications);
+    void applyStyle();
     //! \reimp_end
 
 private slots:
@@ -60,6 +61,8 @@ private slots:
     void setForceUnfocusedIcon(bool force);
 
 private:
+    //! Page position indicator
+    PagePositionIndicator *controller;
     //! Force drawing only an unfocused icon
     bool forceUnfocusedIcon;
 

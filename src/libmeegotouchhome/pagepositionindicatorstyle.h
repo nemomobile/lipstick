@@ -35,6 +35,9 @@ class PagePositionIndicatorStyle : public MWidgetStyle
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, focusedIndicatorImage, FocusedIndicatorImage)
     //! Image for an unfocused page indicator icon
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, unfocusedIndicatorImage, UnfocusedIndicatorImage)
+    //! If the indicator is focused between pages
+    M_STYLE_ATTRIBUTE(bool, focusedBetweenPages, FocusedBetweenPages)
+
 };
 
 class PagePositionIndicatorStyleContainer : public MWidgetStyleContainer

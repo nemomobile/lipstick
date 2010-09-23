@@ -25,13 +25,23 @@
 
 PagePositionIndicatorView::PagePositionIndicatorView(PagePositionIndicator *controller) :
     MWidgetView(controller),
+    controller(controller),
     forceUnfocusedIcon(false)
 {
-    connect(controller, SIGNAL(pageIsPanning(bool)), this, SLOT(setForceUnfocusedIcon(bool)));
 }
 
 PagePositionIndicatorView::~PagePositionIndicatorView()
 {
+}
+
+void PagePositionIndicatorView::applyStyle()
+{
+    if (style()->focusedBetweenPages()) {
+        connect(controller, SIGNAL(pageIsPanning(bool)), this, SLOT(setForceUnfocusedIcon(bool)));
+    } else {
+        disconnect(controller, SIGNAL(pageIsPanning(bool)), this, SLOT(setForceUnfocusedIcon(bool)));
+        forceUnfocusedIcon = false;
+    }
 }
 
 void PagePositionIndicatorView::updateData(const QList<const char *>& modifications)

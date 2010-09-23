@@ -49,7 +49,7 @@ private slots:
     void testPositionIndicatorDrawing();
     void testIndicatorNotDrawnWhenOnlyOnePage();
     void testPositionIndicatorFocusing();
-    void testWhenPageIsPanningOnlyUnfocusedIconsAreDrawn();
+    void testFocusBetweenPagesStyleChanges();
     void testWhenDrawUnFocusedIconOnlyIsTrueOnlyUnfocusedIconsAreDrawn();
 
 private:
