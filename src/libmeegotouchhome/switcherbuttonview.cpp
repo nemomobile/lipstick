@@ -135,12 +135,13 @@ void SwitcherButtonView::drawBackground(QPainter *painter, const QStyleOptionGra
     painter->save();
     painter->setRenderHint(QPainter::SmoothPixmapTransform);
 
+    QSize size(style()->iconSize());
+
     // Rotate the thumbnails and adjust their size if the screen
     // has been rotated
     MSceneManager *manager = MainWindow::instance()->sceneManager();
     painter->rotate(-manager->orientationAngle());
 
-    QSize size(style()->iconSize());
     if (manager->orientation() == M::Portrait) {
         size.transpose();
     }
