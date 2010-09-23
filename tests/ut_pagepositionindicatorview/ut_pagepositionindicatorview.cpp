@@ -212,12 +212,13 @@ void Ut_PagePositionIndicatorView::testPositionIndicatorFocusing()
 
 void Ut_PagePositionIndicatorView::testFocusBetweenPagesStyleChanges()
 {
-    bool ret = m_subject->disconnect(positionIndicator, SIGNAL(pageIsPanning(bool)), m_subject, SLOT(setForceUnfocusedIcon(bool)));
-    QCOMPARE(ret, false);
+    positionIndicator->getView()->modifiableStyle()->setFocusedBetweenPages(false);
+    m_subject->applyStyle();
+    QCOMPARE(disconnect(positionIndicator, SIGNAL(pageIsPanning(bool)), m_subject, SLOT(setForceUnfocusedIcon(bool))), true);
+
     positionIndicator->getView()->modifiableStyle()->setFocusedBetweenPages(true);
     m_subject->applyStyle();
-    ret = m_subject->disconnect(positionIndicator, SIGNAL(pageIsPanning(bool)), m_subject, SLOT(setForceUnfocusedIcon(bool)));
-    QCOMPARE(ret, true);
+    QCOMPARE(disconnect(positionIndicator, SIGNAL(pageIsPanning(bool)), m_subject, SLOT(setForceUnfocusedIcon(bool))), false);
     QCOMPARE(m_subject->forceUnfocusedIcon, false);
 }
 

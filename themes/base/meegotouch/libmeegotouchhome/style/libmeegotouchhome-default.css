@@ -17,7 +17,7 @@ PagePositionIndicatorStyle {
     icon-size: 1.0mm 1.0mm;
     focused-indicator-image: icon-s-current-page;
     unfocused-indicator-image: icon-s-unselected-page;
-    focused-between-pages: false;
+    focused-between-pages: true;
 }
 
 PagePositionIndicatorStyle#LauncherPageIndicator {

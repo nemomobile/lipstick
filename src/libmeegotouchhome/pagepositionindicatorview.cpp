@@ -38,7 +38,7 @@ void PagePositionIndicatorView::applyStyle()
 {
     MWidgetView::applyStyle();
 
-    if (style()->focusedBetweenPages()) {
+    if (!style()->focusedBetweenPages()) {
         connect(controller, SIGNAL(pageIsPanning(bool)), this, SLOT(setForceUnfocusedIcon(bool)));
     } else {
         disconnect(controller, SIGNAL(pageIsPanning(bool)), this, SLOT(setForceUnfocusedIcon(bool)));
