@@ -93,9 +93,9 @@ void PagedPanning::integrateAxis(Qt::Orientation orientation,
     }
 
     if( pageWidth_ != 0 && previousPageWidth != pageWidth_ ) {
-        /* 
+        /*
            A change in the page width means the orientation has
-           changed - move the view to the correct position immediately 
+           changed - move the view to the correct position immediately
            otherwise there can be some visible 'sliding' effects.
         */
         position = pageWidth_ * currentPage;
@@ -319,9 +319,9 @@ void PagedPanning::pointerMove(const QPointF &pos)
     }
 }
 
-void PagedPanning::goToNextPageWithStongEnoughFlick()
+void PagedPanning::goToNextPageWithStrongEnoughFlick()
 {
-    /* Pan to the next page if a strong enough flick was performed and pan treshold is exeeded. */
+    /* Pan to the next page if a strong enough flick was performed and pan threshold is exceeded. */
     if (targetPage == initialPage
         && std::fabs(velocity().x()) > velocityThreshold_
         && std::fabs(latestSwipeLenght) > panThreshold) {
@@ -342,7 +342,7 @@ void PagedPanning::pointerRelease()
 
     targetPage = currentPage + (int)slidePages;
 
-    goToNextPageWithStongEnoughFlick();
+    goToNextPageWithStrongEnoughFlick();
 
     if (slideLimit_ > 0) {
         targetPage = qBound(initialPage - slideLimit_,

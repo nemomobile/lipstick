@@ -150,7 +150,7 @@ private slots:
     void panToCurrentPage();
 
 private:
-    void goToNextPageWithStongEnoughFlick();
+    void goToNextPageWithStrongEnoughFlick();
 
 private:
 
