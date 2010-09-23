@@ -38,6 +38,9 @@ public:
 public slots:
     void setFocusedPage(int focusedPage);
     void setPageCount(int pageCount);
+signals:
+    //! Emitted when a page starts to pan and when page has stopped panning
+    void pageIsPanning(bool);
 };
 
 #endif

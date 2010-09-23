@@ -23,11 +23,11 @@
 #include "pagepositionindicator.h"
 #include "pagepositionindicatormodel.h"
 
-#include <QDebug>
-
 PagePositionIndicatorView::PagePositionIndicatorView(PagePositionIndicator *controller) :
-    MWidgetView(controller)
+    MWidgetView(controller),
+    forceUnfocusedIcon(false)
 {
+    connect(controller, SIGNAL(pageIsPanning(bool)), this, SLOT(setForceUnfocusedIcon(bool)));
 }
 
 PagePositionIndicatorView::~PagePositionIndicatorView()
@@ -71,14 +71,23 @@ void PagePositionIndicatorView::drawContents(QPainter *painter, const QStyleOpti
 
         int iconPositionInIndicatorBar = indicatorBarXpos;
         for (int i = 0; i < pageCount; i++) {
-            if (focusedPage == i) {
-                focusedIcon->draw(iconPositionInIndicatorBar, indicatorBarYpos, iconWidth, iconHeight, painter);
-            } else {
+            if(forceUnfocusedIcon) {
                 unfocusedIcon->draw(iconPositionInIndicatorBar, indicatorBarYpos, iconWidth, iconHeight, painter);
+            } else {
+                if (focusedPage == i) {
+                    focusedIcon->draw(iconPositionInIndicatorBar, indicatorBarYpos, iconWidth, iconHeight, painter);
+                } else {
+                    unfocusedIcon->draw(iconPositionInIndicatorBar, indicatorBarYpos, iconWidth, iconHeight, painter);
+                }
             }
             iconPositionInIndicatorBar += iconWidth + style()->spacing();
         }
     }
+}
+
+void PagePositionIndicatorView::setForceUnfocusedIcon(bool enable)
+{
+    forceUnfocusedIcon = enable;
 }
 
 M_REGISTER_VIEW_NEW(PagePositionIndicatorView, PagePositionIndicator)

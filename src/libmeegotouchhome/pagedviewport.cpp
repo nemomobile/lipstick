@@ -39,6 +39,8 @@ PagedViewport::PagedViewport(QGraphicsItem *parent) : MPannableViewport(parent),
     connect(this, SIGNAL(pageChanged(int)), positionIndicator, SLOT(setFocusedPage(int)));
     setPositionIndicator(positionIndicator);
 
+    connect(pagedPanning, SIGNAL(pageIsPanning(bool)), positionIndicator, SIGNAL(pageIsPanning(bool)));
+
     emit pageChanged(0);
 }
 

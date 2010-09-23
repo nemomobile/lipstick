@@ -49,6 +49,8 @@ private slots:
     void testPositionIndicatorDrawing();
     void testIndicatorNotDrawnWhenOnlyOnePage();
     void testPositionIndicatorFocusing();
+    void testWhenPageIsPanningOnlyUnfocusedIconsAreDrawn();
+    void testWhenDrawUnFocusedIconOnlyIsTrueOnlyUnfocusedIconsAreDrawn();
 
 private:
     void initializeViewport(int amountOfPages, M::Orientation orientation = M::Landscape);

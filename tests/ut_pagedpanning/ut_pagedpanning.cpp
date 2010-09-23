@@ -539,5 +539,23 @@ void Ut_PagedPanning::testSetPage()
     QCOMPARE(m_subject->position().x(), qreal(100.0f));
 }
 
+void Ut_PagedPanning::testWhenPageStartsToPanPanningEnabledSignalIsEmitted()
+{
+    QSignalSpy panningEnabledSpy(m_subject, SIGNAL(pageIsPanning(bool)));
+    m_subject->pointerPress(QPointF(0,0));
+    QCOMPARE(panningEnabledSpy.count(), 1);
+    QCOMPARE(panningEnabledSpy.takeFirst().at(0).toBool(), true);
+}
+
+void Ut_PagedPanning::testWhenPageStopsPanningPanningEnabledSignalIsEmitted()
+{
+    QSignalSpy panningEnabledSpy(m_subject, SIGNAL(pageIsPanning(bool)));
+    // Set up pages so that pan to page does actually happen
+    m_subject->previousPosition = 2;
+    m_subject->currentPage = 0;
+    m_subject->panToCurrentPage();
+    QCOMPARE(panningEnabledSpy.count(), 1);
+    QCOMPARE(panningEnabledSpy.takeFirst().at(0).toBool(), false);
+}
 
 QTEST_APPLESS_MAIN(Ut_PagedPanning)

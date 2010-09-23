@@ -137,10 +137,16 @@ protected:
 signals:
 
     /*!
-     * Indecates that the page has chaged
+     * Indicates that the page has changed
      * \param page The new page
      */
     void pageChanged(int page);
+
+    /*!
+     * Indicates that the page is panning
+     * \param panning \c true is page is panning. \c false otherwise
+     */
+    void pageIsPanning(bool panning);
 
 private slots:
 

@@ -202,4 +202,10 @@ void Ut_PagedViewport::test_focusFirstPage()
     QCOMPARE(gPagedPanningSetPage, uint(0));
 }
 
+void Ut_PagedViewport::testWhenPagePansPositionIndicatorsGetToKnow()
+{
+    bool ret = m_subject->disconnect(m_subject->pagedPanning, SIGNAL(pageIsPanning(bool)), m_subject->positionIndicator(), SLOT(pageIsPanning(bool)));
+    QCOMPARE(ret, true);
+}
+
 QTEST_APPLESS_MAIN(Ut_PagedViewport)

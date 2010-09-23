@@ -134,6 +134,10 @@ private:
 
     //! Number of pages
     int pages_;
+
+#ifdef UNIT_TEST
+    friend class Ut_PagedViewport;
+#endif
 };
 
 #endif

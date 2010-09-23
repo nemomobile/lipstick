@@ -51,6 +51,21 @@ protected:
     virtual void drawContents(QPainter *painter, const QStyleOptionGraphicsItem *option) const;
     void updateData(const QList<const char *>& modifications);
     //! \reimp_end
+
+private slots:
+    /*!
+     * Sets if unfocused icons should only be drawn when panning a page
+     * \param force \c true if only unfocused icons should be drawn, \c false if both focused and unfocused icon needs to be drawn
+     */
+    void setForceUnfocusedIcon(bool force);
+
+private:
+    //! Force drawing only an unfocused icon
+    bool forceUnfocusedIcon;
+
+#ifdef UNIT_TEST
+    friend class Ut_PagePositionIndicatorView;
+#endif
 };
 
 #endif

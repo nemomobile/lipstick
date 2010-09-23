@@ -20,6 +20,7 @@
 #include "ut_pagepositionindicatorview.h"
 
 #include <QPainter>
+#include <QStyleOptionGraphicsItem>
 #include <MScalableImage>
 #include <MPositionIndicator>
 #include "pagepositionindicatorview.h"
@@ -206,6 +207,24 @@ void Ut_PagePositionIndicatorView::testPositionIndicatorFocusing()
     positionIndicator->model()->setFocusedPage(focusedPage);
     initializeViewport(amountOfPages);
     verifyPositionIndicatorDrawing(1, amountOfPages);
+}
+
+void Ut_PagePositionIndicatorView::testWhenPageIsPanningOnlyUnfocusedIconsAreDrawn()
+{
+    bool ret = m_subject->disconnect(positionIndicator, SIGNAL(pageIsPanning(bool)), m_subject, SLOT(setForceUnfocusedIcon(bool)));
+    QCOMPARE(ret, true);
+}
+
+void Ut_PagePositionIndicatorView::testWhenDrawUnFocusedIconOnlyIsTrueOnlyUnfocusedIconsAreDrawn()
+{
+    m_subject->forceUnfocusedIcon = true;
+    QPainter painter;
+    QStyleOptionGraphicsItem option;
+    initializeViewport(2);
+    m_subject->drawContents(&painter, &option);
+    QCOMPARE(Ut_PagePositionIndicatorView::drawnScalableImages.count(), 2);
+    QCOMPARE(Ut_PagePositionIndicatorView::drawnScalableImages.at(0), m_subject->style()->unfocusedIndicatorImage());
+    QCOMPARE(Ut_PagePositionIndicatorView::drawnScalableImages.at(1), m_subject->style()->unfocusedIndicatorImage());
 }
 
 QTEST_APPLESS_MAIN(Ut_PagePositionIndicatorView)

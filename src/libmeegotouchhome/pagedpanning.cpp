@@ -198,6 +198,7 @@ void PagedPanning::panToCurrentPage()
         targetPage = currentPage;
         snapMode = true;
         start();
+        emit pageIsPanning(false);
     }
 }
 
@@ -282,6 +283,8 @@ void PagedPanning::pointerPress(const QPointF &pos)
     snapMode = false;
 
     pageWrapping = false;
+
+    emit pageIsPanning(true);
 }
 
 void PagedPanning::pointerMove(const QPointF &pos)

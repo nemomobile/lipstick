@@ -51,6 +51,7 @@ private slots:
     void test_focusFirstPage();
     // Tests setPage method
     void test_setPage();
+    void testWhenPagePansPositionIndicatorsGetToKnow();
 
 private:
     // MApplication
