@@ -36,6 +36,8 @@ PagePositionIndicatorView::~PagePositionIndicatorView()
 
 void PagePositionIndicatorView::applyStyle()
 {
+    MWidgetView::applyStyle();
+
     if (style()->focusedBetweenPages()) {
         connect(controller, SIGNAL(pageIsPanning(bool)), this, SLOT(setForceUnfocusedIcon(bool)));
     } else {
@@ -57,10 +59,8 @@ void PagePositionIndicatorView::updateData(const QList<const char *>& modificati
     }
 }
 
-void PagePositionIndicatorView::drawContents(QPainter *painter, const QStyleOptionGraphicsItem *option) const
+void PagePositionIndicatorView::drawContents(QPainter *painter, const QStyleOptionGraphicsItem *) const
 {
-    Q_UNUSED(option);
-
     int pageCount = model()->pageCount();
 
     if (pageCount > 1) {

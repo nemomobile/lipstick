@@ -49,8 +49,8 @@ public:
 protected:
     //! \reimp
     virtual void drawContents(QPainter *painter, const QStyleOptionGraphicsItem *option) const;
-    void updateData(const QList<const char *>& modifications);
-    void applyStyle();
+    virtual void updateData(const QList<const char *>& modifications);
+    virtual void applyStyle();
     //! \reimp_end
 
 private slots:
