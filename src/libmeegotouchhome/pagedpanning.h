@@ -122,6 +122,11 @@ public:
      */
     void setPageWrapMode(bool enable);
 
+    /*!
+     * Queries the current page wrap mode.
+     */
+    bool pageWrapMode() const;
+
 protected:
 
     //! \reimp

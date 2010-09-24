@@ -237,6 +237,11 @@ void PagedPanning::setPageWrapMode(bool enable)
     wrapMode = enable;
 }
 
+bool PagedPanning::pageWrapMode() const
+{
+    return wrapMode;
+}
+
 qreal PagedPanning::slideDistance(qreal initialVelocity, qreal friction)
 {
     /*
@@ -362,7 +367,11 @@ void PagedPanning::pointerRelease()
 
 void PagedPanning::setPage(uint page)
 {
-    if(page >= uint(pageCount_)) {
+    if(page >= uint(pageCount())) {
+        return;
+    }
+
+    if (currentPage == page) {
         return;
     }
 
@@ -380,7 +389,7 @@ int PagedPanning::activePage() const
 
 int PagedPanning::targetPage() const
 {
-    return targetPage_;
+    return qBound(0, targetPage_, pageCount() - 1);
 }
 
 float PagedPanning::pageWidth() const

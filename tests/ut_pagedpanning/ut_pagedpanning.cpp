@@ -149,14 +149,10 @@ void Ut_PagedPanning::testMovementWithWrappingLeftToRight()
 
 void Ut_PagedPanning::testAutoPanning()
 {
-    qreal velocity = 0;
-    qreal acceleration = 0;
     QSignalSpy spy(m_subject, SIGNAL(pageChanged(int)));
 
     fillDefaultIntegrationParameters(m_subject, DEFAULT_NUM_PAGES, 0, 1000);
-    m_subject->currentPage = 3;
-    m_subject->setPosition(QPointF(300.0, 0.0));
-
+    m_subject->setPage(3);
     m_subject->panToPage(0);
 
     performIntegration(m_subject);
@@ -167,26 +163,20 @@ void Ut_PagedPanning::testAutoPanning()
 
     spy.clear();
 
-    velocity = 0;
-    acceleration = 0;
-
     m_subject->panToPage(2);
 
     performIntegration(m_subject);
 
     QCOMPARE(m_subject->position().x(), 200.0);
     arguments = spy.takeLast();
-    QVERIFY(arguments.at(0).toInt() == 2);
-
+    QCOMPARE(arguments.at(0).toInt(), 2);
 }
 
 void Ut_PagedPanning::testCurrentPageRemainsSameWhenPageCountChanges()
 {
     fillDefaultIntegrationParameters(m_subject, DEFAULT_NUM_PAGES, 0, 1000);
 
-    qreal currentPosition = 400.0;
-    m_subject->currentPage = 4;
-    m_subject->setPosition(QPointF(currentPosition, 0));
+    m_subject->setPage(4);
 
     QSignalSpy spy(m_subject, SIGNAL(pageChanged(int)));
 
@@ -233,13 +223,11 @@ void Ut_PagedPanning::testMovement(int currentPage,
     qreal rangeEnd = (pageCount - 1) * DEFAULT_PAGE_WIDTH;
 
     qreal pageWidth = (rangeEnd - rangeStart) / qMax(1, pageCount - 1);
-    qreal currentPosition = currentPage * pageWidth;
-    m_subject->currentPage = currentPage;
-    m_subject->setPosition(QPointF(currentPosition, 0));
+    m_subject->setPage(currentPage);
 
     int pageCrossings = std::abs(targetPage - currentPage);
 
-    if (m_subject->wrapMode) {
+    if (m_subject->pageWrapMode()) {
         pageCrossings = (qreal)moveAmount / pageWidth;
     }
 
@@ -283,21 +271,20 @@ void Ut_PagedPanning::performMovement(qreal moveAmount,
 
     m_subject->pointerPress(QPointF(movePosition, 0));
 
-
-    //Simulate the movements of mouse
+    // Simulate the movements of mouse
     while (pointerPressControl || m_subject->velocity().x() != 0.0) {
         if (i++ < (moveAmount / speed)) {
-            //If we have not reached the end position calculate the next mouse position
+            // If we have not reached the end position calculate the next mouse position
             movePosition += leftToRight ? speed : -speed;
         } else if (pointerPressControl) {
-            //We have reached the end position so release the mouse
+            // We have reached the end position so release the mouse
             m_subject->pointerRelease();
             pointerPressControl = false;
             QCOMPARE(m_subject->targetPage(), targetPage);
         }
 
         if (pointerPressControl) {
-            //Simulate the swipe by updating mouse location
+            // Simulate the swipe by updating mouse location
             m_subject->pointerMove(QPointF(movePosition, 0));
         }
 
@@ -342,12 +329,12 @@ void Ut_PagedPanning::testDragThreshold()
     QSignalSpy spy(m_subject, SIGNAL(pageChanged(int)));
 
     // Drag the pointer a bit, but don't cross the drag threshold
-    testMovement(2,
+    testMovement(0,
                  10.0,
-                 true,
-                 2);
+                 false,
+                 0);
 
-    QCOMPARE(m_subject->position().x(), 200.0);
+    QCOMPARE(m_subject->position().x(), 0.0);
 
     // The page shouldn't have changed yet
     QCOMPARE(spy.count(), 0);
@@ -355,16 +342,16 @@ void Ut_PagedPanning::testDragThreshold()
     spy.clear();
 
     // Drag the pointer over the drag threshold
-    testMovement(2,
+    testMovement(0,
                  22.0,
                  false,
-                 3);
+                 1);
 
-    QCOMPARE(m_subject->position().x(), 300.0);
+    QCOMPARE(m_subject->position().x(), 100.0);
 
     QCOMPARE(spy.count(), 1);
     QList<QVariant> arguments = spy.takeLast();
-    QCOMPARE(arguments.at(0).toInt(), 3);
+    QCOMPARE(arguments.at(0).toInt(), 1);
 }
 
 void Ut_PagedPanning::testVelocityThreshold()
@@ -375,27 +362,27 @@ void Ut_PagedPanning::testVelocityThreshold()
 
     QSignalSpy spy(m_subject, SIGNAL(pageChanged(int)));
 
-    testMovement(1,
+    testMovement(0,
                  1.0,
                  false,
-                 1,
+                 0,
                  7.0);
 
     // Should end up where started
-    QCOMPARE(m_subject->position().x(), 100.0);
+    QCOMPARE(m_subject->position().x(), 0.0);
 
-    testMovement(1,
+    testMovement(0,
                  31.0,
                  false,
-                 2,
+                 1,
                  10.0);
 
     // Should end up on the next page now
-    QCOMPARE(m_subject->position().x(), 200.0);
+    QCOMPARE(m_subject->position().x(), 100.0);
 
     QCOMPARE(spy.count(), 1);
     QList<QVariant> arguments = spy.takeLast();
-    QCOMPARE(arguments.at(0).toInt(), 2);
+    QCOMPARE(arguments.at(0).toInt(), 1);
 }
 
 void Ut_PagedPanning::testSlide()
@@ -404,22 +391,22 @@ void Ut_PagedPanning::testSlide()
 
     QSignalSpy spy(m_subject, SIGNAL(pageChanged(int)));
 
-    testMovement(1,
+    testMovement(0,
                  70,
                  false,
-                 4,
+                 3,
                  8.0);
 
     // Should have slid over three pages
-    QCOMPARE(m_subject->position().x(), 400.0);
+    QCOMPARE(m_subject->position().x(), 300.0);
 
     QCOMPARE(spy.count(), 3);
     QList<QVariant> arguments = spy.takeLast();
-    QCOMPARE(arguments.at(0).toInt(), 4);
+    QCOMPARE(arguments.at(0).toInt(), 3);
 
     spy.clear();
 
-    testMovement(4,
+    testMovement(3,
                  70,
                  true,
                  0,
@@ -428,7 +415,7 @@ void Ut_PagedPanning::testSlide()
     // The view should slide all the way to right
     QCOMPARE(m_subject->position().x(), 0.0);
 
-    QCOMPARE(spy.count(), 4);
+    QCOMPARE(spy.count(), 3);
     arguments = spy.takeLast();
     QCOMPARE(arguments.at(0).toInt(), 0);
 
@@ -475,9 +462,7 @@ void Ut_PagedPanning::testSetRange()
     // so that the integrators internal state is consistent
     // -> when there is no movement the target page and the
     // currentPage are the same
-    m_subject->currentPage = 2;
-    m_subject->targetPage_ = 2;
-    m_subject->setPosition(QPointF(currentPosition, 0));
+    m_subject->setPage(2);
 
     m_subject->setRange(QRectF(0, 0, 550, 0));
 
@@ -490,7 +475,7 @@ void Ut_PagedPanning::testSetRange()
             false);
 
     QCOMPARE(currentPosition, 110.0);
-    QCOMPARE(m_subject->currentPage, 2);
+    QCOMPARE(m_subject->activePage(), 2);
 }
 
 void Ut_PagedPanning::testSetPage()
@@ -507,15 +492,15 @@ void Ut_PagedPanning::testSetPage()
     m_subject->setPageCount(3);
     m_subject->setPage(1);
     QCOMPARE(spy.count(), 1);
-    QCOMPARE(m_subject->currentPage, 1);
-    QCOMPARE(m_subject->targetPage_, 1);
+    QCOMPARE(m_subject->activePage(), 1);
+    QCOMPARE(m_subject->targetPage(), 1);
     QCOMPARE(spy.takeFirst().at(0).toInt(), 1);
     QCOMPARE(m_subject->position().x(), qreal(50.0f));
 
     m_subject->setPage(2);
     QCOMPARE(spy.count(), 1);
-    QCOMPARE(m_subject->currentPage, 2);
-    QCOMPARE(m_subject->targetPage_, 2);
+    QCOMPARE(m_subject->activePage(), 2);
+    QCOMPARE(m_subject->targetPage(), 2);
     QCOMPARE(spy.takeFirst().at(0).toInt(), 2);
     QCOMPARE(m_subject->position().x(), qreal(100.0f));
 }
