@@ -52,6 +52,7 @@ private slots:
     // Tests setPage method
     void test_setPage();
     void testWhenPagePansPositionIndicatorsGetToKnow();
+    void testWhenTargetPageIsCalledThenTheInformationIsFetchedFromThePhysicsObject();
 
 private:
     // MApplication

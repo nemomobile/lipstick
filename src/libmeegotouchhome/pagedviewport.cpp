@@ -82,6 +82,11 @@ int PagedViewport::currentPage() const
     return pagedPanning->activePage();
 }
 
+int PagedViewport::targetPage() const
+{
+    return pagedPanning->targetPage();
+}
+
 float PagedViewport::pageWidth() const
 {
     return pagedPanning->pageWidth();

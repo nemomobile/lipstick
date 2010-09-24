@@ -30,6 +30,7 @@ public:
     virtual void setPanDirection(const Qt::Orientations &panDirection);
     virtual void updatePageCount(int pages);
     virtual int currentPage();
+    virtual int targetPage();
     virtual float pageWidth();
     virtual void setPageWrapMode(bool enable);
     virtual void panToPage(uint page);
@@ -63,6 +64,11 @@ void PagedViewportStub::updatePageCount(int pages) {
 int PagedViewportStub::currentPage() {
     stubMethodEntered("currentPage");
     return stubReturnValue<int>("currentPage");
+}
+
+int PagedViewportStub::targetPage() {
+    stubMethodEntered("targetPage");
+    return stubReturnValue<int>("targetPage");
 }
 
 float PagedViewportStub::pageWidth() {
@@ -115,6 +121,10 @@ void PagedViewport::updatePageCount(int pages) {
 
 int PagedViewport::currentPage() const {
     return gPagedViewportStub->currentPage();
+}
+
+int PagedViewport::targetPage() const {
+    return gPagedViewportStub->targetPage();
 }
 
 float PagedViewport::pageWidth() const {

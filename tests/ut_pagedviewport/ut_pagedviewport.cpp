@@ -26,6 +26,7 @@
 
 static uint checkPageCount = 0;
 static uint testPanTargetPage = 0;
+static int gPagedPanningTargetPage = 0;
 
 void MPannableViewport::setWidget(QGraphicsWidget*)
 {
@@ -123,6 +124,11 @@ int PagedPanning::activePage() const
     return currentPage;
 }
 
+int PagedPanning::targetPage() const
+{
+    return gPagedPanningTargetPage;
+}
+
 float PagedPanning::pageWidth() const
 {
     return 0;
@@ -156,6 +162,7 @@ void Ut_PagedViewport::init()
 {
     m_subject = new PagedViewport(NULL);
     gPagedPanningSetPage = -1;
+    gPagedPanningTargetPage = 0;
 }
 
 void Ut_PagedViewport::cleanup()
@@ -206,6 +213,13 @@ void Ut_PagedViewport::testWhenPagePansPositionIndicatorsGetToKnow()
 {
     bool ret = m_subject->disconnect(m_subject->pagedPanning, SIGNAL(pageIsPanning(bool)), m_subject->positionIndicator(), SLOT(pageIsPanning(bool)));
     QCOMPARE(ret, true);
+}
+
+void Ut_PagedViewport::testWhenTargetPageIsCalledThenTheInformationIsFetchedFromThePhysicsObject()
+{
+    int TARGET_PAGE = 8;
+    gPagedPanningTargetPage = TARGET_PAGE;
+    QCOMPARE(m_subject->targetPage(), gPagedPanningTargetPage);
 }
 
 QTEST_APPLESS_MAIN(Ut_PagedViewport)

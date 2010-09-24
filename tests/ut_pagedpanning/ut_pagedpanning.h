@@ -174,8 +174,9 @@ private:
               int targetPage);
 
     void performMovement(PagedPanning* pagedPanning,
-             qreal moveAmount,
-             bool leftToRight,
+                         qreal moveAmount,
+                         bool leftToRight,
+                         int targetPage,
                          qreal speed = 1.0);
 
     void fillDefaultIntegrationParameters(PagedPanning* pagedPanning, qreal newPageWidth, qreal rangeStart, qreal rangeEnd);

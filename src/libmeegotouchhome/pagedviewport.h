@@ -77,6 +77,12 @@ public:
     int currentPage() const;
 
     /*!
+     * Gets the target page where the panning is going to if there is panning
+     * going on. If panning is not going on, then this returns the current page.
+     */
+    int targetPage() const;
+
+    /*!
      * Returns the page width
      */
     float pageWidth() const;

@@ -268,8 +268,9 @@ void Ut_PagedPanning::testMovement(PagedPanning* pagedPanning,
     QSignalSpy spy(pagedPanning, SIGNAL(pageChanged(int)));
 
     performMovement(pagedPanning,
-                    moveAmount, // amount to move
-                    leftToRight); // left-to-right
+                    moveAmount,  // amount to move
+                    leftToRight, // left-to-right
+                    targetPage);
 
     QCOMPARE(velocity, 0.0);
     QCOMPARE(pagedPanning->position().x(), targetPage * DEFAULT_PAGE_WIDTH);
@@ -295,6 +296,7 @@ void Ut_MPhysics2DPanning::advancePhysicsCalculation() {
 void Ut_PagedPanning::performMovement(PagedPanning* pagedPanning,
                                       qreal moveAmount,
                                       bool leftToRight,
+                                      int targetPage,
                                       qreal speed)
 {
     Ut_MPhysics2DPanning physicsDriver(pagedPanning);
@@ -315,6 +317,7 @@ void Ut_PagedPanning::performMovement(PagedPanning* pagedPanning,
             //We have reached the end position so release the mouse
             pagedPanning->pointerRelease();
             pointerPressControl = false;
+            QCOMPARE(pagedPanning->targetPage(), targetPage);
         }
 
         if (pointerPressControl) {
@@ -367,8 +370,9 @@ void Ut_PagedPanning::testDragThreshold()
 
     // Drag the pointer a bit, but don't cross the drag threshold
     performMovement(m_subject,
-                    10, // amount to move
-                    true); // left-to-right
+                    10,   // amount to move
+                    true, // left-to-right
+                    2);
 
     QCOMPARE(m_subject->position().x(), 200.0);
 
@@ -379,8 +383,9 @@ void Ut_PagedPanning::testDragThreshold()
 
     // Drag the pointer over the drag threshold
     performMovement(m_subject,
-                    22, // amount to move
-                    false); // left-to-right
+                    22,    // amount to move
+                    false, // left-to-right
+                    3);
 
     QCOMPARE(m_subject->position().x(), 300.0);
 
@@ -406,6 +411,7 @@ void Ut_PagedPanning::testVelocityThreshold()
     performMovement(m_subject,
                     1,    // amount to move
                     false, // left-to-right
+                    1,
                     7.0); // speed under threshold
 
     // Should end up where started
@@ -414,6 +420,7 @@ void Ut_PagedPanning::testVelocityThreshold()
     performMovement(m_subject,
                     31,    // amount to move
                     false, // left-to-right
+                    2,
                     10.0); // more speed
 
     // Should end up on the next page now
@@ -439,6 +446,7 @@ void Ut_PagedPanning::testSlide()
     performMovement(m_subject,
                     70,    // amount to move
                     false, // left-to-right
+                    4,
                     8.0); // more speed
 
     // Should have slid over three pages
@@ -453,6 +461,7 @@ void Ut_PagedPanning::testSlide()
     performMovement(m_subject,
                     70,    // amount to move
                     true,  // left-to-right
+                    0,
                     10.0); // ridiculous speed
 
     // The view should slide all the way to right
@@ -470,6 +479,7 @@ void Ut_PagedPanning::testSlide()
     performMovement(m_subject,
                     30,    // amount to move
                     false,  // left-to-right
+                    1,
                     20.0); // ludicrous speed
 
     // With such a huge swing of a gesture,

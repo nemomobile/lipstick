@@ -26,17 +26,21 @@ PagedPanning::PagedPanning(QObject* parent) : MPhysics2DPanning(parent),
                                               pageCount_(1),
                                               currentPage(0),
                                               snapMode(false),
+                                              previousRange(),
                                               velocityThreshold_(7.0),
                                               panThreshold(30),
                                               dragThreshold_(0.5),
+                                              slideLimit_(0),
                                               pageSnapSpringK_(0.7),
                                               pageSnapFriction_(0.7),
                                               previousPosition(0),
                                               targetPage_(0),
+                                              initialPage(0),
                                               pageWidth_(0),
+                                              previousPageWidth(0),
+                                              latestSwipeLenght(0),
                                               wrapMode(false),
                                               pageWrapping(false)
-
 {
     // Whenever panning stops for reason or the other, make sure the
     // view ends up on top of a page.
@@ -378,6 +382,11 @@ void PagedPanning::setPage(uint page)
 int PagedPanning::activePage() const
 {
     return currentPage;
+}
+
+int PagedPanning::targetPage() const
+{
+    return targetPage_;
 }
 
 float PagedPanning::pageWidth() const

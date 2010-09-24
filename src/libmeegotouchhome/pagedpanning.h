@@ -104,6 +104,12 @@ public:
     int activePage() const;
 
     /*!
+     * Gets the target page where the panning is going to if there is panning
+     * going on. If panning is not going on, then this returns the current page.
+     */
+    int targetPage() const;
+
+    /*!
      * Returns the page width
      */
     float pageWidth() const;
@@ -159,7 +165,6 @@ private:
     void goToNextPageWithStrongEnoughFlick();
 
 private:
-
     //! The number of pages
     int pageCount_;
 
