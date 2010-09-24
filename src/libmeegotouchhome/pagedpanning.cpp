@@ -73,13 +73,11 @@ void PagedPanning::integrateAxis(Qt::Orientation orientation,
         return;
     }
 
-    qreal rangeStart = range().left();
-    qreal rangeEnd = range().right();
     qreal force = 0.0;
 
     qreal currentPageWidth = pageWidth();
 
-    if (position >= rangeStart && position <= rangeEnd) {
+    if (position >= range().left() && position <= range().right()) {
         // Inside range
         if (pointerPressed) {
             // Drag friction
