@@ -210,9 +210,6 @@ private:
     //! Page on which the pointer first came down
     int initialPage;
 
-    //! Current page width
-    qreal pageWidth_;
-
     //! Page width during the previous integration step
     qreal previousPageWidth;
 

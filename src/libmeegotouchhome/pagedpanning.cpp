@@ -36,7 +36,6 @@ PagedPanning::PagedPanning(QObject* parent) : MPhysics2DPanning(parent),
                                               previousPosition(0),
                                               targetPage_(0),
                                               initialPage(0),
-                                              pageWidth_(0),
                                               previousPageWidth(0),
                                               latestSwipeLenght(0),
                                               wrapMode(false),
@@ -78,8 +77,7 @@ void PagedPanning::integrateAxis(Qt::Orientation orientation,
     qreal rangeEnd = range().right();
     qreal force = 0.0;
 
-    pageWidth_ = (rangeEnd - rangeStart) / qMax(1, pageCount_-1);
-
+    qreal currentPageWidth = pageWidth();
 
     if (position >= rangeStart && position <= rangeEnd) {
         // Inside range
@@ -96,13 +94,13 @@ void PagedPanning::integrateAxis(Qt::Orientation orientation,
         force = -borderFriction() * velocity;
     }
 
-    if( pageWidth_ != 0 && previousPageWidth != pageWidth_ ) {
+    if( currentPageWidth != 0 && previousPageWidth != currentPageWidth ) {
         /*
            A change in the page width means the orientation has
            changed - move the view to the correct position immediately
            otherwise there can be some visible 'sliding' effects.
         */
-        position = pageWidth_ * currentPage;
+        position = currentPageWidth * currentPage;
         force = 0;
         velocity = 0;
         acceleration = 0;
@@ -118,8 +116,8 @@ void PagedPanning::integrateAxis(Qt::Orientation orientation,
 
         int nearestPage = 0;
 
-        if (pageWidth_ > 0) {
-            nearestPage = (int)((position / (qreal)pageWidth_) + 0.5);
+        if (currentPageWidth > 0) {
+            nearestPage = (int)((position / (qreal)currentPageWidth) + 0.5);
             // nearestPage is the nearest page in the valid range
             nearestPage = qBound(0, nearestPage, pageCount_-1);
         }
@@ -149,9 +147,9 @@ void PagedPanning::integrateAxis(Qt::Orientation orientation,
 
         if ( snapMode ) {
 
-            force += pageSnapSpringK_ * (targetPage_ * (qreal)pageWidth_ - position);
+            force += pageSnapSpringK_ * (targetPage_ * (qreal)currentPageWidth - position);
 
-            qreal closeEnough = position - (pageWidth_ * targetPage_);
+            qreal closeEnough = position - (currentPageWidth * targetPage_);
 
             if (abs(closeEnough) < 2 && abs(force) < 2) {
                 // Setting these to zero should stop the integration process
@@ -159,7 +157,7 @@ void PagedPanning::integrateAxis(Qt::Orientation orientation,
                 velocity = 0;
                 acceleration = 0;
                 // Make the position exactly the right one
-                position = pageWidth_ * targetPage_;
+                position = currentPageWidth * targetPage_;
 
                 snapMode = false;
             }
@@ -172,7 +170,7 @@ void PagedPanning::integrateAxis(Qt::Orientation orientation,
     pointerDifference += velocity;
 
     previousPosition = position;
-    previousPageWidth = pageWidth_;
+    previousPageWidth = currentPageWidth;
 }
 
 void PagedPanning::setPageCount(int newPageCount)
@@ -198,7 +196,7 @@ void PagedPanning::panToPage(int page)
 
 void PagedPanning::panToCurrentPage()
 {
-    if ( std::fabs(previousPosition-currentPage*pageWidth_) > 1.0 ) {
+    if (std::fabs(previousPosition - currentPage * pageWidth()) > 1.0 ) {
         targetPage_ = currentPage;
         snapMode = true;
         start();
@@ -279,8 +277,6 @@ void PagedPanning::pointerPress(const QPointF &pos)
 {
     MPhysics2DPanning::pointerPress(pos);
 
-    pageWidth_ = (range().right() - range().left()) / qMax(1, pageCount_-1);
-    //currentPage = position().x()/pageWidth_;
     initialPage = currentPage;
 
     // Stop the automatic panning when the pointer comes down
@@ -298,16 +294,16 @@ void PagedPanning::pointerMove(const QPointF &pos)
     /* Target the next page if the view has been dragged over the
        dragThreshold. */
 
-    qreal distanceToInitialPage = position().x() - initialPage * pageWidth_;
+    qreal distanceToInitialPage = position().x() - initialPage * pageWidth();
 
     latestSwipeLenght = distanceToInitialPage;
 
     int draggedPages;
 
     if (distanceToInitialPage > 0) {
-        draggedPages = (int)(distanceToInitialPage / pageWidth_ + (1.0 - dragThreshold_));
+        draggedPages = (int)(distanceToInitialPage / pageWidth() + (1.0 - dragThreshold_));
     } else {
-        draggedPages = (int)(distanceToInitialPage / pageWidth_ - (1.0 - dragThreshold_));
+        draggedPages = (int)(distanceToInitialPage / pageWidth() - (1.0 - dragThreshold_));
     }
 
     targetPage_ = initialPage + draggedPages;
@@ -342,7 +338,7 @@ void PagedPanning::pointerRelease()
     MPhysics2DPanning::pointerRelease();
 
     // The number of pages to slide
-    qreal slidePages = slideDistance(velocity().x(), slidingFriction()) / pageWidth_;
+    qreal slidePages = slideDistance(velocity().x(), slidingFriction()) / pageWidth();
     // Remove half a page; only slide over the center of a page if really going
     // to the next one
     slidePages -= slidePages > 0 ? 0.5 : -0.5;
@@ -372,11 +368,10 @@ void PagedPanning::setPage(uint page)
         return;
     }
 
-    pageWidth_ = (range().right() - range().left()) / qMax(1, pageCount_ - 1);
     currentPage = page;
     targetPage_  = page;
     snapMode = true;
-    setPosition(QPointF(pageWidth_ * page, 0));
+    setPosition(QPointF(pageWidth() * page, 0));
     emit pageChanged(page);
 }
 
@@ -392,5 +387,5 @@ int PagedPanning::targetPage() const
 
 float PagedPanning::pageWidth() const
 {
-    return pageWidth_;
+    return (range().right() - range().left()) / qMax(1, pageCount_ - 1);
 }
