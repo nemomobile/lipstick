@@ -20,6 +20,7 @@
 #include "ut_pagedpanning.h"
 #include <cstdlib>
 
+const int DEFAULT_NUM_PAGES = 11;
 const qreal DEFAULT_PAGE_WIDTH = 100.0;
 
 void Ut_PagedPanning::initTestCase()
@@ -40,7 +41,7 @@ void Ut_PagedPanning::init()
     m_subject = new PagedPanning(NULL);
     QCOMPARE((int)m_subject->pageCount(), 1);
 
-    fillDefaultIntegrationParameters(m_subject, 11);
+    fillDefaultIntegrationParameters(m_subject, DEFAULT_NUM_PAGES);
 }
 
 void Ut_PagedPanning::cleanup()
@@ -54,7 +55,7 @@ void Ut_PagedPanning::testMovementSmallerThenPageWidthRightToLeft()
     int currentPage = 5;
 
     testMovement(m_subject,
-                 11,               // Page count
+                 DEFAULT_NUM_PAGES,               // Page count
                  currentPage,      // The position where the movement starts
                  10.0,             // Move amount
                  false,            // Left to right
@@ -66,7 +67,7 @@ void Ut_PagedPanning::testMovementGreaterThenPageWidthRightToLeft()
     int currentPage = 5;
 
     testMovement(m_subject,
-                 11,               // Page count
+                 DEFAULT_NUM_PAGES,               // Page count
                  currentPage,      // The position where the movement starts
                  120.0,            // Move amount
                  false,            // Left to right
@@ -78,7 +79,7 @@ void Ut_PagedPanning::testMovementSmallerThenPageWidthLeftToRight()
     int currentPage = 2;
 
     testMovement(m_subject,
-                 11,               // Page count
+                 DEFAULT_NUM_PAGES,               // Page count
                  currentPage,      // The position where the movement starts
                  10.0,             // Move amount
                  true,             // Left to right
@@ -89,7 +90,7 @@ void Ut_PagedPanning::testMovementGreaterThenPageWidthLeftToRight()
 {
     int currentPage = 2;
     testMovement(m_subject,
-                 11,               // Page count
+                 DEFAULT_NUM_PAGES,               // Page count
                  currentPage,      // The position where the movement starts
                  120.0,            // Move amount
                  true,             // Left to right
@@ -100,7 +101,7 @@ void Ut_PagedPanning::testHugeMovementLeftToRight()
 {
     int currentPage = 4;
     testMovement(m_subject,
-                 11,               // Page count
+                 DEFAULT_NUM_PAGES,               // Page count
                  currentPage,      // The position where the movement starts
                  700.0,            // Move amount
                  true,             // Left to right
@@ -111,7 +112,7 @@ void Ut_PagedPanning::testHugeMovementRightToLeft()
 {
     int currentPage = 4;
     testMovement(m_subject,
-                 11,               // Page count
+                 DEFAULT_NUM_PAGES,               // Page count
                  currentPage,      // The position where the movement starts
                  1000.0,           // Move amount
                  false,            // Left to right
@@ -122,7 +123,7 @@ void Ut_PagedPanning::testMovementExcatlyPageWidth()
 {
     int currentPage = 2;
     testMovement(m_subject,
-                 11,               // Page count
+                 DEFAULT_NUM_PAGES,               // Page count
                  currentPage,      // The position where the movement starts
                  100.0,            // Move amount
                  true,             // Left to right
@@ -171,7 +172,7 @@ void Ut_PagedPanning::testAutoPanning()
     qreal acceleration = 0;
     QSignalSpy spy(m_subject, SIGNAL(pageChanged(int)));
 
-    fillDefaultIntegrationParameters(m_subject, 11, 0, 1000);
+    fillDefaultIntegrationParameters(m_subject, DEFAULT_NUM_PAGES, 0, 1000);
     m_subject->currentPage = 3;
     m_subject->setPosition(QPointF(300.0, 0.0));
 
@@ -200,7 +201,7 @@ void Ut_PagedPanning::testAutoPanning()
 
 void Ut_PagedPanning::testCurrentPageRemainsSameWhenPageCountChanges()
 {
-    fillDefaultIntegrationParameters(m_subject, 11, 0, 1000);
+    fillDefaultIntegrationParameters(m_subject, DEFAULT_NUM_PAGES, 0, 1000);
 
     qreal currentPosition = 400.0;
     m_subject->currentPage = 4;
@@ -235,7 +236,7 @@ void Ut_PagedPanning::testSetPageCount()
 {
     QSignalSpy spy(m_subject, SIGNAL(pageChanged(int)));
 
-    fillDefaultIntegrationParameters(m_subject, 11, 0, 1000);
+    fillDefaultIntegrationParameters(m_subject, DEFAULT_NUM_PAGES, 0, 1000);
     QCOMPARE(spy.count(), 0);
 }
 
@@ -265,8 +266,8 @@ void Ut_PagedPanning::testMovement(PagedPanning* pagedPanning,
     QSignalSpy spy(pagedPanning, SIGNAL(pageChanged(int)));
 
     performMovement(pagedPanning,
-                    moveAmount,  // amount to move
-                    leftToRight, // left-to-right
+                    moveAmount,
+                    leftToRight,
                     targetPage,
                     speed);
 
@@ -364,7 +365,7 @@ void Ut_PagedPanning::testDragThreshold()
 
     // Drag the pointer a bit, but don't cross the drag threshold
     testMovement(m_subject,
-                 11,
+                 DEFAULT_NUM_PAGES,
                  2,
                  10.0,
                  true,
@@ -379,7 +380,7 @@ void Ut_PagedPanning::testDragThreshold()
 
     // Drag the pointer over the drag threshold
     testMovement(m_subject,
-                 11,
+                 DEFAULT_NUM_PAGES,
                  2,
                  22.0,
                  false,
@@ -401,7 +402,7 @@ void Ut_PagedPanning::testVelocityThreshold()
     QSignalSpy spy(m_subject, SIGNAL(pageChanged(int)));
 
     testMovement(m_subject,
-                 11,
+                 DEFAULT_NUM_PAGES,
                  1,
                  1.0,
                  false,
@@ -412,7 +413,7 @@ void Ut_PagedPanning::testVelocityThreshold()
     QCOMPARE(m_subject->position().x(), 100.0);
 
     testMovement(m_subject,
-                 11,
+                 DEFAULT_NUM_PAGES,
                  1,
                  31.0,
                  false,
@@ -434,7 +435,7 @@ void Ut_PagedPanning::testSlide()
     QSignalSpy spy(m_subject, SIGNAL(pageChanged(int)));
 
     testMovement(m_subject,
-                 11,
+                 DEFAULT_NUM_PAGES,
                  1,
                  70,
                  false,
@@ -451,7 +452,7 @@ void Ut_PagedPanning::testSlide()
     spy.clear();
 
     testMovement(m_subject,
-                 11,
+                 DEFAULT_NUM_PAGES,
                  4,
                  70,
                  true,
@@ -471,7 +472,7 @@ void Ut_PagedPanning::testSlide()
     spy.clear();
 
     testMovement(m_subject,
-                 11,
+                 DEFAULT_NUM_PAGES,
                  0,
                  30,
                  false,
@@ -492,7 +493,7 @@ void Ut_PagedPanning::testSetRange()
     qreal acceleration = 0.0;
     qreal pointerSpring = 0.0;
 
-    fillDefaultIntegrationParameters(m_subject, 11, 0, 1000);
+    fillDefaultIntegrationParameters(m_subject, DEFAULT_NUM_PAGES, 0, 1000);
     // In order for this test to work the setup has to be set up
     // so that the integrators internal state is consistent
     // -> when there is no movement the target page and the
