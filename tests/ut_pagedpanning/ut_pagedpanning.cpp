@@ -245,10 +245,6 @@ void Ut_PagedPanning::testMovement(PagedPanning* pagedPanning,
                                    bool leftToRight,
                                    int targetPage)
 {
-    qreal velocity = 0;
-    qreal pointerSpring = 0;
-    qreal acceleration = 0;
-
     qreal rangeStart = 0.0;
     qreal rangeEnd = (pageCount - 1) * DEFAULT_PAGE_WIDTH;
 
@@ -268,9 +264,6 @@ void Ut_PagedPanning::testMovement(PagedPanning* pagedPanning,
         pageCrossings = qBound((qreal)0.0, (qreal)moveAmount, leftToRight ? currentPosition : rangeEnd - currentPosition) / pageWidth;
     }
 
-    velocity = 0;
-    pointerSpring = 0;
-    acceleration = 0;
     QSignalSpy spy(pagedPanning, SIGNAL(pageChanged(int)));
 
     performMovement(pagedPanning,
@@ -278,7 +271,6 @@ void Ut_PagedPanning::testMovement(PagedPanning* pagedPanning,
                     leftToRight, // left-to-right
                     targetPage);
 
-    QCOMPARE(velocity, 0.0);
     QCOMPARE(pagedPanning->position().x(), targetPage * DEFAULT_PAGE_WIDTH);
 
     QCOMPARE(spy.count(), pageCrossings);
