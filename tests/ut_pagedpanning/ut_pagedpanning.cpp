@@ -276,16 +276,12 @@ void Ut_PagedPanning::performMovement(qreal moveAmount,
         if (i++ < (moveAmount / speed)) {
             // If we have not reached the end position calculate the next mouse position
             movePosition += leftToRight ? speed : -speed;
+            m_subject->pointerMove(QPointF(movePosition, 0));
         } else if (pointerPressControl) {
             // We have reached the end position so release the mouse
             m_subject->pointerRelease();
             pointerPressControl = false;
             QCOMPARE(m_subject->targetPage(), targetPage);
-        }
-
-        if (pointerPressControl) {
-            // Simulate the swipe by updating mouse location
-            m_subject->pointerMove(QPointF(movePosition, 0));
         }
 
         physicsDriver.advancePhysicsCalculation();
