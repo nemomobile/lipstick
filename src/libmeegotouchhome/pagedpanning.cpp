@@ -348,9 +348,9 @@ void PagedPanning::pointerRelease()
     goToNextPageWithStrongEnoughFlick();
 
     if (slideLimit_ > 0) {
-        targetPage_ = qBound(initialPage - slideLimit_,
-                            targetPage_,
-                            initialPage + slideLimit_);
+        targetPage_ = qBound(currentPage - slideLimit_,
+                             targetPage_,
+                             currentPage + slideLimit_);
     }
 
     // if wrapmode is on, and the pointer movement or the above logic caused page wrapping,

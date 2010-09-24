@@ -142,6 +142,7 @@ private slots:
      * Tests sliding over multiple pages.
      */
     void testSlide();
+    void testWhenSlideIsLimitedToOnePageAndPanningOverOnePageThenTheSlideContinuesOneMorePage();
 
     /*!
      * Tests that when the page width changes the view is immediately moved

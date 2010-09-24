@@ -450,6 +450,19 @@ void Ut_PagedPanning::testSlide()
     QCOMPARE(arguments.at(0).toInt(), 1);
 }
 
+void Ut_PagedPanning::testWhenSlideIsLimitedToOnePageAndPanningOverOnePageThenTheSlideContinuesOneMorePage()
+{
+    m_subject->setSlidingFriction(0.02);
+    m_subject->setSlideLimit(1);
+
+    // Pan 1.5 pages (to page 1). Slide should continue only one page (to page 2) since it's limited
+    testMovement(0,
+                 m_subject->pageWidth() * 1.5,
+                 false,
+                 2,
+                 8.0);
+}
+
 void Ut_PagedPanning::testSetRange()
 {
     qreal currentPosition = 200.0;
