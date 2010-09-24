@@ -194,7 +194,7 @@ private:
     qreal previousPosition;
 
     //! Target page index
-    int targetPage;
+    int targetPage_;
 
     //! Page on which the pointer first came down
     int initialPage;

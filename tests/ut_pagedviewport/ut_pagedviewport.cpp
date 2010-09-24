@@ -41,7 +41,7 @@ PagedPanning::PagedPanning(QObject* parent) : MPhysics2DPanning(parent),
                                               pageSnapSpringK_(0.7),
                                               pageSnapFriction_(0.7),
                                               previousPosition(0),
-                                              targetPage(0),
+                                              targetPage_(0),
                                               pageWidth_(0)
 {
 }
@@ -53,7 +53,7 @@ PagedPanning::~PagedPanning()
 void PagedPanning::panToPage(int page)
 {
     testPanTargetPage = page;
-    targetPage = page;
+    targetPage_ = page;
     snapMode = true;
     emit pageChanged(page);
 }

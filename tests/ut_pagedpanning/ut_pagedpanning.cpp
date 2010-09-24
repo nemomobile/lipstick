@@ -492,7 +492,7 @@ void Ut_PagedPanning::testSetRange()
     // -> when there is no movement the target page and the 
     // currentPage are the same
     m_subject->currentPage = 2;
-    m_subject->targetPage = 2;
+    m_subject->targetPage_ = 2;
     m_subject->setPosition(QPointF(currentPosition, 0));
 
     m_subject->setRange(QRectF(0, 0, 550, 0));
@@ -521,14 +521,14 @@ void Ut_PagedPanning::testSetPage()
     m_subject->setPage(1);
     QCOMPARE(spy.count(), 1);
     QCOMPARE(m_subject->currentPage, 1);
-    QCOMPARE(m_subject->targetPage, 1);
+    QCOMPARE(m_subject->targetPage_, 1);
     QCOMPARE(spy.takeFirst().at(0).toInt(), 1);
     QCOMPARE(m_subject->position().x(), qreal(50.0f));
 
     m_subject->setPage(2);
     QCOMPARE(spy.count(), 1);
     QCOMPARE(m_subject->currentPage, 2);
-    QCOMPARE(m_subject->targetPage, 2);
+    QCOMPARE(m_subject->targetPage_, 2);
     QCOMPARE(spy.takeFirst().at(0).toInt(), 2);
     QCOMPARE(m_subject->position().x(), qreal(100.0f));
 }
