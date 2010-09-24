@@ -167,8 +167,8 @@ private:
     PagedPanning* m_subject;
 
     void testMovement(PagedPanning* integrator,
-              int pageWidth,
-              qreal originalPosition,
+              int pageCount,
+              int currentPage,
               qreal moveAmount,
               bool leftToRight,
               int targetPage);
