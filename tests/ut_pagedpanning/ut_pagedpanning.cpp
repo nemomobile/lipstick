@@ -18,6 +18,7 @@
 #include <QSignalSpy>
 #include "pagedpanning.h"
 #include "ut_pagedpanning.h"
+#include <cstdlib>
 
 const qreal DEFAULT_PAGE_WIDTH = 100.0;
 
@@ -37,6 +38,9 @@ void Ut_PagedPanning::cleanupTestCase()
 void Ut_PagedPanning::init()
 {
     m_subject = new PagedPanning(NULL);
+    QCOMPARE((int)m_subject->pageCount(), 1);
+
+    fillDefaultIntegrationParameters(m_subject, 11);
 }
 
 void Ut_PagedPanning::cleanup()
@@ -45,11 +49,6 @@ void Ut_PagedPanning::cleanup()
 }
 
 // Test cases
-void Ut_PagedPanning::testCreation()
-{
-    QCOMPARE((int)m_subject->pageCount(), 1);
-}
-
 void Ut_PagedPanning::testMovementSmallerThenPageWidthRightToLeft()
 {
     int currentPage = 5;
@@ -133,6 +132,7 @@ void Ut_PagedPanning::testMovementExcatlyPageWidth()
 void Ut_PagedPanning::testMovementWithWrappingRightToLeft()
 {
     m_subject->setPageWrapMode(true);
+    fillDefaultIntegrationParameters(m_subject, 3);
     QSignalSpy wrappedSpy(m_subject, SIGNAL(pageWrapped()));
 
     int currentPage = 2;
@@ -150,6 +150,7 @@ void Ut_PagedPanning::testMovementWithWrappingRightToLeft()
 void Ut_PagedPanning::testMovementWithWrappingLeftToRight()
 {
     m_subject->setPageWrapMode(true);
+    fillDefaultIntegrationParameters(m_subject, 3);
     QSignalSpy wrappedSpy(m_subject, SIGNAL(pageWrapped()));
 
     int currentPage = 0;
@@ -243,25 +244,22 @@ void Ut_PagedPanning::testMovement(PagedPanning* pagedPanning,
                                    int currentPage,
                                    qreal moveAmount,
                                    bool leftToRight,
-                                   int targetPage)
+                                   int targetPage,
+                                   qreal speed)
 {
     qreal rangeStart = 0.0;
     qreal rangeEnd = (pageCount - 1) * DEFAULT_PAGE_WIDTH;
 
-    fillDefaultIntegrationParameters(pagedPanning, pageCount, rangeStart, rangeEnd);
-
     qreal pageWidth = (rangeEnd - rangeStart) / qMax(1, pageCount - 1);
     qreal currentPosition = currentPage * pageWidth;
-    pagedPanning->currentPage = currentPosition / pageWidth;
+    pagedPanning->currentPage = currentPage;
     pagedPanning->pageWidth_ = pageWidth;
     pagedPanning->setPosition(QPointF(currentPosition, 0));
 
-    int pageCrossings;
+    int pageCrossings = std::abs(targetPage - currentPage);
 
-    if(m_subject->wrapMode) {
+    if (m_subject->wrapMode) {
         pageCrossings = (qreal)moveAmount / pageWidth;
-    } else {
-        pageCrossings = qBound((qreal)0.0, (qreal)moveAmount, leftToRight ? currentPosition : rangeEnd - currentPosition) / pageWidth;
     }
 
     QSignalSpy spy(pagedPanning, SIGNAL(pageChanged(int)));
@@ -269,7 +267,8 @@ void Ut_PagedPanning::testMovement(PagedPanning* pagedPanning,
     performMovement(pagedPanning,
                     moveAmount,  // amount to move
                     leftToRight, // left-to-right
-                    targetPage);
+                    targetPage,
+                    speed);
 
     QCOMPARE(pagedPanning->position().x(), targetPage * DEFAULT_PAGE_WIDTH);
 
@@ -346,31 +345,30 @@ void Ut_PagedPanning::fillDefaultIntegrationParameters(PagedPanning* pagedPannin
     pagedPanning->setSlidingFriction(0.9);
     pagedPanning->setBorderSpringK(0.9);
     pagedPanning->setBorderFriction(0.9);
-    pagedPanning->setRange(QRectF(rangeStart, 0, rangeEnd, 0));
     pagedPanning->setDragThreshold(0.5);
     pagedPanning->setVelocityThreshold(100.0);
 
+    if (rangeStart == 0.0 && rangeEnd == 0.0) {
+        rangeEnd = (newPageCount - 1) * DEFAULT_PAGE_WIDTH;
+    }
+    pagedPanning->setRange(QRectF(rangeStart, 0, rangeEnd, 0));
     pagedPanning->setPageCount(newPageCount);
 }
 
 
 void Ut_PagedPanning::testDragThreshold()
 {
-    qreal currentPosition = 200.0;
-
-    fillDefaultIntegrationParameters(m_subject, 11, 0, 1000);
-
-    m_subject->currentPage = 2;
     m_subject->setDragThreshold(0.2);
-    m_subject->setPosition(QPointF(currentPosition, 0));
 
     QSignalSpy spy(m_subject, SIGNAL(pageChanged(int)));
 
     // Drag the pointer a bit, but don't cross the drag threshold
-    performMovement(m_subject,
-                    10,   // amount to move
-                    true, // left-to-right
-                    2);
+    testMovement(m_subject,
+                 11,
+                 2,
+                 10.0,
+                 true,
+                 2);
 
     QCOMPARE(m_subject->position().x(), 200.0);
 
@@ -380,10 +378,12 @@ void Ut_PagedPanning::testDragThreshold()
     spy.clear();
 
     // Drag the pointer over the drag threshold
-    performMovement(m_subject,
-                    22,    // amount to move
-                    false, // left-to-right
-                    3);
+    testMovement(m_subject,
+                 11,
+                 2,
+                 22.0,
+                 false,
+                 3);
 
     QCOMPARE(m_subject->position().x(), 300.0);
 
@@ -394,32 +394,30 @@ void Ut_PagedPanning::testDragThreshold()
 
 void Ut_PagedPanning::testVelocityThreshold()
 {
-    qreal currentPosition = 100.0;
-
-    fillDefaultIntegrationParameters(m_subject, 11, 0, 1000);
-
-    m_subject->currentPage = 1;
-    m_subject->setPosition(QPointF(currentPosition, 0));
     m_subject->setVelocityThreshold(9.0);
     m_subject->setPointerSpringK(1.0);
 
 
     QSignalSpy spy(m_subject, SIGNAL(pageChanged(int)));
 
-    performMovement(m_subject,
-                    1,    // amount to move
-                    false, // left-to-right
-                    1,
-                    7.0); // speed under threshold
+    testMovement(m_subject,
+                 11,
+                 1,
+                 1.0,
+                 false,
+                 1,
+                 7.0);
 
     // Should end up where started
     QCOMPARE(m_subject->position().x(), 100.0);
 
-    performMovement(m_subject,
-                    31,    // amount to move
-                    false, // left-to-right
-                    2,
-                    10.0); // more speed
+    testMovement(m_subject,
+                 11,
+                 1,
+                 31.0,
+                 false,
+                 2,
+                 10.0);
 
     // Should end up on the next page now
     QCOMPARE(m_subject->position().x(), 200.0);
@@ -431,21 +429,17 @@ void Ut_PagedPanning::testVelocityThreshold()
 
 void Ut_PagedPanning::testSlide()
 {
-    qreal currentPosition = 100.0;
-
-    fillDefaultIntegrationParameters(m_subject, 11, 0, 1000);
-
-    m_subject->currentPage = 1;
-    m_subject->setPosition(QPointF(currentPosition, 0));
     m_subject->setSlidingFriction(0.02);
 
     QSignalSpy spy(m_subject, SIGNAL(pageChanged(int)));
 
-    performMovement(m_subject,
-                    70,    // amount to move
-                    false, // left-to-right
-                    4,
-                    8.0); // more speed
+    testMovement(m_subject,
+                 11,
+                 1,
+                 70,
+                 false,
+                 4,
+                 8.0);
 
     // Should have slid over three pages
     QCOMPARE(m_subject->position().x(), 400.0);
@@ -456,11 +450,13 @@ void Ut_PagedPanning::testSlide()
 
     spy.clear();
 
-    performMovement(m_subject,
-                    70,    // amount to move
-                    true,  // left-to-right
-                    0,
-                    10.0); // ridiculous speed
+    testMovement(m_subject,
+                 11,
+                 4,
+                 70,
+                 true,
+                 0,
+                 10.0);
 
     // The view should slide all the way to right
     QCOMPARE(m_subject->position().x(), 0.0);
@@ -474,11 +470,13 @@ void Ut_PagedPanning::testSlide()
 
     spy.clear();
 
-    performMovement(m_subject,
-                    30,    // amount to move
-                    false,  // left-to-right
-                    1,
-                    20.0); // ludicrous speed
+    testMovement(m_subject,
+                 11,
+                 0,
+                 30,
+                 false,
+                 1,
+                 20.0);
 
     // With such a huge swing of a gesture,
     // don't mind the number of pages crossed,
@@ -519,6 +517,9 @@ void Ut_PagedPanning::testSetRange()
 
 void Ut_PagedPanning::testSetPage()
 {
+    delete m_subject;
+    m_subject = new PagedPanning(NULL);
+
     QSignalSpy spy(m_subject, SIGNAL(pageChanged(int)));
 
     m_subject->setPage(1);

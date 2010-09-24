@@ -61,9 +61,6 @@ private slots:
     void cleanup();
 
     // Test cases
-    // Test the creation.
-    void testCreation();
-
     /*!
      * Tests small movement from left to right that should snap back to
      * its original position
@@ -171,7 +168,8 @@ private:
               int currentPage,
               qreal moveAmount,
               bool leftToRight,
-              int targetPage);
+              int targetPage,
+              qreal speed = 1.0);
 
     void performMovement(PagedPanning* pagedPanning,
                          qreal moveAmount,
@@ -179,7 +177,7 @@ private:
                          int targetPage,
                          qreal speed = 1.0);
 
-    void fillDefaultIntegrationParameters(PagedPanning* pagedPanning, qreal newPageWidth, qreal rangeStart, qreal rangeEnd);
+    void fillDefaultIntegrationParameters(PagedPanning* pagedPanning, qreal newPageWidth, qreal rangeStart = 0.0, qreal rangeEnd = 0.0);
 
     void performIntegration(PagedPanning* pagedPanning);
 };
