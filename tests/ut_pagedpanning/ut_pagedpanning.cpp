@@ -19,6 +19,8 @@
 #include "pagedpanning.h"
 #include "ut_pagedpanning.h"
 
+const qreal DEFAULT_PAGE_WIDTH = 100.0;
+
 void Ut_PagedPanning::initTestCase()
 {
     int argc = 1;
@@ -56,7 +58,6 @@ void Ut_PagedPanning::testMovementSmallerThenPageWidthRightToLeft()
                  11,               // Page count
                  currentPosition,  // The position where the movement starts
                  10.0,             // Move amount
-                 500.0,            // Where the current position should end up after movement
                  false,            // Left to right
                  5);               // Target page index after move
 }
@@ -69,7 +70,6 @@ void Ut_PagedPanning::testMovementGreaterThenPageWidthRightToLeft()
                  11,               // Page count
                  currentPosition,  // The position where the movement starts
                  120.0,            // Move amount
-                 600.0,            // Where the current position should end up after movement
                  false,            // Left to right
                  6);               // Target page index after move
 }
@@ -82,7 +82,6 @@ void Ut_PagedPanning::testMovementSmallerThenPageWidthLeftToRight()
                  11,               // Page count
                  currentPosition,  // The position where the movement starts
                  10.0,             // Move amount
-                 200.0,            // Where the current position should end up after movement
                  true,             // Left to right
                  2);               // Target page index after move
 }
@@ -94,7 +93,6 @@ void Ut_PagedPanning::testMovementGreaterThenPageWidthLeftToRight()
                  11,               // Page count
                  currentPosition,  // The position where the movement starts
                  120.0,            // Move amount
-                 100.0,            // Where the current position should end up after movement
                  true,             // Left to right
                  1);               // Target page index after move
 }
@@ -106,7 +104,6 @@ void Ut_PagedPanning::testHugeMovementLeftToRight()
                  11,               // Page count
                  currentPosition,  // The position where the movement starts
                  700.0,            // Move amount
-                 0,                // Where the current position should end up after movement
                  true,             // Left to right
                  0);               // Target page index after move
 }
@@ -118,7 +115,6 @@ void Ut_PagedPanning::testHugeMovementRightToLeft()
                  11,              // Page count
                  currentPosition,  // The position where the movement starts
                  1000.0,           // Move amount
-                 1000.0,           // Where the current position should end up after movement
                  false,            // Left to right
                  10);              // Target page index after move
 }
@@ -130,7 +126,6 @@ void Ut_PagedPanning::testMovementExcatlyPageWidth()
                  11,              // Page count
                  currentPosition,  // The position where the movement starts
                  100.0,            // Move amount
-                 100.0 ,           // Where the current position should end up after movement
                  true,             // Left to right
                  1);               // Target page index after move
 }
@@ -145,7 +140,6 @@ void Ut_PagedPanning::testMovementWithWrappingRightToLeft()
                  11,               // Page count
                  currentPosition,  // The position where the movement starts
                  100.0,            // Move amount
-                 0.0,              // Where the current position should end up after movement
                  false,            // Left to right
                  0);               // Target page index after move
 }
@@ -160,7 +154,6 @@ void Ut_PagedPanning::testMovementWithWrappingLeftToRight()
                  11,               // Page count
                  currentPosition,  // The position where the movement starts
                  100.0,            // Move amount
-                 1000.0,           // Where the current position should end up after movement
                  true,             // Left to right
                  10);              // Target page index after move
 }
@@ -243,15 +236,15 @@ void Ut_PagedPanning::testMovement(PagedPanning* pagedPanning,
                                    int pageCount,
                                    qreal currentPosition,
                                    qreal moveAmount,
-                                   qreal targetPosition,
                                    bool leftToRight,
-                                   int targetPage,
-                                   qreal rangeStart,
-                                   qreal rangeEnd)
+                                   int targetPage)
 {
     qreal velocity = 0;
     qreal pointerSpring = 0;
     qreal acceleration = 0;
+
+    qreal rangeStart = 0.0;
+    qreal rangeEnd = (pageCount - 1) * DEFAULT_PAGE_WIDTH;
 
     fillDefaultIntegrationParameters(pagedPanning, pageCount, rangeStart, rangeEnd);
 
@@ -278,7 +271,7 @@ void Ut_PagedPanning::testMovement(PagedPanning* pagedPanning,
                     leftToRight); // left-to-right
 
     QCOMPARE(velocity, 0.0);
-    QCOMPARE(pagedPanning->position().x(), targetPosition);
+    QCOMPARE(pagedPanning->position().x(), targetPage * DEFAULT_PAGE_WIDTH);
 
     QCOMPARE(spy.count(), pageCrossings);
     if (pageCrossings > 0) {

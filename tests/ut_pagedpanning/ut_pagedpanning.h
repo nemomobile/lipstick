@@ -170,11 +170,8 @@ private:
               int pageWidth,
               qreal originalPosition,
               qreal moveAmount,
-              qreal targetPosition,
               bool leftToRight,
-              int targetPage,
-              qreal rangeStart = 0.0,
-              qreal rangeEnd = 1000.0);
+              int targetPage);
 
     void performMovement(PagedPanning* pagedPanning,
              qreal moveAmount,
