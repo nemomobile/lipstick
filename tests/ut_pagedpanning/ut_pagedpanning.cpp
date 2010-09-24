@@ -133,29 +133,35 @@ void Ut_PagedPanning::testMovementExcatlyPageWidth()
 void Ut_PagedPanning::testMovementWithWrappingRightToLeft()
 {
     m_subject->setPageWrapMode(true);
+    QSignalSpy wrappedSpy(m_subject, SIGNAL(pageWrapped()));
 
     int currentPage = 2;
 
     testMovement(m_subject,
-                 11,               // Page count
+                 3,                // Page count
                  currentPage,      // The position where the movement starts
                  100.0,            // Move amount
                  false,            // Left to right
                  0);               // Target page index after move
+
+    QCOMPARE(wrappedSpy.count(), 1);
 }
 
 void Ut_PagedPanning::testMovementWithWrappingLeftToRight()
 {
     m_subject->setPageWrapMode(true);
+    QSignalSpy wrappedSpy(m_subject, SIGNAL(pageWrapped()));
 
     int currentPage = 0;
 
     testMovement(m_subject,
-                 11,               // Page count
+                 3,                // Page count
                  currentPage,      // The position where the movement starts
                  100.0,            // Move amount
                  true,             // Left to right
                  2);               // Target page index after move
+
+    QCOMPARE(wrappedSpy.count(), 1);
 }
 
 void Ut_PagedPanning::testAutoPanning()
@@ -248,9 +254,9 @@ void Ut_PagedPanning::testMovement(PagedPanning* pagedPanning,
 
     fillDefaultIntegrationParameters(pagedPanning, pageCount, rangeStart, rangeEnd);
 
-    qreal pageWidth = (rangeEnd - rangeStart) / qMax(1, pageCount-1);
+    qreal pageWidth = (rangeEnd - rangeStart) / qMax(1, pageCount - 1);
     qreal currentPosition = currentPage * pageWidth;
-    pagedPanning->currentPage = currentPosition/pageWidth;
+    pagedPanning->currentPage = currentPosition / pageWidth;
     pagedPanning->pageWidth_ = pageWidth;
     pagedPanning->setPosition(QPointF(currentPosition, 0));
 
@@ -499,7 +505,7 @@ void Ut_PagedPanning::testSetRange()
     fillDefaultIntegrationParameters(m_subject, 11, 0, 1000);
     // In order for this test to work the setup has to be set up
     // so that the integrators internal state is consistent
-    // -> when there is no movement the target page and the 
+    // -> when there is no movement the target page and the
     // currentPage are the same
     m_subject->currentPage = 2;
     m_subject->targetPage_ = 2;

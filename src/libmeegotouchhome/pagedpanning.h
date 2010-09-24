@@ -118,6 +118,7 @@ public:
      * Enables or disables the page wrapping mode.
      *
      * \param enable enables or disables the mode
+     * \sa pageWrapped
      */
     void setPageWrapMode(bool enable);
 
@@ -141,7 +142,6 @@ protected:
     //! \reimp_end
 
 signals:
-
     /*!
      * Indicates that the page has changed
      * \param page The new page
@@ -153,6 +153,12 @@ signals:
      * \param panning \c true is page is panning. \c false otherwise
      */
     void pageIsPanning(bool panning);
+
+    /*!
+     * A signal that gets emitted when a page wrap happens.
+     * \sa setPageWrapMode
+     */
+    void pageWrapped();
 
 private slots:
 
