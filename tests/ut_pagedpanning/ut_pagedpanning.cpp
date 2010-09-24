@@ -30,7 +30,6 @@ void Ut_PagedPanning::initTestCase()
     app = new MApplication(argc, &app_name);
 }
 
-
 void Ut_PagedPanning::cleanupTestCase()
 {
     delete app;
@@ -54,9 +53,7 @@ void Ut_PagedPanning::testMovementSmallerThenPageWidthRightToLeft()
 {
     int currentPage = 5;
 
-    testMovement(m_subject,
-                 DEFAULT_NUM_PAGES,               // Page count
-                 currentPage,      // The position where the movement starts
+    testMovement(currentPage,      // The position where the movement starts
                  10.0,             // Move amount
                  false,            // Left to right
                  5);               // Target page index after move
@@ -66,9 +63,7 @@ void Ut_PagedPanning::testMovementGreaterThenPageWidthRightToLeft()
 {
     int currentPage = 5;
 
-    testMovement(m_subject,
-                 DEFAULT_NUM_PAGES,               // Page count
-                 currentPage,      // The position where the movement starts
+    testMovement(currentPage,      // The position where the movement starts
                  120.0,            // Move amount
                  false,            // Left to right
                  6);               // Target page index after move
@@ -78,9 +73,7 @@ void Ut_PagedPanning::testMovementSmallerThenPageWidthLeftToRight()
 {
     int currentPage = 2;
 
-    testMovement(m_subject,
-                 DEFAULT_NUM_PAGES,               // Page count
-                 currentPage,      // The position where the movement starts
+    testMovement(currentPage,      // The position where the movement starts
                  10.0,             // Move amount
                  true,             // Left to right
                  2);               // Target page index after move
@@ -89,9 +82,7 @@ void Ut_PagedPanning::testMovementSmallerThenPageWidthLeftToRight()
 void Ut_PagedPanning::testMovementGreaterThenPageWidthLeftToRight()
 {
     int currentPage = 2;
-    testMovement(m_subject,
-                 DEFAULT_NUM_PAGES,               // Page count
-                 currentPage,      // The position where the movement starts
+    testMovement(currentPage,      // The position where the movement starts
                  120.0,            // Move amount
                  true,             // Left to right
                  1);               // Target page index after move
@@ -100,9 +91,7 @@ void Ut_PagedPanning::testMovementGreaterThenPageWidthLeftToRight()
 void Ut_PagedPanning::testHugeMovementLeftToRight()
 {
     int currentPage = 4;
-    testMovement(m_subject,
-                 DEFAULT_NUM_PAGES,               // Page count
-                 currentPage,      // The position where the movement starts
+    testMovement(currentPage,      // The position where the movement starts
                  700.0,            // Move amount
                  true,             // Left to right
                  0);               // Target page index after move
@@ -111,9 +100,7 @@ void Ut_PagedPanning::testHugeMovementLeftToRight()
 void Ut_PagedPanning::testHugeMovementRightToLeft()
 {
     int currentPage = 4;
-    testMovement(m_subject,
-                 DEFAULT_NUM_PAGES,               // Page count
-                 currentPage,      // The position where the movement starts
+    testMovement(currentPage,      // The position where the movement starts
                  1000.0,           // Move amount
                  false,            // Left to right
                  10);              // Target page index after move
@@ -122,9 +109,7 @@ void Ut_PagedPanning::testHugeMovementRightToLeft()
 void Ut_PagedPanning::testMovementExcatlyPageWidth()
 {
     int currentPage = 2;
-    testMovement(m_subject,
-                 DEFAULT_NUM_PAGES,               // Page count
-                 currentPage,      // The position where the movement starts
+    testMovement(currentPage,      // The position where the movement starts
                  100.0,            // Move amount
                  true,             // Left to right
                  1);               // Target page index after move
@@ -138,9 +123,7 @@ void Ut_PagedPanning::testMovementWithWrappingRightToLeft()
 
     int currentPage = 2;
 
-    testMovement(m_subject,
-                 3,                // Page count
-                 currentPage,      // The position where the movement starts
+    testMovement(currentPage,      // The position where the movement starts
                  100.0,            // Move amount
                  false,            // Left to right
                  0);               // Target page index after move
@@ -156,9 +139,7 @@ void Ut_PagedPanning::testMovementWithWrappingLeftToRight()
 
     int currentPage = 0;
 
-    testMovement(m_subject,
-                 3,                // Page count
-                 currentPage,      // The position where the movement starts
+    testMovement(currentPage,      // The position where the movement starts
                  100.0,            // Move amount
                  true,             // Left to right
                  2);               // Target page index after move
@@ -240,22 +221,22 @@ void Ut_PagedPanning::testSetPageCount()
     QCOMPARE(spy.count(), 0);
 }
 
-void Ut_PagedPanning::testMovement(PagedPanning* pagedPanning,
-                                   int pageCount,
-                                   int currentPage,
+void Ut_PagedPanning::testMovement(int currentPage,
                                    qreal moveAmount,
                                    bool leftToRight,
                                    int targetPage,
                                    qreal speed)
 {
+    int pageCount = m_subject->pageCount();
+
     qreal rangeStart = 0.0;
     qreal rangeEnd = (pageCount - 1) * DEFAULT_PAGE_WIDTH;
 
     qreal pageWidth = (rangeEnd - rangeStart) / qMax(1, pageCount - 1);
     qreal currentPosition = currentPage * pageWidth;
-    pagedPanning->currentPage = currentPage;
-    pagedPanning->pageWidth_ = pageWidth;
-    pagedPanning->setPosition(QPointF(currentPosition, 0));
+    m_subject->currentPage = currentPage;
+    m_subject->pageWidth_ = pageWidth;
+    m_subject->setPosition(QPointF(currentPosition, 0));
 
     int pageCrossings = std::abs(targetPage - currentPage);
 
@@ -263,15 +244,14 @@ void Ut_PagedPanning::testMovement(PagedPanning* pagedPanning,
         pageCrossings = (qreal)moveAmount / pageWidth;
     }
 
-    QSignalSpy spy(pagedPanning, SIGNAL(pageChanged(int)));
+    QSignalSpy spy(m_subject, SIGNAL(pageChanged(int)));
 
-    performMovement(pagedPanning,
-                    moveAmount,
+    performMovement(moveAmount,
                     leftToRight,
                     targetPage,
                     speed);
 
-    QCOMPARE(pagedPanning->position().x(), targetPage * DEFAULT_PAGE_WIDTH);
+    QCOMPARE(m_subject->position().x(), targetPage * DEFAULT_PAGE_WIDTH);
 
     QCOMPARE(spy.count(), pageCrossings);
     if (pageCrossings > 0) {
@@ -291,36 +271,35 @@ void Ut_MPhysics2DPanning::advancePhysicsCalculation() {
 }
 
 
-void Ut_PagedPanning::performMovement(PagedPanning* pagedPanning,
-                                      qreal moveAmount,
+void Ut_PagedPanning::performMovement(qreal moveAmount,
                                       bool leftToRight,
                                       int targetPage,
                                       qreal speed)
 {
-    Ut_MPhysics2DPanning physicsDriver(pagedPanning);
+    Ut_MPhysics2DPanning physicsDriver(m_subject);
 
     int i = 0;
     qreal movePosition = 0;
     bool pointerPressControl = true;
 
-    pagedPanning->pointerPress(QPointF(movePosition, 0));
+    m_subject->pointerPress(QPointF(movePosition, 0));
 
 
     //Simulate the movements of mouse
-    while (pointerPressControl || pagedPanning->velocity().x() != 0.0) {
+    while (pointerPressControl || m_subject->velocity().x() != 0.0) {
         if (i++ < (moveAmount / speed)) {
             //If we have not reached the end position calculate the next mouse position
             movePosition += leftToRight ? speed : -speed;
         } else if (pointerPressControl) {
             //We have reached the end position so release the mouse
-            pagedPanning->pointerRelease();
+            m_subject->pointerRelease();
             pointerPressControl = false;
-            QCOMPARE(pagedPanning->targetPage(), targetPage);
+            QCOMPARE(m_subject->targetPage(), targetPage);
         }
 
         if (pointerPressControl) {
             //Simulate the swipe by updating mouse location
-            pagedPanning->pointerMove(QPointF(movePosition, 0));
+            m_subject->pointerMove(QPointF(movePosition, 0));
         }
 
         physicsDriver.advancePhysicsCalculation();
@@ -364,9 +343,7 @@ void Ut_PagedPanning::testDragThreshold()
     QSignalSpy spy(m_subject, SIGNAL(pageChanged(int)));
 
     // Drag the pointer a bit, but don't cross the drag threshold
-    testMovement(m_subject,
-                 DEFAULT_NUM_PAGES,
-                 2,
+    testMovement(2,
                  10.0,
                  true,
                  2);
@@ -379,9 +356,7 @@ void Ut_PagedPanning::testDragThreshold()
     spy.clear();
 
     // Drag the pointer over the drag threshold
-    testMovement(m_subject,
-                 DEFAULT_NUM_PAGES,
-                 2,
+    testMovement(2,
                  22.0,
                  false,
                  3);
@@ -401,9 +376,7 @@ void Ut_PagedPanning::testVelocityThreshold()
 
     QSignalSpy spy(m_subject, SIGNAL(pageChanged(int)));
 
-    testMovement(m_subject,
-                 DEFAULT_NUM_PAGES,
-                 1,
+    testMovement(1,
                  1.0,
                  false,
                  1,
@@ -412,9 +385,7 @@ void Ut_PagedPanning::testVelocityThreshold()
     // Should end up where started
     QCOMPARE(m_subject->position().x(), 100.0);
 
-    testMovement(m_subject,
-                 DEFAULT_NUM_PAGES,
-                 1,
+    testMovement(1,
                  31.0,
                  false,
                  2,
@@ -434,9 +405,7 @@ void Ut_PagedPanning::testSlide()
 
     QSignalSpy spy(m_subject, SIGNAL(pageChanged(int)));
 
-    testMovement(m_subject,
-                 DEFAULT_NUM_PAGES,
-                 1,
+    testMovement(1,
                  70,
                  false,
                  4,
@@ -451,9 +420,7 @@ void Ut_PagedPanning::testSlide()
 
     spy.clear();
 
-    testMovement(m_subject,
-                 DEFAULT_NUM_PAGES,
-                 4,
+    testMovement(4,
                  70,
                  true,
                  0,
@@ -471,9 +438,7 @@ void Ut_PagedPanning::testSlide()
 
     spy.clear();
 
-    testMovement(m_subject,
-                 DEFAULT_NUM_PAGES,
-                 0,
+    testMovement(0,
                  30,
                  false,
                  1,

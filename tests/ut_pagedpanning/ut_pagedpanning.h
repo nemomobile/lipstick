@@ -163,16 +163,13 @@ private:
     // The object being tested
     PagedPanning* m_subject;
 
-    void testMovement(PagedPanning* integrator,
-              int pageCount,
-              int currentPage,
-              qreal moveAmount,
-              bool leftToRight,
-              int targetPage,
-              qreal speed = 1.0);
+    void testMovement(int currentPage,
+                      qreal moveAmount,
+                      bool leftToRight,
+                      int targetPage,
+                      qreal speed = 1.0);
 
-    void performMovement(PagedPanning* pagedPanning,
-                         qreal moveAmount,
+    void performMovement(qreal moveAmount,
                          bool leftToRight,
                          int targetPage,
                          qreal speed = 1.0);
