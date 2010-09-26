@@ -15,6 +15,7 @@ lib/lib*.so*
 duihome
 *.pro.user
 configure-stamp
+build-stamp
 localconfig.pri
 .project
 .cproject

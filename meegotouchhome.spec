@@ -1,11 +1,11 @@
-Name:           duihome
+Name:           meegotouchhome
 Version:        0.21.8
 Release:        1%{?dist}
 Summary:        MeeGo Touch Homescreen
 
 Group:          User Interface/Desktops
 License:        LGPL v2.1
-URL:            http://qt.gitorious.org/maemo-6-ui-framework/duihome
+URL:            http://meego.gitorious.org/meegotouch/meegotouch-home
 
 Source0:        %{name}-%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -23,26 +23,26 @@ BuildRequires: doxygen
 %description
 The home screen for the MeeGo Touch environment
 
-%package -n duihomescreen
+%package -n meegotouchhome
 Summary: MeeGo Touch Homescreen
-%description -n duihomescreen
+%description -n meegotouchhome
 MeeGo Touch Homescreen
 
-%package -n duihomescreen-l10n-eng-en
+%package -n meegotouchhome-l10n-eng-en
 Summary: MeeGo Touch Homescreen engineering English messages
-Provides: duihomescreen-l10n
-%description -n duihomescreen-l10n-eng-en
+Provides: meegotouchhome-l10n
+%description -n meegotouchhome-l10n-eng-en
 MeeGo Touch Homescreen engineering English messages
 
-%package -n duihomescreen-l10n-fi
+%package -n meegotouchhome-l10n-fi
 Summary: MeeGo Touch Homescreen Finnish messages
-Provides: duihomescreen-l10n
-%description -n duihomescreen-l10n-fi
+Provides: meegotouchhome-l10n
+%description -n meegotouchhome-l10n-fi
 MeeGo Touch Homescreen Finnish messages
 
-%package -n duihomescreen-tests
+%package -n meegotouchhome-tests
 Summary: MeeGo Touch Homescreen unit tests
-%description -n duihomescreen-tests
+%description -n meegotouchhome-tests
 MeeGo Touch Homescreen unit tests
 
 %package -n libmeegotouchhome
@@ -72,9 +72,9 @@ make %{?_smp_mflags} doc
 %install
 rm -fR %{buildroot}
 make INSTALL_ROOT=%{buildroot} install
-mkdir -p %{buildroot}/usr/share/doc/libduihome/api
-cp -r doc/html/* %{buildroot}/usr/share/doc/libduihome/api/
-rm -f %{buildroot}/usr/share/doc/libduihome/api/installdox
+mkdir -p %{buildroot}/usr/share/doc/libmeegotouchhome/api
+cp -r doc/html/* %{buildroot}/usr/share/doc/libmeegotouchhome/api/
+rm -f %{buildroot}/usr/share/doc/libmeegotouchhome/api/installdox
 install -m 644 -D -p LICENSE.LGPL %{buildroot}/usr/share/doc/packages/%{name}/LICENSE.LGPL
 
 %clean
@@ -91,7 +91,7 @@ rm -fR %{buildroot}
 %dir /usr/share/doc/packages/%{name}
 %doc /usr/share/doc/packages/%{name}/*
 
-%files -n duihomescreen
+%files -n meegotouchhome
 %defattr(-,root,root)
 %dir /usr/share/themes/base/meegotouch/duihome
 %dir /usr/share/themes/base/meegotouch/duihome/images
@@ -99,7 +99,7 @@ rm -fR %{buildroot}
 %dir /usr/share/themes/base/meegotouch/duihome/svg
 %dir /usr/lib/meegotouch/applicationextensions
 %dir /usr/share/meegotouch/applicationextensions
-%dir /usr/share/themes/base/meegotouch/libduihome-plaindesktopbackgroundextension/style
+%dir /usr/share/themes/base/meegotouch/libmeegotouchhome-plaindesktopbackgroundextension/style
 /usr/bin/duihome
 /usr/share/themes/base/meegotouch/duihome/*.conf
 /usr/share/themes/base/meegotouch/duihome/images/*.png
@@ -107,24 +107,24 @@ rm -fR %{buildroot}
 /usr/share/themes/base/meegotouch/duihome/svg/*.svg
 /usr/lib/meegotouch/applicationextensions/*.so
 /usr/share/meegotouch/applicationextensions/*.desktop
-/usr/share/themes/base/meegotouch/libduihome-plaindesktopbackgroundextension/style/*.css
+/usr/share/themes/base/meegotouch/libmeegotouchhome-plaindesktopbackgroundextension/style/*.css
 
-%files -n duihomescreen-l10n-eng-en
+%files -n meegotouchhome-l10n-eng-en
 %defattr(-,root,root)
 %dir /usr/share/l10n/meegotouch
 /usr/share/l10n/meegotouch/duihome.qm
 
-%files -n duihomescreen-l10n-fi
+%files -n meegotouchhome-l10n-fi
 %defattr(-,root,root)
 %dir /usr/share/l10n/meegotouch
 /usr/share/l10n/meegotouch/duihome_fi.qm
 
-%files -n duihomescreen-tests
+%files -n meegotouchhome-tests
 %defattr(-,root,root)
-%dir /usr/share/duihomescreen-tests
-%dir /usr/lib/duihomescreen-tests
-/usr/share/duihomescreen-tests/*
-/usr/lib/duihomescreen-tests/*
+%dir /usr/share/meegotouchhome-tests
+%dir /usr/lib/meegotouchhome-tests
+/usr/share/meegotouchhome-tests/*
+/usr/lib/meegotouchhome-tests/*
 
 %files -n libmeegotouchhome
 %defattr(-,root,root)
@@ -137,7 +137,7 @@ rm -fR %{buildroot}
 
 %files -n libmeegotouchhome-doc
 %defattr(-,root,root)
-%dir /usr/share/doc/libduihome
-%doc /usr/share/doc/libduihome/*
+%dir /usr/share/doc/libmeegotouchhome
+%doc /usr/share/doc/libmeegotouchhome/*
 
 %changelog

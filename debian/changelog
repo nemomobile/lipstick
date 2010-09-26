@@ -1,4 +1,4 @@
-duihome (0.21.23~1) unstable; urgency=low
+meegotouchhome (0.21.23~1) unstable; urgency=low
 
   * [UNRELEASED]
 
@@ -126,7 +126,7 @@ duihome (0.21.9-1) unstable; urgency=low
 
 duihome (0.21.8-1) unstable; urgency=low
 
-  * Disabled the Applet Space 
+  * Disabled the Applet Space
 
  -- Vesa Halttunen <vesa.halttunen@nokia.com>  Mon, 10 May 2010 11:52:48 +0300
 

@@ -68,11 +68,11 @@ install: build
 	# install
 	INSTALL_ROOT=$(CURDIR)/debian/tmp $(MAKE) install
 
-	# libduihome0-doc package
+	# libmeegotouchhome-doc package
 	make  $(PARALLEL_MAKEFLAGS) doc
-	mkdir -p ${CURDIR}/debian/tmp/usr/share/doc/libduihome/api
-	cp -r doc/html/* ${CURDIR}/debian/tmp/usr/share/doc/libduihome/api/
-	rm -f ${CURDIR}/debian/tmp/usr/share/doc/libduihome/api/installdox
+	mkdir -p ${CURDIR}/debian/tmp/usr/share/doc/libmeegotouchhome/api
+	cp -r doc/html/* ${CURDIR}/debian/tmp/usr/share/doc/libmeegotouchhome/api/
+	rm -f ${CURDIR}/debian/tmp/usr/share/doc/libmeegotouchhome/api/installdox
 
 # Build architecture-independent files here.
 binary-indep: build install
@@ -97,7 +97,7 @@ binary-arch: build install
 #	dh_installinfo
 #	dh_installman
 	dh_link
-	dh_strip --dbg-package=duihomescreen --dbg-package=libduihome0
+	dh_strip --dbg-package=meegotouchhome --dbg-package=libmeegotouchhome0
 	dh_compress
 	dh_fixperms
 #	dh_perl

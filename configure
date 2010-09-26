@@ -9,6 +9,6 @@ VERSION=`head -n 1 debian/changelog | sed -e "s/.*(\(.*\)[-~].*).*/\1/"`
 
 echo VERSION = ${VERSION} > ${FILENAME}
 
-echo Configured duihome as follows:
-echo ==============================
+echo Configured meegotouchhome as follows:
+echo =====================================
 cat ${FILENAME}

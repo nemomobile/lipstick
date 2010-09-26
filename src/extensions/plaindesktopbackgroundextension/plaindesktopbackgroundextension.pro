@@ -17,7 +17,7 @@ SOURCES = plaindesktopbackgroundextension.cpp \
           plaindesktopbackgroundpixmap.cpp
 STYLE_HEADERS += plaindesktopbackgroundstyle.h
 
-TARGET = $$qtLibraryTarget(duihome-plaindesktopbackgroundextension)
+TARGET = $$qtLibraryTarget(meegotouchhome-plaindesktopbackgroundextension)
 DESTDIR = ../../../lib
 target.path += $$M_APPLICATION_EXTENSION_DIR
 INSTALLS += target desktop_entry style
@@ -25,4 +25,4 @@ INSTALLS += target desktop_entry style
 desktop_entry.path = $$M_APPLICATION_EXTENSION_DATA_DIR
 desktop_entry.files = *.desktop
 style.files = *.css
-style.path = /usr/share/themes/base/meegotouch/libduihome-plaindesktopbackgroundextension/style
+style.path = /usr/share/themes/base/meegotouch/libmeegotouchhome-plaindesktopbackgroundextension/style

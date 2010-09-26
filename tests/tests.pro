@@ -49,7 +49,7 @@ QMAKE_EXTRA_TARGETS += check-xml
 support_files.commands += $$PWD/gen-tests-xml.sh > $$OUT_PWD/tests.xml
 support_files.target = support_files
 support_files.files += $$OUT_PWD/tests.xml
-support_files.path = /usr/share/duihomescreen-tests
+support_files.path = /usr/share/meegotouchhome-tests
 support_files.CONFIG += no_check_exist
 
 INSTALLS += support_files

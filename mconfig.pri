@@ -1,6 +1,7 @@
 # Load more defines from the m_defines...
 load(meegotouch_defines)
-# duihome specific directories
+
+# meegotouchhome specific directories
 unix {
      MEEGOHOME_DIR = $$M_INSTALL_DATA/duihome
 }

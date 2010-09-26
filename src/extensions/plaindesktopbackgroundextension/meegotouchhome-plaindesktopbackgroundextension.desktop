@@ -4,4 +4,4 @@ Name=PlainDesktopBackgroundExtension
 
 [X-MeeGoApplicationExtension]
 Interface=com.meego.core.MDesktopBackgroundExtensionInterface/1.0
-Extension=libduihome-plaindesktopbackgroundextension.so
+Extension=libmeegotouchhome-plaindesktopbackgroundextension.so

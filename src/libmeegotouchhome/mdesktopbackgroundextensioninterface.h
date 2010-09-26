@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (directui@nokia.com)
 **
-** This file is part of duihome.
+** This file is part of meegotouchhome.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at directui@nokia.com.
@@ -18,8 +18,8 @@
 ****************************************************************************/
 
 
-#ifndef DUIHOMEDESKTOPBACKGROUNDEXTENSIONINTERFACE_H_
-#define DUIHOMEDESKTOPBACKGROUNDEXTENSIONINTERFACE_H_
+#ifndef MDESKTOPBACKGROUNDEXTENSIONINTERFACE_H_
+#define MDESKTOPBACKGROUNDEXTENSIONINTERFACE_H_
 
 #include <QObject>
 #include <QRectF>
@@ -84,4 +84,4 @@ public:
 
 Q_DECLARE_INTERFACE(MDesktopBackgroundExtensionInterface, "com.meego.core.MDesktopBackgroundExtensionInterface/1.0")
 
-#endif /* DUIHOMEDESKTOPBACKGROUNDEXTENSIONINTERFACE_H_ */
+#endif /* MDESKTOPBACKGROUNDEXTENSIONINTERFACE_H_ */

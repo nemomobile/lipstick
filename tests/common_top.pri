@@ -25,5 +25,5 @@ QMAKE_CXXFLAGS += -ftest-coverage \
 DEFINES += M_XDG_DIR=\\\"\"$$M_XDG_DIR\"\\\"
 
 # install tests
-target.path = $$[QT_INSTALL_LIBS]/duihomescreen-tests
+target.path = $$[QT_INSTALL_LIBS]/meegotouchhome-tests
 INSTALLS += target

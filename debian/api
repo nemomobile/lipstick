@@ -2,20 +2,20 @@ interface: LauncherButtonDesktopFileInterface
 type: file
 scope: Nokia Meego
 state: experimental
-libs-pkg: duihomescreen 
-dev-pkg: duihomescreen
+libs-pkg: meegotouchhome
+dev-pkg: meegotouchhome
 
 interface: com.meego.core.HomeScreen
 type: dbus
 scope: Platform
 state: experimental
-libs-pkg: duihomescreen
-dev-pkg: duihomescreen
+libs-pkg: meegotouchhome
+dev-pkg: meegotouchhome
 
 interface: com.meego.core.MDesktopBackgroundExtensionInterface
 type: dbus
 scope: Platform
 state: experimental
-libs-pkg: duihomescreen
-dev-pkg: duihomescreen
+libs-pkg: meegotouchhome
+dev-pkg: meegotouchhome
 

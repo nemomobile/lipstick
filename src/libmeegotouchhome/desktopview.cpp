@@ -168,7 +168,7 @@ DesktopView::DesktopView(Desktop *desktop) :
             this, SLOT(addExtension(MApplicationExtensionInterface*)));
     connect(backgroundExtensionArea, SIGNAL(extensionRemoved(MApplicationExtensionInterface*)),
             this, SLOT(removeExtension(MApplicationExtensionInterface*)));
-    backgroundExtensionArea->setInProcessFilter(QRegExp("/duihome-plaindesktopbackgroundextension.desktop$"));
+    backgroundExtensionArea->setInProcessFilter(QRegExp("/meegotouchhome-plaindesktopbackgroundextension.desktop$"));
     backgroundExtensionArea->setOutOfProcessFilter(QRegExp("$^"));
     backgroundExtensionArea->init();
 
