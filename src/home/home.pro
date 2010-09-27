@@ -8,7 +8,7 @@ include(../../mconfig.pri)
 SOURCES += main.cpp
 
 TEMPLATE = app
-TARGET = duihome
+TARGET = meegotouchhome
 INCLUDEPATH += ../libmeegotouchhome
 QMAKE_LIBDIR += ../../lib
 LIBS += -lmeegotouchhome
@@ -26,7 +26,7 @@ QMAKE_CLEAN += *.gcov \
 
 target.path = /usr/bin
 
-symlink.target = meegotouchhome
+symlink.target = duihome
 symlink.depends = $$TARGET
 symlink.commands = cd $(INSTALL_ROOT)$$target.path && ln -sf $$symlink.depends $$symlink.target
 symlink.path = $$target.path
