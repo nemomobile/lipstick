@@ -23,5 +23,13 @@ check-xml.commands = $$system(true)
 QMAKE_CLEAN += *.gcov \
     *.gcno \
     ./.obj/*.gcno
+
 target.path = /usr/bin
+
+symlink.target = meegotouchhome
+symlink.depends = $$TARGET
+symlink.commands = cd $(INSTALL_ROOT)$$target.path && ln -sf $$symlink.depends $$symlink.target
+symlink.path = $$target.path
+
 INSTALLS += target
+INSTALLS += symlink
