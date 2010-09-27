@@ -145,9 +145,6 @@ private:
     //! Our custom physics implementation
     PagedPanning* pagedPanning;
 
-    //! Number of pages
-    int pages_;
-
     //! A layout visualization wrapper to be used when page wrap mode is on
     QSharedPointer<LayoutVisualizationWrapper> layoutVisualizationWrapper;
 

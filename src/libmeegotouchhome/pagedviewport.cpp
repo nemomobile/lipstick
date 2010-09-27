@@ -29,7 +29,6 @@ M_REGISTER_WIDGET(PagedViewport)
 
 PagedViewport::PagedViewport(QGraphicsItem *parent) :
         MPannableViewport(parent),
-        pages_(0),
         layoutVisualizationWrapper(NULL)
 {
     // The strategy will be deleted by the pannable viewport
@@ -76,7 +75,6 @@ void PagedViewport::focusFirstPage()
 
 void PagedViewport::updatePageCount(int pages)
 {
-    pages_ = pages;
     pagedPanning->setPageCount(pages);
     emit pageCountChanged(pages);
 }
