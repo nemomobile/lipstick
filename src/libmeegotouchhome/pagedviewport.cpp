@@ -22,11 +22,15 @@
 #include "pagedviewportstyle.h"
 #include "mpositionindicator.h"
 #include "pagepositionindicator.h"
+#include <QGraphicsLinearLayout>
 
 #include <MWidgetCreator>
 M_REGISTER_WIDGET(PagedViewport)
 
-PagedViewport::PagedViewport(QGraphicsItem *parent) : MPannableViewport(parent), pages_(0)
+PagedViewport::PagedViewport(QGraphicsItem *parent) :
+        MPannableViewport(parent),
+        pages_(0),
+        layoutVisualizationWrapper(NULL)
 {
     // The strategy will be deleted by the pannable viewport
     pagedPanning = new PagedPanning(this);
@@ -95,4 +99,40 @@ float PagedViewport::pageWidth() const
 void PagedViewport::setPageWrapMode(bool enable)
 {
     pagedPanning->setPageWrapMode(enable);
+
+    if (enable) {
+        QGraphicsWidget *pannableWidget = widget();
+        if (pannableWidget) {
+            QGraphicsLinearLayout *pannableLayout = dynamic_cast<QGraphicsLinearLayout*>(pannableWidget->layout());
+            if (pannableLayout) {
+                layoutVisualizationWrapper = QSharedPointer<LayoutVisualizationWrapper>(new LayoutVisualizationWrapper(*pannableLayout));
+                connect(this, SIGNAL(panningStopped()), SLOT(updateVisualizationWrapper()));
+                connect(physics(), SIGNAL(pageWrapped()), SLOT(updateVisualizationWrapper()));
+            }
+        }
+    } else {
+        layoutVisualizationWrapper = QSharedPointer<LayoutVisualizationWrapper>(NULL);
+        disconnect(SIGNAL(panningStopped()), this, SLOT(updateVisualizationWrapper()));
+        disconnect(physics(), SIGNAL(pageWrapped()), this, SLOT(updateVisualizationWrapper()));
+    }
+}
+
+void PagedViewport::updateVisualizationWrapper()
+{
+    if (layoutVisualizationWrapper.isNull()) {
+        return;
+    }
+
+    int currentTargetPage = targetPage();
+
+    if (currentTargetPage == 0) {
+        // First page
+        layoutVisualizationWrapper->setWrappingMode(LayoutVisualizationWrapper::WrapRightEdgeToLeft);
+    } else if (currentTargetPage == pagedPanning->pageCount() - 1) {
+        // Last page
+        layoutVisualizationWrapper->setWrappingMode(LayoutVisualizationWrapper::WrapLeftEdgeToRight);
+    } else {
+        // Middle page
+        layoutVisualizationWrapper->setWrappingMode(LayoutVisualizationWrapper::NoWrap);
+    }
 }

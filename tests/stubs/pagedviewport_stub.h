@@ -36,6 +36,7 @@ public:
     virtual void panToPage(uint page);
     virtual void setPage(uint page);
     virtual void focusFirstPage();
+    virtual void updateVisualizationWrapper();
 };
 
 // 2. IMPLEMENT STUB
@@ -98,6 +99,10 @@ void PagedViewportStub::focusFirstPage() {
     stubMethodEntered("focusFirstPage");
 }
 
+void PagedViewportStub::updateVisualizationWrapper() {
+    stubMethodEntered("updateVisualizationWrapper");
+}
+
 
 PagedViewportStub gDefaultPagedViewportStub;
 PagedViewportStub* gPagedViewportStub = &gDefaultPagedViewportStub;
@@ -145,6 +150,10 @@ void PagedViewport::setPage(uint page) {
 
 void PagedViewport::focusFirstPage() {
     gPagedViewportStub->focusFirstPage();
+}
+
+void PagedViewport::updateVisualizationWrapper() {
+    gPagedViewportStub->updateVisualizationWrapper();
 }
 
 #endif

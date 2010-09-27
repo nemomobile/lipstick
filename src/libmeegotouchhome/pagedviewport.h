@@ -20,6 +20,7 @@
 #define PAGEDVIEWPORT_H
 
 #include <MPannableViewport>
+#include "layoutvisualizationwrapper.h"
 
 class PagedPanning;
 
@@ -134,12 +135,21 @@ public Q_SLOTS:
      */
     void focusFirstPage();
 
+private Q_SLOTS:
+    /*!
+     * Updates the layout visualization wrapper to reflect the current status of panning.
+     */
+    void updateVisualizationWrapper();
+
 private:
-    //! Our custom phyics implementation
+    //! Our custom physics implementation
     PagedPanning* pagedPanning;
 
     //! Number of pages
     int pages_;
+
+    //! A layout visualization wrapper to be used when page wrap mode is on
+    QSharedPointer<LayoutVisualizationWrapper> layoutVisualizationWrapper;
 
 #ifdef UNIT_TEST
     friend class Ut_PagedViewport;

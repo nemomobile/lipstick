@@ -23,15 +23,17 @@
 #include "pagedviewportview.h"
 #include "pagedpanning.h"
 #include "pagepositionindicator.h"
+#include "layoutvisualizationwrapper_stub.h"
+
+#include <QGraphicsLinearLayout>
 
 static uint checkPageCount = 0;
 static uint testPanTargetPage = 0;
 static int gPagedPanningTargetPage = 0;
 
-void MPannableViewport::setWidget(QGraphicsWidget*)
-{
-
-}
+const int FIRST_PAGE_INDEX = 0;
+const int DEFAULT_NUM_PAGES = 6;
+const int DEFAULT_LAST_PAGE_INDEX = DEFAULT_NUM_PAGES - 1;
 
 PagedPanning::PagedPanning(QObject* parent) : MPhysics2DPanning(parent),
                                               pageCount_(1),
@@ -68,7 +70,6 @@ void PagedPanning::integrateAxis(Qt::Orientation, qreal &, qreal &, qreal &, qre
     emit pageChanged(testPanTargetPage);
 }
 
-
 void PagedPanning::setPageCount(int pageCount)
 {
     checkPageCount = pageCount;
@@ -102,7 +103,6 @@ void PagedPanning::setPageSnapFriction(qreal)
 void PagedPanning::setPageWrapMode(bool /*enable*/)
 {
 }
-
 
 void PagedPanning::pointerPress(const QPointF &pos)
 {
@@ -150,6 +150,8 @@ void Ut_PagedViewport::initTestCase()
     static int argc = 1;
     static char *app_name[1] = { (char *) "./ut_pagedviewport" };
     app = new MApplication(argc, app_name);
+
+    pannedLayout = NULL;
 }
 
 void Ut_PagedViewport::cleanupTestCase()
@@ -160,13 +162,42 @@ void Ut_PagedViewport::cleanupTestCase()
 void Ut_PagedViewport::init()
 {
     m_subject = new PagedViewport(NULL);
+    connect(this, SIGNAL(panningStopped()), m_subject->physics(), SIGNAL(panningStopped()));
+    connect(this, SIGNAL(pageWrapped()), m_subject->physics(), SIGNAL(pageWrapped()));
+
     gPagedPanningSetPage = -1;
-    gPagedPanningTargetPage = 0;
+    gPagedPanningTargetPage = FIRST_PAGE_INDEX;
+
+    checkPageCount = DEFAULT_NUM_PAGES;
+
+    gLayoutVisualizationWrapperStub->stubReset();
 }
 
 void Ut_PagedViewport::cleanup()
 {
     delete m_subject;
+    m_subject = NULL;
+
+    pannedLayout = NULL;
+}
+
+void Ut_PagedViewport::fillSubjectWithPages(int numPages)
+{
+    if (m_subject == NULL) {
+        return;
+    }
+
+    QGraphicsWidget *pannedWidget = new QGraphicsWidget();
+    pannedLayout = new QGraphicsLinearLayout(Qt::Horizontal);
+
+    for (int i = 0; i < numPages; ++i) {
+        pannedLayout->addItem(new QGraphicsWidget());
+    }
+
+    pannedWidget->setLayout(pannedLayout);
+
+    m_subject->setWidget(pannedWidget);
+    m_subject->updatePageCount(numPages);
 }
 
 void Ut_PagedViewport::test_updatePageCount()
@@ -180,20 +211,15 @@ void Ut_PagedViewport::test_updatePageCount()
 
 void Ut_PagedViewport::test_panToPage()
 {
-    QSignalSpy spy(m_subject, SIGNAL(pageChanged(int)));
-    QGraphicsWidget *widget = new QGraphicsWidget;
-    widget->setMinimumSize(QSize(100, 1000));
-    widget->setMaximumSize(QSize(100, 1000));
+    fillSubjectWithPages(10);
 
-    m_subject->setWidget(widget);
-    m_subject->updatePageCount(10);
+    QSignalSpy spy(m_subject, SIGNAL(pageChanged(int)));
 
     m_subject->panToPage(1);
 
     QCOMPARE(spy.count(), 1);
     QList<QVariant> arguments = spy.takeFirst();
-
-    QVERIFY(arguments.at(0).toInt() == 1);
+    QCOMPARE(arguments.at(0).toInt(), 1);
 }
 
 void Ut_PagedViewport::test_setPage()
@@ -219,6 +245,99 @@ void Ut_PagedViewport::testWhenTargetPageIsCalledThenTheInformationIsFetchedFrom
     int TARGET_PAGE = 8;
     gPagedPanningTargetPage = TARGET_PAGE;
     QCOMPARE(m_subject->targetPage(), gPagedPanningTargetPage);
+}
+
+void Ut_PagedViewport::testWhenThereIsNoPannebleWidgetAndWrappingIsEnabledThenVisualizationWrapperDoesNotGetCalled()
+{
+    m_subject->setWidget(new QGraphicsWidget());
+    m_subject->setPageWrapMode(true);
+    emit panningStopped();
+
+    QCOMPARE(gLayoutVisualizationWrapperStub->stubCallCount("setWrappingMode"), 0);
+}
+
+void Ut_PagedViewport::testWhenThereIsNoLinearLayoutInThePannebleWidgetAndWrappingIsEnabledThenVisualizationWrapperDoesNotGetCalled()
+{
+    m_subject->setPageWrapMode(true);
+    emit panningStopped();
+
+    QCOMPARE(gLayoutVisualizationWrapperStub->stubCallCount("setWrappingMode"), 0);
+}
+
+void Ut_PagedViewport::verifyLayoutWrapper(LayoutVisualizationWrapper::WrappingMode wrapMode) const
+{
+    QString errorString("Expected: > 0, actual: ");
+    errorString += QString::number(gLayoutVisualizationWrapperStub->stubCallCount("Constructor(QGraphicsLinearLayout)"));
+    QVERIFY2(gLayoutVisualizationWrapperStub->stubCallCount("Constructor(QGraphicsLinearLayout)") > 0, qPrintable(errorString));
+    QCOMPARE(&gLayoutVisualizationWrapperStub->stubLastCallTo("Constructor(QGraphicsLinearLayout)").parameter<QGraphicsLinearLayout&>(0), pannedLayout);
+
+    errorString = "Expected: > 0, actual: ";
+    errorString += QString::number(gLayoutVisualizationWrapperStub->stubCallCount("setWrappingMode"));
+    QVERIFY2(gLayoutVisualizationWrapperStub->stubCallCount("setWrappingMode") > 0, qPrintable(errorString));
+    QCOMPARE(gLayoutVisualizationWrapperStub->stubLastCallTo("setWrappingMode").parameter<LayoutVisualizationWrapper::WrappingMode>(0), wrapMode);
+}
+
+void Ut_PagedViewport::testWhenPageWrappingIsEnabledAndPanningStopsOnFirstPageThenVisualizationWrapperWrapsRightEdgeToLeft()
+{
+    fillSubjectWithPages(DEFAULT_NUM_PAGES);
+    m_subject->setPageWrapMode(true);
+
+    emit panningStopped();
+
+    verifyLayoutWrapper(LayoutVisualizationWrapper::WrapRightEdgeToLeft);
+}
+
+void Ut_PagedViewport::testWhenPageWrappingIsEnabledAndPanningStopsOnLastPageThenVisualizationWrapperWrapsLeftEdgeToRight()
+{
+    gPagedPanningTargetPage = DEFAULT_LAST_PAGE_INDEX;
+    fillSubjectWithPages(DEFAULT_NUM_PAGES);
+    m_subject->setPageWrapMode(true);
+    emit panningStopped();
+
+    verifyLayoutWrapper(LayoutVisualizationWrapper::WrapLeftEdgeToRight);
+}
+
+void Ut_PagedViewport::testWhenPageWrappingIsEnabledAndPanningStopsOnNonEdgePageThenVisualizationWrapperDoesNotWrap()
+{
+    gPagedPanningTargetPage = DEFAULT_LAST_PAGE_INDEX / 2;
+    fillSubjectWithPages(DEFAULT_NUM_PAGES);
+    m_subject->setPageWrapMode(true);
+    emit panningStopped();
+
+    verifyLayoutWrapper(LayoutVisualizationWrapper::NoWrap);
+}
+
+void Ut_PagedViewport::testWhenPageWrappingIsEnabledAndWrappingHappensFromFirstPageToLastPageThenVisualizationWrapperWrapsLeftEdgeToRight()
+{
+    gPagedPanningTargetPage = DEFAULT_LAST_PAGE_INDEX;
+    fillSubjectWithPages(DEFAULT_NUM_PAGES);
+    m_subject->setPageWrapMode(true);
+
+    emit pageWrapped();
+
+    verifyLayoutWrapper(LayoutVisualizationWrapper::WrapLeftEdgeToRight);
+}
+
+void Ut_PagedViewport::testWhenPageWrappingIsEnabledAndWrappingHappensFromLastPageToFirstPageThenVisualizationWrapperWrapsRightEdgeToLeft()
+{
+    fillSubjectWithPages(DEFAULT_NUM_PAGES);
+    m_subject->setPageWrapMode(true);
+
+    emit pageWrapped();
+
+    verifyLayoutWrapper(LayoutVisualizationWrapper::WrapRightEdgeToLeft);
+}
+
+void Ut_PagedViewport::testWhenPageWrappingGetsDisabledThenVisualizationWrapperDoesNotGetCalled()
+{
+    fillSubjectWithPages(DEFAULT_NUM_PAGES);
+    m_subject->setPageWrapMode(true);
+    gLayoutVisualizationWrapperStub->stubReset();
+    m_subject->setPageWrapMode(false);
+
+    emit panningStopped();
+
+    QCOMPARE(gLayoutVisualizationWrapperStub->stubCallCount("setWrappingMode"), 0);
 }
 
 QTEST_APPLESS_MAIN(Ut_PagedViewport)

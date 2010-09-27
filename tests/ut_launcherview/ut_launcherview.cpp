@@ -100,6 +100,10 @@ void PagedViewport::setPanDirection(const Qt::Orientations &panDirection)
   Q_UNUSED(panDirection);
 }
 
+void PagedViewport::updateVisualizationWrapper()
+{
+}
+
 void Ut_LauncherView::initTestCase()
 {
     static int argc = 1;

@@ -22,13 +22,19 @@
 
 #include <QtTest/QtTest>
 #include <QObject>
+#include "layoutvisualizationwrapper.h"
 
 class MApplication;
 class PagedViewport;
+class QGraphicsLinearLayout;
 
 class Ut_PagedViewport : public QObject
 {
     Q_OBJECT
+
+signals:
+    void panningStopped();
+    void pageWrapped();
 
 private slots:
     // Called before the first testfunction is executed
@@ -54,11 +60,31 @@ private slots:
     void testWhenPagePansPositionIndicatorsGetToKnow();
     void testWhenTargetPageIsCalledThenTheInformationIsFetchedFromThePhysicsObject();
 
+    void testWhenThereIsNoPannebleWidgetAndWrappingIsEnabledThenVisualizationWrapperDoesNotGetCalled();
+    void testWhenThereIsNoLinearLayoutInThePannebleWidgetAndWrappingIsEnabledThenVisualizationWrapperDoesNotGetCalled();
+
+    void testWhenPageWrappingIsEnabledAndPanningStopsOnFirstPageThenVisualizationWrapperWrapsRightEdgeToLeft();
+    void testWhenPageWrappingIsEnabledAndPanningStopsOnLastPageThenVisualizationWrapperWrapsLeftEdgeToRight();
+    void testWhenPageWrappingIsEnabledAndPanningStopsOnNonEdgePageThenVisualizationWrapperDoesNotWrap();
+    void testWhenPageWrappingIsEnabledAndWrappingHappensFromFirstPageToLastPageThenVisualizationWrapperWrapsLeftEdgeToRight();
+    void testWhenPageWrappingIsEnabledAndWrappingHappensFromLastPageToFirstPageThenVisualizationWrapperWrapsRightEdgeToLeft();
+
+    void testWhenPageWrappingGetsDisabledThenVisualizationWrapperDoesNotGetCalled();
+
 private:
     // MApplication
     MApplication *app;
     // The object being tested
     PagedViewport *m_subject;
+    // The layout that is in the panneble widget in the test subject if any
+    QGraphicsLinearLayout *pannedLayout;
+
+    // Puts a widget with the specified amount of pages to the test subject
+    void fillSubjectWithPages(int numPages);
+
+    // A helper method for verifying correct use of layout visualization wrapper
+    void verifyLayoutWrapper(LayoutVisualizationWrapper::WrappingMode wrapMode) const;
+
 };
 
 #endif

@@ -8,8 +8,9 @@ SOURCES += \
     ut_pagedviewport.cpp \
     $$SRCDIR/pagedviewport.cpp  \
     $$SRCDIR/pagedviewportview.cpp  \
-    $$SRCDIR/pagepositionindicator.cpp
-    
+    $$SRCDIR/pagepositionindicator.cpp \
+    $$STUBSDIR/stubbase.cpp
+
 # unit test and unit
 HEADERS += \
     ut_pagedviewport.h \
@@ -18,7 +19,8 @@ HEADERS += \
     $$SRCDIR/pagedviewportview.h \
     $$SRCDIR/pagedpanning.h \
     $$SRCDIR/pagepositionindicator.h \
-    $$SRCDIR/pagepositionindicatormodel.h
+    $$SRCDIR/pagepositionindicatormodel.h \
+    $$STUBSDIR/stubbase.h
 
 STYLE_HEADERS += \
     $$SRCDIR/pagedviewportstyle.h
