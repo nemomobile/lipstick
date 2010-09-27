@@ -15,6 +15,7 @@ SUBDIRS = \
     ut_launcherpage \
     ut_launcherpageview \
     ut_launcherview \
+    ut_layoutvisualizationwrapper \
     ut_mainwindow \
     ut_pagedpanning \
     ut_pagedviewport \

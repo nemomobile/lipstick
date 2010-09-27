@@ -44,6 +44,7 @@ HEADERS += homeapplication.h \
     launcherpagestyle.h \
     launcherpagemodel.h \
     launcherdatastore.h \
+    layoutvisualizationwrapper.h \
     pagepositionindicatorview.h \
     pagepositionindicatorstyle.h \
     pagepositionindicatormodel.h \
@@ -71,6 +72,7 @@ SOURCES += homeapplication.cpp \
     launcheraction.cpp \
     launcherbutton.cpp \
     launcherbuttonview.cpp \
+    layoutvisualizationwrapper.cpp \
     pagedpanning.cpp \
     pagedviewport.cpp \
     pagedviewportview.cpp \
