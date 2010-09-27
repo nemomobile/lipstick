@@ -39,7 +39,7 @@ void PagePositionIndicatorView::applyStyle()
     MWidgetView::applyStyle();
 
     if (!style()->focusedBetweenPages()) {
-        connect(controller, SIGNAL(pageIsPanning(bool)), this, SLOT(setForceUnfocusedIcon(bool)));
+        connect(controller, SIGNAL(pageIsPanning(bool)), this, SLOT(setForceUnfocusedIcon(bool)), Qt::UniqueConnection);
     } else {
         disconnect(controller, SIGNAL(pageIsPanning(bool)), this, SLOT(setForceUnfocusedIcon(bool)));
         forceUnfocusedIcon = false;

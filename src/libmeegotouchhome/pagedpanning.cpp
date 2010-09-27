@@ -198,8 +198,8 @@ void PagedPanning::panToCurrentPage()
         targetPage_ = currentPage;
         snapMode = true;
         start();
-        emit pageIsPanning(false);
     }
+    emit pageIsPanning(false);
 }
 
 void PagedPanning::setVelocityThreshold(qreal value)
@@ -371,7 +371,7 @@ void PagedPanning::setPage(uint page)
         return;
     }
 
-    if (currentPage == page) {
+    if ((uint)currentPage == page) {
         return;
     }
 
