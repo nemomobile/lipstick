@@ -1,5 +1,5 @@
 TEMPLATE = subdirs
-SUBDIRS = libmeegotouchhome duihome
+SUBDIRS = libmeegotouchhome meegotouchhome
 
 QMAKE_EXTRA_TARGETS += check
 check.commands = $$system(true)

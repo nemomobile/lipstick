@@ -1,6 +1,7 @@
 usr/bin/duihome
-usr/share/themes/base/meegotouch/duihome/*.conf
-usr/share/themes/base/meegotouch/duihome/style/*.css
+usr/bin/meegotouchhome
+usr/share/themes/base/meegotouch/meegotouchhome/*.conf
+usr/share/themes/base/meegotouch/meegotouchhome/style/*.css
 usr/lib/meegotouch/applicationextensions/*.so
 usr/share/meegotouch/applicationextensions/*.desktop
 usr/share/themes/base/meegotouch/libmeegotouchhome-plaindesktopbackgroundextension/style/*.css

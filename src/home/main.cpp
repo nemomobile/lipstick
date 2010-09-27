@@ -23,7 +23,7 @@
 
 int main(int argc, char *argv[])
 {
-    HomeApplication app(argc, argv, QString("duihome"));
+    HomeApplication app(argc, argv, QString("meegotouchhome"));
 
     MainWindow *mainWindow = MainWindow::instance(true);
     mainWindow->show();
