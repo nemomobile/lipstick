@@ -31,7 +31,6 @@
 #include "switcher_stub.h"
 #include "switcherbutton.h"
 #include "pagedpanning.h"
-#include "pagedviewport.h"
 #include "transformlayoutanimation_stub.h"
 #include "pagedviewport_stub.h"
 #include <QGestureEvent>

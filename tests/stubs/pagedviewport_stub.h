@@ -108,7 +108,9 @@ PagedViewportStub gDefaultPagedViewportStub;
 PagedViewportStub* gPagedViewportStub = &gDefaultPagedViewportStub;
 
 
-PagedViewport::PagedViewport(QGraphicsItem *parent) {
+PagedViewport::PagedViewport(QGraphicsItem *parent) :
+        MPannableViewport(parent)
+{
     gPagedViewportStub->PagedViewportConstructor(parent);
 }
 

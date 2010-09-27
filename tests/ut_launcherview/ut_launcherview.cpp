@@ -32,7 +32,7 @@
 #include "homeapplication_stub.h"
 #include "mainwindow_stub.h"
 #include "launcherview.h"
-#include "pagedviewport.h"
+#include "pagedviewport_stub.h"
 #include "mockdatastore.h"
 #include "pagepositionindicatorview.h"
 #include "mpositionindicator.h"
@@ -44,9 +44,6 @@ M_REGISTER_WIDGET(PagedViewport)
 
 // MSceneWindow stubs
 int showWindowCount = 0;
-int pageWidth = 0;
-int pageCount = 0;
-
 void MSceneWindow::appear(MSceneWindow::DeletionPolicy)
 {
     showWindowCount++;
@@ -58,51 +55,6 @@ void MSceneWindow::disappear()
     hideWindowCount++;
 }
 
-//PagedViewport stubs
-PagedViewport::PagedViewport(QGraphicsItem *parent) : MPannableViewport(parent),
-        pagedPanning(NULL)
-{
-}
-
-PagedViewport::~PagedViewport() {
-}
-
-void PagedViewport::panToPage(uint page)
-{
-    Q_UNUSED(page)
-}
-
-int gSetPageCalled = -1;
-void PagedViewport::setPage(uint page)
-{
-    gSetPageCalled = page;
-}
-
-bool gFocusFirstPageCalled = false;
-void PagedViewport::focusFirstPage() {
-    gFocusFirstPageCalled = true;
-}
-
-/*
-void PagedViewport::updatePageWidth(int width)
-{
-    pageWidth = width;
-}
-*/
-
-void PagedViewport::updatePageCount(int pages)
-{
-    pageCount = pages;
-}
-
-void PagedViewport::setPanDirection(const Qt::Orientations &panDirection)
-{
-  Q_UNUSED(panDirection);
-}
-
-void PagedViewport::updateVisualizationWrapper()
-{
-}
 
 void Ut_LauncherView::initTestCase()
 {
@@ -129,8 +81,6 @@ void Ut_LauncherView::init()
     controller->setView(view);
     showWindowCount = 0;
     hideWindowCount = 0;
-    gFocusFirstPageCalled = false;
-    gSetPageCalled = -1;
     connect(this, SIGNAL(updateDataRequested(const QList<const char *>&)),
             view, SLOT(updateData(const QList<const char *>&)));
 }
@@ -246,7 +196,9 @@ void Ut_LauncherView::testSetPage()
     // Test that focusToFirstPageRequested() signal goes to correct slot from
     // which pagedViewport->setPage() is called.
     controller->setPage(2);
-    QCOMPARE(gSetPageCalled, 2);
+
+    QCOMPARE(gPagedViewportStub->stubCallCount("setPage"), 1);
+    QCOMPARE(gPagedViewportStub->stubLastCallTo("setPage").parameter<uint>(0), (uint)2);
 }
 
 void Ut_LauncherView::testUpdateData()
