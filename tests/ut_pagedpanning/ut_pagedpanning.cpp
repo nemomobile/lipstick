@@ -106,7 +106,7 @@ void Ut_PagedPanning::testHugeMovementRightToLeft()
                  10);              // Target page index after move
 }
 
-void Ut_PagedPanning::testMovementExcatlyPageWidth()
+void Ut_PagedPanning::testMovementExactlyPageWidth()
 {
     int currentPage = 2;
     testMovement(currentPage,      // The position where the movement starts

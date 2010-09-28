@@ -96,10 +96,10 @@ private slots:
     void testHugeMovementRightToLeft();
 
     /*!
-     * Tests movent that is exctly the threshold and it should advance to the next
+     * Tests movent that is exactly the threshold and it should advance to the next
      * snap position
      */
-    void testMovementExcatlyPageWidth();
+    void testMovementExactlyPageWidth();
 
     /*!
      * Tests page wrapping at last page
