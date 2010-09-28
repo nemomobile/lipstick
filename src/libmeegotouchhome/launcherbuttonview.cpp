@@ -50,12 +50,6 @@ void LauncherButtonView::applyStyle()
     // set launch progress maximum duration from style
     launchProgressTimeoutTimer.setInterval(style()->launchProgressIndicatorTimeout());
 
-    if (controller->objectName() == "LauncherButton") {
-        progressIndicator->setObjectName("LauncherButtonProgressIndicator");
-    } else {
-        progressIndicator->setObjectName("QuickLaunchBarButtonProgressIndicator");
-    }
-
     // Set position and size for progress indicator
     int hMargin = style()->paddingLeft() + style()->paddingRight() + style()->marginLeft() + style()->marginRight();
     int vMargin = style()->paddingTop() + style()->paddingBottom() + style()->marginTop() + style()->marginBottom();

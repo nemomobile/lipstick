@@ -1,6 +1,7 @@
 meegotouchhome (0.22.1~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#194052 -  Object names used to change style for progress indicators
 
  -- Aki Koskinen <aki.koskinen@nokia.com>  Mon, 27 Sep 2010 18:27:03 +0300
 
