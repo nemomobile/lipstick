@@ -3,7 +3,7 @@ Section: x11
 Priority: extra
 Maintainer: Tuomas Järvensivu <tuomas.jarvensivu@nokia.com>
 Build-Depends: debhelper (>= 5), doxygen (>=1.5.9),
-  libmeegotouch-dev (> 0.20.34),
+  libmeegotouch-dev (>> 0.20.34),
   libqt4-dev (>= 4.6), libqt4-opengl-dev,
   libxcomposite-dev, libxext-dev,
   libcontextsubscriber-dev, libcontentaction-dev (>= 0.1.9)
