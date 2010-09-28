@@ -501,30 +501,29 @@ void Ut_PagedPanning::testSetPage()
     QCOMPARE(m_subject->position().x(), qreal(100.0f));
 }
 
-void Ut_PagedPanning::testWhenPageStartsToPanPanningEnabledSignalIsEmitted()
+void Ut_PagedPanning::testWhenPageStartsToPanThenPageIsPanningSignalIsEmitted()
 {
-    QSignalSpy panningEnabledSpy(m_subject, SIGNAL(pageIsPanning(bool)));
+    QSignalSpy pageIsPanningSpy(m_subject, SIGNAL(pageIsPanning(bool)));
     m_subject->pointerPress(QPointF(0,0));
-    QCOMPARE(panningEnabledSpy.count(), 1);
-    QCOMPARE(panningEnabledSpy.takeFirst().at(0).toBool(), true);
-    panningEnabledSpy.clear();
+    QCOMPARE(pageIsPanningSpy.count(), 1);
+    QCOMPARE(pageIsPanningSpy.takeFirst().at(0).toBool(), true);
+    pageIsPanningSpy.clear();
     emit m_subject->panningStopped();
-    QCOMPARE(panningEnabledSpy.count(), 1);
-    QCOMPARE(panningEnabledSpy.takeFirst().at(0).toBool(), false);
-    panningEnabledSpy.clear();
-
+    QCOMPARE(pageIsPanningSpy.count(), 1);
+    QCOMPARE(pageIsPanningSpy.takeFirst().at(0).toBool(), false);
+    pageIsPanningSpy.clear();
 }
 
-void Ut_PagedPanning::testWhenPageStopsPanningPanningEnabledSignalIsEmitted()
+void Ut_PagedPanning::testWhenPageStopsPanningThenPageIsPanningSignalIsEmitted()
 {
-    QSignalSpy panningEnabledSpy(m_subject, SIGNAL(pageIsPanning(bool)));
+    QSignalSpy pageIsPanningSpy(m_subject, SIGNAL(pageIsPanning(bool)));
     // Set up pages so that pan to page does actually happen
     m_subject->previousPosition = 1;
     m_subject->currentPage = 0;
     m_subject->panToCurrentPage();
-    QCOMPARE(panningEnabledSpy.count(), 1);
-    QCOMPARE(panningEnabledSpy.takeFirst().at(0).toBool(), false);
-    panningEnabledSpy.clear();
+    QCOMPARE(pageIsPanningSpy.count(), 1);
+    QCOMPARE(pageIsPanningSpy.takeFirst().at(0).toBool(), false);
+    pageIsPanningSpy.clear();
 }
 
 QTEST_APPLESS_MAIN(Ut_PagedPanning)

@@ -155,8 +155,8 @@ private slots:
      */
     void testSetPage();
 
-    void testWhenPageStartsToPanPanningEnabledSignalIsEmitted();
-    void testWhenPageStopsPanningPanningEnabledSignalIsEmitted();
+    void testWhenPageStartsToPanThenPageIsPanningSignalIsEmitted();
+    void testWhenPageStopsPanningThenPageIsPanningSignalIsEmitted();
 
 private:
     // MApplication
