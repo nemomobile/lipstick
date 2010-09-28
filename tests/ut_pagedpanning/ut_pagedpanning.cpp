@@ -151,7 +151,6 @@ void Ut_PagedPanning::testAutoPanning()
 {
     QSignalSpy spy(m_subject, SIGNAL(pageChanged(int)));
 
-    fillDefaultIntegrationParameters(m_subject, DEFAULT_NUM_PAGES, 0, 1000);
     m_subject->setPage(3);
     m_subject->panToPage(0);
 
@@ -524,6 +523,38 @@ void Ut_PagedPanning::testWhenPageStopsPanningThenPageIsPanningSignalIsEmitted()
     QCOMPARE(pageIsPanningSpy.count(), 1);
     QCOMPARE(pageIsPanningSpy.takeFirst().at(0).toBool(), false);
     pageIsPanningSpy.clear();
+}
+
+void Ut_PagedPanning::testWhenRangeChangesWhileActivelyPanningThenPanningStoppedSignalGetsEmitted()
+{
+    Ut_MPhysics2DPanning physicsDriver(m_subject);
+
+    // Start panning
+    m_subject->pointerPress(QPointF(0.0, 0.0));
+    physicsDriver.advancePhysicsCalculation();
+
+    QSignalSpy panningStoppedSpy(m_subject, SIGNAL(panningStopped()));
+    m_subject->setRange(QRectF(0.0, 0.0, (DEFAULT_NUM_PAGES - 1) * (DEFAULT_PAGE_WIDTH * 1.5), 0.0));
+    physicsDriver.advancePhysicsCalculation();
+    QCOMPARE(panningStoppedSpy.count(), 1);
+}
+
+void Ut_PagedPanning::testWhenRangeChangesWhilePhysicsPanningThenPanningStoppedSignalGetsEmitted()
+{
+    Ut_MPhysics2DPanning physicsDriver(m_subject);
+
+    // Start panning
+    m_subject->pointerPress(QPointF(0.0, 0.0));
+    physicsDriver.advancePhysicsCalculation();
+    m_subject->pointerMove(QPointF(DEFAULT_PAGE_WIDTH * 0.9, 0));
+    physicsDriver.advancePhysicsCalculation();
+    m_subject->pointerRelease();
+    physicsDriver.advancePhysicsCalculation();
+
+    QSignalSpy panningStoppedSpy(m_subject, SIGNAL(panningStopped()));
+    m_subject->setRange(QRectF(0.0, 0.0, (DEFAULT_NUM_PAGES - 1) * (DEFAULT_PAGE_WIDTH * 1.5), 0.0));
+    physicsDriver.advancePhysicsCalculation();
+    QCOMPARE(panningStoppedSpy.count(), 1);
 }
 
 QTEST_APPLESS_MAIN(Ut_PagedPanning)

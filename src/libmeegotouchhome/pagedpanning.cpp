@@ -102,6 +102,9 @@ void PagedPanning::integrateAxis(Qt::Orientation orientation,
         force = 0;
         velocity = 0;
         acceleration = 0;
+        if (pointerPressed) {
+            emit panningStopped();
+        }
     }
 
     if (pointerPressed) {
@@ -189,6 +192,7 @@ void PagedPanning::panToPage(int page)
     initialPage = currentPage;
     targetPage_ = page;
     snapMode = true;
+    previousPageWidth = pageWidth();
     start();
 }
 
