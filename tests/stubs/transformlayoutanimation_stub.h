@@ -34,6 +34,7 @@ public:
     virtual float progress();
     virtual float curveProgress();
     virtual float speed();
+    virtual TransformAnimation *createAnimation(QGraphicsWidget *widget);
 };
 
 int TransformLayoutAnimationStub::duration()
@@ -94,6 +95,14 @@ float TransformLayoutAnimationStub::speed()
 {
     stubMethodEntered("speed");
     return stubReturnValue<float>("speed");
+}
+
+TransformAnimation *TransformLayoutAnimationStub::createAnimation(QGraphicsWidget *widget)
+{
+    QList<ParameterBase *> params;
+    params.append(new Parameter<QGraphicsWidget *>(widget));
+    stubMethodEntered("createAnimation", params);
+    return stubReturnValue<TransformAnimation*>("createAnimation");
 }
 
 
@@ -189,5 +198,9 @@ float TransformLayoutAnimation::speed() const
     return gTransformLayoutAnimationStub->speed();
 }
 
+TransformAnimation *TransformLayoutAnimation::createAnimation(QGraphicsWidget *widget)
+{
+    return gTransformLayoutAnimationStub->createAnimation(widget);
+}
 
 #endif

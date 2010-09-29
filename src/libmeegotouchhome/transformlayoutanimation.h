@@ -37,6 +37,9 @@ public:
      */
     TransformAnimation(QGraphicsWidget *widget);
 
+    /*! \brief Destructor */
+    virtual ~TransformAnimation();
+
     /*! \reimp */
     virtual void updateCurrentValue(const QVariant &value);
     virtual void updateState(QAbstractAnimation::State newState, QAbstractAnimation::State oldState);
@@ -120,6 +123,14 @@ protected:
     virtual void updateState(QAbstractAnimation::State newState, QAbstractAnimation::State oldState);
     /*! \reimp_end */
 
+    /*! Called by the layout animation to create animation objects for each widget in the layout
+        \param widget the widget to animate
+        \return new instance of the animation object */
+    virtual TransformAnimation *createAnimation(QGraphicsWidget *widget);
+
+    /*! Transform animations for the widgets in the layout */
+    QList<TransformAnimation*> animations;
+
 private slots:
     /*! Updates the container position for animating it when the animation is active */
     void updateContainerPosition();
@@ -136,9 +147,6 @@ private:
 
     /*! Animation group of the widget animations */
     QParallelAnimationGroup *animationGroup;
-
-    /*! Transform animations for the widgets in the layout */
-    QList<TransformAnimation*> animations;
 
     /*! True if the animation is currently manually controlled */
     bool manualControlMode;

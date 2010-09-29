@@ -34,6 +34,12 @@ QGraphicsLayoutItem *TestLayout::itemAt(int index) const
     return items[index];
 }
 
+QGraphicsWidget *gAnimationCreatedForWidget;
+TransformAnimation *TestTransformLayoutAnimation::createAnimation(QGraphicsWidget *widget)
+{
+    gAnimationCreatedForWidget = widget;
+    return TransformLayoutAnimation::createAnimation(widget);
+}
 
 void Ut_TransformLayoutAnimation::initTestCase()
 {
@@ -52,6 +58,7 @@ void Ut_TransformLayoutAnimation::init()
     layout = new TestLayout();
     m_subject = new TestTransformLayoutAnimation(layout);
     m_subject->modifiableStyle()->setSpeedSmoothness(0.7);
+    gAnimationCreatedForWidget = NULL;
 }
 
 void Ut_TransformLayoutAnimation::cleanup()
@@ -247,6 +254,15 @@ void Ut_TransformLayoutAnimation::testManualControl()
     } while(m_subject->progress() < 1.0f);
 
     QCOMPARE(spy.count(), 1);
+}
+
+void Ut_TransformLayoutAnimation::testAnimationCreation()
+{
+    QGraphicsWidget *widget1 = new QGraphicsWidget();
+    items.append(widget1);
+
+    m_subject->itemAddedToLayout(0);
+    QCOMPARE(gAnimationCreatedForWidget, widget1);
 }
 
 QTEST_APPLESS_MAIN(Ut_TransformLayoutAnimation)

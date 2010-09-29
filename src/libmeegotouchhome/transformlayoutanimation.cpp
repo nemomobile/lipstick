@@ -24,6 +24,10 @@ TransformAnimation::TransformAnimation(QGraphicsWidget *widget) : animatedWidget
 {
 }
 
+TransformAnimation::~TransformAnimation()
+{
+}
+
 QGraphicsWidget *TransformAnimation::widget() const
 {
     return animatedWidget;
@@ -36,7 +40,6 @@ void TransformAnimation::setEndValue(const QRectF &rect)
 
     QVariantAnimation::setEndValue(rect);
 }
-
 
 void TransformAnimation::updateCurrentValue(const QVariant &value)
 {
@@ -130,6 +133,11 @@ void TransformLayoutAnimation::updateContainerPosition()
     }
 }
 
+TransformAnimation *TransformLayoutAnimation::createAnimation(QGraphicsWidget *widget)
+{
+    return new TransformAnimation(widget);
+}
+
 void TransformLayoutAnimation::itemAddedToLayout(int index)
 {
     QGraphicsWidget *item = dynamic_cast<QGraphicsWidget *>(layout()->itemAt(index));
@@ -137,7 +145,7 @@ void TransformLayoutAnimation::itemAddedToLayout(int index)
     if(item == 0) {
         animations.insert(index, 0);
     } else {
-        TransformAnimation *anim = new TransformAnimation(item);
+        TransformAnimation *anim = createAnimation(item);
         anim->setEasingCurve(style()->easingCurve());
 
         // the time of the item animations is controlled by the layout animation, so

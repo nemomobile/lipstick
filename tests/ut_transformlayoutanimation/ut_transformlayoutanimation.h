@@ -49,6 +49,9 @@ public:
         TransformLayoutAnimationStyle *s = const_cast<TransformLayoutAnimationStyle *>(const_s);
         return s;
     }
+
+protected:
+    virtual TransformAnimation *createAnimation(QGraphicsWidget *widget);
 };
 
 class Ut_TransformLayoutAnimation : public QObject
@@ -73,6 +76,7 @@ private slots:
     void testCancelingAnimation();
     void testContainerAnimation();
     void testManualControl();
+    void testAnimationCreation();
 
 private:
     MApplication *app;
