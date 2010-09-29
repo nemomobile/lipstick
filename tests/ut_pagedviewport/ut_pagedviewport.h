@@ -35,6 +35,7 @@ class Ut_PagedViewport : public QObject
 signals:
     void panningStopped();
     void pageWrapped();
+    void pageChanged(int);
 
 private slots:
     // Called before the first testfunction is executed
@@ -69,6 +70,13 @@ private slots:
     void testWhenPageWrappingIsEnabledAndWrappingHappensFromFirstPageToLastPageThenVisualizationWrapperWrapsLeftEdgeToRight();
     void testWhenPageWrappingIsEnabledAndWrappingHappensFromLastPageToFirstPageThenVisualizationWrapperWrapsRightEdgeToLeft();
 
+    void testWhenPageWrappingIsEnabledAndWrappingHappensFromSecondPageToFirstPageThenVisualizationWrapperWrapsRightEdgeToLeft();
+    void testWhenPageWrappingIsEnabledAndWrappingHappensFromFirstPageToSecondPageThenVisualizationWrapperDoesNotWrap();
+    void testWhenPageWrappingIsEnabledAndWrappingHappensFromSecondLastPageToLastPageThenVisualizationWrapperWrapsLeftEdgeToRight();
+    void testWhenPageWrappingIsEnabledAndWrappingHappensFromLastPageToSecondLastPageThenVisualizationWrapperDoesNotWrap();
+
+    void testWhenPageWrappingIsEnabledAndWrappingHappensBetweenNonEndPagesThenVisualizationWrapperDoesNotWrap();
+
     void testWhenPageWrappingGetsDisabledThenVisualizationWrapperDoesNotGetCalled();
 
 private:
@@ -83,7 +91,7 @@ private:
     void fillSubjectWithPages(int numPages);
 
     // A helper method for verifying correct use of layout visualization wrapper
-    void verifyLayoutWrapper(LayoutVisualizationWrapper::WrappingMode wrapMode) const;
+    void verifyLayoutWrapper(LayoutVisualizationWrapper::WrappingMode wrapMode, bool verifyConstruction = true) const;
 
 };
 

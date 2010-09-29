@@ -66,6 +66,9 @@ private:
     //! The layout that is used for the visualization wrapping
     const QGraphicsLinearLayout &layout;
 
+    //! The current wrapping mode
+    WrappingMode wrappingMode;
+
     //! A direction
     enum Direction {
         Left,   //!< Left

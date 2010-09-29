@@ -19,7 +19,8 @@
 #include <QGraphicsWidget>
 
 LayoutVisualizationWrapper::LayoutVisualizationWrapper(QGraphicsLinearLayout &layout) :
-        layout(layout)
+        layout(layout),
+        wrappingMode(NoWrap)
 {
 }
 
@@ -29,6 +30,12 @@ LayoutVisualizationWrapper::~LayoutVisualizationWrapper()
 
 void LayoutVisualizationWrapper::setWrappingMode(LayoutVisualizationWrapper::WrappingMode mode)
 {
+    if (mode == wrappingMode) {
+        return;
+    }
+
+    wrappingMode = mode;
+
     if (layout.orientation() != Qt::Horizontal) {
         return;
     }

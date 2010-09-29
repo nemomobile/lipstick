@@ -30,10 +30,12 @@
 static uint checkPageCount = 0;
 static uint testPanTargetPage = 0;
 static int gPagedPanningTargetPage = 0;
+static uint gPagedPanningSetPage = -1;
 
 const int FIRST_PAGE_INDEX = 0;
 const int DEFAULT_NUM_PAGES = 6;
 const int DEFAULT_LAST_PAGE_INDEX = DEFAULT_NUM_PAGES - 1;
+
 
 PagedPanning::PagedPanning(QObject* parent) : MPhysics2DPanning(parent),
                                               pageCount_(1),
@@ -62,7 +64,7 @@ void PagedPanning::panToPage(int page)
 
 void PagedPanning::panToCurrentPage()
 {
-    emit pageChanged(currentPage);
+    emit pageChanged(gPagedPanningSetPage);
 }
 
 void PagedPanning::integrateAxis(Qt::Orientation, qreal &, qreal &, qreal &, qreal &, bool)
@@ -120,7 +122,7 @@ void PagedPanning::pointerRelease()
 
 int PagedPanning::activePage() const
 {
-    return currentPage;
+    return gPagedPanningSetPage;
 }
 
 int PagedPanning::targetPage() const
@@ -132,8 +134,6 @@ float PagedPanning::pageWidth() const
 {
     return 0;
 }
-
-uint gPagedPanningSetPage = -1;
 
 void PagedPanning::setPage(uint page)
 {
@@ -164,6 +164,7 @@ void Ut_PagedViewport::init()
     m_subject = new PagedViewport(NULL);
     connect(this, SIGNAL(panningStopped()), m_subject->physics(), SIGNAL(panningStopped()));
     connect(this, SIGNAL(pageWrapped()), m_subject->physics(), SIGNAL(pageWrapped()));
+    connect(this, SIGNAL(pageChanged(int)), m_subject->physics(), SIGNAL(pageChanged(int)));
 
     gPagedPanningSetPage = -1;
     gPagedPanningTargetPage = FIRST_PAGE_INDEX;
@@ -264,12 +265,16 @@ void Ut_PagedViewport::testWhenThereIsNoLinearLayoutInThePannebleWidgetAndWrappi
     QCOMPARE(gLayoutVisualizationWrapperStub->stubCallCount("setWrappingMode"), 0);
 }
 
-void Ut_PagedViewport::verifyLayoutWrapper(LayoutVisualizationWrapper::WrappingMode wrapMode) const
+void Ut_PagedViewport::verifyLayoutWrapper(LayoutVisualizationWrapper::WrappingMode wrapMode, bool verifyConstruction) const
 {
-    QString errorString("Expected: > 0, actual: ");
-    errorString += QString::number(gLayoutVisualizationWrapperStub->stubCallCount("Constructor(QGraphicsLinearLayout)"));
-    QVERIFY2(gLayoutVisualizationWrapperStub->stubCallCount("Constructor(QGraphicsLinearLayout)") > 0, qPrintable(errorString));
-    QCOMPARE(&gLayoutVisualizationWrapperStub->stubLastCallTo("Constructor(QGraphicsLinearLayout)").parameter<QGraphicsLinearLayout&>(0), pannedLayout);
+    QString errorString;
+
+    if (verifyConstruction) {
+        errorString = "Expected: > 0, actual: ";
+        errorString += QString::number(gLayoutVisualizationWrapperStub->stubCallCount("Constructor(QGraphicsLinearLayout)"));
+        QVERIFY2(gLayoutVisualizationWrapperStub->stubCallCount("Constructor(QGraphicsLinearLayout)") > 0, qPrintable(errorString));
+        QCOMPARE(&gLayoutVisualizationWrapperStub->stubLastCallTo("Constructor(QGraphicsLinearLayout)").parameter<QGraphicsLinearLayout&>(0), pannedLayout);
+    }
 
     errorString = "Expected: > 0, actual: ";
     errorString += QString::number(gLayoutVisualizationWrapperStub->stubCallCount("setWrappingMode"));
@@ -326,6 +331,89 @@ void Ut_PagedViewport::testWhenPageWrappingIsEnabledAndWrappingHappensFromLastPa
     emit pageWrapped();
 
     verifyLayoutWrapper(LayoutVisualizationWrapper::WrapRightEdgeToLeft);
+}
+
+void Ut_PagedViewport::testWhenPageWrappingIsEnabledAndWrappingHappensFromSecondPageToFirstPageThenVisualizationWrapperWrapsRightEdgeToLeft()
+{
+    const int SECOND_PAGE_INDEX = 1;
+
+    fillSubjectWithPages(DEFAULT_NUM_PAGES);
+    m_subject->setPageWrapMode(true);
+
+    gPagedPanningTargetPage = SECOND_PAGE_INDEX;
+    m_subject->setPage(SECOND_PAGE_INDEX);
+
+    gLayoutVisualizationWrapperStub->stubReset();
+    gPagedPanningTargetPage = FIRST_PAGE_INDEX;
+    emit pageChanged(FIRST_PAGE_INDEX);
+
+    verifyLayoutWrapper(LayoutVisualizationWrapper::WrapRightEdgeToLeft, false);
+}
+
+void Ut_PagedViewport::testWhenPageWrappingIsEnabledAndWrappingHappensFromFirstPageToSecondPageThenVisualizationWrapperDoesNotWrap()
+{
+    const int SECOND_PAGE_INDEX = 1;
+
+    fillSubjectWithPages(DEFAULT_NUM_PAGES);
+    m_subject->setPageWrapMode(true);
+
+    gPagedPanningTargetPage = SECOND_PAGE_INDEX;
+    emit pageChanged(SECOND_PAGE_INDEX);
+
+    verifyLayoutWrapper(LayoutVisualizationWrapper::NoWrap);
+}
+
+void Ut_PagedViewport::testWhenPageWrappingIsEnabledAndWrappingHappensFromSecondLastPageToLastPageThenVisualizationWrapperWrapsLeftEdgeToRight()
+{
+    const int SECOND_LAST_PAGE_INDEX = DEFAULT_LAST_PAGE_INDEX - 1;
+
+    fillSubjectWithPages(DEFAULT_NUM_PAGES);
+    m_subject->setPageWrapMode(true);
+
+    gPagedPanningTargetPage = SECOND_LAST_PAGE_INDEX;
+    m_subject->setPage(SECOND_LAST_PAGE_INDEX);
+
+    gLayoutVisualizationWrapperStub->stubReset();
+    gPagedPanningTargetPage = DEFAULT_LAST_PAGE_INDEX;
+    emit pageChanged(DEFAULT_LAST_PAGE_INDEX);
+
+    verifyLayoutWrapper(LayoutVisualizationWrapper::WrapLeftEdgeToRight, false);
+}
+
+void Ut_PagedViewport::testWhenPageWrappingIsEnabledAndWrappingHappensFromLastPageToSecondLastPageThenVisualizationWrapperDoesNotWrap()
+{
+    const int SECOND_LAST_PAGE_INDEX = DEFAULT_LAST_PAGE_INDEX - 1;
+
+    fillSubjectWithPages(DEFAULT_NUM_PAGES);
+    m_subject->setPageWrapMode(true);
+
+    gPagedPanningTargetPage = DEFAULT_LAST_PAGE_INDEX;
+    m_subject->setPage(DEFAULT_LAST_PAGE_INDEX);
+
+    gLayoutVisualizationWrapperStub->stubReset();
+    gPagedPanningTargetPage = SECOND_LAST_PAGE_INDEX;
+    emit pageChanged(SECOND_LAST_PAGE_INDEX);
+
+    verifyLayoutWrapper(LayoutVisualizationWrapper::NoWrap, false);
+}
+
+void Ut_PagedViewport::testWhenPageWrappingIsEnabledAndWrappingHappensBetweenNonEndPagesThenVisualizationWrapperDoesNotWrap()
+{
+    const int SECOND_PAGE = 1;
+    const int THIRD_PAGE = 2;
+
+    fillSubjectWithPages(DEFAULT_NUM_PAGES);
+    m_subject->setPageWrapMode(true);
+
+    gPagedPanningTargetPage = SECOND_PAGE;
+    emit pageChanged(SECOND_PAGE);
+
+    gLayoutVisualizationWrapperStub->stubReset();
+
+    gPagedPanningTargetPage = THIRD_PAGE;
+    emit pageChanged(THIRD_PAGE);
+
+    verifyLayoutWrapper(LayoutVisualizationWrapper::NoWrap, false);
 }
 
 void Ut_PagedViewport::testWhenPageWrappingGetsDisabledThenVisualizationWrapperDoesNotGetCalled()

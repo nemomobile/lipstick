@@ -36,6 +36,7 @@ public:
     virtual void panToPage(uint page);
     virtual void setPage(uint page);
     virtual void focusFirstPage();
+    virtual void newPageSet(int newPage);
     virtual void updateVisualizationWrapper();
 };
 
@@ -99,6 +100,12 @@ void PagedViewportStub::focusFirstPage() {
     stubMethodEntered("focusFirstPage");
 }
 
+void PagedViewportStub::newPageSet(int newPage) {
+    QList<ParameterBase*> params;
+    params.append(new Parameter<int>(newPage));
+    stubMethodEntered("newPageSet", params);
+}
+
 void PagedViewportStub::updateVisualizationWrapper() {
     stubMethodEntered("updateVisualizationWrapper");
 }
@@ -152,6 +159,10 @@ void PagedViewport::setPage(uint page) {
 
 void PagedViewport::focusFirstPage() {
     gPagedViewportStub->focusFirstPage();
+}
+
+void PagedViewport::newPageSet(int newPage) {
+    gPagedViewportStub->newPageSet(newPage);
 }
 
 void PagedViewport::updateVisualizationWrapper() {

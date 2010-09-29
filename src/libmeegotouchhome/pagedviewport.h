@@ -137,6 +137,12 @@ public Q_SLOTS:
 
 private Q_SLOTS:
     /*!
+     * A slot for handling page changes in the paged viewport. Updates the visualization
+     * wrapper if needed.
+     */
+    void newPageSet(int newPage);
+
+    /*!
      * Updates the layout visualization wrapper to reflect the current status of panning.
      */
     void updateVisualizationWrapper();
@@ -144,6 +150,11 @@ private Q_SLOTS:
 private:
     //! Our custom physics implementation
     PagedPanning* pagedPanning;
+
+    //! Keeps track of the previous page where the panning is coming from.
+    //! This is only used when the page wrapping mode is enabled. It is used to
+    //! determine if the page change wrapped or not.
+    int previousPage;
 
     //! A layout visualization wrapper to be used when page wrap mode is on
     QSharedPointer<LayoutVisualizationWrapper> layoutVisualizationWrapper;

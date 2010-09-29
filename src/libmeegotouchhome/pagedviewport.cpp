@@ -29,6 +29,7 @@ M_REGISTER_WIDGET(PagedViewport)
 
 PagedViewport::PagedViewport(QGraphicsItem *parent) :
         MPannableViewport(parent),
+        previousPage(0),
         layoutVisualizationWrapper(NULL)
 {
     // The strategy will be deleted by the pannable viewport
@@ -64,6 +65,7 @@ void PagedViewport::panToPage(uint page)
 void PagedViewport::setPage(uint page)
 {
     pagedPanning->setPage(page);
+    previousPage = pagedPanning->activePage();
 }
 
 void PagedViewport::focusFirstPage()
@@ -104,15 +106,34 @@ void PagedViewport::setPageWrapMode(bool enable)
             QGraphicsLinearLayout *pannableLayout = dynamic_cast<QGraphicsLinearLayout*>(pannableWidget->layout());
             if (pannableLayout) {
                 layoutVisualizationWrapper = QSharedPointer<LayoutVisualizationWrapper>(new LayoutVisualizationWrapper(*pannableLayout));
+                updateVisualizationWrapper();
+                // Multiple signals are monitored to control the visualization wrapper
+                // - panningStopped signal when rotation happens while panning
                 connect(this, SIGNAL(panningStopped()), SLOT(updateVisualizationWrapper()));
+                // - pageChanged signal when panning between pages without wrapping
+                connect(this, SIGNAL(pageChanged(int)), SLOT(newPageSet(int)));
+                // - pageWrapped signal when panning from first page to last or vice-versa via page wrapping
                 connect(physics(), SIGNAL(pageWrapped()), SLOT(updateVisualizationWrapper()));
             }
         }
     } else {
         layoutVisualizationWrapper = QSharedPointer<LayoutVisualizationWrapper>(NULL);
         disconnect(SIGNAL(panningStopped()), this, SLOT(updateVisualizationWrapper()));
+        disconnect(SIGNAL(pageChanged(int)), this, SLOT(newPageSet(int)));
         disconnect(physics(), SIGNAL(pageWrapped()), this, SLOT(updateVisualizationWrapper()));
     }
+}
+
+void PagedViewport::newPageSet(int newPage)
+{
+    const int firstPageIndex = 0;
+    const int lastPageIndex = pagedPanning->pageCount() - 1;
+    if (!((previousPage == firstPageIndex && newPage == lastPageIndex) ||
+          (previousPage == lastPageIndex && newPage == firstPageIndex))) {
+        updateVisualizationWrapper();
+    }
+
+    previousPage = newPage;
 }
 
 void PagedViewport::updateVisualizationWrapper()
