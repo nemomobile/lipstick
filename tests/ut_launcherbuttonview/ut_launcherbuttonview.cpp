@@ -201,12 +201,6 @@ void Ut_LauncherButtonView::cleanup()
 
 void Ut_LauncherButtonView::testInitialization()
 {
-    controller->setObjectName("LauncherButton");
-    QVERIFY(m_subject->progressIndicator->objectName() == "LauncherButtonProgressIndicator");
-
-    controller->setObjectName("QuickLaunchBarButton");
-    QVERIFY(m_subject->progressIndicator->objectName() == "QuickLaunchBarButtonProgressIndicator");
-
     QCOMPARE(m_subject->model()->buttonState(), LauncherButtonModel::Installed);
     QVERIFY(disconnect(&m_subject->launchProgressTimeoutTimer, SIGNAL(timeout()), controller, SLOT(stopLaunchProgress())));
     QVERIFY(m_subject->launchProgressTimeoutTimer.isSingleShot());
