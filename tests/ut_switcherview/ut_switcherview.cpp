@@ -30,7 +30,7 @@
 #include "switcherstyle.h"
 #include "switcher_stub.h"
 #include "switcherbutton.h"
-#include "pagedpanning.h"
+#include "pagedpanning_stub.h"
 #include "transformlayoutanimation_stub.h"
 #include "pagedviewport_stub.h"
 #include <QGestureEvent>
@@ -170,91 +170,6 @@ Window SwitcherButton::xWindow()
     return g_windowButtonMap[this];
 }
 
-PagedPanning::PagedPanning(QObject* parent) : MPhysics2DPanning(parent),
-                                              pageCount_(1),
-                                              currentPage(0),
-                                              snapMode(false),
-                                              velocityThreshold_(7.0),
-                                              dragThreshold_(0.5),
-                                              pageSnapSpringK_(0.7),
-                                              pageSnapFriction_(0.7),
-                                              previousPosition(0),
-                                              targetPage_(0)
-{
-}
-
-PagedPanning::~PagedPanning()
-{
-}
-
-void PagedPanning::panToPage(int itemIndex) {
-    emit pageChanged(itemIndex);
-}
-
-void PagedPanning::panToCurrentPage()
-{
-    emit pageChanged(currentPage);
-}
-
-void PagedPanning::integrateAxis(Qt::Orientation, qreal &, qreal &, qreal &, qreal &, bool)
-{
-}
-
-void PagedPanning::setPageCount(int) {
-}
-
-int PagedPanning::pageCount() const {
-    return 1;
-}
-
-void PagedPanning::setVelocityThreshold(qreal)
-{
-}
-
-void PagedPanning::setDragThreshold(qreal)
-{
-}
-
-void PagedPanning::setSlideLimit(int)
-{
-}
-
-void PagedPanning::setPageSnapSpringK(qreal)
-{
-}
-
-void PagedPanning::setPageSnapFriction(qreal)
-{
-}
-
-void PagedPanning::pointerPress(const QPointF &pos)
-{
-    Q_UNUSED(pos);
-}
-
-void PagedPanning::pointerMove(const QPointF &pos)
-{
-    Q_UNUSED(pos);
-}
-
-void PagedPanning::pointerRelease()
-{
-}
-
-int PagedPanning::activePage() const
-{
-    return currentPage;
-}
-
-float PagedPanning::pageWidth() const
-{
-    return 0;
-}
-
-void PagedPanning::setPage(uint)
-{
-}
-
 QList<QGraphicsItem *> items_;
 QList<QGraphicsItem *> QGraphicsView::items(const QPoint &/*pos*/) const
 { return items_;}
@@ -264,12 +179,6 @@ void QGraphicsItem::installSceneEventFilter(QGraphicsItem *filterItem)
 {
     gQGraphicsItem_installSceneEventFilter.append(qMakePair(this, filterItem));
 }
-
-void PagedPanning::setPanThreshold(qreal value)
-{
-    Q_UNUSED(value)
-}
-
 
 QList< QSharedPointer<SwitcherButton> > Ut_SwitcherView::createButtonList(int buttons)
 {
