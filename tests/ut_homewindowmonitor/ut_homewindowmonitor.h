@@ -58,6 +58,7 @@ private slots:
 
     void testNonFullscreenWindowOnTopDoesNotEmitFullscreenWindowOnTopSignal_data();
     void testNonFullscreenWindowOnTopDoesNotEmitFullscreenWindowOnTopSignal();
+    void testOwnWindowOnTopDoesNotEmitFullscreenWindowOnTopSignal();
 
 private:
     // The object being tested

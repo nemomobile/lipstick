@@ -24,7 +24,6 @@
 
 HomeWindowMonitor::HomeWindowMonitor() :
         nonFullscreenApplicationWindowTypes(QSet<Atom>() << WindowInfo::NotificationAtom <<
-                                                            WindowInfo::DesktopAtom <<
                                                             WindowInfo::DialogAtom <<
                                                             WindowInfo::MenuAtom),
         netClientListStacking(X11Wrapper::XInternAtom(QX11Info::display(), "_NET_CLIENT_LIST_STACKING", False))
@@ -68,9 +67,15 @@ bool HomeWindowMonitor::handleXEvent(const XEvent& event)
 
             if (numFullscreenWindowReceivers > 0) {
                 if (!windowOrder.isEmpty()) {
-                    WindowInfo windowInfo(windowOrder.last());
-                    if (windowInfo.types().toSet().intersect(nonFullscreenApplicationWindowTypes).isEmpty()) {
-                        emit fullscreenWindowOnTopOfOwnWindow();
+                    QList<Window>::iterator iter;
+                    for (iter = windowOrder.end(); iter != windowOrder.begin(); iter--) {
+                        WindowInfo windowInfo(*iter);
+                        if (windowInfo.types().toSet().intersect(nonFullscreenApplicationWindowTypes).isEmpty()) {
+                            if (!isOwnWindow(windowInfo.window())) {
+                                emit fullscreenWindowOnTopOfOwnWindow();
+                            }
+                            break;
+                        }
                     }
                 }
             }

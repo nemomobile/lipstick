@@ -184,7 +184,6 @@ void Ut_HomeWindowMonitor::testNonFullscreenWindowOnTopDoesNotEmitFullscreenWind
     QTest::addColumn<Atom>("windowType");
 
     QTest::newRow("Notification") << WindowInfo::NotificationAtom;
-    QTest::newRow("Desktop") << WindowInfo::DesktopAtom;
     QTest::newRow("Dialog") << WindowInfo::DialogAtom;
     QTest::newRow("Menu") << WindowInfo::MenuAtom;
 }
@@ -200,6 +199,17 @@ void Ut_HomeWindowMonitor::testNonFullscreenWindowOnTopDoesNotEmitFullscreenWind
     QList<Atom> types;
     types << windowType;
     gWindowInfoStub->stubSetReturnValue("types", types);
+
+    QCOMPARE(m_subject->handleXEvent(clientListStackingEvent), true);
+    QCOMPARE(listener.count(), 0);
+}
+
+void Ut_HomeWindowMonitor::testOwnWindowOnTopDoesNotEmitFullscreenWindowOnTopSignal()
+{
+    QSignalSpy listener(m_subject, SIGNAL(fullscreenWindowOnTopOfOwnWindow()));
+    gWindowInfoStub->stubSetReturnValue("window", OWN_WINDOW_ID);
+
+    addWindowInfoToActiveWindows(OWN_WINDOW_ID);
 
     QCOMPARE(m_subject->handleXEvent(clientListStackingEvent), true);
     QCOMPARE(listener.count(), 0);
