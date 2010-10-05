@@ -379,11 +379,11 @@ void Ut_DesktopView::testWhenFullscreenWindowAppearsLauncherGetsHidden()
     verifyAppearDisappear(desktopView->switcherWindow, desktopView->launcherWindow);
 }
 
-void Ut_DesktopView::testShowLauncherAndPanToPageWithCorrectDesktopFile()
+void Ut_DesktopView::testShowLauncherAndFocusToButtonWithCorrectDesktopFile()
 {
-    gLauncherStub->stubSetReturnValue("focusToPage", 1);
+    gLauncherStub->stubSetReturnValue("focusToButton", 1);
 
-    desktopView->showLauncherAndFocusToPage("correctFileName");
+    desktopView->showLauncherAndFocusToButton("correctFileName");
     gQGraphicsItemIsVisible = true;
 
     QCOMPARE(windowActivated, true);
@@ -392,28 +392,28 @@ void Ut_DesktopView::testShowLauncherAndPanToPageWithCorrectDesktopFile()
     verifyAppearDisappear(desktopView->launcherWindow, desktopView->switcherWindow);
 }
 
-void Ut_DesktopView::testShowLauncherAndPanToPageWithBadDesktopFile()
+void Ut_DesktopView::testShowLauncherAndFocusToButtonWithBadDesktopFile()
 {
-    gLauncherStub->stubSetReturnValue("focusToPage", -1);
+    gLauncherStub->stubSetReturnValue("focusToButton", -1);
 
     desktopView->launcher->setVisible(false);
 
     QCOMPARE(desktopView->launcherWindow->isVisible(), false);
 
-    desktopView->showLauncherAndFocusToPage("badFileName");
+    desktopView->showLauncherAndFocusToButton("badFileName");
 
     QCOMPARE(windowActivated, false);
     QCOMPARE(windowRaised, false);
     QCOMPARE(desktopView->launcherWindow->isVisible(), false);
 }
 
-void Ut_DesktopView::testShowLauncherAndPanToPageWithEmptyDesktopFile()
+void Ut_DesktopView::testShowLauncherAndFocusToButtonWithEmptyDesktopFile()
 {
-    gLauncherStub->stubSetReturnValue("focusToPage", -1);
+    gLauncherStub->stubSetReturnValue("focusToButton", -1);
 
     QCOMPARE(desktopView->launcherWindow->isVisible(), false);
 
-    desktopView->showLauncherAndFocusToPage("");
+    desktopView->showLauncherAndFocusToButton("");
     gQGraphicsItemIsVisible = true;
 
     QCOMPARE(windowActivated, true);

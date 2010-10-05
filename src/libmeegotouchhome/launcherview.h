@@ -67,6 +67,11 @@ private slots:
      */
     void focusToPage(uint page);
 
+    /*!
+     * Focuses launcher to a button.
+     */
+    void focusToButton(const QString &desktopFileEntry);
+
 private:
     /*!
      * Updates layout from models page list.
@@ -92,6 +97,10 @@ private:
     MWidget* pannedWidget;
     //! The paged viewport used to display the pannedWidget
     PagedViewport* pagedViewport;
+
+#ifdef UNIT_TEST
+    friend class Ut_LauncherView;
+#endif
 };
 
 #endif // LAUNCHERVIEW_H

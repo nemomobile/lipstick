@@ -72,8 +72,8 @@ private slots:
     void testEmptyPage();
     // Test buttonPlacement() with full desktopEntryPath, with name of the file and faulty name.
     void testButtonPlacement();
-    // Test panToPage() with successfull and unsuccessfull case.
-    void testFocusToPage();
+    // Test focusToButton() with successfull and unsuccessfull case.
+    void testFocusToButton();
     // Test that launcher button is updated when signal received
     void testUpdatingLauncherButton();
     // Test adding buttons

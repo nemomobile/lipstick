@@ -106,12 +106,12 @@ private slots:
     void removeExtension(MApplicationExtensionInterface *extension);
 
     /*!
-     * Shows launcher and focuses to page that has launcher application specified
-     * with .desktop file
+     * Shows Launcher and focuses Launcher to an application's Launcher Button specified
+     * by a desktop file
      *
-     * \param desktop file or file path of application
+     * \param desktop file name or file path
      */
-    void showLauncherAndFocusToPage(const QString &desktopFileEntry = QString());
+    void showLauncherAndFocusToButton(const QString &desktopFileEntry = QString());
 
 #ifdef BENCHMARKS_ON
 private slots:

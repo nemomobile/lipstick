@@ -54,6 +54,7 @@ private slots:
     void testSignalConnection();
     void testSetPage();
     void testUpdateData();
+    void testFocusToButton();
 
 private:
     // MApplication

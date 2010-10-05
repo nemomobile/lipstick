@@ -83,6 +83,7 @@ void Ut_LauncherView::init()
     hideWindowCount = 0;
     connect(this, SIGNAL(updateDataRequested(const QList<const char *>&)),
             view, SLOT(updateData(const QList<const char *>&)));
+    gPagedViewportStub->stubReset();
 }
 
 void Ut_LauncherView::cleanup()
@@ -233,5 +234,28 @@ void Ut_LauncherView::testUpdateData()
     emit updateDataRequested(modifications2);
     QCOMPARE(mainLayout->count(), 0);
 }
+
+void Ut_LauncherView::testFocusToButton()
+{
+    const QString desktop1 = "button1.desktop";
+    QSharedPointer<LauncherPage> page1(new LauncherPage);
+    QSharedPointer<LauncherPage> page2(new LauncherPage);
+    QSharedPointer<LauncherButton> button1(new LauncherButton(desktop1));
+    page2->appendButton(button1);
+
+    LauncherModel::LauncherPageList pages;
+    pages.append(page1);
+    pages.append(page2);
+    controller->model()->setLauncherPages(pages);
+
+    gLauncherButtonStub->stubSetReturnValue("desktopEntry", desktop1);
+    view->focusToButton(desktop1);
+    QCOMPARE(gPagedViewportStub->stubLastCallTo("setPage").parameter<uint>(0), (uint)1);
+
+    gPagedViewportStub->stubReset();
+    view->focusToButton("");
+    QCOMPARE(gPagedViewportStub->stubCallCount("setPage"), 0);
+}
+
 
 QTEST_APPLESS_MAIN(Ut_LauncherView)

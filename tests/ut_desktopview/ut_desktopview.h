@@ -79,12 +79,12 @@ private slots:
     // Test bounding rectangle and background drawing
     void testBoundingRectAndDrawBackground();
     void testWhenFullscreenWindowAppearsLauncherGetsHidden();
-    // Test showing launcher when showLauncherAndPanToPage is called
-    void testShowLauncherAndPanToPageWithCorrectDesktopFile();
+    // Test showing launcher when showLauncherAndFocusToButton is called
+    void testShowLauncherAndFocusToButtonWithCorrectDesktopFile();
     // Test that launcher is not shown when bad desktop file is given
-    void testShowLauncherAndPanToPageWithBadDesktopFile();
+    void testShowLauncherAndFocusToButtonWithBadDesktopFile();
     // Test show launcher with empty desktop file path given
-    void testShowLauncherAndPanToPageWithEmptyDesktopFile();
+    void testShowLauncherAndFocusToButtonWithEmptyDesktopFile();
     void testDefocusing();
 
 public:

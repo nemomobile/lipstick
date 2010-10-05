@@ -130,12 +130,18 @@ signals:
     /*!
      * Signal to request moving launcher focus to a page
      */
-    void focusToPageRequested(uint page);
+     void focusToPageRequested(uint page);
+
+     /*!
+      * Signal requesting launcher to focus to an button specified by a desktopfile.
+      */
+     void focusToButtonRequested(const QString& desktopFileEntry);
+
 
 public slots:
 
     /*!
-     * Opens Launcher from the page where Launcher Button of requested application is placed.
+     * Requests Launcher to focus to a Launcher Button specified by a desktop file.
      *
      * \param desktopFileEntry is application's desktop file.
      * Name should be given in format "filename.desktop" or in absolute path.
@@ -143,7 +149,7 @@ public slots:
      * \return index of page that contains application. Returns -1 if buttons
      * is not found from launcher.
      */
-    int focusToPage(const QString &desktopFileEntry);
+    int focusToButton(const QString &desktopFileEntry);
 
     /*!
      * Set launcher to show a page.

@@ -362,11 +362,11 @@ QMap<Launcher::Placement, QString> Launcher::createPlacementMap(const QHash<QStr
     return placementMap;
 }
 
-int Launcher::focusToPage(const QString &desktopFileEntry)
+int Launcher::focusToButton(const QString &desktopFileEntry)
 {
     int page = buttonPlacement(desktopFileEntry).page;
     if (page >= 0) {
-        setPage((uint)page);
+        emit focusToButtonRequested(desktopFileEntry);
     }
     return page;
 }

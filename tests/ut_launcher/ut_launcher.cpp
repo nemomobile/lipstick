@@ -232,9 +232,9 @@ void Ut_Launcher::testButtonPlacement()
     QCOMPARE(placement.position, -1);
 }
 
-void Ut_Launcher::testFocusToPage()
+void Ut_Launcher::testFocusToButton()
 {
-    QSignalSpy spy(launcher, SIGNAL(focusToPageRequested(uint)));
+    QSignalSpy spy(launcher, SIGNAL(focusToButtonRequested(const QString &)));
 
     QString testAppName("testApp.desktop");
     QString badAppName("nonExistentApp.desktop");
@@ -243,11 +243,11 @@ void Ut_Launcher::testFocusToPage()
     addButtonsToLauncher(6);
     gLauncherButtonStub->stubSetReturnValue("desktopEntry", fullPathName);
 
-    int result = launcher->focusToPage(fullPathName);
+    int result = launcher->focusToButton(fullPathName);
     QCOMPARE(result, 0);
     comparePageNumberArgument(spy, 0);
 
-    result = launcher->focusToPage(badAppName);
+    result = launcher->focusToButton(badAppName);
     QCOMPARE(result, -1);
     QCOMPARE(spy.count(), 0);
 }

@@ -32,7 +32,7 @@ class LauncherStub : public StubBase {
   virtual void setLauncherDataStore(LauncherDataStore *dataStore);
   virtual void setApplicationPackageMonitorListener(ApplicationPackageMonitorListener *packageMonitorListener);
   virtual void setPage(uint page);
-  virtual int focusToPage(const QString &dekstopFileEntry);
+  virtual int focusToButton(const QString &dekstopFileEntry);
   virtual void addLauncherButton(const QString &desktopEntryPath);
   virtual void removeLauncherButton(const QString &desktopEntryPath);
   virtual bool updateLauncherButton(const QString &desktopEntryPath);
@@ -79,12 +79,12 @@ void LauncherStub::setPage(uint page) {
   stubMethodEntered("setPage",params);
 }
 
-int LauncherStub::focusToPage(const QString &desktopFileEntry)
+int LauncherStub::focusToButton(const QString &desktopFileEntry)
 {
   QList<ParameterBase*> params;
   params.append( new Parameter<const QString & >(desktopFileEntry));
-  stubMethodEntered("focusToPage",params);
-  return stubReturnValue<int>("focusToPage");
+  stubMethodEntered("focusToButton",params);
+  return stubReturnValue<int>("focusToButton");
 }
 
 void LauncherStub::addLauncherButton(const QString &desktopEntryPath) {
@@ -220,8 +220,8 @@ void Launcher::setPage(uint page) {
   gLauncherStub->setPage(page);
 }
 
-int Launcher::focusToPage(const QString &desktopEntryFile) {
-    return gLauncherStub->focusToPage(desktopEntryFile);
+int Launcher::focusToButton(const QString &desktopEntryFile) {
+    return gLauncherStub->focusToButton(desktopEntryFile);
 }
 
 void Launcher::addLauncherButton(const QString &desktopEntryPath) {

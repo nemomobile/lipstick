@@ -51,6 +51,7 @@ LauncherView::LauncherView(Launcher *controller) :
 
     connect(controller, SIGNAL(panningRequested(uint)), this, SLOT(panToPage(uint)));
     connect(controller, SIGNAL(focusToPageRequested(uint)), this, SLOT(focusToPage(uint)));
+    connect(controller, SIGNAL(focusToButtonRequested(const QString &)), this, SLOT(focusToButton(const QString&)));
 }
 
 LauncherView::~LauncherView()
@@ -119,6 +120,23 @@ void LauncherView::panToPage(uint page)
 void LauncherView::focusToPage(uint page)
 {
     pagedViewport->setPage(page);
+}
+
+void LauncherView::focusToButton(const QString &desktopFileEntry)
+{
+    int pageNum = -1;
+    uint pageIndex = 0;
+    QList<QSharedPointer<LauncherPage> > pages = model()->launcherPages();
+    foreach (QSharedPointer<LauncherPage> page, pages) {
+        if (page->launcherButtonPosition(desktopFileEntry) >= 0) {
+            pageNum = pageIndex;
+            break;
+        }
+        pageIndex++;
+    }
+    if (pageNum >= 0) {
+        pagedViewport->setPage(pageNum);
+    }
 }
 
 void LauncherView::removePageFromLayout(LauncherPage *page)
