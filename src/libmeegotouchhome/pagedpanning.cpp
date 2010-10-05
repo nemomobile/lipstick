@@ -375,10 +375,6 @@ void PagedPanning::setPage(uint page)
         return;
     }
 
-    if ((uint)currentPage == page) {
-        return;
-    }
-
     currentPage = page;
     targetPage_  = page;
     snapMode = true;

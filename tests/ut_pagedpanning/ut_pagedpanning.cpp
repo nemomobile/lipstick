@@ -222,7 +222,9 @@ void Ut_PagedPanning::testMovement(int currentPage,
     qreal rangeEnd = (pageCount - 1) * DEFAULT_PAGE_WIDTH;
 
     qreal pageWidth = (rangeEnd - rangeStart) / qMax(1, pageCount - 1);
-    m_subject->setPage(currentPage);
+    qreal currentPosition = currentPage * pageWidth;
+    m_subject->currentPage = currentPage;
+    m_subject->setPosition(QPointF(currentPosition, 0));
 
     int pageCrossings = std::abs(targetPage - currentPage);
 

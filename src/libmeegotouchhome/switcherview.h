@@ -21,23 +21,19 @@
 #define SWITCHERVIEW_H
 
 #include <MWidgetView>
+#include "switcherviewbase.h"
 #include "switchermodel.h"
 #include "switcherstyle.h"
 
 class Switcher;
-class QPixmap;
-class MLayout;
 class MLinearLayoutPolicy;
 class MGridLayoutPolicy;
-class QGraphicsLinearLayout;
 class PagedViewport;
-class TransformLayoutAnimation;
-class QPropertyAnimation;
 
 /*!
  * The switcher view draws a background for the switcher.
  */
-class SwitcherView : public MWidgetView
+class SwitcherView : public SwitcherViewBase
 {
     Q_OBJECT
     M_VIEW(SwitcherModel, SwitcherStyle)
@@ -55,39 +51,16 @@ public:
      */
     virtual ~SwitcherView();
 
-    /*! \reimp
-     * Re-implented event handler. Needed to enable gestures.
-     *
-     * \param e event to be handled
-     * \return true if event was accepted, otherwise false
-     */
-    bool event(QEvent *e);
-    //! \reimp_end
-
 protected:
-    /*! \reimp
-     * Re-implemented here to get an update when the model is set
-     */
-    virtual void setupModel();
-
-    /*!
-      * Re-implemented to handle the mode switch
-      *
-      * \param event Gesture event class for general event handling.
-      * \param gesture Pinch gesture class. Contains all pinch specific information
-      */
-    virtual void pinchGestureEvent(QGestureEvent *event, QPinchGesture* gesture);
-
-    /*!
-     * Filters QGraphicsSceneMouseMove events from SwitcherButtons.
-     */
-    virtual bool sceneEventFilter(QGraphicsItem *watched, QEvent *event);
+    //! \reimp
+    virtual void applySwitcherMode();
     //! \reimp_end
 
 protected slots:
-    //! \cond
+    //! \reimp
     virtual void updateData(const QList<const char *>& modifications);
-    //! \endcond
+    virtual void applyPinchGestureTargetMode();
+    //! \reimp_end
 
 private slots:
     /*! Listens for page change in the paged viewport */
@@ -98,12 +71,6 @@ private slots:
 
     /*! Update all buttons in the layout policies */
     void updateButtons();
-
-    /*! Sets the switcher mode according to current pinch gesture target */
-    void applyPinchGestureTargetMode();
-
-    /*! Runs the bounce animation if currently in overview mode */
-    void runOverviewBounceAnimation();
 
 private:
     /*! Repositions the switcher so that the visible page is reflects the topmost application */
@@ -124,78 +91,26 @@ private:
     /*! Updates the modes of the buttons and the page count according to the switcher mode */
     void updateButtonModesAndPageCount();
 
-    /*! Selects the layout policy and sets up switcher mode dependent signals */
-    void applySwitcherMode();
-
-    /*! Returns the index of a SwitcherButton in the model or -1, if not found */
-    int buttonIndex(const SwitcherButton* button) const;
-
-    //! Returns the switcher button which is underneath point centerPoint or NULL
-    SwitcherButton *buttonAt(QPointF centerPoint) const;
-
-    //! Calculates which switcher button is nearest to point centerPoint
-    void calculateNearestButtonAt(QPointF centerPoint);
-
     //! Returns the maximum number of buttons in a page
     int buttonsPerPage() const;
 
-    /*! Remove all buttons from layout and set parents to NULL
-     * Parents are set to NULL to avoid double deletion as buttons are QSharedPointer's in model
-     */
-    void removeButtonsFromLayout();
-
-    /*! Starts the bounce animation */
-    void startBounceAnimation();
-
-    /*! Sets the direction of the bounce animation */
-    void setInwardBounceAnimation(bool i);
-
-    /*! The switcher controller */
-    Switcher *controller;
-
-    MWidget* layoutWidget;
-
-    /*! Layouts */
-    QGraphicsLinearLayout *mainLayout;
-
-    /*! The widget that will contain all of the switcher buttons */
-    MWidget* pannedWidget;
-
-    /*! Layout for the panned widget */
-    MLayout* pannedLayout;
-
-    /*! Layout animation for switching layout policies */
-    TransformLayoutAnimation *layoutAnimation;
-
     /*! Layout policies for the different switcher modes */
-    MGridLayoutPolicy* overviewPolicy;
-    MLinearLayoutPolicy* detailPolicy;
+    MGridLayoutPolicy   *overviewPolicy;
+    MLinearLayoutPolicy *detailPolicy;
 
     /*! The current focused switcher button */
     int focusedSwitcherButton;
 
-    /*! The button being currently pinched */
-    int pinchedButtonPosition;
+    /*! The viewport that shows the switcher buttons */
+    PagedViewport *pagedViewport;
 
-    /*! The target mode for pinch gesture */
-    SwitcherModel::Mode pinchGestureTargetMode;
+    /*! Style of the switcher in overview mode */
+    const SwitcherStyle *overviewStyle;
 
 #ifdef UNIT_TEST
     // to test snapIndexChanged effects
     friend class Ut_SwitcherView;
 #endif
-
-    /*! The viewport that shows the switcher buttons */
-    PagedViewport *viewport;
-
-    /*! True if the pinch direction is to the mode we're already in */
-    bool overpinch;
-
-    /*! Animation for the bounce when going to overview mode and when overpinching */
-    QPropertyAnimation *bounceAnimation;
-
-    /*! Style of the switcher in overview mode */
-    const SwitcherStyle *overviewStyle;
 };
 
 #endif // SWITCHERVIEW_H

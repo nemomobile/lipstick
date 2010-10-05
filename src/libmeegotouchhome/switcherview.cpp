@@ -36,48 +36,30 @@
 #include <MLinearLayoutPolicy>
 #include <MGridLayoutPolicy>
 #include <MDeviceProfile>
-#include <QTimeLine>
 #include <QGraphicsLinearLayout>
-#include <QPinchGesture>
 #include <MPositionIndicator>
 #include "pagepositionindicatorview.h"
 #include <math.h>
 #include <algorithm>
 #include "pagedviewport.h"
-#include <QGestureEvent>
-#include <QPropertyAnimation>
-
-static const qreal HALF_PI = M_PI / 2.0;
-static const qreal MAX_Z_VALUE = 1.0;
 
 
 SwitcherView::SwitcherView(Switcher *switcher) :
-        MWidgetView(switcher), controller(switcher), mainLayout(new QGraphicsLinearLayout(Qt::Vertical)), pannedWidget(new MWidget), viewport(new PagedViewport),
-        overviewStyle(0)
+        SwitcherViewBase(switcher), pagedViewport(new PagedViewport), overviewStyle(0)
 {
-    mainLayout->setContentsMargins(0, 0, 0, 0);
-    switcher->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    switcher->setLayout(mainLayout);
-
-    connect(viewport, SIGNAL(pageChanged(int)), this, SLOT(updateFocusedButton(int)));
-    connect(viewport, SIGNAL(panningStopped()), this, SLOT(panningStopped()));
+    viewport = pagedViewport;
+    connect(pagedViewport, SIGNAL(pageChanged(int)), this, SLOT(updateFocusedButton(int)));
+    connect(pagedViewport, SIGNAL(panningStopped()), this, SLOT(panningStopped()));
     connect(MainWindow::instance()->sceneManager(), SIGNAL(orientationChanged(M::Orientation)), this, SLOT(updateButtons()));
 
     // We have custom values for this view port in the style
     viewport->setObjectName("SwitcherViewport");
-
     mainLayout->addItem(viewport);
-    pannedLayout = new MLayout(pannedWidget);
-    pannedLayout->setContentsMargins(0, 0, 0, 0);
 
     layoutAnimation = new TransformLayoutAnimation(pannedLayout);
     layoutAnimation->setObjectName("SwitcherLayoutAnimation");
     connect(layoutAnimation, SIGNAL(willFinish()), this, SLOT(applyPinchGestureTargetMode()));
     connect(layoutAnimation, SIGNAL(finished()), this, SLOT(runOverviewBounceAnimation()));
-
-    bounceAnimation = new QPropertyAnimation(pannedWidget, "scale", this);
-    bounceAnimation->setStartValue(1.0f);
-    bounceAnimation->setEndValue(1.0f);
 
     overviewPolicy = new MGridLayoutPolicy(pannedLayout);
     overviewPolicy->setObjectName("OverviewPolicy");
@@ -96,21 +78,9 @@ SwitcherView::SwitcherView(Switcher *switcher) :
 
 SwitcherView::~SwitcherView()
 {
-    removeButtonsFromLayout();
-
     if(overviewStyle) {
         MTheme::releaseStyle(overviewStyle);
     }
-}
-
-bool SwitcherView::event(QEvent *e)
-{
-    // This stuff is necessary to receive touch events.
-    if (e->type() == QEvent::TouchBegin) {
-        e->setAccepted(true);
-        return true;
-    }
-    return MWidgetView::event(e);
 }
 
 void SwitcherView::panningStopped()
@@ -122,34 +92,26 @@ void SwitcherView::panningStopped()
     }
 }
 
-void SwitcherView::setupModel()
-{
-    MWidgetView::setupModel();
-    applySwitcherMode();
-}
-
 void SwitcherView::applySwitcherMode()
 {
     if (model()->switcherMode() == SwitcherModel::Detailview) {
         pannedLayout->setPolicy(detailPolicy);
-        controller->setObjectName("DetailviewSwitcher");
     } else {
         pannedLayout->setPolicy(overviewPolicy);
-        controller->setObjectName("OverviewSwitcher");
     }
+
+    SwitcherViewBase::applySwitcherMode();
 
     updateButtonModesAndPageCount();
 }
 
 void SwitcherView::updateData(const QList<const char*>& modifications)
 {
-    MWidgetView::updateData(modifications);
+    SwitcherViewBase::updateData(modifications);
     const char *member;
     foreach(member, modifications) {
         if (member == SwitcherModel::Buttons) {
             updateButtons();
-        } else if (member == SwitcherModel::SwitcherMode) {
-            applySwitcherMode();
         } else if (member == SwitcherModel::TopmostWindow) {
             repositionSwitcher();
         }
@@ -173,7 +135,7 @@ void SwitcherView::repositionSwitcher()
             } else {
                 targetPage = buttonPos;
             }
-            viewport->panToPage(targetPage);
+            pagedViewport->panToPage(targetPage);
             break;
         }
     }
@@ -244,7 +206,7 @@ void SwitcherView::updateButtonModesAndPageCount()
     }
 
     // First update the page count
-    viewport->updatePageCount(pages);
+    pagedViewport->updatePageCount(pages);
 
     // Then set the range - this starts the integration and pans
     // the view to the correct page in case we were on the last
@@ -359,232 +321,14 @@ void SwitcherView::addButtonInOverviewPolicy(QSharedPointer<SwitcherButton> butt
     }
 }
 
-void SwitcherView::removeButtonsFromLayout()
-{
-    // Remove all buttons from the layout and set parents to null (do not destroy them)
-    for (int i = 0, count = pannedLayout->count(); i < count; i++) {
-        static_cast<SwitcherButton *>(pannedLayout->takeAt(0))->setParentItem(0);
-    }
-}
-
-int SwitcherView::buttonIndex(const SwitcherButton* button) const
-{
-    QList<QSharedPointer<SwitcherButton> > buttons = model()->buttons();
-    for (int i = 0; i < buttons.count(); ++i) {
-        if (buttons.at(i) == button) {
-            return i;
-        }
-    }
-    return -1;
-}
-
-SwitcherButton *SwitcherView::buttonAt(QPointF centerPoint) const
-{
-    QList<QGraphicsItem*> items = MainWindow::instance()->items(centerPoint.x(), centerPoint.y());
-    foreach(QGraphicsItem* item, items) {
-        SwitcherButton *button = dynamic_cast<SwitcherButton*>(item);
-        if(button) {
-            return button;
-        }
-    }
-    return NULL;
-}
-
-void SwitcherView::calculateNearestButtonAt(QPointF centerPoint)
-{
-    const SwitcherButton *button = 0;
-    if((button = buttonAt(centerPoint))) {
-        pinchedButtonPosition = buttonIndex(button);
-        return;
-    }
-
-    qreal nearestDistance = 0.0;
-    QList<QSharedPointer<SwitcherButton> > buttons = model()->buttons();
-    uint buttonsInPage = buttonsPerPage();
-    uint fullPages = buttons.count() / buttonsInPage;
-    uint extraButtons = buttons.count() - (fullPages * buttonsInPage);
-    uint currentPage = viewport->currentPage();
-
-    // If the current page is not a full page then go through how many ever buttons there are on the page
-    uint loopCounter = currentPage + 1 > fullPages ? extraButtons : buttonsInPage;
-
-    // Loop from first button in page to number of buttons in page
-    for(uint buttonPosition = buttonsInPage*currentPage;buttonPosition < buttonsInPage*currentPage + loopCounter;buttonPosition++) {
-        button = buttons.at(buttonPosition).data();
-
-        // Translate the button pos(scene coordinates) to viewport coordinates
-        QPointF buttonPosViewport = button->mapToItem(viewport, button->pos());
-
-        // Scene coordinates for buttons on pages greater than 1 are more than viewport coordinate diemensions(device width/height)
-        //Hence points are translated to first page where centerPoint is supposedly delivered
-        QPointF buttonPosTranslatedToFirstPage(buttonPosViewport);
-
-        // In portrait mode centerpoint is still delivered as if origin is device topLeft when kept in landscape.
-        // Scene cooridnates are however measured as if origin is at device bottomLeft when kept in landscape.
-        QPointF centerPointTranslated(centerPoint);
-        if(MainWindow::instance()->orientation() == M::Landscape) {
-                buttonPosTranslatedToFirstPage.setX(buttonPosTranslatedToFirstPage.x() - currentPage*viewport->size().width());
-            } else {
-                buttonPosTranslatedToFirstPage.setX(buttonPosTranslatedToFirstPage.x() - currentPage*viewport->size().width());
-                centerPointTranslated.setX(viewport->size().width() - centerPoint.y());
-                centerPointTranslated.setY(centerPoint.x());
-        }
-
-        // Calculate the distance between button center point and center point of pinch
-        QLineF line(centerPointTranslated, buttonPosTranslatedToFirstPage);
-        qreal distance = line.length();
-
-        // if calculated distance is less than previous least distance then this button is nearer
-        if(nearestDistance == 0.0 || distance < nearestDistance) {
-            nearestDistance = distance;
-            pinchedButtonPosition = buttonPosition;
-        }
-    }
-}
-
-void SwitcherView::pinchGestureEvent(QGestureEvent *event, QPinchGesture* gesture)
-{
-    /*! Due to bug 174335, each gesture event is delivered twice with two different
-        QPinchGesture instances. Only one is needed, and the other one would break calculating the pinch
-        speed, so have only one gesture active at a time */
-    static QPinchGesture *activeGesture = 0;
-
-    if(gesture->state() != Qt::GestureStarted && gesture != activeGesture) {
-        return;
-    }
-
-    /*! Finish any currently running animation before starting a new one */
-    if((layoutAnimation->isAnimating() && !layoutAnimation->manualControl()) || bounceAnimation->state() == QAbstractAnimation::Running) {
-        return;
-    }
-
-    switch(gesture->state()) {
-    case Qt::GestureStarted:
-        {
-            activeGesture = gesture;
-            viewport->setEnabled(false);
-            calculateNearestButtonAt(gesture->centerPoint());
-
-            foreach (const QSharedPointer<SwitcherButton> &button, model()->buttons()) {
-                button->installSceneEventFilter(controller);
-            }
-            break;
-        }
-    case Qt::GestureUpdated:
-        {
-            if(!layoutAnimation->isAnimating()) {
-                pinchGestureTargetMode = gesture->scaleFactor() >=1 ? SwitcherModel::Detailview : SwitcherModel::Overview;
-
-                overpinch = pinchGestureTargetMode == model()->switcherMode();
-
-                // Switch the mode and start the transition if needed
-                if(model()->switcherMode() != pinchGestureTargetMode) {
-                    layoutAnimation->setManualControl(true);
-                    layoutAnimation->start();
-                    applyPinchGestureTargetMode();
-                }
-            }
-
-            // Calculate the current animation progress based on the current scale factor
-            qreal p = pinchGestureTargetMode == SwitcherModel::Detailview ?
-                      (gesture->scaleFactor() - 1.0f) :
-                      (1.0f - gesture->scaleFactor());
-
-            p = qBound(qreal(0.0), p * style()->pinchLength(), qreal(1));
-
-            if(overpinch) {
-                if(bounceAnimation->state() == QAbstractAnimation::Stopped) {
-                    setInwardBounceAnimation(model()->switcherMode() == SwitcherModel::Overview);
-                    bounceAnimation->setDirection(QAbstractAnimation::Forward);
-                    startBounceAnimation();
-                    bounceAnimation->pause();
-                }
-
-                bounceAnimation->setCurrentTime(p * bounceAnimation->duration() / 2);
-            } else {
-                layoutAnimation->setProgress(p);
-            }
-
-            break;
-        }
-    case Qt::GestureFinished:
-        layoutAnimation->setManualControl(false);
-
-        if(bounceAnimation->state() == QAbstractAnimation::Paused) {
-            bounceAnimation->setDirection(QAbstractAnimation::Backward);
-            bounceAnimation->resume();
-        }
-
-        // Cancel the transition if the pinch value plus twice the current pinching speed is less or equal to the threshold
-        if(layoutAnimation->currentCurveValue() + layoutAnimation->speed() * 2.0f <= style()->pinchCancelThreshold()) {
-            pinchGestureTargetMode = pinchGestureTargetMode == SwitcherModel::Detailview ? SwitcherModel::Overview : SwitcherModel::Detailview;
-            layoutAnimation->cancelAnimation();
-        }
-        viewport->setEnabled(true);
-        activeGesture = 0;
-
-        foreach (const QSharedPointer<SwitcherButton> &button, model()->buttons()) {
-            button->setDown(false);
-        }
-        break;
-
-    default:
-        break;
-    }
-    event->accept(gesture);
-}
-
-bool SwitcherView::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
-{
-    bool filtered = false;
-
-    if (event->type() == QEvent::GraphicsSceneMouseMove) {
-        foreach (const QSharedPointer<SwitcherButton> &button, model()->buttons()) {
-            if (button == watched) {
-                filtered = true;
-                break;
-            }
-        }
-    }
-
-    return filtered;
-}
-
 void SwitcherView::applyPinchGestureTargetMode()
 {
-    model()->setSwitcherMode(pinchGestureTargetMode);
-    viewport->setPage(pinchGestureTargetMode == SwitcherModel::Detailview ?
+    SwitcherViewBase::applyPinchGestureTargetMode();
+
+    pagedViewport->setPage(pinchGestureTargetMode == SwitcherModel::Detailview ?
                       pinchedButtonPosition :
                       pinchedButtonPosition / buttonsPerPage());
-
-    if(!layoutAnimation->manualControl()) {
-        layoutAnimation->stop();
-    }
 }
 
-void SwitcherView::setInwardBounceAnimation(bool i)
-{
-    // set the middle key value to either less than 1 when bouncing or zooming in overview mode,
-    // or over 1 when zooming in detail mode
-    bounceAnimation->setKeyValueAt(0.5f, 1.0f + (i ? -1.0f : 1.0f) * style()->bounceScale());
-}
-
-void SwitcherView::startBounceAnimation()
-{
-    bounceAnimation->setDuration(style()->bounceDuration());
-    bounceAnimation->setEasingCurve(style()->bounceCurve());
-
-    pannedWidget->setTransformOriginPoint(viewport->rect().center() +
-                                          QPointF(viewport->pageWidth() * viewport->currentPage(), 0));
-    bounceAnimation->start();
-}
-
-void SwitcherView::runOverviewBounceAnimation()
-{
-    if(pinchGestureTargetMode == SwitcherModel::Overview) {
-        setInwardBounceAnimation(true);
-        startBounceAnimation();
-    }
-}
 
 M_REGISTER_VIEW_NEW(SwitcherView, Switcher)

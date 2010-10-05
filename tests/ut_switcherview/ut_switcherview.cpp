@@ -18,11 +18,13 @@
 ****************************************************************************/
 
 #include <QGraphicsSceneMouseEvent>
+#include <QScrollBar>
 #include <MApplication>
 #include <MApplicationPage>
 #include <MGridLayoutPolicy>
 #include <MLinearLayoutPolicy>
 #include <QGraphicsLayout>
+#include <MScene>
 #include "mwindow_stub.h"
 #include "ut_switcherview.h"
 #include "mscenemanager_stub.h"
@@ -43,7 +45,6 @@ static void verifyEqualContentMarginValues(qreal first, qreal second, qreal targ
 SwitcherModel* g_switcherModel;
 QMap<SwitcherButton *, Window> g_windowButtonMap;
 QRectF g_switcherGeometry;
-
 
 // MTheme stubs
 const MStyle *MTheme::style(const char *styleClassName,
@@ -171,8 +172,11 @@ Window SwitcherButton::xWindow()
 }
 
 QList<QGraphicsItem *> items_;
-QList<QGraphicsItem *> QGraphicsView::items(const QPoint &/*pos*/) const
-{ return items_;}
+
+QList<QGraphicsItem *> QGraphicsScene::items(const QRectF &/*rect*/, Qt::ItemSelectionMode /*mode*/) const
+{
+    return items_;
+}
 
 QList<QPair<QGraphicsItem*, QGraphicsItem*> > gQGraphicsItem_installSceneEventFilter;
 void QGraphicsItem::installSceneEventFilter(QGraphicsItem *filterItem)
@@ -299,6 +303,11 @@ void Ut_SwitcherView::pinchGesture(qreal scaleFactor, Qt::GestureState state)
     m_subject->pinchGestureEvent(mEvent, mPinch);
 }
 
+QSize QScrollBar::sizeHint() const
+{
+    return QSize();
+}
+
 /*
  * Switcher detail view tests
  */
@@ -310,6 +319,9 @@ void Ut_SwitcherView::initTestCase()
     app = new MApplication(argc, &app_name);
     mSceneManager = new MSceneManager(NULL, NULL);
     gMWindowStub->stubSetReturnValue("sceneManager", mSceneManager);
+
+    MainWindow::instance(true);
+    gMWindowStub->stubSetReturnValue("scene", new MScene());
 }
 
 void Ut_SwitcherView::cleanupTestCase()
@@ -786,40 +798,37 @@ void Ut_SwitcherView::testPanToSwitcherPageInDetailviewMode()
     verifyPanningResult(list, false, -1);
 }
 
-void Ut_SwitcherView::testWhenPinchingOnSwitcherButtonExactPinchedButtonIsDetected()
-{
-    QList< QSharedPointer<SwitcherButton> > buttons = createButtonList(2);
-    g_switcherModel->setButtons(buttons);
-    items_.append(buttons.at(1).data());
-    const SwitcherButton *button = m_subject->buttonAt(QPointF(100,100));
-    QVERIFY2(button == buttons.at(1).data(), "Incorrect button detected");
-}
-
 void Ut_SwitcherView::testWhenPinchingOnEmptyAreaNearestButtonIsDetected()
 {
     m_subject->modifiableStyle()->setRowsPerPage(2);
     m_subject->modifiableStyle()->setColumnsPerPage(2);
     QList< QSharedPointer<SwitcherButton> > buttons = createButtonList(3);
     gMWindowStub->stubSetReturnValue("orientation", M::Landscape);
-    buttons.at(0).data()->setPos(198,65);
-    buttons.at(1).data()->setPos(447,65);
-    buttons.at(2).data()->setPos(198,216);
+
+    buttons.at(0).data()->setGeometry(QRectF(198, 65, 200, 100));
+    buttons.at(1).data()->setGeometry(QRectF(447, 65, 200, 100));
+    buttons.at(2).data()->setGeometry(QRectF(198, 216, 200, 100));
     g_switcherModel->setButtons(buttons);
+
+    foreach(QSharedPointer<SwitcherButton> button, buttons) {
+        items_.append(button.data());
+    }
+
     // When clicking topLeft area button 1 should be detected
-    m_subject->calculateNearestButtonAt(QPointF(140,124));
+    m_subject->calculateNearestButtonAt(QPointF(140, 124));
     QCOMPARE(m_subject->pinchedButtonPosition, 0);
+
     // When clicking bottomRight area button 3 should be selected
-    m_subject->calculateNearestButtonAt(QPointF(593,313));
+    m_subject->calculateNearestButtonAt(QPointF(493, 313));
     QCOMPARE(m_subject->pinchedButtonPosition, 2);
 
     gMWindowStub->stubSetReturnValue("orientation", M::Portrait);
-    m_subject->viewport->setGeometry(QRectF(0,0,480,748));
-    buttons.at(0).data()->setPos(51,65);
-    buttons.at(1).data()->setPos(255,65);
-    buttons.at(2).data()->setPos(50,408);
-    g_switcherModel->setButtons(buttons);
+    buttons.at(0).data()->setPos(51, 65);
+    buttons.at(1).data()->setPos(255, 65);
+    buttons.at(2).data()->setPos(50, 408);
+
     // When clicking topRight area button 2 should be detected
-    m_subject->calculateNearestButtonAt(QPointF(60,72));
+    m_subject->calculateNearestButtonAt(QPointF(60, 72));
     QCOMPARE(m_subject->pinchedButtonPosition, 1);
 }
 

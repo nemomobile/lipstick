@@ -76,27 +76,74 @@ SwitcherViewStub* gSwitcherViewStub = &gDefaultSwitcherViewStub;
 
 
 // 4. CREATE A PROXY WHICH CALLS THE STUB
-SwitcherView::SwitcherView(Switcher *controller)
+SwitcherViewBase::SwitcherViewBase(Switcher */*controller*/)
+{
+}
+
+SwitcherViewBase::~SwitcherViewBase() {
+}
+
+bool SwitcherViewBase::event(QEvent *e) {
+    return gSwitcherViewStub->event(e);
+}
+
+void SwitcherViewBase::setupModel() {
+}
+
+void SwitcherViewBase::updateData(const QList<const char *>& /*modifications*/)
+{
+}
+
+void SwitcherViewBase::pinchGestureEvent(QGestureEvent*, QPinchGesture*) {
+}
+
+bool SwitcherViewBase::sceneEventFilter(QGraphicsItem*, QEvent*) {
+    return true;
+}
+
+void SwitcherViewBase::applyPinchGestureTargetMode() {
+}
+
+void SwitcherViewBase::runOverviewBounceAnimation() {
+    gSwitcherViewStub->runOverviewBounceAnimation();
+}
+
+void SwitcherViewBase::applySwitcherMode() {
+}
+
+int SwitcherViewBase::buttonIndex(const SwitcherButton *) const {
+    return 0;
+}
+
+void SwitcherViewBase::calculateNearestButtonAt(QPointF) {
+}
+
+void SwitcherViewBase::removeButtonsFromLayout() {
+}
+
+void SwitcherViewBase::startBounceAnimation() {
+}
+
+void SwitcherViewBase::setInwardBounceAnimation(bool) {
+}
+
+void SwitcherViewBase::pinchBegin(const QPointF &/*centerPoint*/) {
+}
+
+void SwitcherViewBase::pinchUpdate(float /*scaleFactor*/) {
+}
+
+void SwitcherViewBase::pinchEnd() {
+}
+
+
+SwitcherView::SwitcherView(Switcher *controller) : SwitcherViewBase(controller)
 {
     gSwitcherViewStub->SwitcherViewConstructor(controller);
 }
 
 SwitcherView::~SwitcherView() {
     gSwitcherViewStub->SwitcherViewDestructor();
-}
-
-bool SwitcherView::event(QEvent *e) {
-    return gSwitcherViewStub->event(e);
-}
-
-void SwitcherView::setupModel() {
-}
-
-void SwitcherView::pinchGestureEvent(QGestureEvent*, QPinchGesture*) {
-}
-
-bool SwitcherView::sceneEventFilter(QGraphicsItem*, QEvent*) {
-    return true;
 }
 
 void SwitcherView::updateData(const QList<const char *>& modifications)
@@ -117,14 +164,6 @@ void SwitcherView::updateButtons() {
     gSwitcherViewStub->updateButtons();
 }
 
-void SwitcherView::applyPinchGestureTargetMode() {
-    gSwitcherViewStub->applyPinchGestureTargetMode();
-}
-
-void SwitcherView::runOverviewBounceAnimation() {
-    gSwitcherViewStub->runOverviewBounceAnimation();
-}
-
 void SwitcherView::repositionSwitcher() {
 }
 
@@ -143,31 +182,17 @@ void SwitcherView::updateOverviewContentsMarginsAndSpacings() {
 void SwitcherView::updateButtonModesAndPageCount() {
 }
 
-void SwitcherView::applySwitcherMode() {
-}
-
-int SwitcherView::buttonIndex(const SwitcherButton *) const {
-    return 0;
-}
-
-SwitcherButton * SwitcherView::buttonAt(QPointF) const {
-    return NULL;
-}
-
-void SwitcherView::calculateNearestButtonAt(QPointF) {
-}
-
 int SwitcherView::buttonsPerPage() const {
     return 0;
 }
 
-void SwitcherView::removeButtonsFromLayout() {
+void SwitcherView::applySwitcherMode()
+{
 }
 
-void SwitcherView::startBounceAnimation() {
-}
-
-void SwitcherView::setInwardBounceAnimation(bool) {
+void SwitcherView::applyPinchGestureTargetMode()
+{
+    gSwitcherViewStub->applyPinchGestureTargetMode();
 }
 
 #endif

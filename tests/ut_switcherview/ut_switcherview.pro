@@ -2,6 +2,7 @@ include(../common_top.pri)
 TARGET = ut_switcherview
 
 STYLE_HEADERS += $$SRCDIR/switcherstyle.h \
+    $$SRCDIR/switcherbasestyle.h \
     $$SRCDIR/pagepositionindicatorstyle.h \
     $$SRCDIR/pagedviewportstyle.h \
     $$SRCDIR/transformlayoutanimationstyle.h
@@ -15,6 +16,7 @@ SOURCES += \
     ut_switcherview.cpp \
 #    $$SRCDIR/pagedviewport.cpp \
     $$SRCDIR/switcherview.cpp \
+    $$SRCDIR/switcherviewbase.cpp \
     $$SRCDIR/pagepositionindicatorview.cpp \
     $$SRCDIR/pagepositionindicator.cpp \
     $$SRCDIR/pagedviewportview.cpp
@@ -23,8 +25,10 @@ SOURCES += \
 HEADERS += \
     ut_switcherview.h \
     $$SRCDIR/switcherview.h \
+    $$SRCDIR/switcherviewbase.h \
     $$SRCDIR/switcher.h \
     $$SRCDIR/switcherstyle.h \
+    $$SRCDIR/switcherbasestyle.h \
     $$SRCDIR/switcherbutton.h \
     $$SRCDIR/switcherbuttonmodel.h \
     $$SRCDIR/pagedpanning.h \

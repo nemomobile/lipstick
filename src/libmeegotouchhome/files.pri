@@ -28,7 +28,9 @@ HEADERS += homeapplication.h \
     quicklaunchbarstyle.h \
     switcher.h \
     switchermodel.h \
+    switcherviewbase.h \
     switcherview.h \
+    switcherbasestyle.h \
     switcherstyle.h \
     switcherbutton.h \
     switcherbuttonmodel.h \
@@ -79,6 +81,7 @@ SOURCES += homeapplication.cpp \
     quicklaunchbar.cpp \
     quicklaunchbarview.cpp \
     switcher.cpp \
+    switcherviewbase.cpp \
     switcherview.cpp \
     switcherbutton.cpp \
     switcherbuttonview.cpp \
@@ -115,6 +118,7 @@ STYLE_HEADERS += desktopstyle.h \
     quicklaunchbarstyle.h \
     switcherbuttonstyle.h \
     switcherbuttonwithtitlebarstyle.h \
+    switcherbasestyle.h \
     switcherstyle.h \
     pagepositionindicatorstyle.h \
     pagedviewportstyle.h \

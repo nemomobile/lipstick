@@ -4,7 +4,8 @@ TARGET = ut_switcher
 MODEL_HEADERS += $$SRCDIR/switchermodel.h \
     $$SRCDIR/switcherbuttonmodel.h
 
-STYLE_HEADERS += $$SRCDIR/switcherstyle.h
+STYLE_HEADERS += $$SRCDIR/switcherstyle.h \
+                 $$SRCDIR/switcherbasestyle.h
 
 # unit test and unit classes
 SOURCES += \
@@ -21,6 +22,7 @@ HEADERS += \
     ut_switcher.h \
     $$SRCDIR/switcher.h \
     $$SRCDIR/switcherview.h \
+    $$SRCDIR/switcherviewbase.h \
     $$SRCDIR/homewindowmonitor.h \
     $$SRCDIR/windowinfo.h \
     $$SRCDIR/windowmonitor.h
@@ -29,6 +31,7 @@ HEADERS += \
 HEADERS += \
     $$SRCDIR/switchermodel.h \
     $$SRCDIR/switcherstyle.h \
+    $$SRCDIR/switcherbasestyle.h \
     $$SRCDIR/switcherbutton.h \
     $$SRCDIR/switcherbuttonmodel.h \
     $$SRCDIR/windowinfo.h
