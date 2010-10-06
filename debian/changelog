@@ -1,4 +1,4 @@
-meegotouchhome (0.22.1~1) unstable; urgency=low
+meegotouchhome (0.22.1~2) unstable; urgency=low
 
   * [UNRELEASED]
   * Fixes: NB#194052 -  Object names used to change style for progress indicators
