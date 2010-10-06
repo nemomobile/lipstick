@@ -119,16 +119,27 @@ QString MDesktopEntry::value(const QString &group, const QString &key) const
     return g_desktopEntryValue.value(g_desktopEntryFileName.value(this)).value(group+"/"+key);
 }
 
-bool QFile::exists(const QString &)
+bool QFile::exists(const QString &filename)
 {
-    return true;
+    bool fileExists = filename.startsWith(QDir::homePath());
+
+    if (!fileExists) {
+        FILE *file = fopen(filename.toUtf8().constData(), "r");
+        bool fileExists = file != NULL;
+
+        if (fileExists) {
+            fclose(file);
+        }
+    }
+
+    return fileExists;
 }
 
 void Ut_ApplicationPackageMonitor::initTestCase()
 {
     static int argc = 1;
-    static char *app_name[1] = { (char *) "./ut_applicationpackagemonitor" };
-    app = new MApplication(argc, app_name);
+    static char *app_name = (char *)"./ut_applicationpackagemonitor";
+    app = new MApplication(argc, &app_name);
 }
 
 void Ut_ApplicationPackageMonitor::cleanupTestCase()
