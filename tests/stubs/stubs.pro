@@ -20,6 +20,7 @@ INSTALL_HEADERS += \
   mprogressindicator_stub.h \
   mscenemanager_stub.h \
   mwindow_stub.h \
+  pagedviewport_stub.h \
   parameter.h \
   quicklaunchbar_stub.h \
   stubbase.cpp \
