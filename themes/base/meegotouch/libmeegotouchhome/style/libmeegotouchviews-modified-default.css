@@ -155,11 +155,19 @@ MButtonIconStyle#CloseButtonOverviewMedium.Landscape
 
 MButtonIconStyle#CloseButtonOverviewLarge
 {
-    minimum-size:   $SIZE_ICON_SMALL $SIZE_ICON_SMALL;
-    preferred-size: $SIZE_ICON_SMALL $SIZE_ICON_SMALL;
-    maximum-size:   $SIZE_ICON_SMALL $SIZE_ICON_SMALL;
-    icon-size:      $SIZE_ICON_SMALL $SIZE_ICON_SMALL;
+    minimum-size:   2mm 2mm;
+    preferred-size: 2mm 2mm;
+    maximum-size:   2mm 2mm;
+    icon-size:      2mm 2mm;
     margin-right: 0.25mm;
+}
+
+MButtonIconStyle#CloseButtonOverviewLarge.Landscape
+{
+    minimum-size:   1.3mm 1.3mm;
+    preferred-size: 1.3mm 1.3mm;
+    maximum-size:   1.3mm 1.3mm;
+    icon-size:      1.3mm 1.3mm;
 }
 
 MButtonIconStyle#CloseButtonDetailview
@@ -179,7 +187,7 @@ SwitcherButton MLabelStyle {
 }
 
 MLabelStyle#SwitcherButtonTitleLabelDetailview {
-    font: $FONT_XLARGE;
+    font: "Nokia Sans" 3.2mm;
 
     preferred-size: -1 4.255mm;
     minimum-size:   -1 4.255mm;
@@ -193,7 +201,7 @@ MLabelStyle#SwitcherButtonTitleLabelDetailview.Landscape {
 }
 
 MLabelStyle#SwitcherButtonTitleLabelOverviewMedium {
-    font: $FONT_XSMALL;
+    font: "Nokia Sans" 1.8mm;
 
     preferred-size: -1 2.3mm;
     minimum-size:   -1 2.3mm;
@@ -203,7 +211,7 @@ MLabelStyle#SwitcherButtonTitleLabelOverviewMedium {
 }
 
 MLabelStyle#SwitcherButtonTitleLabelOverviewMedium.Landscape {
-    font: $FONT_XXSMALL;
+    font: "Nokia Sans" 1.6mm;
 
     preferred-size: -1 1.79mm;
     minimum-size:   -1 1.79mm;
@@ -211,15 +219,19 @@ MLabelStyle#SwitcherButtonTitleLabelOverviewMedium.Landscape {
 }
 
 MLabelStyle#SwitcherButtonTitleLabelOverviewLarge {
-    font: $FONT_DEFAULT;
+    font: "Nokia Sans" 2.0mm;
 
-    preferred-size: -1 3.1mm;
-    minimum-size:   -1 3.1mm;
-    maximum-size:   -1 3.1mm;
+    preferred-size: -1 2.67mm;
+    minimum-size:   -1 2.67mm;
+    maximum-size:   -1 2.67mm;
 
     margin-left: 0.25mm;
 }
 
 MLabelStyle#SwitcherButtonTitleLabelOverviewLarge.Landscape {
-    font: $FONT_LARGE;
+    font: "Nokia Sans" 1.6mm;
+
+    preferred-size: -1 1.79mm;
+    minimum-size:   -1 1.79mm;
+    maximum-size:   -1 1.79mm;                                 
 }
