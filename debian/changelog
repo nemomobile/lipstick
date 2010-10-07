@@ -1,3 +1,9 @@
+meegotouchhome (0.22.2~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Thu, 07 Oct 2010 15:08:26 +0300
+
 meegotouchhome (0.22.1-1) unstable; urgency=low
 
   * Fixes: NB#194052 - Object names used to change style for progress indicators
