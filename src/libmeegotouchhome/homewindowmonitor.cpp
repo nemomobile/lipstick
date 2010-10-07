@@ -67,9 +67,10 @@ bool HomeWindowMonitor::handleXEvent(const XEvent& event)
 
             if (numFullscreenWindowReceivers > 0) {
                 if (!windowOrder.isEmpty()) {
-                    QList<Window>::iterator iter;
-                    for (iter = windowOrder.end(); iter != windowOrder.begin(); iter--) {
-                        WindowInfo windowInfo(*iter);
+                    QListIterator<Window> iter(windowOrder);
+                    iter.toBack();
+                    while (iter.hasPrevious()) {
+                        WindowInfo windowInfo(iter.previous());
                         if (windowInfo.types().toSet().intersect(nonFullscreenApplicationWindowTypes).isEmpty()) {
                             if (!isOwnWindow(windowInfo.window())) {
                                 emit fullscreenWindowOnTopOfOwnWindow();
