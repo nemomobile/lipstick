@@ -1,11 +1,10 @@
-meegotouchhome (0.22.1~2) unstable; urgency=low
+meegotouchhome (0.22.1-1) unstable; urgency=low
 
-  * [UNRELEASED]
-  * Fixes: NB#194052 -  Object names used to change style for progress indicators
-  * Fixes: NB#194106 -  Launcher progress indicator spinner keeps spinning even after the application has started
+  * Fixes: NB#194052 - Object names used to change style for progress indicators
+  * Fixes: NB#194106 - Launcher progress indicator spinner keeps spinning even after the application has started
   * Fixes: NB#186716 - Homescreen updates the display when touched even if nothing happens
 
- -- Aki Koskinen <aki.koskinen@nokia.com>  Mon, 27 Sep 2010 18:27:03 +0300
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Thu, 07 Oct 2010 15:07:03 +0300
 
 meegotouchhome (0.22.0-1) unstable; urgency=low
 
