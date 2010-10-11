@@ -23,7 +23,7 @@
 
 
 const qreal WIDGET_WIDTH = 10.0;
-const qreal WIDGET_HEIGHT = 10.0;
+const qreal WIDGET_HEIGHT = 20.0;
 const qreal ORIGO = 0.0;
 const int NUMBER_OF_WIDGETS = 3;
 const qreal PARENT_WIDGET_WIDTH = NUMBER_OF_WIDGETS * WIDGET_WIDTH;
@@ -77,9 +77,14 @@ qreal Ut_LayoutVisualizationWrapper::firstWidgetXTranslation() const
     return static_cast<QGraphicsWidget*>(testableWidget->layout()->itemAt(0))->transform().dx();
 }
 
+QGraphicsWidget* Ut_LayoutVisualizationWrapper::getLastWidget() const
+{
+    return static_cast<QGraphicsWidget*>(testableWidget->layout()->itemAt(NUMBER_OF_WIDGETS - 1));
+}
+
 qreal Ut_LayoutVisualizationWrapper::lastWidgetXTranslation() const
 {
-    return static_cast<QGraphicsWidget*>(testableWidget->layout()->itemAt(NUMBER_OF_WIDGETS - 1))->transform().dx();
+    return getLastWidget()->transform().dx();
 }
 
 void Ut_LayoutVisualizationWrapper::testSettingRightmostItemToAppearOnTheLeftSide()
@@ -124,6 +129,22 @@ void Ut_LayoutVisualizationWrapper::testChangingWrappingModeFromRightToLeftSetsT
     m_subject->setWrappingMode(LayoutVisualizationWrapper::WrapRightEdgeToLeft);
     QCOMPARE(firstWidgetXTranslation(), 0.0);
     QCOMPARE(lastWidgetXTranslation(), -PARENT_WIDGET_WIDTH);
+}
+
+void Ut_LayoutVisualizationWrapper::testParentSizeChangeUpdatesTransformationsCorrectly()
+{
+    m_subject->setWrappingMode(LayoutVisualizationWrapper::WrapRightEdgeToLeft);
+    QCOMPARE(lastWidgetXTranslation(), -PARENT_WIDGET_WIDTH);
+
+    //Simulate size change by swapping height and width
+    testableWidget->setGeometry(ORIGO, ORIGO, WIDGET_HEIGHT, PARENT_WIDGET_WIDTH);
+    m_subject->setWrappingMode(LayoutVisualizationWrapper::WrapRightEdgeToLeft);
+    QCOMPARE(lastWidgetXTranslation(), -WIDGET_HEIGHT);
+    //Reset transformation
+    getLastWidget()->setTransform(QTransform::fromTranslate(0.0, 0.0));
+    m_subject->setWrappingMode(LayoutVisualizationWrapper::WrapRightEdgeToLeft);
+    //Transformation should not happen when we have not rotated
+    QCOMPARE(lastWidgetXTranslation(), 0.0);
 }
 
 void Ut_LayoutVisualizationWrapper::testUsingVerticalLayoutDoesNothing()

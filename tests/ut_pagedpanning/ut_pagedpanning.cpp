@@ -129,6 +129,7 @@ void Ut_PagedPanning::testMovementWithWrappingRightToLeft()
                  0);               // Target page index after move
 
     QCOMPARE(wrappedSpy.count(), 1);
+    QCOMPARE(m_subject->pageWrapping, false);
 }
 
 void Ut_PagedPanning::testMovementWithWrappingLeftToRight()
@@ -145,6 +146,7 @@ void Ut_PagedPanning::testMovementWithWrappingLeftToRight()
                  2);               // Target page index after move
 
     QCOMPARE(wrappedSpy.count(), 1);
+    QCOMPARE(m_subject->pageWrapping, false);
 }
 
 void Ut_PagedPanning::testAutoPanning()

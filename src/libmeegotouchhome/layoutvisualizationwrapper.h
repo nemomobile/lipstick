@@ -17,6 +17,8 @@
 #ifndef LAYOUTVISUALIZATIONWRAPPER_H
 #define LAYOUTVISUALIZATIONWRAPPER_H
 
+#include <QtGlobal>
+
 class QGraphicsLinearLayout;
 
 /*!
@@ -69,6 +71,9 @@ private:
     //! The current wrapping mode
     WrappingMode wrappingMode;
 
+    //! Width of current parent layout
+    qreal previousParentLayoutWidth;
+
     //! A direction
     enum Direction {
         Left,   //!< Left
@@ -87,7 +92,12 @@ private:
      * \param layoutIndex the index to the layout.
      * \param direction the direction where the transformation will be made.
      */
-    void setTransformation(int layoutIndex, Direction direction) const;
+    void setTransformation(int layoutIndex, Direction direction);
+
+    /*!
+     * Fetches widht of parent layout from parent widget
+     */
+    qreal parentLayoutWidth() const;
 };
 
 #endif // LAYOUTVISUALIZATIONWRAPPER_H

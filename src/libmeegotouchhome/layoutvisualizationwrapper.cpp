@@ -20,7 +20,8 @@
 
 LayoutVisualizationWrapper::LayoutVisualizationWrapper(QGraphicsLinearLayout &layout) :
         layout(layout),
-        wrappingMode(NoWrap)
+        wrappingMode(NoWrap),
+        previousParentLayoutWidth(0.0)
 {
 }
 
@@ -30,31 +31,27 @@ LayoutVisualizationWrapper::~LayoutVisualizationWrapper()
 
 void LayoutVisualizationWrapper::setWrappingMode(LayoutVisualizationWrapper::WrappingMode mode)
 {
-    if (mode == wrappingMode) {
-        return;
-    }
+    if (mode != wrappingMode || previousParentLayoutWidth != parentLayoutWidth()) {
+        wrappingMode = mode;
 
-    wrappingMode = mode;
+        if (layout.orientation() == Qt::Horizontal) {
+            switch (mode) {
+            case NoWrap:
+                resetTransformation(0);
+                resetTransformation(layout.count() - 1);
+                break;
 
-    if (layout.orientation() != Qt::Horizontal) {
-        return;
-    }
+            case WrapRightEdgeToLeft:
+                resetTransformation(0);
+                setTransformation(layout.count() - 1, Left);
+                break;
 
-    switch (mode) {
-    case NoWrap:
-        resetTransformation(0);
-        resetTransformation(layout.count() - 1);
-        break;
-
-    case WrapRightEdgeToLeft:
-        resetTransformation(0);
-        setTransformation(layout.count() - 1, Left);
-        break;
-
-    case WrapLeftEdgeToRight:
-        resetTransformation(layout.count() - 1);
-        setTransformation(0, Right);
-        break;
+            case WrapLeftEdgeToRight:
+                resetTransformation(layout.count() - 1);
+                setTransformation(0, Right);
+                break;
+            }
+        }
     }
 }
 
@@ -66,17 +63,27 @@ void LayoutVisualizationWrapper::resetTransformation(int layoutIndex) const
     }
 }
 
-void LayoutVisualizationWrapper::setTransformation(int layoutIndex, Direction direction) const
+qreal LayoutVisualizationWrapper::parentLayoutWidth() const
 {
-    QGraphicsItem* layoutItem = layout.itemAt(layoutIndex)->graphicsItem();
-    if (layoutItem != NULL) {
-        QGraphicsWidget *parentWidget = dynamic_cast<QGraphicsWidget*>(layout.parentLayoutItem());
-        if (parentWidget != NULL) {
-            qreal xTransform = parentWidget->size().width();
-            if (direction == Left) {
-                xTransform = -xTransform;
-            }
+    qreal width = 0.0;
+    QGraphicsWidget *parentWidget = dynamic_cast<QGraphicsWidget*>(layout.parentLayoutItem());
+    if (parentWidget != NULL) {
+        width = parentWidget->size().width();
+    }
+    return width;
+}
 
+void LayoutVisualizationWrapper::setTransformation(int layoutIndex, Direction direction)
+{
+    qreal xTransform = parentLayoutWidth();
+    if (xTransform > 0.0)
+    {
+        previousParentLayoutWidth = xTransform;
+        if (direction == Left) {
+            xTransform = -xTransform;
+        }
+        QGraphicsItem* layoutItem = layout.itemAt(layoutIndex)->graphicsItem();
+        if (layoutItem != NULL) {
             layoutItem->setTransform(QTransform::fromTranslate(xTransform, 0.0));
         }
     }

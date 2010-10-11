@@ -44,7 +44,7 @@ private slots:
     void testChangingWrappingModeFromRightToNoneSetsTransformationsCorrectly();
     void testChangingWrappingModeFromLeftToRightSetsTransformationsCorrectly();
     void testChangingWrappingModeFromRightToLeftSetsTransformationsCorrectly();
-
+    void testParentSizeChangeUpdatesTransformationsCorrectly();
     void testUsingVerticalLayoutDoesNothing();
 
 private:
@@ -55,6 +55,8 @@ private:
     qreal firstWidgetXTranslation() const;
     //! Returns the x translation of the last widget in the test layout
     qreal lastWidgetXTranslation() const;
+    //! Return the last widget
+    QGraphicsWidget* getLastWidget() const;
 
     // The object being tested
     LayoutVisualizationWrapper *m_subject;

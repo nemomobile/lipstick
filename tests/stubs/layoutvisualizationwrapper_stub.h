@@ -28,6 +28,7 @@ public:
     virtual void LayoutVisualizationWrapperConstructor(QGraphicsLinearLayout &layout);
     virtual void LayoutVisualizationWrapperDestructor();
     virtual void setWrappingMode(LayoutVisualizationWrapper::WrappingMode mode);
+    virtual qreal parentLayoutWidth();
 };
 
 
@@ -45,6 +46,10 @@ void LayoutVisualizationWrapperStub::setWrappingMode(LayoutVisualizationWrapper:
     QList<ParameterBase*> params;
     params.append(new Parameter<LayoutVisualizationWrapper::WrappingMode>(mode));
     stubMethodEntered("setWrappingMode", params);
+}
+qreal LayoutVisualizationWrapperStub::parentLayoutWidth() {
+    stubMethodEntered("parentLayoutWidth");
+    return stubReturnValue<qreal>("0.0");
 }
 
 
@@ -69,7 +74,11 @@ void LayoutVisualizationWrapper::setWrappingMode(WrappingMode mode) {
 void LayoutVisualizationWrapper::resetTransformation(int) const {
 }
 
-void LayoutVisualizationWrapper::setTransformation(int, Direction) const {
+qreal LayoutVisualizationWrapper::parentLayoutWidth() const {
+    return gLayoutVisualizationWrapperStub->parentLayoutWidth();
+}
+
+void LayoutVisualizationWrapper::setTransformation(int, Direction) {
 }
 
 #endif

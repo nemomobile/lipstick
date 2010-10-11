@@ -365,6 +365,7 @@ void PagedPanning::pointerRelease()
     if(wrapMode && (pageWrapping || targetPage_ >= pageCount_ || targetPage_ < 0)) {
         targetPage_ = wrap(targetPage_, pageCount_);
         setPosition(QPointF(position().x() + (initialPage > targetPage_ ? -1 : 1) * pageWidth() * pageCount() , position().y()));
+        pageWrapping = false;
         emit pageWrapped();
     }
 }
