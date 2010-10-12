@@ -57,6 +57,7 @@ private slots:
     void testUpdatingDesktopEntry();
     void testUpdatingInvalidEntry();
     void testRemovingEntriesWhenApplicationsDirectoryGetsEmpty();
+    void testNotReprocessingInvalidEntry();
 
 signals:
     void directoryChanged();

@@ -116,15 +116,14 @@ void LauncherDataStore::processUpdateQueue()
         QString desktopEntryPath(fileInfo.absoluteFilePath());
         QString key = entryPathToKey(desktopEntryPath);
 
-        if (!store->contains(key)) {
+        if (!invalidEntries.contains(desktopEntryPath) && !store->contains(key)) {
             MDesktopEntry desktopEntry(desktopEntryPath);
             if (isDesktopEntryValid(desktopEntry, supportedDesktopEntryFileTypes)) {
                 // Add the entry with an unknown location
                 store->createValue(key, QVariant());
                 emit desktopEntryAdded(desktopEntryPath);
             } else {
-                store->remove(key);
-                emit desktopEntryRemoved(keyToEntryPath(key));
+                invalidEntries.append(desktopEntryPath);
             }
         }
 
@@ -197,7 +196,8 @@ void LauncherDataStore::updateDesktopEntry(const QString &desktopEntryPath)
             } else {
                 // remove existing but now invalid entry
                 store->remove(key);
-                emit desktopEntryRemoved(keyToEntryPath(key));
+                emit desktopEntryRemoved(desktopEntryPath);
+                invalidEntries.append(desktopEntryPath);
             }
         } else if (!isInQueue(key)) {
             MDesktopEntry desktopEntry(desktopEntryPath);
@@ -205,6 +205,7 @@ void LauncherDataStore::updateDesktopEntry(const QString &desktopEntryPath)
                 // if entry has been invalid before, but is now valid, add entry as a new entry
                 store->createValue(key, QVariant());
 		emit desktopEntryAdded(desktopEntryPath);
+                invalidEntries.removeOne(desktopEntryPath);
             }
         }
     }

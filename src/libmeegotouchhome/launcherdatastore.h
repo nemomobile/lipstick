@@ -215,6 +215,15 @@ private:
 
     //! The directory being watched
     QString directoryPath;
+
+    //! Invalid entries in the watched dir
+    QStringList invalidEntries;
+
+#ifdef UNIT_TEST
+    friend class Ut_LauncherDataStore;
+#endif
 };
+
+
 
 #endif

@@ -352,13 +352,15 @@ void Ut_LauncherDataStore::testProcessUpdateQueueRemovesDeletedFilesWhenDone()
 
 void Ut_LauncherDataStore::testProcessUpdateQueueFiltersDesktopFiles()
 {
-    // Test applications: two valid and one invalid
+    // Add valid entries:
+    addDesktopEntry("regularApplication.desktop", "Test4", "Application", "Icon-camera", "test4");
     addDesktopEntry("onlyShowInMeeGoApplication.desktop", "Test0", "Application", "Icon-camera", "test0");
+    desktopEntryOnlyShowIn.insert(fileNameWithPath("onlyShowInMeeGoApplication.desktop"), QStringList() << "X-MeeGo");
+
+    // Add invalid entries:
     addDesktopEntry("onlyShowInInvalidApplication.desktop", "Test1", "Application", "Icon-camera", "test1");
     addDesktopEntry("notShowInMeeGoApplication.desktop", "Test2", "Application", "Icon-camera", "test2");
     addDesktopEntry("invalidApplication.desktop", "Test3", "Invalid", "Icon-camera", "test3");
-    addDesktopEntry("regularApplication.desktop", "Test4", "Application", "Icon-camera", "test4");
-    desktopEntryOnlyShowIn.insert(fileNameWithPath("onlyShowInMeeGoApplication.desktop"), QStringList() << "X-MeeGo");
     desktopEntryOnlyShowIn.insert(fileNameWithPath("onlyShowInInvalidApplication.desktop"), QStringList() << "X-Invalid");
     desktopEntryNotShowIn.insert(fileNameWithPath("notShowInMeeGoApplication.desktop"), QStringList() << "X-MeeGo");
 
@@ -371,6 +373,8 @@ void Ut_LauncherDataStore::testProcessUpdateQueueFiltersDesktopFiles()
     QCOMPARE(spyDesktopEntryAdded.count(), 2);
     QCOMPARE(spyDesktopEntryAdded.takeFirst().at(0).toString(), QString(fileNameWithPath("onlyShowInMeeGoApplication.desktop")));
     QCOMPARE(spyDesktopEntryAdded.takeFirst().at(0).toString(), QString(fileNameWithPath("regularApplication.desktop")));
+    QCOMPARE(dataStore.invalidEntries.count(), 3);
+
     // The data store should contain two entries and the default value should be empty
     QHash<QString, QVariant> data = dataStore.dataForAllDesktopEntries();
     QCOMPARE(data.count(), 2);
@@ -522,6 +526,7 @@ void Ut_LauncherDataStore::testUpdatingInvalidEntry()
     QCOMPARE(spyDesktopEntryAdded.count(), 1);
     QCOMPARE(spyDesktopEntryAdded.takeFirst().at(0).toString(), QString(fileNameWithPath("invalidAndValidApplication.desktop")));
     QCOMPARE(spyDataStoreChanged.count(), 1);
+    QVERIFY(!dataStore.invalidEntries.contains(fileNameWithPath("invalidAndValidApplication.desktop")));
 
     // change back to invalid and send changed
     desktopEntryType.insert(fileNameWithPath("invalidAndValidApplication.desktop"), QString("invalid_again"));
@@ -529,6 +534,7 @@ void Ut_LauncherDataStore::testUpdatingInvalidEntry()
 
     QCOMPARE(spyDesktopEntryRemoved.count(), 1);
     QCOMPARE(spyDataStoreChanged.count(), 2);
+    QVERIFY(dataStore.invalidEntries.contains(fileNameWithPath("invalidAndValidApplication.desktop")));
 }
 
 void Ut_LauncherDataStore::testRemovingEntriesWhenApplicationsDirectoryGetsEmpty()
@@ -550,6 +556,21 @@ void Ut_LauncherDataStore::testRemovingEntriesWhenApplicationsDirectoryGetsEmpty
 
     QCOMPARE(spyDesktopEntryRemoved.count(), 2);
     QCOMPARE(spyDataStoreChanged.count(), 1);
+}
+
+void Ut_LauncherDataStore::testNotReprocessingInvalidEntry()
+{
+    addDesktopEntry("notShowInMeeGoApplication.desktop", "Test2", "Application", "Icon-camera", "test2");
+    desktopEntryNotShowIn.insert(fileNameWithPath("notShowInMeeGoApplication.desktop"), QStringList() << "X-MeeGo");
+    LauncherDataStore dataStore(mockStore);
+    dataStore.processUpdateQueue();
+    QVERIFY(dataStore.invalidEntries.contains(fileNameWithPath("notShowInMeeGoApplication.desktop")));
+    desktopEntryFileName.clear();
+
+    dataStore.processUpdateQueue();
+
+    // Entry should not be found from list of created MDesktopEntry's
+    QVERIFY(!desktopEntryFileName.key(fileNameWithPath("notShowInMeeGoApplication.desktop"), NULL));
 }
 
 QTEST_APPLESS_MAIN(Ut_LauncherDataStore)
