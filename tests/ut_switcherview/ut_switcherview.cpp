@@ -16,7 +16,6 @@
 ** of this file.
 **
 ****************************************************************************/
-
 #include <QGraphicsSceneMouseEvent>
 #include <QScrollBar>
 #include <MApplication>
@@ -211,6 +210,12 @@ QList<QGraphicsItem *> QGraphicsScene::items(const QRectF &/*rect*/, Qt::ItemSel
     return items_;
 }
 
+QList<QGraphicsItem *> gSceneItems;
+QList<QGraphicsItem *> QGraphicsScene::items(const QPointF &/*pos*/) const
+{
+    return gSceneItems;
+}
+
 QList<QPair<QGraphicsItem*, QGraphicsItem*> > gQGraphicsItem_installSceneEventFilter;
 void QGraphicsItem::installSceneEventFilter(QGraphicsItem *filterItem)
 {
@@ -373,6 +378,7 @@ void Ut_SwitcherView::init()
     switcher->setModel(g_switcherModel);
     m_subject = new TestSwitcherView(switcher);
     switcher->setView(m_subject);
+    switcher->setGeometry(QRectF(0, 0, 100, 100));
 
     gSwitcherStub->stubReset();
     gTransformLayoutAnimationStub->stubReset();
@@ -386,6 +392,7 @@ void Ut_SwitcherView::init()
     mEvent = new QGestureEvent(gestures);
     items_.clear();
     gQGraphicsItem_installSceneEventFilter.clear();
+    gSceneItems.clear();
 }
 
 void Ut_SwitcherView::cleanup()
@@ -606,13 +613,16 @@ void Ut_SwitcherView::testTransitionControl()
 {
     g_switcherModel->setSwitcherMode(SwitcherModel::Overview);
     g_ConstructorCallOrder->clear();
+
+    gSceneItems.append(m_subject->viewport);
+
     mPinch->setLastScaleFactor(1.0);
     pinchGesture(1.0, Qt::GestureStarted);
     // Test that once the pinch starts the viewport gets disabled
     QCOMPARE(g_ConstructorCallOrder->size(), 1);
     CallOrderData cd = g_ConstructorCallOrder->at(0);
     QCOMPARE(cd.param, MPANNABLEWIDGET_SET_ENABLED.arg(0));
-    
+
     gTransformLayoutAnimationStub->stubSetReturnValue("manualControl", true);
     pinchGesture(1.1, Qt::GestureUpdated);
     QVERIFY(gTransformLayoutAnimationStub->stubLastCallTo("setManualControl").parameter<bool>(0));
@@ -625,7 +635,8 @@ void Ut_SwitcherView::testTransitionControl()
     QVERIFY(!gTransformLayoutAnimationStub->stubLastCallTo("setManualControl").parameter<bool>(0));
 
     // Test that we are enabled after the pinch operation
-    QCOMPARE(g_ConstructorCallOrder->size(), 2);
+    m_subject->endTransition();
+    QCOMPARE(g_ConstructorCallOrder->size(), 3);
     CallOrderData cd2 = g_ConstructorCallOrder->at(1);
     QCOMPARE(cd2.param, MPANNABLEWIDGET_SET_ENABLED.arg(1));
 }
@@ -862,7 +873,6 @@ void Ut_SwitcherView::testWhenPinchingOnEmptyAreaNearestButtonIsDetected()
     m_subject->modifiableStyle()->setRowsPerPage(2);
     m_subject->modifiableStyle()->setColumnsPerPage(2);
     QList< QSharedPointer<SwitcherButton> > buttons = createButtonList(3);
-    gMWindowStub->stubSetReturnValue("orientation", M::Landscape);
 
     buttons.at(0).data()->setGeometry(QRectF(198, 65, 200, 100));
     buttons.at(1).data()->setGeometry(QRectF(447, 65, 200, 100));
@@ -880,15 +890,6 @@ void Ut_SwitcherView::testWhenPinchingOnEmptyAreaNearestButtonIsDetected()
     // When clicking bottomRight area button 3 should be selected
     m_subject->calculateNearestButtonAt(QPointF(493, 313));
     QCOMPARE(m_subject->pinchedButtonPosition, 2);
-
-    gMWindowStub->stubSetReturnValue("orientation", M::Portrait);
-    buttons.at(0).data()->setPos(51, 65);
-    buttons.at(1).data()->setPos(255, 65);
-    buttons.at(2).data()->setPos(50, 408);
-
-    // When clicking topRight area button 2 should be detected
-    m_subject->calculateNearestButtonAt(QPointF(60, 72));
-    QCOMPARE(m_subject->pinchedButtonPosition, 1);
 }
 
 void Ut_SwitcherView::testWhenPinchGestureHasBeenPerformedOnTopOfPressedSwitcherButtonThenSwitcherButtonIsUp() {

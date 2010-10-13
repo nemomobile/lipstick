@@ -31,6 +31,7 @@ public:
     virtual void updateState(QAbstractAnimation::State newState, QAbstractAnimation::State oldState);
     virtual void setProgress(float t);
     virtual void cancelAnimation();
+    virtual bool isCanceled();
     virtual float progress();
     virtual float curveProgress();
     virtual float speed();
@@ -77,6 +78,12 @@ void TransformLayoutAnimationStub::updateState(QAbstractAnimation::State newStat
 void TransformLayoutAnimationStub::cancelAnimation()
 {
     stubMethodEntered("cancelAnimation");
+}
+
+bool TransformLayoutAnimationStub::isCanceled()
+{
+    stubMethodEntered("isCanceled");
+    return stubReturnValue<bool>("isCanceled");
 }
 
 float TransformLayoutAnimationStub::progress()
@@ -176,6 +183,11 @@ bool TransformLayoutAnimation::manualControl() const
 void TransformLayoutAnimation::cancelAnimation()
 {
     gTransformLayoutAnimationStub->cancelAnimation();
+}
+
+bool TransformLayoutAnimation::isCanceled()
+{
+    return gTransformLayoutAnimationStub->isCanceled();
 }
 
 void TransformLayoutAnimation::setProgress(float t)

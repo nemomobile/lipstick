@@ -63,7 +63,7 @@ SwitcherView::SwitcherView(Switcher *switcher) :
 
     layoutAnimation = new TransformLayoutAnimation(pannedLayout);
     layoutAnimation->setObjectName("SwitcherLayoutAnimation");
-    connect(layoutAnimation, SIGNAL(willFinish()), this, SLOT(applyPinchGestureTargetMode()));
+    connect(layoutAnimation, SIGNAL(willFinish()), this, SLOT(endTransition()));
     connect(layoutAnimation, SIGNAL(finished()), this, SLOT(runOverviewBounceAnimation()));
 
     overviewPolicy = new MGridLayoutPolicy(pannedLayout);
@@ -331,8 +331,8 @@ void SwitcherView::applyPinchGestureTargetMode()
     SwitcherViewBase::applyPinchGestureTargetMode();
 
     pagedViewport->setPage(pinchGestureTargetMode == SwitcherModel::Detailview ?
-                      pinchedButtonPosition :
-                      pinchedButtonPosition / buttonsPerPage());
+                           pinchedButtonPosition :
+                           pinchedButtonPosition / buttonsPerPage());
 }
 
 

@@ -115,7 +115,7 @@ int SwitcherViewBase::buttonIndex(const SwitcherButton *) const {
     return 0;
 }
 
-void SwitcherViewBase::calculateNearestButtonAt(QPointF) {
+void SwitcherViewBase::calculateNearestButtonAt(const QPointF &) {
 }
 
 void SwitcherViewBase::removeButtonsFromLayout() {
@@ -136,6 +136,11 @@ void SwitcherViewBase::pinchUpdate(float /*scaleFactor*/) {
 void SwitcherViewBase::pinchEnd() {
 }
 
+void SwitcherViewBase::endTransition() {
+}
+
+void SwitcherViewBase::endBounce() {
+}
 
 SwitcherView::SwitcherView(Switcher *controller) : SwitcherViewBase(controller)
 {

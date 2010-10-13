@@ -56,6 +56,7 @@ SwitcherViewBase::SwitcherViewBase(Switcher *switcher) :
     bounceAnimation->setPropertyName("scale");
     bounceAnimation->setStartValue(1.0f);
     bounceAnimation->setEndValue(1.0f);
+    connect(bounceAnimation, SIGNAL(finished()), this, SLOT(endBounce()));
 }
 
 SwitcherViewBase::~SwitcherViewBase()
@@ -107,60 +108,61 @@ void SwitcherViewBase::updateData(const QList<const char*>& modifications)
     }
 }
 
-int SwitcherViewBase::buttonIndex(const SwitcherButton* button) const
+int SwitcherViewBase::buttonIndex(const SwitcherButton *button) const
 {
+    if(button == NULL) {
+        return -1;
+    }
+
     QList<QSharedPointer<SwitcherButton> > buttons = model()->buttons();
     for (int i = 0; i < buttons.count(); ++i) {
         if (buttons.at(i) == button) {
             return i;
         }
     }
+
     return -1;
 }
 
-void SwitcherViewBase::calculateNearestButtonAt(QPointF centerPoint)
+void SwitcherViewBase::calculateNearestButtonAt(const QPointF &centerPoint)
 {
-    QRect winRect = MainWindow::instance()->rect();
-
-    if(MainWindow::instance()->orientation() != M::Landscape) {
-        QPointF centerPointTranslated;
-        centerPointTranslated.setX(winRect.size().height() - centerPoint.y());
-        centerPointTranslated.setY(centerPoint.x());
-        centerPoint = centerPointTranslated;
-    }
-
-    QList<QGraphicsItem*> items = MainWindow::instance()->scene()->items(winRect, Qt::ContainsItemBoundingRect);
-
     float minDistance = FLT_MAX;
     SwitcherButton *closestButton = NULL;
 
-    foreach(QGraphicsItem  *i, items) {
-        SwitcherButton *button = dynamic_cast<SwitcherButton*>(i);
-        if(button) {
-            QLineF vec(centerPoint, button->mapToItem(controller, button->rect().center()));
+    foreach (const QSharedPointer<SwitcherButton> &button, model()->buttons()) {
+        QLineF vec(centerPoint, button->mapToItem(controller, button->rect().center()));
 
-            float distance = vec.length();
+        float distance = vec.length();
 
-            if(distance < minDistance) {
-                minDistance   = distance;
-                closestButton = button;
-            }
+        if(distance < minDistance) {
+            minDistance   = distance;
+            closestButton = button.data();
         }
     }
 
-    if(closestButton) {
-        pinchedButtonPosition = buttonIndex(closestButton);
-    } else {
-        pinchedButtonPosition = -1;
+    pinchedButtonPosition = buttonIndex(closestButton);
+}
+
+void SwitcherViewBase::setParentViewportsEnabled(bool enable)
+{
+    QPointF point = controller->mapToScene(controller->rect().center());
+
+    MScene *scene = MainWindow::instance()->scene();
+    QList<QGraphicsItem*> affectedItems = scene->items(point);
+    foreach(QGraphicsItem *item, affectedItems) {
+        MPannableViewport *viewport = dynamic_cast<MPannableViewport*>(item);
+        if(viewport) {
+            viewport->setEnabled(enable);
+        }
     }
 }
 
 void SwitcherViewBase::pinchBegin(const QPointF &centerPoint)
 {
-    viewport->setEnabled(false);
+    setParentViewportsEnabled(false);
     calculateNearestButtonAt(centerPoint);
 
-    foreach (const QSharedPointer<SwitcherButton> &button, model()->buttons()) {
+    foreach(const QSharedPointer<SwitcherButton> &button, model()->buttons()) {
         button->installSceneEventFilter(controller);
     }
 }
@@ -214,14 +216,13 @@ void SwitcherViewBase::pinchEnd()
         pinchGestureTargetMode = pinchGestureTargetMode == SwitcherModel::Detailview ? SwitcherModel::Overview : SwitcherModel::Detailview;
         layoutAnimation->cancelAnimation();
     }
-    viewport->setEnabled(true);
 
     foreach (const QSharedPointer<SwitcherButton> &button, model()->buttons()) {
         button->setDown(false);
     }
 }
 
-void SwitcherViewBase::pinchGestureEvent(QGestureEvent *event, QPinchGesture* gesture)
+void SwitcherViewBase::pinchGestureEvent(QGestureEvent *event, QPinchGesture *gesture)
 {
     /*! Finish any currently running animation before starting a new one */
     if((layoutAnimation->isAnimating() && !layoutAnimation->manualControl()) || bounceAnimation->state() == QAbstractAnimation::Running) {
@@ -230,7 +231,7 @@ void SwitcherViewBase::pinchGestureEvent(QGestureEvent *event, QPinchGesture* ge
 
     switch(gesture->state()) {
     case Qt::GestureStarted:
-        pinchBegin(gesture->centerPoint());
+        pinchBegin(controller->mapFromScene(gesture->centerPoint()));
         break;
     case Qt::GestureUpdated:
         pinchUpdate(gesture->scaleFactor());
@@ -261,13 +262,25 @@ bool SwitcherViewBase::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
     return filtered;
 }
 
+void SwitcherViewBase::endTransition()
+{
+    setParentViewportsEnabled(true);
+
+    if(layoutAnimation->isCanceled()) {
+        applyPinchGestureTargetMode();
+    }
+
+    layoutAnimation->stop();
+}
+
+void SwitcherViewBase::endBounce()
+{
+    setParentViewportsEnabled(true);
+}
+
 void SwitcherViewBase::applyPinchGestureTargetMode()
 {
     model()->setSwitcherMode(pinchGestureTargetMode);
-
-    if(!layoutAnimation->manualControl()) {
-        layoutAnimation->stop();
-    }
 }
 
 void SwitcherViewBase::setInwardBounceAnimation(bool i)

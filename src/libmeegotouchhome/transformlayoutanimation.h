@@ -98,6 +98,9 @@ public:
     /*! Cancels the animation. The layout items animate back to the original positions */
     void cancelAnimation();
 
+    /*! Returns true if the animation was canceled */
+    bool isCanceled();
+
     /*! Sets the current progress of the animation
         \param t the new progress, with range 0 to 1 */
     void setProgress(float t);

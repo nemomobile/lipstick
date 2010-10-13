@@ -93,13 +93,16 @@ protected:
     int buttonIndex(const SwitcherButton* button) const;
 
     //! Calculates which switcher button is nearest to point centerPoint
-    void calculateNearestButtonAt(QPointF centerPoint);
+    void calculateNearestButtonAt(const QPointF &centerPoint);
 
     /*! Starts the bounce animation */
     virtual void startBounceAnimation();
 
     /*! Sets the direction of the bounce animation */
     void setInwardBounceAnimation(bool i);
+
+    /*! Enables or disables all parent viewports */
+    void setParentViewportsEnabled(bool enable);
 
     /*! Called when the pinch gesture starts
         \param centerPoint the center point of the pinch gesture */
@@ -146,6 +149,12 @@ protected slots:
     //! \reimp
     virtual void updateData(const QList<const char *>& modifications);
     //! \reimp_end
+
+    /*! Ends the transition between switcher modes */
+    virtual void endTransition();
+
+    /*! Ends the bounce effect */
+    virtual void endBounce();
 
     /*! Sets the switcher mode according to current pinch gesture target */
     virtual void applyPinchGestureTargetMode();

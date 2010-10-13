@@ -16,7 +16,6 @@
 ** of this file.
 **
 ****************************************************************************/
-
 #include <QParallelAnimationGroup>
 #include "transformlayoutanimation.h"
 
@@ -96,6 +95,11 @@ bool TransformLayoutAnimation::manualControl() const
 void TransformLayoutAnimation::cancelAnimation()
 {
     canceled = true;
+}
+
+bool TransformLayoutAnimation::isCanceled()
+{
+    return canceled;
 }
 
 void TransformLayoutAnimation::setProgress(float t)
@@ -269,6 +273,7 @@ void TransformLayoutAnimation::setItemGeometry(int index, const QRectF &geometry
                 item->setTransform(QTransform());
                 item->setGeometry(geometry);
                 showItemNow(item);
+                animation->setStartValue(geometry);
             } else {
                 if(animation->state() == Stopped) {
                     animation->setStartValue(item->geometry());
