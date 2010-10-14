@@ -371,8 +371,8 @@ void Ut_LauncherDataStore::testProcessUpdateQueueFiltersDesktopFiles()
     emit timeout();
 
     QCOMPARE(spyDesktopEntryAdded.count(), 2);
-    QCOMPARE(spyDesktopEntryAdded.takeFirst().at(0).toString(), QString(fileNameWithPath("onlyShowInMeeGoApplication.desktop")));
     QCOMPARE(spyDesktopEntryAdded.takeFirst().at(0).toString(), QString(fileNameWithPath("regularApplication.desktop")));
+    QCOMPARE(spyDesktopEntryAdded.takeFirst().at(0).toString(), QString(fileNameWithPath("onlyShowInMeeGoApplication.desktop")));
     QCOMPARE(dataStore.invalidEntries.count(), 3);
 
     // The data store should contain two entries and the default value should be empty
