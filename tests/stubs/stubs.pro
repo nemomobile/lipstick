@@ -12,6 +12,7 @@ INSTALL_HEADERS += \
   launcherbutton_stub.h \
   launcherdatastore_stub.h \
   launcher_stub.h \
+  launcherview_stub.h \
   mainwindow_stub.h \
   mapplication_stub.h \
   methodcall.h \
