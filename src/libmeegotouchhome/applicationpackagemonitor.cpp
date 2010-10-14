@@ -38,7 +38,7 @@ static const QString DESKTOPENTRY_PREFIX = "DesktopEntries";
 static const QString PACKAGE_PREFIX = "Packages/";
 static const QString INSTALLER_EXTRA = "installer-extra/";
 
-static const QString CONFIG_PATH = "/.config/duihome";
+static const QString CONFIG_PATH = "/.config/meegotouchhome";
 
 static const QString PACKAGE_STATE_INSTALLED = "installed";
 static const QString PACKAGE_STATE_INSTALLABLE = "installable";

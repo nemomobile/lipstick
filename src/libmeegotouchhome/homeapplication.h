@@ -83,13 +83,13 @@ protected:
 
 private slots:
     /*!
-     * Sends a dbus-signal after UI is visible, stops the process if
-     * duihome has been started by upstart
+     * Sends a dbus-signal after UI is visible, stops the process if it has
+     * been started by upstart
      */
     void sendStartupNotifications();
 
 private:
-    //! Flag that indicates whether duihome was started by upstart or not
+    //! Flag that indicates whether the process was started by upstart or not
     bool upstartMode;
 
     //! Timer used for sending startup notifications

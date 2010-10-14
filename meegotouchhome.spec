@@ -93,18 +93,18 @@ rm -fR %{buildroot}
 
 %files -n meegotouchhome
 %defattr(-,root,root)
-%dir /usr/share/themes/base/meegotouch/duihome
-%dir /usr/share/themes/base/meegotouch/duihome/images
-%dir /usr/share/themes/base/meegotouch/duihome/style
-%dir /usr/share/themes/base/meegotouch/duihome/svg
+%dir /usr/share/themes/base/meegotouch/meegotouchhome
+%dir /usr/share/themes/base/meegotouch/meegotouchhome/images
+%dir /usr/share/themes/base/meegotouch/meegotouchhome/style
+%dir /usr/share/themes/base/meegotouch/meegotouchhome/svg
 %dir /usr/lib/meegotouch/applicationextensions
 %dir /usr/share/meegotouch/applicationextensions
 %dir /usr/share/themes/base/meegotouch/libmeegotouchhome-plaindesktopbackgroundextension/style
-/usr/bin/duihome
-/usr/share/themes/base/meegotouch/duihome/*.conf
-/usr/share/themes/base/meegotouch/duihome/images/*.png
-/usr/share/themes/base/meegotouch/duihome/style/*.css
-/usr/share/themes/base/meegotouch/duihome/svg/*.svg
+/usr/bin/meegotouchhome
+/usr/share/themes/base/meegotouch/meegotouchhome/*.conf
+/usr/share/themes/base/meegotouch/meegotouchhome/images/*.png
+/usr/share/themes/base/meegotouch/meegotouchhome/style/*.css
+/usr/share/themes/base/meegotouch/meegotouchhome/svg/*.svg
 /usr/lib/meegotouch/applicationextensions/*.so
 /usr/share/meegotouch/applicationextensions/*.desktop
 /usr/share/themes/base/meegotouch/libmeegotouchhome-plaindesktopbackgroundextension/style/*.css
@@ -112,12 +112,12 @@ rm -fR %{buildroot}
 %files -n meegotouchhome-l10n-eng-en
 %defattr(-,root,root)
 %dir /usr/share/l10n/meegotouch
-/usr/share/l10n/meegotouch/duihome.qm
+/usr/share/l10n/meegotouch/libmeegotouchhome.qm
 
 %files -n meegotouchhome-l10n-fi
 %defattr(-,root,root)
 %dir /usr/share/l10n/meegotouch
-/usr/share/l10n/meegotouch/duihome_fi.qm
+/usr/share/l10n/meegotouch/libmeegotouchhome_fi.qm
 
 %files -n meegotouchhome-tests
 %defattr(-,root,root)

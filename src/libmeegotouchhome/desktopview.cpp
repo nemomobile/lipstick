@@ -77,11 +77,11 @@ void DesktopView::writeFps()
 void DesktopView::startBenchmarking()
 {
     QDir dir;
-    if(!dir.exists("/tmp/duihome_benchmarks")) {
-        dir.mkdir("/tmp/duihome_benchmarks");
+    if(!dir.exists("/tmp/meegotouchhome_benchmarks")) {
+        dir.mkdir("/tmp/meegotouchhome_benchmarks");
     }
 
-    fpsFile = new QFile("/tmp/duihome_benchmarks/benchmark_results.txt");
+    fpsFile = new QFile("/tmp/meegotouchhome_benchmarks/benchmark_results.txt");
     fpsFile->open(QIODevice::WriteOnly | QIODevice::Append);
     fpsStream = new QTextStream(fpsFile);
 
@@ -303,14 +303,14 @@ void DesktopView::removeExtension(MApplicationExtensionInterface *extension)
 
 LauncherDataStore *DesktopView::createLauncherDataStore()
 {
-    if (!QDir::root().exists(QDir::homePath() + "/.config/duihome")) {
-        QDir::root().mkpath(QDir::homePath() + "/.config/duihome");
+    if (!QDir::root().exists(QDir::homePath() + "/.config/meegotouchhome")) {
+        QDir::root().mkpath(QDir::homePath() + "/.config/meegotouchhome");
     }
 
-    QString dataStoreFileName = QDir::homePath() + "/.config/duihome/launcherbuttons.data";
+    QString dataStoreFileName = QDir::homePath() + "/.config/meegotouchhome/launcherbuttons.data";
 
     if (!QFile::exists(dataStoreFileName)) {
-        QString defaultDataStoreFileName = M_XDG_DIR "/duihome/launcherbuttons.data";
+        QString defaultDataStoreFileName = M_XDG_DIR "/meegotouchhome/launcherbuttons.data";
         // Copy the default datastore only if it exists
         if (QFile::exists(defaultDataStoreFileName)) {
             QFile::copy(defaultDataStoreFileName, dataStoreFileName);
