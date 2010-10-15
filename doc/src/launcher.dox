@@ -37,9 +37,9 @@ Icon=my_app_icon_id
 OnlyShowIn=X-MeeGo;
 \endverbatim
 
-\subsection dbusinterface D-Bus interface for opening launcher to a page where a certain application is located
+\subsection dbusinterface D-Bus interface for showing button on a launcher
 
-%Launcher provides a D-Bus API, through which user can be transferred to a launcher page where download or installation of a certain application commences. The desktop entry file of this application is given as an argument in format "filename.desktop" or as an absolute path to the file.
+%Launcher provides a D-Bus API, through which user can be transferred to an application's launcher button. showLauncher method takes an application's desktop file name as an argument in format "filename.desktop". Desktop file can be given in a path format, but only file name is used to search button. If empty string is given as a parameter launcher is only opened. Giving a desktop file that doesn't exist does nothing.
 
 D-Bus interface:
 \verbatim
