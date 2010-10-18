@@ -1,9 +1,8 @@
-meegotouchhome (0.22.2~1) unstable; urgency=low
+meegotouchhome (0.22.2-1) unstable; urgency=low
 
-  * [UNRELEASED]
-  * Fixes: NB#197319 -  Duihome hogs CPU after vigorous installing
+  * Fixes: NB#197319 - Duihome hogs CPU after vigorous installing
 
- -- Vesa Halttunen <vesa.halttunen@nokia.com>  Thu, 07 Oct 2010 15:08:26 +0300
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Moc, 18 Oct 2010 09:34:26 +0300
 
 meegotouchhome (0.22.1-1) unstable; urgency=low
 
