@@ -95,6 +95,8 @@ private slots:
     void testUpdatingIconFromActionAfterPlaceholderIcon();
     void testEnablingAccordingToState_data();
     void testEnablingAccordingToState();
+    void testWhenStateIsChangedToLaunchingThenProgressIndicatorIsShownAccordingToStyle_data();
+    void testWhenStateIsChangedToLaunchingThenProgressIndicatorIsShownAccordingToStyle();
 
 signals:
     void frameChanged(int frame);

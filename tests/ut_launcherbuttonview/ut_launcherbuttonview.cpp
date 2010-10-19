@@ -191,6 +191,7 @@ void Ut_LauncherButtonView::init()
     qIconFileName.clear();
     qIconName.clear();
 
+    m_subject->modifiableStyle()->setShowLaunchProgress(true);
     gMProgressIndicatorStub->stubReset();
 }
 
@@ -358,5 +359,27 @@ void Ut_LauncherButtonView::testEnablingAccordingToState()
     m_subject->model()->setButtonState(state);
     QCOMPARE(m_subject->controller->isEnabled(), enabled);
 }
+
+void Ut_LauncherButtonView::testWhenStateIsChangedToLaunchingThenProgressIndicatorIsShownAccordingToStyle_data()
+{
+    QTest::addColumn<bool>("showLaunchProgress");
+    QTest::addColumn<LauncherButtonModel::State> ("state");
+    QTest::addColumn<bool>("visibility");
+
+    QTest::newRow("Visible") << true << LauncherButtonModel::Launching << true;
+    QTest::newRow("Not visible") << false << LauncherButtonModel::Launching << false;
+}
+
+void Ut_LauncherButtonView::testWhenStateIsChangedToLaunchingThenProgressIndicatorIsShownAccordingToStyle()
+{
+    QFETCH(bool, showLaunchProgress);
+    QFETCH(LauncherButtonModel::State, state);
+    QFETCH(bool, visibility);
+
+    m_subject->modifiableStyle()->setShowLaunchProgress(showLaunchProgress);
+    m_subject->model()->setButtonState(state);
+    QCOMPARE(m_subject->progressIndicator->isVisible(), visibility);
+}
+
 
 QTEST_APPLESS_MAIN(Ut_LauncherButtonView)

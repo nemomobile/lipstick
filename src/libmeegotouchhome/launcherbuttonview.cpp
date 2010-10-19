@@ -114,8 +114,18 @@ void LauncherButtonView::resetProgressIndicator()
 
     progressIndicator->setIndicatorState(state);
     switch(state) {
-        case LauncherButtonModel::Installing:
         case LauncherButtonModel::Launching:
+        {
+            if (style()->showLaunchProgress()) {
+                progressIndicator->reset();
+                progressIndicator->setUnknownDuration(true);
+                progressIndicator->show();
+            } else {
+                progressIndicator->hide();
+            }
+        break;
+        }
+        case LauncherButtonModel::Installing:
         {
             progressIndicator->reset();
             progressIndicator->setUnknownDuration(true);

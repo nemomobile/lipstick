@@ -101,6 +101,8 @@ LauncherButtonStyle {
 
     /* The size of the icon if the button represents a shortcut */
     icon-size: 8mm 8mm;
+
+    show-launch-progress: true;
     /* The size of the progress indicator icon */
     /* (due implementation reasons progress indicator might be of different size than button icon) */
     progress-indicator-icon-size: 9.4mm 9.4mm;
