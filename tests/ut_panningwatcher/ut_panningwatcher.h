@@ -42,6 +42,7 @@ private slots:
     void cleanup();
 
     // Test cases
+    void testInitialState();
     void testWhenPannableWidgetMovesThenStateSignalsAreSent();
 
 private:

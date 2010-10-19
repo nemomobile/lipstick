@@ -60,6 +60,16 @@ void Ut_PanningWatcher::cleanup()
     delete pannableWidget;
 }
 
+void Ut_PanningWatcher::testInitialState()
+{
+    QSignalSpy panningStateSpy(m_subject, SIGNAL(panningStateChanged(bool)));
+    m_subject->updatePanningState();
+    QCOMPARE(panningStateSpy.count(), 0);
+
+    QVERIFY(disconnect(&m_subject->pannableWidget, SIGNAL(positionChanged(QPointF)), m_subject, SLOT(updatePanningState())));
+    QVERIFY(disconnect(&m_subject->movementDetectorTimer, SIGNAL(timeout()), m_subject, SLOT(updatePanningState())));
+}
+
 void Ut_PanningWatcher::testWhenPannableWidgetMovesThenStateSignalsAreSent()
 {
     QSignalSpy panningStateSpy(m_subject, SIGNAL(panningStateChanged(bool)));
