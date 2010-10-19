@@ -16,7 +16,6 @@
 ** of this file.
 **
 ****************************************************************************/
-
 #include "switcherbutton.h"
 #include <MApplication>
 #include "homeapplication.h"
@@ -31,7 +30,7 @@ M_REGISTER_WIDGET(SwitcherButton)
 Atom SwitcherButton::visibleAtom = 0;
 
 SwitcherButton::SwitcherButton(QGraphicsItem *parent) :
-    MButton(parent, new SwitcherButtonModel)
+    MButton(parent, new SwitcherButtonModel), visibilityPropertyEnabled(true)
 {
     // Configure timers
     windowCloseTimer.setSingleShot(true);
@@ -95,15 +94,26 @@ void SwitcherButton::exitDisplayEvent()
 
 void SwitcherButton::setVisibleInSwitcherProperty(bool set)
 {
-    Display *dpy = QX11Info::display();
-    if (dpy) {
-        if (set) {
-            unsigned char data = 1;
-            X11Wrapper::XChangeProperty(dpy, xWindow(), visibleAtom, XA_CARDINAL, 8, PropModeReplace, &data, 1);
-        } else {
-            unsigned char data = 0;
-            X11Wrapper::XChangeProperty(dpy, xWindow(), visibleAtom, XA_CARDINAL, 8, PropModeReplace, &data, 1);
+    if(visibilityPropertyEnabled) {
+        Display *dpy = QX11Info::display();
+        if (dpy) {
+            if (set) {
+                unsigned char data = 1;
+                X11Wrapper::XChangeProperty(dpy, xWindow(), visibleAtom, XA_CARDINAL, 8, PropModeReplace, &data, 1);
+            } else {
+                unsigned char data = 0;
+                X11Wrapper::XChangeProperty(dpy, xWindow(), visibleAtom, XA_CARDINAL, 8, PropModeReplace, &data, 1);
+            }
         }
+    } else {
+        visibility = set;
     }
 }
 
+void SwitcherButton::setVisibilityPropertyEnabled(bool enable)
+{
+    visibilityPropertyEnabled = enable;
+    if(enable) {
+        setVisibleInSwitcherProperty(visibility);
+    }
+}

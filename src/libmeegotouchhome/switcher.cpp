@@ -447,3 +447,12 @@ Window Switcher::topmostTransientWindowFor(Window window)
         return window;
     }
 }
+
+void Switcher::updateAnimationStatus(bool animating)
+{
+    foreach(const QSharedPointer<SwitcherButton> &button, model()->buttons()) {
+        button->setVisibilityPropertyEnabled(!animating);
+    }
+
+    emit animationStateChanged(animating);
+}

@@ -22,6 +22,7 @@ HEADERS += homeapplication.h \
     pagedviewport.h \
     pagedviewportstyle.h \
     pagedviewportview.h \
+    panningwatcher.h \
     quicklaunchbar.h \
     quicklaunchbarmodel.h \
     quicklaunchbarview.h \
@@ -78,6 +79,7 @@ SOURCES += homeapplication.cpp \
     pagedpanning.cpp \
     pagedviewport.cpp \
     pagedviewportview.cpp \
+    panningwatcher.cpp \
     quicklaunchbar.cpp \
     quicklaunchbarview.cpp \
     switcher.cpp \

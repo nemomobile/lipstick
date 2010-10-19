@@ -148,6 +148,8 @@ private slots:
     void testWhenNonTouchEndSceneEventArrivesThenSceneEventFilteringForSwitcherButtonsIsNotAffected();
     void testWhenTouchEndSceneEventArrivesThenSceneEventFilteringForSwitcherButtonStops();
 
+    void testWhenAnimationStatusChangesThenButtonVisibilityPropertySettingIsUpdated();
+
 private:
     MSceneManager *mSceneManager;
 };

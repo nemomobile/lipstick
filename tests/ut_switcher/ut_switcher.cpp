@@ -387,6 +387,13 @@ Window SwitcherButton::xWindow()
     return g_windowButtonMap[this];
 }
 
+QMap<SwitcherButton*, bool> gSwitcherButtonVisibilityEnabled;
+void SwitcherButton::setVisibilityPropertyEnabled(bool enable)
+{
+    gSwitcherButtonVisibilityEnabled[this] = enable;
+}
+
+
 class MockWindowMonitor : public WindowMonitor {
 public:
     virtual bool isOwnWindow(WId wid) const {
@@ -461,6 +468,7 @@ void Ut_Switcher::init()
     x11WrapperTransientForHint.clear();
 
     gQGraphicsItem_removeSceneEventFilter.clear();
+    gSwitcherButtonVisibilityEnabled.clear();
 }
 
 void Ut_Switcher::cleanup()
@@ -886,5 +894,29 @@ void Ut_Switcher::testWhenTouchEndSceneEventArrivesThenSceneEventFilteringForSwi
     QCOMPARE(gQGraphicsItem_removeSceneEventFilter.at(0).first, buttons.at(0).data());
     QCOMPARE(gQGraphicsItem_removeSceneEventFilter.at(0).second, switcher);
 }
+
+void Ut_Switcher::testWhenAnimationStatusChangesThenButtonVisibilityPropertySettingIsUpdated()
+{
+    QList<QSharedPointer<SwitcherButton> > buttons;
+    buttons.append(QSharedPointer<SwitcherButton>(new SwitcherButton));
+    buttons.append(QSharedPointer<SwitcherButton>(new SwitcherButton));
+    buttons.append(QSharedPointer<SwitcherButton>(new SwitcherButton));
+    switcher->model()->setButtons(buttons);
+
+    switcher->updateAnimationStatus(true);
+    foreach(QSharedPointer<SwitcherButton> button, buttons) {
+        QVERIFY(gSwitcherButtonVisibilityEnabled.contains(button.data()));
+        QVERIFY(!gSwitcherButtonVisibilityEnabled[button.data()]);
+    }
+
+    gSwitcherButtonVisibilityEnabled.clear();
+
+    switcher->updateAnimationStatus(false);
+    foreach(QSharedPointer<SwitcherButton> button, buttons) {
+        QVERIFY(gSwitcherButtonVisibilityEnabled.contains(button.data()));
+        QVERIFY(gSwitcherButtonVisibilityEnabled[button.data()]);
+    }
+}
+
 
 QTEST_APPLESS_MAIN(Ut_Switcher)

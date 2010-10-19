@@ -64,6 +64,12 @@ signals:
      */
     void windowListUpdated(const QList<WindowInfo> &windowList);
 
+    /*!
+     * Sent when something starts or stops animating in switcher
+     * \param animating if true, something is animating
+     */
+    void animationStateChanged(bool animating);
+
 public slots:
     /*!
      * Gets the current stacked client window list as parameter and checks
@@ -104,6 +110,13 @@ private slots:
      * \brief Requests all windows to be closed
      */
     void closeAllWindows();
+
+    /*!
+     * Updates the animation status of switcher by disabling the visibility property updates in switcher buttons.
+     * Also sends an animation state change signal.
+     * \param animating if true, switcher is currently animating
+     */
+    void updateAnimationStatus(bool animating);
 
 private:
     /*!

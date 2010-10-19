@@ -203,6 +203,10 @@ Window SwitcherButton::xWindow()
     return g_windowButtonMap[this];
 }
 
+void SwitcherButton::setVisibilityPropertyEnabled(bool /*enable*/)
+{
+}
+
 QList<QGraphicsItem *> items_;
 
 QList<QGraphicsItem *> QGraphicsScene::items(const QRectF &/*rect*/, Qt::ItemSelectionMode /*mode*/) const

@@ -223,4 +223,15 @@ void Ut_SwitcherButton::testSetVisibleInSwitcherProperty()
     QVERIFY(data[0] == 0);
 }
 
+void Ut_SwitcherButton::testWhenVisibilityPropertyDisabledThenPropertyChangesOnlyWhenEnabledAgain()
+{
+    button->setVisibilityPropertyEnabled(false);
+    button->setVisibleInSwitcherProperty(true);
+    QCOMPARE(Ut_SwitcherButton::xChangePropertyWindow, Window(0));
+    QCOMPARE(bool(Ut_SwitcherButton::xChangePropertyData[0]), false);
+    button->setVisibilityPropertyEnabled(true);
+    QCOMPARE(Ut_SwitcherButton::xChangePropertyWindow, button->xWindow());
+    QCOMPARE(bool(Ut_SwitcherButton::xChangePropertyData[0]), true);
+}
+
 QTEST_APPLESS_MAIN(Ut_SwitcherButton)

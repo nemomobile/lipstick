@@ -101,6 +101,11 @@ public slots:
      */
     void resetState();
 
+    /*!
+     * \brief Enables or disables the setting of the visibility property of the button
+     */
+    void setVisibilityPropertyEnabled(bool enable);
+
 protected:
 
     /*! \reimp
@@ -122,6 +127,12 @@ private:
 
     //! X11 Atom for window being visible in the switcher
     static Atom visibleAtom;
+
+    //! Current visibility, updated when setting the property is disabled
+    bool visibility;
+
+    //! Whether the updating of the visibility property is enabled
+    bool visibilityPropertyEnabled;
 };
 
 #endif // SWITCHERBUTTON_H

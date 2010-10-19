@@ -19,6 +19,7 @@ SUBDIRS = \
     ut_mainwindow \
     ut_pagedpanning \
     ut_pagedviewport \
+    ut_panningwatcher \
     ut_plaindesktopbackgroundextension \
     ut_plaindesktopbackgroundpixmap \
     ut_quicklaunchbar \

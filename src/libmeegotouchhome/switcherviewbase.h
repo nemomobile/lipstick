@@ -145,6 +145,9 @@ protected:
     /*! The viewport that shows the switcher buttons */
     MPannableViewport *viewport;
 
+    /*! True if switcher is currently animating */
+    bool animating;
+
 protected slots:
     //! \reimp
     virtual void updateData(const QList<const char *>& modifications);
@@ -161,6 +164,13 @@ protected slots:
 
     /*! Runs the bounce animation if currently in overview mode */
     void runOverviewBounceAnimation();
+
+    /*! Updates the animation status and sends animationStateChanged signal if status changed */
+    virtual void updateAnimationStatus();
+
+signals:
+    /*! Sent when switcher starts or stops animating */
+    void animationStateChanged(bool animating);
 };
 
 #endif

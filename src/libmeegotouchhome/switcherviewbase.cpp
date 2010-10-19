@@ -40,9 +40,8 @@
 #include <QGestureEvent>
 #include <QPropertyAnimation>
 
-
 SwitcherViewBase::SwitcherViewBase(Switcher *switcher) :
-        MWidgetView(switcher), controller(switcher), mainLayout(new QGraphicsLinearLayout(Qt::Vertical)), pannedWidget(new MWidget), pinchedButtonPosition(-1), layoutAnimation(NULL), overpinch(false)
+        MWidgetView(switcher), controller(switcher), mainLayout(new QGraphicsLinearLayout(Qt::Vertical)), pannedWidget(new MWidget), pinchedButtonPosition(-1), layoutAnimation(NULL), overpinch(false), animating(false)
 {
     mainLayout->setContentsMargins(0, 0, 0, 0);
     switcher->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -57,6 +56,9 @@ SwitcherViewBase::SwitcherViewBase(Switcher *switcher) :
     bounceAnimation->setStartValue(1.0f);
     bounceAnimation->setEndValue(1.0f);
     connect(bounceAnimation, SIGNAL(finished()), this, SLOT(endBounce()));
+    connect(bounceAnimation, SIGNAL(stateChanged(QAbstractAnimation::State,QAbstractAnimation::State)), this, SLOT(updateAnimationStatus()));
+
+    connect(this, SIGNAL(animationStateChanged(bool)), switcher, SLOT(updateAnimationStatus(bool)));
 }
 
 SwitcherViewBase::~SwitcherViewBase()
@@ -305,6 +307,10 @@ void SwitcherViewBase::runOverviewBounceAnimation()
         setInwardBounceAnimation(true);
         startBounceAnimation();
     }
+}
+
+void SwitcherViewBase::updateAnimationStatus()
+{
 }
 
 M_REGISTER_VIEW_NEW(SwitcherViewBase, Switcher)

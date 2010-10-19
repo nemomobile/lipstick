@@ -37,6 +37,7 @@ public:
     virtual void scheduleUpdateButtons();
     virtual void handleWindowInfoList(QList<WindowInfo> newWindowList);
     virtual bool sceneEvent(QEvent *event);
+    virtual void updateAnimationStatus(bool animating);
 };
 
 void SwitcherStub::switcherConstructor(const WindowMonitor *windowMonitor, MWidget *parent)
@@ -104,6 +105,13 @@ bool SwitcherStub::sceneEvent(QEvent *event)
     return stubReturnValue<bool>("sceneEvent");
 }
 
+void SwitcherStub::updateAnimationStatus(bool animating)
+{
+    QList<ParameterBase *> params;
+    params.append(new Parameter< bool > (animating));
+    stubMethodEntered("updateAnimationStatus", params);
+}
+
 SwitcherStub gDefaultSwitcherStub;
 SwitcherStub *gSwitcherStub = &gDefaultSwitcherStub;
 
@@ -155,6 +163,11 @@ void Switcher::scheduleUpdateButtons()
 bool Switcher::sceneEvent(QEvent *event)
 {
     return gSwitcherStub->sceneEvent(event);
+}
+
+void Switcher::updateAnimationStatus(bool animating)
+{
+    gSwitcherStub->updateAnimationStatus(animating);
 }
 
 #endif

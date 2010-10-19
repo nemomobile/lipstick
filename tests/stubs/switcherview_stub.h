@@ -142,6 +142,10 @@ void SwitcherViewBase::endTransition() {
 void SwitcherViewBase::endBounce() {
 }
 
+void SwitcherViewBase::updateAnimationStatus()
+{
+}
+
 SwitcherView::SwitcherView(Switcher *controller) : SwitcherViewBase(controller)
 {
     gSwitcherViewStub->SwitcherViewConstructor(controller);
