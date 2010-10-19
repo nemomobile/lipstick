@@ -22,7 +22,7 @@
 
 static const int MOVEMENT_DETECTOR_TIMEOUT = 500;
 
-PanningWatcher::PanningWatcher(MPannableWidget &widget, QObject *parent) : QObject(parent), pannableWidget(widget)
+PanningWatcher::PanningWatcher(MPannableWidget &widget, QObject *parent) : QObject(parent), pannableWidget(widget), panning(false)
 {
     connect(&widget, SIGNAL(positionChanged(QPointF)), this, SLOT(updatePanningState()));
     oldViewportPos = widget.position();
