@@ -80,7 +80,6 @@ Replaces: duihomescreen-tests
 Section: devel
 Architecture: any
 Depends: ${shlibs:Depends},
-  meegotouchhome (= ${binary:Version}),
   meego-env-dimming
 XB-Maemo-CI-Packages: meegotouchhome
 XB-Maemo-CI-Stage: fast, staging
