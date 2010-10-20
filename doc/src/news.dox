@@ -1,5 +1,27 @@
 /*! \page news What's New in MeeGo Touch Homescreen
 
+\section v0223 0.22.3
+
+\subsection bugs Bugs fixed
+- Screen rotation was possible during switcher mode change
+
+\section v0222 0.22.2
+
+\subsection bugs Bugs fixed
+- The home screen used a lot of CPU time after vigorous installing
+
+\section v0221 0.22.1
+
+\subsection bugs Bugs fixed
+- Object names used to change style for progress indicators were incorrect
+- Launcher progress indicator spinner kept spinning even after the application had started
+- Homescreen updated the display when touched even if nothing happened
+
+\section v0220 0.22.0
+
+\subsection New
+- MeeGo Touch Home now follows the MeeGo component naming convention
+
 \section v02118 0.21.18
 
 \subsection New
