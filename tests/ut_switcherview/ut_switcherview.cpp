@@ -361,10 +361,7 @@ void Ut_SwitcherView::initTestCase()
     g_ConstructorCallOrder = new QList<CallOrderData>;
     app = new MApplication(argc, &app_name);
     mSceneManager = new MSceneManager(NULL, NULL);
-    gMWindowStub->stubSetReturnValue("sceneManager", mSceneManager);
-
     MainWindow::instance(true);
-    gMWindowStub->stubSetReturnValue("scene", new MScene());
 }
 
 void Ut_SwitcherView::cleanupTestCase()
@@ -397,6 +394,10 @@ void Ut_SwitcherView::init()
     items_.clear();
     gQGraphicsItem_installSceneEventFilter.clear();
     gSceneItems.clear();
+
+    gMWindowStub->stubReset();
+    gMWindowStub->stubSetReturnValue("sceneManager", mSceneManager);
+    gMWindowStub->stubSetReturnValue("scene", new MScene());
 }
 
 void Ut_SwitcherView::cleanup()
@@ -996,5 +997,17 @@ void Ut_SwitcherView::testGraphicsSceneMouseMoveEventsDoNotGetFilteredForOtherTh
     QGraphicsWidget item;
     QCOMPARE(m_subject->sceneEventFilter(&item, &mouseMoveEvent), false);
 }
+
+void Ut_SwitcherView::testWhenPinchingThenOrientationIsLocked()
+{
+    m_subject->pinchBegin(QPointF());
+    QVERIFY(gMWindowStub->stubLastCallTo("setOrientationLocked").parameter<bool>(0));
+    m_subject->endTransition();
+    QVERIFY(!gMWindowStub->stubLastCallTo("setOrientationLocked").parameter<bool>(0));
+    gMWindowStub->stubReset();
+    m_subject->endBounce();
+    QVERIFY(!gMWindowStub->stubLastCallTo("setOrientationLocked").parameter<bool>(0));
+}
+
 
 QTEST_APPLESS_MAIN(Ut_SwitcherView)

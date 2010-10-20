@@ -167,6 +167,8 @@ void SwitcherViewBase::pinchBegin(const QPointF &centerPoint)
     foreach(const QSharedPointer<SwitcherButton> &button, model()->buttons()) {
         button->installSceneEventFilter(controller);
     }
+
+    MainWindow::instance()->setOrientationLocked(true);
 }
 
 void SwitcherViewBase::pinchUpdate(float scaleFactor)
@@ -267,6 +269,7 @@ bool SwitcherViewBase::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
 void SwitcherViewBase::endTransition()
 {
     setParentViewportsEnabled(true);
+    MainWindow::instance()->setOrientationLocked(false);
 
     if(layoutAnimation->isCanceled()) {
         applyPinchGestureTargetMode();
@@ -278,6 +281,7 @@ void SwitcherViewBase::endTransition()
 void SwitcherViewBase::endBounce()
 {
     setParentViewportsEnabled(true);
+    MainWindow::instance()->setOrientationLocked(false);
 }
 
 void SwitcherViewBase::applyPinchGestureTargetMode()
