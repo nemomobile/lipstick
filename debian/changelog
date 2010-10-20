@@ -1,8 +1,8 @@
-meegotouchhome (0.22.3~1) unstable; urgency=low
+meegotouchhome (0.22.3-1) unstable; urgency=low
 
   * Don't rotate the screen while switcher mode change is in progress
 
- -- Vesa Halttunen <vesa.halttunen@nokia.com>  Mon, 18 Oct 2010 09:36:44 +0300
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Wed, 20 Oct 2010 13:33:44 +0300
 
 meegotouchhome (0.22.2-1) unstable; urgency=low
 
