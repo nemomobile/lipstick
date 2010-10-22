@@ -82,12 +82,18 @@ void PagePositionIndicatorView::drawContents(QPainter *painter, const QStyleOpti
         int iconPositionInIndicatorBar = indicatorBarXpos;
         for (int i = 0; i < pageCount; i++) {
             if(forceUnfocusedIcon) {
-                unfocusedIcon->draw(iconPositionInIndicatorBar, indicatorBarYpos, iconWidth, iconHeight, painter);
+                if (unfocusedIcon != NULL) {
+                    unfocusedIcon->draw(iconPositionInIndicatorBar, indicatorBarYpos, iconWidth, iconHeight, painter);
+                }
             } else {
                 if (focusedPage == i) {
-                    focusedIcon->draw(iconPositionInIndicatorBar, indicatorBarYpos, iconWidth, iconHeight, painter);
+                    if (focusedIcon != NULL) {
+                        focusedIcon->draw(iconPositionInIndicatorBar, indicatorBarYpos, iconWidth, iconHeight, painter);
+                    }
                 } else {
-                    unfocusedIcon->draw(iconPositionInIndicatorBar, indicatorBarYpos, iconWidth, iconHeight, painter);
+                    if (unfocusedIcon != NULL) {
+                        unfocusedIcon->draw(iconPositionInIndicatorBar, indicatorBarYpos, iconWidth, iconHeight, painter);
+                    }
                 }
             }
             iconPositionInIndicatorBar += iconWidth + style()->spacing();
