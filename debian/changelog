@@ -1,9 +1,8 @@
-meegotouchhome (0.22.4~1) unstable; urgency=low
+meegotouchhome (0.22.4-1) unstable; urgency=low
 
-  * [UNRELEASED]
   * Fixes: NB#190081 - call and search applications open on using hkb keys(* and ')') quickly in home screen
 
- -- Vesa Halttunen <vesa.halttunen@nokia.com>  Wed, 20 Oct 2010 13:34:13 +0300
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Thu, 28 Oct 2010 16:50:13 +0300
 
 meegotouchhome (0.22.3-1) unstable; urgency=low
 
