@@ -62,42 +62,13 @@ public:
     //! \reimp_end
 
 private slots:
-    //! Clears searchStringBeingSent and sends searchStringToBeSent (if any)
-    void markSearchStringSentAndSendRemainingSearchString();
+    //! Clears keyPressesBeingSent and sends keyPressesToBeSent (if any)
+    void markKeyPressesSentAndSendRemainingKeyPresses();
 
-    //! Moves searchStringBeingSent to the beginning of searchStringToBeSent
-    void markSearchStringNotSent();
+    //! Moves keyPressesBeingSent to the beginning of keyPressesToBeSent
+    void markKeyPressesNotSent();
 
 private:
-    //! The DBus service of the content search application
-    static const QString CONTENT_SEARCH_DBUS_SERVICE;
-    //! The DBus path of the content search application
-    static const QString CONTENT_SEARCH_DBUS_PATH;
-    //! The DBus interface of the content search application
-    static const QString CONTENT_SEARCH_DBUS_INTERFACE;
-
-    //! The DBus service of the call ui dialer
-    static const QString CALL_UI_DBUS_SERVICE;
-    //! The DBus path of the call ui dialer
-    static const QString CALL_UI_DBUS_PATH;
-    //! The DBus interface of the call ui dialer
-    static const QString CALL_UI_DBUS_INTERFACE;
-
-    //! The MainWindow instance
-    static MainWindow *mainWindowInstance;
-
-    //! The Home widget
-    Home *home;
-
-    //! The OpenGL context
-    static QGLContext *openGLContext;
-
-    //! Search string not sent to the search client yet
-    QString searchStringToBeSent;
-
-    //! Search string being sent to the search client
-    QString searchStringBeingSent;
-
     /*!
      * Constructs a main window for the Home application.
      *
@@ -129,16 +100,65 @@ private:
     static bool isCallUILaunchingKey(int key);
 
     /*!
-     * Launches content search with the search string to be sent.
+     * Sets up the external service to be called when keys are pressed.
+     * Expects the passed QStrings to be static constants which will not be
+     * destroyed before sendKeyPresses() is called.
+     *
+     * \param service the name of the DBus service to launch
+     * \param path the path of the DBus service to launch
+     * \param interface the interface name of the DBus service to launch
+     * \param method the name of the DBus method to call
      */
-    void launchContentSearch();
+    void setupExternalService(const QString &service, const QString &path, const QString &interface, const QString &method);
 
     /*!
-     * Launches call UI with the given digits
-     *
-     * \param digits the digits to send to call UI dialer
+     * Sends the keypresses to be sent to the external service defined with
+     * setupExternalService(). This can only be called after
+     * setupExternalService() has been called.
      */
-    void launchCallUI(const QString &digits);
+    void sendKeyPresses();
+
+    //! The DBus service of the content search application
+    static const QString CONTENT_SEARCH_DBUS_SERVICE;
+    //! The DBus path of the content search application
+    static const QString CONTENT_SEARCH_DBUS_PATH;
+    //! The DBus interface of the content search application
+    static const QString CONTENT_SEARCH_DBUS_INTERFACE;
+    //! The DBus method of the content search application
+    static const QString CONTENT_SEARCH_DBUS_METHOD;
+
+    //! The DBus service of the call ui dialer
+    static const QString CALL_UI_DBUS_SERVICE;
+    //! The DBus path of the call ui dialer
+    static const QString CALL_UI_DBUS_PATH;
+    //! The DBus interface of the call ui dialer
+    static const QString CALL_UI_DBUS_INTERFACE;
+    //! The DBus method of the call ui dialer
+    static const QString CALL_UI_DBUS_METHOD;
+
+    //! The MainWindow instance
+    static MainWindow *mainWindowInstance;
+
+    //! The OpenGL context
+    static QGLContext *openGLContext;
+
+    //! The Home widget
+    Home *home;
+
+    //! The service name of the external service being called
+    const QString *externalServiceService;
+    //! The path of the external service being called
+    const QString *externalServicePath;
+    //! The interface of the external service being called
+    const QString *externalServiceInterface;
+    //! The method of the external service being called
+    const QString *externalServiceMethod;
+
+    //! Key presses not sent to the external service yet
+    QString keyPressesToBeSent;
+
+    //! Key presses being sent to an external service
+    QString keyPressesBeingSent;
 
 #ifdef UNIT_TEST
     friend class Ut_MainWindow;

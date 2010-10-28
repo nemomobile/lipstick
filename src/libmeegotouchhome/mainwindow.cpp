@@ -31,13 +31,20 @@ QGLContext *MainWindow::openGLContext = NULL;
 const QString MainWindow::CONTENT_SEARCH_DBUS_SERVICE = "com.nokia.maemo.meegotouch.ContentSearch";
 const QString MainWindow::CONTENT_SEARCH_DBUS_PATH = "/";
 const QString MainWindow::CONTENT_SEARCH_DBUS_INTERFACE = "com.nokia.maemo.meegotouch.ContentSearchInterface";
+const QString MainWindow::CONTENT_SEARCH_DBUS_METHOD = "launch";
 
 const QString MainWindow::CALL_UI_DBUS_SERVICE = "com.nokia.telephony.callhistory";
 const QString MainWindow::CALL_UI_DBUS_PATH = "/callhistory";
 const QString MainWindow::CALL_UI_DBUS_INTERFACE = "com.nokia.telephony.callhistory";
+const QString MainWindow::CALL_UI_DBUS_METHOD = "dialer";
 
 MainWindow::MainWindow(QWidget *parent) :
-    MWindow(parent)
+    MWindow(parent),
+    home(NULL),
+    externalServiceService(NULL),
+    externalServicePath(NULL),
+    externalServiceInterface(NULL),
+    externalServiceMethod(NULL)
 {
     mainWindowInstance = this;
     if (qgetenv("MEEGOHOME_DESKTOP") != "0") {
@@ -137,49 +144,60 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     int key = event->key();
     if (key < Qt::Key_Escape && !event->modifiers().testFlag(Qt::ControlModifier)) {
         // Special keys and CTRL-anything should do nothing
-        QString searchString = event->text();
-        if (!searchString.isEmpty()) {
-            // Only launch something if the key press produced a string
-            if (isCallUILaunchingKey(key)) {
-                launchCallUI(searchString);
-            } else {
-                searchStringToBeSent.append(searchString);
-                launchContentSearch();
+        QString keyPresses = event->text();
+        if (!keyPresses.isEmpty()) {
+            // Append keypresses to the presses to be sent
+            keyPressesToBeSent.append(keyPresses);
+
+            if (keyPressesBeingSent.isEmpty()) {
+                // Select the service to send the keypresses to
+                if (isCallUILaunchingKey(key)) {
+                    setupExternalService(CALL_UI_DBUS_SERVICE, CALL_UI_DBUS_PATH, CALL_UI_DBUS_INTERFACE, CALL_UI_DBUS_METHOD);
+                } else {
+                    setupExternalService(CONTENT_SEARCH_DBUS_SERVICE, CONTENT_SEARCH_DBUS_PATH, CONTENT_SEARCH_DBUS_INTERFACE, CONTENT_SEARCH_DBUS_METHOD);
+                }
+
+                // Call the external service
+                sendKeyPresses();
             }
         }
     }
 }
 
-void MainWindow::launchContentSearch()
+void MainWindow::setupExternalService(const QString &service, const QString &path, const QString &interface, const QString &method)
 {
-    // Only one content search launch may be active at a time
-    if (searchStringBeingSent.isEmpty() && !searchStringToBeSent.isEmpty()) {
-        // Make an asynchronous call to the content search and send the search string to be sent
-        QDBusInterface interface(CONTENT_SEARCH_DBUS_SERVICE, CONTENT_SEARCH_DBUS_PATH, CONTENT_SEARCH_DBUS_INTERFACE, QDBusConnection::sessionBus());
-        interface.callWithCallback("launch", (QList<QVariant>() << searchStringToBeSent), this, SLOT(markSearchStringSentAndSendRemainingSearchString()), SLOT(markSearchStringNotSent()));
+    externalServiceService = &service;
+    externalServicePath = &path;
+    externalServiceInterface = &interface;
+    externalServiceMethod = &method;
+}
 
-        searchStringBeingSent = searchStringToBeSent;
-        searchStringToBeSent.clear();
+void MainWindow::sendKeyPresses()
+{
+    // Only one external service launch may be active at a time
+    if (keyPressesBeingSent.isEmpty() && !keyPressesToBeSent.isEmpty() && externalServiceService != NULL && externalServicePath != NULL && externalServiceInterface != NULL && externalServiceMethod != NULL) {
+        // Make an asynchronous call to the external service and send the keypresses to be sent
+        QDBusInterface interface(*externalServiceService, *externalServicePath, *externalServiceInterface, QDBusConnection::sessionBus());
+        interface.callWithCallback(*externalServiceMethod, (QList<QVariant>() << keyPressesToBeSent), this, SLOT(markKeyPressesSentAndSendRemainingKeyPresses()), SLOT(markKeyPressesNotSent()));
+
+        // Keypresses that need to be sent are now being sent
+        keyPressesBeingSent = keyPressesToBeSent;
+        keyPressesToBeSent.clear();
     }
 }
 
-void MainWindow::launchCallUI(const QString &digits)
+void MainWindow::markKeyPressesSentAndSendRemainingKeyPresses()
 {
-   QDBusInterface interface(CALL_UI_DBUS_SERVICE, CALL_UI_DBUS_PATH, CALL_UI_DBUS_INTERFACE, QDBusConnection::sessionBus());
-   interface.call(QDBus::NoBlock, "dialer", digits);
+    // The keypresses that were being sent have now been sent
+    keyPressesBeingSent.clear();
+
+    // Send the remaining keypresses still to be sent (if any)
+    sendKeyPresses();
 }
 
-void MainWindow::markSearchStringSentAndSendRemainingSearchString()
+void MainWindow::markKeyPressesNotSent()
 {
-    searchStringBeingSent.clear();
-
-    // Send the search string still to be sent (if any)
-    launchContentSearch();
-}
-
-void MainWindow::markSearchStringNotSent()
-{
-    // Since content search didn't launch prepend the sent search string to the search string to be sent but don't retry
-    searchStringToBeSent.prepend(searchStringBeingSent);
-    searchStringBeingSent.clear();
+    // Since the external service didn't launch prepend the sent keypresses to the keypresses to be sent but don't retry
+    keyPressesToBeSent.prepend(keyPressesBeingSent);
+    keyPressesBeingSent.clear();
 }

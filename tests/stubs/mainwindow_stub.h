@@ -34,8 +34,8 @@ public:
     virtual void excludeFromTaskBar();
     virtual void changeNetWmState(bool set, Atom one, Atom two);
     virtual void keyPressEvent(QKeyEvent *event);
-    virtual void markSearchStringSentAndSendRemainingSearchString();
-    virtual void markSearchStringNotSent();
+    virtual void markKeyPressesSentAndSendRemainingKeyPresses();
+    virtual void markKeyPressesNotSent();
 };
 
 // 2. IMPLEMENT STUB
@@ -83,14 +83,14 @@ void MainWindowStub::keyPressEvent(QKeyEvent *event)
     stubMethodEntered("keyPressEvent", params);
 }
 
-void MainWindowStub::markSearchStringSentAndSendRemainingSearchString()
+void MainWindowStub::markKeyPressesSentAndSendRemainingKeyPresses()
 {
-    stubMethodEntered("markSearchStringSentAndSendRemainingSearchString");
+    stubMethodEntered("markKeyPressesSentAndSendRemainingKeyPresses");
 }
 
-void MainWindowStub::markSearchStringNotSent()
+void MainWindowStub::markKeyPressesNotSent()
 {
-    stubMethodEntered("markSearchStringNotSent");
+    stubMethodEntered("markKeyPressesNotSent");
 }
 
 // 3. CREATE A STUB INSTANCE
@@ -140,14 +140,14 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     gMainWindowStub->keyPressEvent(event);
 }
 
-void MainWindow::markSearchStringSentAndSendRemainingSearchString()
+void MainWindow::markKeyPressesSentAndSendRemainingKeyPresses()
 {
-    gMainWindowStub->markSearchStringSentAndSendRemainingSearchString();
+    gMainWindowStub->markKeyPressesSentAndSendRemainingKeyPresses();
 }
 
-void MainWindow::markSearchStringNotSent()
+void MainWindow::markKeyPressesNotSent()
 {
-    gMainWindowStub->markSearchStringNotSent();
+    gMainWindowStub->markKeyPressesNotSent();
 }
 
 #endif

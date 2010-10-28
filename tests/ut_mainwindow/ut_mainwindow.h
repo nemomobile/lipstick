@@ -37,8 +37,8 @@ private slots:
     void cleanup();
     void testCallUILaunchedWhenCallRelatedKeyPressed();
     void testContentSearchLaunchedWhenNonCallRelatedKeyPressed();
-    void testContentSearchLaunchQueuedWhenAlreadyLaunching();
-    void testContentSearchLaunchQueuedWhenLaunchingFailed();
+    void testLaunchQueuedWhenAlreadyLaunching();
+    void testLaunchQueuedWhenLaunchingFailed();
     void testNothingLaunchedWhenControlModifierPressed();
     void testNothingLaunchedWhenOnlyModifierPressed();
     void testNothingLaunchedWhenMediaKeyPressed();

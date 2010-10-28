@@ -120,8 +120,8 @@ void Ut_MainWindow::cleanupTestCase()
 
 void Ut_MainWindow::init()
 {
-    mainWindow->searchStringBeingSent.clear();
-    mainWindow->searchStringToBeSent.clear();
+    mainWindow->keyPressesBeingSent.clear();
+    mainWindow->keyPressesToBeSent.clear();
     resetDBusStub();
 }
 
@@ -163,7 +163,7 @@ void Ut_MainWindow::testCallUILaunchedWhenCallRelatedKeyPressed()
             QCOMPARE(dBusInterface, MainWindow::CALL_UI_DBUS_INTERFACE);
             QCOMPARE(dBusMethod, QString("dialer"));
             QCOMPARE(dBusArguments.at(0).toString(), searchString);
-            mainWindow->markSearchStringSentAndSendRemainingSearchString();
+            mainWindow->markKeyPressesSentAndSendRemainingKeyPresses();
         } else {
             // Otherwise a call may or may not occur but it should not be to the call UI
             QVERIFY(dBusService != MainWindow::CALL_UI_DBUS_SERVICE);
@@ -201,7 +201,7 @@ void Ut_MainWindow::testContentSearchLaunchedWhenNonCallRelatedKeyPressed()
             QCOMPARE(dBusInterface, MainWindow::CONTENT_SEARCH_DBUS_INTERFACE);
             QCOMPARE(dBusMethod, QString("launch"));
             QCOMPARE(dBusArguments.at(0).toString(), searchString);
-            mainWindow->markSearchStringSentAndSendRemainingSearchString();
+            mainWindow->markKeyPressesSentAndSendRemainingKeyPresses();
         } else {
             // Otherwise a call may or may not occur but it should not be to the content search service
             QVERIFY(dBusService != MainWindow::CONTENT_SEARCH_DBUS_SERVICE);
@@ -213,7 +213,7 @@ void Ut_MainWindow::testContentSearchLaunchedWhenNonCallRelatedKeyPressed()
     }
 }
 
-void Ut_MainWindow::testContentSearchLaunchQueuedWhenAlreadyLaunching()
+void Ut_MainWindow::testLaunchQueuedWhenAlreadyLaunching()
 {
     // Pressing the key A should try to launch the content search with the search string A
     QKeyEvent keyEventA(QEvent::KeyPress, Qt::Key_A, Qt::NoModifier, "A");
@@ -231,12 +231,12 @@ void Ut_MainWindow::testContentSearchLaunchQueuedWhenAlreadyLaunching()
     QCOMPARE(dBusCallMade, false);
 
     // When the content search has successfully launched (with the search string A) the content search should be relaunched with the search string BC
-    mainWindow->markSearchStringSentAndSendRemainingSearchString();
+    mainWindow->markKeyPressesSentAndSendRemainingKeyPresses();
     QCOMPARE(dBusCallMade, true);
     QCOMPARE(dBusArguments.at(0).toString(), QString("BC"));
 }
 
-void Ut_MainWindow::testContentSearchLaunchQueuedWhenLaunchingFailed()
+void Ut_MainWindow::testLaunchQueuedWhenLaunchingFailed()
 {
     // Pressing the key A should try to launch the content search with the search string A
     QKeyEvent keyEventA(QEvent::KeyPress, Qt::Key_A, Qt::NoModifier, "A");
@@ -248,17 +248,21 @@ void Ut_MainWindow::testContentSearchLaunchQueuedWhenLaunchingFailed()
     QKeyEvent keyEventB(QEvent::KeyPress, Qt::Key_B, Qt::NoModifier, "B");
     mainWindow->keyPressEvent(&keyEventB);
 
+    // Pressing the key 0 before the content search has launched should not launch call UI
+    QKeyEvent keyEvent0(QEvent::KeyPress, Qt::Key_0, Qt::NoModifier, "0");
+    mainWindow->keyPressEvent(&keyEvent0);
+
     // When the content search launching fails (with the search string A) no new content search should occur
-    mainWindow->markSearchStringNotSent();
+    mainWindow->markKeyPressesNotSent();
     QCOMPARE(dBusCallMade, false);
 
     resetDBusStub();
 
-    // Pressing the key C should try to launch the content search with the search string ABC
-    QKeyEvent keyEventC(QEvent::KeyPress, Qt::Key_B, Qt::NoModifier, "C");
+    // Pressing the key C should try to launch the content search with the search string AB0C
+    QKeyEvent keyEventC(QEvent::KeyPress, Qt::Key_C, Qt::NoModifier, "C");
     mainWindow->keyPressEvent(&keyEventC);
     QCOMPARE(dBusCallMade, true);
-    QCOMPARE(dBusArguments.at(0).toString(), QString("ABC"));
+    QCOMPARE(dBusArguments.at(0).toString(), QString("AB0C"));
 }
 
 void Ut_MainWindow::testNothingLaunchedWhenControlModifierPressed()
