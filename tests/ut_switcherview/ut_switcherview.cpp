@@ -127,6 +127,13 @@ void MPannableWidget::setEnabled(bool enabled)
     g_ConstructorCallOrder->append(cd);
 }
 
+bool gMPannableWidgetIsEnabled = true;
+bool MPannableWidget::isEnabled()
+{
+    return gMPannableWidgetIsEnabled;
+}
+
+
 // QObject stubs
 void QObject::connectNotify ( const char * signal )
 {
@@ -394,6 +401,7 @@ void Ut_SwitcherView::init()
     items_.clear();
     gQGraphicsItem_installSceneEventFilter.clear();
     gSceneItems.clear();
+    gMPannableWidgetIsEnabled = true;
 
     gMWindowStub->stubReset();
     gMWindowStub->stubSetReturnValue("sceneManager", mSceneManager);
@@ -623,10 +631,6 @@ void Ut_SwitcherView::testTransitionControl()
 
     mPinch->setLastScaleFactor(1.0);
     pinchGesture(1.0, Qt::GestureStarted);
-    // Test that once the pinch starts the viewport gets disabled
-    QCOMPARE(g_ConstructorCallOrder->size(), 1);
-    CallOrderData cd = g_ConstructorCallOrder->at(0);
-    QCOMPARE(cd.param, MPANNABLEWIDGET_SET_ENABLED.arg(0));
 
     gTransformLayoutAnimationStub->stubSetReturnValue("manualControl", true);
     pinchGesture(1.1, Qt::GestureUpdated);
@@ -638,12 +642,37 @@ void Ut_SwitcherView::testTransitionControl()
 
     pinchGesture(1.3, Qt::GestureFinished);
     QVERIFY(!gTransformLayoutAnimationStub->stubLastCallTo("setManualControl").parameter<bool>(0));
+}
 
-    // Test that we are enabled after the pinch operation
+void Ut_SwitcherView::testWhenPinchingThenParentViewportsAreDisabled_data()
+{
+    QTest::addColumn<bool>("initiallyEnabled");
+
+    QTest::newRow("initally enabled") << true;
+    QTest::newRow("initally disabled") << false;
+}
+
+void Ut_SwitcherView::testWhenPinchingThenParentViewportsAreDisabled()
+{
+    QFETCH(bool, initiallyEnabled);
+
+    g_ConstructorCallOrder->clear();
+    gSceneItems.append(m_subject->viewport);
+
+    gMPannableWidgetIsEnabled = initiallyEnabled;
+    pinchGesture(1.0, Qt::GestureStarted);
+    QCOMPARE(g_ConstructorCallOrder->size(), 1);
+    QCOMPARE(g_ConstructorCallOrder->at(0).param, MPANNABLEWIDGET_SET_ENABLED.arg(0));
+    QCOMPARE(g_ConstructorCallOrder->at(0).callee, m_subject->viewport);
+
+    // Clear the items returned by scene to test that the viewports that were disabled will still be restored
+    gSceneItems.clear();
+
+    g_ConstructorCallOrder->clear();
     m_subject->endTransition();
-    QCOMPARE(g_ConstructorCallOrder->size(), 3);
-    CallOrderData cd2 = g_ConstructorCallOrder->at(1);
-    QCOMPARE(cd2.param, MPANNABLEWIDGET_SET_ENABLED.arg(1));
+    QCOMPARE(g_ConstructorCallOrder->size(), 1);
+    QCOMPARE(g_ConstructorCallOrder->at(0).param, MPANNABLEWIDGET_SET_ENABLED.arg(initiallyEnabled ? 1 : 0));
+    QCOMPARE(g_ConstructorCallOrder->at(0).callee, m_subject->viewport);
 }
 
 void Ut_SwitcherView::testBounceAnimation()
