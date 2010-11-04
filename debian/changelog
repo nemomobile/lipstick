@@ -1,3 +1,9 @@
+meegotouchhome (0.22.6~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Thu, 04 Nov 2010 14:31:46 +0200
+
 meegotouchhome (0.22.5-1) unstable; urgency=low
 
   * Fixes: NB#202257 - Device reboots after pressing Ctrl-q four times
