@@ -59,6 +59,7 @@ public:
 
     //! \reimp
     virtual void keyPressEvent(QKeyEvent *event);
+    virtual void closeEvent(QCloseEvent *event);
     //! \reimp_end
 
 private slots:

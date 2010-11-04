@@ -34,6 +34,7 @@ public:
     virtual void excludeFromTaskBar();
     virtual void changeNetWmState(bool set, Atom one, Atom two);
     virtual void keyPressEvent(QKeyEvent *event);
+    virtual void closeEvent(QCloseEvent *event);
     virtual void markKeyPressesSentAndSendRemainingKeyPresses();
     virtual void markKeyPressesNotSent();
 };
@@ -81,6 +82,13 @@ void MainWindowStub::keyPressEvent(QKeyEvent *event)
     QList<ParameterBase *> params;
     params.append(new Parameter<QKeyEvent*>(event));
     stubMethodEntered("keyPressEvent", params);
+}
+
+void MainWindowStub::closeEvent(QCloseEvent *event)
+{
+    QList<ParameterBase *> params;
+    params.append(new Parameter<QCloseEvent*>(event));
+    stubMethodEntered("closeEvent", params);
 }
 
 void MainWindowStub::markKeyPressesSentAndSendRemainingKeyPresses()
@@ -138,6 +146,11 @@ void MainWindow::changeNetWmState(bool set, Atom one, Atom two)
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
     gMainWindowStub->keyPressEvent(event);
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    gMainWindowStub->closeEvent(event);
 }
 
 void MainWindow::markKeyPressesSentAndSendRemainingKeyPresses()

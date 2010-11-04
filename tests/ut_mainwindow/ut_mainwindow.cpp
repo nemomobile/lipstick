@@ -18,7 +18,7 @@
 ****************************************************************************/
 
 #include <QKeyEvent>
-#include <QEvent>
+#include <QCloseEvent>
 #include "ut_mainwindow.h"
 #include "x11wrapper_stub.h"
 #include "mainwindow.h"
@@ -315,6 +315,13 @@ void Ut_MainWindow::testNothingLaunchedWhenMediaKeyPressed()
         QCOMPARE(dBusCallMade, false);
         resetDBusStub();
     }
+}
+
+void Ut_MainWindow::testCloseEventIsAccepted()
+{
+    QCloseEvent event;
+    mainWindow->closeEvent(&event);
+    QVERIFY(event.isAccepted());
 }
 
 QTEST_APPLESS_MAIN(Ut_MainWindow)

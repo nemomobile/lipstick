@@ -164,6 +164,12 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     }
 }
 
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    // Don't allow closing the main window
+    event->ignore();
+}
+
 void MainWindow::setupExternalService(const QString &service, const QString &path, const QString &interface, const QString &method)
 {
     externalServiceService = &service;

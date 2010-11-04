@@ -42,6 +42,7 @@ private slots:
     void testNothingLaunchedWhenControlModifierPressed();
     void testNothingLaunchedWhenOnlyModifierPressed();
     void testNothingLaunchedWhenMediaKeyPressed();
+    void testCloseEventIsAccepted();
 
 private:
     // Application for the test
