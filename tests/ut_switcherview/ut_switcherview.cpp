@@ -16,6 +16,7 @@
 ** of this file.
 **
 ****************************************************************************/
+
 #include <QGraphicsSceneMouseEvent>
 #include <QScrollBar>
 #include <MApplication>
@@ -36,7 +37,6 @@
 #include "pagedviewport_stub.h"
 #include <QGestureEvent>
 #include <QPinchGesture>
-#include <mclassfactory.h>
 #include "mainwindow_stub.h"
 #include "windowinfo_stub.h"
 
@@ -57,51 +57,16 @@ static QList<CallOrderData>* g_ConstructorCallOrder = NULL;
 static QString PANNING_STOPPED_SIGNAL = "2panningStopped()";
 static QString MPANNABLEWIDGET_SET_ENABLED = "setEnabled=%1";
 
-// MTheme stubs
-const MStyle *MTheme::style(const char *styleClassName,
-                            const QString &objectName,
-                            const QString &/*mode*/,
-                            const QString &/*type*/,
-                            M::Orientation /*orientation*/,
-                            const MWidgetController* /*parent*/)
-{
-    MStyle *style = MClassFactory::instance()->createStyle(styleClassName);
-
-    if(QString(styleClassName) == "SwitcherStyle") {
-        SwitcherStyle *switcherStyle = static_cast<SwitcherStyle*>(style);
-        if(objectName == "DetailviewSwitcher") {
-            switcherStyle->setRowsPerPage(1);
-            switcherStyle->setColumnsPerPage(1);
-        } else {
-            switcherStyle->setRowsPerPage(2);
-            switcherStyle->setColumnsPerPage(2);
-        }
-        switcherStyle->setPinchLength(1.0f);
-        switcherStyle->setPinchCancelThreshold(0.25f);
-    }
-
-    return style;
-}
-
-class Ut_SwitcherStyle : public SwitcherStyle
-{
-};
-
-class Ut_SwitcherStyleContainer : public SwitcherStyleContainer
-{
-};
-
 QRectF MWidgetView::geometry() const {
     return g_switcherGeometry;
 }
 
 class TestSwitcherView : public SwitcherView
 {
-    M_VIEW(SwitcherModel, Ut_SwitcherStyle)
+    M_VIEW(SwitcherModel, SwitcherStyle)
 
 public:
     TestSwitcherView(Switcher *controller) : SwitcherView(controller) {}
-
 
     SwitcherStyle *modifiableStyle() {
         SwitcherStyleContainer &sc = style();
@@ -109,7 +74,7 @@ public:
         SwitcherStyle *s = const_cast<SwitcherStyle *>(const_s);
         return s;
     }
-    Ut_SwitcherStyleContainer& styleContainer() {
+    SwitcherStyleContainer& styleContainer() {
         return style();
     }
 
@@ -387,6 +352,27 @@ void Ut_SwitcherView::init()
     m_subject = new TestSwitcherView(switcher);
     switcher->setView(m_subject);
     switcher->setGeometry(QRectF(0, 0, 100, 100));
+
+    MStyle *style = const_cast<MStyle*>(MTheme::style(SwitcherView::staticStyleType(), QString("DetailviewSwitcher")));
+    SwitcherStyle *switcherStyle = static_cast<SwitcherStyle*>(style);
+    switcherStyle->setRowsPerPage(1);
+    switcherStyle->setColumnsPerPage(1);
+    switcherStyle->setPinchLength(1.0f);
+    switcherStyle->setPinchCancelThreshold(0.25f);
+
+    style = const_cast<MStyle*>(MTheme::style(SwitcherView::staticStyleType(), QString("OverviewSwitcher")));
+    switcherStyle = static_cast<SwitcherStyle*>(style);
+    switcherStyle->setRowsPerPage(2);
+    switcherStyle->setColumnsPerPage(2);
+    switcherStyle->setPinchLength(1.0f);
+    switcherStyle->setPinchCancelThreshold(0.25f);
+
+    style = const_cast<MStyle*>(MTheme::style(SwitcherView::staticStyleType(), QString("OverviewSwitcher"), 0, 0, M::Portrait));
+    switcherStyle = static_cast<SwitcherStyle*>(style);
+    switcherStyle->setRowsPerPage(2);
+    switcherStyle->setColumnsPerPage(2);
+    switcherStyle->setPinchLength(1.0f);
+    switcherStyle->setPinchCancelThreshold(0.25f);
 
     gSwitcherStub->stubReset();
     gTransformLayoutAnimationStub->stubReset();
