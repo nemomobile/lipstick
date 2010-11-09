@@ -317,11 +317,12 @@ void Ut_MainWindow::testNothingLaunchedWhenMediaKeyPressed()
     }
 }
 
-void Ut_MainWindow::testCloseEventIsAccepted()
+void Ut_MainWindow::testCloseEventIsIgnored()
 {
     QCloseEvent event;
+    event.setAccepted(true);
     mainWindow->closeEvent(&event);
-    QVERIFY(event.isAccepted());
+    QCOMPARE(event.isAccepted(), false);
 }
 
 QTEST_APPLESS_MAIN(Ut_MainWindow)
