@@ -90,6 +90,11 @@ protected:
     virtual bool sceneEvent(QEvent *event);
     //! \reimp_end
 
+    /*!
+     * Create switcher button
+     */
+    virtual QSharedPointer<SwitcherButton> createSwitcherButton();
+
 private slots:
     /*!
      * \brief Updates the buttons in the model based on the current window list

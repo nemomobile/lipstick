@@ -367,7 +367,7 @@ void Switcher::updateButtons()
                 validOldButtons.append(button);
                 newSwitcherButtonMap.insert(windowInfo.window(), button);
             } else {
-                QSharedPointer<SwitcherButton> button(new SwitcherButton);
+                QSharedPointer<SwitcherButton> button = createSwitcherButton();
                 button->setText(topmostWindowInfo.title());
                 button->setXWindow(topmostWindowInfo.window());
                 connect(button.data(), SIGNAL(windowToFront(Window)), this, SLOT(windowToFront(Window)));
@@ -455,4 +455,9 @@ void Switcher::updateAnimationStatus(bool animating)
     }
 
     emit animationStateChanged(animating);
+}
+
+QSharedPointer<SwitcherButton> Switcher::createSwitcherButton()
+{
+    return QSharedPointer<SwitcherButton>(new SwitcherButton);
 }

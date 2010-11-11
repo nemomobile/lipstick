@@ -38,6 +38,7 @@ public:
     virtual void handleWindowInfoList(QList<WindowInfo> newWindowList);
     virtual bool sceneEvent(QEvent *event);
     virtual void updateAnimationStatus(bool animating);
+    virtual QSharedPointer<SwitcherButton> createSwitcherButton();
 };
 
 void SwitcherStub::switcherConstructor(const WindowMonitor *windowMonitor, MWidget *parent)
@@ -112,6 +113,12 @@ void SwitcherStub::updateAnimationStatus(bool animating)
     stubMethodEntered("updateAnimationStatus", params);
 }
 
+QSharedPointer<SwitcherButton> SwitcherStub::createSwitcherButton()
+{
+    stubMethodEntered("createSwitcherButton");
+    return stubReturnValue<QSharedPointer<SwitcherButton> >("createSwitcherButton");
+}
+
 SwitcherStub gDefaultSwitcherStub;
 SwitcherStub *gSwitcherStub = &gDefaultSwitcherStub;
 
@@ -168,6 +175,11 @@ bool Switcher::sceneEvent(QEvent *event)
 void Switcher::updateAnimationStatus(bool animating)
 {
     gSwitcherStub->updateAnimationStatus(animating);
+}
+
+QSharedPointer<SwitcherButton> Switcher::createSwitcherButton()
+{
+    return gSwitcherStub->createSwitcherButton();
 }
 
 #endif
