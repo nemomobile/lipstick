@@ -101,11 +101,6 @@ protected:
     /*! Sets the direction of the bounce animation */
     void setInwardBounceAnimation(bool i);
 
-    /*! Disables or restores the enabled state of all parent viewports
-        \param enable if false, disables all parent viewports, otherwise restores their
-               enabled status to what it was when they were last disabled */
-    void setParentViewportsEnabled(bool enable);
-
     /*! Called when the pinch gesture starts
         \param centerPoint the center point of the pinch gesture */
     virtual void pinchBegin(const QPointF &centerPoint);
@@ -149,9 +144,6 @@ protected:
 
     /*! True if switcher is currently animating */
     bool animating;
-
-    /*! List of viewports that have been disabled */
-    QList<MPannableViewport*> disabledViewports;
 
 protected slots:
     //! \reimp

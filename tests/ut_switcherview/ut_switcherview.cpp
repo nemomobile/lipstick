@@ -17,6 +17,7 @@
 **
 ****************************************************************************/
 
+#include <MCancelEvent>
 #include <QGraphicsSceneMouseEvent>
 #include <QScrollBar>
 #include <MApplication>
@@ -191,6 +192,16 @@ QList<QGraphicsItem *> QGraphicsScene::items(const QPointF &/*pos*/) const
 {
     return gSceneItems;
 }
+
+QList<QGraphicsItem*> gQGraphicsSceneSendCancelEventItems;
+bool QGraphicsScene::sendEvent(QGraphicsItem *item, QEvent *event)
+{
+    if(dynamic_cast<MCancelEvent*>(event)) {
+        gQGraphicsSceneSendCancelEventItems << item;
+    }
+    return true;
+}
+
 
 QList<QPair<QGraphicsItem*, QGraphicsItem*> > gQGraphicsItem_installSceneEventFilter;
 void QGraphicsItem::installSceneEventFilter(QGraphicsItem *filterItem)
@@ -388,6 +399,7 @@ void Ut_SwitcherView::init()
     gQGraphicsItem_installSceneEventFilter.clear();
     gSceneItems.clear();
     gMPannableWidgetIsEnabled = true;
+    gQGraphicsSceneSendCancelEventItems.clear();
 
     gMWindowStub->stubReset();
     gMWindowStub->stubSetReturnValue("sceneManager", mSceneManager);
@@ -628,37 +640,6 @@ void Ut_SwitcherView::testTransitionControl()
 
     pinchGesture(1.3, Qt::GestureFinished);
     QVERIFY(!gTransformLayoutAnimationStub->stubLastCallTo("setManualControl").parameter<bool>(0));
-}
-
-void Ut_SwitcherView::testWhenPinchingThenParentViewportsAreDisabled_data()
-{
-    QTest::addColumn<bool>("initiallyEnabled");
-
-    QTest::newRow("initally enabled") << true;
-    QTest::newRow("initally disabled") << false;
-}
-
-void Ut_SwitcherView::testWhenPinchingThenParentViewportsAreDisabled()
-{
-    QFETCH(bool, initiallyEnabled);
-
-    g_ConstructorCallOrder->clear();
-    gSceneItems.append(m_subject->viewport);
-
-    gMPannableWidgetIsEnabled = initiallyEnabled;
-    pinchGesture(1.0, Qt::GestureStarted);
-    QCOMPARE(g_ConstructorCallOrder->size(), 1);
-    QCOMPARE(g_ConstructorCallOrder->at(0).param, MPANNABLEWIDGET_SET_ENABLED.arg(0));
-    QCOMPARE(g_ConstructorCallOrder->at(0).callee, m_subject->viewport);
-
-    // Clear the items returned by scene to test that the viewports that were disabled will still be restored
-    gSceneItems.clear();
-
-    g_ConstructorCallOrder->clear();
-    m_subject->endTransition();
-    QCOMPARE(g_ConstructorCallOrder->size(), 1);
-    QCOMPARE(g_ConstructorCallOrder->at(0).param, MPANNABLEWIDGET_SET_ENABLED.arg(initiallyEnabled ? 1 : 0));
-    QCOMPARE(g_ConstructorCallOrder->at(0).callee, m_subject->viewport);
 }
 
 void Ut_SwitcherView::testBounceAnimation()
@@ -1022,6 +1003,14 @@ void Ut_SwitcherView::testWhenPinchingThenOrientationIsLocked()
     gMWindowStub->stubReset();
     m_subject->endBounce();
     QVERIFY(!gMWindowStub->stubLastCallTo("setOrientationLocked").parameter<bool>(0));
+}
+
+void Ut_SwitcherView::testWhenPinchingStartsThenEventsAreCanceledForOtherItems()
+{
+    gSceneItems << new QGraphicsWidget;
+    gSceneItems << new QGraphicsWidget;
+    m_subject->pinchBegin(QPointF());
+    QCOMPARE(gSceneItems, gQGraphicsSceneSendCancelEventItems);
 }
 
 

@@ -16,6 +16,7 @@
  ** of this file.
  **
  ****************************************************************************/
+#include <MCancelEvent>
 #include "switcherviewbase.h"
 #include "switcher.h"
 #include "switcherbutton.h"
@@ -40,7 +41,6 @@
 #include <QGestureEvent>
 #include <QPropertyAnimation>
 
-static const char *VIEWPORT_ENABLED_PROPERTY = "switcherviewbase_viewport_enabled";
 
 SwitcherViewBase::SwitcherViewBase(Switcher *switcher) :
         MWidgetView(switcher), controller(switcher), mainLayout(new QGraphicsLinearLayout(Qt::Vertical)), pannedWidget(new MWidget), pinchedButtonPosition(-1), layoutAnimation(NULL), overpinch(false), animating(false)
@@ -147,35 +147,16 @@ void SwitcherViewBase::calculateNearestButtonAt(const QPointF &centerPoint)
     pinchedButtonPosition = buttonIndex(closestButton);
 }
 
-void SwitcherViewBase::setParentViewportsEnabled(bool enable)
-{
-    QPointF point = controller->mapToScene(controller->rect().center());
-
-    if(enable) {
-        foreach(MPannableViewport *viewport, disabledViewports) {
-            viewport->setEnabled(viewport->property(VIEWPORT_ENABLED_PROPERTY).toBool());
-            viewport->setProperty(VIEWPORT_ENABLED_PROPERTY, QVariant());
-        }
-        disabledViewports.clear();
-    } else {
-        disabledViewports.clear();
-        MScene *scene = MainWindow::instance()->scene();
-        QList<QGraphicsItem*> items = scene->items(point);
-
-        foreach(QGraphicsItem *item, items) {
-            MPannableViewport *viewport = dynamic_cast<MPannableViewport*>(item);
-            if(viewport) {
-                viewport->setProperty(VIEWPORT_ENABLED_PROPERTY, viewport->isEnabled());
-                viewport->setEnabled(false);
-                disabledViewports.append(viewport);
-            }
-        }
-    }
-}
-
 void SwitcherViewBase::pinchBegin(const QPointF &centerPoint)
 {
-    setParentViewportsEnabled(false);
+    // Send cancel event to all items below, to prevent panning during the pinch
+    MScene *scene = MainWindow::instance()->scene();
+    QList<QGraphicsItem*> items = scene->items(controller->mapToScene(controller->rect().center()));
+    MCancelEvent cancelEvent;
+    foreach(QGraphicsItem *item, items) {
+        scene->sendEvent(item, &cancelEvent);
+    }
+
     calculateNearestButtonAt(centerPoint);
 
     foreach(const QSharedPointer<SwitcherButton> &button, model()->buttons()) {
@@ -247,6 +228,8 @@ void SwitcherViewBase::pinchGestureEvent(QGestureEvent *event, QPinchGesture *ge
         return;
     }
 
+    event->accept(gesture);
+
     switch(gesture->state()) {
     case Qt::GestureStarted:
         pinchBegin(controller->mapFromScene(gesture->centerPoint()));
@@ -260,8 +243,6 @@ void SwitcherViewBase::pinchGestureEvent(QGestureEvent *event, QPinchGesture *ge
     default:
         break;
     }
-
-    event->accept(gesture);
 }
 
 bool SwitcherViewBase::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
@@ -282,7 +263,6 @@ bool SwitcherViewBase::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
 
 void SwitcherViewBase::endTransition()
 {
-    setParentViewportsEnabled(true);
     MainWindow::instance()->setOrientationLocked(false);
 
     if(layoutAnimation->isCanceled()) {
@@ -294,7 +274,6 @@ void SwitcherViewBase::endTransition()
 
 void SwitcherViewBase::endBounce()
 {
-    setParentViewportsEnabled(true);
     MainWindow::instance()->setOrientationLocked(false);
 }
 
