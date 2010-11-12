@@ -342,8 +342,8 @@ Status X11Wrapper::XGetTransientForHint(Display *, Window window, Window *prop_r
 QMap<SwitcherButton *, Window> g_windowButtonMap;
 
 // SwitcherButton stubs (used by Switcher)
-SwitcherButton::SwitcherButton(QGraphicsItem *parent) :
-    MButton(parent, new SwitcherButtonModel)
+SwitcherButton::SwitcherButton(QGraphicsItem *parent, SwitcherButtonModel *model) :
+    MButton(parent, model)
 {
 }
 

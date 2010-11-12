@@ -29,8 +29,8 @@ M_REGISTER_WIDGET(SwitcherButton)
 
 Atom SwitcherButton::visibleAtom = 0;
 
-SwitcherButton::SwitcherButton(QGraphicsItem *parent) :
-    MButton(parent, new SwitcherButtonModel), visibilityPropertyEnabled(true)
+SwitcherButton::SwitcherButton(QGraphicsItem *parent, SwitcherButtonModel *model) :
+    MButton(parent, model), visibilityPropertyEnabled(true)
 {
     // Configure timers
     windowCloseTimer.setSingleShot(true);

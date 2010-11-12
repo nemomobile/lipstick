@@ -40,7 +40,7 @@ public:
      *
      * \param parent parent MWidget
      */
-    SwitcherButton(QGraphicsItem *parent = NULL);
+    SwitcherButton(QGraphicsItem *parent = NULL, SwitcherButtonModel *model = new SwitcherButtonModel);
 
     /*!
      * Destroys the SwitcherButton.
