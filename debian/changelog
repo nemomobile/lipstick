@@ -1,9 +1,8 @@
-meegotouchhome (0.22.6~1) unstable; urgency=low
+meegotouchhome (0.22.6-1) unstable; urgency=low
 
-  * [UNRELEASED]
   * Fixes: NB#203728 - Recents view freezes and shows only weird minimal icons
 
- -- Vesa Halttunen <vesa.halttunen@nokia.com>  Thu, 04 Nov 2010 14:31:46 +0200
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Fri, 12 Nov 2010 11:41:26 +0200
 
 meegotouchhome (0.22.5-1) unstable; urgency=low
 
