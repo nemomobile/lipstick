@@ -48,6 +48,7 @@ static const QString PACKAGE_STATE_INSTALLING ="installing";
 static const QString PACKAGE_STATE_DOWNLOADING ="downloading";
 
 static const QString DESKTOP_ENTRY_KEY_PACKAGE_STATE = "PackageState";
+static const QString DESKTOP_ENTRY_KEY_PACKAGE_HAD_ERROR = "PackageHadError";
 static const QString DESKTOP_ENTRY_KEY_PACKAGE_NAME = "Package";
 static const QString DESKTOP_ENTRY_GROUP_MEEGO = "X-MeeGo";
 
@@ -252,6 +253,10 @@ void ApplicationPackageMonitor::updatePackageState(const QString &desktopEntryPa
 
     QString packageName = entry.value(DESKTOP_ENTRY_GROUP_MEEGO, DESKTOP_ENTRY_KEY_PACKAGE_NAME);
     QString packageState = entry.value(DESKTOP_ENTRY_GROUP_MEEGO, DESKTOP_ENTRY_KEY_PACKAGE_STATE);
+    bool packageHadError = entry.value(DESKTOP_ENTRY_GROUP_MEEGO, DESKTOP_ENTRY_KEY_PACKAGE_HAD_ERROR) == "true";
+
+    if (packageHadError)
+      packageState = PACKAGE_STATE_BROKEN;
 
     if (!packageName.isEmpty()) {
         QString pkgKey = PACKAGE_PREFIX+packageName;
