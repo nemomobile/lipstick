@@ -38,7 +38,8 @@ public:
     /*!
      * Constructs an SwitcherButton.
      *
-     * \param parent parent MWidget
+     * \param parent Parent object
+     * \param model Model for controller
      */
     SwitcherButton(QGraphicsItem *parent = NULL, SwitcherButtonModel *model = new SwitcherButtonModel);
 
