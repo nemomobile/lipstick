@@ -44,9 +44,9 @@ private slots:
     void testInitialization();
     void testLanguageChange();
     void testWhenLauncherButtonIsClickedContentActionIsTriggered();
-    void testWhenLauncherButtonIsClickedInBrokenStateContentActionIsTriggered();
     void testWhenLauncherButtonIsClickedInDownloadingStateContentActionIsNotTriggered();
     void testWhenLauncherButtonIsClickedInInstallingStateContentActionIsNotTriggered();
+    void testWhenLauncherButtonIsClickedInBrokenStateAndHasPackageErrorThenDBusCallIsMade();
     void testStopLaunchProgressIfObscured();
     void testSettingButtonStateAndProgress();
     void testSettingButtonStateAndProgressWithInvalidValues();

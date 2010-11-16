@@ -70,6 +70,8 @@ private slots:
     void testRemovingInstallerExtraFile();
     // Test that right signals are emitted according to package states when update of package states is requested.
     void testEmitPackageStateWhenAllPackageStatesAreUpdated();
+    // Test PackageHadError in entry
+    void testPackageHadError();
 
 signals:
 
@@ -110,6 +112,9 @@ private:
 
     // Mimicks the change in the extra desktop file for a package when it is broken
     void breakPackageExtra(QString packageName);
+
+    // Mimicks the change in the extra desktop file for a package when it has error
+    void hadErrorPackageExtra(QString packageName, QString packageState, QString hadError);
 
     // Compares packages given 'state' to packages state in datastore.
     void comparePackageStateInDataStore(const QString &packageName, const QString &state);

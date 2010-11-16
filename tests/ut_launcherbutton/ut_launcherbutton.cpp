@@ -26,6 +26,9 @@
 #include "homewindowmonitor_stub.h"
 #include "x11wrapper.h"
 #include "launcher.h"
+#include "mdesktopentry_stub.h"
+#include <QDBusMessage>
+#include <QDBusAbstractInterface>
 
 #include "launcherbuttonmodel.h"
 Q_DECLARE_METATYPE(LauncherButtonModel::State);
@@ -274,6 +277,22 @@ void Action::trigger() const
     contentActionTriggerCalls++;
 }
 
+// QDBusInterface stubs
+QString g_qDBusInterfaceCall;
+QDBusMessage QDBusAbstractInterface::call(const QString &method,
+                  const QVariant &,
+                  const QVariant &,
+                  const QVariant &,
+                  const QVariant &,
+                  const QVariant &,
+                  const QVariant &,
+                  const QVariant &,
+                  const QVariant &)
+{
+    g_qDBusInterfaceCall = method;
+    return QDBusMessage();
+}
+
 // A helper function to set up a contentActionPrivate entry
 void addActionPrivate(QString fileName, bool isValid, QString name,
                       QString english, QString nonEnglish, QString icon)
@@ -305,6 +324,7 @@ void Ut_LauncherButton::init()
     language = "english";
     contentActionPrivate.clear();
     contentActionTriggerCalls = 0;
+    g_qDBusInterfaceCall.clear();
 
     m_subject = new LauncherButton("");
     connect(this, SIGNAL(clicked()), m_subject, SLOT(launch()));
@@ -341,13 +361,6 @@ void Ut_LauncherButton::testWhenLauncherButtonIsClickedContentActionIsTriggered(
     QCOMPARE(contentActionTriggerCalls, 1);
 }
 
-void Ut_LauncherButton::testWhenLauncherButtonIsClickedInBrokenStateContentActionIsTriggered()
-{
-    m_subject->model()->setButtonState(LauncherButtonModel::Broken);
-    emit clicked();
-    QCOMPARE(contentActionTriggerCalls, 1);
-}
-
 void Ut_LauncherButton::testWhenLauncherButtonIsClickedInDownloadingStateContentActionIsNotTriggered()
 {
     m_subject->model()->setButtonState(LauncherButtonModel::Downloading);
@@ -360,6 +373,18 @@ void Ut_LauncherButton::testWhenLauncherButtonIsClickedInInstallingStateContentA
     m_subject->model()->setButtonState(LauncherButtonModel::Installing);
     emit clicked();
     QCOMPARE(contentActionTriggerCalls, 0);
+}
+
+void Ut_LauncherButton::testWhenLauncherButtonIsClickedInBrokenStateAndHasPackageErrorThenDBusCallIsMade()
+{
+    m_subject->model()->setButtonState(LauncherButtonModel::Broken);
+    emit clicked();
+    QCOMPARE(contentActionTriggerCalls, 0);
+
+    gMDesktopEntryStub->stubSetReturnValue("value",QString("true"));
+    m_subject->launch();
+
+   QCOMPARE(g_qDBusInterfaceCall, QString("show_installation_exception"));
 }
 
 void Ut_LauncherButton::testStopLaunchProgressIfObscured()

@@ -17,6 +17,8 @@
 **
 ****************************************************************************/
 
+#include <QDBusInterface>
+
 #include "launcherbutton.h"
 #include "launcheraction.h"
 #include "launcher.h"
@@ -77,7 +79,16 @@ void LauncherButton::launch()
             launching = true;
             action().trigger();
         } else if (model()->buttonState() == LauncherButtonModel::Broken) {
-            action().trigger();
+            // Show the exception dialog for this package
+            MDesktopEntry entry (desktopEntry());
+            QString package = entry.value ("X-MeeGo", "Package");
+            if (!package.isEmpty()) {
+                QDBusInterface interface("com.nokia.package_manager_install_ui",
+                                       "/com/nokia/package_manager_install_ui",
+                                       "com.nokia.package_manager_install_ui",
+                                       QDBusConnection::sessionBus());
+                interface.call("show_installation_exception", package);
+            }
         }
     }
 }

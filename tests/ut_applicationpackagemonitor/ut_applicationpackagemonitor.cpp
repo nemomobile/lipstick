@@ -504,6 +504,15 @@ void Ut_ApplicationPackageMonitor::breakPackageExtra(QString packageName)
     QVERIFY(g_fileDataStoreData.contains("Packages/"+packageName));
 }
 
+void Ut_ApplicationPackageMonitor::hadErrorPackageExtra(QString packageName, QString packageState, QString hadError)
+{
+    QString desktopEntryFilename = "/" + packageName + ".desktop";
+    g_desktopEntryValue[desktopEntryFilename]["X-MeeGo/Package"] = packageName;
+    g_desktopEntryValue[desktopEntryFilename]["X-MeeGo/PackageState"] = packageState;
+    g_desktopEntryValue[desktopEntryFilename]["X-MeeGo/PackageHadError"] = hadError;
+
+    emit desktopEntryChanged(desktopEntryFilename);
+}
 
 void Ut_ApplicationPackageMonitor::testConstruction()
 {
@@ -703,6 +712,33 @@ void Ut_ApplicationPackageMonitor::testEmitPackageStateWhenAllPackageStatesAreUp
     QCOMPARE(spyDownloading.count(), 1);
     arguments = spyDownloading.takeFirst();
     QCOMPARE(arguments.at(0).toString(), entryPathDownloading);
+}
+
+void Ut_ApplicationPackageMonitor::testPackageHadError()
+{
+    g_fileDataStoreData.insert("DesktopEntries/pkg_1.desktop", QVariant("installable"));
+    g_fileDataStoreData.insert("DesktopEntries/pkg_2.desktop", QVariant("broken"));
+    g_fileDataStoreData.insert("DesktopEntries/pkg_3.desktop", QVariant("installed"));
+    g_fileDataStoreData.insert("Packages/pkg_1", QVariant("/pkg_1.desktop"));
+    g_fileDataStoreData.insert("Packages/pkg_2", QVariant("/pkg_2.desktop"));
+    g_fileDataStoreData.insert("Packages/pkg_3", QVariant("/pkg_3.desktop"));
+
+    QSignalSpy spyError(m_subject, SIGNAL(operationError(QString, QString)));
+
+    // verify PackageHadError 'false' does nothing
+    hadErrorPackageExtra("pkg_1", "installable", "false");
+    QCOMPARE(spyError.count(), 0);
+    spyError.clear();
+
+    // Verify PackageHadError 'true' leads to broken package in any state
+    hadErrorPackageExtra("pkg_1", "installable", "true");
+    hadErrorPackageExtra("pkg_2", "installed", "true");
+    hadErrorPackageExtra("pkg_3", "broken", "true");
+
+    QCOMPARE(spyError.count(), 3);
+    QCOMPARE(spyError.at(0).at(0).toString(), QString("/pkg_1.desktop"));
+    QCOMPARE(spyError.at(1).at(0).toString(), QString("/pkg_2.desktop"));
+    QCOMPARE(spyError.at(2).at(0).toString(), QString("/pkg_3.desktop"));
 }
 
 QTEST_APPLESS_MAIN(Ut_ApplicationPackageMonitor)
