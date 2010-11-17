@@ -27,7 +27,7 @@
 class SwitcherStub : public StubBase
 {
 public:
-    virtual void switcherConstructor(const WindowMonitor *windowMonitor, MWidget *parent = NULL);
+    virtual void switcherConstructor(const WindowMonitor *windowMonitor, MWidget *parent = NULL, SwitcherModel *model = NULL);
     virtual void switcherDestructor();
     virtual bool handleXEvent(const XEvent &event);
     virtual void updateButtons();
@@ -41,11 +41,12 @@ public:
     virtual QSharedPointer<SwitcherButton> createSwitcherButton();
 };
 
-void SwitcherStub::switcherConstructor(const WindowMonitor *windowMonitor, MWidget *parent)
+void SwitcherStub::switcherConstructor(const WindowMonitor *windowMonitor, MWidget *parent, SwitcherModel *model)
 {
     QList<ParameterBase *> params;
     params.append(new Parameter<const WindowMonitor *>(windowMonitor));
     params.append(new Parameter<MWidget *>(parent));
+    params.append(new Parameter<SwitcherModel *>(model));
     stubMethodEntered("switcherConstructor", params);
 }
 
@@ -122,9 +123,9 @@ QSharedPointer<SwitcherButton> SwitcherStub::createSwitcherButton()
 SwitcherStub gDefaultSwitcherStub;
 SwitcherStub *gSwitcherStub = &gDefaultSwitcherStub;
 
-Switcher::Switcher(const WindowMonitor *windowMonitor, MWidget *parent) : MWidgetController(parent)
+Switcher::Switcher(const WindowMonitor *windowMonitor, MWidget *parent, SwitcherModel *model) : MWidgetController(parent)
 {
-    gSwitcherStub->switcherConstructor(windowMonitor, parent);
+    gSwitcherStub->switcherConstructor(windowMonitor, parent, model);
 }
 
 Switcher::~Switcher()

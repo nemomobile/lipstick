@@ -2,7 +2,8 @@ include(../common_top.pri)
 TARGET = ut_desktopview
 INCLUDEPATH += $$SRCDIR/notifications
 
-MODEL_HEADERS += $$SRCDIR/desktopmodel.h
+MODEL_HEADERS += $$SRCDIR/desktopmodel.h \
+    $$SRCDIR/switchermodel.h
 STYLE_HEADERS += $$SRCDIR/desktopstyle.h
 
 # unit test and unit
@@ -32,6 +33,7 @@ HEADERS += \
     $$SRCDIR/windowinfo.h \
     $$SRCDIR/desktop.h \
     $$SRCDIR/desktopmodel.h \
+    $$SRCDIR/switchermodel.h \
     $$SRCDIR/desktopstyle.h \
     $$SRCDIR/mainwindow.h \
     $$SRCDIR/switcher.h \

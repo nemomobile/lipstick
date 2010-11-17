@@ -32,8 +32,8 @@ M_REGISTER_WIDGET(Switcher)
 // The time to wait until updating the model when a new application is started
 #define UPDATE_DELAY_MS 700
 
-Switcher::Switcher(const WindowMonitor *windowMonitor, MWidget *parent) :
-        MWidgetController(new SwitcherModel, parent),
+Switcher::Switcher(const WindowMonitor *windowMonitor, MWidget *parent, SwitcherModel *model) :
+        MWidgetController(model, parent),
         windowMonitor(windowMonitor)
 {
     if (this->windowMonitor == NULL) {

@@ -42,8 +42,9 @@ public:
      * \param windowMonitor a window monitor instance to be used by this switcher.
      *        Switcher takes ownership of the window monitor passed in.
      * \param parent the parent widget of the Switcher, defaults to NULL
+     * \param model model to be used with Switcher, defaults SwitcherModel
      */
-    Switcher(const WindowMonitor *windowMonitor = NULL, MWidget *parent = NULL);
+    Switcher(const WindowMonitor *windowMonitor = NULL, MWidget *parent = NULL, SwitcherModel *model = new SwitcherModel);
 
     /*!
      * Destroys the Switcher.
