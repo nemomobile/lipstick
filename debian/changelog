@@ -1,6 +1,7 @@
 meegotouchhome (0.22.7~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#204512 - Change pinch gesture handling to use totalScaleFactor instead of scaleFactor
 
  -- Vesa Halttunen <vesa.halttunen@nokia.com>  Fri, 12 Nov 2010 12:11:59 +0200
 
