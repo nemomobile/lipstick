@@ -1,6 +1,7 @@
 meegotouchhome (0.22.7~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#202259 - Each MotionEvent causes _NET_WM_ICON_GEOMETRY update for a window in switcher
 
  -- Vesa Halttunen <vesa.halttunen@nokia.com>  Fri, 12 Nov 2010 12:11:59 +0200
 

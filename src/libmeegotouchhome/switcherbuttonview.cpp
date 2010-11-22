@@ -112,7 +112,7 @@ SwitcherButtonView::SwitcherButtonView(SwitcherButton *button) :
     updateXWindowIconGeometryTimer.setInterval(ICON_GEOMETRY_UPDATE_INTERVAL);
     connect(&updateXWindowIconGeometryTimer, SIGNAL(timeout()), this, SLOT(updateXWindowIconGeometry()));
     updateXWindowPixmapRetryTimer.setSingleShot(true);
-    updateXWindowIconGeometryTimer.setInterval(ICON_PIXMAP_RETRY_INTERVAL);
+    updateXWindowPixmapRetryTimer.setInterval(ICON_PIXMAP_RETRY_INTERVAL);
     connect(&updateXWindowPixmapRetryTimer, SIGNAL(timeout()), this, SLOT(updateXWindowPixmap()));
 }
 
@@ -383,10 +383,9 @@ void SwitcherButtonView::destroyDamage()
 void SwitcherButtonView::updateXWindowIconGeometryIfNecessary() const
 {
     if (updatedXWindowIconPosition != controller->mapToScene(thumbnailPosition())) {
-        // Update the icon geometry in a moment if an update has not already been requested
-        if (!updateXWindowIconGeometryTimer.isActive()) {
-            updateXWindowIconGeometryTimer.start();
-        }
+        // Update the icon geometry in a moment. If timer was already active, restart it so
+        // we don't send constantly updates while the button is moving.
+        updateXWindowIconGeometryTimer.start();
     }
 }
 

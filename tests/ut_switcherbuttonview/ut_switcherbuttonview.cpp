@@ -463,10 +463,10 @@ void Ut_SwitcherButtonView::testUpdateXWindowIconGeometryIfNecessary()
     m_subject->updateXWindowIconGeometryIfNecessary();
     QVERIFY(timerStarted);
 
-    // If a timer has already been started it should not be started again
+    // Timer is restarted if another call comes and the geometry wasn't updated yet
     timerStarted = false;
     m_subject->updateXWindowIconGeometryIfNecessary();
-    QVERIFY(!timerStarted);
+    QVERIFY(timerStarted);
 
     // When the geometry is the same as what has already been set the timer should not be started
     m_subject->updateXWindowIconGeometry();
