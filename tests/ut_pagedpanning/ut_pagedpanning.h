@@ -161,6 +161,9 @@ private slots:
     void testWhenRangeChangesWhileActivelyPanningThenPanningStoppedSignalGetsEmitted();
     void testWhenRangeChangesWhilePhysicsPanningThenPanningStoppedSignalGetsEmitted();
 
+    void testWhenTriedToPanThePagePositionWillNotChangeWhenPanningIsDisabled();
+    void testCurrentPageRemainsSameWhenPageCountChangesWhenPanningIsDisabled();
+
 private:
     // MApplication
     MApplication *app;

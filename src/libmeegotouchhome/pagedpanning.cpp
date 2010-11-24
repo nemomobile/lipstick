@@ -282,6 +282,10 @@ qreal PagedPanning::slideDistance(qreal initialVelocity, qreal friction)
 
 void PagedPanning::pointerPress(const QPointF &pos)
 {
+    if(!enabled()) {
+        return;
+    }
+
     MPhysics2DPanning::pointerPress(pos);
 
     initialPage = currentPage;
@@ -296,8 +300,11 @@ void PagedPanning::pointerPress(const QPointF &pos)
 
 void PagedPanning::pointerMove(const QPointF &pos)
 {
-    MPhysics2DPanning::pointerMove(pos);
+    if(!enabled()) {
+        return;
+    }
 
+    MPhysics2DPanning::pointerMove(pos);
     /* Target the next page if the view has been dragged over the
        dragThreshold. */
 
@@ -342,8 +349,11 @@ void PagedPanning::goToNextPageWithStrongEnoughFlick()
 
 void PagedPanning::pointerRelease()
 {
-    MPhysics2DPanning::pointerRelease();
+    if(!enabled()) {
+        return;
+    }
 
+    MPhysics2DPanning::pointerRelease();
     // The number of pages to slide
     qreal slidePages = slideDistance(velocity().x(), slidingFriction()) / pageWidth();
     // Remove half a page; only slide over the center of a page if really going

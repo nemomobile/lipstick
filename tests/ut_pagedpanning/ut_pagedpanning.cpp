@@ -23,6 +23,24 @@
 const int DEFAULT_NUM_PAGES = 11;
 const qreal DEFAULT_PAGE_WIDTH = 100.0;
 
+// QAbstractAnimation stubs
+QAbstractAnimation::State qAbstractAnimationState = QAbstractAnimation::Stopped;
+void QAbstractAnimation::start(QAbstractAnimation::DeletionPolicy policy)
+{
+    Q_UNUSED(policy);
+    qAbstractAnimationState = QAbstractAnimation::Running;
+}
+
+QAbstractAnimation::State QAbstractAnimation::state() const
+{
+    return qAbstractAnimationState;
+}
+
+void QAbstractAnimation::stop()
+{
+    qAbstractAnimationState = QAbstractAnimation::Stopped;
+}
+
 void Ut_PagedPanning::initTestCase()
 {
     int argc = 1;
@@ -257,7 +275,9 @@ Ut_MPhysics2DPanning::Ut_MPhysics2DPanning(MPhysics2DPanning *physics) :
 }
 
 void Ut_MPhysics2DPanning::advancePhysicsCalculation() {
-    emit notify(QVariant());
+    if (qAbstractAnimationState == QAbstractAnimation::Running) {
+        emit notify(QVariant());
+    }
 }
 
 
@@ -559,6 +579,28 @@ void Ut_PagedPanning::testWhenRangeChangesWhilePhysicsPanningThenPanningStoppedS
     m_subject->setRange(QRectF(0.0, 0.0, (DEFAULT_NUM_PAGES - 1) * (DEFAULT_PAGE_WIDTH * 1.5), 0.0));
     physicsDriver.advancePhysicsCalculation();
     QCOMPARE(panningStoppedSpy.count(), 1);
+}
+
+void Ut_PagedPanning::testWhenTriedToPanThePagePositionWillNotChangeWhenPanningIsDisabled()
+{
+     QSignalSpy spyPositionChange(m_subject, SIGNAL(positionChanged(QPointF)));
+
+     m_subject->currentPage = 0;
+     m_subject->setPosition(QPointF(0, 0));
+
+     m_subject->setEnabled(false);
+     performMovement(120, false, 0);
+     QCOMPARE(spyPositionChange.count(), 0);
+
+     m_subject->setEnabled(true);
+     performMovement(120, false, 1);
+     QVERIFY(spyPositionChange.count() > 0);
+}
+
+void Ut_PagedPanning::testCurrentPageRemainsSameWhenPageCountChangesWhenPanningIsDisabled()
+{
+    m_subject->setEnabled(false);
+    testCurrentPageRemainsSameWhenPageCountChanges();
 }
 
 QTEST_APPLESS_MAIN(Ut_PagedPanning)
