@@ -324,7 +324,7 @@ void verifyEqualContentMarginValues(qreal first, qreal second, qreal target)
 void Ut_SwitcherView::pinchGesture(qreal scaleFactor, Qt::GestureState state)
 {
     currentPinchState = state;
-    mPinch->setScaleFactor(scaleFactor);
+    mPinch->setTotalScaleFactor(scaleFactor);
     m_subject->pinchGestureEvent(mEvent, mPinch);
 }
 

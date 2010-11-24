@@ -235,7 +235,7 @@ void SwitcherViewBase::pinchGestureEvent(QGestureEvent *event, QPinchGesture *ge
         pinchBegin(controller->mapFromScene(gesture->centerPoint()));
         break;
     case Qt::GestureUpdated:
-        pinchUpdate(gesture->scaleFactor());
+        pinchUpdate(gesture->totalScaleFactor());
         break;
     case Qt::GestureFinished:
         pinchEnd();
