@@ -159,10 +159,20 @@ void MScalableImage::draw(const QRect &rect, QPainter *painter) const
 // QPainter stubs (used by SwitcherButtonView)
 QRectF Ut_SwitcherButtonView::drawPixmapRect;
 QRectF Ut_SwitcherButtonView::drawPixmapSourceRect;
+bool gQPainter_drawPixmap_throwsBadAlloc = false;
 void QPainter::drawPixmap(const QRectF &targetRect, const QPixmap &, const QRectF &sourceRect)
 {
+    if (gQPainter_drawPixmap_throwsBadAlloc) {
+        QT_THROW(std::bad_alloc());
+    }
     Ut_SwitcherButtonView::drawPixmapRect = targetRect;
     Ut_SwitcherButtonView::drawPixmapSourceRect = sourceRect;
+}
+
+bool gQPainter_restore_called = false;
+void QPainter::restore()
+{
+    gQPainter_restore_called = true;
 }
 
 int Ut_SwitcherButtonView::returnedPixmapWidth = 180;
@@ -273,6 +283,8 @@ void Ut_SwitcherButtonView::init()
     damageSubtracted = false;
     damageSubtractHandle = NULL;
     damageSubtractDisplay = NULL;
+    gQPainter_drawPixmap_throwsBadAlloc = false;
+    gQPainter_restore_called = false;
 }
 
 void Ut_SwitcherButtonView::cleanup()
@@ -455,6 +467,14 @@ void Ut_SwitcherButtonView::testDrawBackground()
 
     // When the background is drawn the icon geometry should be updated if necessary
     QVERIFY(m_subject->updateXWindowIconGeometryTimer.isActive());
+}
+
+void Ut_SwitcherButtonView::testWhenDrawingPixmapThrowsBadAllocThenDrawBackgroundSkipsDrawing()
+{
+    QPainter painter;
+    gQPainter_drawPixmap_throwsBadAlloc = true;
+    m_subject->drawBackground(&painter, NULL);
+    QCOMPARE(gQPainter_restore_called, true);
 }
 
 void Ut_SwitcherButtonView::testUpdateXWindowIconGeometryIfNecessary()

@@ -156,6 +156,7 @@ private slots:
     void testSignalConnections();
     void testDrawBackground_data();
     void testDrawBackground();
+    void testWhenDrawingPixmapThrowsBadAllocThenDrawBackgroundSkipsDrawing();
     void testUpdateXWindowIconGeometryIfNecessary();
     void testUpdateXWindowIconGeometry();
     void testUpdateXWindowPixmap();

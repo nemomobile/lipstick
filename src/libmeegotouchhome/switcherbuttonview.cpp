@@ -180,7 +180,11 @@ void SwitcherButtonView::drawBackground(QPainter *painter, const QStyleOptionGra
     }
 
     // Do the actual drawing
-    painter->drawPixmap(QRect(pos, size), qWindowPixmap, source);
+    QT_TRY {
+        painter->drawPixmap(QRect(pos, size), qWindowPixmap, source);
+    } QT_CATCH (std::bad_alloc e) {
+        // XGetImage() failed, the window has been already unmapped.
+    }
 
     // Restore the painter state
     painter->restore();
