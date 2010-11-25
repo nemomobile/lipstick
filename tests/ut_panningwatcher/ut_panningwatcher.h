@@ -43,7 +43,13 @@ private slots:
 
     // Test cases
     void testInitialState();
-    void testWhenPannableWidgetMovesThenStateSignalsAreSent();
+    void testStateSignalIsSentWhenPannableWidgetStartsMoving();
+    void testStateSignalIsNotSentWhenPannableWidgetMovesWhenAlreadyPanning();
+    void testStateSignalIsNotSentWhenPositionChangeReceivedButPannableWidgetDoesNotMove();
+    void testStateSignalIsSentWhenMovementTimeoutOccursAndPannableWidgetDoesNotMove();
+    void testStateSignalIsNotSentWhenMovementTimeoutOccursAndPannableWidgetDoesNotMoveWhenAlreadyNotPanning();
+    void testStateSignalIsSentWhenMovementTimeoutOccursAndPannableWidgetDoesMoveWhenNotPanning();
+    void testStateSignalIsNotSentWhenMovementTimeoutOccursAndPannableWidgetDoesMoveWhenAlreadyPanning();
 
 private:
     // MApplication

@@ -42,8 +42,11 @@ public:
     virtual bool isPanning();
 
 private slots:
-    /*! Updates the state of panning and sends signals if the state changed */
-    void updatePanningState();
+    //! Enables panning and emits a signal if the position of the viewport has changed
+    void enablePanningIfPositionChanged();
+
+    //! Disables panning and emits a signal if the position of the viewport has not changed
+    void disablePanningIfPositionNotChanged();
 
 signals:
     /*! Sent when the panning starts or stops

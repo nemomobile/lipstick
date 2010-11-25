@@ -48,10 +48,10 @@ void Ut_PanningWatcher::cleanupTestCase()
 
 void Ut_PanningWatcher::init()
 {
-    pannableWidget = new MPannableWidget();
-    m_subject = new PanningWatcher(*pannableWidget);
     gPannableWidgetPosition = QPointF();
     gTimerStarted = false;
+    pannableWidget = new MPannableWidget();
+    m_subject = new PanningWatcher(*pannableWidget);
 }
 
 void Ut_PanningWatcher::cleanup()
@@ -63,38 +63,119 @@ void Ut_PanningWatcher::cleanup()
 void Ut_PanningWatcher::testInitialState()
 {
     QSignalSpy panningStateSpy(m_subject, SIGNAL(panningStateChanged(bool)));
-    m_subject->updatePanningState();
+    m_subject->enablePanningIfPositionChanged();
     QCOMPARE(panningStateSpy.count(), 0);
 
-    QVERIFY(disconnect(&m_subject->pannableWidget, SIGNAL(positionChanged(QPointF)), m_subject, SLOT(updatePanningState())));
-    QVERIFY(disconnect(&m_subject->movementDetectorTimer, SIGNAL(timeout()), m_subject, SLOT(updatePanningState())));
+    QVERIFY(disconnect(&m_subject->pannableWidget, SIGNAL(positionChanged(QPointF)), m_subject, SLOT(enablePanningIfPositionChanged())));
+    QVERIFY(disconnect(&m_subject->movementDetectorTimer, SIGNAL(timeout()), m_subject, SLOT(disablePanningIfPositionNotChanged())));
 }
 
-void Ut_PanningWatcher::testWhenPannableWidgetMovesThenStateSignalsAreSent()
+void Ut_PanningWatcher::testStateSignalIsSentWhenPannableWidgetStartsMoving()
 {
     QSignalSpy panningStateSpy(m_subject, SIGNAL(panningStateChanged(bool)));
 
     gPannableWidgetPosition = QPointF(0, 10);
-    m_subject->updatePanningState();
+    m_subject->enablePanningIfPositionChanged();
     QCOMPARE(panningStateSpy.count(), 1);
     QVERIFY(panningStateSpy.at(0).at(0).toBool());
     QVERIFY(gTimerStarted);
+}
 
+void Ut_PanningWatcher::testStateSignalIsNotSentWhenPannableWidgetMovesWhenAlreadyPanning()
+{
+    QSignalSpy panningStateSpy(m_subject, SIGNAL(panningStateChanged(bool)));
+
+    gPannableWidgetPosition = QPointF(0, 10);
+    m_subject->enablePanningIfPositionChanged();
     panningStateSpy.clear();
     gTimerStarted = false;
 
+    // Position change when already panning should not cause signaling but timer should be restarted
     gPannableWidgetPosition = QPointF(0, 15);
-    m_subject->updatePanningState();
+    m_subject->enablePanningIfPositionChanged();
     QVERIFY(gTimerStarted);
     QCOMPARE(panningStateSpy.count(), 0);
+}
 
+void Ut_PanningWatcher::testStateSignalIsNotSentWhenPositionChangeReceivedButPannableWidgetDoesNotMove()
+{
+    QSignalSpy panningStateSpy(m_subject, SIGNAL(panningStateChanged(bool)));
+
+    gPannableWidgetPosition = QPointF(0, 10);
+    m_subject->enablePanningIfPositionChanged();
+    panningStateSpy.clear();
     gTimerStarted = false;
 
-    gPannableWidgetPosition = QPointF(0, 15);
-    m_subject->updatePanningState();
+    // Position change signal without an actual position change should not cause the panning to be considered stopped
+    m_subject->enablePanningIfPositionChanged();
+    QCOMPARE(panningStateSpy.count(), 0);
+    QVERIFY(!gTimerStarted);
+}
+
+void Ut_PanningWatcher::testStateSignalIsSentWhenMovementTimeoutOccursAndPannableWidgetDoesNotMove()
+{
+    QSignalSpy panningStateSpy(m_subject, SIGNAL(panningStateChanged(bool)));
+
+    gPannableWidgetPosition = QPointF(0, 10);
+    m_subject->enablePanningIfPositionChanged();
+    panningStateSpy.clear();
+    gTimerStarted = false;
+
+    // Timer timeout without a position change should cause the panning to be considered stopped
+    m_subject->disablePanningIfPositionNotChanged();
     QCOMPARE(panningStateSpy.count(), 1);
     QVERIFY(!panningStateSpy.at(0).at(0).toBool());
     QVERIFY(!gTimerStarted);
+}
+
+void Ut_PanningWatcher::testStateSignalIsNotSentWhenMovementTimeoutOccursAndPannableWidgetDoesNotMoveWhenAlreadyNotPanning()
+{
+    QSignalSpy panningStateSpy(m_subject, SIGNAL(panningStateChanged(bool)));
+
+    gPannableWidgetPosition = QPointF(0, 10);
+    m_subject->enablePanningIfPositionChanged();
+    m_subject->disablePanningIfPositionNotChanged();
+    panningStateSpy.clear();
+    gTimerStarted = false;
+
+    // Timer timeout without a position change when the panning has already stopped should do nothing
+    m_subject->disablePanningIfPositionNotChanged();
+    QCOMPARE(panningStateSpy.count(), 0);
+    QVERIFY(!gTimerStarted);
+}
+
+void Ut_PanningWatcher::testStateSignalIsSentWhenMovementTimeoutOccursAndPannableWidgetDoesMoveWhenNotPanning()
+{
+    QSignalSpy panningStateSpy(m_subject, SIGNAL(panningStateChanged(bool)));
+
+    gPannableWidgetPosition = QPointF(0, 10);
+    m_subject->enablePanningIfPositionChanged();
+    m_subject->disablePanningIfPositionNotChanged();
+    panningStateSpy.clear();
+    gTimerStarted = false;
+
+    // Timer timeout with a position change when not panning should send a signal and restart the timer
+    gPannableWidgetPosition = QPointF(0, 15);
+    m_subject->disablePanningIfPositionNotChanged();
+    QCOMPARE(panningStateSpy.count(), 1);
+    QVERIFY(panningStateSpy.at(0).at(0).toBool());
+    QVERIFY(gTimerStarted);
+}
+
+void Ut_PanningWatcher::testStateSignalIsNotSentWhenMovementTimeoutOccursAndPannableWidgetDoesMoveWhenAlreadyPanning()
+{
+    QSignalSpy panningStateSpy(m_subject, SIGNAL(panningStateChanged(bool)));
+
+    gPannableWidgetPosition = QPointF(0, 10);
+    m_subject->enablePanningIfPositionChanged();
+    panningStateSpy.clear();
+    gTimerStarted = false;
+
+    // Timer timeout with a position change when already panning should only restart the timer
+    gPannableWidgetPosition = QPointF(0, 15);
+    m_subject->disablePanningIfPositionNotChanged();
+    QCOMPARE(panningStateSpy.count(), 0);
+    QVERIFY(gTimerStarted);
 }
 
 QTEST_APPLESS_MAIN(Ut_PanningWatcher)

@@ -24,29 +24,40 @@ static const int MOVEMENT_DETECTOR_TIMEOUT = 500;
 
 PanningWatcher::PanningWatcher(MPannableWidget &widget, QObject *parent) : QObject(parent), pannableWidget(widget), panning(false)
 {
-    connect(&widget, SIGNAL(positionChanged(QPointF)), this, SLOT(updatePanningState()));
-    oldViewportPos = widget.position();
-
+    connect(&widget, SIGNAL(positionChanged(QPointF)), this, SLOT(enablePanningIfPositionChanged()));
+    connect(&movementDetectorTimer, SIGNAL(timeout()), this, SLOT(disablePanningIfPositionNotChanged()));
     movementDetectorTimer.setSingleShot(true);
-    connect(&movementDetectorTimer, SIGNAL(timeout()), this, SLOT(updatePanningState()));
+    oldViewportPos = widget.position();
 }
 
-void PanningWatcher::updatePanningState()
+void PanningWatcher::enablePanningIfPositionChanged()
 {
     if(oldViewportPos != pannableWidget.position()) {
+        // Position has changed
         if(!panning) {
+            // Was not panning before, emit signal
             panning = true;
             emit panningStateChanged(true);
         }
 
+        // Store the current position and start movement detection timer
         oldViewportPos = pannableWidget.position();
-
         movementDetectorTimer.start(MOVEMENT_DETECTOR_TIMEOUT);
-    } else {
+    }
+}
+
+void PanningWatcher::disablePanningIfPositionNotChanged()
+{
+    if (oldViewportPos == pannableWidget.position()) {
+        // Position has not changed
         if(panning) {
+            // Was panning before, emit signal
             panning = false;
             emit panningStateChanged(false);
         }
+    } else {
+        // Position has changed
+        enablePanningIfPositionChanged();
     }
 }
 
