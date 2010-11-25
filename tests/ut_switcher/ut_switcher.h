@@ -85,6 +85,7 @@ class Ut_Switcher : public QObject
 public:
     static QList<SwitcherButton *> iconGeometryUpdated;
     static QList<Window> visibilityNotifyWindows;
+    static QList<Window> propertyNotifyWindows;
     static int clientListNumberOfWindows;
 
 private:

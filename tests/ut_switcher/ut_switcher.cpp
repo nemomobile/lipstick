@@ -32,13 +32,14 @@
 // The numbers of different windows the stubs are testing
 #define INVALID_WINDOWS 16
 #define APPLICATION_WINDOWS 2
-#define NON_APPLICATION_WINDOWS 6
+#define NON_APPLICATION_WINDOWS 7
 #define VALID_WINDOWS (NON_APPLICATION_WINDOWS + APPLICATION_WINDOWS)
 #define NUMBER_OF_WINDOWS (INVALID_WINDOWS + VALID_WINDOWS)
 
 #define FIRST_INVALID_WINDOW 0
 #define FIRST_APPLICATION_WINDOW (FIRST_INVALID_WINDOW + INVALID_WINDOWS)
 #define FIRST_NON_APPLICATION_WINDOW (FIRST_APPLICATION_WINDOW + APPLICATION_WINDOWS)
+#define SKIP_TASKBAR_WINDOW (FIRST_NON_APPLICATION_WINDOW + NON_APPLICATION_WINDOWS - 1)
 
 // Values for X11 atoms
 #define ATOM_TYPE 0x00010000
@@ -117,6 +118,9 @@ int X11Wrapper::XSelectInput(Display *, Window window, long mask)
 {
     if ((mask & VisibilityChangeMask) != 0) {
         Ut_Switcher::visibilityNotifyWindows.append(window);
+    }
+    if ((mask & PropertyChangeMask) != 0) {
+        Ut_Switcher::propertyNotifyWindows.append(window);
     }
     return 0;
 }
@@ -431,6 +435,7 @@ void QGraphicsItem::removeSceneEventFilter(QGraphicsItem *filterItem)
 }
 
 QList<Window> Ut_Switcher::visibilityNotifyWindows;
+QList<Window> Ut_Switcher::propertyNotifyWindows;
 int Ut_Switcher::clientListNumberOfWindows;
 void Ut_Switcher::init()
 {
@@ -439,6 +444,7 @@ void Ut_Switcher::init()
     switcher = new Switcher(mockWindowMonitor);
 
     visibilityNotifyWindows.clear();
+    propertyNotifyWindows.clear();
 
     gGetWindowTitleSucceeds = true;
     g_windowTypeMap.clear();
@@ -459,7 +465,11 @@ void Ut_Switcher::init()
     g_windowTypeMap[FIRST_NON_APPLICATION_WINDOW + 3][0] = ATOM_TYPE_DOCK;
     g_windowTypeMap[FIRST_NON_APPLICATION_WINDOW + 4][0] = ATOM_TYPE_MENU;
     g_windowTypeMap[FIRST_NON_APPLICATION_WINDOW + 5][0] = ATOM_TYPE_INPUT_WINDOW;
+
     g_windowStateMap.clear();
+    QVector<Atom> states(1);
+    states[0] = ATOM_STATE_SKIP_TASKBAR;
+    g_windowStateMap[SKIP_TASKBAR_WINDOW] = states;
 
     // Configure stubs
     qTimerImmediateTimeout = true;
@@ -632,25 +642,27 @@ void Ut_Switcher::testX11EventFilterWithPropertyNotify()
     QCOMPARE(r.windowList.count(), APPLICATION_WINDOWS);
     verifyModel(r.windowList);
 
-    // Update the state of a window that currently is an application window
-    QVector<Atom> states(1);
-    states[0] = ATOM_STATE_SKIP_TASKBAR;
-    g_windowStateMap[FIRST_APPLICATION_WINDOW] = states;
-    event.xproperty.window = INVALID_WINDOWS;
+    // Update the state of a window that currently isn't an application window
+    g_windowStateMap[SKIP_TASKBAR_WINDOW] = QVector<Atom>();
+    event.xproperty.window = SKIP_TASKBAR_WINDOW;
     event.xproperty.atom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_WM_STATE", False);
+
+    // Check that we're actually listening for property changes for this window
+    QVERIFY(propertyNotifyWindows.contains(SKIP_TASKBAR_WINDOW));
 
     QVERIFY(switcher->handleXEvent(event));
     QCOMPARE(r.count, 2);
-    QCOMPARE(r.windowList.count(), APPLICATION_WINDOWS - 1);
+    QCOMPARE(r.windowList.count(), APPLICATION_WINDOWS + 1);
     verifyModel(r.windowList);
 
     // Update the type of a window that currently is an application window
+    QVERIFY(propertyNotifyWindows.contains(FIRST_APPLICATION_WINDOW + 1));
     g_windowTypeMap[FIRST_APPLICATION_WINDOW + 1][0] = ATOM_TYPE_MENU;
     event.xproperty.window = FIRST_APPLICATION_WINDOW + 1;
     event.xproperty.atom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_WM_WINDOW_TYPE", False);
     QVERIFY(switcher->handleXEvent(event));
     QCOMPARE(r.count, 3);
-    QCOMPARE(r.windowList.count(), 0);
+    QCOMPARE(r.windowList.count(), APPLICATION_WINDOWS);
     verifyModel(r.windowList);
 }
 

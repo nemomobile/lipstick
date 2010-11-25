@@ -133,15 +133,15 @@ bool Switcher::addWindowInfo(WindowInfo wi)
         } else if (isApplicationWindow(wi)) {
             // Add the window to the application window list in case it is one
             applicationWindows.append(wi);
-
-            if (windowMonitor != NULL && !windowMonitor->isOwnWindow(wi.window())) {
-                // The Switcher needs to know about Visibility and
-                //property changes of other applications' windows
-                //(but not of the homescreen window)
-                X11Wrapper::XSelectInput(QX11Info::display(), wi.window(),
-                                         VisibilityChangeMask | PropertyChangeMask);
-            }
             applicationWindowListChanged = true;
+        }
+
+        if (windowMonitor != NULL && !windowMonitor->isOwnWindow(wi.window())) {
+            // The Switcher needs to know about Visibility and
+            // property changes of other applications' windows
+            // (but not of the homescreen window).
+            X11Wrapper::XSelectInput(QX11Info::display(), wi.window(),
+                                     VisibilityChangeMask | PropertyChangeMask);
         }
     }
     return applicationWindowListChanged;
