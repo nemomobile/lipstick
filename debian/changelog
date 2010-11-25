@@ -1,11 +1,10 @@
-meegotouchhome (0.22.8~1) unstable; urgency=low
+meegotouchhome (0.22.8-1) unstable; urgency=low
 
-  * [UNRELEASED]
   * Fixes: NB#204512 - Change pinch gesture handling to use totalScaleFactor instead of scaleFactor
   * Fixes: NB#206700 - minimizing window, meegotouchhome crashes
   * Fixes: NB#202350 - Application without _NET_WM_STATE_SKIP_TASKBAR is not visible in the switcher
 
- -- Vesa Halttunen <vesa.halttunen@nokia.com>  Mon, 22 Nov 2010 17:54:10 +0200
+ -- Aki Koskinen <aki.koskinen@nokia.com>  Thu, 25 Nov 2010 16:54:00 +0200
 
 meegotouchhome (0.22.7-1) unstable; urgency=low
 
