@@ -146,10 +146,10 @@ void PagedViewport::updateVisualizationWrapper()
 
     if (currentTargetPage == 0) {
         // First page
-        layoutVisualizationWrapper->setWrappingMode(LayoutVisualizationWrapper::WrapRightEdgeToLeft);
+        layoutVisualizationWrapper->setWrappingMode(layoutDirection() == Qt::LeftToRight ? LayoutVisualizationWrapper::WrapRightEdgeToLeft : LayoutVisualizationWrapper::WrapLeftEdgeToRight);
     } else if (currentTargetPage == pagedPanning->pageCount() - 1) {
         // Last page
-        layoutVisualizationWrapper->setWrappingMode(LayoutVisualizationWrapper::WrapLeftEdgeToRight);
+        layoutVisualizationWrapper->setWrappingMode(layoutDirection() == Qt::LeftToRight ? LayoutVisualizationWrapper::WrapLeftEdgeToRight : LayoutVisualizationWrapper::WrapRightEdgeToLeft);
     } else {
         // Middle page
         layoutVisualizationWrapper->setWrappingMode(LayoutVisualizationWrapper::NoWrap);

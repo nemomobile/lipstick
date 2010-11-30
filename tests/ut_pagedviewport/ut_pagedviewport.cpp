@@ -174,6 +174,10 @@ void Ut_PagedViewport::verifyLayoutWrapper(LayoutVisualizationWrapper::WrappingM
     QCOMPARE(gLayoutVisualizationWrapperStub->stubLastCallTo("setWrappingMode").parameter<LayoutVisualizationWrapper::WrappingMode>(0), wrapMode);
 }
 
+void Ut_PagedViewport::testWhenPageWrappingIsEnabledAndPanningStopsOnFirstPageThenVisualizationWrapperWrapsRightEdgeToLeft_data()
+{
+}
+
 void Ut_PagedViewport::testWhenPageWrappingIsEnabledAndPanningStopsOnFirstPageThenVisualizationWrapperWrapsRightEdgeToLeft()
 {
     fillSubjectWithPages(DEFAULT_NUM_PAGES);
@@ -184,14 +188,28 @@ void Ut_PagedViewport::testWhenPageWrappingIsEnabledAndPanningStopsOnFirstPageTh
     verifyLayoutWrapper(LayoutVisualizationWrapper::WrapRightEdgeToLeft);
 }
 
+void Ut_PagedViewport::testWhenPageWrappingIsEnabledAndPanningStopsOnLastPageThenVisualizationWrapperWrapsLeftEdgeToRight_data()
+{
+    QTest::addColumn<int>("layoutDirection");
+    QTest::addColumn<int>("wrappingMode");
+
+    QTest::newRow("Left to right") << (int)Qt::LeftToRight << (int)LayoutVisualizationWrapper::WrapLeftEdgeToRight;
+    QTest::newRow("Right to left") << (int)Qt::RightToLeft << (int)LayoutVisualizationWrapper::WrapRightEdgeToLeft;
+}
+
 void Ut_PagedViewport::testWhenPageWrappingIsEnabledAndPanningStopsOnLastPageThenVisualizationWrapperWrapsLeftEdgeToRight()
 {
+    QFETCH(int, layoutDirection);
+    QFETCH(int, wrappingMode);
+
+    m_subject->setLayoutDirection((Qt::LayoutDirection)layoutDirection);
+
     gPagedPanningStub->stubSetReturnValue("targetPage", DEFAULT_LAST_PAGE_INDEX);
     fillSubjectWithPages(DEFAULT_NUM_PAGES);
     m_subject->setPageWrapMode(true);
     emit panningStopped();
 
-    verifyLayoutWrapper(LayoutVisualizationWrapper::WrapLeftEdgeToRight);
+    verifyLayoutWrapper((LayoutVisualizationWrapper::WrappingMode)wrappingMode);
 }
 
 void Ut_PagedViewport::testWhenPageWrappingIsEnabledAndPanningStopsOnNonEdgePageThenVisualizationWrapperDoesNotWrap()
@@ -204,29 +222,71 @@ void Ut_PagedViewport::testWhenPageWrappingIsEnabledAndPanningStopsOnNonEdgePage
     verifyLayoutWrapper(LayoutVisualizationWrapper::NoWrap);
 }
 
+void Ut_PagedViewport::testWhenPageWrappingIsEnabledAndWrappingHappensFromFirstPageToLastPageThenVisualizationWrapperWrapsLeftEdgeToRight_data()
+{
+    QTest::addColumn<int>("layoutDirection");
+    QTest::addColumn<int>("wrappingMode");
+
+    QTest::newRow("Left to right") << (int)Qt::LeftToRight << (int)LayoutVisualizationWrapper::WrapLeftEdgeToRight;
+    QTest::newRow("Right to left") << (int)Qt::RightToLeft << (int)LayoutVisualizationWrapper::WrapRightEdgeToLeft;
+}
+
 void Ut_PagedViewport::testWhenPageWrappingIsEnabledAndWrappingHappensFromFirstPageToLastPageThenVisualizationWrapperWrapsLeftEdgeToRight()
 {
+    QFETCH(int, layoutDirection);
+    QFETCH(int, wrappingMode);
+
+    m_subject->setLayoutDirection((Qt::LayoutDirection)layoutDirection);
+
     gPagedPanningStub->stubSetReturnValue("targetPage", DEFAULT_LAST_PAGE_INDEX);
     fillSubjectWithPages(DEFAULT_NUM_PAGES);
     m_subject->setPageWrapMode(true);
 
     emit pageWrapped();
 
-    verifyLayoutWrapper(LayoutVisualizationWrapper::WrapLeftEdgeToRight);
+    verifyLayoutWrapper((LayoutVisualizationWrapper::WrappingMode)wrappingMode);
+}
+
+void Ut_PagedViewport::testWhenPageWrappingIsEnabledAndWrappingHappensFromLastPageToFirstPageThenVisualizationWrapperWrapsRightEdgeToLeft_data()
+{
+    QTest::addColumn<int>("layoutDirection");
+    QTest::addColumn<int>("wrappingMode");
+
+    QTest::newRow("Left to right") << (int)Qt::LeftToRight << (int)LayoutVisualizationWrapper::WrapRightEdgeToLeft;
+    QTest::newRow("Right to left") << (int)Qt::RightToLeft << (int)LayoutVisualizationWrapper::WrapLeftEdgeToRight;
 }
 
 void Ut_PagedViewport::testWhenPageWrappingIsEnabledAndWrappingHappensFromLastPageToFirstPageThenVisualizationWrapperWrapsRightEdgeToLeft()
 {
+    QFETCH(int, layoutDirection);
+    QFETCH(int, wrappingMode);
+
+    m_subject->setLayoutDirection((Qt::LayoutDirection)layoutDirection);
+
     fillSubjectWithPages(DEFAULT_NUM_PAGES);
     m_subject->setPageWrapMode(true);
 
     emit pageWrapped();
 
-    verifyLayoutWrapper(LayoutVisualizationWrapper::WrapRightEdgeToLeft);
+    verifyLayoutWrapper((LayoutVisualizationWrapper::WrappingMode)wrappingMode);
+}
+
+void Ut_PagedViewport::testWhenPageWrappingIsEnabledAndWrappingHappensFromSecondPageToFirstPageThenVisualizationWrapperWrapsRightEdgeToLeft_data()
+{
+    QTest::addColumn<int>("layoutDirection");
+    QTest::addColumn<int>("wrappingMode");
+
+    QTest::newRow("Left to right") << (int)Qt::LeftToRight << (int)LayoutVisualizationWrapper::WrapRightEdgeToLeft;
+    QTest::newRow("Right to left") << (int)Qt::RightToLeft << (int)LayoutVisualizationWrapper::WrapLeftEdgeToRight;
 }
 
 void Ut_PagedViewport::testWhenPageWrappingIsEnabledAndWrappingHappensFromSecondPageToFirstPageThenVisualizationWrapperWrapsRightEdgeToLeft()
 {
+    QFETCH(int, layoutDirection);
+    QFETCH(int, wrappingMode);
+
+    m_subject->setLayoutDirection((Qt::LayoutDirection)layoutDirection);
+
     const int SECOND_PAGE_INDEX = 1;
 
     fillSubjectWithPages(DEFAULT_NUM_PAGES);
@@ -238,7 +298,7 @@ void Ut_PagedViewport::testWhenPageWrappingIsEnabledAndWrappingHappensFromSecond
     gPagedPanningStub->stubSetReturnValue("targetPage", FIRST_PAGE_INDEX);
     emit pageChanged(FIRST_PAGE_INDEX);
 
-    verifyLayoutWrapper(LayoutVisualizationWrapper::WrapRightEdgeToLeft, false);
+    verifyLayoutWrapper((LayoutVisualizationWrapper::WrappingMode)wrappingMode, false);
 }
 
 void Ut_PagedViewport::testWhenPageWrappingIsEnabledAndWrappingHappensFromFirstPageToSecondPageThenVisualizationWrapperDoesNotWrap()
@@ -254,8 +314,22 @@ void Ut_PagedViewport::testWhenPageWrappingIsEnabledAndWrappingHappensFromFirstP
     verifyLayoutWrapper(LayoutVisualizationWrapper::NoWrap);
 }
 
+void Ut_PagedViewport::testWhenPageWrappingIsEnabledAndWrappingHappensFromSecondLastPageToLastPageThenVisualizationWrapperWrapsLeftEdgeToRight_data()
+{
+    QTest::addColumn<int>("layoutDirection");
+    QTest::addColumn<int>("wrappingMode");
+
+    QTest::newRow("Left to right") << (int)Qt::LeftToRight << (int)LayoutVisualizationWrapper::WrapLeftEdgeToRight;
+    QTest::newRow("Right to left") << (int)Qt::RightToLeft << (int)LayoutVisualizationWrapper::WrapRightEdgeToLeft;
+}
+
 void Ut_PagedViewport::testWhenPageWrappingIsEnabledAndWrappingHappensFromSecondLastPageToLastPageThenVisualizationWrapperWrapsLeftEdgeToRight()
 {
+    QFETCH(int, layoutDirection);
+    QFETCH(int, wrappingMode);
+
+    m_subject->setLayoutDirection((Qt::LayoutDirection)layoutDirection);
+
     const int SECOND_LAST_PAGE_INDEX = DEFAULT_LAST_PAGE_INDEX - 1;
 
     fillSubjectWithPages(DEFAULT_NUM_PAGES);
@@ -267,7 +341,7 @@ void Ut_PagedViewport::testWhenPageWrappingIsEnabledAndWrappingHappensFromSecond
     gPagedPanningStub->stubSetReturnValue("targetPage", DEFAULT_LAST_PAGE_INDEX);
     emit pageChanged(DEFAULT_LAST_PAGE_INDEX);
 
-    verifyLayoutWrapper(LayoutVisualizationWrapper::WrapLeftEdgeToRight, false);
+    verifyLayoutWrapper((LayoutVisualizationWrapper::WrappingMode)wrappingMode, false);
 }
 
 void Ut_PagedViewport::testWhenPageWrappingIsEnabledAndWrappingHappensFromLastPageToSecondLastPageThenVisualizationWrapperDoesNotWrap()
