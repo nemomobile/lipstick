@@ -1,3 +1,9 @@
+meegotouchhome (0.22.10~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Tue, 30 Nov 2010 11:59:03 +0200
+
 meegotouchhome (0.22.9-1) unstable; urgency=low
 
   * Fixes: NB#204272 - In arabic I don't see any running apps in app page
