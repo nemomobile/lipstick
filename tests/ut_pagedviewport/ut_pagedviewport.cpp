@@ -87,6 +87,11 @@ void Ut_PagedViewport::fillSubjectWithPages(int numPages)
     gPagedPanningStub->stubSetReturnValue("pageCount", numPages);
 }
 
+void Ut_PagedViewport::testInitialState()
+{
+    QVERIFY(disconnect(m_subject->pagedPanning, SIGNAL(pageIsPanning(bool)), m_subject, SIGNAL(pageIsPanning(bool))));
+}
+
 void Ut_PagedViewport::test_updatePageCount()
 {
     const int TARGET_PAGE = 12;

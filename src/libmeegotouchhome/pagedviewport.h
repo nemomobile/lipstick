@@ -113,6 +113,12 @@ Q_SIGNALS:
      */
     void pageCountChanged(int newPageCount);
 
+    /*!
+     * Indicates that a page is panning
+     * \param panning \c if true then page is panning, \c false otherwise
+     */
+    void pageIsPanning(bool panning);
+
 public Q_SLOTS:
 
     /*!
