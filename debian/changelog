@@ -1,6 +1,7 @@
 meegotouchhome (0.22.10~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#209530 - Fixed _MEEGOTOUCH_VISIBLE_IN_SWITCHER to be set to 0 when window gets removed from switcher but is not destroyed.
 
  -- Vesa Halttunen <vesa.halttunen@nokia.com>  Tue, 30 Nov 2010 11:59:03 +0200
 

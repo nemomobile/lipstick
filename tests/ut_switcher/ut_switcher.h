@@ -151,6 +151,10 @@ private slots:
 
     void testWhenAnimationStatusChangesThenButtonVisibilityPropertySettingIsUpdated();
 
+    void testThatIfApplicationWindowAcquiresSkipTaskbarPropertyButtonIsRemovedFromSwitcher();
+
+    void testThatSwitcherButtonVisibleInSwitcherPropertyIsSetToFalseWhenApplicationWindowIsRemoved();
+
 private:
     MSceneManager *mSceneManager;
 };

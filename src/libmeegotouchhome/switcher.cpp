@@ -385,6 +385,10 @@ void Switcher::updateButtons()
         // Keep only the buttons for which a window still exists
         if (validOldButtons.contains(button.data())) {
             newButtons.insert(firstNewButtonIndex++, button);
+            // If button that still has a window is removed from switcher (e.g. window acquires a SkipTaskbarAtom)
+            // _MEEGOTOUCH_VISIBLE_IN_SWITCHER should be set to 0 for a window.
+        } else if (windowInfoSet.contains(WindowInfo(button->xWindow()))) {
+            button->setVisibleInSwitcherProperty(false);
         }
     }
 

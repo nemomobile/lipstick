@@ -344,6 +344,7 @@ Status X11Wrapper::XGetTransientForHint(Display *, Window window, Window *prop_r
 }
 
 QMap<SwitcherButton *, Window> g_windowButtonMap;
+QMap<SwitcherButton*, bool> gSwitcherButtonVisibleInSwitcherProperty;
 
 // SwitcherButton stubs (used by Switcher)
 SwitcherButton::SwitcherButton(QGraphicsItem *parent, SwitcherButtonModel *model) :
@@ -370,10 +371,12 @@ void SwitcherButton::close()
 
 void SwitcherButton::enterDisplayEvent()
 {
+    gSwitcherButtonVisibleInSwitcherProperty[this] = true;
 }
 
 void SwitcherButton::exitDisplayEvent()
 {
+    gSwitcherButtonVisibleInSwitcherProperty[this] = false;
 }
 
 void SwitcherButton::prepareGeometryChange()
@@ -397,6 +400,10 @@ void SwitcherButton::setVisibilityPropertyEnabled(bool enable)
     gSwitcherButtonVisibilityEnabled[this] = enable;
 }
 
+void SwitcherButton::setVisibleInSwitcherProperty(bool set)
+{
+    gSwitcherButtonVisibleInSwitcherProperty[this] = set;
+}
 
 class MockWindowMonitor : public WindowMonitor {
 public:
@@ -479,6 +486,7 @@ void Ut_Switcher::init()
 
     gQGraphicsItem_removeSceneEventFilter.clear();
     gSwitcherButtonVisibilityEnabled.clear();
+    gSwitcherButtonVisibleInSwitcherProperty.clear();
 }
 
 void Ut_Switcher::cleanup()
@@ -930,5 +938,55 @@ void Ut_Switcher::testWhenAnimationStatusChangesThenButtonVisibilityPropertySett
     }
 }
 
+void Ut_Switcher::testThatIfApplicationWindowAcquiresSkipTaskbarPropertyButtonIsRemovedFromSwitcher()
+{
+    XEvent event;
+    event.type = CreateNotify;
+    Window window;
+    event.xcreatewindow.window = window;
+
+    // Add an application window which thumbnail will be shown in switcher
+    switcher->handleXEvent(event);
+
+    QSharedPointer<SwitcherButton> button = switcher->model()->buttons().at(0);
+
+    // Add a skip taskbar property to window
+    g_windowStateMap.clear();
+    QVector<Atom> states(1);
+    states[0] = ATOM_STATE_SKIP_TASKBAR;
+    g_windowStateMap[window] = states;
+
+    event.type = PropertyNotify;
+    event.xproperty.window = window;
+    event.xproperty.atom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_WM_STATE", False);
+
+    switcher->handleXEvent(event);
+    QCOMPARE(switcher->model()->buttons().count(), 0);
+    QCOMPARE(switcher->windowInfoSet.contains(window), true);
+    QCOMPARE((bool)switcher->applicationWindows.contains(window), false);
+}
+
+void Ut_Switcher::testThatSwitcherButtonVisibleInSwitcherPropertyIsSetToFalseWhenApplicationWindowIsRemoved()
+{
+    XEvent event;
+    event.type = CreateNotify;
+    Window window;
+    event.xcreatewindow.window = window;
+
+    // Add an application window that will be shown in switcher
+    switcher->handleXEvent(event);
+
+    QSharedPointer<SwitcherButton> button = switcher->model()->buttons().at(0);
+
+    switcher->applicationWindows.removeAt(switcher->applicationWindows.indexOf(window));
+
+    switcher->updateButtons();
+
+    QVERIFY(switcher->handleXEvent(event));
+    QCOMPARE(switcher->model()->buttons().count(), 0);
+    QCOMPARE(switcher->windowInfoSet.contains(window), true);
+    QCOMPARE(gSwitcherButtonVisibleInSwitcherProperty.contains(button.data()), true);
+    QCOMPARE(gSwitcherButtonVisibleInSwitcherProperty[button.data()], false);
+}
 
 QTEST_APPLESS_MAIN(Ut_Switcher)
