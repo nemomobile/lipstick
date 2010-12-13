@@ -948,8 +948,6 @@ void Ut_Switcher::testThatIfApplicationWindowAcquiresSkipTaskbarPropertyButtonIs
     // Add an application window which thumbnail will be shown in switcher
     switcher->handleXEvent(event);
 
-    QSharedPointer<SwitcherButton> button = switcher->model()->buttons().at(0);
-
     // Add a skip taskbar property to window
     g_windowStateMap.clear();
     QVector<Atom> states(1);
