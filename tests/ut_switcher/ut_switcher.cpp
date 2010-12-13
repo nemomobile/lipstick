@@ -942,7 +942,7 @@ void Ut_Switcher::testThatIfApplicationWindowAcquiresSkipTaskbarPropertyButtonIs
 {
     XEvent event;
     event.type = CreateNotify;
-    Window window;
+    Window window = 101;
     event.xcreatewindow.window = window;
 
     // Add an application window which thumbnail will be shown in switcher
@@ -970,7 +970,7 @@ void Ut_Switcher::testThatSwitcherButtonVisibleInSwitcherPropertyIsSetToFalseWhe
 {
     XEvent event;
     event.type = CreateNotify;
-    Window window;
+    Window window = 101;
     event.xcreatewindow.window = window;
 
     // Add an application window that will be shown in switcher
