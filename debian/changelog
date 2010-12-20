@@ -1,3 +1,9 @@
+meegotouchhome (0.22.11~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Mon, 20 Dec 2010 10:59:05 +0200
+
 meegotouchhome (0.22.10-1) unstable; urgency=low
 
   * Fixes: Fixed _MEEGOTOUCH_VISIBLE_IN_SWITCHER to be set to 0 when window gets removed from switcher but is not destroyed.
