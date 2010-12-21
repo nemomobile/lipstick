@@ -93,6 +93,12 @@ void MPannableWidget::setEnabled(bool enabled)
     g_ConstructorCallOrder->append(cd);
 }
 
+MPannableWidget::PanningPolicy gMPannableWidgetHorizontalPanningPolicy;
+void MPannableWidget::setHorizontalPanningPolicy(PanningPolicy policy)
+{
+    gMPannableWidgetHorizontalPanningPolicy = policy;
+}
+
 bool gMPannableWidgetIsEnabled = true;
 bool MPannableWidget::isEnabled()
 {
@@ -356,6 +362,7 @@ void Ut_SwitcherView::cleanupTestCase()
 void Ut_SwitcherView::init()
 {
     g_ConstructorCallOrder->clear();
+    gMPannableWidgetHorizontalPanningPolicy = (MPannableWidget::PanningPolicy)-1;
     // Create test switcher
     switcher = new Switcher();
     g_switcherModel = new SwitcherModel;
@@ -472,18 +479,11 @@ void Ut_SwitcherView::testPanningStoppedInDetailView()
  */
 void Ut_SwitcherView::testPanningDisabledWhenNoSwitcherButtons_NB186716()
 {
-    CallOrderData cd;
-    cd.callee = m_subject->viewport;
-    cd.param = MPANNABLEWIDGET_SET_ENABLED.arg(0);
-    int indexOfDisableCall = g_ConstructorCallOrder->indexOf(cd);
-
-    CallOrderData signalCallData;
-    signalCallData.callee = m_subject->viewport;
-    signalCallData.param = PANNING_STOPPED_SIGNAL;
-    int indexOfSignalConnect = g_ConstructorCallOrder->indexOf(signalCallData, indexOfDisableCall);
-
-    bool disableCallHappenedBeforeSignalConnect = indexOfDisableCall < indexOfSignalConnect;
-    QVERIFY(disableCallHappenedBeforeSignalConnect);
+    QCOMPARE(gMPannableWidgetHorizontalPanningPolicy, MPannableWidget::PanningAlwaysOff);
+    g_switcherModel->setButtons(createButtonList(1));
+    QCOMPARE(gMPannableWidgetHorizontalPanningPolicy, MPannableWidget::PanningAlwaysOn);
+    g_switcherModel->setButtons(QList< QSharedPointer<SwitcherButton> >());
+    QCOMPARE(gMPannableWidgetHorizontalPanningPolicy, MPannableWidget::PanningAlwaysOff);
 }
 
 void Ut_SwitcherView::testButtonModesInOverviewMode()

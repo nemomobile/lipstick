@@ -52,7 +52,7 @@ SwitcherView::SwitcherView(Switcher *switcher) :
     // when trying to pan an empty switcher. The disabling of the panning must be
     // prior to the event connections as disabling will cause the vp to emit 'panningStopped'
     // and our slot might not have the view available at that time yet.
-    viewport->setEnabled(false);
+    viewport->setHorizontalPanningPolicy(MPannableWidget::PanningAlwaysOff);
     connect(pagedViewport, SIGNAL(pageChanged(int)), this, SLOT(updateFocusedButton(int)));
     connect(pagedViewport, SIGNAL(panningStopped()), this, SLOT(panningStopped()));
     connect(MainWindow::instance()->sceneManager(), SIGNAL(orientationChanged(M::Orientation)), this, SLOT(updateButtons()));
@@ -177,7 +177,7 @@ void SwitcherView::updateButtons()
 
     updateButtonModesAndPageCount();
     // Fixes NB#186716, no point in trying to pan the switcher if there are no buttons
-    viewport->setEnabled(model()->buttons().count() > 0);
+    viewport->setHorizontalPanningPolicy(model()->buttons().count() > 0 ? MPannableWidget::PanningAlwaysOn : MPannableWidget::PanningAlwaysOff);
     delete tmp;
 }
 
@@ -197,7 +197,7 @@ void SwitcherView::updateButtonModesAndPageCount()
 
             qreal buttonWidth = model()->buttons().first()->preferredSize().width();
             pages = buttonCount;
-            range = (buttonCount - 1) * (buttonWidth + (geometry().width() - buttonWidth) / 4) + geometry().width();
+            range = (buttonCount - 1) * (buttonWidth + (geometry().width() - buttonWidth) / 4);
         } else {
             SwitcherButtonModel::ViewModeType mode = buttonCount < 3 ? SwitcherButtonModel::Large : SwitcherButtonModel::Medium;
             foreach (QSharedPointer<SwitcherButton> button, model()->buttons()) {
@@ -206,7 +206,7 @@ void SwitcherView::updateButtonModesAndPageCount()
             }
 
             pages = ceilf((qreal)buttonCount / buttonsPerPage());
-            range = pages * geometry().width();
+            range = (pages - 1) * geometry().width();
         }
     }
 
