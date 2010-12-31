@@ -47,7 +47,7 @@ public:
     /*!
      * Destroys the HomeApplication.
      */
-    ~HomeApplication();
+    virtual ~HomeApplication();
 
     /*!
      * Adds an X event listener object for this application. When X events arrive,
