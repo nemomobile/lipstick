@@ -27,6 +27,15 @@ ifeq (,$(findstring nobenchmarks,$(DEB_BUILD_OPTIONS)))
    QMAKE_OPTIONS += BENCHMARKS=on
 endif
 
+TMP_BUILD_OPTS = $(subst $(comma),$(space),$(DEB_BUILD_OPTIONS))
+
+PARALLEL_MAKEFLAGS +=
+
+ifneq (,$(filter parallel=%,$(TMP_BUILD_OPTS)))
+         NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(TMP_BUILD_OPTS)))
+         PARALLEL_MAKEFLAGS += -j$(NUMJOBS)
+endif
+
 # shared library versions, option 1
 version=0.1.0
 major=0
@@ -35,16 +44,16 @@ major=0
 configure: configure-stamp
 configure-stamp:
 	dh_testdir
-	qmake  -recursive  QMAKE_CFLAGS="$(CFLAGS)" QMAKE_CXXFLAGS="$(CFLAGS)" $(QMAKE_OPTIONS) 
+	qmake  -recursive  QMAKE_CFLAGS="$(CFLAGS)" QMAKE_CXXFLAGS="$(CFLAGS)" $(QMAKE_OPTIONS)
 	touch configure-stamp
 
 
 build: build-stamp
 
-build-stamp: configure-stamp 
+build-stamp: configure-stamp
 	dh_testdir
 
-	make all
+	make $(PARALLEL_MAKEFLAGS)
 
 	#docbook-to-man debian/home.sgml > home.1
 
@@ -54,19 +63,18 @@ clean:
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp configure-stamp
-	qmake -recursive
-	make clean
+	-@make $(PARALLEL_MAKEFLAGS) clean || true
 
-	dh_clean 
+	dh_clean
 
 install: build
 	dh_testdir
 	dh_testroot
-	dh_clean -k 
+	dh_clean -k
 	dh_installdirs
 
 	# install
-	INSTALL_ROOT=$(CURDIR)/debian/tmp $(MAKE) install
+	INSTALL_ROOT=$(CURDIR)/debian/tmp $(MAKE) $(PARALLEL_MAKEFLAGS) install
 
 	# libmeegotouchhome-doc package
 	make  $(PARALLEL_MAKEFLAGS) doc
@@ -82,11 +90,11 @@ binary-indep: build install
 binary-arch: build install
 	dh_testdir
 	dh_testroot
-	dh_installchangelogs 
+	dh_installchangelogs
 	dh_installdocs
 	dh_install --sourcedir=$(CURDIR)/debian/tmp -v
 #	dh_installmenu
-#	dh_installdebconf	
+#	dh_installdebconf
 #	dh_installlogrotate
 #	dh_installemacsen
 #	dh_installpam
