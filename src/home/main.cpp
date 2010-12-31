@@ -27,6 +27,7 @@ int main(int argc, char *argv[])
 
     MainWindow *mainWindow = MainWindow::instance(true);
     mainWindow->show();
+    QObject::connect(&app, SIGNAL(aboutToQuit()), mainWindow, SLOT(deleteLater()));
 
     // Tell X that changes in the properties and the substructure of the root
     // window are interesting. These are used to get the list of windows and
