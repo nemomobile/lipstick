@@ -53,7 +53,7 @@ public:
      *
      * \param window The X window id
      */
-    WindowInfo(Window window);
+    explicit WindowInfo(Window window);
 
     /*!
      * Copy constructor.

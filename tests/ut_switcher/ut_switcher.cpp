@@ -960,8 +960,8 @@ void Ut_Switcher::testThatIfApplicationWindowAcquiresSkipTaskbarPropertyButtonIs
 
     switcher->handleXEvent(event);
     QCOMPARE(switcher->model()->buttons().count(), 0);
-    QCOMPARE(switcher->windowInfoSet.contains(window), true);
-    QCOMPARE((bool)switcher->applicationWindows.contains(window), false);
+    QVERIFY(Switcher::windowInfoFromSet(switcher->windowInfoSet, window) != NULL);
+    QVERIFY(Switcher::windowInfoFromSet(switcher->applicationWindows.toSet(), window) == NULL);
 }
 
 void Ut_Switcher::testThatSwitcherButtonVisibleInSwitcherPropertyIsSetToFalseWhenApplicationWindowIsRemoved()
@@ -976,13 +976,13 @@ void Ut_Switcher::testThatSwitcherButtonVisibleInSwitcherPropertyIsSetToFalseWhe
 
     QSharedPointer<SwitcherButton> button = switcher->model()->buttons().at(0);
 
-    switcher->applicationWindows.removeAt(switcher->applicationWindows.indexOf(window));
+    switcher->applicationWindows.removeAll(WindowInfo(window));
 
     switcher->updateButtons();
 
     QVERIFY(switcher->handleXEvent(event));
     QCOMPARE(switcher->model()->buttons().count(), 0);
-    QCOMPARE(switcher->windowInfoSet.contains(window), true);
+    QVERIFY(Switcher::windowInfoFromSet(switcher->windowInfoSet, window) != NULL);
     QCOMPARE(gSwitcherButtonVisibleInSwitcherProperty.contains(button.data()), true);
     QCOMPARE(gSwitcherButtonVisibleInSwitcherProperty[button.data()], false);
 }

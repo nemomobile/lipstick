@@ -82,14 +82,13 @@ bool Switcher::handleXEvent(const XEvent &event)
 
     if (event.type == CreateNotify) {
         // A window has been created so add it to the switcher if it has not been added already
-        if (isRelevantWindow(event.xcreatewindow.window)
-            && addWindowInfo(WindowInfo(event.xcreatewindow.window))) {
+        if (isRelevantWindow(event.xcreatewindow.window) && addWindowInfo(WindowInfo(event.xcreatewindow.window))) {
             scheduleUpdateButtons();
         }
         eventWasHandled = true;
     } else if (event.type == DestroyNotify) {
-        // A window has been destroyed so completely remove it from the switcher
-        if (removeWindowInfo(WindowInfo(event.xdestroywindow.window))) {
+        // A window has been destroyed so completely remove it from the switcher. Do NOT create WindowInfo here since the window does not exist anymore and no WindowInfo has necessarily ever been created for it.
+        if (removeWindow(event.xdestroywindow.window)) {
             // Update the switcher buttons instantly
             updateButtons();
         }
@@ -113,16 +112,16 @@ bool Switcher::handleXEvent(const XEvent &event)
     return eventWasHandled;
 }
 
-bool Switcher::addWindowsInfo(QSet<WindowInfo> &windows)
+bool Switcher::addWindows(const QSet<WindowInfo> &windows)
 {
     bool applicationWindowListChanged = false;
-    foreach(WindowInfo wi, windows) {
+    foreach(const WindowInfo &wi, windows) {
         applicationWindowListChanged |= addWindowInfo(wi);
     }
     return applicationWindowListChanged;
 }
 
-bool Switcher::addWindowInfo(WindowInfo wi)
+bool Switcher::addWindowInfo(const WindowInfo &wi)
 {
     bool applicationWindowListChanged = false;
     if (!windowInfoSet.contains(wi)) {
@@ -147,35 +146,48 @@ bool Switcher::addWindowInfo(WindowInfo wi)
     return applicationWindowListChanged;
 }
 
-bool Switcher::removeWindows(QSet<WindowInfo> &windows)
+bool Switcher::removeWindows(const QSet<WindowInfo> &windows)
 {
     bool applicationWindowListChanged = false;
-    foreach(WindowInfo window, windows) {
-        applicationWindowListChanged |= removeWindowInfo(window);
+    foreach(const WindowInfo &windowInfo, windows) {
+        applicationWindowListChanged |= removeWindow(windowInfo.window());
     }
     return applicationWindowListChanged;
 }
 
-bool Switcher::removeWindowInfo(WindowInfo windowInfo)
+bool Switcher::removeWindow(Window window)
 {
-    windowInfoSet.remove(windowInfo);
     bool applicationWindowListChanged = false;
-    windowsInfoBeingClosed.remove(windowInfo);
-    if (windowInfo.transientFor() != 0) {
-        unmarkWindowTransientFor(windowInfo.window(), windowInfo.transientFor());
-        applicationWindowListChanged = true;
-    } else if (applicationWindows.contains(windowInfo)) {
-        applicationWindows.removeOne(windowInfo);
-        applicationWindowListChanged = true;
+    const WindowInfo *windowInfo = windowInfoFromSet(windowInfoSet, window);
+    if (windowInfo != NULL) {
+        if (windowInfo->transientFor() != 0) {
+            unmarkWindowTransientFor(windowInfo->window(), windowInfo->transientFor());
+            applicationWindowListChanged = true;
+        } else if (applicationWindows.contains(*windowInfo)) {
+            applicationWindows.removeOne(*windowInfo);
+            applicationWindowListChanged = true;
+        }
+        windowsBeingClosedInfo.remove(*windowInfo);
+        windowInfoSet.remove(*windowInfo);
     }
     return applicationWindowListChanged;
+}
+
+const WindowInfo *Switcher::windowInfoFromSet(const QSet<WindowInfo> &windowInfos, Window window)
+{
+    foreach (const WindowInfo &windowInfo, windowInfos) {
+        if (windowInfo.window() == window) {
+            return &windowInfo;
+        }
+    }
+    return NULL;
 }
 
 void Switcher::markWindowBeingClosed(Window window)
 {
     // Add the window to the windows being closed list
-    if (!windowsInfoBeingClosed.contains(window)) {
-        windowsInfoBeingClosed.insert(WindowInfo(window));
+    if (windowInfoFromSet(windowsBeingClosedInfo, window) == NULL) {
+        windowsBeingClosedInfo.insert(WindowInfo(window));
     }
 }
 
@@ -227,14 +239,14 @@ void Switcher::handleWindowInfoList(QList<WindowInfo> newWindowList)
         }
     }
 
-    QSet<WindowInfo> newWindowSet = newWindowList.toSet() - windowsInfoBeingClosed;
+    QSet<WindowInfo> newWindowSet = newWindowList.toSet() - windowsBeingClosedInfo;
     QSet<WindowInfo> oldWindowSet = windowInfoSet;
     QSet<WindowInfo> closedWindowSet = oldWindowSet - newWindowSet;
     QSet<WindowInfo> openedWindowSet = newWindowSet - oldWindowSet;
 
-    windowsInfoBeingClosed -= closedWindowSet;
+    windowsBeingClosedInfo -= closedWindowSet;
 
-    bool added = addWindowsInfo(openedWindowSet);
+    bool added = addWindows(openedWindowSet);
     bool removed = removeWindows(closedWindowSet);
 
     // The stacking order needs to be cleared out before we start updating the
@@ -242,7 +254,7 @@ void Switcher::handleWindowInfoList(QList<WindowInfo> newWindowList)
     // the method call is scheduled with a timer in the case of an addition
     QList<WindowInfo> stackingWindowList;
     foreach (WindowInfo window, newWindowList) {
-        if (!windowsInfoBeingClosed.contains(window)) {
+        if (!windowsBeingClosedInfo.contains(window)) {
             stackingWindowList.append(window);
         }
     }
@@ -284,7 +296,7 @@ bool Switcher::sceneEvent(QEvent *event)
 
 void Switcher::updateWindowTitle(Window window)
 {
-    if (windowInfoSet.contains(window)) {
+    if (windowInfoFromSet(windowInfoSet, window) != NULL) {
         WindowInfo windowInfo = WindowInfo(window);
         if (windowInfo.updateWindowTitle() && switcherButtonMap.contains(window)) {
             switcherButtonMap.value(window)->setText(windowInfo.title());
@@ -295,7 +307,7 @@ void Switcher::updateWindowTitle(Window window)
 
 void Switcher::updateWindowProperties(Window window)
 {
-    if (windowInfoSet.contains(window)) {
+    if (windowInfoFromSet(windowInfoSet, window) != NULL) {
         WindowInfo windowInfo = WindowInfo(window);
 
         // Get the old properties

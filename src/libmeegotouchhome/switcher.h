@@ -134,7 +134,7 @@ private:
      * \param windows the set of windows to add to the Switcher
      * \return \c true if the application window list was changed, \c false otherwise
      */
-    bool addWindowsInfo(QSet<WindowInfo> &windowInfos);
+    bool addWindows(const QSet<WindowInfo> &windowInfos);
 
     /*!
      * Adds a window to the set of windows tracked by the Switcher.
@@ -142,7 +142,7 @@ private:
      * \param window the ID of the window to be added
      * \return \c true if the application window list was changed, \c false otherwise
      */
-    bool addWindowInfo(WindowInfo window);
+    bool addWindowInfo(const WindowInfo &window);
 
     /*!
      * Removes all windows in the given set to the Switcher.
@@ -150,7 +150,7 @@ private:
      * \param windows the set of windows to remove from the Switcher
      * \return \c true if the application window list was changed, \c false otherwise
      */
-    bool removeWindows(QSet<WindowInfo> &windowInfos);
+    bool removeWindows(const QSet<WindowInfo> &windowInfos);
 
     /*!
      * Removes a window from the set of windows tracked by the Switcher.
@@ -158,7 +158,8 @@ private:
      * \param window the ID of the window to be removed
      * \return \c true if the application window list was changed, \c false otherwise
      */
-    bool removeWindowInfo(WindowInfo window);
+    bool removeWindow(Window window);
+
     /*!
      * Marks a window as being closed.
      *
@@ -228,6 +229,15 @@ private:
      */
     void updateWindowProperties(Window window);
 
+    /*!
+     * Returns a pointer to a window info if it exists in the given set.
+     *
+     * \param windowInfos a set of WindowInfos to get the window info from
+     * \param window the ID of the window to get info for
+     * \return WindowInfo for the window if it exists in the given set or \c NULL otherwise
+     */
+    static const WindowInfo *windowInfoFromSet(const QSet<WindowInfo> &windowInfos, Window window);
+
     //! X11 Atom for the close window message type
     Atom closeWindowAtom;
 
@@ -243,7 +253,7 @@ private:
     QHash<Window, SwitcherButton *> switcherButtonMap;
 
     //! A list of windows that are being closed
-    QSet<WindowInfo> windowsInfoBeingClosed;
+    QSet<WindowInfo> windowsBeingClosedInfo;
 
     //! Mapping of the current X windows
     QSet<WindowInfo> windowInfoSet;
