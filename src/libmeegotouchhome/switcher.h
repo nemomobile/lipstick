@@ -96,6 +96,9 @@ protected:
      */
     virtual QSharedPointer<SwitcherButton> createSwitcherButton();
 
+    //! The window monitor instance this switcher uses
+    const WindowMonitor *windowMonitor;
+
 private slots:
     /*!
      * \brief Updates the buttons in the model based on the current window list
@@ -224,9 +227,6 @@ private:
      * \param window The window to update.
      */
     void updateWindowProperties(Window window);
-
-    //! The window monitor instance this switcher uses
-    const WindowMonitor *windowMonitor;
 
     //! X11 Atom for the close window message type
     Atom closeWindowAtom;

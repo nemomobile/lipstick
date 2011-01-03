@@ -55,10 +55,16 @@ private slots:
     void testReceivingNonStackingOrderXEventDoesNotEmitSignal();
     void testReceivingStackingOrderXEventEmitsStackingOrderSignal();
     void testReceivingStackingOrderXEventEmitsFullscreenWindowOnTopSignal();
+    void testReceivingStackingOrderXEventEmitsAnyWindowOnTopSignal();
 
     void testNonFullscreenWindowOnTopDoesNotEmitFullscreenWindowOnTopSignal_data();
     void testNonFullscreenWindowOnTopDoesNotEmitFullscreenWindowOnTopSignal();
+
+    void testNonFullscreenWindowOnTopEmitsAnyWindowOnTopSignal_data();
+    void testNonFullscreenWindowOnTopEmitsAnyWindowOnTopSignal();
+
     void testOwnWindowOnTopDoesNotEmitFullscreenWindowOnTopSignal();
+    void testOwnWindowOnTopDoesNotEmitAnyWindowOnTopSignal();
 
 private:
     // The object being tested

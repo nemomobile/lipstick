@@ -52,8 +52,9 @@ bool HomeWindowMonitor::handleXEvent(const XEvent& event)
     if (event.type == PropertyNotify && event.xproperty.atom == netClientListStacking && event.xproperty.window == DefaultRootWindow(QX11Info::display())) {
         int numWindowStackingOrderReceivers = receivers(SIGNAL(windowStackingOrderChanged(QList<WindowInfo>)));
         int numFullscreenWindowReceivers = receivers(SIGNAL(fullscreenWindowOnTopOfOwnWindow()));
+        int numAnyWindowReceivers = receivers(SIGNAL(anyWindowOnTopOfOwnWindow(WindowInfo)));
 
-        if (numWindowStackingOrderReceivers + numFullscreenWindowReceivers > 0) {
+        if (numWindowStackingOrderReceivers + numFullscreenWindowReceivers + numAnyWindowReceivers > 0) {
             QList<Window> windowOrder = windowStackingOrder();
 
             if (numWindowStackingOrderReceivers > 0) {
@@ -65,23 +66,33 @@ bool HomeWindowMonitor::handleXEvent(const XEvent& event)
                 emit windowStackingOrderChanged(windowStackingList);
             }
 
-            if (numFullscreenWindowReceivers > 0) {
+            if (numFullscreenWindowReceivers + numAnyWindowReceivers > 0) {
                 if (!windowOrder.isEmpty()) {
                     QListIterator<Window> iter(windowOrder);
                     iter.toBack();
+                    bool anyWindowSignalEmitted = false;
                     while (iter.hasPrevious()) {
                         WindowInfo windowInfo(iter.previous());
-                        if (windowInfo.types().toSet().intersect(nonFullscreenApplicationWindowTypes).isEmpty()) {
-                            if (!isOwnWindow(windowInfo.window())) {
-                                emit fullscreenWindowOnTopOfOwnWindow();
+                        if (isOwnWindow(windowInfo.window())) {
+                            break;
+                        }
+                        if (numAnyWindowReceivers > 0 && !anyWindowSignalEmitted) {
+                            emit anyWindowOnTopOfOwnWindow(windowInfo);
+                            // signal is sent only once per each XEvent, mark signal sent
+                            anyWindowSignalEmitted = true;
+                            if (numFullscreenWindowReceivers < 1) {
+                                // no listeners for fullscreenWindowOnTopOfOwnWindow() signal
+                                break;
                             }
+                        }
+                        if (windowInfo.types().toSet().intersect(nonFullscreenApplicationWindowTypes).isEmpty()) {
+                            emit fullscreenWindowOnTopOfOwnWindow();
                             break;
                         }
                     }
                 }
             }
         }
-
         eventHandled = true;
     }
 

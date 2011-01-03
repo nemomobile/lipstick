@@ -90,6 +90,8 @@ void Ut_HomeWindowMonitor::cleanupTestCase()
 
 void Ut_HomeWindowMonitor::init()
 {
+    qRegisterMetaType<QModelIndex>("WindowInfo");
+
     m_subject = new HomeWindowMonitor();
 
     gMApplicationStub->stubReset();
@@ -179,6 +181,17 @@ void Ut_HomeWindowMonitor::testReceivingStackingOrderXEventEmitsFullscreenWindow
     QCOMPARE(listener.count(), 1);
 }
 
+void Ut_HomeWindowMonitor::testReceivingStackingOrderXEventEmitsAnyWindowOnTopSignal()
+{
+    QSignalSpy listener(m_subject, SIGNAL(anyWindowOnTopOfOwnWindow(WindowInfo)));
+
+    addWindowInfoToActiveWindows(APPLICATION_WINDOW_ID_1);
+    addWindowInfoToActiveWindows(APPLICATION_WINDOW_ID_2);
+
+    QCOMPARE(m_subject->handleXEvent(clientListStackingEvent), true);
+    QCOMPARE(listener.count(), 1);
+}
+
 void Ut_HomeWindowMonitor::testNonFullscreenWindowOnTopDoesNotEmitFullscreenWindowOnTopSignal_data()
 {
     QTest::addColumn<Atom>("windowType");
@@ -204,11 +217,49 @@ void Ut_HomeWindowMonitor::testNonFullscreenWindowOnTopDoesNotEmitFullscreenWind
     QCOMPARE(listener.count(), 0);
 }
 
+void Ut_HomeWindowMonitor::testNonFullscreenWindowOnTopEmitsAnyWindowOnTopSignal_data()
+{
+    QTest::addColumn<Atom>("windowType");
+
+    QTest::newRow("Notification") << WindowInfo::NotificationAtom;
+    QTest::newRow("Dialog") << WindowInfo::DialogAtom;
+    QTest::newRow("Menu") << WindowInfo::MenuAtom;
+}
+
+void Ut_HomeWindowMonitor::testNonFullscreenWindowOnTopEmitsAnyWindowOnTopSignal()
+{
+    QSignalSpy listener(m_subject, SIGNAL(anyWindowOnTopOfOwnWindow(WindowInfo)));
+
+    addWindowInfoToActiveWindows(APPLICATION_WINDOW_ID_1);
+
+    QFETCH(Atom, windowType);
+
+    QList<Atom> types;
+    types << windowType;
+    gWindowInfoStub->stubSetReturnValue("types", types);
+
+    QCOMPARE(m_subject->handleXEvent(clientListStackingEvent), true);
+    QCOMPARE(listener.count(), 1);
+}
+
 void Ut_HomeWindowMonitor::testOwnWindowOnTopDoesNotEmitFullscreenWindowOnTopSignal()
 {
     QSignalSpy listener(m_subject, SIGNAL(fullscreenWindowOnTopOfOwnWindow()));
     gWindowInfoStub->stubSetReturnValue("window", OWN_WINDOW_ID);
 
+    addWindowInfoToActiveWindows(APPLICATION_WINDOW_ID_1);
+    addWindowInfoToActiveWindows(OWN_WINDOW_ID);
+
+    QCOMPARE(m_subject->handleXEvent(clientListStackingEvent), true);
+    QCOMPARE(listener.count(), 0);
+}
+
+void Ut_HomeWindowMonitor::testOwnWindowOnTopDoesNotEmitAnyWindowOnTopSignal()
+{
+    QSignalSpy listener(m_subject, SIGNAL(anyWindowOnTopOfOwnWindow(WindowInfo)));
+    gWindowInfoStub->stubSetReturnValue("window", OWN_WINDOW_ID);
+
+    addWindowInfoToActiveWindows(APPLICATION_WINDOW_ID_1);
     addWindowInfoToActiveWindows(OWN_WINDOW_ID);
 
     QCOMPARE(m_subject->handleXEvent(clientListStackingEvent), true);

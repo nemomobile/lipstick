@@ -53,9 +53,14 @@ signals:
     /*!
      * A signal that gets emitted when a fullscreen window appears on top of application's
      * own window's and covers it completely.
-     * \param window the WindowInfo for the window that appeared.
      */
     void fullscreenWindowOnTopOfOwnWindow();
+    /*!
+     * A signal that gets emitted when a window appears on top of application's
+     * own window's.
+     * \param window the WindowInfo for the window that appeared.
+     */
+    void anyWindowOnTopOfOwnWindow(WindowInfo windowInfo);
 };
 
 #endif // WINDOWMONITOR_H
