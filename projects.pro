@@ -11,6 +11,7 @@ TEMPLATE = subdirs
 addSubDirs(src)
 addSubDirs(themes)
 addSubDirs(themes)
+addSubDirs(tests)
 
 QMAKE_CLEAN += \
     build-stamp \
@@ -28,13 +29,8 @@ QMAKE_DISTCLEAN += \
     tests/*/*.log \
     *.log.xml \
     *.log
-check.target = check
-check.CONFIG = recursive
-QMAKE_EXTRA_TARGETS += check
-check-xml.target = check-xml
-check-xml.CONFIG = recursive
-QMAKE_EXTRA_TARGETS += check-xml
 
+include(check.pri)
 include(debian/deb.pri)
 
 include(doc/doc.pri)

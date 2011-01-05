@@ -1,5 +1,7 @@
+include(../shared.pri)
 TEMPLATE = subdirs
-SUBDIRS = \
+
+TESTSUITES = \
     stubs \
     ut_desktop \
     ut_desktopview \
@@ -38,15 +40,13 @@ SUBDIRS = \
     ut_test \
     ut_launcherbuttonprogressindicatorview
 
+for(suitename, TESTSUITES):{
+    addSubDirs($${suitename})
+}
+
 QMAKE_STRIP = echo
 
-check.target = check
-check.CONFIG = recursive
-QMAKE_EXTRA_TARGETS += check
-
-check-xml.target = check-xml
-check-xml.CONFIG = recursive
-QMAKE_EXTRA_TARGETS += check-xml
+include(check.pri)
 
 support_files.commands += $$PWD/gen-tests-xml.sh > $$OUT_PWD/tests.xml
 support_files.target = support_files
