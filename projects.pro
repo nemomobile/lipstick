@@ -3,15 +3,14 @@
 # ####################################################################
 
 system(./configure)
-
+include(shared.pri)
 include(mconfig.pri)
 
-CONFIG += ordered
 TEMPLATE = subdirs
-SUBDIRS = \
-    src \
-    themes \
-    tests
+
+addSubDirs(src)
+addSubDirs(themes)
+addSubDirs(themes)
 
 QMAKE_CLEAN += \
     build-stamp \
@@ -36,7 +35,6 @@ check-xml.target = check-xml
 check-xml.CONFIG = recursive
 QMAKE_EXTRA_TARGETS += check-xml
 
-include(shared.pri)
 include(debian/deb.pri)
 
 include(doc/doc.pri)

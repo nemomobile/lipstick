@@ -1,6 +1,7 @@
+include(../../shared.pri)
 TEMPLATE=subdirs
-SUBDIRS = \
-    plaindesktopbackgroundextension
+
+addSubDirs(plaindesktopbackgroundextension)
 
 check.target = check
 check.CONFIG = recursive

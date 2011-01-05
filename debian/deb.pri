@@ -20,5 +20,5 @@ deb.depends = changelog
 deb.depends = FORCE
 
 
-QMAKE_EXTRA_UNIX_TARGETS += deb 
-QMAKE_EXTRA_UNIX_TARGETS += changelog
+QMAKE_EXTRA_TARGETS += deb 
+QMAKE_EXTRA_TARGETS += changelog

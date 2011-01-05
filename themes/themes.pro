@@ -1,5 +1,6 @@
+include(../shared.pri)
 TEMPLATE = subdirs
-SUBDIRS = base
+addSubDirs(base)
 
 QMAKE_EXTRA_TARGETS += check
 check.commands = $$system(true)

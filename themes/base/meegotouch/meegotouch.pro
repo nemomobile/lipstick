@@ -1,5 +1,7 @@
+include(../../../shared.pri)
 TEMPLATE = subdirs
-SUBDIRS = libmeegotouchhome meegotouchhome
+addSubDirs(libmeegotouchhome)
+addSubDirs(meegotouchhome)
 
 QMAKE_EXTRA_TARGETS += check
 check.commands = $$system(true)

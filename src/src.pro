@@ -1,7 +1,7 @@
-CONFIG += ordered
+include(../shared.pri)
 TEMPLATE = subdirs
-SUBDIRS = \
-    libmeegotouchhome \
-    libmeegotouchhome/translations \
-    home \
-    extensions \
+
+addSubDirs(libmeegotouchhome)
+addSubDirs(libmeegotouchhome/translations)
+addSubDirs(home, libmeegotouchhome)
+addSubDirs(extensions, libmeegotouchhome)

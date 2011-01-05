@@ -1,10 +1,11 @@
+include(../../../../shared.pri)
 include(paths.pri)
 
 TEMPLATE = subdirs
-SUBDIRS = \
-    ./images \
-    ./style \
-    ./svg
+
+addSubDirs(images)
+addSubDirs(style)
+addSubDirs(svg)
 
 INSTALLS += conf
 conf.files = *.conf

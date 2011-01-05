@@ -1,7 +1,8 @@
 include(paths.pri)
+include(../../../../shared.pri)
 
 TEMPLATE = subdirs
-SUBDIRS = ./style
+addSubDirs(style)
 
 INSTALLS += conf
 conf.files = *.conf
