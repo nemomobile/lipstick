@@ -1,9 +1,8 @@
-meegotouchhome (0.22.11~1) unstable; urgency=low
+meegotouchhome (0.22.11-1) unstable; urgency=low
 
-  * [UNRELEASED]
   * Fixes: NB#208911 - Edit mode of Recents (Switcher) view should exit when status menu or any dialog comes on top.
 
- -- Vesa Halttunen <vesa.halttunen@nokia.com>  Mon, 20 Dec 2010 10:59:05 +0200
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Thu, 06 Jan 2011 15:44:05 +0200
 
 meegotouchhome (0.22.10-1) unstable; urgency=low
 
