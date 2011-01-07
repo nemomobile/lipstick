@@ -37,8 +37,8 @@ TESTSUITES = \
     ut_applicationpackagemonitor \
     ut_applicationpackagemonitorlistener \
     ut_xeventlistener \
-    ut_test \
     ut_launcherbuttonprogressindicatorview
+#   ut_test \
 
 for(suitename, TESTSUITES):{
     addSubDirs($${suitename})
