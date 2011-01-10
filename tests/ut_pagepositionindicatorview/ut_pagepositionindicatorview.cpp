@@ -172,13 +172,19 @@ void Ut_PagePositionIndicatorView::testPositionIndicatorDrawing()
 
 void Ut_PagePositionIndicatorView::testIndicatorNotDrawnWhenOnlyOnePage()
 {
-    int amountOfPages = 1;
-    initializeViewport(amountOfPages);
+    initializeViewport(1);
     positionIndicator->paint(NULL, NULL, NULL);
     QCOMPARE(Ut_PagePositionIndicatorView::drawnScalableImages.count(), 0);
 
-    amountOfPages = 0;
-    initializeViewport(amountOfPages);
+    initializeViewport(0);
+    positionIndicator->paint(NULL, NULL, NULL);
+    QCOMPARE(Ut_PagePositionIndicatorView::drawnScalableImages.count(), 0);
+}
+
+void Ut_PagePositionIndicatorView::testIndicatorNotDrawnWhenControllerDisabled()
+{
+    initializeViewport(5);
+    positionIndicator->setEnabled(false);
     positionIndicator->paint(NULL, NULL, NULL);
     QCOMPARE(Ut_PagePositionIndicatorView::drawnScalableImages.count(), 0);
 }

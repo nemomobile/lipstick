@@ -54,8 +54,8 @@ static Launcher::Placement buttonPlacementInLauncherPages(const QString &desktop
     return Launcher::Placement(pageNum, position);
 }
 
-Launcher::Launcher(QGraphicsItem *parent) :
-    MWidgetController(new LauncherModel, parent),
+Launcher::Launcher(QGraphicsItem *parent, LauncherModel *model) :
+    MWidgetController(model != NULL ? model : new LauncherModel, parent),
     dataStore(NULL),
     packageMonitorListener(NULL),
     maximumPageSize(-1)

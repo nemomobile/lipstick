@@ -27,7 +27,7 @@
 // FIXME - stubgen is not yet finished
 class LauncherStub : public StubBase {
   public:
-  virtual void LauncherConstructor(QGraphicsItem *parent);
+  virtual void LauncherConstructor(QGraphicsItem *parent, LauncherModel *model);
   virtual void LauncherDestructor();
   virtual void setLauncherDataStore(LauncherDataStore *dataStore);
   virtual void setApplicationPackageMonitorListener(ApplicationPackageMonitorListener *packageMonitorListener);
@@ -56,9 +56,9 @@ class LauncherStub : public StubBase {
 };
 
 // 2. IMPLEMENT STUB
-void LauncherStub::LauncherConstructor(QGraphicsItem *parent) {
+void LauncherStub::LauncherConstructor(QGraphicsItem *parent, LauncherModel *model) {
   Q_UNUSED(parent);
-
+  Q_UNUSED(model);
 }
 void LauncherStub::LauncherDestructor() {
 
@@ -225,8 +225,8 @@ LauncherStub* gLauncherStub = &gDefaultLauncherStub;
 
 
 // 4. CREATE A PROXY WHICH CALLS THE STUB
-Launcher::Launcher(QGraphicsItem *parent) {
-  gLauncherStub->LauncherConstructor(parent);
+Launcher::Launcher(QGraphicsItem *parent, LauncherModel *model) {
+  gLauncherStub->LauncherConstructor(parent, model);
 }
 
 Launcher::~Launcher() {

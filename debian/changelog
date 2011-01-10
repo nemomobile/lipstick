@@ -1,6 +1,7 @@
 meegotouchhome (0.22.12~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#210728 - Pannable area's position indicator should not be visible while moving between different pages of home is still ongoing
 
  -- Vesa Halttunen <vesa.halttunen@nokia.com>  Thu, 06 Jan 2011 21:11:00 +0200
 

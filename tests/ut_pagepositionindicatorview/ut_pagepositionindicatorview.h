@@ -48,6 +48,7 @@ private slots:
 
     void testPositionIndicatorDrawing();
     void testIndicatorNotDrawnWhenOnlyOnePage();
+    void testIndicatorNotDrawnWhenControllerDisabled();
     void testPositionIndicatorFocusing();
     void testFocusBetweenPagesStyleChanges();
     void testWhenDrawUnFocusedIconOnlyIsTrueOnlyUnfocusedIconsAreDrawn();

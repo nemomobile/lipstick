@@ -61,6 +61,11 @@ void PagePositionIndicatorView::updateData(const QList<const char *>& modificati
 
 void PagePositionIndicatorView::drawContents(QPainter *painter, const QStyleOptionGraphicsItem *) const
 {
+    if (!controller->isEnabled()) {
+        // Don't do anything if the
+        return;
+    }
+
     int pageCount = model()->pageCount();
 
     if (pageCount > 1) {

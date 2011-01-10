@@ -81,9 +81,10 @@ public:
      * launcher button positions and entries before a LauncherDataStore
      * has been set using setLauncherDataStore().
      *
-     * \param parent Parent for the widget, defaults to NULL
+     * \param parent parent graphics item for the widget, defaults to NULL
+     * \param model model for the widget, defaults to a LauncherModel
      */
-    Launcher(QGraphicsItem *parent = NULL);
+    Launcher(QGraphicsItem *parent = NULL, LauncherModel *model = NULL);
 
     /*!
      * Destroys the Launcher.
