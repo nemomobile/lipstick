@@ -80,20 +80,7 @@ bool Switcher::handleXEvent(const XEvent &event)
 {
     bool eventWasHandled = false;
 
-    if (event.type == CreateNotify) {
-        // A window has been created so add it to the switcher if it has not been added already
-        if (isRelevantWindow(event.xcreatewindow.window) && addWindowInfo(WindowInfo(event.xcreatewindow.window))) {
-            scheduleUpdateButtons();
-        }
-        eventWasHandled = true;
-    } else if (event.type == DestroyNotify) {
-        // A window has been destroyed so completely remove it from the switcher. Do NOT create WindowInfo here since the window does not exist anymore and no WindowInfo has necessarily ever been created for it.
-        if (removeWindow(event.xdestroywindow.window)) {
-            // Update the switcher buttons instantly
-            updateButtons();
-        }
-        eventWasHandled = true;
-    } else if (event.type == PropertyNotify) {
+    if (event.type == PropertyNotify) {
         if (event.xproperty.atom == WindowInfo::TypeAtom || event.xproperty.atom == WindowInfo::StateAtom || event.xproperty.atom == XA_WM_TRANSIENT_FOR) {
             // The type, state or transiency of a window has changed so update that window's properties
             updateWindowProperties(event.xproperty.window);

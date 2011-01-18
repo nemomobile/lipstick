@@ -965,48 +965,48 @@ void Ut_Switcher::testWhenAnimationStatusChangesThenButtonVisibilityPropertySett
 
 void Ut_Switcher::testThatIfApplicationWindowAcquiresSkipTaskbarPropertyButtonIsRemovedFromSwitcher()
 {
-    XEvent event;
-    event.type = CreateNotify;
-    Window window = 101;
-    event.xcreatewindow.window = window;
+    updateWindowList();
 
-    // Add an application window which thumbnail will be shown in switcher
-    switcher->handleXEvent(event);
+    Window window = FIRST_APPLICATION_WINDOW;
 
-    // Add a skip taskbar property to window
+    // Give the skip taskbar property to the first application window
     g_windowStateMap.clear();
     QVector<Atom> states(1);
     states[0] = ATOM_STATE_SKIP_TASKBAR;
     g_windowStateMap[window] = states;
 
+    XEvent event;
     event.type = PropertyNotify;
     event.xproperty.window = window;
     event.xproperty.atom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_WM_STATE", False);
-
     switcher->handleXEvent(event);
-    QCOMPARE(switcher->model()->buttons().count(), 0);
+
+    QCOMPARE(switcher->model()->buttons().count(), APPLICATION_WINDOWS - 1);
     QVERIFY(Switcher::windowInfoFromSet(switcher->windowInfoSet, window) != NULL);
     QVERIFY(Switcher::windowInfoFromSet(switcher->applicationWindows.toSet(), window) == NULL);
 }
 
 void Ut_Switcher::testThatSwitcherButtonVisibleInSwitcherPropertyIsSetToFalseWhenApplicationWindowIsRemoved()
 {
-    XEvent event;
-    event.type = CreateNotify;
     Window window = 101;
-    event.xcreatewindow.window = window;
 
     // Add an application window that will be shown in switcher
-    switcher->handleXEvent(event);
+    addApplicationWindow(window);
+    updateWindowList();
 
-    QSharedPointer<SwitcherButton> button = switcher->model()->buttons().at(0);
+    // Find the button for the new window
+    QSharedPointer<SwitcherButton> button;
+    foreach(QSharedPointer<SwitcherButton> b, switcher->model()->buttons()) {
+        if (b->xWindow() == window) {
+            button = b;
+        }
+    }
 
     switcher->applicationWindows.removeAll(WindowInfo(window));
 
     switcher->updateButtons();
 
-    QVERIFY(switcher->handleXEvent(event));
-    QCOMPARE(switcher->model()->buttons().count(), 0);
+    QCOMPARE(switcher->model()->buttons().count(), APPLICATION_WINDOWS);
     QVERIFY(Switcher::windowInfoFromSet(switcher->windowInfoSet, window) != NULL);
     QCOMPARE(gSwitcherButtonVisibleInSwitcherProperty.contains(button.data()), true);
     QCOMPARE(gSwitcherButtonVisibleInSwitcherProperty[button.data()], false);
