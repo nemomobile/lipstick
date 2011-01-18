@@ -167,7 +167,6 @@ bool Switcher::removeWindow(Window window)
             applicationWindows.removeOne(*windowInfo);
             applicationWindowListChanged = true;
         }
-        windowsBeingClosedInfo.remove(*windowInfo);
         windowInfoSet.remove(*windowInfo);
     }
     return applicationWindowListChanged;
@@ -185,8 +184,9 @@ const WindowInfo *Switcher::windowInfoFromSet(const QSet<WindowInfo> &windowInfo
 
 void Switcher::markWindowBeingClosed(Window window)
 {
-    // Add the window to the windows being closed list
-    if (windowInfoFromSet(windowsBeingClosedInfo, window) == NULL) {
+    // Add the window to the windows being closed list - but only if it is a
+    // known window, as only known windows can be removed from the list
+    if (windowInfoFromSet(windowInfoSet, window) != NULL) {
         windowsBeingClosedInfo.insert(WindowInfo(window));
     }
 }
@@ -239,15 +239,15 @@ void Switcher::handleWindowInfoList(QList<WindowInfo> newWindowList)
         }
     }
 
-    QSet<WindowInfo> newWindowSet = newWindowList.toSet() - windowsBeingClosedInfo;
+    QSet<WindowInfo> newWindowSet = newWindowList.toSet();
     QSet<WindowInfo> oldWindowSet = windowInfoSet;
     QSet<WindowInfo> closedWindowSet = oldWindowSet - newWindowSet;
-    QSet<WindowInfo> openedWindowSet = newWindowSet - oldWindowSet;
-
-    windowsBeingClosedInfo -= closedWindowSet;
+    QSet<WindowInfo> openedWindowSet = newWindowSet - oldWindowSet - windowsBeingClosedInfo;
 
     bool added = addWindows(openedWindowSet);
-    bool removed = removeWindows(closedWindowSet);
+    bool removed = removeWindows(closedWindowSet + windowsBeingClosedInfo);
+
+    windowsBeingClosedInfo -= closedWindowSet;
 
     // The stacking order needs to be cleared out before we start updating the
     // buttons as the topmostWindow is set in the 'updateButtons()' method and

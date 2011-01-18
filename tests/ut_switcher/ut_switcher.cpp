@@ -216,7 +216,7 @@ int X11Wrapper::XGetWindowProperty(Display *dpy, Window w, Atom property, long l
             return BadWindow;
         } else {
             *nitems_return = Ut_Switcher::clientListNumberOfWindows;
-            *prop_return = new unsigned char[Ut_Switcher::clientListNumberOfWindows * sizeof(Window)];
+            *prop_return = new unsigned char[g_windows.count() * sizeof(Window)];
 
             Window *windows = (Window *) * prop_return;
             for (int w = 0; w < g_windows.count(); w++) {
@@ -425,6 +425,9 @@ void QTimer::start()
 {
     if (qTimerImmediateTimeout) {
         emit timeout();
+        // Set the id to less than zero to deactivate
+        id = -1;
+        return;
     }
 
     id = 0;
@@ -524,12 +527,17 @@ void populateWindowList(QList<WindowInfo> &newInfoWindowList)
     }
 }
 
+void addApplicationWindow(Window window)
+{
+    g_windows.append(window);
+
+    QVector<Atom> types(1);
+    types[0] = ATOM_TYPE_NORMAL;
+    g_windowTypeMap[window] = types;
+}
+
 void Ut_Switcher::updateWindowList()
 {
-    XEvent event;
-    event.xproperty.atom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_CLIENT_LIST_STACKING", False);
-    event.xproperty.window = DefaultRootWindow(QX11Info::display());
-    event.type = PropertyNotify;
     QList<WindowInfo> newWindowList;
     populateWindowList(newWindowList);
     switcher->handleWindowInfoList(newWindowList);
@@ -676,6 +684,8 @@ void Ut_Switcher::testX11EventFilterWithPropertyNotify()
 
 void Ut_Switcher::testX11EventFilterWithClientMessage()
 {
+    updateWindowList();
+
     WindowListReceiver r;
     connect(switcher, SIGNAL(windowListUpdated(const QList<WindowInfo> &)), &r, SLOT(windowListUpdated(const QList<WindowInfo> &)));
 
@@ -696,12 +706,27 @@ void Ut_Switcher::testX11EventFilterWithClientMessage()
     // When the stacking list is updated the closed window should be excluded
     updateWindowList();
 
-    // Make sure the window list change signal was not emitted
+    // Make sure the window list change signal was emitted
     QCOMPARE(r.count, 1);
 
-    // There should be 2 windows in the window list
+    // There should be 1 window in the window list
     QCOMPARE(r.windowList.count(), APPLICATION_WINDOWS - 1);
     verifyModel(r.windowList);
+
+    // Close a non-existant window
+    clientEvent.xclient.window = 234;
+    QVERIFY(switcher->handleXEvent(clientEvent));
+
+    // Now open a window with the same id, the previous
+    // close event shouldn't affect this
+    addApplicationWindow(234);
+    updateWindowList();
+
+    // Make sure the window list change signal was emitted
+    QCOMPARE(r.count, 2);
+
+    // There should be 2 windows in the window list again
+    QCOMPARE(r.windowList.count(), APPLICATION_WINDOWS);
 }
 
 void Ut_Switcher::testWhenStackingOrderChangesCorrectWindowsAreStored()

@@ -1,6 +1,7 @@
 meegotouchhome (0.22.13~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#217961 - Some applications are not shown in the switcher after minimizing if they've been closed once
 
  -- Vesa Halttunen <vesa.halttunen@nokia.com>  Mon, 10 Jan 2011 14:07:31 +0200
 
