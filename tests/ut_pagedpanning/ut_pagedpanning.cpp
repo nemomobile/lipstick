@@ -294,8 +294,8 @@ void Ut_PagedPanning::performMovement(qreal moveAmount,
 
     m_subject->pointerPress(QPointF(movePosition, 0));
 
-    // Simulate the movements of mouse
-    while (pointerPressControl || m_subject->velocity().x() != 0.0) {
+    // Simulate the movements of mouse and the MPhysics2DPanning integrator method
+    while (pointerPressControl || qAbs(m_subject->velocity().x()) >= 1.0) {
         if (i++ < (moveAmount / speed)) {
             // If we have not reached the end position calculate the next mouse position
             movePosition += leftToRight ? speed : -speed;
@@ -317,9 +317,11 @@ void Ut_PagedPanning::performIntegration(PagedPanning* pagedPanning)
     Ut_MPhysics2DPanning physicsDriver(pagedPanning);
     QSignalSpy stopSpy(pagedPanning, SIGNAL(panningStopped()));
 
+    int i = 0;
     do {
         physicsDriver.advancePhysicsCalculation();
-    } while (stopSpy.count() == 0);
+        i++;
+    } while (stopSpy.count() == 0 && i < 100000);
 
 }
 
@@ -601,6 +603,30 @@ void Ut_PagedPanning::testCurrentPageRemainsSameWhenPageCountChangesWhenPanningI
 {
     m_subject->setEnabled(false);
     testCurrentPageRemainsSameWhenPageCountChanges();
+}
+
+void Ut_PagedPanning::testWhenPhysicsDisabledWhileActivelyPanningThenPositionIsPannedToNearestPage()
+{
+    Ut_MPhysics2DPanning physicsDriver(m_subject);
+
+    // Start panning
+    m_subject->pointerPress(QPointF(0.0, 0.0));
+
+    for (int i = 0; i < DEFAULT_PAGE_WIDTH; i++) {
+        m_subject->pointerMove(QPointF(-i * 2.2, 0));
+        physicsDriver.advancePhysicsCalculation();
+    }
+
+    int currentPage = m_subject->currentPage;
+
+    // Disable while being panned
+    m_subject->setEnabled(false);
+
+    QSignalSpy panningStoppedSpy(m_subject, SIGNAL(panningStopped()));
+    performIntegration(m_subject);
+
+    QCOMPARE(m_subject->position().x(), currentPage * DEFAULT_PAGE_WIDTH);
+    QCOMPARE(panningStoppedSpy.count(), 2);
 }
 
 QTEST_APPLESS_MAIN(Ut_PagedPanning)

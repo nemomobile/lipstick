@@ -73,17 +73,21 @@ void PagedPanning::integrateAxis(Qt::Orientation orientation,
         return;
     }
 
+    if (!enabled()) {
+        snapMode = true;
+    }
+
     qreal force = 0.0;
 
     qreal currentPageWidth = pageWidth();
 
     if (position >= range().left() && position <= range().right()) {
         // Inside range
-        if (pointerPressed) {
+        if (snapMode) {
+            force = -pageSnapFriction_ * velocity;
+        } else if (pointerPressed) {
             // Drag friction
             force = -friction() * velocity;
-        } else if (snapMode) {
-            force = -pageSnapFriction_ * velocity;
         } else {
             force = -slidingFriction() * velocity;
         }
@@ -92,7 +96,7 @@ void PagedPanning::integrateAxis(Qt::Orientation orientation,
         force = -borderFriction() * velocity;
     }
 
-    if( currentPageWidth != 0 && previousPageWidth != currentPageWidth ) {
+    if (currentPageWidth != 0 && previousPageWidth != currentPageWidth) {
         /*
            A change in the page width means the orientation has
            changed - move the view to the correct position immediately
@@ -107,7 +111,7 @@ void PagedPanning::integrateAxis(Qt::Orientation orientation,
         }
     }
 
-    if (pointerPressed) {
+    if (pointerPressed && enabled()) {
         // Pointer spring
         force += -pointerSpringK() * pointerDifference;
     } else {
@@ -125,7 +129,7 @@ void PagedPanning::integrateAxis(Qt::Orientation orientation,
 
         // Cap the nearestPage at targetPage, in case
         // we slide past the target
-        if ( initialPage < targetPage_ )
+        if (initialPage < targetPage_)
             nearestPage = qMin(nearestPage, targetPage_);
         else
             nearestPage = qMax(targetPage_, nearestPage);
@@ -142,21 +146,26 @@ void PagedPanning::integrateAxis(Qt::Orientation orientation,
         }
 
         // Activate the snap when arriving at target
-        if ( currentPage == targetPage_ ) {
+        if (currentPage == targetPage_) {
             snapMode = true;
         }
 
-        if ( snapMode ) {
+        if (snapMode) {
 
             force += pageSnapSpringK_ * (targetPage_ * (qreal)currentPageWidth - position);
 
             qreal closeEnough = position - (currentPageWidth * targetPage_);
 
             if (abs(closeEnough) < 2 && abs(force) < 2) {
-                // Setting these to zero should stop the integration process
+                // Setting these to zero and releasing the pointer should stop the integration process
                 force = 0;
                 velocity = 0;
                 acceleration = 0;
+
+                if (pointerPressed) {
+                    MPhysics2DPanning::pointerRelease();
+                }
+
                 // Make the position exactly the right one
                 position = currentPageWidth * targetPage_;
 
@@ -172,6 +181,11 @@ void PagedPanning::integrateAxis(Qt::Orientation orientation,
 
     previousPosition = position;
     previousPageWidth = currentPageWidth;
+
+    if (snapMode && std::fabs(velocity) < 1.0f) {
+        // Keep the velocity over 1 or under -1 to keep the animation going
+        velocity = velocity < 0.0f ? -1.0f : 1.0f;
+    }
 }
 
 void PagedPanning::setPageCount(int newPageCount)
@@ -198,7 +212,7 @@ void PagedPanning::panToPage(int page)
 
 void PagedPanning::panToCurrentPage()
 {
-    if (std::fabs(previousPosition - currentPage * pageWidth()) > 1.0 ) {
+    if (std::fabs(previousPosition - currentPage * pageWidth()) > 1.0) {
         targetPage_ = currentPage;
         snapMode = true;
         start();

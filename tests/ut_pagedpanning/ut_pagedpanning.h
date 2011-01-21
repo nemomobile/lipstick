@@ -164,6 +164,8 @@ private slots:
     void testWhenTriedToPanThePagePositionWillNotChangeWhenPanningIsDisabled();
     void testCurrentPageRemainsSameWhenPageCountChangesWhenPanningIsDisabled();
 
+    void testWhenPhysicsDisabledWhileActivelyPanningThenPositionIsPannedToNearestPage();
+
 private:
     // MApplication
     MApplication *app;
