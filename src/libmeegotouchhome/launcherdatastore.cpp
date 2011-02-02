@@ -38,7 +38,7 @@ LauncherDataStore::LauncherDataStore(MDataStore* dataStore, const QString& direc
     processUpdateQueueTimer.setSingleShot(true);
     processUpdateQueueTimer.setInterval(0);
 
-    supportedDesktopEntryFileTypes << "Application";
+    supportedDesktopEntryFileTypes << "Application" << "Link";
     updateDataFromDesktopEntryFiles();
 
     // Start watching the applications directory for changes

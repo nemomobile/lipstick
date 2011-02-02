@@ -51,7 +51,6 @@ QString MDesktopEntry::fileName() const
     return desktopEntryFileName[this];
 }
 
-
 bool MDesktopEntry::isValid() const
 {
     return true;
@@ -354,7 +353,7 @@ void Ut_LauncherDataStore::testProcessUpdateQueueFiltersDesktopFiles()
 {
     // Add valid entries:
     addDesktopEntry("regularApplication.desktop", "Test4", "Application", "Icon-camera", "test4");
-    addDesktopEntry("onlyShowInMeeGoApplication.desktop", "Test0", "Application", "Icon-camera", "test0");
+    addDesktopEntry("onlyShowInMeeGoApplication.desktop", "Test0", "Link", "Icon-camera", "test0");
     desktopEntryOnlyShowIn.insert(fileNameWithPath("onlyShowInMeeGoApplication.desktop"), QStringList() << "X-MeeGo");
 
     // Add invalid entries:
