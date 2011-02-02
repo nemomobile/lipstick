@@ -58,9 +58,9 @@ public:
      * to this LauncherDataStore.
      *
      * \param dataStore The backend data store. 
-     * \param directoryPath The directory to watch.
+     * \param directories The directories to watch.
      */
-    LauncherDataStore(MDataStore* dataStore, const QString &directoryPath = APPLICATIONS_DIRECTORY);
+    LauncherDataStore(MDataStore* dataStore, const QStringList &directories);
 
     /*!
      * Destroys LauncherDataStore
@@ -213,8 +213,8 @@ private:
     //! The update queue
     QFileInfoList updateQueue;
 
-    //! The directory being watched
-    QString directoryPath;
+    //! The directories being watched
+    QStringList directories;
 
     //! Invalid entries in the watched dir
     QStringList invalidEntries;

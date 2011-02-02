@@ -26,6 +26,7 @@
 #include <MDeviceProfile>
 #include <MPannableViewport>
 #include <MSceneWindow>
+#include <MApplicationExtensionArea>
 
 #include "ut_desktopview.h"
 #include "desktopview.h"
@@ -246,6 +247,20 @@ bool QDBusConnection::registerObject(QString const &, QObject *, QFlags<QDBusCon
     return true;
 }
 
+// QDir stubs
+QStringList qDirExistsDirs;
+bool QDir::exists(const QString &name) const
+{
+    return qDirExistsDirs.contains(name);
+}
+
+QStringList qDirMkPathDirs;
+bool QDir::mkpath(const QString &dirPath) const
+{
+    qDirMkPathDirs.append(dirPath);
+    return true;
+}
+
 // MTheme stubs
 void MTheme::releasePixmap(const QPixmap *)
 {
@@ -328,6 +343,9 @@ void Ut_DesktopView::init()
 void Ut_DesktopView::cleanup()
 {
     delete desktop;
+    qDirExistsDirs.clear();
+    qDirMkPathDirs.clear();
+    gLauncherDataStoreStub->stubReset();
 }
 
 void Ut_DesktopView::testToggleLauncher()
@@ -451,6 +469,38 @@ void Ut_DesktopView::testDefocusing()
 
     desktopView->hideLauncher();
     QVERIFY(!extensionDefocused);
+}
+
+void Ut_DesktopView::testDataStoreInitialization_data()
+{
+    QTest::addColumn<QStringList>("existingDirectories");
+    QTest::addColumn<QStringList>("createdDirectories");
+    QTest::newRow("No directory exists") << QStringList() << (QStringList() << (QDir::homePath() + "/.config/meegotouchhome") << (QDir::homePath() + "/.local/share/applications"));
+    QTest::newRow("Config exists") << (QStringList() << (QDir::homePath() + "/.config/meegotouchhome")) << (QStringList() << (QDir::homePath() + "/.local/share/applications"));
+    QTest::newRow("Apps exists") << (QStringList() << (QDir::homePath() + "/.local/share/applications")) << (QStringList() << (QDir::homePath() + "/.config/meegotouchhome"));
+    QTest::newRow("Both exist") << (QStringList() << (QDir::homePath() + "/.config/meegotouchhome") << (QDir::homePath() + "/.local/share/applications")) << QStringList();
+}
+
+void Ut_DesktopView::testDataStoreInitialization()
+{
+    QFETCH(QStringList, existingDirectories);
+    QFETCH(QStringList, createdDirectories);
+
+    cleanup();
+
+    qDirExistsDirs = existingDirectories;
+
+    init();
+
+    // Existing directories should not be created, missing ones should
+    foreach (const QString &directory, existingDirectories) {
+        QCOMPARE(qDirMkPathDirs.contains(directory), QBool(false));
+    }
+    foreach (const QString &directory, createdDirectories) {
+        QCOMPARE(qDirMkPathDirs.contains(directory), QBool(true));
+    }
+
+    QCOMPARE(gLauncherDataStoreStub->stubLastCallTo("LauncherDataStore").parameter<QStringList>(1), (QStringList() << APPLICATIONS_DIRECTORY << (QDir::homePath() + "/.local/share/applications/")));
 }
 
 QTEST_APPLESS_MAIN(Ut_DesktopView)

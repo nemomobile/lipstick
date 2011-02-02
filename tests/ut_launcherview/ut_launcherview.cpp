@@ -73,7 +73,7 @@ void Ut_LauncherView::cleanupTestCase()
 
 void Ut_LauncherView::init()
 {
-    launcherDataStore = new LauncherDataStore(new MockDataStore);
+    launcherDataStore = new LauncherDataStore(new MockDataStore, QStringList());
     controller = new Launcher;
     controller->setLauncherDataStore(launcherDataStore);
     controller->setApplicationPackageMonitorListener(new ApplicationPackageMonitorListener);

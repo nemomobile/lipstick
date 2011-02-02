@@ -42,7 +42,7 @@ void Ut_QuickLaunchBarView::cleanupTestCase()
 
 void Ut_QuickLaunchBarView::init()
 {
-    launcherDataStore = new LauncherDataStore(new MockDataStore);
+    launcherDataStore = new LauncherDataStore(new MockDataStore, QStringList());
     controller = new QuickLaunchBar;
     controller->setLauncherDataStore(launcherDataStore);
     m_subject = new QuickLaunchBarView(controller);

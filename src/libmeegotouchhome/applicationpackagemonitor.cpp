@@ -55,7 +55,7 @@ static const QString DESKTOP_ENTRY_GROUP_MEEGO = "X-MeeGo";
 class ApplicationPackageMonitor::ExtraDirWatcher : public LauncherDataStore
 {
 public:
-    ExtraDirWatcher(MDataStore *dataStore, const QString &directoryPath);
+    ExtraDirWatcher(MDataStore *dataStore, const QStringList &directories);
     ~ExtraDirWatcher();
 
 protected:
@@ -85,7 +85,7 @@ ApplicationPackageMonitor::ApplicationPackageMonitor()
     dataStore = new MFileDataStore(dataStoreFileName);
 
     // ExtraDirWatcher takes ownership of dataStore
-    extraDirWatcher = QSharedPointer<ExtraDirWatcher>(new ExtraDirWatcher(dataStore, APPLICATIONS_DIRECTORY+INSTALLER_EXTRA));
+    extraDirWatcher = QSharedPointer<ExtraDirWatcher>(new ExtraDirWatcher(dataStore, QStringList() << (APPLICATIONS_DIRECTORY+INSTALLER_EXTRA)));
 
     connect(extraDirWatcher.data(), SIGNAL(desktopEntryAdded(QString)), this, SLOT(updatePackageState(QString)), Qt::UniqueConnection);
     connect(extraDirWatcher.data(), SIGNAL(desktopEntryChanged(QString)), this, SLOT(updatePackageState(QString)), Qt::UniqueConnection);
@@ -295,8 +295,8 @@ QString ApplicationPackageMonitor::desktopEntryName(const QString &packageName)
     return dataStore->value(pkgKey).toString();
 }
 
-ApplicationPackageMonitor::ExtraDirWatcher::ExtraDirWatcher(MDataStore *dataStore, const QString &directoryPath) :
-    LauncherDataStore(dataStore, directoryPath)
+ApplicationPackageMonitor::ExtraDirWatcher::ExtraDirWatcher(MDataStore *dataStore, const QStringList &directories) :
+    LauncherDataStore(dataStore, directories)
 {
 }
 

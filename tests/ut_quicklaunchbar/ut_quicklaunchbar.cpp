@@ -49,7 +49,7 @@ void Ut_QuickLaunchBar::cleanupTestCase()
 
 void Ut_QuickLaunchBar::init()
 {
-    launcherDataStore = new LauncherDataStore(new MockDataStore);
+    launcherDataStore = new LauncherDataStore(new MockDataStore, QStringList());
     packageMonitorListener = new ApplicationPackageMonitorListener();
 
     m_subject = new QuickLaunchBar;

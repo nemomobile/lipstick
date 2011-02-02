@@ -306,6 +306,9 @@ LauncherDataStore *DesktopView::createLauncherDataStore()
     if (!QDir::root().exists(QDir::homePath() + "/.config/meegotouchhome")) {
         QDir::root().mkpath(QDir::homePath() + "/.config/meegotouchhome");
     }
+    if (!QDir::root().exists(QDir::homePath() + "/.local/share/applications")) {
+        QDir::root().mkpath(QDir::homePath() + "/.local/share/applications");
+    }
 
     QString dataStoreFileName = QDir::homePath() + "/.config/meegotouchhome/launcherbuttons.data";
 
@@ -317,7 +320,7 @@ LauncherDataStore *DesktopView::createLauncherDataStore()
         }
     }
 
-    return new LauncherDataStore(new MFileDataStore(dataStoreFileName));
+    return new LauncherDataStore(new MFileDataStore(dataStoreFileName), (QStringList() << APPLICATIONS_DIRECTORY << (QDir::homePath() + "/.local/share/applications/")));
 }
 
 M_REGISTER_VIEW_NEW(DesktopView, Desktop)

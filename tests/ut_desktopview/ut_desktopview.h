@@ -86,6 +86,8 @@ private slots:
     // Test show launcher with empty desktop file path given
     void testShowLauncherAndFocusToButtonWithEmptyDesktopFile();
     void testDefocusing();
+    void testDataStoreInitialization_data();
+    void testDataStoreInitialization();
 
 public:
     // The main window

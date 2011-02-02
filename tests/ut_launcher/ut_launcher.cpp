@@ -91,7 +91,7 @@ void Ut_Launcher::cleanupTestCase()
 void Ut_Launcher::init()
 {
     // Set up the launcher data store
-    launcherDataStore = new LauncherDataStore(new MockDataStore);
+    launcherDataStore = new LauncherDataStore(new MockDataStore, QStringList());
     packageMonitorListener = new ApplicationPackageMonitorListener();
     // Create a launcher and connect the signals
     launcher = new Launcher;

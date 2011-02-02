@@ -16,7 +16,6 @@
 ** of this file.
 **
 ****************************************************************************/
-
 #include <QDir>
 #include <QFile>
 #include <MDesktopEntry>
@@ -29,10 +28,10 @@ static const QString KEY_PREFIX = "DesktopEntries";
 static const char* const FILE_FILTER = "*.desktop";
 static const int FILES_PROCESSED_AT_ONCE = 3;
 
-LauncherDataStore::LauncherDataStore(MDataStore* dataStore, const QString& directoryPath) :
+LauncherDataStore::LauncherDataStore(MDataStore* dataStore, const QStringList &directories) :
         store(dataStore),
         updatePending(false),
-        directoryPath(directoryPath)
+        directories(directories)
 {
     connect(&processUpdateQueueTimer, SIGNAL(timeout()), this, SLOT(processUpdateQueue()));
     processUpdateQueueTimer.setSingleShot(true);
@@ -44,7 +43,9 @@ LauncherDataStore::LauncherDataStore(MDataStore* dataStore, const QString& direc
     // Start watching the applications directory for changes
     connect(&watcher, SIGNAL(directoryChanged(const QString)), this, SLOT(updateDataFromDesktopEntryFiles()));
     connect(&watcher, SIGNAL(fileChanged(QString)), this, SLOT(updateDesktopEntry(QString)));
-    watcher.addPath(directoryPath);
+    foreach (const QString &directoryPath, directories) {
+        watcher.addPath(directoryPath);
+    }
 }
 
 LauncherDataStore::~LauncherDataStore()
@@ -102,7 +103,10 @@ void LauncherDataStore::updateDataFromDesktopEntryFiles()
 void LauncherDataStore::startProcessingUpdateQueue()
 {
     updatePending = false;
-    updateQueue = QDir(directoryPath, FILE_FILTER).entryInfoList(QDir::Files);
+    updateQueue.clear();
+    foreach (const QString &directoryPath, directories) {
+        updateQueue.append(QDir(directoryPath, FILE_FILTER).entryInfoList(QDir::Files));
+    }
     processUpdateQueueTimer.start();
 }
 
