@@ -18,12 +18,14 @@
 ****************************************************************************/
 
 #include "mainwindow.h"
+#include "mainwindowstyle.h"
 #include "home.h"
 
 #include <QGLWidget>
 #include <QDBusInterface>
 #include <MApplication>
 #include <MSceneManager>
+#include <MTheme>
 #include "x11wrapper.h"
 
 MainWindow *MainWindow::mainWindowInstance = NULL;
@@ -69,13 +71,15 @@ MainWindow::MainWindow(QWidget *parent) :
     X11Wrapper::XSelectInput(display, window, attributes.your_event_mask | VisibilityChangeMask);
 #endif
 
+    excludeFromTaskBar();
+    applyStyle();
+
     // Create Home; the scene manager must be created before this
+    setSceneManager(new MSceneManager);
     home = new Home;
     sceneManager()->appearSceneWindowNow(home);
 
     setBackgroundBrush(Qt::black);
-
-    excludeFromTaskBar();
 }
 
 MainWindow::~MainWindow()
@@ -93,6 +97,20 @@ MainWindow *MainWindow::instance(bool create)
     }
 
     return mainWindowInstance;
+}
+
+void MainWindow::applyStyle()
+{
+    const MainWindowStyle *style = static_cast<const MainWindowStyle *>(MTheme::style("MainWindowStyle", "", "", "", M::Landscape, NULL));
+    if (style->lockedOrientation() == "landscape") {
+        setLandscapeOrientation();
+        setOrientationLocked(true);
+    } else if (style->lockedOrientation() == "portrait") {
+        setPortraitOrientation();
+        setOrientationLocked(true);
+    } else {
+        setOrientationLocked(false);
+    }
 }
 
 QGLContext *MainWindow::glContext()

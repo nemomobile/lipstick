@@ -83,6 +83,9 @@ private:
      */
     void excludeFromTaskBar();
 
+    //! Applies the orientation and locking from the style
+    void applyStyle();
+
     /*!
      * Changes the _NET_WM_STATE property of a the window.
      *

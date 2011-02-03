@@ -43,6 +43,8 @@ private slots:
     void testNothingLaunchedWhenOnlyModifierPressed();
     void testNothingLaunchedWhenMediaKeyPressed();
     void testCloseEventIsIgnored();
+    void testOrientationLocking_data();
+    void testOrientationLocking();
 
 private:
     // Application for the test

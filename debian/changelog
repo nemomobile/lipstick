@@ -1,6 +1,7 @@
 meegotouchhome (0.23.1~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Implemented: SWP#DUI-4840 Orientation locking support
 
  -- Vesa Halttunen <vesa.halttunen@nokia.com>  Thu, 03 Feb 2011 12:45:47 +0200
 

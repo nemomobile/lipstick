@@ -9,6 +9,7 @@ HEADERS += homeapplication.h \
     extendedbuttonview.h \
     extendedbuttonstyle.h \
     mainwindow.h \
+    mainwindowstyle.h \
     launcher.h \
     launcherview.h \
     launchermodel.h \
@@ -117,6 +118,7 @@ STYLE_HEADERS += desktopstyle.h \
     launcherstyle.h \
     launcherbuttonstyle.h \
     launcherpagestyle.h \
+    mainwindowstyle.h \
     quicklaunchbarstyle.h \
     switcherbuttonstyle.h \
     switcherbuttonwithtitlebarstyle.h \

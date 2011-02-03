@@ -22,6 +22,7 @@
 #include "ut_mainwindow.h"
 #include "x11wrapper_stub.h"
 #include "mainwindow.h"
+#include "mainwindowstyle.h"
 #include <MApplication>
 #include <MApplicationPage>
 #include <QDBusInterface>
@@ -86,6 +87,24 @@ public:
 
 Home::Home(QGraphicsItem *parent) : MApplicationPage(parent)
 {
+}
+
+// MWindow stubs
+bool mWindowOrientationLocked = false;
+void MWindow::setOrientationLocked(bool locked)
+{
+    mWindowOrientationLocked = locked;
+}
+
+QString mWindowOrientation;
+void MWindow::setLandscapeOrientation()
+{
+    mWindowOrientation = "landscape";
+}
+
+void MWindow::setPortraitOrientation()
+{
+    mWindowOrientation = "portrait";
 }
 
 void Ut_MainWindow::initTestCase()
@@ -323,6 +342,39 @@ void Ut_MainWindow::testCloseEventIsIgnored()
     event.setAccepted(true);
     mainWindow->closeEvent(&event);
     QCOMPARE(event.isAccepted(), false);
+}
+
+void Ut_MainWindow::testOrientationLocking_data()
+{
+    QTest::addColumn<QString>("lockedOrientation");
+    QTest::addColumn<bool>("orientationLocked");
+    QTest::addColumn<QString>("expectedOrientation");
+
+    QTest::newRow("No locking") << QString() << false << QString();
+    QTest::newRow("Locked to landscape") << QString("landscape") << true << QString("landscape");
+    QTest::newRow("Locked to portrait") << QString("portrait") << true << QString("portrait");
+    QTest::newRow("Locked to something else") << QString("unknown") << false << QString();
+}
+
+void Ut_MainWindow::testOrientationLocking()
+{
+    QFETCH(QString, lockedOrientation);
+    QFETCH(bool, orientationLocked);
+    QFETCH(QString, expectedOrientation);
+
+    // Reset the stubs
+    mWindowOrientationLocked = false;
+    mWindowOrientation = QString();
+
+    // Set the style
+    MainWindowStyle *style = const_cast<MainWindowStyle *>(static_cast<const MainWindowStyle *>(MTheme::style("MainWindowStyle", "", "", "", M::Landscape, NULL)));
+    style->setLockedOrientation(lockedOrientation);
+
+    // Create a new window
+    delete mainWindow;
+    mainWindow = MainWindow::instance(true);
+    QCOMPARE(mWindowOrientationLocked, orientationLocked);
+    QCOMPARE(mWindowOrientation, expectedOrientation);
 }
 
 QTEST_APPLESS_MAIN(Ut_MainWindow)
