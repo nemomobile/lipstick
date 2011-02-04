@@ -1,3 +1,9 @@
+meegotouchhome (0.23.3~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Fri, 04 Feb 2011 15:37:51 +0200
+
 meegotouchhome (0.23.2-1) unstable; urgency=low
 
   * Expose the X Window represented by a SwitcherButton through a QProperty
