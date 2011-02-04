@@ -34,6 +34,9 @@ class SwitcherButton : public MButton
     Q_OBJECT
     M_CONTROLLER(SwitcherButton)
 
+    //! \brief The X Window represented by this button
+    Q_PROPERTY(ulong xWindow READ xWindow)
+
 public:
     /*!
      * Constructs an SwitcherButton.
