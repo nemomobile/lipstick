@@ -196,6 +196,9 @@ void Ut_SwitcherButton::testPrepareGeometryChange()
 
 void Ut_SwitcherButton::testSetVisibleInSwitcherProperty()
 {
+    // Initialize to invisible
+    button->setVisibleInSwitcherProperty(false);
+
     // Set window visible in the Switcher
     button->setVisibleInSwitcherProperty(true);
 
@@ -223,8 +226,23 @@ void Ut_SwitcherButton::testSetVisibleInSwitcherProperty()
     QVERIFY(data[0] == 0);
 }
 
+void Ut_SwitcherButton::testSetVisibleInSwitcherPropertyNotUpdatedWhenValueDoesNotChange()
+{
+    // Set visible and after that set the window to -1
+    button->setVisibleInSwitcherProperty(true);
+    Ut_SwitcherButton::xChangePropertyWindow = -1;
+
+    button->setVisibleInSwitcherProperty(true);
+
+    // Verify that XChangeProperty wasn't called
+    QCOMPARE(Ut_SwitcherButton::xChangePropertyWindow, Window(-1));
+}
+
 void Ut_SwitcherButton::testWhenVisibilityPropertyDisabledThenPropertyChangesOnlyWhenEnabledAgain()
 {
+    // Initialize to invisible
+    button->setVisibleInSwitcherProperty(false);
+
     button->setVisibilityPropertyEnabled(false);
     button->setVisibleInSwitcherProperty(true);
     QCOMPARE(Ut_SwitcherButton::xChangePropertyWindow, Window(0));

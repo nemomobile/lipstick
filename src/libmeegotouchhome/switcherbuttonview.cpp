@@ -385,7 +385,8 @@ void SwitcherButtonView::destroyDamage()
 
 void SwitcherButtonView::updateXWindowIconGeometryIfNecessary() const
 {
-    if (updatedXWindowIconPosition != controller->mapToScene(thumbnailPosition())) {
+    // Update only if position has changed
+    if (updatedXWindowIconGeometry.topLeft() != controller->mapToScene(thumbnailPosition())) {
         // Update the icon geometry in a moment. If timer was already active, restart it so
         // we don't send constantly updates while the button is moving.
         updateXWindowIconGeometryTimer.start();
@@ -401,16 +402,19 @@ void SwitcherButtonView::updateXWindowIconGeometry()
     iconSceneGeometry.setCoords(topLeft.x(), topLeft.y(), bottomRight.x(), bottomRight.y());
     iconSceneGeometry = iconSceneGeometry.normalized();
 
-    // Replace the old X icon geometry property for the window with iconGeometry, which consists of 4 unsigned ints (32 bits)
-    unsigned int iconGeometry[4];
-    iconGeometry[0] = iconSceneGeometry.x();
-    iconGeometry[1] = iconSceneGeometry.y();
-    iconGeometry[2] = iconSceneGeometry.width();
-    iconGeometry[3] = iconSceneGeometry.height();
-    X11Wrapper::XChangeProperty(QX11Info::display(), model()->xWindow(), iconGeometryAtom, XA_CARDINAL, sizeof(unsigned int) * 8, PropModeReplace, (unsigned char *)&iconGeometry, 4);
+    // Update only if geometry has changed
+    if (updatedXWindowIconGeometry != iconSceneGeometry) {
+        // Replace the old X icon geometry property for the window with iconGeometry, which consists of 4 unsigned ints (32 bits)
+        unsigned int iconGeometry[4];
+        iconGeometry[0] = iconSceneGeometry.x();
+        iconGeometry[1] = iconSceneGeometry.y();
+        iconGeometry[2] = iconSceneGeometry.width();
+        iconGeometry[3] = iconSceneGeometry.height();
+        X11Wrapper::XChangeProperty(QX11Info::display(), model()->xWindow(), iconGeometryAtom, XA_CARDINAL, sizeof(unsigned int) * 8, PropModeReplace, (unsigned char *)&iconGeometry, 4);
 
-    // Store which position has already been updated
-    updatedXWindowIconPosition = topLeft;
+        // Store which position has already been updated
+        updatedXWindowIconGeometry = iconSceneGeometry;
+    }
 }
 
 M_REGISTER_VIEW_NEW(SwitcherButtonView, SwitcherButton)

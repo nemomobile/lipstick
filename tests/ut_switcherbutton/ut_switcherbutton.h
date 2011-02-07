@@ -83,6 +83,7 @@ private slots:
     void testPrepareGeometryChange();
     // Test that X11 properties are set correctly if visible in switcher
     void testSetVisibleInSwitcherProperty();
+    void testSetVisibleInSwitcherPropertyNotUpdatedWhenValueDoesNotChange();
     void testWhenVisibilityPropertyDisabledThenPropertyChangesOnlyWhenEnabledAgain();
 };
 

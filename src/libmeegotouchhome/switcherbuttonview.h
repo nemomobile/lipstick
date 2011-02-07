@@ -157,8 +157,8 @@ private:
     //! Current count of retries for updating icon's pixmap
     int updateXWindowPixmapRetryCount;
 
-    //! The icon's position in scene coordinates
-    QPointF updatedXWindowIconPosition;
+    //! The icon's current geometry in scene coordinates
+    QRectF updatedXWindowIconGeometry;
 
     //! X11 Atom for the icon geometry
     static Atom iconGeometryAtom;

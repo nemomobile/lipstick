@@ -30,7 +30,7 @@ M_REGISTER_WIDGET(SwitcherButton)
 Atom SwitcherButton::visibleAtom = 0;
 
 SwitcherButton::SwitcherButton(QGraphicsItem *parent, SwitcherButtonModel *model) :
-    MButton(parent, model), visibilityPropertyEnabled(true)
+    MButton(parent, model)
 {
     // Configure timers
     windowCloseTimer.setSingleShot(true);
@@ -42,6 +42,10 @@ SwitcherButton::SwitcherButton(QGraphicsItem *parent, SwitcherButtonModel *model
     }
 
     connect(this, SIGNAL(clicked()), this, SLOT(switchToWindow()));
+
+    // Initialize to negation to force the property initialization
+    visibility = !isVisible();
+    setVisibilityPropertyEnabled(true);
 }
 
 SwitcherButton::~SwitcherButton()
@@ -94,7 +98,7 @@ void SwitcherButton::exitDisplayEvent()
 
 void SwitcherButton::setVisibleInSwitcherProperty(bool set)
 {
-    if(visibilityPropertyEnabled) {
+    if(visibilityPropertyEnabled && visibility != set) {
         Display *dpy = QX11Info::display();
         if (dpy) {
             if (set) {
@@ -104,9 +108,8 @@ void SwitcherButton::setVisibleInSwitcherProperty(bool set)
                 unsigned char data = 0;
                 X11Wrapper::XChangeProperty(dpy, xWindow(), visibleAtom, XA_CARDINAL, 8, PropModeReplace, &data, 1);
             }
+            visibility = set;
         }
-    } else {
-        visibility = set;
     }
 }
 
@@ -114,6 +117,6 @@ void SwitcherButton::setVisibilityPropertyEnabled(bool enable)
 {
     visibilityPropertyEnabled = enable;
     if(enable) {
-        setVisibleInSwitcherProperty(visibility);
+        setVisibleInSwitcherProperty(isVisible());
     }
 }
