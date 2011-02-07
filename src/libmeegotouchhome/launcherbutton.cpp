@@ -17,12 +17,10 @@
 **
 ****************************************************************************/
 
-#include <QDBusInterface>
-
 #include "launcherbutton.h"
-#include "launcheraction.h"
 #include "launcher.h"
 #include <MDesktopEntry>
+#include <QDBusInterface>
 
 #include <MWidgetCreator>
 M_REGISTER_WIDGET(LauncherButton)
@@ -48,19 +46,9 @@ void LauncherButton::init()
     connect(this, SIGNAL(clicked()), this, SLOT(launch()));
 }
 
-void LauncherButton::setAction(const LauncherAction &action)
-{
-    model()->setAction(action);
-}
-
-LauncherAction LauncherButton::action() const
-{
-    return model()->action();
-}
-
 QString LauncherButton::desktopEntry() const
 {
-    return model()->desktopEntryFile();
+    return model()->desktopEntry()->fileName();
 }
 
 LauncherButtonModel::State LauncherButton::buttonState() const
@@ -77,17 +65,18 @@ void LauncherButton::launch()
             connect(windowMonitor.data(), SIGNAL(fullscreenWindowOnTopOfOwnWindow()), SLOT(stopLaunchProgress()));
 
             launching = true;
-            action().trigger();
+            action.trigger();
         } else if (model()->buttonState() == LauncherButtonModel::Broken) {
             // Show the exception dialog for this package
-            MDesktopEntry entry (desktopEntry());
-            QString package = entry.value ("X-MeeGo", "Package");
-            if (!package.isEmpty()) {
-                QDBusInterface interface("com.nokia.package_manager_install_ui",
-                                       "/com/nokia/package_manager_install_ui",
-                                       "com.nokia.package_manager_install_ui",
-                                       QDBusConnection::sessionBus());
-                interface.call("show_installation_exception", package);
+            if (!model()->desktopEntry().isNull()) {
+                QString package = model()->desktopEntry()->value("X-MeeGo", "Package");
+                if (!package.isEmpty()) {
+                    QDBusInterface interface("com.nokia.package_manager_install_ui",
+                                           "/com/nokia/package_manager_install_ui",
+                                           "com.nokia.package_manager_install_ui",
+                                           QDBusConnection::sessionBus());
+                    interface.call("show_installation_exception", package);
+                }
             }
         }
     }
@@ -104,21 +93,19 @@ void LauncherButton::stopLaunchProgress()
 
 void LauncherButton::retranslateUi()
 {
-    if (!desktopEntry().isNull()) {
-        setText(action().localizedName());
+    if (!model()->desktopEntry().isNull()) {
+        setText(model()->desktopEntry()->name());
     }
     MButton::retranslateUi();
 }
 
 void LauncherButton::updateFromDesktopEntry(const QString &desktopEntryPath)
 {
-    if (!desktopEntryPath.isEmpty()) {
-        LauncherAction action(desktopEntryPath);
-
-        setText(action.localizedName());
-
-        model()->setDesktopEntryFile(desktopEntryPath);
-        setAction(action);
+    if (model()->desktopEntry().isNull() || desktopEntryPath != model()->desktopEntry()->fileName()) {
+        QSharedPointer<MDesktopEntry> entry(new MDesktopEntry(desktopEntryPath));
+        setText(entry->name());
+        action = LauncherAction(desktopEntryPath);
+        model()->setDesktopEntry(entry);
     }
 }
 

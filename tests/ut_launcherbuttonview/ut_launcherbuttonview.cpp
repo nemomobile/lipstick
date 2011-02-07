@@ -19,12 +19,13 @@
 
 #include <QtTest/QtTest>
 #include <MApplication>
-#include <contentaction.h>
 #include "ut_launcherbuttonview.h"
 #include "launcherbutton_stub.h"
+#include "launcheraction_stub.h"
 #include "windowinfo_stub.h"
 #include "launcherbuttonprogressindicator_stub.h"
 #include "mprogressindicator_stub.h"
+#include "mdesktopentry_stub.h"
 
 // MButton stubs
 QString mButtonText;
@@ -58,81 +59,6 @@ bool mWidgetViewUpdateCalled;
 void MWidgetView::update(const QRectF &)
 {
     mWidgetViewUpdateCalled = true;
-}
-
-using namespace ContentAction;
-
-// LauncherAction stubs (used by LauncherButton)
-LauncherAction::LauncherAction()
-    : Action()
-{
-}
-
-LauncherAction::LauncherAction(const QString& desktopEntry)
-    : Action(Action::defaultActionForFile(desktopEntry, ""))
-{
-}
-
-bool operator!=(const LauncherAction &a, const LauncherAction &b)
-{
-    Q_UNUSED(a);
-    Q_UNUSED(b);
-    return true;
-}
-
-// ContentAction stubs (used by LauncherAction)
-
-QMap< QString, QSharedPointer<ActionPrivate> > contentActionPrivate;
-struct ContentAction::ActionPrivate
-{
-    ActionPrivate(QString icon) : icon_(icon) {};
-    virtual ~ActionPrivate() {};
-
-    virtual bool isValid() const { return true; }
-    virtual QString name() const { return  QString(""); }
-    virtual QString localizedName() const { return QString(""); }
-    virtual QString icon() const { return icon_; }
-
-    QString icon_;
-};
-
-bool Action::isValid() const { return d->isValid(); }
-QString Action::name() const { return d->name(); }
-QString Action::localizedName() const { return d->localizedName(); }
-QString Action::icon() const { return d->icon(); }
-
-Action::Action()
-    : d(new ActionPrivate(""))
-{
-}
-
-Action::Action(const Action& other)
-    : d(other.d)
-{
-}
-
-Action::~Action()
-{
-}
-
-Action Action::defaultActionForFile(const QUrl& fileUri, const QString& mimeType)
-{
-    Q_UNUSED(mimeType);
-
-    QString fileName = fileUri.toString();
-    QSharedPointer<ActionPrivate> priv =
-       contentActionPrivate.value(fileName);
-    Action action;
-    action.d = priv;
-
-    return action;
-}
-
-// A helper function to set up a contentActionPrivate entry
-void createDefaultAction(QString fileName, QString icon)
-{
-    ActionPrivate* priv = new ActionPrivate(icon);
-    contentActionPrivate.insert(fileName, QSharedPointer<ActionPrivate>(priv));
 }
 
 // QIcon stubs
@@ -198,6 +124,7 @@ void Ut_LauncherButtonView::init()
 void Ut_LauncherButtonView::cleanup()
 {
     delete controller;
+    gMDesktopEntryStub->stubReset();
 }
 
 void Ut_LauncherButtonView::testInitialization()
@@ -273,30 +200,25 @@ void Ut_LauncherButtonView::testUpdateProgressWhenNotDownloading()
     QCOMPARE(gMProgressIndicatorStub->stubLastCallTo("setValue").parameter<int>(0), 0);
 }
 
-void Ut_LauncherButtonView::testUpdatingIconFromAction()
+void Ut_LauncherButtonView::testUpdatingIconFromDesktopEntry()
 {
-    createDefaultAction("/dev/null", "icon");
-    LauncherAction action("/dev/null");
-    m_subject->model()->setAction(action);
+    gMDesktopEntryStub->stubSetReturnValue("icon", QString("icon"));
+    m_subject->model()->setDesktopEntry(QSharedPointer<MDesktopEntry>(new MDesktopEntry("/dev/null")));
     QCOMPARE(m_subject->model()->iconID(), QString("icon"));
 }
 
-void Ut_LauncherButtonView::testUpdatingAbsoluteIconFromAction()
+void Ut_LauncherButtonView::testUpdatingAbsoluteIconFromDesktopEntry()
 {
-    createDefaultAction("/dev/null", "/icon");
-    LauncherAction action("/dev/null");
-    m_subject->model()->setAction(action);
+    gMDesktopEntryStub->stubSetReturnValue("icon", QString("/icon"));
+    m_subject->model()->setDesktopEntry(QSharedPointer<MDesktopEntry>(new MDesktopEntry("/dev/null")));
     QCOMPARE(qIconFileName, QString("/icon"));
 }
 
-void Ut_LauncherButtonView::testUpdatingFreeDesktopIconFromAction()
+void Ut_LauncherButtonView::testUpdatingFreeDesktopIconFromDesktopEntry()
 {
-    createDefaultAction("/dev/null", "icon");
-    LauncherAction action("/dev/null");
-
     qIconHasThemeIcon = true;
-
-    m_subject->model()->setAction(action);
+    gMDesktopEntryStub->stubSetReturnValue("icon", QString("icon"));
+    m_subject->model()->setDesktopEntry(QSharedPointer<MDesktopEntry>(new MDesktopEntry("/dev/null")));
     QCOMPARE(qIconName, QString("icon"));
 }
 
@@ -324,11 +246,10 @@ void Ut_LauncherButtonView::testUpdatingPlaceholderIcons()
     QCOMPARE(m_subject->model()->iconID(), iconId);
 }
 
-void Ut_LauncherButtonView::testUpdatingIconFromActionAfterPlaceholderIcon()
+void Ut_LauncherButtonView::testUpdatingIconFromDesktopEntryAfterPlaceholderIcon()
 {
-    createDefaultAction("/dev/null", "icon");
-    LauncherAction action("/dev/null");
-    m_subject->model()->setAction(action);
+    gMDesktopEntryStub->stubSetReturnValue("icon", QString("icon"));
+    m_subject->model()->setDesktopEntry(QSharedPointer<MDesktopEntry>(new MDesktopEntry("/dev/null")));
 
     // change to a state with placeholder icon
     QString placeholderIconId = "Installing";

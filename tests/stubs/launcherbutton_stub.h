@@ -13,8 +13,6 @@ class LauncherButtonStub : public StubBase {
   public:
   virtual void LauncherButtonConstructor(const QString &desktopEntryPath, MWidget *parent);
   virtual void LauncherButtonDestructor();
-  virtual void setAction(const LauncherAction &action);
-  virtual LauncherAction action() const;
   virtual QString desktopEntry() const;
   virtual void updateFromDesktopEntry(const QString &desktopEntryPath);
   virtual void retranslateUi();
@@ -23,7 +21,6 @@ class LauncherButtonStub : public StubBase {
   virtual void setState(LauncherButtonModel::State state, int progress, const QString &desktopEntryPath);
   virtual int operationProgress() const;
   virtual void init();
-  virtual void updateIcon(const LauncherAction &action);
   virtual LauncherButtonModel::State buttonState() const;
 };
 
@@ -35,16 +32,6 @@ void LauncherButtonStub::LauncherButtonConstructor(const QString &desktopEntryPa
 }
 void LauncherButtonStub::LauncherButtonDestructor() {
 
-}
-void LauncherButtonStub::setAction(const LauncherAction &action) {
-  QList<ParameterBase*> params;
-  params.append( new Parameter<const LauncherAction & >(action));
-  stubMethodEntered("setAction",params);
-}
-
-LauncherAction LauncherButtonStub::action() const {
-  stubMethodEntered("action");
-  return stubReturnValue<LauncherAction>("action");
 }
 
 QString LauncherButtonStub::desktopEntry() const {
@@ -72,12 +59,6 @@ void LauncherButtonStub::stopLaunchProgress() {
 
 void LauncherButtonStub::init() {
   stubMethodEntered("init");
-}
-
-void LauncherButtonStub::updateIcon(const LauncherAction &action) {
-  QList<ParameterBase*> params;
-  params.append( new Parameter<const LauncherAction & >(action));
-  stubMethodEntered("updateIcon",params);
 }
 
 LauncherButtonModel::State LauncherButtonStub::buttonState() const {
@@ -112,14 +93,6 @@ LauncherButton::~LauncherButton() {
   gLauncherButtonStub->LauncherButtonDestructor();
 }
 
-void LauncherButton::setAction(const LauncherAction &action) {
-  gLauncherButtonStub->setAction(action);
-}
-
-LauncherAction LauncherButton::action() const {
-  return gLauncherButtonStub->action();
-}
-
 QString LauncherButton::desktopEntry() const {
   return gLauncherButtonStub->desktopEntry();
 }
@@ -142,10 +115,6 @@ void LauncherButton::stopLaunchProgress() {
 
 void LauncherButton::init() {
     gLauncherButtonStub->init();
-}
-
-void LauncherButton::updateIcon(const LauncherAction &action) {
-  gLauncherButtonStub->updateIcon(action);
 }
 
 LauncherButtonModel::State LauncherButton::buttonState() const {

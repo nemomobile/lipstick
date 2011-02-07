@@ -21,7 +21,7 @@
 #define LAUNCHERBUTTONMODEL_H_
 
 #include <mbuttonmodel.h>
-#include "launcheraction.h"
+#include <MDesktopEntry>
 
 class LauncherButtonModel : public MButtonModel
 {
@@ -45,10 +45,8 @@ public:
         Broken
     };
 
-    //! Desktop entry file that launcher button is representing
-    M_MODEL_PROPERTY(QString, desktopEntryFile, DesktopEntryFile, true, QString())
-    //! Action for the desktop entry file
-    M_MODEL_PROPERTY(LauncherAction, action, Action, true, LauncherAction())
+    //! Desktop entry that launcher button is representing
+    M_MODEL_PROPERTY(QSharedPointer<MDesktopEntry>, desktopEntry, DesktopEntry, true, QSharedPointer<MDesktopEntry>())
     //! The current state of this button
     M_MODEL_PROPERTY(LauncherButtonModel::State, buttonState, ButtonState, true, Installed)
     //! Progress of button operation, between 0 and 100 (eg. for download)

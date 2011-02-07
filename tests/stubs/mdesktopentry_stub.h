@@ -44,11 +44,12 @@ class MDesktopEntryStub : public StubBase {
 
 // 2. IMPLEMENT STUB
 void MDesktopEntryStub::MDesktopEntryConstructor(const QString &fileName) {
-  Q_UNUSED(fileName);
-
+  QList<ParameterBase*> params;
+  params.append( new Parameter<QString>(fileName));
+  stubMethodEntered("MDesktopEntry",params);
 }
 void MDesktopEntryStub::MDesktopEntryDestructor() {
-
+  stubMethodEntered("~MDesktopEntry");
 }
 QString MDesktopEntryStub::fileName() const {
   stubMethodEntered("fileName");

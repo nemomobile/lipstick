@@ -68,7 +68,8 @@ private:
     //! Updates the icon id according to button state
     void updateButtonIcon();
 
-    void setIconFromAction();
+    //! Sets the icon from the MDesktopEntry
+    void setIconFromDesktopEntry();
 
     //! The controller for the view
     LauncherButton *controller;

@@ -335,24 +335,25 @@ void Ut_LauncherButton::cleanup()
 {
     m_subject->stopLaunchProgress();
     delete m_subject;
+    gMDesktopEntryStub->stubReset();
 }
 
 void Ut_LauncherButton::testInitialization()
 {
-    delete m_subject;
+    cleanup();
 
-    addActionPrivate("/dev/null",
-                     true,
-                     "name",
-                     "english",
-                     "nonenglish",
-                     "icon");
+    // Set up the stubs
+    gMDesktopEntryStub->stubSetReturnValue("fileName", QString("/dev/null"));
+    gMDesktopEntryStub->stubSetReturnValue("name", QString("english"));
+    addActionPrivate("/dev/null", true, "name", "english", "nonenglish", "icon");
 
+    // Check whether the subject is populated from the desktop file
     m_subject = new LauncherButton("/dev/null");
+    QCOMPARE(gMDesktopEntryStub->stubCallCount("MDesktopEntry"), 1);
+    QCOMPARE(gMDesktopEntryStub->stubLastCallTo("MDesktopEntry").parameter<QString>(0), QString("/dev/null"));
     QCOMPARE(m_subject->desktopEntry(), QString("/dev/null"));
     QCOMPARE(m_subject->text(), QString("english"));
-    // verify that action was updated to model
-    QCOMPARE(m_subject->model()->action().name(), QString("name"));
+    QCOMPARE(m_subject->action.name(), QString("name"));
 }
 
 void Ut_LauncherButton::testWhenLauncherButtonIsClickedContentActionIsTriggered()
@@ -406,17 +407,13 @@ void Ut_LauncherButton::testLanguageChange()
 {
     delete m_subject;
 
-    addActionPrivate("/dev/null",
-                     true,
-                     "name",
-                     "english",
-                     "nonenglish",
-                     "icon");
+    // Set up the stubs
+    gMDesktopEntryStub->stubSetReturnValue("fileName", QString("/dev/null"));
+    gMDesktopEntryStub->stubSetReturnValue("name", QString("english"));
 
+    // Check whether the subject is populated from the desktop file
     m_subject = new LauncherButton("/dev/null");
-    QCOMPARE(m_subject->text(), QString("english"));
-
-    language = "otherlang";
+    gMDesktopEntryStub->stubSetReturnValue("name", QString("nonenglish"));
     m_subject->retranslateUi();
     QCOMPARE(m_subject->text(), QString("nonenglish"));
 }
@@ -470,14 +467,19 @@ void Ut_LauncherButton::testSettingButtonStateWithUpdatingDesktopEntry()
 
     QString initialDesktopEntry = "/dev/null/initial.desktop";
     QString updatedDesktopEntry = "/dev/null/updated.desktop";
-    QString expectedDesktopEntry = (shouldBeUpdated ? updatedDesktopEntry : initialDesktopEntry);
 
-    addActionPrivate(initialDesktopEntry,true,"","","","");
-    addActionPrivate(updatedDesktopEntry,true,"","","","");
+    addActionPrivate(initialDesktopEntry,true,"initial","","","");
+    addActionPrivate(updatedDesktopEntry,true,"updated","","","");
     m_subject->updateFromDesktopEntry(initialDesktopEntry);
 
+    gMDesktopEntryStub->stubReset();
     m_subject->setState(state, 0, updatedDesktopEntry);
-    QCOMPARE(m_subject->model()->desktopEntryFile(), expectedDesktopEntry);
+
+    QCOMPARE(gMDesktopEntryStub->stubCallCount("MDesktopEntry"), shouldBeUpdated ? 1 : 0);
+    if (shouldBeUpdated) {
+        QCOMPARE(gMDesktopEntryStub->stubLastCallTo("MDesktopEntry").parameter<QString>(0), updatedDesktopEntry);
+    }
+    QCOMPARE(m_subject->action.name(), QString(shouldBeUpdated ? "updated" : "initial"));
 }
 
 void Ut_LauncherButton::testLaunchingMultipleTimes()

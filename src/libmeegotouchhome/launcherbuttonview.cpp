@@ -102,7 +102,7 @@ void LauncherButtonView::updateData(const QList<const char *>& modifications)
             if (model()->buttonState() == LauncherButtonModel::Downloading) {
                 progressIndicator->setValue(model()->operationProgress());
             }
-        } else if (member == LauncherButtonModel::Action) {
+        } else if (member == LauncherButtonModel::DesktopEntry) {
             updateButtonIcon();
         }
     }
@@ -115,7 +115,6 @@ void LauncherButtonView::resetProgressIndicator()
     progressIndicator->setIndicatorState(state);
     switch(state) {
         case LauncherButtonModel::Launching:
-        {
             if (style()->showLaunchProgress()) {
                 progressIndicator->reset();
                 progressIndicator->setUnknownDuration(true);
@@ -123,26 +122,19 @@ void LauncherButtonView::resetProgressIndicator()
             } else {
                 progressIndicator->hide();
             }
-        break;
-        }
+            break;
         case LauncherButtonModel::Installing:
-        {
             progressIndicator->reset();
             progressIndicator->setUnknownDuration(true);
             progressIndicator->show();
-        }
-        break;
+            break;
         case LauncherButtonModel::Downloading:
-        {
             progressIndicator->reset();
             progressIndicator->show();
-        }
-        break;
+            break;
         default:
-        {
             progressIndicator->hide();
-        }
-        break;
+            break;
     }
 }
 
@@ -151,35 +143,37 @@ void LauncherButtonView::updateButtonIcon()
     switch(model()->buttonState()) {
         case LauncherButtonModel::Downloading:
             model()->setIconID(style()->downloadingPlaceholderIcon());
-        break;
+            break;
         case LauncherButtonModel::Installing:
             model()->setIconID(style()->installingPlaceholderIcon());
-        break;
+            break;
         case LauncherButtonModel::Broken:
             model()->setIconID(style()->brokenPlaceholderIcon());
-        break;
+            break;
         default:
-            setIconFromAction();
-        break;
+            setIconFromDesktopEntry();
+            break;
     }
 }
 
-void LauncherButtonView::setIconFromAction()
+void LauncherButtonView::setIconFromDesktopEntry()
 {
-    QString icon = model()->action().icon();
+    if (!model()->desktopEntry().isNull()) {
+        QString icon = model()->desktopEntry()->icon();
 
-    if (!icon.isEmpty()) {
-        if (QFileInfo(icon).isAbsolute()) {
-            model()->setIcon(QIcon(icon));
-        } else {
-            if (QIcon::hasThemeIcon(icon)) {
-                model()->setIcon(QIcon::fromTheme(icon));
+        if (!icon.isEmpty()) {
+            if (QFileInfo(icon).isAbsolute()) {
+                model()->setIcon(QIcon(icon));
             } else {
-                model()->setIconID(icon);
+                if (QIcon::hasThemeIcon(icon)) {
+                    model()->setIcon(QIcon::fromTheme(icon));
+                } else {
+                    model()->setIconID(icon);
+                }
             }
+        } else {
+            model()->setIconID(DEFAULT_APPLICATION_ICON_ID);
         }
-    } else {
-        model()->setIconID(DEFAULT_APPLICATION_ICON_ID);
     }
 }
 

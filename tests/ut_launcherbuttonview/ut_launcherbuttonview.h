@@ -87,12 +87,12 @@ private slots:
     void testLaunchingProgress();
     void testUpdateProgressWhenDownloading();
     void testUpdateProgressWhenNotDownloading();
-    void testUpdatingIconFromAction();
-    void testUpdatingAbsoluteIconFromAction();
-    void testUpdatingFreeDesktopIconFromAction();
+    void testUpdatingIconFromDesktopEntry();
+    void testUpdatingAbsoluteIconFromDesktopEntry();
+    void testUpdatingFreeDesktopIconFromDesktopEntry();
     void testUpdatingPlaceholderIcons_data();
     void testUpdatingPlaceholderIcons();
-    void testUpdatingIconFromActionAfterPlaceholderIcon();
+    void testUpdatingIconFromDesktopEntryAfterPlaceholderIcon();
     void testEnablingAccordingToState_data();
     void testEnablingAccordingToState();
     void testWhenStateIsChangedToLaunchingThenProgressIndicatorIsShownAccordingToStyle_data();

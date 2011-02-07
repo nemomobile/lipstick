@@ -23,13 +23,13 @@
 #include <contentaction.h>
 
 /*!
- * A convenience wrapper around libcontentaction's ContenAction::Action.
+ * A convenience wrapper around libcontentaction's ContentAction::Action.
  * The object is used to turn .desktop files into objects that take care
  * of invoking of the default action (D-Bus method call, execution of
  * a binary, etc) specified in these .desktop files.
  *
  * Instantiated with a valid .desktop file path, the object provides a
- * trigger() method that asynchronously trigers the default action for that
+ * trigger() method that asynchronously triggers the default action for that
  * .desktop file.
  */
 class LauncherAction : public ContentAction::Action
