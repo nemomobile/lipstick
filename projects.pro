@@ -33,4 +33,8 @@ QMAKE_DISTCLEAN += \
 include(check.pri)
 include(debian/deb.pri)
 
-include(doc/doc.pri)
+NODOCS:{
+  message("Not building the documentation for this package")
+} else {
+  addSubDirs(doc)
+}

@@ -40,10 +40,16 @@ endif
 version=0.1.0
 major=0
 
+# Don't build documentation by setting DEB_BUILD_OPTION=nodocs,...
+ifneq (,$(findstring nodoc,$(DEB_BUILD_OPTIONS)))
+     QMAKE_OPTIONS += CONFIG+=NODOCS
+     EXCLUSIONS += --no-package=libmeegotouchhome-doc
+endif
+
 
 configure: configure-stamp
 configure-stamp:
-	dh_testdir
+	dh_testdir $(EXCLUSIONS)
 	qmake  -recursive  QMAKE_CFLAGS="$(CFLAGS)" QMAKE_CXXFLAGS="$(CFLAGS)" $(QMAKE_OPTIONS)
 	touch configure-stamp
 
@@ -51,7 +57,7 @@ configure-stamp:
 build: build-stamp
 
 build-stamp: configure-stamp
-	dh_testdir
+	dh_testdir $(EXCLUSIONS)
 
 	make $(PARALLEL_MAKEFLAGS)
 
@@ -60,26 +66,21 @@ build-stamp: configure-stamp
 	touch $@
 
 clean:
-	dh_testdir
-	dh_testroot
+	dh_testdir $(EXCLUSIONS)
+	dh_testroot $(EXCLUSIONS)
 	rm -f build-stamp configure-stamp
 	-@make $(PARALLEL_MAKEFLAGS) clean || true
 
-	dh_clean
+	dh_clean $(EXCLUSIONS)
 
 install: build
-	dh_testdir
-	dh_testroot
-	dh_clean -k
-	dh_installdirs
+	dh_testdir $(EXCLUSIONS)
+	dh_testroot $(EXCLUSIONS)
+	dh_clean -k $(EXCLUSIONS)
+	dh_installdirs $(EXCLUSIONS)
 
 	# install
 	INSTALL_ROOT=$(CURDIR)/debian/tmp $(MAKE) $(PARALLEL_MAKEFLAGS) install
-
-	# libmeegotouchhome-doc package
-	make  $(PARALLEL_MAKEFLAGS) doc
-	mkdir -p ${CURDIR}/debian/tmp/usr/share/doc/libmeegotouchhome/api
-	cp -r doc/html/* ${CURDIR}/debian/tmp/usr/share/doc/libmeegotouchhome/api/
 	rm -f ${CURDIR}/debian/tmp/usr/share/doc/libmeegotouchhome/api/installdox
 
 # Build architecture-independent files here.
@@ -88,33 +89,33 @@ binary-indep: build install
 
 # Build architecture-dependent files here.
 binary-arch: build install
-	dh_testdir
-	dh_testroot
-	dh_installchangelogs
-	dh_installdocs
-	dh_install --sourcedir=$(CURDIR)/debian/tmp -v
-#	dh_installmenu
-#	dh_installdebconf
-#	dh_installlogrotate
-#	dh_installemacsen
-#	dh_installpam
-#	dh_installmime
-#	dh_python
-#	dh_installinit
-#	dh_installcron
-#	dh_installinfo
-#	dh_installman
-	dh_link
-	dh_strip --dbg-package=meegotouchhome --dbg-package=libmeegotouchhome0
-	dh_compress
-	dh_fixperms
-#	dh_perl
-	dh_makeshlibs
-	dh_installdeb
-	dh_shlibdeps
-	dh_gencontrol
-	dh_md5sums
-	dh_builddeb --destdir=$(DEBDIR)
+	dh_testdir $(EXCLUSIONS)
+	dh_testroot $(EXCLUSIONS)
+	dh_installchangelogs $(EXCLUSIONS)
+	dh_installdocs $(EXCLUSIONS)
+	dh_install --sourcedir=$(CURDIR)/debian/tmp $(EXCLUSIONS) -v
+#	dh_installmenu $(EXCLUSIONS)
+#	dh_installdebconf $(EXCLUSIONS)
+#	dh_installlogrotate $(EXCLUSIONS)
+#	dh_installemacsen $(EXCLUSIONS)
+#	dh_installpam $(EXCLUSIONS)
+#	dh_installmime $(EXCLUSIONS)
+#	dh_python $(EXCLUSIONS)
+#	dh_installinit $(EXCLUSIONS)
+#	dh_installcron $(EXCLUSIONS)
+#	dh_installinfo $(EXCLUSIONS)
+#	dh_installman $(EXCLUSIONS)
+	dh_link $(EXCLUSIONS)
+	dh_strip --dbg-package=meegotouchhome --dbg-package=libmeegotouchhome0 $(EXCLUSIONS)
+	dh_compress $(EXCLUSIONS)
+	dh_fixperms $(EXCLUSIONS)
+#	dh_perl $(EXCLUSIONS)
+	dh_makeshlibs $(EXCLUSIONS)
+	dh_installdeb $(EXCLUSIONS)
+	dh_shlibdeps $(EXCLUSIONS)
+	dh_gencontrol $(EXCLUSIONS)
+	dh_md5sums $(EXCLUSIONS)
+	dh_builddeb --destdir=$(DEBDIR) $(EXCLUSIONS)
 
 binary:binary-indep binary-arch
 .PHONY: build clean binary-indep binary-arch binary install configure
