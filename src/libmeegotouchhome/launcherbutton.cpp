@@ -25,6 +25,8 @@
 #include <MWidgetCreator>
 M_REGISTER_WIDGET(LauncherButton)
 
+#include "homewindowmonitor.h"
+
 bool LauncherButton::launching = false;
 
 LauncherButton::LauncherButton(const QString &desktopEntryPath, MWidget *parent) :

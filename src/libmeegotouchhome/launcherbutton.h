@@ -23,7 +23,8 @@
 #include <MButton>
 #include "launcherbuttonmodel.h"
 #include "launcheraction.h"
-#include "homewindowmonitor.h"
+
+class HomeWindowMonitor;
 
 /*!
  * A button widget that represents a .desktop file. Triggers the default
