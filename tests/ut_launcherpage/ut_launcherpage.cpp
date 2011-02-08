@@ -23,6 +23,7 @@
 #include "windowinfo_stub.h"
 #include "launcherbutton_stub.h"
 #include "launcherpage.h"
+#include "homewindowmonitor.h"
 
 static QSharedPointer<LauncherButton> createLauncherButton(QString desktopFileName = QString());
 

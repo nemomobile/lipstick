@@ -20,6 +20,7 @@
 #include <QtTest/QtTest>
 #include "ut_quicklaunchbar.h"
 #include "quicklaunchbar.h"
+#include "homewindowmonitor.h"
 #include "launcherbutton_stub.h"
 #include "launcherbuttonmodel.h"
 #include "launcheraction_stub.h"

@@ -21,6 +21,7 @@
 #include "ut_quicklaunchbarview.h"
 #include "quicklaunchbar.h"
 #include "quicklaunchbarview.h"
+#include "homewindowmonitor.h"
 #include "launcherbutton_stub.h"
 #include "launcheraction_stub.h"
 #include "launcherdatastore_stub.h"

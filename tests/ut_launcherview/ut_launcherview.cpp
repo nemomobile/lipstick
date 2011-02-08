@@ -21,6 +21,7 @@
 #include <QGraphicsLinearLayout>
 #include <MSceneManager>
 #include "ut_launcherview.h"
+#include "homewindowmonitor.h"
 #include "launcher.h"
 #include "launcherpage.h"
 #include "launcherbuttonmodel.h"

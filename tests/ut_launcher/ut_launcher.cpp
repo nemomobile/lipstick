@@ -28,6 +28,7 @@
 #include "launcherdatastore_stub.h"
 #include "applicationpackagemonitor_stub.h"
 #include "applicationpackagemonitorlistener_stub.h"
+#include "homewindowmonitor.h"
 #include "launchermodel.h"
 #include "launcherpagemodel.h"
 #include "mockdatastore.h"

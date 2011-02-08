@@ -20,6 +20,7 @@
 #include <QtTest/QtTest>
 #include <MApplication>
 #include "ut_launcherbuttonview.h"
+#include "homewindowmonitor.h"
 #include "launcherbutton_stub.h"
 #include "launcheraction_stub.h"
 #include "windowinfo_stub.h"
