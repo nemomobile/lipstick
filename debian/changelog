@@ -1,8 +1,8 @@
-meegotouchhome (0.23.4~1) unstable; urgency=low
+meegotouchhome (0.23.4-1) unstable; urgency=low
 
-  * [UNRELEASED]
+  * Removed unnecessary include
 
- -- Vesa Halttunen <vesa.halttunen@nokia.com>  Tue, 08 Feb 2011 13:23:17 +0200
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Tue, 08 Feb 2011 18:15:47 +0200
 
 meegotouchhome (0.23.3-1) unstable; urgency=low
 
