@@ -1,8 +1,8 @@
-meegotouchhome (0.23.3~1) unstable; urgency=low
+meegotouchhome (0.23.3-1) unstable; urgency=low
 
-  * [UNRELEASED]
+  * Use Name and Icon provided in a .desktop file directly in LauncherButtons instead of getting them from libcontentaction
 
- -- Vesa Halttunen <vesa.halttunen@nokia.com>  Fri, 04 Feb 2011 15:37:51 +0200
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Tue, 08 Feb 2011 13:22:43 +0200
 
 meegotouchhome (0.23.2-1) unstable; urgency=low
 
