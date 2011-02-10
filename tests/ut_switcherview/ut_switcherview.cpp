@@ -994,17 +994,6 @@ void Ut_SwitcherView::testGraphicsSceneMouseMoveEventsDoNotGetFilteredForOtherTh
     QCOMPARE(m_subject->sceneEventFilter(&item, &mouseMoveEvent), false);
 }
 
-void Ut_SwitcherView::testWhenPinchingThenOrientationIsLocked()
-{
-    m_subject->pinchBegin(QPointF());
-    QVERIFY(gMWindowStub->stubLastCallTo("setOrientationLocked").parameter<bool>(0));
-    m_subject->endTransition();
-    QVERIFY(!gMWindowStub->stubLastCallTo("setOrientationLocked").parameter<bool>(0));
-    gMWindowStub->stubReset();
-    m_subject->endBounce();
-    QVERIFY(!gMWindowStub->stubLastCallTo("setOrientationLocked").parameter<bool>(0));
-}
-
 void Ut_SwitcherView::testWhenPinchingStartsThenEventsAreCanceledForOtherItems()
 {
     gSceneItems << new QGraphicsWidget;

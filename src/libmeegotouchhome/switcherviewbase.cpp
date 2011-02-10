@@ -163,7 +163,6 @@ void SwitcherViewBase::pinchBegin(const QPointF &centerPoint)
         button->installSceneEventFilter(controller);
     }
 
-    MainWindow::instance()->setOrientationLocked(true);
 }
 
 void SwitcherViewBase::pinchUpdate(float scaleFactor)
@@ -263,8 +262,6 @@ bool SwitcherViewBase::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
 
 void SwitcherViewBase::endTransition()
 {
-    MainWindow::instance()->setOrientationLocked(false);
-
     if(layoutAnimation->isCanceled()) {
         applyPinchGestureTargetMode();
     }
@@ -274,7 +271,6 @@ void SwitcherViewBase::endTransition()
 
 void SwitcherViewBase::endBounce()
 {
-    MainWindow::instance()->setOrientationLocked(false);
 }
 
 void SwitcherViewBase::applyPinchGestureTargetMode()

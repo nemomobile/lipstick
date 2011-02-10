@@ -94,7 +94,6 @@ private slots:
     void testOtherThanGraphicsSceneMouseMoveEventsDoNotGetFilteredForSwitcherButtons();
     void testGraphicsSceneMouseMoveEventsDoNotGetFilteredForOtherThanSwitcherButtons();
     void testPanningDisabledWhenNoSwitcherButtons_NB186716();
-    void testWhenPinchingThenOrientationIsLocked();
     void testWhenPinchingStartsThenEventsAreCanceledForOtherItems();
 
 private:
