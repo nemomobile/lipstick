@@ -308,11 +308,6 @@ void X11Wrapper::XDamageDestroy(Display *, Damage)
 
 }
 
-int X11Wrapper::XSync(Display *, Bool)
-{
-    return 0;
-}
-
 XErrorHandler X11Wrapper::XSetErrorHandler(XErrorHandler)
 {
     return 0;

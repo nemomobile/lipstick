@@ -79,11 +79,6 @@ void X11Wrapper::XDamageDestroy(Display *dpy, Damage damage)
     ::XDamageDestroy(dpy, damage);
 }
 
-int X11Wrapper::XSync(Display *display, Bool discard)
-{
-    return ::XSync(display, discard);
-}
-
 XErrorHandler X11Wrapper::XSetErrorHandler(XErrorHandler handler)
 {
     return ::XSetErrorHandler(handler);
