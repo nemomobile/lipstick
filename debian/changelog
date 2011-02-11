@@ -1,3 +1,9 @@
+meegotouchhome (0.23.6~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Fri, 11 Feb 2011 15:18:28 +0200
+
 meegotouchhome (0.23.5-1) unstable; urgency=low
 
   * Fixes: NB#226006 Pinch gesture will break portrait only homescreen mode
