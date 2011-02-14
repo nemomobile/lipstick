@@ -84,6 +84,7 @@ void SwitcherButton::resetState()
 {
     setVisible(true);
     prepareGeometryChange();
+    emit closeTimedOutForWindow(model()->xWindow());
 }
 
 void SwitcherButton::enterDisplayEvent()

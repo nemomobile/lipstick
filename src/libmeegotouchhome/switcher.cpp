@@ -16,7 +16,6 @@
 ** of this file.
 **
 ****************************************************************************/
-
 #include <QX11Info>
 #include <QEvent>
 #include "switcher.h"
@@ -154,8 +153,10 @@ bool Switcher::removeWindow(Window window)
             applicationWindows.removeOne(*windowInfo);
             applicationWindowListChanged = true;
         }
+        windowsBeingClosed.remove(windowInfo->window());
         windowInfoSet.remove(*windowInfo);
     }
+
     return applicationWindowListChanged;
 }
 
@@ -174,7 +175,9 @@ void Switcher::markWindowBeingClosed(Window window)
     // Add the window to the windows being closed list - but only if it is a
     // known window, as only known windows can be removed from the list
     if (windowInfoFromSet(windowInfoSet, window) != NULL) {
-        windowsBeingClosedInfo.insert(WindowInfo(window));
+        windowsBeingClosed.insert(window);
+        // Remove the closed window immediately by updating the buttons
+        updateButtons();
     }
 }
 
@@ -229,27 +232,24 @@ void Switcher::handleWindowInfoList(QList<WindowInfo> newWindowList)
     QSet<WindowInfo> newWindowSet = newWindowList.toSet();
     QSet<WindowInfo> oldWindowSet = windowInfoSet;
     QSet<WindowInfo> closedWindowSet = oldWindowSet - newWindowSet;
-    QSet<WindowInfo> openedWindowSet = newWindowSet - oldWindowSet - windowsBeingClosedInfo;
+    QSet<WindowInfo> openedWindowSet = newWindowSet - oldWindowSet;
 
     bool added = addWindows(openedWindowSet);
-    bool removed = removeWindows(closedWindowSet + windowsBeingClosedInfo);
-
-    windowsBeingClosedInfo -= closedWindowSet;
+    bool removed = removeWindows(closedWindowSet);
 
     // The stacking order needs to be cleared out before we start updating the
     // buttons as the topmostWindow is set in the 'updateButtons()' method and
     // the method call is scheduled with a timer in the case of an addition
     QList<WindowInfo> stackingWindowList;
     foreach (WindowInfo window, newWindowList) {
-        if (!windowsBeingClosedInfo.contains(window)) {
-            stackingWindowList.append(window);
-        }
+        stackingWindowList.append(window);
     }
 
     if (!stackingWindowList.isEmpty()){
         topmostWindow = stackingWindowList.last().window();
+        // Restore a possible window that was being removed but has now come on top
+        added |= restoreButtonBeingRemoved(topmostWindow, false);
     }
-
     if (added || removed) {
         if (!removed) {
             // If windows have been added but not removed, update the switcher with a delay
@@ -339,13 +339,13 @@ void Switcher::updateWindowProperties(Window window)
 void Switcher::updateButtons()
 {
     // List of existing buttons for which a window still exists
-    QList<SwitcherButton *> validOldButtons;
+    QList<QSharedPointer<SwitcherButton> > validOldButtons;
 
     // List of newly created buttons
     QList< QSharedPointer<SwitcherButton> > newButtons;
 
     // The new mapping of known windows to the buttons
-    QHash<Window, SwitcherButton *> newSwitcherButtonMap;
+    QHash<Window, QSharedPointer<SwitcherButton> > newSwitcherButtonMap;
 
     // Go through the windows and create new buttons for new windows
     foreach (const WindowInfo &windowInfo, applicationWindows) {
@@ -353,7 +353,7 @@ void Switcher::updateButtons()
         WindowInfo topmostWindowInfo = WindowInfo(w);
         if (windowInfoSet.contains(topmostWindowInfo)) {
             if (switcherButtonMap.contains(windowInfo.window())) {
-                SwitcherButton *button = switcherButtonMap[windowInfo.window()];
+                QSharedPointer<SwitcherButton> button = switcherButtonMap[windowInfo.window()];
 
                 // Button already exists - set title (as it may have changed)
                 button->setText(topmostWindowInfo.title());
@@ -362,8 +362,10 @@ void Switcher::updateButtons()
                 if (button->xWindow() != topmostWindowInfo.window()) {
                     button->setXWindow(topmostWindowInfo.window());
                 }
-
-                validOldButtons.append(button);
+                // Only add to model if button is not being closed
+                if (!windowsBeingClosed.contains(windowInfo.window())) {
+                    validOldButtons.append(button);
+                }
                 newSwitcherButtonMap.insert(windowInfo.window(), button);
             } else {
                 QSharedPointer<SwitcherButton> button = createSwitcherButton();
@@ -372,26 +374,25 @@ void Switcher::updateButtons()
                 connect(button.data(), SIGNAL(windowToFront(Window)), this, SLOT(windowToFront(Window)));
                 connect(button.data(), SIGNAL(closeWindow(Window)), this, SLOT(closeWindow(Window)));
                 connect(button.data(), SIGNAL(closeAllWindows()), this, SLOT(closeAllWindows()));
+                connect(button.data(), SIGNAL(closeTimedOutForWindow(Window)), this, SLOT(restoreButtonBeingRemoved(Window)));
 
                 newButtons.append(button);
-                newSwitcherButtonMap.insert(windowInfo.window(), button.data());
+                newSwitcherButtonMap.insert(windowInfo.window(), button);
             }
         }
     }
 
-    int firstNewButtonIndex = 0;
     foreach(QSharedPointer<SwitcherButton> button, model()->buttons()) {
-        // Keep only the buttons for which a window still exists
-        if (validOldButtons.contains(button.data())) {
-            newButtons.insert(firstNewButtonIndex++, button);
+        if (!validOldButtons.contains(button)) {
             // If button that still has a window is removed from switcher (e.g. window acquires a SkipTaskbarAtom)
-            // _MEEGOTOUCH_VISIBLE_IN_SWITCHER should be set to 0 for a window.
-        } else if (windowInfoSet.contains(WindowInfo(button->xWindow()))) {
+            // _MEEGOTOUCH_VISIBLE_IN_SWITCHER should be set to 0 for the window.
             button->setVisibleInSwitcherProperty(false);
         }
     }
 
-     // Take the new set of buttons into use
+    newButtons.append(validOldButtons);
+
+    // Take the new set of buttons into use
     switcherButtonMap = newSwitcherButtonMap;
     model()->setButtons(newButtons);
 
@@ -433,6 +434,10 @@ void Switcher::closeWindow(Window window)
     if (windowInfo.transientFor() != 0 && windowInfo.transientFor() != window) {
         closeWindow(windowInfo.transientFor());
     }
+
+    windowsBeingClosed.insert(window);
+    // Remove the closed window immediately by updating the buttons
+    updateButtons();
 }
 
 void Switcher::closeAllWindows()
@@ -462,5 +467,14 @@ void Switcher::updateAnimationStatus(bool animating)
 
 QSharedPointer<SwitcherButton> Switcher::createSwitcherButton()
 {
-    return QSharedPointer<SwitcherButton>(new SwitcherButton);
+     return QSharedPointer<SwitcherButton>(new SwitcherButton);
+}
+
+bool Switcher::restoreButtonBeingRemoved(Window window, bool forceUpdateButtons)
+{
+    bool removed = windowsBeingClosed.remove(window);
+    if (removed && forceUpdateButtons) {
+        updateButtons();
+    }
+    return removed;
 }

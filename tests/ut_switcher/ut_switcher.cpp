@@ -531,6 +531,17 @@ void addApplicationWindow(Window window)
     g_windowTypeMap[window] = types;
 }
 
+void removeApplicationWindow(Window window)
+{
+    g_windows.remove(window);
+}
+
+void moveApplicationWindowTop(Window window)
+{
+    g_windows.remove(g_windows.indexOf(window));
+    g_windows.insert(0, window);
+}
+
 void Ut_Switcher::updateWindowList()
 {
     QList<WindowInfo> newWindowList;
@@ -570,6 +581,23 @@ void Ut_Switcher::testCloseWindow()
     QCOMPARE(sec.event.xclient.data.l[2], 0L);
 }
 
+void Ut_Switcher::testWhenCloseWindowThenButtonRemovedFromModel()
+{
+    updateWindowList();
+    WindowListReceiver receiver;
+    connect(switcher, SIGNAL(windowListUpdated(const QList<WindowInfo> &)), &receiver,
+            SLOT(windowListUpdated(const QList<WindowInfo> &)));
+
+    switcher->closeWindow(FIRST_APPLICATION_WINDOW);
+
+    // Verify that button is in windowsBeingClosed and not in the model
+    QCOMPARE(switcher->windowsBeingClosed.count(), 1);
+    QVERIFY(switcher->windowsBeingClosed.contains(FIRST_APPLICATION_WINDOW));
+    QList<WindowInfo> remainingWindows = receiver.windowList;
+    remainingWindows.removeOne(WindowInfo(FIRST_APPLICATION_WINDOW));
+    verifyModel(remainingWindows);
+}
+
 void Ut_Switcher::testCloseAllWindows()
 {
     int numWindows = 5;
@@ -606,11 +634,16 @@ void Ut_Switcher::verifyModel(const QList<WindowInfo> &windowList)
     // There given windows should be in the switcher model
     QCOMPARE(switcher->model()->buttons().count(), windowList.count());
 
-    for (int i = 0; i < windowList.count(); i++) {
-        // The buttons should match the windows
-        SwitcherButton *b = switcher->model()->buttons().at(i).data();
-        QCOMPARE(b->xWindow(), windowList.at(i).window());
-        QCOMPARE(b->text(), windowList.at(i).title());
+    // The model should contain all and only the buttons for the windows (not necessary in same order)
+    foreach (const WindowInfo &windowInfo, windowList) {
+        bool contains = false;
+        foreach(const QSharedPointer<SwitcherButton> &button, switcher->model()->buttons()) {
+            if ((button->xWindow() == windowInfo.window()) && button->text() == windowInfo.title()) {
+                contains = true;
+                break;
+            }
+        }
+        QVERIFY(contains);
     }
 }
 
@@ -677,51 +710,93 @@ void Ut_Switcher::testX11EventFilterWithPropertyNotify()
     verifyModel(r.windowList);
 }
 
+void Ut_Switcher::testX11EventFilterWithClientMessage_data()
+{
+    QTest::addColumn<int>("type");
+    QTest::addColumn<Atom>("messageType");
+    QTest::addColumn<Window>("window");
+
+    QTest::addColumn<bool>("verifySuccess");
+
+    QTest::newRow("Wrong event and message type") << 0 << Atom(0) << Window(0) << false;
+    QTest::newRow("Wrong message type") << ClientMessage << Atom(0) << Window(0) << false;
+    QTest::newRow("Wrong event type")
+            << 0 << X11Wrapper::XInternAtom(QX11Info::display(), "_NET_CLOSE_WINDOW", False) << Window(0) << false;
+    QTest::newRow("Wrong window")
+            << ClientMessage << X11Wrapper::XInternAtom(QX11Info::display(), "_NET_CLOSE_WINDOW", False)
+            << Window(0) << true;
+    QTest::newRow("Correct event")
+            << ClientMessage << X11Wrapper::XInternAtom(QX11Info::display(), "_NET_CLOSE_WINDOW", False)
+            << Window(FIRST_APPLICATION_WINDOW) << true;
+}
+
 void Ut_Switcher::testX11EventFilterWithClientMessage()
+{
+    QFETCH(int, type);
+    QFETCH(Atom, messageType);
+    QFETCH(Window, window);
+
+    QFETCH(bool, verifySuccess);
+
+    // Update window list with an application
+    QList<WindowInfo> newWindowList;
+    newWindowList.append(WindowInfo(g_windows[0]));
+    switcher->handleWindowInfoList(newWindowList);
+
+    XEvent clientEvent;
+    clientEvent.type = type;
+    clientEvent.xclient.message_type = messageType;
+    clientEvent.xclient.window = window;
+    QCOMPARE(switcher->handleXEvent(clientEvent), verifySuccess);
+}
+
+void Ut_Switcher::testX11EventFilterCloseWindow()
 {
     updateWindowList();
 
-    WindowListReceiver r;
-    connect(switcher, SIGNAL(windowListUpdated(const QList<WindowInfo> &)), &r, SLOT(windowListUpdated(const QList<WindowInfo> &)));
+    WindowListReceiver receiver;
+    connect(switcher, SIGNAL(windowListUpdated(const QList<WindowInfo> &)), &receiver, SLOT(windowListUpdated(const QList<WindowInfo> &)));
 
-    // Verify that X11EventFilter only reacts to events it's supposed to react on (type and message_type are both set correctly)
     XEvent clientEvent;
-    clientEvent.type = 0;
-    clientEvent.xclient.message_type = 0;
-    QVERIFY(!switcher->handleXEvent(clientEvent));
     clientEvent.type = ClientMessage;
-    QVERIFY(!switcher->handleXEvent(clientEvent));
-    clientEvent.type = 0;
     clientEvent.xclient.message_type = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_CLOSE_WINDOW", False);
-    QVERIFY(!switcher->handleXEvent(clientEvent));
-    clientEvent.type = ClientMessage;
-    clientEvent.xclient.window = FIRST_APPLICATION_WINDOW;
-    QVERIFY(switcher->handleXEvent(clientEvent));
+    clientEvent.xclient.window = Window(FIRST_APPLICATION_WINDOW);
+    switcher->handleXEvent(clientEvent);
 
-    // When the stacking list is updated the closed window should be excluded
+    // _NET_CLOSE_WINDOW shouldn't affect to the window list
+    QCOMPARE(receiver.windowList.count(), APPLICATION_WINDOWS);
+
+    // Verify that button is in windowsBeingClosed and not in the model
+    QCOMPARE(switcher->windowsBeingClosed.count(), 1);
+    QVERIFY(switcher->windowsBeingClosed.contains(FIRST_APPLICATION_WINDOW));
+    QList<WindowInfo> remainingWindows = receiver.windowList;
+    remainingWindows.removeOne(WindowInfo(FIRST_APPLICATION_WINDOW));
+    verifyModel(remainingWindows);
+}
+
+void Ut_Switcher::testX11EventFilterCloseWindowForNonExistentWindow()
+{
+    WindowListReceiver receiver;
+    connect(switcher, SIGNAL(windowListUpdated(const QList<WindowInfo> &)), &receiver, SLOT(windowListUpdated(const QList<WindowInfo> &)));
     updateWindowList();
 
-    // Make sure the window list change signal was emitted
-    QCOMPARE(r.count, 1);
-
-    // There should be 1 window in the window list
-    QCOMPARE(r.windowList.count(), APPLICATION_WINDOWS - 1);
-    verifyModel(r.windowList);
-
-    // Close a non-existant window
+    // Try to close a non-existant window
+    XEvent clientEvent;
+    clientEvent.type = ClientMessage;
+    clientEvent.xclient.message_type = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_CLOSE_WINDOW", False);
     clientEvent.xclient.window = 234;
-    QVERIFY(switcher->handleXEvent(clientEvent));
+    switcher->handleXEvent(clientEvent);
 
+    QCOMPARE(switcher->windowsBeingClosed.count(), 0);
+    verifyModel(receiver.windowList);
     // Now open a window with the same id, the previous
     // close event shouldn't affect this
     addApplicationWindow(234);
     updateWindowList();
 
     // Make sure the window list change signal was emitted
-    QCOMPARE(r.count, 2);
-
-    // There should be 2 windows in the window list again
-    QCOMPARE(r.windowList.count(), APPLICATION_WINDOWS);
+    QCOMPARE(receiver.windowList.count(), 3);
+    verifyModel(receiver.windowList);
 }
 
 void Ut_Switcher::testWhenStackingOrderChangesCorrectWindowsAreStored()
@@ -1005,6 +1080,54 @@ void Ut_Switcher::testThatSwitcherButtonVisibleInSwitcherPropertyIsSetToFalseWhe
     QVERIFY(Switcher::windowInfoFromSet(switcher->windowInfoSet, window) != NULL);
     QCOMPARE(gSwitcherButtonVisibleInSwitcherProperty.contains(button.data()), true);
     QCOMPARE(gSwitcherButtonVisibleInSwitcherProperty[button.data()], false);
+}
+
+void Ut_Switcher::testRestoringButtonBeingClosedWhenWindowComesOnTop()
+{
+    updateWindowList();
+    WindowListReceiver receiver;
+    connect(switcher, SIGNAL(windowListUpdated(const QList<WindowInfo> &)), &receiver,
+            SLOT(windowListUpdated(const QList<WindowInfo> &)));
+
+    // Close window so it gets added to the buttons being closed list
+    const Window CLOSING_WINDOW = FIRST_APPLICATION_WINDOW + 1;
+    switcher->closeWindow(CLOSING_WINDOW);
+
+    QCOMPARE(switcher->windowsBeingClosed.count(), 1);
+    QCOMPARE(switcher->model()->buttons().count(), APPLICATION_WINDOWS - 1);
+
+    // Move window being closed to top and update window list
+    QList<WindowInfo> newWindowList = receiver.windowList;
+    newWindowList.move(newWindowList.indexOf(WindowInfo(CLOSING_WINDOW)), newWindowList.count() - 1);
+    switcher->handleWindowInfoList(newWindowList);
+
+    QCOMPARE(switcher->windowsBeingClosed.count(), 0);
+    QVERIFY(!switcher->windowsBeingClosed.contains(CLOSING_WINDOW));
+    verifyModel(receiver.windowList);
+}
+
+void Ut_Switcher::testRestoringButtonBeingClosedWhenButtonCloseTimerTimeouts()
+{
+    updateWindowList();
+    WindowListReceiver receiver;
+    connect(switcher, SIGNAL(windowListUpdated(const QList<WindowInfo> &)), &receiver,
+            SLOT(windowListUpdated(const QList<WindowInfo> &)));
+
+    // Close window so it gets added to the buttons being closed list
+    const Window CLOSING_WINDOW = FIRST_APPLICATION_WINDOW + 1;
+    switcher->closeWindow(CLOSING_WINDOW);
+
+    QCOMPARE(switcher->windowsBeingClosed.count(), 1);
+    QCOMPARE(switcher->model()->buttons().count(), APPLICATION_WINDOWS - 1);
+
+    foreach(const QSharedPointer<SwitcherButton> &button, switcher->model()->buttons()) {
+        QVERIFY(disconnect(button.data(), SIGNAL(closeTimedOutForWindow(Window)),
+                           switcher, SLOT(restoreButtonBeingRemoved(Window))));
+    }
+    switcher->restoreButtonBeingRemoved(CLOSING_WINDOW);
+    QCOMPARE(switcher->windowsBeingClosed.count(), 0);
+    QVERIFY(!switcher->windowsBeingClosed.contains(CLOSING_WINDOW));
+    verifyModel(receiver.windowList);
 }
 
 QTEST_APPLESS_MAIN(Ut_Switcher)

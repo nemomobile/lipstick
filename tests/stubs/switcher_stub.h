@@ -39,6 +39,7 @@ public:
     virtual bool sceneEvent(QEvent *event);
     virtual void updateAnimationStatus(bool animating);
     virtual QSharedPointer<SwitcherButton> createSwitcherButton();
+    virtual bool restoreButtonBeingRemoved(Window window, bool forceUpdateButtons);
 };
 
 void SwitcherStub::switcherConstructor(const WindowMonitor *windowMonitor, MWidget *parent, SwitcherModel *model)
@@ -120,6 +121,16 @@ QSharedPointer<SwitcherButton> SwitcherStub::createSwitcherButton()
     return stubReturnValue<QSharedPointer<SwitcherButton> >("createSwitcherButton");
 }
 
+bool SwitcherStub::restoreButtonBeingRemoved(Window window, bool forceUpdateButtons)
+{
+    QList<ParameterBase *> params;
+    params.append(new Parameter< Window > (window));
+    params.append(new Parameter< bool > (forceUpdateButtons));
+    stubMethodEntered("restoreButtonBeingRemoved", params);
+    return stubReturnValue<bool>("restoreButtonBeingRemoved");
+}
+
+
 SwitcherStub gDefaultSwitcherStub;
 SwitcherStub *gSwitcherStub = &gDefaultSwitcherStub;
 
@@ -181,6 +192,11 @@ void Switcher::updateAnimationStatus(bool animating)
 QSharedPointer<SwitcherButton> Switcher::createSwitcherButton()
 {
     return gSwitcherStub->createSwitcherButton();
+}
+
+bool Switcher::restoreButtonBeingRemoved(Window window, bool forceUpdateButtons)
+{
+    return gSwitcherStub->restoreButtonBeingRemoved(window, forceUpdateButtons);
 }
 
 #endif

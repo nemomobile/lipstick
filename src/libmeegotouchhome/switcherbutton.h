@@ -89,6 +89,11 @@ signals:
      */
     void closeAllWindows();
 
+    /*!
+     * \brief A signal for notifying that window close timer timed out.
+     */
+    void closeTimedOutForWindow(Window window);
+
 public slots:
     /*!
      * \brief Slot for notifying that the window represented by this button should be brought to front
@@ -103,7 +108,7 @@ public slots:
     /*!
      * A slot that should be called when window closing has been requested but the window has not closed during a certain time.
      */
-    void resetState();
+    virtual void resetState();
 
     /*!
      * \brief Enables or disables the setting of the visibility property of the button

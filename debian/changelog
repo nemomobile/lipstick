@@ -2,6 +2,7 @@ meegotouchhome (0.23.6~1) unstable; urgency=low
 
   * [UNRELEASED]
   * Fixes: NB#220833 - Panning switcher page delivers useless PropertyNotify events to applications
+  * Fixes: NB#226086 - Windows that refuse to close when the close button is pressed in Recents do not reappear in Recents in full size
 
  -- Vesa Halttunen <vesa.halttunen@nokia.com>  Fri, 11 Feb 2011 15:18:28 +0200
 

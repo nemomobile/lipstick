@@ -116,6 +116,9 @@ private slots:
     // Test closing windows
     void testCloseWindow();
 
+    // Test when closing window then button is removed from model
+    void testWhenCloseWindowThenButtonRemovedFromModel();
+
     // Test closing all windows
     void testCloseAllWindows();
 
@@ -123,7 +126,14 @@ private slots:
     void testX11EventFilterWithPropertyNotify();
 
     // Test X11EventFilter with ClientMessage events
+    void testX11EventFilterWithClientMessage_data();
     void testX11EventFilterWithClientMessage();
+
+    // Test X11EventFilter with _NET_CLOSE_WINDOW
+    void testX11EventFilterCloseWindow();
+
+    // Test X11EventFilter with _NET_CLOSE_WINDOW and non-existent window
+    void testX11EventFilterCloseWindowForNonExistentWindow();
 
     // Test the stacking order signal is hanled correctly
     void testWhenStackingOrderChangesCorrectWindowsAreStored();
@@ -154,6 +164,9 @@ private slots:
     void testThatIfApplicationWindowAcquiresSkipTaskbarPropertyButtonIsRemovedFromSwitcher();
 
     void testThatSwitcherButtonVisibleInSwitcherPropertyIsSetToFalseWhenApplicationWindowIsRemoved();
+
+    void testRestoringButtonBeingClosedWhenWindowComesOnTop();
+    void testRestoringButtonBeingClosedWhenButtonCloseTimerTimeouts();
 
 private:
     MSceneManager *mSceneManager;

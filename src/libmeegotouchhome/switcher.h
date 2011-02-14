@@ -82,6 +82,15 @@ public slots:
      */
     void handleWindowInfoList(QList<WindowInfo> newWindowList);
 
+    /*!
+     * Restore a button that were being removed.
+     *
+     * \param window
+     * \param forceUpdateButtons Whether buttons should be updated
+     * \return Whether windon was removed from list
+     */
+    bool restoreButtonBeingRemoved(Window window, bool forceUpdateButtons = true);
+
 protected:
     //! \reimp
     /*!
@@ -250,10 +259,10 @@ private:
     Atom windowNameAtom;
 
     //! A mapping from known X Window IDs to SwitcherButtons
-    QHash<Window, SwitcherButton *> switcherButtonMap;
+    QHash<Window, QSharedPointer<SwitcherButton> > switcherButtonMap;
 
     //! A list of windows that are being closed
-    QSet<WindowInfo> windowsBeingClosedInfo;
+    QSet<Window> windowsBeingClosed;
 
     //! Mapping of the current X windows
     QSet<WindowInfo> windowInfoSet;
