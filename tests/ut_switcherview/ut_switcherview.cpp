@@ -208,7 +208,6 @@ bool QGraphicsScene::sendEvent(QGraphicsItem *item, QEvent *event)
     return true;
 }
 
-
 QList<QPair<QGraphicsItem*, QGraphicsItem*> > gQGraphicsItem_installSceneEventFilter;
 void QGraphicsItem::installSceneEventFilter(QGraphicsItem *filterItem)
 {
@@ -994,12 +993,17 @@ void Ut_SwitcherView::testGraphicsSceneMouseMoveEventsDoNotGetFilteredForOtherTh
     QCOMPARE(m_subject->sceneEventFilter(&item, &mouseMoveEvent), false);
 }
 
-void Ut_SwitcherView::testWhenPinchingStartsThenEventsAreCanceledForOtherItems()
+void Ut_SwitcherView::testWhenPinchingStartsOrStopsThenViewportPhysicsEnabledOrDisabled()
 {
-    gSceneItems << new QGraphicsWidget;
-    gSceneItems << new QGraphicsWidget;
+    MPannableViewport *vp1 = new MPannableViewport;
+    MPannableViewport *vp2 = new MPannableViewport;
+    gSceneItems << vp1 << vp2;
     m_subject->pinchBegin(QPointF());
-    QCOMPARE(gSceneItems, gQGraphicsSceneSendCancelEventItems);
+    QVERIFY(!vp1->physics()->enabled());
+    QVERIFY(!vp2->physics()->enabled());
+    m_subject->pinchEnd();
+    QVERIFY(vp1->physics()->enabled());
+    QVERIFY(vp2->physics()->enabled());
 }
 
 

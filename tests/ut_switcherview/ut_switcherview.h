@@ -94,7 +94,7 @@ private slots:
     void testOtherThanGraphicsSceneMouseMoveEventsDoNotGetFilteredForSwitcherButtons();
     void testGraphicsSceneMouseMoveEventsDoNotGetFilteredForOtherThanSwitcherButtons();
     void testPanningDisabledWhenNoSwitcherButtons_NB186716();
-    void testWhenPinchingStartsThenEventsAreCanceledForOtherItems();
+    void testWhenPinchingStartsOrStopsThenViewportPhysicsEnabledOrDisabled();
 
 private:
     void verifyButtonModesInOverviewMode(M::Orientation orientation);

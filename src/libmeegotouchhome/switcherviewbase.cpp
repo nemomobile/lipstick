@@ -16,7 +16,6 @@
  ** of this file.
  **
  ****************************************************************************/
-#include <MCancelEvent>
 #include "switcherviewbase.h"
 #include "switcher.h"
 #include "switcherbutton.h"
@@ -83,6 +82,7 @@ bool SwitcherViewBase::event(QEvent *e)
         e->setAccepted(true);
         return true;
     }
+
     return MWidgetView::event(e);
 }
 
@@ -147,15 +147,31 @@ void SwitcherViewBase::calculateNearestButtonAt(const QPointF &centerPoint)
     pinchedButtonPosition = buttonIndex(closestButton);
 }
 
+void SwitcherViewBase::setViewportPhysicsEnabled(bool enabled)
+{
+    // When re-enabling, only enable the exact items that were disabled before
+    static QList<QGraphicsItem*> items;
+
+    if(!enabled) {
+        MScene *scene = MainWindow::instance()->scene();
+        items = scene->items(controller->mapToScene(controller->rect().center()));
+    }
+
+    foreach(QGraphicsItem *item, items) {
+        if(MPannableViewport *vp = dynamic_cast<MPannableViewport *>(item)) {
+            vp->physics()->setEnabled(enabled);
+        }
+    }
+
+    if(enabled) {
+        items.clear();
+    }
+}
+
 void SwitcherViewBase::pinchBegin(const QPointF &centerPoint)
 {
-    // Send cancel event to all items below, to prevent panning during the pinch
-    MScene *scene = MainWindow::instance()->scene();
-    QList<QGraphicsItem*> items = scene->items(controller->mapToScene(controller->rect().center()));
-    MCancelEvent cancelEvent;
-    foreach(QGraphicsItem *item, items) {
-        scene->sendEvent(item, &cancelEvent);
-    }
+    // Prevent panning during the pinch
+    setViewportPhysicsEnabled(false);
 
     calculateNearestButtonAt(centerPoint);
 
@@ -168,6 +184,10 @@ void SwitcherViewBase::pinchBegin(const QPointF &centerPoint)
 void SwitcherViewBase::pinchUpdate(float scaleFactor)
 {
     if(!layoutAnimation->isAnimating()) {
+        if(scaleFactor == 1.0f) {
+            return;
+        }
+
         pinchGestureTargetMode = scaleFactor >= 1 ? SwitcherModel::Detailview : SwitcherModel::Overview;
 
         overpinch = pinchGestureTargetMode == model()->switcherMode();
@@ -202,6 +222,9 @@ void SwitcherViewBase::pinchUpdate(float scaleFactor)
 
 void SwitcherViewBase::pinchEnd()
 {
+    // Re-enable panning
+    setViewportPhysicsEnabled(true);
+
     layoutAnimation->setManualControl(false);
 
     if(bounceAnimation->state() == QAbstractAnimation::Paused) {
@@ -222,7 +245,11 @@ void SwitcherViewBase::pinchEnd()
 
 void SwitcherViewBase::pinchGestureEvent(QGestureEvent *event, QPinchGesture *gesture)
 {
-    /*! Finish any currently running animation before starting a new one */
+    // For preventing acting on two GestureStarted events before receiving GestureFinished on the first,
+    // which occurs sometimes (a bug in Qt).
+    static bool gestureActive = false;
+
+    // Finish any currently running animation before starting a new one
     if((layoutAnimation->isAnimating() && !layoutAnimation->manualControl()) || bounceAnimation->state() == QAbstractAnimation::Running) {
         return;
     }
@@ -231,13 +258,26 @@ void SwitcherViewBase::pinchGestureEvent(QGestureEvent *event, QPinchGesture *ge
 
     switch(gesture->state()) {
     case Qt::GestureStarted:
-        pinchBegin(controller->mapFromScene(gesture->centerPoint()));
+        if(!gestureActive) {
+            gestureActive = true;
+            pinchBegin(controller->mapFromScene(gesture->centerPoint()));
+        }
+
         break;
     case Qt::GestureUpdated:
-        pinchUpdate(gesture->totalScaleFactor());
+        if(gestureActive) {
+            pinchUpdate(gesture->totalScaleFactor());
+        }
         break;
     case Qt::GestureFinished:
-        pinchEnd();
+        if(gestureActive) {
+            pinchEnd();
+            gestureActive = false;
+        }
+
+        break;
+    case Qt::GestureCanceled:
+        gestureActive = false;
         break;
     default:
         break;

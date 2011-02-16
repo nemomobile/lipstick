@@ -112,6 +112,10 @@ protected:
     /*! Called when the pinch gesture ends */
     virtual void pinchEnd();
 
+    /*! Enables or disables the physics of the viewports under this widget, to prevent unwanted movement
+      \param enabled the enabled or disabled state to set */
+    void setViewportPhysicsEnabled(bool enabled);
+
     /*! The switcher controller */
     Switcher *controller;
 
