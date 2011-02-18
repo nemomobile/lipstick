@@ -117,7 +117,6 @@ protected:
     //! SwitcherButton controller
     SwitcherButton *controller;
 
-private:
     //! Starts a timer for updating the icon geometry if the icon geometry has changed after the last update
     void updateXWindowIconGeometryIfNecessary() const;
 
