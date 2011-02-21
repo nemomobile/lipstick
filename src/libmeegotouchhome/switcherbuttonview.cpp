@@ -277,12 +277,12 @@ void SwitcherButtonView::updateXWindowPixmap()
         xWindowPixmap = 0;
     }
 
-    // It is possible that the window is not redirected so check for errors
+    // It is possible that the window is not redirected so check for errors. XSync() needs to be called so that previous errors go to the original handler.
+    X11Wrapper::XSync(QX11Info::display(), FALSE);
     XErrorHandler errh = X11Wrapper::XSetErrorHandler(handleXError);
 
     // Get the pixmap ID of the X window
     xWindowPixmap = X11Wrapper::XCompositeNameWindowPixmap(QX11Info::display(), model()->xWindow());
-    X11Wrapper::XSync(QX11Info::display(), FALSE);
 
     // If a BadMatch error occurred set the window pixmap ID to 0
     if (badMatchOccurred) {
@@ -296,7 +296,8 @@ void SwitcherButtonView::updateXWindowPixmap()
         }
     }
 
-    // Reset the error handler
+    // Reset the error handler. XSync() needs to be called so that any errors that have occured go to our handler.
+    X11Wrapper::XSync(QX11Info::display(), FALSE);
     X11Wrapper::XSetErrorHandler(errh);
 
     // Register the pixmap for XDamage events
