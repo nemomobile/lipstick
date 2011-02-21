@@ -282,6 +282,7 @@ void SwitcherButtonView::updateXWindowPixmap()
 
     // Get the pixmap ID of the X window
     xWindowPixmap = X11Wrapper::XCompositeNameWindowPixmap(QX11Info::display(), model()->xWindow());
+    X11Wrapper::XSync(QX11Info::display(), FALSE);
 
     // If a BadMatch error occurred set the window pixmap ID to 0
     if (badMatchOccurred) {

@@ -133,6 +133,11 @@ void X11Wrapper::XDamageDestroy(Display *, Damage damage)
     }
 }
 
+int X11Wrapper::XSync(Display *, Bool)
+{
+    return 0;
+}
+
 void X11Wrapper::XDamageSubtract(Display *dpy, Damage damage, XserverRegion, XserverRegion)
 {
     Ut_SwitcherButtonView::damageSubtracted = true;

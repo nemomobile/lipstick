@@ -41,6 +41,7 @@ public:
     virtual Damage XDamageCreate(Display *dpy, Drawable drawable, int level);
     virtual void XDamageSubtract(Display *display, Damage damage, XserverRegion repair, XserverRegion parts);
     virtual void XDamageDestroy(Display *dpy, Damage damage);
+    virtual int XSync(Display *display, Bool discard);
     virtual XErrorHandler XSetErrorHandler(XErrorHandler handler);
     virtual int XChangeProperty(Display *display, Window w, Atom property, Atom type, int format, int mode, unsigned char *data, int nelements);
     virtual Status XSendEvent(Display *display, Window w, Bool propagate, long event_mask, XEvent *event_send);
@@ -180,6 +181,15 @@ void X11WrapperStub::XDamageDestroy(Display *dpy, Damage damage)
     stubMethodEntered("XDamageDestroy", params);
 }
 
+int X11WrapperStub::XSync(Display *display, Bool discard)
+{
+    QList<ParameterBase *> params;
+    params.append(new Parameter<Display * >(display));
+    params.append(new Parameter<Bool >(discard));
+    stubMethodEntered("XSync", params);
+    return stubReturnValue<int>("XSync");
+}
+
 XErrorHandler X11WrapperStub::XSetErrorHandler(XErrorHandler handler)
 {
     QList<ParameterBase *> params;
@@ -286,6 +296,11 @@ void X11Wrapper::XDamageSubtract(Display *display, Damage damage, XserverRegion 
 void X11Wrapper::XDamageDestroy(Display *dpy, Damage damage)
 {
     gX11WrapperStub->XDamageDestroy(dpy, damage);
+}
+
+int X11Wrapper::XSync(Display *display, Bool discard)
+{
+    return gX11WrapperStub->XSync(display, discard);
 }
 
 XErrorHandler X11Wrapper::XSetErrorHandler(XErrorHandler handler)

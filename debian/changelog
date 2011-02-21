@@ -8,7 +8,6 @@ meegotouchhome (0.23.6-1) unstable; urgency=low
 meegotouchhome (0.23.5-1) unstable; urgency=low
 
   * Fixes: NB#226006 Pinch gesture will break portrait only homescreen mode
-  * Fixes: NB#224497 - Home does pointless XSync calls
 
  -- Pankaj Saharan <pankaj.saharan@nokia.com>  Thu, 10 Feb 2011 16:28:13 +0200
 

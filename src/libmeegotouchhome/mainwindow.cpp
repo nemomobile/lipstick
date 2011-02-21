@@ -148,6 +148,7 @@ void MainWindow::changeNetWmState(bool set, Atom one, Atom two)
     e.xclient.data.l[3] = 0;
     e.xclient.data.l[4] = 0;
     X11Wrapper::XSendEvent(display, RootWindow(display, x11Info().screen()), FALSE, (SubstructureNotifyMask | SubstructureRedirectMask), &e);
+    X11Wrapper::XSync(display, FALSE);
 }
 
 bool MainWindow::isCallUILaunchingKey(int key)
