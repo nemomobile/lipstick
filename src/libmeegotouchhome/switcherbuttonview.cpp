@@ -79,9 +79,9 @@ bool SwitcherButtonView::badMatchOccurred = false;
 // Time between icon geometry updates in milliseconds
 static const int ICON_GEOMETRY_UPDATE_INTERVAL = 200;
 // Time between icon pixmap fetch retries in milliseconds
-static const int ICON_PIXMAP_RETRY_INTERVAL = 100;
+static const int ICON_PIXMAP_RETRY_INTERVAL = 500;
 // Maximun number of icon pixmap fetch retries
-static const int ICON_PIXMAP_RETRY_MAX_COUNT = 5;
+static const int ICON_PIXMAP_RETRY_MAX_COUNT = 2;
 Atom SwitcherButtonView::iconGeometryAtom = 0;
 
 SwitcherButtonView::SwitcherButtonView(SwitcherButton *button) :
@@ -268,46 +268,50 @@ void SwitcherButtonView::updateViewMode()
 void SwitcherButtonView::updateXWindowPixmap()
 {
 #ifdef Q_WS_X11
-    // Unregister the old pixmap from XDamage events
-    destroyDamage();
 
-    if (xWindowPixmap != 0) {
-        // Dereference the old pixmap ID
-        X11Wrapper::XFreePixmap(QX11Info::display(), xWindowPixmap);
-        xWindowPixmap = 0;
-    }
-
-    // It is possible that the window is not redirected so check for errors. XSync() needs to be called so that previous errors go to the original handler.
+    // It is possible that the window is not redirected so check for errors.
+    // XSync() needs to be called so that previous errors go to the original
+    // handler.
     X11Wrapper::XSync(QX11Info::display(), FALSE);
     XErrorHandler errh = X11Wrapper::XSetErrorHandler(handleXError);
+    badMatchOccurred = false;
 
     // Get the pixmap ID of the X window
-    xWindowPixmap = X11Wrapper::XCompositeNameWindowPixmap(QX11Info::display(), model()->xWindow());
+    Pixmap newWindowPixmap = X11Wrapper::XCompositeNameWindowPixmap(QX11Info::display(), model()->xWindow());
+    // XCompositeNameWindowPixmap doesn't wait for the server to reply, we'll
+    // need to do it ourselves to catch the possible BadMatch
+    X11Wrapper::XSync(QX11Info::display(), FALSE);
 
-    // If a BadMatch error occurred set the window pixmap ID to 0
+    // If a BadMatch error occurred the window wasn't redirected yet
     if (badMatchOccurred) {
-        xWindowPixmap = 0;
-        badMatchOccurred = false;
         if (++updateXWindowPixmapRetryCount
             <= ICON_PIXMAP_RETRY_MAX_COUNT) {
             updateXWindowPixmapRetryTimer.start();
-        } else {
-            updateXWindowPixmapRetryCount = 0;
         }
-    }
+    } else {
+        updateXWindowPixmapRetryCount = 0;
 
-    // Reset the error handler. XSync() needs to be called so that any errors that have occured go to our handler.
-    X11Wrapper::XSync(QX11Info::display(), FALSE);
-    X11Wrapper::XSetErrorHandler(errh);
+        // Unregister the old pixmap from XDamage events
+        destroyDamage();
 
-    // Register the pixmap for XDamage events
-    createDamage();
+        if (xWindowPixmap != 0) {
+            // Dereference the old pixmap ID
+            X11Wrapper::XFreePixmap(QX11Info::display(), xWindowPixmap);
+        }
 
-    if (xWindowPixmap != 0) {
+        xWindowPixmap = newWindowPixmap;
+
+        // Register the pixmap for XDamage events
+        createDamage();
+
         qWindowPixmap = QPixmap::fromX11Pixmap(xWindowPixmap, QPixmap::ExplicitlyShared);
+
+        update();
     }
+
+    // Reset the error handler.
+    X11Wrapper::XSetErrorHandler(errh);
 #endif
-    update();
 }
 
 #ifdef Q_WS_X11

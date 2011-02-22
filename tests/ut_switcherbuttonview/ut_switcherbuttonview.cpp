@@ -258,9 +258,12 @@ void QTimer::stop()
     Ut_SwitcherButtonView::timerStarted = false;
 }
 
+Qt::HANDLE gQPixmapX11Handle;
+
 // QPixmap stubs (used by SwitcherButtonView)
-QPixmap QPixmap::fromX11Pixmap(Qt::HANDLE, ShareMode)
+QPixmap QPixmap::fromX11Pixmap(Qt::HANDLE handle, ShareMode)
 {
+    gQPixmapX11Handle = handle;
     return QPixmap();
 }
 
@@ -285,6 +288,7 @@ void Ut_SwitcherButtonView::init()
     damageSubtractDisplay = NULL;
     gQPainter_drawPixmap_throwsBadAlloc = false;
     gQPainter_restore_called = false;
+    gQPixmapX11Handle = 0;
 }
 
 void Ut_SwitcherButtonView::cleanup()
@@ -516,34 +520,51 @@ void Ut_SwitcherButtonView::testUpdateXWindowIconGeometry()
     QCOMPARE(iconGeometry[3], (unsigned int)iconSceneGeometry.height());
 }
 
-static const int ICON_PIXMAP_RETRY_MAX_COUNT = 5;
+static const int ICON_PIXMAP_RETRY_MAX_COUNT = 2;
 void Ut_SwitcherButtonView::testUpdateXWindowPixmap()
 {
     // damage handling is tested elsewhere, this test
-    // tests the retrying logic
+    // tests the error handling and retrying logic
+
+    // first update the pixmap successfully
+    xCompositeNameWindowPixmapCausesBadMatch = false;
+    button->model()->setXWindow(1);
+    Pixmap oldPixmap = m_subject->xWindowPixmap;
+    QCOMPARE(allocatedPixmaps.count(), 1);
+    QCOMPARE(gQPixmapX11Handle, oldPixmap);
 
     // test that the timer is started each time the pixmap
-    // fetch causes a badmatch, up to the max count
-    button->model()->setXWindow(1);
+    // fetch causes a badmatch, up to the max count and that
+    // nothing else is done
     xCompositeNameWindowPixmapCausesBadMatch = true;
     for (int i = 0; i < ICON_PIXMAP_RETRY_MAX_COUNT; ++i) {
         timerStarted = false;
         m_subject->updateXWindowPixmap();
         QVERIFY(timerStarted);
         QCOMPARE(m_subject->updateXWindowPixmapRetryCount, i + 1);
+        QCOMPARE(m_subject->xWindowPixmap, oldPixmap);
+        QCOMPARE(allocatedPixmaps.count(), 1);
+        QCOMPARE(gQPixmapX11Handle, oldPixmap);
     }
-    // the next attempt after max count doesn't start the
+    // the next attempt after max count doesn't even start the
     // timer anymore
     timerStarted = false;
     m_subject->updateXWindowPixmap();
     QVERIFY(!timerStarted);
-    QCOMPARE(m_subject->updateXWindowPixmapRetryCount, 0);
-    // when badmatch doesn't occur, the timer is not started either
+    QCOMPARE(m_subject->xWindowPixmap, oldPixmap);
+    QCOMPARE(allocatedPixmaps.count(), 1);
+    QCOMPARE(gQPixmapX11Handle, oldPixmap);
+
+    // when badmatch doesn't occur the timer is not started,
+    // but the pixmap does get updated
     xCompositeNameWindowPixmapCausesBadMatch = false;
     timerStarted = false;
     m_subject->updateXWindowPixmap();
     QVERIFY(!timerStarted);
     QCOMPARE(m_subject->updateXWindowPixmapRetryCount, 0);
+    QVERIFY(m_subject->xWindowPixmap != oldPixmap);
+    QCOMPARE(gQPixmapX11Handle, m_subject->xWindowPixmap);
+    QCOMPARE(allocatedPixmaps.count(), 1);
 }
 
 const Window CORRECT_WINDOW_ID = 1001;
