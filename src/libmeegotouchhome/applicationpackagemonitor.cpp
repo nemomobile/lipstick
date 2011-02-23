@@ -121,7 +121,7 @@ void ApplicationPackageMonitor::updatePackageStates()
 {
     QStringList keyList(dataStore->allKeys());
 
-    foreach (QString key, keyList) {
+    foreach (const QString &key, keyList) {
         if (key.contains(PACKAGE_PREFIX)) {
             QString desktopEntryPath = dataStore->value(key).toString();
             QString state = dataStore->value(DESKTOPENTRY_PREFIX + desktopEntryPath).toString();
