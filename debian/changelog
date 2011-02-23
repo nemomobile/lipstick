@@ -1,6 +1,7 @@
 meegotouchhome (0.23.7~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#227550 - Manage window backing pixmaps more carefully in SwitcherButtonView
 
  -- Vesa Halttunen <vesa.halttunen@nokia.com>  Tue, 22 Feb 2011 12:11:50 +0200
 
