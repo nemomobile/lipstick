@@ -215,6 +215,7 @@ QPoint SwitcherButtonView::thumbnailPosition() const
 
 void SwitcherButtonView::setupModel()
 {
+    // The MButtonView implementation is skipped on purpose so that MButtonView's MLabel is not set up
     MWidgetView::setupModel();
 
     if (model()->xWindow() != 0) {
@@ -228,7 +229,9 @@ void SwitcherButtonView::setupModel()
 
 void SwitcherButtonView::updateData(const QList<const char *>& modifications)
 {
+    // The MButtonView implementation is skipped on purpose so that MButtonView's MLabel is not set up
     MWidgetView::updateData(modifications);
+
     const char *member;
     foreach(member, modifications) {
         if (member == SwitcherButtonModel::XWindow && model()->xWindow() != 0) {
@@ -244,7 +247,8 @@ void SwitcherButtonView::updateData(const QList<const char *>& modifications)
 
 void SwitcherButtonView::applyStyle()
 {
-    MWidgetView::applyStyle();
+    // MButtonView's implementation must be called starting from libmeegotouch 0.20.86
+    MButtonView::applyStyle();
 }
 
 void SwitcherButtonView::updateViewMode()
@@ -261,8 +265,8 @@ void SwitcherButtonView::updateViewMode()
         break;
     }
 
-    // When the style mode changes, the style is not automatically applied -> call it explicitly
-    applyStyle();
+    // When the style mode changes, the style is not automatically applied -> call it explicitly (skipping the MButtonView's implementation so that the mode setting does not get reset)
+    MWidgetView::applyStyle();
 }
 
 void SwitcherButtonView::updateXWindowPixmap()

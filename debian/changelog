@@ -1,6 +1,7 @@
 meegotouchhome (0.23.8~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#229767 - meegotouchhome crashes when tapping thumbnail
 
  -- Vesa Halttunen <vesa.halttunen@nokia.com>  Wed, 23 Feb 2011 14:49:06 +0200
 
