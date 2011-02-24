@@ -11,6 +11,8 @@ public:
     ~ExtraDirWatcher(){}
 };
 
+const QString ApplicationPackageMonitor::INSTALLER_EXTRA_FOLDER = "installer-extra/";
+
 // 1. DECLARE STUB
 // FIXME - stubgen is not yet finished
 class ApplicationPackageMonitorStub : public StubBase {
@@ -24,7 +26,7 @@ class ApplicationPackageMonitorStub : public StubBase {
   virtual void updatePackageState(const QString &desktopEntryPath);
   virtual QString desktopEntryName(const QString &packageName);
   virtual void packageRemoved(const QString &desktopEntryPath);
-  void updatePackageStates();
+  virtual void updatePackageStates();
 };
 
 // 2. IMPLEMENT STUB

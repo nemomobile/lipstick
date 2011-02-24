@@ -69,3 +69,8 @@ void ApplicationPackageMonitorListener::updatePackageStates()
 {
     packageMonitor->updatePackageStates();
 }
+
+bool ApplicationPackageMonitorListener::isInstallerExtraEntry(const QString &desktopEntryPath)
+{
+    return desktopEntryPath.contains(ApplicationPackageMonitor::INSTALLER_EXTRA_FOLDER);
+}

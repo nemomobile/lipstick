@@ -74,9 +74,8 @@ public:
      * Progress property is changed only if parameter progress is valid (0..100)
      * \param state State of a button
      * \param progress Progress of operation
-     * \param desktopEntryPath Path to the desktop entry.
      */
-    void setState(LauncherButtonModel::State state, int progress, const QString &desktopEntryPath);
+    void setState(LauncherButtonModel::State state, int progress);
 
     /*!
      * Returns progress of button's ongoing operation

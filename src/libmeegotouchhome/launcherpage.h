@@ -104,6 +104,13 @@ public:
      *\return int position of button on page. Returns -1 if button is not found.
      */
     int launcherButtonPosition(const QString &desktopEntryPath);
+
+    /*! \brief Returns button representing the given entry.
+     *
+     * \param desktopEntryPath Desktop entry path specifying the button to return
+     * \return Button representing the given desktop entry or NULL shared pointer if button is not found
+     */
+    QSharedPointer<LauncherButton> button(const QString &desktopEntryPath);
 };
 
 #endif

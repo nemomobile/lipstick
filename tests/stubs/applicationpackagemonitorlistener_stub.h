@@ -16,7 +16,7 @@ class ApplicationPackageMonitorListenerStub : public StubBase {
   virtual void setInstallProgress(const QString &desktopEntryPath, int percentage);
   virtual void setOperationSuccess(const QString &desktopEntryPath);
   virtual void setOperationError(const QString &desktopEntryPath, const QString &error);
-  ApplicationPackageMonitor *packageMonitor ;
+  virtual bool isInstallerExtraEntry(const QString &desktopEntryPath);
 }; 
 
 // 2. IMPLEMENT STUB
@@ -58,7 +58,12 @@ void ApplicationPackageMonitorListenerStub::setOperationError(const QString &des
   stubMethodEntered("setOperationError",params);
 }
 
-
+bool ApplicationPackageMonitorListenerStub::isInstallerExtraEntry(const QString &desktopEntryPath) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<const QString & >(desktopEntryPath));
+  stubMethodEntered("isInstallerExtraEntry",params);
+  return stubReturnValue<bool>("isInstallerExtraEntry");
+}
 
 // 3. CREATE A STUB INSTANCE
 ApplicationPackageMonitorListenerStub gDefaultApplicationPackageMonitorListenerStub;
@@ -95,4 +100,7 @@ void ApplicationPackageMonitorListener::setOperationError(const QString &desktop
 }
 
 
+bool ApplicationPackageMonitorListener::isInstallerExtraEntry(const QString &desktopEntryPath) {
+  return gApplicationPackageMonitorListenerStub->isInstallerExtraEntry(desktopEntryPath);
+}
 #endif

@@ -133,4 +133,10 @@ void Ut_ApplicationPackageMonitorListener::testUpdatePackageStates()
     QCOMPARE(gApplicationPackageMonitorStub->stubCallCount("updatePackageStates"), 1);
 }
 
+void Ut_ApplicationPackageMonitorListener::testIsInstallerExtraEntry()
+{
+    QVERIFY(ApplicationPackageMonitorListener::isInstallerExtraEntry("/dev/null/installer-extra/entry.desktop"));
+    QVERIFY(!ApplicationPackageMonitorListener::isInstallerExtraEntry("/dev/null/entry.desktop"));
+}
+
 QTEST_APPLESS_MAIN(Ut_ApplicationPackageMonitorListener)

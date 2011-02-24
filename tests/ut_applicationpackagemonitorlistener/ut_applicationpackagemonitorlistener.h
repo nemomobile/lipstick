@@ -50,6 +50,7 @@ private slots:
     void testSetOperationSuccess();
     void testSetOperationError();
     void testUpdatePackageStates();
+    void testIsInstallerExtraEntry();
 
 private:
     // MApplication

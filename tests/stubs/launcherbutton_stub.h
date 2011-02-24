@@ -18,7 +18,7 @@ class LauncherButtonStub : public StubBase {
   virtual void retranslateUi();
   virtual void launch();
   virtual void stopLaunchProgress();
-  virtual void setState(LauncherButtonModel::State state, int progress, const QString &desktopEntryPath);
+  virtual void setState(LauncherButtonModel::State state, int progress);
   virtual int operationProgress() const;
   virtual void init();
   virtual LauncherButtonModel::State buttonState() const;
@@ -66,11 +66,10 @@ LauncherButtonModel::State LauncherButtonStub::buttonState() const {
   return stubReturnValue<LauncherButtonModel::State>("buttonState");
 }
 
-void LauncherButtonStub::setState(LauncherButtonModel::State state, int progress, const QString &desktopEntryPath) {
+void LauncherButtonStub::setState(LauncherButtonModel::State state, int progress) {
   QList<ParameterBase*> params;
   params.append( new Parameter<LauncherButtonModel::State>(state));
   params.append( new Parameter<int>(progress));
-  params.append( new Parameter<QString>(desktopEntryPath));
   stubMethodEntered("setState",params);
 }
 
@@ -121,9 +120,9 @@ LauncherButtonModel::State LauncherButton::buttonState() const {
     return gLauncherButtonStub->buttonState();
 }
 
-void LauncherButton::setState(LauncherButtonModel::State state, int progress, const QString &desktopEntryPath)
+void LauncherButton::setState(LauncherButtonModel::State state, int progress)
 {
-    gLauncherButtonStub->setState(state, progress, desktopEntryPath);
+    gLauncherButtonStub->setState(state, progress);
 }
 
 int LauncherButton::operationProgress() const {

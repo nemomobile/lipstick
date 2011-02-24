@@ -16,7 +16,6 @@
 ** of this file.
 **
 ****************************************************************************/
-
 #include "launcher.h"
 #include "launcherbutton.h"
 #include "launcherdatastore.h"
@@ -97,13 +96,14 @@ void Launcher::updateButtonState(const QString &desktopEntryPath, LauncherButton
     Launcher::Placement buttonPlacementInDatastore = entryPlacementInDatastore(desktopEntryPath);
     if (buttonPlacementInDatastore.location.isEmpty() || buttonPlacementInDatastore.location == Launcher::LOCATION_IDENTIFIER) {
         QSharedPointer<LauncherButton> button = placeholderButton(desktopEntryPath);
-        // Remove old placement from store
-        // This is needed in case path to used desktop entry has changed between applications and extra directory
-        removeButtonPlacementFromStore(button->desktopEntry());
+        if (!ApplicationPackageMonitorListener::isInstallerExtraEntry(desktopEntryPath)) {
+            // If new entry is an applications entry path then remove the old entry path from store and update the new entry
+            removeButtonPlacementFromStore(button->desktopEntry());
+            updateButtonPlacementInStore(desktopEntryPath);
+            button->updateFromDesktopEntry(desktopEntryPath);
+        }
 
-        button->setState(state, progress, desktopEntryPath);
-
-        updateButtonPlacementInStore(desktopEntryPath);
+        button->setState(state, progress);
 
         if (!QFileInfo(desktopEntryPath).exists()) {
             // In error case that package doesn't have desktop entry yet,
@@ -283,6 +283,8 @@ void Launcher::addLauncherButton(const QString &desktopEntryPath)
         model()->setLauncherPages(pages);
 
         updateButtonPlacementInStore(desktopEntryPath);
+    } else {
+        updateLauncherButton(desktopEntryPath);
     }
 }
 
@@ -340,7 +342,16 @@ bool Launcher::updateLauncherButton(const QString &desktopEntryPath)
 {
     bool found = false;
     foreach (QSharedPointer<LauncherPage> page, model()->launcherPages()) {
-        if (page->updateButton(desktopEntryPath)) {
+        QSharedPointer<LauncherButton> button = page->button(desktopEntryPath);
+        if (!button.isNull()) {
+            // If old entry is an installer extra entry path then remove it and update the new entry path
+            QString oldEntryPath = button->desktopEntry();
+            if (ApplicationPackageMonitorListener::isInstallerExtraEntry(oldEntryPath)) {
+                removeButtonPlacementFromStore(oldEntryPath);
+                updateButtonPlacementInStore(desktopEntryPath);
+            }
+
+            button->updateFromDesktopEntry(desktopEntryPath);
             found = true;
             break;
         }

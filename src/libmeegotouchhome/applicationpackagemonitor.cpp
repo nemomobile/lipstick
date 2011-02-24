@@ -16,7 +16,6 @@
 ** of this file.
 **
 ****************************************************************************/
-
 #include "applicationpackagemonitor.h"
 #include "launcherdatastore.h"
 #include <QDir>
@@ -36,7 +35,7 @@ static const QString OPERATION_UPGRADE = "Upgrade";
 
 static const QString DESKTOPENTRY_PREFIX = "DesktopEntries";
 static const QString PACKAGE_PREFIX = "Packages/";
-static const QString INSTALLER_EXTRA = "installer-extra/";
+const QString ApplicationPackageMonitor::INSTALLER_EXTRA_FOLDER = "installer-extra/";
 
 static const QString CONFIG_PATH = "/.config/meegotouchhome";
 
@@ -85,7 +84,7 @@ ApplicationPackageMonitor::ApplicationPackageMonitor()
     dataStore = new MFileDataStore(dataStoreFileName);
 
     // ExtraDirWatcher takes ownership of dataStore
-    extraDirWatcher = QSharedPointer<ExtraDirWatcher>(new ExtraDirWatcher(dataStore, QStringList() << (APPLICATIONS_DIRECTORY+INSTALLER_EXTRA)));
+    extraDirWatcher = QSharedPointer<ExtraDirWatcher>(new ExtraDirWatcher(dataStore, QStringList() << (APPLICATIONS_DIRECTORY+INSTALLER_EXTRA_FOLDER)));
 
     connect(extraDirWatcher.data(), SIGNAL(desktopEntryAdded(QString)), this, SLOT(updatePackageState(QString)), Qt::UniqueConnection);
     connect(extraDirWatcher.data(), SIGNAL(desktopEntryChanged(QString)), this, SLOT(updatePackageState(QString)), Qt::UniqueConnection);
@@ -215,7 +214,7 @@ void ApplicationPackageMonitor::packageOperationComplete(const QString &operatio
             QString packageState = entry.value(DESKTOP_ENTRY_GROUP_MEEGO, DESKTOP_ENTRY_KEY_PACKAGE_STATE);
             if (packageState == PACKAGE_STATE_INSTALLED || packageState == PACKAGE_STATE_UPDATEABLE) {
                 // Application is previously installed. Downloading update failed but application still usable.
-                emit operationSuccess(properties.desktopEntryName.replace(INSTALLER_EXTRA, QString()));
+                emit operationSuccess(properties.desktopEntryName.replace(INSTALLER_EXTRA_FOLDER, QString()));
                 storePackageState(packageName, packageState);
             } else {
                 emit operationError(properties.desktopEntryName, error);
@@ -223,7 +222,7 @@ void ApplicationPackageMonitor::packageOperationComplete(const QString &operatio
             }
         }
     } else {
-        emit operationSuccess(properties.desktopEntryName.replace(INSTALLER_EXTRA, QString()));
+        emit operationSuccess(properties.desktopEntryName.replace(INSTALLER_EXTRA_FOLDER, QString()));
         storePackageState(packageName, PACKAGE_STATE_INSTALLED);
     }
 

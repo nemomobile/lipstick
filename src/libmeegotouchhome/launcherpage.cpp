@@ -16,7 +16,6 @@
 ** of this file.
 **
 ****************************************************************************/
-
 #include "launcherpage.h"
 #include "launcherpagemodel.h"
 #include "launcherpageview.h"
@@ -101,7 +100,7 @@ int LauncherPage::launcherButtonPosition(const QString &desktopEntryPath)
     int buttonIndex = 0;
 
     QString desktopFileName = QFileInfo(desktopEntryPath).fileName();
-    foreach(QSharedPointer<LauncherButton> button, model()->launcherButtons()) {
+    foreach(const QSharedPointer<LauncherButton> &button, model()->launcherButtons()) {
         if (QFileInfo(button->desktopEntry()).fileName() == desktopFileName) {
             position = buttonIndex;
             break;
@@ -110,4 +109,14 @@ int LauncherPage::launcherButtonPosition(const QString &desktopEntryPath)
     }
 
     return position;
+}
+
+QSharedPointer<LauncherButton> LauncherPage::button(const QString &desktopEntryPath)
+{
+    int buttonPosition = launcherButtonPosition(desktopEntryPath);
+    QSharedPointer<LauncherButton> button;
+    if (buttonPosition > -1) {
+        button = model()->launcherButtons().at(buttonPosition);
+    }
+    return button;
 }

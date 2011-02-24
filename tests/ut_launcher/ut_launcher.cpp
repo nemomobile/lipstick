@@ -34,6 +34,7 @@
 #include "mockdatastore.h"
 
 const static int BUTTONS_PER_PAGE = 12;
+const static QString INSTALLER_EXTRA_PATH = APPLICATIONS_DIRECTORY + ApplicationPackageMonitor::INSTALLER_EXTRA_FOLDER;
 
 QString qProcessProgramStarted;
 bool QProcess::startDetached(const QString &program)
@@ -104,6 +105,7 @@ void Ut_Launcher::init()
 
     gLauncherButtonStub->stubReset();
     gLauncherDataStoreStub->stubReset();
+    gApplicationPackageMonitorListenerStub->stubReset();
 
     fileExists = true;
 }
@@ -137,6 +139,8 @@ void Ut_Launcher::createdDefaultSetOfDesktopEntries()
     dataForAllDesktopEntries.insert(QString(APPLICATIONS_DIRECTORY) + "testApp41.desktop", QVariant("launcher/4/1"));
     dataForAllDesktopEntries.insert(QString(APPLICATIONS_DIRECTORY) + "testApp50.desktop", QVariant("launcher/5/0"));
     gLauncherDataStoreStub->stubSetReturnValue("dataForAllDesktopEntries", dataForAllDesktopEntries);
+
+    gLauncherButtonStub->stubSetReturnValueList("desktopEntry", dataForAllDesktopEntries.keys());
 }
 
 void Ut_Launcher::comparePageNumberArgument(QSignalSpy &spy, int page)
@@ -259,16 +263,37 @@ void Ut_Launcher::testUpdatingLauncherButton()
     // Fake a directory change notification
     emit directoryChanged(APPLICATIONS_DIRECTORY);
 
-    connect(this, SIGNAL(updateButton(QString)), launcher, SLOT(updateLauncherButton(QString)));
-
     QString updateButtonEntry = QString(APPLICATIONS_DIRECTORY) + "testApp20.desktop";
-    // Make one specific button to "simulate" updated button
-    // (Update is checked from button so that we don't have to stub LauncherPage just for this)
 
-    gLauncherButtonStub->stubSetReturnValue("desktopEntry", updateButtonEntry);
+    launcher->updateLauncherButton(updateButtonEntry);
 
-    emit updateButton(updateButtonEntry);
+    QCOMPARE(gLauncherButtonStub->stubCallCount("updateFromDesktopEntry"), 1);
+}
 
+void Ut_Launcher::testUpdatingLauncherButtonFromInstallerExtraFolder()
+{
+    /* Initialize launcher with two buttons of which one is in installer-extra folder */
+    QString installerExtraButtonEntry = INSTALLER_EXTRA_PATH + "testApp2.desktop";
+    QString applicationsButtonEntry = QString(APPLICATIONS_DIRECTORY) + "testApp1.desktop";
+
+    QHash<QString, QVariant> dataForAllDesktopEntries;
+    dataForAllDesktopEntries.insert(applicationsButtonEntry, QVariant("launcher/0/0"));
+    dataForAllDesktopEntries.insert(installerExtraButtonEntry, QVariant("launcher/0/1"));
+    gLauncherDataStoreStub->stubSetReturnValue("dataForAllDesktopEntries", dataForAllDesktopEntries);
+    launcher->updatePagesFromDataStore();
+
+    QList<QString> entries;
+    entries << applicationsButtonEntry << installerExtraButtonEntry;
+    gLauncherButtonStub->stubSetReturnValueList("desktopEntry", entries);
+
+    gApplicationPackageMonitorListenerStub->stubSetReturnValue("isInstallerExtraEntry", true);
+
+
+    QString updateButtonEntry = QString(APPLICATIONS_DIRECTORY) + "testApp2.desktop";
+    launcher->updateLauncherButton(updateButtonEntry);
+
+    QCOMPARE(gLauncherDataStoreStub->stubCallCount("removeDataForDesktopEntry"), 1);
+    QCOMPARE(gLauncherDataStoreStub->stubCallCount("updateDataForDesktopEntry"), 1);
     QCOMPARE(gLauncherButtonStub->stubCallCount("updateFromDesktopEntry"), 1);
 }
 

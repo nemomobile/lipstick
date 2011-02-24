@@ -125,6 +125,22 @@ void Ut_LauncherPage::testLauncherButtonPosition()
     QCOMPARE(result, 0);
 }
 
+void Ut_LauncherPage::testGetButton()
+{
+    QString desktopEntryPath = "test.desktop";
+    QSharedPointer<LauncherButton> button1 = createLauncherButton(desktopEntryPath);
+    m_subject->appendButton(button1);
+
+    QSharedPointer<LauncherButton> button2 = createLauncherButton("dummy.desktop");
+    m_subject->appendButton(button2);
+
+    gLauncherButtonStub->stubSetReturnValueList("desktopEntry", QList<QString>() << "test.desktop" << "dummy.desktop");
+    QSharedPointer<LauncherButton> button = m_subject->button(desktopEntryPath);
+    QVERIFY(!button.isNull());
+
+    button = m_subject->button("non-existing.desktop");
+    QVERIFY(button.isNull());
+}
 
 static QSharedPointer<LauncherButton> createLauncherButton(QString desktopFileName)
 {

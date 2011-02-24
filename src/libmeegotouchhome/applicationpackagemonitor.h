@@ -54,6 +54,8 @@ public:
      */
     void updatePackageStates();
 
+    static const QString INSTALLER_EXTRA_FOLDER;
+
 signals:
     /*!
      * Status of download progress of package being installed.

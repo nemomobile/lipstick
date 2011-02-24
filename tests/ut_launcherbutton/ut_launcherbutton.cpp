@@ -430,13 +430,13 @@ void Ut_LauncherButton::testSettingButtonStateAndProgress()
     QCOMPARE(m_subject->model()->operationProgress(), 0);
 
     int progress = 50;
-    m_subject->setState(LauncherButtonModel::Downloading, progress, "");
+    m_subject->setState(LauncherButtonModel::Downloading, progress);
     QCOMPARE(m_subject->model()->buttonState(), LauncherButtonModel::Downloading);
     QCOMPARE(m_subject->model()->operationProgress(), progress);
 
     //Only progress should change
     progress = 99;
-    m_subject->setState(LauncherButtonModel::Downloading, progress, "");
+    m_subject->setState(LauncherButtonModel::Downloading, progress);
     QCOMPARE(m_subject->model()->buttonState(), LauncherButtonModel::Downloading);
     QCOMPARE(m_subject->model()->operationProgress(), progress);
 }
@@ -445,46 +445,14 @@ void Ut_LauncherButton::testSettingButtonStateAndProgressWithInvalidValues()
 {
     //With invalid values progress shouldn't change from default value 0
     int progress = -1;
-    m_subject->setState(LauncherButtonModel::Installing, progress, "");
+    m_subject->setState(LauncherButtonModel::Installing, progress);
     QCOMPARE(m_subject->model()->buttonState(), LauncherButtonModel::Installing);
     QCOMPARE(m_subject->model()->operationProgress(), 0);
 
     progress = 101;
-    m_subject->setState(LauncherButtonModel::Downloading, progress, "");
+    m_subject->setState(LauncherButtonModel::Downloading, progress);
     QCOMPARE(m_subject->model()->buttonState(), LauncherButtonModel::Downloading);
     QCOMPARE(m_subject->model()->operationProgress(), 0);
-}
-
-void Ut_LauncherButton::testSettingButtonStateWithUpdatingDesktopEntry_data()
-{
-     QTest::addColumn<LauncherButtonModel::State>("state");
-     QTest::addColumn<bool>("shouldBeUpdated");
-     QTest::newRow("Installed") << LauncherButtonModel::Installed << true;
-     QTest::newRow("Installing") << LauncherButtonModel::Installing << false;
-     QTest::newRow("Downloading") << LauncherButtonModel::Downloading << false;
-     QTest::newRow("Broken") << LauncherButtonModel::Broken << true;
-}
-
-void Ut_LauncherButton::testSettingButtonStateWithUpdatingDesktopEntry()
-{
-    QFETCH(LauncherButtonModel::State, state);
-    QFETCH(bool, shouldBeUpdated);
-
-    QString initialDesktopEntry = "/dev/null/initial.desktop";
-    QString updatedDesktopEntry = "/dev/null/updated.desktop";
-
-    addActionPrivate(initialDesktopEntry,true,"initial","","","");
-    addActionPrivate(updatedDesktopEntry,true,"updated","","","");
-    m_subject->updateFromDesktopEntry(initialDesktopEntry);
-
-    gMDesktopEntryStub->stubReset();
-    m_subject->setState(state, 0, updatedDesktopEntry);
-
-    QCOMPARE(gMDesktopEntryStub->stubCallCount("MDesktopEntry"), shouldBeUpdated ? 1 : 0);
-    if (shouldBeUpdated) {
-        QCOMPARE(gMDesktopEntryStub->stubLastCallTo("MDesktopEntry").parameter<QString>(0), updatedDesktopEntry);
-    }
-    QCOMPARE(m_subject->action.name(), QString(shouldBeUpdated ? "updated" : "initial"));
 }
 
 void Ut_LauncherButton::testLaunchingMultipleTimes()

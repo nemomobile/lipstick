@@ -76,6 +76,8 @@ private slots:
     void testFocusToButton();
     // Test that launcher button is updated when signal received
     void testUpdatingLauncherButton();
+    // Test that launcher button is updated when signal received and button is in installer-extra folder
+    void testUpdatingLauncherButtonFromInstallerExtraFolder();
     // Test adding buttons
     void testAddingButtons();
     // Test adding buttons on multiple pages

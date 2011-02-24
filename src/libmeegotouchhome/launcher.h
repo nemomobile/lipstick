@@ -185,8 +185,7 @@ private slots:
     /*!
      * Add a launcher button to launcher.
      *
-     * Button is not added if it already exists in launcher.
-     * updateLauncherButton() and updateButtonState() are used to update existing buttons.
+     * If button already exists in launcher then it is updated.
      *
      * \param desktopEntryPath Path to desktop entry that button should represent
      */

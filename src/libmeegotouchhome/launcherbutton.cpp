@@ -107,16 +107,11 @@ void LauncherButton::updateFromDesktopEntry(const QString &desktopEntryPath)
     model()->setDesktopEntry(entry);
 }
 
-void LauncherButton::setState(LauncherButtonModel::State state, int progress, const QString &desktopEntryPath)
+void LauncherButton::setState(LauncherButtonModel::State state, int progress)
 {
     model()->setButtonState(state);
     if (progress >= 0 && progress <= 100) {
         model()->setOperationProgress(progress);
-    }
-
-    // Override the current desktop entry when changing to broken or installed state
-    if (state == LauncherButtonModel::Broken || state == LauncherButtonModel::Installed) {
-        updateFromDesktopEntry(desktopEntryPath);
     }
 }
 

@@ -48,6 +48,9 @@ public:
      */
     void updatePackageStates();
 
+    //! Checks whether given desktop entry is located in installer extra folder
+    static bool isInstallerExtraEntry(const QString &desktopEntryPath);
+
 signals:
 
     /*!

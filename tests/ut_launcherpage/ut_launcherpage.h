@@ -47,6 +47,7 @@ private slots:
     void testUpdateButton();
     // Tests that position is returned for desktop entry file.
     void testLauncherButtonPosition();
+    void testGetButton();
 
 private:
     // MApplication
