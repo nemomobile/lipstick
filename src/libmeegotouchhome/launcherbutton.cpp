@@ -103,12 +103,10 @@ void LauncherButton::retranslateUi()
 
 void LauncherButton::updateFromDesktopEntry(const QString &desktopEntryPath)
 {
-    if (model()->desktopEntry().isNull() || desktopEntryPath != model()->desktopEntry()->fileName()) {
-        QSharedPointer<MDesktopEntry> entry(new MDesktopEntry(desktopEntryPath));
-        setText(entry->name());
-        action = LauncherAction(desktopEntryPath);
-        model()->setDesktopEntry(entry);
-    }
+    QSharedPointer<MDesktopEntry> entry(new MDesktopEntry(desktopEntryPath));
+    setText(entry->name());
+    action = LauncherAction(desktopEntryPath);
+    model()->setDesktopEntry(entry);
 }
 
 void LauncherButton::setState(LauncherButtonModel::State state, int progress, const QString &desktopEntryPath)

@@ -1,6 +1,7 @@
 meegotouchhome (0.23.9~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: Launcher buttons were not updated when the .desktop files were modified
 
  -- Vesa Halttunen <vesa.halttunen@nokia.com>  Wed, 23 Feb 2011 19:26:09 +0200
 
