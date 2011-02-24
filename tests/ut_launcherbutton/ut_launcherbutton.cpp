@@ -321,6 +321,8 @@ void Ut_LauncherButton::cleanupTestCase()
 
 void Ut_LauncherButton::init()
 {
+    homeWindowMonitor = new HomeWindowMonitor();
+    gHomeWindowMonitorStub->stubSetReturnValue("instance", homeWindowMonitor);
     language = "english";
     contentActionPrivate.clear();
     contentActionTriggerCalls = 0;
@@ -328,7 +330,7 @@ void Ut_LauncherButton::init()
 
     m_subject = new LauncherButton("");
     connect(this, SIGNAL(clicked()), m_subject, SLOT(launch()));
-    connect(this, SIGNAL(obscured()), m_subject->windowMonitor.data(), SIGNAL(fullscreenWindowOnTopOfOwnWindow()));
+    connect(this, SIGNAL(obscured()), HomeWindowMonitor::instance(), SIGNAL(fullscreenWindowOnTopOfOwnWindow()));
 }
 
 void Ut_LauncherButton::cleanup()
@@ -336,6 +338,9 @@ void Ut_LauncherButton::cleanup()
     m_subject->stopLaunchProgress();
     delete m_subject;
     gMDesktopEntryStub->stubReset();
+    gHomeWindowMonitorStub->stubReset();
+    delete homeWindowMonitor;
+    homeWindowMonitor = NULL;
 }
 
 void Ut_LauncherButton::testInitialization()

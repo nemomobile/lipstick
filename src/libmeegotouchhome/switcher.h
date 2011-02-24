@@ -26,7 +26,6 @@
 #include "windowinfo.h"
 #include <X11/Xlib.h>
 
-class WindowMonitor;
 
 /*!
  * Switcher is a widget that shows the available windows.
@@ -39,12 +38,10 @@ class Switcher : public MWidgetController, public XEventListener
 public:
     /*!
      * Constructs a Switcher widget.
-     * \param windowMonitor a window monitor instance to be used by this switcher.
-     *        Switcher takes ownership of the window monitor passed in.
      * \param parent the parent widget of the Switcher, defaults to NULL
      * \param model model to be used with Switcher, defaults SwitcherModel
      */
-    Switcher(const WindowMonitor *windowMonitor = NULL, MWidget *parent = NULL, SwitcherModel *model = new SwitcherModel);
+    Switcher(MWidget *parent = NULL, SwitcherModel *model = new SwitcherModel);
 
     /*!
      * Destroys the Switcher.
@@ -106,7 +103,6 @@ protected:
     virtual QSharedPointer<SwitcherButton> createSwitcherButton();
 
     //! The window monitor instance this switcher uses
-    const WindowMonitor *windowMonitor;
 
 private slots:
     /*!

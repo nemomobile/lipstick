@@ -324,6 +324,8 @@ void Ut_DesktopView::cleanupTestCase()
 
 void Ut_DesktopView::init()
 {
+    homeWindowMonitor = new HomeWindowMonitor();
+    gHomeWindowMonitorStub->stubSetReturnValue("instance", homeWindowMonitor);
     desktop = new Desktop;
     desktopView = new TestDesktopView(desktop);
     desktop->setView(desktopView);
@@ -346,6 +348,9 @@ void Ut_DesktopView::cleanup()
     qDirExistsDirs.clear();
     qDirMkPathDirs.clear();
     gLauncherDataStoreStub->stubReset();
+    gHomeWindowMonitorStub->stubReset();
+    delete homeWindowMonitor;
+    homeWindowMonitor = NULL;
 }
 
 void Ut_DesktopView::testToggleLauncher()
@@ -391,8 +396,7 @@ void Ut_DesktopView::testWhenFullscreenWindowAppearsLauncherGetsHidden()
     gMSceneManagerStub->stubReset();
     gQGraphicsItemIsVisible = true;
 
-    connect(this, SIGNAL(obscured()), desktopView->homeWindowMonitor.data(), SIGNAL(fullscreenWindowOnTopOfOwnWindow()));
-    emit obscured();
+    desktopView->hideLauncher();
 
     verifyAppearDisappear(desktopView->switcherWindow, desktopView->launcherWindow);
 }
@@ -501,6 +505,11 @@ void Ut_DesktopView::testDataStoreInitialization()
     }
 
     QCOMPARE(gLauncherDataStoreStub->stubLastCallTo("LauncherDataStore").parameter<QStringList>(1), (QStringList() << APPLICATIONS_DIRECTORY << (QDir::homePath() + "/.local/share/applications/")));
+}
+
+void Ut_DesktopView::testConnectionsInConstructor()
+{
+    QVERIFY(disconnect(HomeWindowMonitor::instance(), SIGNAL(fullscreenWindowOnTopOfOwnWindow()), desktopView, SLOT(hideLauncher())));
 }
 
 QTEST_APPLESS_MAIN(Ut_DesktopView)

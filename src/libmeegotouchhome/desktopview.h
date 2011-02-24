@@ -24,7 +24,6 @@
 #include "desktopmodel.h"
 #include "desktopstyle.h"
 #include "mdesktopbackgroundextensioninterface.h"
-#include "homewindowmonitor.h"
 #include "windowinfo.h"
 
 class Desktop;
@@ -137,9 +136,6 @@ private:
      * \return an initialized launcher data store
      */
     LauncherDataStore *createLauncherDataStore();
-
-    //! The window manager
-    QSharedPointer<HomeWindowMonitor> homeWindowMonitor;
 
     //! The switcher widget
     Switcher *switcher;

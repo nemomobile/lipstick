@@ -25,6 +25,7 @@
 
 class MApplication;
 class LauncherButton;
+class HomeWindowMonitor;
 
 class Ut_LauncherButton : public QObject
 {
@@ -64,6 +65,7 @@ private:
     MApplication *app;
     // The object being tested
     LauncherButton *m_subject;
+    HomeWindowMonitor *homeWindowMonitor;
 };
 
 #endif

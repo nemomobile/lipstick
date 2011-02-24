@@ -16,7 +16,6 @@
 ** of this file.
 **
 ****************************************************************************/
-
 #include "launcherbutton.h"
 #include "launcher.h"
 #include <MDesktopEntry>
@@ -30,8 +29,7 @@ M_REGISTER_WIDGET(LauncherButton)
 bool LauncherButton::launching = false;
 
 LauncherButton::LauncherButton(const QString &desktopEntryPath, MWidget *parent) :
-        MButton(parent, new LauncherButtonModel),
-        windowMonitor(new HomeWindowMonitor)
+        MButton(parent, new LauncherButtonModel)
 {
     init();
 
@@ -64,7 +62,7 @@ void LauncherButton::launch()
         if (model()->buttonState() == LauncherButtonModel::Installed) {
             model()->setButtonState(LauncherButtonModel::Launching);
 
-            connect(windowMonitor.data(), SIGNAL(fullscreenWindowOnTopOfOwnWindow()), SLOT(stopLaunchProgress()));
+            connect(HomeWindowMonitor::instance(), SIGNAL(fullscreenWindowOnTopOfOwnWindow()), SLOT(stopLaunchProgress()));
 
             launching = true;
             action.trigger();
@@ -90,7 +88,7 @@ void LauncherButton::stopLaunchProgress()
 
     launching = false;
 
-    disconnect(windowMonitor.data(), SIGNAL(fullscreenWindowOnTopOfOwnWindow()), this, SLOT(stopLaunchProgress()));
+    disconnect(HomeWindowMonitor::instance(), SIGNAL(fullscreenWindowOnTopOfOwnWindow()), this, SLOT(stopLaunchProgress()));
 }
 
 void LauncherButton::retranslateUi()

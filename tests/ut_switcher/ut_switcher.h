@@ -24,13 +24,13 @@
 #include "windowinfo.h"
 
 class MApplication;
-class MockWindowMonitor;
 class Switcher;
 class SwitcherButton;
 class MSceneManager;
 class QSizeF;
 class QRectF;
 class QPointF;
+class HomeWindowMonitor;
 
 class WindowListReceiver : public QObject
 {
@@ -90,7 +90,6 @@ public:
 
 private:
     MApplication *app;
-    MockWindowMonitor *mockWindowMonitor;
     Switcher *switcher;
 
     void updateWindowList();
@@ -170,5 +169,6 @@ private slots:
 
 private:
     MSceneManager *mSceneManager;
+    HomeWindowMonitor *homeWindowMonitor;
 };
 #endif //_UT_SWITCHER_

@@ -405,15 +405,6 @@ void SwitcherButton::setVisibleInSwitcherProperty(bool set)
     gSwitcherButtonVisibleInSwitcherProperty[this] = set;
 }
 
-class MockWindowMonitor : public WindowMonitor {
-public:
-    virtual bool isOwnWindow(WId wid) const {
-        return ownWindows.contains(wid);
-    }
-
-    QList<WId> ownWindows;
-};
-
 // QTimer stubs
 bool qTimerImmediateTimeout;
 void QTimer::start(int)
@@ -449,9 +440,10 @@ QList<Window> Ut_Switcher::propertyNotifyWindows;
 int Ut_Switcher::clientListNumberOfWindows;
 void Ut_Switcher::init()
 {
+    homeWindowMonitor = new HomeWindowMonitor();
+    gHomeWindowMonitorStub->stubSetReturnValue("instance", homeWindowMonitor);
     // Creating a switcher also creates the switcher view
-    mockWindowMonitor = new MockWindowMonitor;
-    switcher = new Switcher(mockWindowMonitor);
+    switcher = new Switcher();
 
     visibilityNotifyWindows.clear();
     propertyNotifyWindows.clear();
@@ -497,7 +489,9 @@ void Ut_Switcher::cleanup()
     // Destroy the switcher (and the associated view)
     delete switcher;
     switcher = NULL;
-    mockWindowMonitor = NULL;
+    gHomeWindowMonitorStub->stubReset();
+    delete homeWindowMonitor;
+    homeWindowMonitor = NULL;
 }
 
 void Ut_Switcher::initTestCase()

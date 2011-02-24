@@ -30,6 +30,7 @@ class Desktop;
 class QPainter;
 class QPixmap;
 class MButton;
+class HomeWindowMonitor;
 
 class TestDesktopBackgroundExtension : public MDesktopBackgroundExtensionInterface
 {
@@ -88,6 +89,7 @@ private slots:
     void testDefocusing();
     void testDataStoreInitialization_data();
     void testDataStoreInitialization();
+    void testConnectionsInConstructor();
 
 public:
     // The main window
@@ -113,6 +115,7 @@ private:
     QPixmap *backgroundImage;
     QPixmap *backgroundTopImage;
     QPixmap *backgroundBottomImage;
+    HomeWindowMonitor *homeWindowMonitor;
 };
 
 #endif

@@ -24,8 +24,6 @@
 #include "launcherbuttonmodel.h"
 #include "launcheraction.h"
 
-class HomeWindowMonitor;
-
 /*!
  * A button widget that represents a .desktop file. Triggers the default
  * action associated with the .desktop file when clicked.
@@ -107,10 +105,6 @@ private:
      * Initializes the launcher button.
      */
     void init();
-
-    //! A window monitor for monitoring when windows appear on top of the window where
-    //! this button is
-    QSharedPointer<HomeWindowMonitor> windowMonitor;
 
     //! Whether an object represented by any launcher button is being launched or not
     static bool launching;

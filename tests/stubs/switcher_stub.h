@@ -27,7 +27,7 @@
 class SwitcherStub : public StubBase
 {
 public:
-    virtual void switcherConstructor(const WindowMonitor *windowMonitor, MWidget *parent = NULL, SwitcherModel *model = NULL);
+    virtual void switcherConstructor(MWidget *parent = NULL, SwitcherModel *model = NULL);
     virtual void switcherDestructor();
     virtual bool handleXEvent(const XEvent &event);
     virtual void updateButtons();
@@ -42,10 +42,9 @@ public:
     virtual bool restoreButtonBeingRemoved(Window window, bool forceUpdateButtons);
 };
 
-void SwitcherStub::switcherConstructor(const WindowMonitor *windowMonitor, MWidget *parent, SwitcherModel *model)
+void SwitcherStub::switcherConstructor(MWidget *parent, SwitcherModel *model)
 {
     QList<ParameterBase *> params;
-    params.append(new Parameter<const WindowMonitor *>(windowMonitor));
     params.append(new Parameter<MWidget *>(parent));
     params.append(new Parameter<SwitcherModel *>(model));
     stubMethodEntered("switcherConstructor", params);
@@ -134,9 +133,9 @@ bool SwitcherStub::restoreButtonBeingRemoved(Window window, bool forceUpdateButt
 SwitcherStub gDefaultSwitcherStub;
 SwitcherStub *gSwitcherStub = &gDefaultSwitcherStub;
 
-Switcher::Switcher(const WindowMonitor *windowMonitor, MWidget *parent, SwitcherModel *model) : MWidgetController(parent)
+Switcher::Switcher(MWidget *parent, SwitcherModel *model) : MWidgetController(parent)
 {
-    gSwitcherStub->switcherConstructor(windowMonitor, parent, model);
+    gSwitcherStub->switcherConstructor(parent, model);
 }
 
 Switcher::~Switcher()

@@ -33,10 +33,9 @@ class HomeWindowMonitor : public WindowMonitor, public XEventListener
     Q_OBJECT
 
 public:
-    /*!
-     * Constructor.
-     */
-    HomeWindowMonitor();
+
+    //! brief Get HomeWindowMonitor singleton instance.
+    static const HomeWindowMonitor *instance();
 
     /*!
      * Destructor.
@@ -48,7 +47,17 @@ public:
     virtual bool handleXEvent(const XEvent& event);
     //! \reimp_end
 
+protected:
+    /*!
+     * Constructor.
+     */
+    HomeWindowMonitor();
+
 private:
+
+    // HomeWindowMonitor singleton instance.
+    static QSharedPointer<HomeWindowMonitor> windowMonitorInstance;
+
     //! The window types for windows that are not considered to be full screen
     //! application windows
     const QSet<Atom> nonFullscreenApplicationWindowTypes;
@@ -61,6 +70,14 @@ private:
      * in that order. The topmost window is the last one in the list.
      */
     QList<Window> windowStackingOrder();
+
+#ifdef UNIT_TEST
+    friend class Ut_HomeWindowMonitor;
+    friend class Ut_Switcher;
+    friend class Ut_DesktopView;
+    friend class Ut_LauncherButton;
+#endif
+
 };
 
 #endif // HOMEWINDOWMONITOR_H

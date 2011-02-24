@@ -22,6 +22,18 @@
 #include "homewindowmonitor.h"
 #include "x11wrapper.h"
 
+
+QSharedPointer<HomeWindowMonitor> HomeWindowMonitor::windowMonitorInstance = QSharedPointer<HomeWindowMonitor>();
+
+const HomeWindowMonitor *HomeWindowMonitor::instance()
+{
+    if (windowMonitorInstance.isNull()) {
+        windowMonitorInstance = QSharedPointer<HomeWindowMonitor>(new HomeWindowMonitor());
+    }
+
+    return windowMonitorInstance.data();
+}
+
 HomeWindowMonitor::HomeWindowMonitor() :
         nonFullscreenApplicationWindowTypes(QSet<Atom>() << WindowInfo::NotificationAtom <<
                                                             WindowInfo::DialogAtom <<

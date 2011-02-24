@@ -29,11 +29,18 @@
 // FIXME - stubgen is not yet finished
 class HomeWindowMonitorStub : public StubBase {
 public:
+    virtual const HomeWindowMonitor *instance();
     virtual bool isOwnWindow(WId wid);
     virtual bool handleXEvent(const XEvent& event);
 };
 
 // 2. IMPLEMENT STUB
+
+const HomeWindowMonitor *HomeWindowMonitorStub::instance() {
+    stubMethodEntered("instance");
+    return stubReturnValue<HomeWindowMonitor*>("instance");
+}
+
 bool HomeWindowMonitorStub::isOwnWindow(WId wid) {
     QList<ParameterBase*> params;
     params.append(new Parameter<WId>(wid));
@@ -59,6 +66,10 @@ HomeWindowMonitor::HomeWindowMonitor() : netClientListStacking (0)
 
 HomeWindowMonitor::~HomeWindowMonitor()
 {
+}
+
+const HomeWindowMonitor *HomeWindowMonitor::instance() {
+    return gHomeWindowMonitorStub->instance();
 }
 
 bool HomeWindowMonitor::isOwnWindow(WId wid) const {

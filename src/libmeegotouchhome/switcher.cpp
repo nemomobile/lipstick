@@ -31,13 +31,9 @@ M_REGISTER_WIDGET(Switcher)
 // The time to wait until updating the model when a new application is started
 #define UPDATE_DELAY_MS 700
 
-Switcher::Switcher(const WindowMonitor *windowMonitor, MWidget *parent, SwitcherModel *model) :
-        MWidgetController(model, parent),
-        windowMonitor(windowMonitor)
+Switcher::Switcher(MWidget *parent, SwitcherModel *model) :
+        MWidgetController(model, parent)
 {
-    if (this->windowMonitor == NULL) {
-        this->windowMonitor = new HomeWindowMonitor;
-    }
 
     // Get the X11 Atoms for closing and activating a window and for other switcher functionalities
     Display *display = QX11Info::display();
@@ -61,7 +57,7 @@ Switcher::Switcher(const WindowMonitor *windowMonitor, MWidget *parent, Switcher
     updateButtonsTimer.setInterval(UPDATE_DELAY_MS);
     connect(&updateButtonsTimer, SIGNAL(timeout()), this, SLOT(updateButtons()));
 
-    connect(this->windowMonitor, SIGNAL(windowStackingOrderChanged(QList<WindowInfo>)),
+    connect(HomeWindowMonitor::instance(), SIGNAL(windowStackingOrderChanged(QList<WindowInfo>)),
             this, SLOT(handleWindowInfoList(QList<WindowInfo>)));
 
 
@@ -72,7 +68,6 @@ Switcher::Switcher(const WindowMonitor *windowMonitor, MWidget *parent, Switcher
 
 Switcher::~Switcher()
 {
-    delete windowMonitor;
 }
 
 bool Switcher::handleXEvent(const XEvent &event)
@@ -121,7 +116,7 @@ bool Switcher::addWindowInfo(const WindowInfo &wi)
             applicationWindowListChanged = true;
         }
 
-        if (windowMonitor != NULL && !windowMonitor->isOwnWindow(wi.window())) {
+        if (!HomeWindowMonitor::instance()->isOwnWindow(wi.window())) {
             // The Switcher needs to know about Visibility and
             // property changes of other applications' windows
             // (but not of the homescreen window).
@@ -259,7 +254,7 @@ void Switcher::handleWindowInfoList(QList<WindowInfo> newWindowList)
             updateButtons();
         }
     } else if (!stackingWindowList.isEmpty()) {
-        if (!windowMonitor->isOwnWindow(topmostWindow)) {
+        if (!HomeWindowMonitor::instance()->isOwnWindow(topmostWindow)) {
             // The view might also need to react (== pan to the correct page) if no buttons were added
             // but the stacking order was changed, i.e. due to app chaining or some other activity
             model()->setTopmostWindow(topmostWindow);

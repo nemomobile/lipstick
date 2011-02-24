@@ -36,6 +36,7 @@
 #include "mdesktopbackgroundextensioninterface.h"
 #include "mfiledatastore.h"
 #include "applicationpackagemonitorlistener.h"
+#include "homewindowmonitor.h"
 
 #include <MViewCreator>
 #include <MDeviceProfile>
@@ -104,7 +105,6 @@ void DesktopView::stopBenchmarking()
 
 DesktopView::DesktopView(Desktop *desktop) :
     MWidgetView(desktop),
-    homeWindowMonitor(new HomeWindowMonitor),
     switcher(new Switcher),
     switcherWindow(new MSceneWindow),
     switcherHasContent(false),
@@ -146,7 +146,7 @@ DesktopView::DesktopView(Desktop *desktop) :
     launcher->setLauncherDataStore(launcherDataStore);
     launcher->setApplicationPackageMonitorListener(packageMonitorListener);
     connect(qApp, SIGNAL(focusToLauncherAppRequested(const QString &)), this, SLOT(showLauncherAndFocusToButton(const QString &)));
-    connect(homeWindowMonitor.data(), SIGNAL(fullscreenWindowOnTopOfOwnWindow()), SLOT(hideLauncher()));
+    connect(HomeWindowMonitor::instance(), SIGNAL(fullscreenWindowOnTopOfOwnWindow()), SLOT(hideLauncher()));
     connect(switcher, SIGNAL(windowListUpdated(const QList<WindowInfo> &)), this, SLOT(setSwitcherHasContent(const QList<WindowInfo> &)));
     windowLayout = new QGraphicsLinearLayout();
     windowLayout->setContentsMargins(0, 0, 0, 0);
