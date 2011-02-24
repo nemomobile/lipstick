@@ -36,9 +36,24 @@ void StubBase::stubReset() const
         delete p;
     }
 
+    foreach(QList<ParameterBase *> valueList, _stubReturnValueLists) {
+        foreach(ParameterBase *p, valueList) {
+            delete p;
+        }
+    }
+
+    _stubReturnValueLists.clear();
+    _stubReturnValueListCurrentIndex.clear();
     _stubReturnValues.clear();
     _stubCallCounts.clear();
     _stubCallHistory.clear();
+}
+
+void StubBase::stubResetReturnValueListIndex(const QString &methodName) const
+{
+    if (_stubReturnValueListCurrentIndex.contains(methodName)) {
+        _stubReturnValueListCurrentIndex[methodName] = -1;
+    }
 }
 
 int StubBase::stubCallCount(const QString &method) const
@@ -64,8 +79,17 @@ ParameterBase *StubBase::stubReturnValue(const QString &methodName) const
 {
     ParameterBase *retVal = NULL;
 
-    if (_stubReturnValues.contains(methodName))
+    if (_stubReturnValueLists.contains(methodName) && !_stubReturnValueLists[methodName].isEmpty()) {
+        _stubReturnValueListCurrentIndex[methodName]++;
+                // List has been iterated to end, start from beginning
+        if (_stubReturnValueListCurrentIndex[methodName] >= _stubReturnValueLists[methodName].count()) {
+            _stubReturnValueListCurrentIndex[methodName] = 0;
+        }
+
+        retVal = _stubReturnValueLists[methodName].at(_stubReturnValueListCurrentIndex[methodName]);
+    } else if (_stubReturnValues.contains(methodName)) {
         retVal = _stubReturnValues[methodName];
+    }
 
     return retVal;
 }
