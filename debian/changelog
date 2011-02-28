@@ -1,3 +1,8 @@
+meegotouchhome (0.23.11~1) unstable; urgency=low
+  * [UNRELEASED]
+
+ -- Eetu Lehmusvuo <ext-eetu.6.lehmusvuo@nokia.com>  Mon, 28 Feb 2011 14:14:17 +0200
+
 meegotouchhome (0.23.10-1) unstable; urgency=low
 
   * Fixes: NB#222322 - [Harmmattan03-8]Ovi Store icon is missing after rebooting if user updated the ovi store client
