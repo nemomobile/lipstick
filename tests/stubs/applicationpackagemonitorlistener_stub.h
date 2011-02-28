@@ -32,7 +32,7 @@ void ApplicationPackageMonitorListenerStub::updatePackageStates() {
 
 void ApplicationPackageMonitorListenerStub::setDownloadProgress(const QString &desktopEntryPath, int bytesLoaded, int bytesTotal) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const QString & >(desktopEntryPath));
+  params.append( new Parameter<QString>(desktopEntryPath));
   params.append( new Parameter<int >(bytesLoaded));
   params.append( new Parameter<int >(bytesTotal));
   stubMethodEntered("setDownloadProgress",params);
@@ -40,27 +40,27 @@ void ApplicationPackageMonitorListenerStub::setDownloadProgress(const QString &d
 
 void ApplicationPackageMonitorListenerStub::setInstallProgress(const QString &desktopEntryPath, int percentage) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const QString & >(desktopEntryPath));
+  params.append( new Parameter<QString>(desktopEntryPath));
   params.append( new Parameter<int >(percentage));
   stubMethodEntered("setInstallProgress",params);
 }
 
 void ApplicationPackageMonitorListenerStub::setOperationSuccess(const QString &desktopEntryPath) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const QString & >(desktopEntryPath));
+  params.append( new Parameter<QString>(desktopEntryPath));
   stubMethodEntered("setOperationSuccess",params);
 }
 
 void ApplicationPackageMonitorListenerStub::setOperationError(const QString &desktopEntryPath, const QString &error) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const QString & >(desktopEntryPath));
-  params.append( new Parameter<const QString & >(error));
+  params.append( new Parameter<QString>(desktopEntryPath));
+  params.append( new Parameter<QString>(error));
   stubMethodEntered("setOperationError",params);
 }
 
 bool ApplicationPackageMonitorListenerStub::isInstallerExtraEntry(const QString &desktopEntryPath) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const QString & >(desktopEntryPath));
+  params.append( new Parameter<QString>(desktopEntryPath));
   stubMethodEntered("isInstallerExtraEntry",params);
   return stubReturnValue<bool>("isInstallerExtraEntry");
 }

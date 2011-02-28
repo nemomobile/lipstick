@@ -54,6 +54,7 @@ public:
      */
     void updatePackageStates();
 
+    //! Installer extra folder path
     static const QString INSTALLER_EXTRA_FOLDER;
 
 signals:
