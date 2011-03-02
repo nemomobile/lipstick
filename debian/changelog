@@ -1,3 +1,9 @@
+meegotouchhome (0.23.13~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Wed, 02 Mar 2011 17:35:47 +0200
+
 meegotouchhome (0.23.12-1) unstable; urgency=low
 
   * Fixes: NB#226955 - Locked portrait mode breaks SDK environment
