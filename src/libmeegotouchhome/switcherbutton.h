@@ -142,6 +142,9 @@ private:
 
     //! Whether the updating of the visibility property is enabled
     bool visibilityPropertyEnabled;
+
+    //! Whether visibility has been initialized or not
+    bool visibilityInitialized;
 };
 
 #endif // SWITCHERBUTTON_H

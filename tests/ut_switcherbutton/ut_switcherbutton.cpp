@@ -194,13 +194,22 @@ void Ut_SwitcherButton::testPrepareGeometryChange()
     QVERIFY(prepareGeometryChangeCalled);
 }
 
+void Ut_SwitcherButton::testSetVisibleInSwitcherProperty_data()
+{
+    QTest::addColumn<bool>("visibleInSwitcher");
+    QTest::addColumn<unsigned char>("propertyData");
+
+    QTest::newRow("Visible") << true << (unsigned char)1;
+    QTest::newRow("Not visible") << false << (unsigned char)0;
+}
+
 void Ut_SwitcherButton::testSetVisibleInSwitcherProperty()
 {
-    // Initialize to invisible
-    button->setVisibleInSwitcherProperty(false);
+    QFETCH(bool, visibleInSwitcher);
+    QFETCH(unsigned char, propertyData);
 
     // Set window visible in the Switcher
-    button->setVisibleInSwitcherProperty(true);
+    button->setVisibleInSwitcherProperty(visibleInSwitcher);
 
     // Check correct values passed to X11Wrapper::XChangeProperty()
     QCOMPARE(Ut_SwitcherButton::xChangePropertyWindow, button->xWindow());
@@ -211,19 +220,7 @@ void Ut_SwitcherButton::testSetVisibleInSwitcherProperty()
     QCOMPARE(Ut_SwitcherButton::xChangePropertyNElements, 1);
 
     unsigned char *data = (unsigned char *)xChangePropertyData;
-    QVERIFY(data[0] == 1);
-
-    // Set window not visible in the Switcher
-    button->setVisibleInSwitcherProperty(false);
-
-    // Check correct values passed to X11Wrapper::XChangeProperty()
-    QCOMPARE(Ut_SwitcherButton::xChangePropertyWindow, button->xWindow());
-    QCOMPARE(Ut_SwitcherButton::xChangePropertyProperty, (Atom)TEST_MEEGOTOUCH_VISIBLE_IN_SWITCHER_ATOM);
-    QCOMPARE(Ut_SwitcherButton::xChangePropertyFormat, 8);
-    QCOMPARE(Ut_SwitcherButton::xChangePropertyMode, PropModeReplace);
-    QCOMPARE(Ut_SwitcherButton::xChangePropertyType, XA_CARDINAL);
-    QCOMPARE(Ut_SwitcherButton::xChangePropertyNElements, 1);
-    QVERIFY(data[0] == 0);
+    QCOMPARE(data[0], propertyData);
 }
 
 void Ut_SwitcherButton::testSetVisibleInSwitcherPropertyNotUpdatedWhenValueDoesNotChange()
@@ -248,6 +245,8 @@ void Ut_SwitcherButton::testWhenVisibilityPropertyDisabledThenPropertyChangesOnl
     QCOMPARE(Ut_SwitcherButton::xChangePropertyWindow, Window(0));
     QCOMPARE(bool(Ut_SwitcherButton::xChangePropertyData[0]), false);
     button->setVisibilityPropertyEnabled(true);
+    // TODO: this should actually check that setVisibilityPropertyEnabled(true) causes the visibility to be set based on isOnDisplay()
+    button->setVisibleInSwitcherProperty(true);
     QCOMPARE(Ut_SwitcherButton::xChangePropertyWindow, button->xWindow());
     QCOMPARE(bool(Ut_SwitcherButton::xChangePropertyData[0]), true);
 }
