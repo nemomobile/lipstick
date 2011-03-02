@@ -41,53 +41,22 @@ static const QString HOME_READY_SIGNAL_PATH = "/com/nokia/duihome";
 static const QString HOME_READY_SIGNAL_INTERFACE = "com.nokia.duihome.readyNotifier";
 static const QString HOME_READY_SIGNAL_NAME = "ready";
 
-/*!
- * Checks whether an upstart command line parameter was given.
- * This is checked for stopping the application after it's ready,
- * and we only want to do that when run by upstart, not
- * when run by Matti or manually.
- *
- * \param argc number of parameters
- * \param argv parameters
- * \return true if in upstart mode, false otherwise
- */
-static bool isUpstartMode(int argc, char *argv[])
-{
-    if (argc < 2) {
-        return false;
-    }
-    static const char optChar = 'u';
-    static const char *optString = "u";
-    static struct option optLong[] = {
-        { "upstart", 0, NULL, optChar },
-        { 0, 0, 0, 0 }
-    };
-    opterr = 0;
-    int c = 0;
-    while ((c = getopt_long_only(argc, argv,
-                                 optString,
-                                 optLong,
-                                 0)) != -1) {
-        if (c == optChar) {
-            return true;
-        }
-    }
-    return false;
-}
-
 HomeApplication::HomeApplication(int &argc, char **argv, const QString& appIdentifier) :
     MApplication(argc, argv, appIdentifier),
+    upstartMode(false),
+    lockedOrientation_(QVariant::Invalid),
     homeScreenService(new HomeScreenService),
     xEventListeners(),
     iteratorActiveForEventListenerContainer(false),
     toBeRemovedEventListeners()
 {
+    parseArguments(argc, argv);
+
     // Enable prestart mode
     MApplication::setPrestartMode(M::TerminateOnClose);
 
     // launch a timer for sending a dbus-signal upstart when home is ready
     // and on screen
-    upstartMode = isUpstartMode(argc, argv);
     connect(&startupNotificationTimer, SIGNAL(timeout()),
             this, SLOT(sendStartupNotifications()));
     startupNotificationTimer.setSingleShot(true);
@@ -128,6 +97,11 @@ void HomeApplication::removeXEventListener(XEventListener *listener)
     }
 }
 
+QVariant HomeApplication::lockedOrientation() const
+{
+    return lockedOrientation_;
+}
+
 void HomeApplication::sendStartupNotifications()
 {
     static QDBusConnection systemBus = QDBusConnection::systemBus();
@@ -136,6 +110,8 @@ void HomeApplication::sendStartupNotifications()
                                    HOME_READY_SIGNAL_INTERFACE,
                                    HOME_READY_SIGNAL_NAME);
     systemBus.send(homeReadySignal);
+
+    // Stop the application after it's ready but only when run by upstart
     if (upstartMode) {
         static pid_t selfPid = getpid();
         kill(selfPid, SIGSTOP);
@@ -166,4 +142,32 @@ bool HomeApplication::x11EventFilter(XEvent *event)
     }
 
     return eventHandled;
+}
+
+void HomeApplication::parseArguments(int argc, char *argv[])
+{
+    if (argc >= 2) {
+        static const char upstartChar = 'u';
+        static const char orientationChar = 'o';
+        static const char *optString = "uo::";
+        static struct option optLong[] = {
+            { "upstart", 0, NULL, upstartChar },
+            { "locked-orientation", 2, NULL, orientationChar },
+            { 0, 0, 0, 0 }
+        };
+        opterr = 0;
+        int c = 0;
+        while ((c = getopt_long_only(argc, argv, optString, optLong, 0)) != -1) {
+            switch (c) {
+            case upstartChar:
+                upstartMode = true;
+                break;
+            case orientationChar:
+                lockedOrientation_ = QVariant(optarg);
+                break;
+            default:
+                break;
+            }
+        }
+    }
 }

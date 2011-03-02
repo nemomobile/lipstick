@@ -13,7 +13,8 @@ SOURCES += \
 HEADERS += \
     ut_mainwindow.h \
     $$SRCDIR/mainwindow.h \
-    $$SRCDIR/mainwindowstyle.h
+    $$SRCDIR/mainwindowstyle.h \
+    $$SRCDIR/homeapplication.h
 
 SOURCES +=
 include(../common_bot.pri)

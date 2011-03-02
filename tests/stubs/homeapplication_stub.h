@@ -33,6 +33,7 @@ public:
     virtual void removeXEventListener(XEventListener *listener);
     virtual bool x11EventFilter(XEvent *event);
     virtual void sendStartupNotifications();
+    virtual QVariant lockedOrientation();
 };
 
 // 2. IMPLEMENT STUB
@@ -73,6 +74,12 @@ void HomeApplicationStub::sendStartupNotifications()
     stubMethodEntered("sendStartupNotifications");
 }
 
+QVariant HomeApplicationStub::lockedOrientation()
+{
+    stubMethodEntered("lockedOrientation");
+    return stubReturnValue<QVariant>("lockedOrientation");
+}
+
 // 3. CREATE A STUB INSTANCE
 HomeApplicationStub gDefaultHomeApplicationStub;
 HomeApplicationStub *gHomeApplicationStub = &gDefaultHomeApplicationStub;
@@ -107,6 +114,11 @@ bool HomeApplication::x11EventFilter(XEvent *event)
 void HomeApplication::sendStartupNotifications()
 {
     gHomeApplicationStub->sendStartupNotifications();
+}
+
+QVariant HomeApplication::lockedOrientation() const
+{
+    return gHomeApplicationStub->lockedOrientation();
 }
 
 

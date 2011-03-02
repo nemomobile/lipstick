@@ -23,8 +23,8 @@
 #include "x11wrapper_stub.h"
 #include "mainwindow.h"
 #include "mainwindowstyle.h"
-#include <MApplication>
-#include <MApplicationPage>
+#include "homeapplication_stub.h"
+#include <MSceneWindow>
 #include <QDBusInterface>
 
 // Stub the Dbus call used by status bar to open a menu
@@ -79,13 +79,13 @@ void resetDBusStub()
 }
 
 // Home stubs
-class Home : public MApplicationPage
+class Home : public MSceneWindow
 {
 public:
     Home(QGraphicsItem *parent = 0);
 };
 
-Home::Home(QGraphicsItem *parent) : MApplicationPage(parent)
+Home::Home(QGraphicsItem *parent) : MSceneWindow(parent)
 {
 }
 
@@ -111,7 +111,7 @@ void Ut_MainWindow::initTestCase()
 {
     static int argc = 1;
     static char *app_name = (char *)"./ut_mainwindow";
-    app = new MApplication(argc, &app_name);
+    app = new HomeApplication(argc, &app_name);
 
     mainWindow = MainWindow::instance(true);
 
@@ -346,29 +346,36 @@ void Ut_MainWindow::testCloseEventIsIgnored()
 
 void Ut_MainWindow::testOrientationLocking_data()
 {
-    QTest::addColumn<QString>("lockedOrientation");
+    QTest::addColumn<QVariant>("commandLineLockedOrientation");
+    QTest::addColumn<QString>("styleLockedOrientation");
     QTest::addColumn<bool>("orientationLocked");
     QTest::addColumn<QString>("expectedOrientation");
 
-    QTest::newRow("No locking") << QString() << false << QString();
-    QTest::newRow("Locked to landscape") << QString("landscape") << true << QString("landscape");
-    QTest::newRow("Locked to portrait") << QString("portrait") << true << QString("portrait");
-    QTest::newRow("Locked to something else") << QString("unknown") << false << QString();
+    QTest::newRow("Command line: Default / Style: No locking") << QVariant(QVariant::Invalid) << QString() << false << QString();
+    QTest::newRow("Command line: Default / Style: Locked to landscape") << QVariant(QVariant::Invalid) << QString("landscape") << true << QString("landscape");
+    QTest::newRow("Command line: Default / Style: Locked to portrait") << QVariant(QVariant::Invalid) << QString("portrait") << true << QString("portrait");
+    QTest::newRow("Command line: Default / Style: Locked to something else") << QVariant(QVariant::Invalid) << QString("unknown") << false << QString();
+    QTest::newRow("Command line: No locking / Style: Locked to portrait") << QVariant("") << QString("portrait") << false << QString();
+    QTest::newRow("Command line: Locked to landscape / Style: Locked to portrait") << QVariant("landscape") << QString("portrait") << true << QString("landscape");
+    QTest::newRow("Command line: Locked to portrait / Style: Locked to landscape") << QVariant("portrait") << QString("landscape") << true << QString("portrait");
+    QTest::newRow("Command line: Locked to something else / Style: Locked to landscape") << QVariant("unknown") << QString("landscape") << false << QString();
 }
 
 void Ut_MainWindow::testOrientationLocking()
 {
-    QFETCH(QString, lockedOrientation);
+    QFETCH(QVariant, commandLineLockedOrientation);
+    QFETCH(QString, styleLockedOrientation);
     QFETCH(bool, orientationLocked);
     QFETCH(QString, expectedOrientation);
 
     // Reset the stubs
     mWindowOrientationLocked = false;
     mWindowOrientation = QString();
+    gHomeApplicationStub->stubSetReturnValue("lockedOrientation", commandLineLockedOrientation);
 
     // Set the style
     MainWindowStyle *style = const_cast<MainWindowStyle *>(static_cast<const MainWindowStyle *>(MTheme::style("MainWindowStyle", "", "", "", M::Landscape, NULL)));
-    style->setLockedOrientation(lockedOrientation);
+    style->setLockedOrientation(styleLockedOrientation);
 
     // Create a new window
     delete mainWindow;

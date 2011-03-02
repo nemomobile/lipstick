@@ -23,6 +23,7 @@
 #include <MApplication>
 #include <QTimer>
 #include <QSet>
+#include <QVariant>
 
 class HomeScreenService;
 class XEventListener;
@@ -65,6 +66,19 @@ public:
      */
     void removeXEventListener(XEventListener *listener);
 
+    /*!
+     * Returns the locked orientation as set using the command line
+     * arguments. The orientation is returned as a QVariant. If the
+     * variant is not valid, the orientation locking has not been set
+     * through the command line arguments. Otherwise the variant
+     * contains a string representing the orientation to which the
+     * UI should be locked to: either an empty string (meaning no
+     * locking), portrait or landscape.
+     *
+     * \return a QVariant representing the locked orientation: invalid (use default), an empty string (unlocked), portrait or landscape
+     */
+    QVariant lockedOrientation() const;
+
 signals:
     /*!
      * \brief A Signal to request launcher focus on specific launcher application
@@ -89,8 +103,20 @@ private slots:
     void sendStartupNotifications();
 
 private:
+    /*!
+     * Parses the command line parameters and sets upstart mode and forced
+     * orientation locking based on the arguments.
+     *
+     * \param argc number of parameters
+     * \param argv parameters
+     */
+    void parseArguments(int argc, char *argv[]);
+
     //! Flag that indicates whether the process was started by upstart or not
     bool upstartMode;
+
+    //! A QVariant representing the locked orientation: invalid (use default), an empty string (unlocked), portrait or landscape
+    QVariant lockedOrientation_;
 
     //! Timer used for sending startup notifications
     QTimer startupNotificationTimer;

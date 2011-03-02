@@ -20,10 +20,9 @@
 #include "mainwindow.h"
 #include "mainwindowstyle.h"
 #include "home.h"
-
+#include "homeapplication.h"
 #include <QGLWidget>
 #include <QDBusInterface>
-#include <MApplication>
 #include <MSceneManager>
 #include <MTheme>
 #include "x11wrapper.h"
@@ -101,11 +100,27 @@ MainWindow *MainWindow::instance(bool create)
 
 void MainWindow::applyStyle()
 {
-    const MainWindowStyle *style = static_cast<const MainWindowStyle *>(MTheme::style("MainWindowStyle", "", "", "", M::Landscape, NULL));
-    if (style->lockedOrientation() == "landscape") {
+    // Check whether the orientation has been locked using command line arguments
+    QVariant lockedOrientationVariant(QVariant::Invalid);
+    HomeApplication *app = dynamic_cast<HomeApplication*>(qApp);
+    if (app != NULL) {
+        lockedOrientationVariant = app->lockedOrientation();
+    }
+
+    QString lockedOrientation;
+    if (lockedOrientationVariant.isValid()) {
+        // Orientation has been locked using command line arguments
+        lockedOrientation = lockedOrientationVariant.toString();
+    } else {
+        // Orientation has not been locked using command line arguments, so get it from the style
+        const MainWindowStyle *style = static_cast<const MainWindowStyle *>(MTheme::style("MainWindowStyle", "", "", "", M::Landscape, NULL));
+        lockedOrientation = style->lockedOrientation();
+    }
+
+    if (lockedOrientation == "landscape") {
         setLandscapeOrientation();
         setOrientationLocked(true);
-    } else if (style->lockedOrientation() == "portrait") {
+    } else if (lockedOrientation == "portrait") {
         setPortraitOrientation();
         setOrientationLocked(true);
     } else {
