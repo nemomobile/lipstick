@@ -1,6 +1,7 @@
 meegotouchhome (0.23.13~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#233151 - homescreen is rotated 90 degrees
 
  -- Vesa Halttunen <vesa.halttunen@nokia.com>  Wed, 02 Mar 2011 17:35:47 +0200
 

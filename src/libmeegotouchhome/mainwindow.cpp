@@ -119,12 +119,17 @@ void MainWindow::applyStyle()
 
     if (lockedOrientation == "landscape") {
         setLandscapeOrientation();
+        setOrientationAngle(M::Angle0);
         setOrientationLocked(true);
+        setOrientationAngleLocked(true);
     } else if (lockedOrientation == "portrait") {
         setPortraitOrientation();
+        setOrientationAngle(M::Angle270);
         setOrientationLocked(true);
+        setOrientationAngleLocked(true);
     } else {
         setOrientationLocked(false);
+        setOrientationAngleLocked(false);
     }
 }
 

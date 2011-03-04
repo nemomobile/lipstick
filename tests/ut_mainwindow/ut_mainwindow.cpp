@@ -96,6 +96,12 @@ void MWindow::setOrientationLocked(bool locked)
     mWindowOrientationLocked = locked;
 }
 
+bool mWindowOrientationAngleLocked = false;
+void MWindow::setOrientationAngleLocked(bool locked)
+{
+    mWindowOrientationAngleLocked = locked;
+}
+
 QString mWindowOrientation;
 void MWindow::setLandscapeOrientation()
 {
@@ -105,6 +111,12 @@ void MWindow::setLandscapeOrientation()
 void MWindow::setPortraitOrientation()
 {
     mWindowOrientation = "portrait";
+}
+
+M::OrientationAngle mWindowOrientationAngle;
+void MWindow::setOrientationAngle(M::OrientationAngle angle)
+{
+    mWindowOrientationAngle = angle;
 }
 
 void Ut_MainWindow::initTestCase()
@@ -350,15 +362,16 @@ void Ut_MainWindow::testOrientationLocking_data()
     QTest::addColumn<QString>("styleLockedOrientation");
     QTest::addColumn<bool>("orientationLocked");
     QTest::addColumn<QString>("expectedOrientation");
+    QTest::addColumn<int>("expectedOrientationAngle");
 
-    QTest::newRow("Command line: Default / Style: No locking") << QVariant(QVariant::Invalid) << QString() << false << QString();
-    QTest::newRow("Command line: Default / Style: Locked to landscape") << QVariant(QVariant::Invalid) << QString("landscape") << true << QString("landscape");
-    QTest::newRow("Command line: Default / Style: Locked to portrait") << QVariant(QVariant::Invalid) << QString("portrait") << true << QString("portrait");
-    QTest::newRow("Command line: Default / Style: Locked to something else") << QVariant(QVariant::Invalid) << QString("unknown") << false << QString();
-    QTest::newRow("Command line: No locking / Style: Locked to portrait") << QVariant("") << QString("portrait") << false << QString();
-    QTest::newRow("Command line: Locked to landscape / Style: Locked to portrait") << QVariant("landscape") << QString("portrait") << true << QString("landscape");
-    QTest::newRow("Command line: Locked to portrait / Style: Locked to landscape") << QVariant("portrait") << QString("landscape") << true << QString("portrait");
-    QTest::newRow("Command line: Locked to something else / Style: Locked to landscape") << QVariant("unknown") << QString("landscape") << false << QString();
+    QTest::newRow("Command line: Default / Style: No locking") << QVariant(QVariant::Invalid) << QString() << false << QString() << (int)M::Angle180;
+    QTest::newRow("Command line: Default / Style: Locked to landscape") << QVariant(QVariant::Invalid) << QString("landscape") << true << QString("landscape") << (int)M::Angle0;
+    QTest::newRow("Command line: Default / Style: Locked to portrait") << QVariant(QVariant::Invalid) << QString("portrait") << true << QString("portrait") << (int)M::Angle270;
+    QTest::newRow("Command line: Default / Style: Locked to something else") << QVariant(QVariant::Invalid) << QString("unknown") << false << QString() << (int)M::Angle180;
+    QTest::newRow("Command line: No locking / Style: Locked to portrait") << QVariant("") << QString("portrait") << false << QString() << (int)M::Angle180;
+    QTest::newRow("Command line: Locked to landscape / Style: Locked to portrait") << QVariant("landscape") << QString("portrait") << true << QString("landscape") << (int)M::Angle0;
+    QTest::newRow("Command line: Locked to portrait / Style: Locked to landscape") << QVariant("portrait") << QString("landscape") << true << QString("portrait") << (int)M::Angle270;
+    QTest::newRow("Command line: Locked to something else / Style: Locked to landscape") << QVariant("unknown") << QString("landscape") << false << QString() << (int)M::Angle180;
 }
 
 void Ut_MainWindow::testOrientationLocking()
@@ -367,10 +380,13 @@ void Ut_MainWindow::testOrientationLocking()
     QFETCH(QString, styleLockedOrientation);
     QFETCH(bool, orientationLocked);
     QFETCH(QString, expectedOrientation);
+    QFETCH(int, expectedOrientationAngle);
 
     // Reset the stubs
     mWindowOrientationLocked = false;
+    mWindowOrientationAngleLocked = false;
     mWindowOrientation = QString();
+    mWindowOrientationAngle = M::Angle180;
     gHomeApplicationStub->stubSetReturnValue("lockedOrientation", commandLineLockedOrientation);
 
     // Set the style
@@ -381,7 +397,9 @@ void Ut_MainWindow::testOrientationLocking()
     delete mainWindow;
     mainWindow = MainWindow::instance(true);
     QCOMPARE(mWindowOrientationLocked, orientationLocked);
+    QCOMPARE(mWindowOrientationAngleLocked, orientationLocked);
     QCOMPARE(mWindowOrientation, expectedOrientation);
+    QCOMPARE(mWindowOrientationAngle, (M::OrientationAngle)expectedOrientationAngle);
 }
 
 QTEST_APPLESS_MAIN(Ut_MainWindow)
