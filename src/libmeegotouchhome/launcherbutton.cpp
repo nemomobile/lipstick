@@ -16,6 +16,7 @@
 ** of this file.
 **
 ****************************************************************************/
+
 #include "launcherbutton.h"
 #include "launcher.h"
 #include <MDesktopEntry>
@@ -28,8 +29,8 @@ M_REGISTER_WIDGET(LauncherButton)
 
 bool LauncherButton::launching = false;
 
-LauncherButton::LauncherButton(const QString &desktopEntryPath, MWidget *parent) :
-        MButton(parent, new LauncherButtonModel)
+LauncherButton::LauncherButton(const QString &desktopEntryPath, MWidget *parent, LauncherButtonModel *model) :
+        MButton(parent, model)
 {
     init();
 
@@ -43,7 +44,7 @@ LauncherButton::~LauncherButton()
 void LauncherButton::init()
 {
     // When the button is clicked the related object should be launched
-    connect(this, SIGNAL(clicked()), this, SLOT(launch()));
+    connect(this, SIGNAL(clicked()), this, SLOT(launch()), Qt::UniqueConnection);
 }
 
 QString LauncherButton::desktopEntry() const

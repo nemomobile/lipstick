@@ -282,7 +282,7 @@ private:
      * \param entry the path of the .desktop entry file to create a launcher button from
      * \return a LauncherButton representing the .desktop entry file
      */
-    QSharedPointer<LauncherButton> createLauncherButton(const QString &desktopEntryPath);
+    virtual QSharedPointer<LauncherButton> createLauncherButton(const QString &desktopEntryPath);
 
     /*!
      * Creates a map that contains the placement of each given desktop entry in the launcher.

@@ -44,7 +44,8 @@ public:
      * \param desktopEntryPath path to the .desktop file to create a launcher button from
      * \param parent the parent widget, defaults to NULL
      */
-    LauncherButton(const QString &desktopEntryPath = QString(), MWidget *parent = 0);
+    LauncherButton(const QString &desktopEntryPath = QString(), MWidget *parent = 0,
+                   LauncherButtonModel *model = new LauncherButtonModel);
 
     /*!
      * Destroys the Launcher.

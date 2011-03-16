@@ -11,7 +11,7 @@
 // FIXME - stubgen is not yet finished
 class LauncherButtonStub : public StubBase {
   public:
-  virtual void LauncherButtonConstructor(const QString &desktopEntryPath, MWidget *parent);
+  virtual void LauncherButtonConstructor(const QString &desktopEntryPath, MWidget *parent, LauncherButtonModel *model);
   virtual void LauncherButtonDestructor();
   virtual QString desktopEntry() const;
   virtual void updateFromDesktopEntry(const QString &desktopEntryPath);
@@ -25,11 +25,12 @@ class LauncherButtonStub : public StubBase {
 };
 
 // 2. IMPLEMENT STUB
-void LauncherButtonStub::LauncherButtonConstructor(const QString &desktopEntryPath, MWidget *parent) {
+void LauncherButtonStub::LauncherButtonConstructor(const QString &desktopEntryPath, MWidget *parent, LauncherButtonModel *model) {
   Q_UNUSED(desktopEntryPath);
   Q_UNUSED(parent);
-
+  Q_UNUSED(model);
 }
+
 void LauncherButtonStub::LauncherButtonDestructor() {
 
 }
@@ -84,8 +85,8 @@ LauncherButtonStub* gLauncherButtonStub = &gDefaultLauncherButtonStub;
 
 
 // 4. CREATE A PROXY WHICH CALLS THE STUB
-LauncherButton::LauncherButton(const QString &desktopEntryPath, MWidget *parent) {
-  gLauncherButtonStub->LauncherButtonConstructor(desktopEntryPath, parent);
+LauncherButton::LauncherButton(const QString &desktopEntryPath, MWidget *parent, LauncherButtonModel *model) {
+  gLauncherButtonStub->LauncherButtonConstructor(desktopEntryPath, parent, model);
 }
 
 LauncherButton::~LauncherButton() {
