@@ -1,6 +1,6 @@
-meegotouchhome (0.23.14~1) unstable; urgency=low
+meegotouchhome (0.23.14-1) unstable; urgency=low
 
-  * [UNRELEASED]
+  * Fixes: BMC#5009 - meegotouch-home points to an internal, vendor-specific bug tracker in its documentation
 
  -- Vesa Halttunen <vesa.halttunen@nokia.com>  Fri, 04 Mar 2011 12:47:19 +0200
 
