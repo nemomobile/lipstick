@@ -1,3 +1,9 @@
+meegotouchhome (0.23.15~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Janne Sakko <ext-janne.2.sakko@nokia.comp>  Thu, 17 Mar 2011 15:53:25 +0200
+
 meegotouchhome (0.23.14-1) unstable; urgency=low
 
   * Fixes: BMC#5009 - meegotouch-home points to an internal, vendor-specific bug tracker in its documentation
