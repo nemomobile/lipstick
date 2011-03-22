@@ -89,7 +89,7 @@ bool Ut_SwitcherButtonView::damageDestroyed = false;
 unsigned long Ut_SwitcherButtonView::damageHandle = 0;
 Display *Ut_SwitcherButtonView::damageDisplay = NULL;
 bool Ut_SwitcherButtonView::damageSubtracted = false;
-unsigned long Ut_SwitcherButtonView::damageSubtractHandle = NULL;
+unsigned long Ut_SwitcherButtonView::damageSubtractHandle = 0;
 Display *Ut_SwitcherButtonView::damageSubtractDisplay = NULL;
 
 XErrorHandler X11Wrapper::XSetErrorHandler(XErrorHandler handler)
@@ -284,7 +284,7 @@ void Ut_SwitcherButtonView::init()
     damageDestroyed = false;
     damageDisplay = NULL;
     damageSubtracted = false;
-    damageSubtractHandle = NULL;
+    damageSubtractHandle = 0;
     damageSubtractDisplay = NULL;
     gQPainter_drawPixmap_throwsBadAlloc = false;
     gQPainter_restore_called = false;

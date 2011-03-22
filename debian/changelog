@@ -1,6 +1,7 @@
 meegotouchhome (0.23.15~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#235408 - meegotouchhome fails to build with gcc-4.5 (-Werror)
 
  -- Janne Sakko <ext-janne.2.sakko@nokia.comp>  Thu, 17 Mar 2011 15:53:25 +0200
 
