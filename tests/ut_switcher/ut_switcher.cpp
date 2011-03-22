@@ -1129,4 +1129,21 @@ void Ut_Switcher::testRestoringButtonBeingClosedWhenButtonCloseTimerTimeouts()
     verifyModel(receiver.windowList);
 }
 
+void Ut_Switcher::testWindowsAreClosedWhenSwitcherIsDestroyed()
+{
+    updateWindowList();
+    QList<Window> windows;
+    foreach (const QSharedPointer<SwitcherButton> &button, switcher->model()->buttons()) {
+        windows.append(button->xWindow());
+    }
+
+    delete switcher;
+    switcher = NULL;
+
+    QCOMPARE(x11WrapperSendEventCalls.count(), windows.count());
+    for (int i = 0; i < APPLICATION_WINDOWS; i++) {
+        QCOMPARE(x11WrapperSendEventCalls.at(i).event.xclient.window, windows.at(i));
+    }
+}
+
 QTEST_APPLESS_MAIN(Ut_Switcher)

@@ -1,6 +1,7 @@
 meegotouchhome (0.23.16~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#238536 - Background apps won't close when switching between ACT-DEAD and user
 
  -- Vesa Halttunen <vesa.halttunen@nokia.com>  Tue, 22 Mar 2011 10:57:32 +0200
 

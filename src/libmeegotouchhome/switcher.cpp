@@ -68,6 +68,10 @@ Switcher::Switcher(MWidget *parent, SwitcherModel *model) :
 
 Switcher::~Switcher()
 {
+    // Close all applications when the home screen shuts down
+    foreach (const QSharedPointer<SwitcherButton> &button, model()->buttons()) {
+        closeWindow(button->xWindow());
+    }
 }
 
 bool Switcher::handleXEvent(const XEvent &event)

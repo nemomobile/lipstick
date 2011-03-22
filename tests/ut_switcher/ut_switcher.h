@@ -167,6 +167,8 @@ private slots:
     void testRestoringButtonBeingClosedWhenWindowComesOnTop();
     void testRestoringButtonBeingClosedWhenButtonCloseTimerTimeouts();
 
+    void testWindowsAreClosedWhenSwitcherIsDestroyed();
+
 private:
     MSceneManager *mSceneManager;
     HomeWindowMonitor *homeWindowMonitor;
