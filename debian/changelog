@@ -1,3 +1,9 @@
+meegotouchhome (0.23.16~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Tue, 22 Mar 2011 10:57:32 +0200
+
 meegotouchhome (0.23.15-1) unstable; urgency=low
 
   * Fixes: NB#235408 - meegotouchhome fails to build with gcc-4.5 (-Werror)
