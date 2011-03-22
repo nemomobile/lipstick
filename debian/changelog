@@ -1,3 +1,9 @@
+meegotouchhome (0.23.17~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Tue, 22 Mar 2011 14:57:19 +0200
+
 meegotouchhome (0.23.16-1) unstable; urgency=low
 
   * Fixes: NB#238536 - Background apps won't close when switching between ACT-DEAD and user
