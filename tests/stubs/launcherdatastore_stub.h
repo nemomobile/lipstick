@@ -102,7 +102,7 @@ QString LauncherDataStoreStub::keyToEntryPath(const QString &key) {
 
 void LauncherDataStoreStub::updateDesktopEntry(const QString &desktopEntryPath) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const QString >(desktopEntryPath));
+  params.append( new Parameter<QString >(desktopEntryPath));
   stubMethodEntered("updateDesktopEntry",params);
 }
 
@@ -115,7 +115,7 @@ bool LauncherDataStoreStub::isInQueue(const QString &key) {
 
 void LauncherDataStoreStub::removeDataForDesktopEntry(const QString &entryPath) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const QString >(entryPath));
+  params.append( new Parameter<QString >(entryPath));
   stubMethodEntered("removeDataForDesktopEntry",params);
 }
 

@@ -16,6 +16,7 @@
 ** of this file.
 **
 ****************************************************************************/
+
 #include "launcher.h"
 #include "launcherbutton.h"
 #include "launcherdatastore.h"
@@ -96,8 +97,8 @@ void Launcher::updateButtonState(const QString &desktopEntryPath, LauncherButton
     Launcher::Placement buttonPlacementInDatastore = entryPlacementInDatastore(desktopEntryPath);
     if (buttonPlacementInDatastore.location.isEmpty() || buttonPlacementInDatastore.location == Launcher::LOCATION_IDENTIFIER) {
         QSharedPointer<LauncherButton> button = placeholderButton(desktopEntryPath);
-        if (!ApplicationPackageMonitorListener::isInstallerExtraEntry(desktopEntryPath)) {
-            // If new entry is an applications entry path then remove the old entry path from store and update the new entry
+        if (!ApplicationPackageMonitorListener::isInstallerExtraEntry(desktopEntryPath) || state == LauncherButtonModel::Broken) {
+            // If new entry is an applications entry path or package is broken then remove the old entry path from store and update the new entry
             removeButtonPlacementFromStore(button->desktopEntry());
             updateButtonPlacementInStore(desktopEntryPath);
             button->updateFromDesktopEntry(desktopEntryPath);

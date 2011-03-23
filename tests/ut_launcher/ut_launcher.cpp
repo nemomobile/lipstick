@@ -472,13 +472,19 @@ void Ut_Launcher::testSetMaximumPageSize()
 
 void Ut_Launcher::testSetOperationErrorWhenButtonFoundFromLauncher()
 {
-    QString entry = "test.desktop";
-    launcher->addLauncherButton(entry);
+    QString applicationsEntry = "/applications/test.desktop";
+    QString installerExtraEntry = "/applications/installer-extra/test.desktop";
+    launcher->addLauncherButton(applicationsEntry);
+    gLauncherButtonStub->stubSetReturnValue("desktopEntry", applicationsEntry);
 
-    launcher->updateButtonState(entry, LauncherButtonModel::Broken, 0);
+    launcher->updateButtonState(installerExtraEntry, LauncherButtonModel::Broken, 0);
 
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<LauncherButtonModel::State>(0), LauncherButtonModel::Broken);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<int>(1), 0);
+    QCOMPARE(gLauncherButtonStub->stubLastCallTo("updateFromDesktopEntry").parameter<QString>(0), installerExtraEntry);
+
+    QCOMPARE(gLauncherDataStoreStub->stubLastCallTo("removeDataForDesktopEntry").parameter<QString>(0), applicationsEntry);
+    QCOMPARE(gLauncherDataStoreStub->stubLastCallTo("updateDataForDesktopEntry").parameter<QString>(0), installerExtraEntry);
 }
 
 void Ut_Launcher::testSetOperationErrorWhenButtonHasPlaceholder()
