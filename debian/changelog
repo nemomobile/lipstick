@@ -1,3 +1,9 @@
+meegotouchhome (0.23.18~1) unstable; urgency=low
+
+  * [UNRELEASED] 
+
+ -- Juha Juutinen <juha.juutinen@ixonos.com>  Thu, 24 Mar 2011 14:21:28 +0200
+
 meegotouchhome (0.23.17-1) unstable; urgency=low
 
   * Fixes: NB#237958 - Tapping on broken installation icon on launcher does not do anything after failed upgrade attempt
