@@ -1,9 +1,8 @@
-meegotouchhome (0.23.19~1) unstable; urgency=low
+meegotouchhome (0.23.19-1) unstable; urgency=low
 
-  * [UNRELEASED]
   * Fixes: NB#240902 - Zoom transition in Recents is too fast
 
- -- Vesa Halttunen <vesa.halttunen@nokia.com>  Fri, 01 Apr 2011 10:17:17 +0300
+ -- Pauli Lehtinen <pauli.lehtinen@nokia.com>  Fri, 01 Apr 2011 15:47:00 +0300
 
 meegotouchhome (0.23.18-1) unstable; urgency=low
 
