@@ -187,7 +187,7 @@ SwitcherButton MLabelStyle {
 }
 
 MLabelStyle#SwitcherButtonTitleLabelDetailview {
-    font: "Nokia Sans" 3.2mm;
+    font: $FONT_FAMILY 3.2mm;
 
     preferred-size: -1 4.255mm;
     minimum-size:   -1 4.255mm;
@@ -197,11 +197,11 @@ MLabelStyle#SwitcherButtonTitleLabelDetailview {
 }
 
 MLabelStyle#SwitcherButtonTitleLabelDetailview.Landscape {
-    font: "Nokia Sans" 3.6mm;
+    font: $FONT_FAMILY 3.6mm;
 }
 
 MLabelStyle#SwitcherButtonTitleLabelOverviewMedium {
-    font: "Nokia Sans" 1.8mm;
+    font: $FONT_FAMILY 1.8mm;
 
     preferred-size: -1 2.3mm;
     minimum-size:   -1 2.3mm;
@@ -211,7 +211,7 @@ MLabelStyle#SwitcherButtonTitleLabelOverviewMedium {
 }
 
 MLabelStyle#SwitcherButtonTitleLabelOverviewMedium.Landscape {
-    font: "Nokia Sans" 1.6mm;
+    font: $FONT_FAMILY 1.6mm;
 
     preferred-size: -1 1.79mm;
     minimum-size:   -1 1.79mm;
@@ -219,7 +219,7 @@ MLabelStyle#SwitcherButtonTitleLabelOverviewMedium.Landscape {
 }
 
 MLabelStyle#SwitcherButtonTitleLabelOverviewLarge {
-    font: "Nokia Sans" 2.0mm;
+    font: $FONT_FAMILY 2.0mm;
 
     preferred-size: -1 2.67mm;
     minimum-size:   -1 2.67mm;
@@ -229,7 +229,7 @@ MLabelStyle#SwitcherButtonTitleLabelOverviewLarge {
 }
 
 MLabelStyle#SwitcherButtonTitleLabelOverviewLarge.Landscape {
-    font: "Nokia Sans" 1.6mm;
+    font: $FONT_FAMILY 1.6mm;
 
     preferred-size: -1 1.79mm;
     minimum-size:   -1 1.79mm;
