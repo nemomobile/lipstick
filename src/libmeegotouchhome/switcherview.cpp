@@ -16,7 +16,6 @@
  ** of this file.
  **
  ****************************************************************************/
-
 #include "switcherview.h"
 #include "switcher.h"
 #include "switcherbutton.h"

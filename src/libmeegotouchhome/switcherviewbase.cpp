@@ -80,6 +80,7 @@ bool SwitcherViewBase::event(QEvent *e)
     // This stuff is necessary to receive touch events.
     if (e->type() == QEvent::TouchBegin) {
         e->setAccepted(true);
+
         return true;
     }
 
@@ -256,17 +257,25 @@ void SwitcherViewBase::pinchGestureEvent(QGestureEvent *event, QPinchGesture *ge
 
     event->accept(gesture);
 
+    static qreal pinchBeginLength = 0;
+
     switch(gesture->state()) {
     case Qt::GestureStarted:
         if(!gestureActive) {
             gestureActive = true;
             pinchBegin(controller->mapFromScene(gesture->centerPoint()));
+            pinchBeginLength = QLineF(gesture->hotSpot(), gesture->centerPoint()).length() * 2;
         }
 
         break;
     case Qt::GestureUpdated:
         if(gestureActive) {
-            pinchUpdate(gesture->totalScaleFactor());
+            QSize s = MDeviceProfile::instance()->resolution();
+            qreal pinchDistance = s.width() * 3 / 4;
+            qreal pinchLength = QLineF(gesture->hotSpot(), gesture->centerPoint()).length() * 2;
+            qreal scale = qBound(qreal(-1), ((pinchLength - pinchBeginLength) / pinchDistance), qreal(1)) + 1.0f;
+
+            pinchUpdate(scale);
         }
         break;
     case Qt::GestureFinished:

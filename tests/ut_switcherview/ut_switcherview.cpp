@@ -38,6 +38,7 @@
 #include "pagedviewport_stub.h"
 #include <QGestureEvent>
 #include <QPinchGesture>
+#include <MDeviceProfile>
 #include "mainwindow_stub.h"
 #include "windowinfo_stub.h"
 
@@ -328,8 +329,12 @@ void verifyEqualContentMarginValues(qreal first, qreal second, qreal target)
 
 void Ut_SwitcherView::pinchGesture(qreal scaleFactor, Qt::GestureState state)
 {
+    QSize s = MDeviceProfile::instance()->resolution();
+
+    mPinch->setHotSpot(QPointF(0, 0));
+    mPinch->setCenterPoint(QPointF(s.width() * 3 / 4 / 2 * scaleFactor, 0));
+
     currentPinchState = state;
-    mPinch->setTotalScaleFactor(scaleFactor);
     m_subject->pinchGestureEvent(mEvent, mPinch);
 }
 
@@ -546,9 +551,7 @@ void Ut_SwitcherView::testDetailToOverviewModeChange()
     currentPinchState = Qt::GestureStarted;
 
     // Scale factor <1 is transition to Overview mode.
-    mPinch->setLastScaleFactor(0.8);
-
-    pinchGesture(0.5,Qt::GestureStarted);
+    pinchGesture(0.8,Qt::GestureStarted);
     pinchGesture(0.5,Qt::GestureUpdated);
     pinchGesture(0.5,Qt::GestureFinished);
 
@@ -574,9 +577,7 @@ void Ut_SwitcherView::testOverviewToDetailModeChange()
     g_switcherModel->setSwitcherMode(SwitcherModel::Overview);
 
     // Scale factor >1 is transition to Detailview mode.
-    mPinch->setLastScaleFactor(1.5);
-
-    pinchGesture(2.0,Qt::GestureStarted);
+    pinchGesture(1.5,Qt::GestureStarted);
     pinchGesture(2.0,Qt::GestureUpdated);
     pinchGesture(2.0,Qt::GestureFinished);
     QCOMPARE (g_switcherModel->switcherMode(), SwitcherModel::Detailview);
@@ -626,7 +627,6 @@ void Ut_SwitcherView::testTransitionControl()
 
     gSceneItems.append(m_subject->viewport);
 
-    mPinch->setLastScaleFactor(1.0);
     pinchGesture(1.0, Qt::GestureStarted);
 
     gTransformLayoutAnimationStub->stubSetReturnValue("manualControl", true);
