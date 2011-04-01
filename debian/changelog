@@ -1,9 +1,8 @@
-meegotouchhome (0.23.18~1) unstable; urgency=low
+meegotouchhome (0.23.18-1) unstable; urgency=low
 
-  * [UNRELEASED]
   * Fixes: NB#242046 - Wrong font in css (libmeegotouchhome)
 
- -- Juha Juutinen <juha.juutinen@ixonos.com>  Thu, 24 Mar 2011 14:59:14 +0200
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Fri, 01 Apr 2011 10:16:48 +0200
 
 meegotouchhome (0.23.17-1) unstable; urgency=low
 
