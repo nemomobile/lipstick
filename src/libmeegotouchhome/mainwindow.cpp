@@ -113,8 +113,9 @@ void MainWindow::applyStyle()
         lockedOrientation = lockedOrientationVariant.toString();
     } else {
         // Orientation has not been locked using command line arguments, so get it from the style
-        const MainWindowStyle *style = static_cast<const MainWindowStyle *>(MTheme::style("MainWindowStyle", "", "", "", M::Landscape, NULL));
+        const MainWindowStyle *style = static_cast<const MainWindowStyle *>(MTheme::style("MainWindowStyle"));
         lockedOrientation = style->lockedOrientation();
+        MTheme::releaseStyle(style);
     }
 
     if (lockedOrientation == "landscape") {
