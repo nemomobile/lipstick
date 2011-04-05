@@ -184,8 +184,8 @@ LauncherButtonStyle#QuickLaunchBarButton {
 SwitcherBaseStyle {
     pinch-cancel-threshold: 0.25;
     pinch-length: 1.5;
-    bounce-scale: 0.04;
-    bounce-duration: 300;
+    bounce-scale: 0.2;
+    bounce-duration: 150;
     bounce-curve: linear;
 }
 
