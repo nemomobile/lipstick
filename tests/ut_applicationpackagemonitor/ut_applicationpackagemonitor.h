@@ -74,6 +74,8 @@ private slots:
     void testPackageHadError();
     // Test that package names and desktop entry paths are stored to a hash
     void testGettinPackageNameFromPackageNameToDesktopEntryHash();
+    // Test starting uninstall operation
+    void testStartingUninstallOperation();
 
 signals:
 

@@ -652,4 +652,21 @@ void Ut_Launcher::testInitializingLauncherWithButtonsInUnknownLocation()
     QCOMPARE(launcher->model()->launcherPages().at(0)->model()->launcherButtons().count(), 2);
 }
 
+void Ut_Launcher::testThatLauncherIconIsRemovedWhenApplicationUninstallProgressIsStarted()
+{
+    QString uninstallableInstallerExtraEntry = INSTALLER_EXTRA_PATH + "uninstallableApp.desktop";
+    QString uninstallableApplicationsEntry = QString(APPLICATIONS_DIRECTORY) + "uninstallableApp.desktop";
+
+    QHash<QString, QVariant> dataForAllDesktopEntries;
+    dataForAllDesktopEntries.insert(uninstallableApplicationsEntry, QVariant("launcher/0/0"));
+    gLauncherDataStoreStub->stubSetReturnValue("dataForAllDesktopEntries", dataForAllDesktopEntries);
+    launcher->updatePagesFromDataStore();
+
+    gLauncherButtonStub->stubSetReturnValue("desktopEntry", uninstallableApplicationsEntry);
+    launcher->updateButtonState(uninstallableInstallerExtraEntry, "testApp", LauncherButtonModel::Uninstall, 0);
+
+    QCOMPARE(launcher->model()->launcherPages().count(), 0);
+}
+
+
 QTEST_MAIN(Ut_Launcher)

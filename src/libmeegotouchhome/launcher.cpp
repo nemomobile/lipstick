@@ -92,9 +92,16 @@ void Launcher::setMaximumPageSize(int maximumPageSize)
 
 void Launcher::updateButtonState(const QString &desktopEntryPath, const QString &packageName, LauncherButtonModel::State state, int progress)
 {
-    // Check that button is not stored in some other location before adding/updating placeholder and setting state
     Launcher::Placement buttonPlacementInDatastore = entryPlacementInDatastore(desktopEntryPath);
-    if (buttonPlacementInDatastore.location.isEmpty() || buttonPlacementInDatastore.location == Launcher::LOCATION_IDENTIFIER) {
+
+    bool buttonInLauncher = !buttonPlacementInDatastore.location.isEmpty();
+    if (state == LauncherButtonModel::Uninstall && buttonInLauncher) {
+        removeLauncherButton(desktopEntryPath);
+        return;
+    }
+
+    // Check that button is not stored in some other location before adding/updating placeholder and setting state
+    if (!buttonInLauncher || buttonPlacementInDatastore.location == Launcher::LOCATION_IDENTIFIER) {
         QSharedPointer<LauncherButton> button = placeholderButton(desktopEntryPath);
         if (button->packageName().isEmpty()) {
             button->setPackageName(packageName);

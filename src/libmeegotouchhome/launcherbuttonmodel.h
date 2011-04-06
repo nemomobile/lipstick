@@ -42,7 +42,9 @@ public:
         //! Button state when application is launching
         Launching,
         //! Button state when application installation has failed
-        Broken
+        Broken,
+        //! Button state when uninstall operation is started
+        Uninstall
     };
 
     //! Desktop entry that launcher button is representing

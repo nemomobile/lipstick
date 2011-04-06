@@ -110,6 +110,14 @@ public slots:
     void setOperationError(const QString& desktopEntryPath, const QString &packageName, const QString& error);
 
 
+    /*!
+     * Set button state to "uninstall"
+     *
+     * \param desktopEntryName Desktop entry of the application button represents
+     * \param packageName name of the package
+     */
+    void setPackageUninstall(const QString &desktopEntryPath, const QString &packageName);
+
 private:
     //! Application package monitor
     QSharedPointer<ApplicationPackageMonitor> packageMonitor;

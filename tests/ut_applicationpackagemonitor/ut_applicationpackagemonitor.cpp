@@ -450,7 +450,6 @@ void Ut_ApplicationPackageMonitor::uninstall(const QString &name)
 
     m_subject->packageOperationComplete("Uninstall", name, "version", "", 0);
     QCOMPARE(spySuccess.count(), 0);
-
 }
 
 void Ut_ApplicationPackageMonitor::comparePackageStateInDataStore(const QString &packageName, const QString &state)
@@ -753,6 +752,22 @@ void Ut_ApplicationPackageMonitor::testGettinPackageNameFromPackageNameToDesktop
     QCOMPARE(m_subject->packageName("/pkg_1.desktop"), QString("pkg_1"));
     QCOMPARE(m_subject->packageName("/pkg_2.desktop"), QString("pkg_2"));
 
+}
+
+void Ut_ApplicationPackageMonitor::testStartingUninstallOperation()
+{
+    const QString testPackage = "testPackage";
+    QString testDesktopEntry = APPLICATIONS_DIRECTORY+INSTALLER_EXTRA+"testDesktop.desktop";
+    m_subject->createPackageValueToDataStore("Packages/"+testPackage, testDesktopEntry);
+
+    QSignalSpy spyUninstall(m_subject, SIGNAL(packageUninstall(const QString&, const QString&)));
+    m_subject->packageOperationStarted(OPERATION_UNINSTALL, testPackage, "1.0");
+
+    QCOMPARE(spyUninstall.count(), 1);
+
+    QList<QVariant> arguments = spyUninstall.takeFirst();
+    QCOMPARE(arguments.at(0).toString(), testDesktopEntry);
+    QCOMPARE(arguments.at(1).toString(), testPackage);
 }
 
 QTEST_APPLESS_MAIN(Ut_ApplicationPackageMonitor)

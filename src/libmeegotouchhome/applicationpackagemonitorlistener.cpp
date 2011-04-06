@@ -31,6 +31,8 @@ ApplicationPackageMonitorListener::ApplicationPackageMonitorListener()
             this, SLOT(setOperationSuccess(QString, QString)));
     connect(packageMonitor.data(), SIGNAL(operationError(QString, QString, QString)),
             this, SLOT(setOperationError(QString, QString, QString)));
+    connect(packageMonitor.data(), SIGNAL(packageUninstall(QString, QString)),
+            this, SLOT(setPackageUninstall(QString, QString)));
     connect(packageMonitor.data(), SIGNAL(installExtraEntryRemoved(QString)),
             this, SIGNAL(installExtraEntryRemoved(QString)));
     connect(packageMonitor.data(), SIGNAL(updatePackageName(QString, QString)),
@@ -69,6 +71,11 @@ void ApplicationPackageMonitorListener::setOperationError(const QString& desktop
 void ApplicationPackageMonitorListener::updatePackageStates()
 {
     packageMonitor->updatePackageStates();
+}
+
+void ApplicationPackageMonitorListener::setPackageUninstall(const QString &desktopEntryPath, const QString &packageName)
+{
+    emit packageStateChanged(desktopEntryPath, packageName, LauncherButtonModel::Uninstall, 0);
 }
 
 bool ApplicationPackageMonitorListener::isInstallerExtraEntry(const QString &desktopEntryPath)

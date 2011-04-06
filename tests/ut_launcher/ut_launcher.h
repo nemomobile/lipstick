@@ -125,5 +125,7 @@ private slots:
     void testConnectionsAfterLauncherInitialization();
     // Test initializing launcher with buttons that have no location yet(are not stored in data store)
     void testInitializingLauncherWithButtonsInUnknownLocation();
+    // Launcher icon of uninstallable application is removed from launcher when button state is changed to Uninstall
+    void testThatLauncherIconIsRemovedWhenApplicationUninstallProgressIsStarted();
 };
 #endif //_UT_LAUNCHER_

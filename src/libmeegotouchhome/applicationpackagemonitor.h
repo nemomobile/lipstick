@@ -114,6 +114,14 @@ signals:
      */
     void updatePackageName(const QString &desktopEntryPath, const QString &packageName);
 
+    /*!
+     * Notifies that package is being uninstalled.
+     *
+     *\param desktopEntryPath path that specifies the package.
+     *\param packageName name of the package
+     */
+    void packageUninstall(const QString &desktopEntryPath, const QString &packageName);
+
 private slots:
     /*!
      * Slot to handle PackageManagers download_progress signal.
@@ -224,7 +232,7 @@ private:
      */
     QSharedPointer<ExtraDirWatcher> extraDirWatcher;
 
-    //! Hash of package names and corresponging desktop entry file paths
+    //! Hash of package names and corresponging installer extra desktop entry file paths
     QHash<QString, QString> packageKeyToDesktopEntry;
 
 #ifdef UNIT_TEST

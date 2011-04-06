@@ -17,6 +17,7 @@ class ApplicationPackageMonitorListenerStub : public StubBase {
   virtual void setOperationSuccess(const QString &desktopEntryPath, const QString &packageName);
   virtual void setOperationError(const QString &desktopEntryPath, const QString &packageName, const QString &error);
   virtual bool isInstallerExtraEntry(const QString &desktopEntryPath);
+  virtual void setPackageUninstall(const QString &desktopEntryPath, const QString &packageName);
 }; 
 
 // 2. IMPLEMENT STUB
@@ -69,6 +70,13 @@ bool ApplicationPackageMonitorListenerStub::isInstallerExtraEntry(const QString 
   return stubReturnValue<bool>("isInstallerExtraEntry");
 }
 
+void ApplicationPackageMonitorListenerStub::setPackageUninstall(const QString &desktopEntryPath, const QString &packageName) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<QString>(desktopEntryPath));
+  params.append( new Parameter<QString>(packageName));
+  stubMethodEntered("setPackageUninstall",params);
+}
+
 // 3. CREATE A STUB INSTANCE
 ApplicationPackageMonitorListenerStub gDefaultApplicationPackageMonitorListenerStub;
 ApplicationPackageMonitorListenerStub* gApplicationPackageMonitorListenerStub = &gDefaultApplicationPackageMonitorListenerStub;
@@ -108,4 +116,8 @@ bool ApplicationPackageMonitorListener::isInstallerExtraEntry(const QString &des
   return gApplicationPackageMonitorListenerStub->isInstallerExtraEntry(desktopEntryPath);
 }
 
+void ApplicationPackageMonitorListener::setPackageUninstall(const QString &desktopEntryPath, const QString &packageName)
+{
+    gApplicationPackageMonitorListenerStub->setPackageUninstall(desktopEntryPath, packageName);
+}
 #endif

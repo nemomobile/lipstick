@@ -172,9 +172,10 @@ void ApplicationPackageMonitor::packageOperationStarted(const QString &operation
                                 const QString &packageName,
                                 const QString &version)
 {
-    Q_UNUSED(operation)
     Q_UNUSED(version)
-    Q_UNUSED(packageName)
+    if (operation == OPERATION_UNINSTALL) {
+        emit packageUninstall(packageKeyToDesktopEntry.value(PACKAGE_PREFIX + packageName), packageName);
+    }
 }
 
 void ApplicationPackageMonitor::packageOperationProgress(const QString &operation,
