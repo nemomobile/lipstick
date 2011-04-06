@@ -1,3 +1,9 @@
+meegotouchhome (0.23.21~1) unstable; urgency=low
+
+  * [UNRELEASED] 
+
+ -- Pauli Lehtinen <pauli.lehtinen@nokia.com>  Wed, 06 Apr 2011 14:09:19 +0300
+
 meegotouchhome (0.23.20-1) unstable; urgency=low
 
   * Fixes: NB#243418 - Switcher pinch "overshoot" should be a little stronger
