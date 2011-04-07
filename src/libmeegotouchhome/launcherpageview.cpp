@@ -103,8 +103,6 @@ void LauncherPageView::setupModel()
 void LauncherPageView::removeButtonFromLayout(LauncherButton *button)
 {
     layout->removeItem(button);
-    // set parent to NULL to avoid double deletion as items are as QSharedPointers in model
-    button->setParentItem(0);
 }
 
 M_REGISTER_VIEW_NEW(LauncherPageView, LauncherPage)
