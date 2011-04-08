@@ -1,3 +1,9 @@
+meegotouchhome (0.23.22~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Janne Sakko <ext-janne.2.sakko@nokia.com>  Fri, 08 Apr 2011 15:26:57 +0300
+
 meegotouchhome (0.23.21-1) unstable; urgency=low
 
   * Fixes: NB#237958 - Tapping on broken installation icon on launcher does not do anything after failed upgrade attempt
