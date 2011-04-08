@@ -94,6 +94,8 @@ private slots:
     void testUpdateButtonStateForButtonInLauncher();
     // Test trying to update button state for a button that is in other location (eg. quicklaunchbar)
     void testUpdateButtonStateForButtonThatHasOtherLocationInDatastore();
+    // Test that package name is set to button when status of button is updated
+    void testSettingPackageNameForButtonWhenButtonStateIsUpdated();
     // Test adding palceholder button to launcher
     void testAddPlaceholderButtonToLauncher();
     // Test getting entrys placement in datastore
@@ -109,6 +111,8 @@ private slots:
     // Test that when application's install extra file is removed, placeholder
     // launcher button for that application is removed when application is not installed.
     void testRemovingLauncherButtonPlaceholderWhenInstallExtraEntryIsRemoved();
+    // Test that package name is updated for launcher button
+    void testUpdatingPackageNameOfLauncherButton();
     // Test that when application's install extra file is removed, launcher button
     // for that application is not removed when application is installed.
     void testWhenApplicationIsInstalledAndInstallExtraEntryIsRemovedThenLauncherButtonIsNotRemoved();

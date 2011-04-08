@@ -12,10 +12,10 @@ class ApplicationPackageMonitorListenerStub : public StubBase {
   virtual void ApplicationPackageMonitorListenerConstructor();
   virtual void ApplicationPackageMonitorListenerDestructor();
   virtual void updatePackageStates();
-  virtual void setDownloadProgress(const QString &desktopEntryPath, int bytesLoaded, int bytesTotal);
-  virtual void setInstallProgress(const QString &desktopEntryPath, int percentage);
-  virtual void setOperationSuccess(const QString &desktopEntryPath);
-  virtual void setOperationError(const QString &desktopEntryPath, const QString &error);
+  virtual void setDownloadProgress(const QString &desktopEntryPath, const QString &packageName, int bytesLoaded, int bytesTotal);
+  virtual void setInstallProgress(const QString &desktopEntryPath, const QString &packageName, int percentage);
+  virtual void setOperationSuccess(const QString &desktopEntryPath, const QString &packageName);
+  virtual void setOperationError(const QString &desktopEntryPath, const QString &packageName, const QString &error);
   virtual bool isInstallerExtraEntry(const QString &desktopEntryPath);
 }; 
 
@@ -30,30 +30,34 @@ void ApplicationPackageMonitorListenerStub::updatePackageStates() {
   stubMethodEntered("updatePackageStates");
 }
 
-void ApplicationPackageMonitorListenerStub::setDownloadProgress(const QString &desktopEntryPath, int bytesLoaded, int bytesTotal) {
+void ApplicationPackageMonitorListenerStub::setDownloadProgress(const QString &desktopEntryPath, const QString &packageName, int bytesLoaded, int bytesTotal) {
   QList<ParameterBase*> params;
   params.append( new Parameter<QString>(desktopEntryPath));
+  params.append( new Parameter<QString>(packageName));
   params.append( new Parameter<int >(bytesLoaded));
   params.append( new Parameter<int >(bytesTotal));
   stubMethodEntered("setDownloadProgress",params);
 }
 
-void ApplicationPackageMonitorListenerStub::setInstallProgress(const QString &desktopEntryPath, int percentage) {
+void ApplicationPackageMonitorListenerStub::setInstallProgress(const QString &desktopEntryPath, const QString &packageName, int percentage) {
   QList<ParameterBase*> params;
   params.append( new Parameter<QString>(desktopEntryPath));
+  params.append( new Parameter<QString>(packageName));
   params.append( new Parameter<int >(percentage));
   stubMethodEntered("setInstallProgress",params);
 }
 
-void ApplicationPackageMonitorListenerStub::setOperationSuccess(const QString &desktopEntryPath) {
+void ApplicationPackageMonitorListenerStub::setOperationSuccess(const QString &desktopEntryPath, const QString &packageName) {
   QList<ParameterBase*> params;
   params.append( new Parameter<QString>(desktopEntryPath));
+  params.append( new Parameter<QString>(packageName));
   stubMethodEntered("setOperationSuccess",params);
 }
 
-void ApplicationPackageMonitorListenerStub::setOperationError(const QString &desktopEntryPath, const QString &error) {
+void ApplicationPackageMonitorListenerStub::setOperationError(const QString &desktopEntryPath, const QString &packageName, const QString &error) {
   QList<ParameterBase*> params;
   params.append( new Parameter<QString>(desktopEntryPath));
+  params.append( new Parameter<QString>(packageName));
   params.append( new Parameter<QString>(error));
   stubMethodEntered("setOperationError",params);
 }
@@ -83,24 +87,25 @@ void ApplicationPackageMonitorListener::updatePackageStates() {
   gApplicationPackageMonitorListenerStub->updatePackageStates();
 }
 
-void ApplicationPackageMonitorListener::setDownloadProgress(const QString &desktopEntryPath, int bytesLoaded, int bytesTotal) {
-  gApplicationPackageMonitorListenerStub->setDownloadProgress(desktopEntryPath, bytesLoaded, bytesTotal);
+void ApplicationPackageMonitorListener::setDownloadProgress(const QString &desktopEntryPath, const QString &packageName, int bytesLoaded, int bytesTotal) {
+  gApplicationPackageMonitorListenerStub->setDownloadProgress(desktopEntryPath, packageName, bytesLoaded, bytesTotal);
 }
 
-void ApplicationPackageMonitorListener::setInstallProgress(const QString &desktopEntryPath, int percentage) {
-  gApplicationPackageMonitorListenerStub->setInstallProgress(desktopEntryPath, percentage);
+void ApplicationPackageMonitorListener::setInstallProgress(const QString &desktopEntryPath, const QString &packageName, int percentage) {
+  gApplicationPackageMonitorListenerStub->setInstallProgress(desktopEntryPath, packageName, percentage);
 }
 
-void ApplicationPackageMonitorListener::setOperationSuccess(const QString &desktopEntryPath) {
-  gApplicationPackageMonitorListenerStub->setOperationSuccess(desktopEntryPath);
+void ApplicationPackageMonitorListener::setOperationSuccess(const QString &desktopEntryPath, const QString &packageName) {
+  gApplicationPackageMonitorListenerStub->setOperationSuccess(desktopEntryPath, packageName);
 }
 
-void ApplicationPackageMonitorListener::setOperationError(const QString &desktopEntryPath, const QString &error) {
-  gApplicationPackageMonitorListenerStub->setOperationError(desktopEntryPath, error);
+void ApplicationPackageMonitorListener::setOperationError(const QString &desktopEntryPath, const QString &packageName, const QString &error) {
+  gApplicationPackageMonitorListenerStub->setOperationError(desktopEntryPath, packageName, error);
 }
 
 
 bool ApplicationPackageMonitorListener::isInstallerExtraEntry(const QString &desktopEntryPath) {
   return gApplicationPackageMonitorListenerStub->isInstallerExtraEntry(desktopEntryPath);
 }
+
 #endif

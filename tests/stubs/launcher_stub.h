@@ -34,7 +34,7 @@ class LauncherStub : public StubBase {
   virtual void setMaximumPageSize(int maximumPageSize);
   virtual int focusToButton(const QString &desktopFileEntry);
   virtual void setPage(uint page);
-  virtual void updateButtonState(const QString &desktopEntryPath, LauncherButtonModel::State state, int progress);
+  virtual void updateButtonState(const QString &desktopEntryPath, const QString &packageName, LauncherButtonModel::State state, int progress);
   virtual void removePlaceholderButton(const QString &desktopEntryPath);
   virtual void addLauncherButton(const QString &desktopEntryPath);
   virtual void removeLauncherButton(const QString &desktopEntryPath);
@@ -53,6 +53,7 @@ class LauncherStub : public StubBase {
   virtual void updateButtonPlacementInStore(const QString &desktopEntryPath);
   virtual void removeButtonPlacementFromStore(const QString &desktopEntryPath);
   virtual void setMaximumPageSizeIfNecessary(QSharedPointer<LauncherPage> &page);
+  virtual void updatePackageName(const QString &desktopEntryPath, const QString &packageName);
 };
 
 // 2. IMPLEMENT STUB
@@ -94,9 +95,10 @@ void LauncherStub::setPage(uint page) {
   stubMethodEntered("setPage",params);
 }
 
-void LauncherStub::updateButtonState(const QString &desktopEntryPath, LauncherButtonModel::State state, int progress) {
+void LauncherStub::updateButtonState(const QString &desktopEntryPath, const QString &packageName, LauncherButtonModel::State state, int progress) {
   QList<ParameterBase*> params;
   params.append( new Parameter<QString>(desktopEntryPath));
+  params.append( new Parameter<QString>(packageName));
   params.append( new Parameter<LauncherButtonModel::State >(state));
   params.append( new Parameter<int >(progress));
   stubMethodEntered("updateButtonState",params);
@@ -217,7 +219,12 @@ void LauncherStub::setMaximumPageSizeIfNecessary(QSharedPointer<LauncherPage> &p
   stubMethodEntered("setMaximumPageSizeIfNecessary",params);
 }
 
-
+void LauncherStub::updatePackageName(const QString &desktopEntryPath, const QString &packageName) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<QString>(desktopEntryPath));
+  params.append( new Parameter<QString>(packageName));
+  stubMethodEntered("updatePackageName",params);
+}
 
 // 3. CREATE A STUB INSTANCE
 LauncherStub gDefaultLauncherStub;
@@ -253,8 +260,8 @@ void Launcher::setPage(uint page) {
   gLauncherStub->setPage(page);
 }
 
-void Launcher::updateButtonState(const QString &desktopEntryPath, LauncherButtonModel::State state, int progress) {
-  gLauncherStub->updateButtonState(desktopEntryPath, state, progress);
+void Launcher::updateButtonState(const QString &desktopEntryPath, const QString &packageName, LauncherButtonModel::State state, int progress) {
+  gLauncherStub->updateButtonState(desktopEntryPath, packageName, state, progress);
 }
 
 void Launcher::removePlaceholderButton(const QString &desktopEntryPath) {
@@ -334,6 +341,10 @@ Launcher::Placement::Placement() {
 
 Launcher::Placement::Placement(const QString &placement) {
     Q_UNUSED(placement);
+}
+
+void Launcher::updatePackageName(const QString &desktopEntryPath, const QString &packageName){
+    gLauncherStub->updatePackageName(desktopEntryPath, packageName);
 }
 
 #endif

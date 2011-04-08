@@ -56,12 +56,20 @@ signals:
     /*!
      * Signal sent when we have received and handled a signal from ApplicationPackageMonitor
      */
-    void packageStateChanged(const QString &desktopEntryPath, LauncherButtonModel::State state, int progress);
+    void packageStateChanged(const QString &desktopEntryPath, const QString &packageName, LauncherButtonModel::State state, int progress);
 
     /*!
      * Signal sent when we have received a installExtraEntryRemoved signal from ApplicationPackageMonitor
      */
     void installExtraEntryRemoved(const QString &desktopEntryPath);
+
+    /*!
+     * Notifies about a need to update package name.
+     *
+     * \param desktopEntryPath path that specifies the package.
+     * \param packageName name of the package
+     */
+    void updatePackageName(const QString &desktopEntryPath, const QString &packageName);
 
 public slots:
 
@@ -69,33 +77,38 @@ public slots:
      * Set button state to "downloading", and calculate and set it's progress
      *
      * \param desktopEntryName Desktop entry of the application button represents
+     * \param packageName name of the package
      * \param bytesLoaded Amount of bytes loaded
      * \param bytesTotal Total amount of bytes to download
      */
-    void setDownloadProgress(const QString& desktopEntryPath, int bytesLoaded, int bytesTotal);
+    void setDownloadProgress(const QString& desktopEntryPath, const QString &packageName, int bytesLoaded, int bytesTotal);
 
     /*!
      * Set button state to "installing", and set it's progress
      *
      * \param desktopEntryName Desktop entry of the application button represents
+     * \param packageName name of the package
      * \param percentage Percentage of installation completed
      */
-    void setInstallProgress(const QString& desktopEntryPath, int percentage);
+    void setInstallProgress(const QString& desktopEntryPath, const QString &packageName, int percentage);
 
     /*!
      * Set button state to "installed"
      *
      * \param desktopEntryName Desktop entry of the application button represents
+     * \param packageName name of the package
      */
-    void setOperationSuccess(const QString& desktopEntryPath);
+    void setOperationSuccess(const QString& desktopEntryPath, const QString &packageName);
 
     /*!
      * Set button state to "broken"
      *
      * \param desktopEntryName Desktop entry of the application button represents
+     * \param packageName name of the package
      * \param error Error message
      */
-    void setOperationError(const QString& desktopEntryPath, const QString& error);
+    void setOperationError(const QString& desktopEntryPath, const QString &packageName, const QString& error);
+
 
 private:
     //! Application package monitor

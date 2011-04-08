@@ -102,7 +102,7 @@ void ApplicationPackageMonitor::packageRemoved(const QString &desktopEntryPath)
 
     foreach(const QString &pkgKey, dataStore->allKeys()) {
         if(pkgKey.contains(PACKAGE_PREFIX)) {
-            if(dataStore->value(pkgKey).toString() == desktopEntryPath) {
+            if(packageKeyToDesktopEntry.value(pkgKey) == desktopEntryPath) {
                 packageKey = pkgKey;
                 break;
             }
@@ -110,7 +110,7 @@ void ApplicationPackageMonitor::packageRemoved(const QString &desktopEntryPath)
     }
 
     dataStore->remove(DESKTOPENTRY_PREFIX+desktopEntryPath);
-    dataStore->remove(packageKey);
+    removePackageValueFromDataStore(packageKey);
     activePackages.remove(packageKey.remove(PACKAGE_PREFIX));
 
     emit installExtraEntryRemoved(desktopEntryPath);
@@ -123,14 +123,19 @@ void ApplicationPackageMonitor::updatePackageStates()
     foreach (const QString &key, keyList) {
         if (key.contains(PACKAGE_PREFIX)) {
             QString desktopEntryPath = dataStore->value(key).toString();
+            createPackageValueToDataStore(key, desktopEntryPath);
             QString state = dataStore->value(DESKTOPENTRY_PREFIX + desktopEntryPath).toString();
+
+            QString packageName = QString(key).remove(PACKAGE_PREFIX);
             if (state == PACKAGE_STATE_BROKEN) {
                 // emit operation error for a broken package
-                emit operationError(desktopEntryPath, QString());
+                emit operationError(desktopEntryPath, packageName, QString());
             } else if(state == PACKAGE_STATE_DOWNLOADING) {
-                emit downloadProgress(desktopEntryPath, 0, 0);
+                emit downloadProgress(desktopEntryPath, packageName, 0, 0);
             } else if(state == PACKAGE_STATE_INSTALLING) {
-                emit installProgress(desktopEntryPath, 0);
+                emit installProgress(desktopEntryPath, packageName, 0);
+            } else {
+                emit updatePackageName(desktopEntryPath, packageName);
             }
         }
     }
@@ -157,7 +162,7 @@ void ApplicationPackageMonitor::packageDownloadProgress(const QString &operation
     PackageProperties &properties = activePackageProperties(packageName);
 
     if (isValidOperation(properties, operation)) {
-        emit downloadProgress(properties.desktopEntryName, already, total);
+        emit downloadProgress(properties.desktopEntryName, packageName, already, total);
     }
 
     storePackageState(packageName, PACKAGE_STATE_DOWNLOADING);
@@ -168,8 +173,8 @@ void ApplicationPackageMonitor::packageOperationStarted(const QString &operation
                                 const QString &version)
 {
     Q_UNUSED(operation)
-    Q_UNUSED(packageName)
     Q_UNUSED(version)
+    Q_UNUSED(packageName)
 }
 
 void ApplicationPackageMonitor::packageOperationProgress(const QString &operation,
@@ -183,7 +188,7 @@ void ApplicationPackageMonitor::packageOperationProgress(const QString &operatio
 
     if (isValidOperation(properties, operation)) {
         properties.installing = true;
-        emit installProgress(properties.desktopEntryName, percentage);
+        emit installProgress(properties.desktopEntryName, packageName, percentage);
         storePackageState(packageName, PACKAGE_STATE_INSTALLING);
     }
 }
@@ -205,7 +210,7 @@ void ApplicationPackageMonitor::packageOperationComplete(const QString &operatio
 
     if (!error.isEmpty()) {
         if (properties.installing) {
-            emit operationError(properties.desktopEntryName, error);
+            emit operationError(properties.desktopEntryName, packageName, error);
             storePackageState(packageName, PACKAGE_STATE_BROKEN);
         }
         else {
@@ -214,15 +219,15 @@ void ApplicationPackageMonitor::packageOperationComplete(const QString &operatio
             QString packageState = entry.value(DESKTOP_ENTRY_GROUP_MEEGO, DESKTOP_ENTRY_KEY_PACKAGE_STATE);
             if (packageState == PACKAGE_STATE_INSTALLED || packageState == PACKAGE_STATE_UPDATEABLE) {
                 // Application is previously installed. Downloading update failed but application still usable.
-                emit operationSuccess(properties.desktopEntryName.replace(INSTALLER_EXTRA_FOLDER, QString()));
+                emit operationSuccess(properties.desktopEntryName.replace(INSTALLER_EXTRA_FOLDER, QString()), packageName);
                 storePackageState(packageName, packageState);
             } else {
-                emit operationError(properties.desktopEntryName, error);
+                emit operationError(properties.desktopEntryName, packageName, error);
                 storePackageState(packageName, PACKAGE_STATE_BROKEN);
             }
         }
     } else {
-        emit operationSuccess(properties.desktopEntryName.replace(INSTALLER_EXTRA_FOLDER, QString()));
+        emit operationSuccess(properties.desktopEntryName.replace(INSTALLER_EXTRA_FOLDER, QString()), packageName);
         storePackageState(packageName, PACKAGE_STATE_INSTALLED);
     }
 
@@ -231,7 +236,7 @@ void ApplicationPackageMonitor::packageOperationComplete(const QString &operatio
 
 void ApplicationPackageMonitor::storePackageState(const QString& packageName, const QString& state)
 {
-    QString path = dataStore->value(PACKAGE_PREFIX + packageName).toString();
+    QString path = packageKeyToDesktopEntry.value(PACKAGE_PREFIX + packageName);
     extraDirWatcher->updateDataForDesktopEntry(path, state);
 }
 
@@ -262,10 +267,10 @@ void ApplicationPackageMonitor::updatePackageState(const QString &desktopEntryPa
 
         if (packageState == PACKAGE_STATE_BROKEN) {
             // emit operation error for a broken package
-            emit operationError(desktopEntryPath, QString());
+            emit operationError(desktopEntryPath, packageName, QString());
         }
 
-        dataStore->createValue(pkgKey, desktopEntryPath);
+        createPackageValueToDataStore(pkgKey, desktopEntryPath);
 
         if (activePackages.contains(packageName)) {
             // Package is being installed, add the desktop entry path directly
@@ -280,18 +285,18 @@ QString ApplicationPackageMonitor::desktopEntryName(const QString &packageName)
 {
     QString pkgKey = PACKAGE_PREFIX+packageName;
 
-    if (!dataStore->contains(pkgKey)) {
+    if (!packageKeyToDesktopEntry.contains(pkgKey)) {
         // Package not installed
         return QString();
     }
 
-    if (!QFile::exists(dataStore->value(pkgKey).toString())) {
+    if (!QFile::exists(packageKeyToDesktopEntry.value(pkgKey))) {
         // The extra desktop file doesn't exist anymore, the package has been uninstalled
-        dataStore->remove(pkgKey);
+        removePackageValueFromDataStore(pkgKey);
         return QString();
     }
 
-    return dataStore->value(pkgKey).toString();
+    return packageKeyToDesktopEntry.value(pkgKey);
 }
 
 ApplicationPackageMonitor::ExtraDirWatcher::ExtraDirWatcher(MDataStore *dataStore, const QStringList &directories) :
@@ -309,4 +314,22 @@ bool ApplicationPackageMonitor::ExtraDirWatcher::isDesktopEntryValid(const MDesk
 
     return entry.contains(DESKTOP_ENTRY_GROUP_MEEGO, DESKTOP_ENTRY_KEY_PACKAGE_NAME)
         && entry.contains(DESKTOP_ENTRY_GROUP_MEEGO, DESKTOP_ENTRY_KEY_PACKAGE_STATE);
+}
+
+QString ApplicationPackageMonitor::packageName(const QString &desktopEntryPath)
+{
+    QString packageName = packageKeyToDesktopEntry.key(APPLICATIONS_DIRECTORY+INSTALLER_EXTRA_FOLDER+QFileInfo(desktopEntryPath).fileName());
+    return packageName.remove(PACKAGE_PREFIX);
+}
+
+void ApplicationPackageMonitor::createPackageValueToDataStore(const QString &packageKey, const QString &desktopEntryPath)
+{
+    dataStore->createValue(packageKey, desktopEntryPath);
+    packageKeyToDesktopEntry.insert(packageKey, desktopEntryPath);
+}
+
+void ApplicationPackageMonitor::removePackageValueFromDataStore(const QString &packageKey)
+{
+    dataStore->remove(packageKey);
+    packageKeyToDesktopEntry.remove(packageKey);
 }

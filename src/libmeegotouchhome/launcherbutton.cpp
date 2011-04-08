@@ -70,7 +70,7 @@ void LauncherButton::launch()
         } else if (model()->buttonState() == LauncherButtonModel::Broken) {
             // Show the exception dialog for this package
             if (!model()->desktopEntry().isNull()) {
-                QString package = model()->desktopEntry()->value("X-MeeGo", "Package");
+                QString package = model()->packageName();
                 if (!package.isEmpty()) {
                     QDBusInterface interface("com.nokia.package_manager_install_ui",
                                            "/com/nokia/package_manager_install_ui",
@@ -119,4 +119,14 @@ void LauncherButton::setState(LauncherButtonModel::State state, int progress)
 int LauncherButton::operationProgress() const
 {
     return model()->operationProgress();
+}
+
+void LauncherButton::setPackageName(const QString &packageName)
+{
+    model()->setPackageName(packageName);
+}
+
+QString LauncherButton::packageName() const
+{
+    return model()->packageName();
 }

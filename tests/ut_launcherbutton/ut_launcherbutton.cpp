@@ -387,7 +387,7 @@ void Ut_LauncherButton::testWhenLauncherButtonIsClickedInBrokenStateAndHasPackag
     emit clicked();
     QCOMPARE(contentActionTriggerCalls, 0);
 
-    gMDesktopEntryStub->stubSetReturnValue("value",QString("true"));
+    m_subject->setPackageName("test");
     m_subject->launch();
 
    QCOMPARE(g_qDBusInterfaceCall, QString("show_installation_exception"));

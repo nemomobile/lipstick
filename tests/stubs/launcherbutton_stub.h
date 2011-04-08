@@ -22,6 +22,8 @@ class LauncherButtonStub : public StubBase {
   virtual int operationProgress() const;
   virtual void init();
   virtual LauncherButtonModel::State buttonState() const;
+  virtual void setPackageName(const QString packageName);
+  virtual QString packageName() const;
 };
 
 // 2. IMPLEMENT STUB
@@ -79,6 +81,17 @@ int LauncherButtonStub::operationProgress() const {
   return stubReturnValue<int>("operationProgress");
 }
 
+void LauncherButtonStub::setPackageName(const QString packageName) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<QString>(packageName));
+  stubMethodEntered("setPackageName", params);
+}
+
+QString LauncherButtonStub::packageName() const {
+  stubMethodEntered("packageName");
+  return stubReturnValue<QString>("packageName");
+}
+
 // 3. CREATE A STUB INSTANCE
 LauncherButtonStub gDefaultLauncherButtonStub;
 LauncherButtonStub* gLauncherButtonStub = &gDefaultLauncherButtonStub;
@@ -128,6 +141,16 @@ void LauncherButton::setState(LauncherButtonModel::State state, int progress)
 
 int LauncherButton::operationProgress() const {
     return gLauncherButtonStub->operationProgress();
+}
+
+void LauncherButton::setPackageName(const QString &packageName)
+{
+    gLauncherButtonStub->setPackageName(packageName);
+}
+
+QString LauncherButton::packageName() const
+{
+    return gLauncherButtonStub->packageName();
 }
 
 #endif

@@ -49,16 +49,19 @@ void Ut_ApplicationPackageMonitorListener::cleanup()
 
 void Ut_ApplicationPackageMonitorListener::testSignalConnections()
 {
-    QVERIFY(disconnect(m_subject->packageMonitor.data(), SIGNAL(downloadProgress(QString, int, int)),
-            m_subject, SLOT(setDownloadProgress(QString, int, int))));
-    QVERIFY(disconnect(m_subject->packageMonitor.data(), SIGNAL(installProgress(QString, int)),
-            m_subject, SLOT(setInstallProgress(QString, int))));
-    QVERIFY(disconnect(m_subject->packageMonitor.data(), SIGNAL(operationSuccess(QString)),
-            m_subject, SLOT(setOperationSuccess(QString))));
-    QVERIFY(disconnect(m_subject->packageMonitor.data(), SIGNAL(operationError(QString, QString)),
-            m_subject, SLOT(setOperationError(QString, QString))));
+    QVERIFY(disconnect(m_subject->packageMonitor.data(), SIGNAL(downloadProgress(QString, QString, int, int)),
+            m_subject, SLOT(setDownloadProgress(QString, QString, int, int))));
+    QVERIFY(disconnect(m_subject->packageMonitor.data(), SIGNAL(installProgress(QString, QString, int)),
+            m_subject, SLOT(setInstallProgress(QString, QString, int))));
+    QVERIFY(disconnect(m_subject->packageMonitor.data(), SIGNAL(operationSuccess(QString, QString)),
+            m_subject, SLOT(setOperationSuccess(QString, QString))));
+    QVERIFY(disconnect(m_subject->packageMonitor.data(), SIGNAL(operationError(QString, QString, QString)),
+            m_subject, SLOT(setOperationError(QString, QString, QString))));
     QVERIFY(disconnect(m_subject->packageMonitor.data(), SIGNAL(installExtraEntryRemoved(QString)),
             m_subject, SIGNAL(installExtraEntryRemoved(QString))));
+    QVERIFY(disconnect(m_subject->packageMonitor.data(), SIGNAL(updatePackageName(QString, QString)),
+            m_subject, SIGNAL(updatePackageName(QString, QString))));
+
 }
 
 void Ut_ApplicationPackageMonitorListener::testSetDownloadProgress_data()
@@ -77,54 +80,54 @@ void Ut_ApplicationPackageMonitorListener::testSetDownloadProgress()
     QFETCH(int, total);
     QFETCH(int, progress);
 
-    QSignalSpy spyButtonState(m_subject, SIGNAL(packageStateChanged(QString, LauncherButtonModel::State, int)));
+    QSignalSpy spyButtonState(m_subject, SIGNAL(packageStateChanged(QString, QString, LauncherButtonModel::State, int)));
 
-    m_subject->setDownloadProgress("test.desktop", loaded, total);
+    m_subject->setDownloadProgress("test.desktop", QString(), loaded, total);
     
     QCOMPARE(spyButtonState.count(), 1);
     QList<QVariant> arguments = spyButtonState.at(0);
     QCOMPARE(arguments.at(0).toString(), QString("test.desktop"));
-    QCOMPARE(arguments.at(1).value<LauncherButtonModel::State>(), LauncherButtonModel::Downloading);
-    QCOMPARE(arguments.at(2).toInt(), progress);
+    QCOMPARE(arguments.at(2).value<LauncherButtonModel::State>(), LauncherButtonModel::Downloading);
+    QCOMPARE(arguments.at(3).toInt(), progress);
 }
 
 void Ut_ApplicationPackageMonitorListener::testSetInstallProgress()
 {
-    QSignalSpy spyButtonState(m_subject, SIGNAL(packageStateChanged(QString, LauncherButtonModel::State, int)));
+    QSignalSpy spyButtonState(m_subject, SIGNAL(packageStateChanged(QString, QString, LauncherButtonModel::State, int)));
     int percentage = 50;
-    m_subject->setInstallProgress("test.desktop", percentage);
+    m_subject->setInstallProgress("test.desktop", QString(), percentage);
 
     QCOMPARE(spyButtonState.count(), 1);
     QList<QVariant> arguments = spyButtonState.at(0);
     QCOMPARE(arguments.at(0).toString(), QString("test.desktop"));
-    QCOMPARE(arguments.at(1).value<LauncherButtonModel::State>(), LauncherButtonModel::Installing);
-    QCOMPARE(arguments.at(2).toInt(), percentage);
+    QCOMPARE(arguments.at(2).value<LauncherButtonModel::State>(), LauncherButtonModel::Installing);
+    QCOMPARE(arguments.at(3).toInt(), percentage);
 }
 
 void Ut_ApplicationPackageMonitorListener::testSetOperationSuccess()
 {
-    QSignalSpy spyButtonState(m_subject, SIGNAL(packageStateChanged(QString, LauncherButtonModel::State, int)));
+    QSignalSpy spyButtonState(m_subject, SIGNAL(packageStateChanged(QString, QString, LauncherButtonModel::State, int)));
 
-    m_subject->setOperationSuccess("test.desktop");
+    m_subject->setOperationSuccess("test.desktop", QString());
 
     QCOMPARE(spyButtonState.count(), 1);
     QList<QVariant> arguments = spyButtonState.at(0);
     QCOMPARE(arguments.at(0).toString(), QString("test.desktop"));
-    QCOMPARE(arguments.at(1).value<LauncherButtonModel::State>(), LauncherButtonModel::Installed);
-    QCOMPARE(arguments.at(2).toInt(), 0);
+    QCOMPARE(arguments.at(2).value<LauncherButtonModel::State>(), LauncherButtonModel::Installed);
+    QCOMPARE(arguments.at(3).toInt(), 0);
 }
 
 void Ut_ApplicationPackageMonitorListener::testSetOperationError()
 {
-    QSignalSpy spyButtonState(m_subject, SIGNAL(packageStateChanged(QString, LauncherButtonModel::State, int)));
+    QSignalSpy spyButtonState(m_subject, SIGNAL(packageStateChanged(QString, QString, LauncherButtonModel::State, int)));
 
-    m_subject->setOperationError("test.desktop", "error_message");
+    m_subject->setOperationError("test.desktop", QString(), "error_message");
 
     QCOMPARE(spyButtonState.count(), 1);
     QList<QVariant> arguments = spyButtonState.at(0);
     QCOMPARE(arguments.at(0).toString(), QString("test.desktop"));
-    QCOMPARE(arguments.at(1).value<LauncherButtonModel::State>(), LauncherButtonModel::Broken);
-    QCOMPARE(arguments.at(2).toInt(), 0);
+    QCOMPARE(arguments.at(2).value<LauncherButtonModel::State>(), LauncherButtonModel::Broken);
+    QCOMPARE(arguments.at(3).toInt(), 0);
 }
 
 void Ut_ApplicationPackageMonitorListener::testUpdatePackageStates()

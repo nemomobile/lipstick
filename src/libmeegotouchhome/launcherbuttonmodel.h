@@ -51,6 +51,8 @@ public:
     M_MODEL_PROPERTY(LauncherButtonModel::State, buttonState, ButtonState, true, Installed)
     //! Progress of button operation, between 0 and 100 (eg. for download)
     M_MODEL_PROPERTY(int, operationProgress, OperationProgress, true, 0)
+    //! Package name of the application that button is representing
+    M_MODEL_PROPERTY(QString, packageName, PackageName, true, QString())
 };
 
 #endif /* LAUNCHERBUTTONMODEL_H_ */

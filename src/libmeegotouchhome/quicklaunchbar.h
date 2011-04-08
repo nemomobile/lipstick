@@ -84,10 +84,11 @@ public slots:
      * Finds the correct button based on desktop entry path and updates it's state and operation progress
      *
      * \param desktopEntryPath Desktop entry of the package that button represents
+     * \param packageName name of the package
      * \param state State button should be set to
      * \param progress Progress of operation
      */
-    void updateButtonState(const QString &desktopEntryPath, LauncherButtonModel::State state, int progress);
+    void updateButtonState(const QString &desktopEntryPath, const QString &packageName, LauncherButtonModel::State state, int progress);
 
 private slots:
     /*!

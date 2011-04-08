@@ -57,35 +57,47 @@ public:
     //! Installer extra folder path
     static const QString INSTALLER_EXTRA_FOLDER;
 
+    /*!
+     * Returns package name from desktop entry. Returns empty QString if desktop entry is not found.
+     *
+     *\param desktopEntryPath is the path of the desktop entry
+     *\return package name of desktop entry
+     */
+    QString packageName(const QString &dekstopEntryPath);
+
 signals:
     /*!
      * Status of download progress of package being installed.
      *
      *\param desktopEntryName is name of desktop entry file.
+     *\param packageName name of the package
      *\param bytesLoaded is current amount of bytes downloaded.
      *\param bytesTotal is size of downloading package in bytes.
      */
-    void downloadProgress(const QString &packageExtraPath, int bytesLoaded, int bytesTotal);
+    void downloadProgress(const QString &packageExtraPath, const QString &packageName, int bytesLoaded, int bytesTotal);
     /*!
      * Status of install progress of package being installed.
      *
      *\param desktopEntryName is name of preliminary desktop entry file under installer-extra/.
+     *\param packageName name of the package
      *\param percentage is install completion level.
      */
-    void installProgress(const QString &packageExtraPath, int percentage);
+    void installProgress(const QString &packageExtraPath, const QString &packageName, int percentage);
     /*!
      * Notifies about success in installing a package.
      *
      *\param desktopEntryName is name of the installed desktop entry file.
+     *\param packageName name of the package
      */
-    void operationSuccess(const QString &packageExtraPath);
+    void operationSuccess(const QString &packageExtraPath, const QString &packageName);
     /*!
      * Notifies about error in installing and downloading package.
      *
      *\param desktopEntryName is name of preliminary desktop entry file under installer-extra/.
+     *\param packageName name of the package
      *\param error is string format description of error occured.
      */
-    void operationError(const QString &packageExtraPath, const QString& error);
+    void operationError(const QString &packageExtraPath, const QString &packageName, const QString& error);
 
     /*!
      * Notifes about removal of install extra desktop entry.
@@ -93,6 +105,14 @@ signals:
      * \param desktopEntryPath path of removed install extra file.
      */
     void installExtraEntryRemoved(const QString &desktopEntryPath);
+
+    /*!
+     * Notifies about a need to update package name.
+     *
+     *\param desktopEntryPath path that specifies the package.
+     *\param packageName name of the package
+     */
+    void updatePackageName(const QString &desktopEntryPath, const QString &packageName);
 
 private slots:
     /*!
@@ -171,6 +191,21 @@ private:
      */
     void storePackageState(const QString &packageName, const QString &state);
 
+    /*!
+     * Creates a data store and packageKeyToDesktopEntry values of given key and desktopEntryPath
+     *
+     *\param packageKey is name of the package prefixed with PACKAGE_PREFIX.
+     *\param desktopEntry is desktop entry path of the package
+     */
+    void createPackageValueToDataStore(const QString &packageKey, const QString &desktopEntry);
+
+    /*!
+    * Removes package key and desktop entry path entries from data store and from packageKeyToDesktopEntry hash
+    *
+    *\packageKey package entry to be removed
+    */
+    void removePackageValueFromDataStore(const QString &packageKey);
+
 
     //! Mapping of installing package names and installing phase properties
     QMap<QString, PackageProperties> activePackages;
@@ -188,6 +223,9 @@ private:
      * Keeps track of the .desktop files under installer-extra directory
      */
     QSharedPointer<ExtraDirWatcher> extraDirWatcher;
+
+    //! Hash of package names and corresponging desktop entry file paths
+    QHash<QString, QString> packageKeyToDesktopEntry;
 
 #ifdef UNIT_TEST
     friend class Ut_ApplicationPackageMonitor;

@@ -72,6 +72,8 @@ private slots:
     void testEmitPackageStateWhenAllPackageStatesAreUpdated();
     // Test PackageHadError in entry
     void testPackageHadError();
+    // Test that package names and desktop entry paths are stored to a hash
+    void testGettinPackageNameFromPackageNameToDesktopEntryHash();
 
 signals:
 

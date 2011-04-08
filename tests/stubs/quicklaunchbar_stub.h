@@ -31,7 +31,7 @@ class QuickLaunchBarStub : public StubBase {
   virtual void QuickLaunchBarDestructor();
   virtual void setLauncherDataStore(LauncherDataStore *dataStore);
   virtual void setApplicationPackageMonitorListener(ApplicationPackageMonitorListener *packageMonitorListener);
-  virtual void updateButtonState(const QString &desktopEntryPath, LauncherButtonModel::State state, int progress);
+  virtual void updateButtonState(const QString &desktopEntryPath, const QString &packageName, LauncherButtonModel::State state, int progress);
   virtual void updateButtons();
   virtual LauncherButton * createLauncherButton(const QString &desktopEntryPath);
   virtual QMap<QuickLaunchBar::Placement, QString> createPlacementMap(const QHash<QString, QVariant> &desktopEntryPlacements);
@@ -59,10 +59,11 @@ void QuickLaunchBarStub::setApplicationPackageMonitorListener(ApplicationPackage
     stubMethodEntered("setApplicationPackageMonitorListener", params);
 }
 
-void QuickLaunchBarStub::updateButtonState(const QString &desktopEntryPath, LauncherButtonModel::State state, int progress)
+void QuickLaunchBarStub::updateButtonState(const QString &desktopEntryPath, const QString &packageName, LauncherButtonModel::State state, int progress)
 {
   QList<ParameterBase*> params;
   params.append( new Parameter<QString>(desktopEntryPath));
+  params.append( new Parameter<QString>(packageName));
   params.append( new Parameter<LauncherButtonModel::State>(state));
   params.append( new Parameter<int>(progress));
   stubMethodEntered("updateButtonState", params);
@@ -112,9 +113,9 @@ void QuickLaunchBar::setApplicationPackageMonitorListener(ApplicationPackageMoni
   gQuickLaunchBarStub->setApplicationPackageMonitorListener(packageMonitorListener);
 }
 
-void QuickLaunchBar::updateButtonState(const QString& desktopEntryPath, LauncherButtonModel::State state, int progress)
+void QuickLaunchBar::updateButtonState(const QString& desktopEntryPath, const QString &packageName, LauncherButtonModel::State state, int progress)
 {
-  gQuickLaunchBarStub->updateButtonState(desktopEntryPath, state, progress);
+  gQuickLaunchBarStub->updateButtonState(desktopEntryPath, packageName, state, progress);
 }
 
 void QuickLaunchBar::updateButtons() {

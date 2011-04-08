@@ -167,7 +167,7 @@ public slots:
      * \param state State button should be set to
      * \param progress Progress of operation
      */
-    void updateButtonState(const QString& desktopEntryPath, LauncherButtonModel::State state, int progress);
+    void updateButtonState(const QString& desktopEntryPath, const QString &packageName, LauncherButtonModel::State state, int progress);
 
     /*!
      * Removes placeholder launcher button for an application if application is not installed.
@@ -211,6 +211,8 @@ private slots:
      * Updates pages according to the contents of the data store.
      */
     void updatePagesFromDataStore();
+
+    void updatePackageName(const QString &desktopEntryPath, const QString &packageName);
 
 private:
 

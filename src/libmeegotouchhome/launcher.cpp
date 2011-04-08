@@ -16,7 +16,6 @@
 ** of this file.
 **
 ****************************************************************************/
-
 #include "launcher.h"
 #include "launcherbutton.h"
 #include "launcherdatastore.h"
@@ -91,12 +90,16 @@ void Launcher::setMaximumPageSize(int maximumPageSize)
     }
 }
 
-void Launcher::updateButtonState(const QString &desktopEntryPath, LauncherButtonModel::State state, int progress)
+void Launcher::updateButtonState(const QString &desktopEntryPath, const QString &packageName, LauncherButtonModel::State state, int progress)
 {
     // Check that button is not stored in some other location before adding/updating placeholder and setting state
     Launcher::Placement buttonPlacementInDatastore = entryPlacementInDatastore(desktopEntryPath);
     if (buttonPlacementInDatastore.location.isEmpty() || buttonPlacementInDatastore.location == Launcher::LOCATION_IDENTIFIER) {
         QSharedPointer<LauncherButton> button = placeholderButton(desktopEntryPath);
+        if (button->packageName().isEmpty()) {
+            button->setPackageName(packageName);
+        }
+
         if (!ApplicationPackageMonitorListener::isInstallerExtraEntry(desktopEntryPath) || state == LauncherButtonModel::Broken) {
             // If new entry is an applications entry path or package is broken then remove the old entry path from store and update the new entry
             removeButtonPlacementFromStore(button->desktopEntry());
@@ -181,12 +184,26 @@ void Launcher::updatePagesFromDataStore()
 
     // After updating launcher from launcher data store we can connect package listener and update the states
     if (packageMonitorListener != NULL) {
-        connect(packageMonitorListener, SIGNAL(packageStateChanged(QString, LauncherButtonModel::State, int)),
-            this, SLOT(updateButtonState(QString, LauncherButtonModel::State, int)), Qt::UniqueConnection);
+        connect(packageMonitorListener, SIGNAL(packageStateChanged(QString, QString, LauncherButtonModel::State, int)),
+            this, SLOT(updateButtonState(QString, QString, LauncherButtonModel::State, int)), Qt::UniqueConnection);
         connect(packageMonitorListener, SIGNAL(installExtraEntryRemoved(QString)),
             this, SLOT(removePlaceholderButton(QString)), Qt::UniqueConnection);
+        connect(packageMonitorListener, SIGNAL(updatePackageName(QString, QString)),
+            this, SLOT(updatePackageName(QString, QString)));
 
         packageMonitorListener->updatePackageStates();
+    }
+}
+
+void Launcher::updatePackageName(const QString &desktopEntryPath, const QString &packageName)
+{
+    QList<QSharedPointer<LauncherPage> > pages = model()->launcherPages();
+    foreach(const QSharedPointer<LauncherPage> &page, pages) {
+        QSharedPointer<LauncherButton> button = page->button(desktopEntryPath);
+        if(!button.isNull()) {
+            button->setPackageName(packageName);
+            break;
+        }
     }
 }
 

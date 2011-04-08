@@ -84,6 +84,18 @@ public:
      */
     int operationProgress() const;
 
+    /*!
+     * Sets the package name of the application that button is representing
+     * \param packageName Package name
+     */
+     void setPackageName(const QString& packageName);
+
+     /*!
+     * Returns the package name of the application that button is representing
+     * \return name Package name
+     */
+     QString packageName() const;
+
 protected:
     //! \reimp
     virtual void retranslateUi();

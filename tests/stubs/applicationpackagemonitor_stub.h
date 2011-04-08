@@ -27,6 +27,7 @@ class ApplicationPackageMonitorStub : public StubBase {
   virtual QString desktopEntryName(const QString &packageName);
   virtual void packageRemoved(const QString &desktopEntryPath);
   virtual void updatePackageStates();
+  virtual QString packageName(const QString &desktopEntryPath);
 };
 
 // 2. IMPLEMENT STUB
@@ -97,6 +98,13 @@ void ApplicationPackageMonitorStub::updatePackageStates() {
   stubMethodEntered("updatePackageStates");
 }
 
+QString ApplicationPackageMonitorStub::packageName(const QString &desktopEntryPath) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<QString>(desktopEntryPath));
+  stubMethodEntered("packageName",params);
+  return stubReturnValue<QString>("packageName");
+}
+
 // 3. CREATE A STUB INSTANCE
 ApplicationPackageMonitorStub gDefaultApplicationPackageMonitorStub;
 ApplicationPackageMonitorStub* gApplicationPackageMonitorStub = &gDefaultApplicationPackageMonitorStub;
@@ -140,6 +148,10 @@ void ApplicationPackageMonitor::packageRemoved(const QString &desktopEntryPath) 
 
 void ApplicationPackageMonitor::updatePackageStates(){
     gApplicationPackageMonitorStub->updatePackageStates();
+}
+
+QString ApplicationPackageMonitor::packageName(const QString &desktopEntryPath) {
+  return gApplicationPackageMonitorStub->packageName(desktopEntryPath);
 }
 
 #endif

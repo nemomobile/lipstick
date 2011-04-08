@@ -53,12 +53,13 @@ void QuickLaunchBar::setApplicationPackageMonitorListener(ApplicationPackageMoni
 {
     this->packageMonitorListener = packageMonitorListener;
 
-    connect(packageMonitorListener, SIGNAL(packageStateChanged(QString, LauncherButtonModel::State, int)),
-        this, SLOT(updateButtonState(QString, LauncherButtonModel::State, int)));
+    connect(packageMonitorListener, SIGNAL(packageStateChanged(QString, QString, LauncherButtonModel::State, int)),
+        this, SLOT(updateButtonState(QString, QString, LauncherButtonModel::State, int)));
 }
 
-void QuickLaunchBar::updateButtonState(const QString &desktopEntryPath, LauncherButtonModel::State state, int progress)
+void QuickLaunchBar::updateButtonState(const QString &desktopEntryPath, const QString &packageName, LauncherButtonModel::State state, int progress)
 {
+    Q_UNUSED(packageName);
     //If there is a quicklaunch button for desktopEntryPath, update it's state
     QList<QSharedPointer<LauncherButton> > buttons = model()->buttons().values();
     QString entryFileName = QFileInfo(desktopEntryPath).fileName();
