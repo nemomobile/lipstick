@@ -1,3 +1,9 @@
+meegotouchhome (0.23.23~1) unstable; urgency=low
+
+  * [UNRELEASED] 
+
+ -- Pauli Lehtinen <pauli.lehtinen@nokia.com>  Fri, 08 Apr 2011 16:08:27 +0300
+
 meegotouchhome (0.23.22-1) unstable; urgency=low
 
   * Fixes: NB#232753 - COREWEB: /usr/bin/meegotouchhome 'QGLContextPrivate::bindTexture QGL2PaintEngineExPrivate::updateBrushTexture QGL2PaintEngineExPrivate::prepareForDraw QGL2PaintEngineExPrivate::fillQPaintEngineEx::draw'
