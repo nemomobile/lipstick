@@ -35,7 +35,7 @@ public:
      * Constructs a LauncherPage
      * \param parent The parent widget of this page.
      */
-    LauncherPage(MWidget *parent = NULL);
+    LauncherPage(LauncherPageModel *model = new LauncherPageModel, MWidget *parent = NULL);
 
     /*!
      * Sets the maximum number of buttons on the page.

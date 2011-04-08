@@ -58,7 +58,10 @@ void LauncherPageView::updateLayoutFromModel()
     // Set of buttons in layout
     QSet<LauncherButton *> layoutButtons;
     for (int i = 0; i < layout->count(); i++) {
-        layoutButtons.insert(static_cast<LauncherButton *>(layout->itemAt(i)));
+        LauncherButton *button = dynamic_cast<LauncherButton *>(layout->itemAt(i));
+        if (button) {
+            layoutButtons.insert(button);
+        }
     }
 
     // List of buttons in model (list needed to assure the order of buttons)

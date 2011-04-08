@@ -48,17 +48,16 @@ public:
      * Destroys the LauncherPageView.
      */
     virtual ~LauncherPageView();
-protected:
-    //! \reimp
-    virtual void setupModel();
-    //! \reimp_end
 
 protected slots:
     //! \reimp
     virtual void updateData(const QList<const char *>& modifications);
     //! \reimp_end
 
-private:
+protected:
+    //! \reimp
+    virtual void setupModel();
+    //! \reimp_end
 
     /*!
      * Updates layout from models button list.

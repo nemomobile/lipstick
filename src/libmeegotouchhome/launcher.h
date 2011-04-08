@@ -115,6 +115,18 @@ public:
      */
     void setMaximumPageSize(int maximumPageSize);
 
+protected:
+    /*!
+     * Creates a launcher button instance from a .desktop entry file.
+     *
+     * \param desktopEntryPath The path of the .desktop entry file to create a launcher button from
+     * \return a LauncherButton representing the .desktop entry file
+     */
+    virtual QSharedPointer<LauncherButton> createLauncherButton(const QString &desktopEntryPath);
+
+    //! Creates a launcher page
+    virtual QSharedPointer<LauncherPage> createLauncherPage();
+
 signals:
     /*!
      * Signal sent when a launcher button was clicked.
@@ -277,14 +289,6 @@ private:
      * \param pages the page list to be updated
      */
     void removeEmptyPages(QList<QSharedPointer<LauncherPage> > &pages);
-
-    /*!
-     * Creates a launcher button instance from a .desktop entry file.
-     *
-     * \param entry the path of the .desktop entry file to create a launcher button from
-     * \return a LauncherButton representing the .desktop entry file
-     */
-    virtual QSharedPointer<LauncherButton> createLauncherButton(const QString &desktopEntryPath);
 
     /*!
      * Creates a map that contains the placement of each given desktop entry in the launcher.

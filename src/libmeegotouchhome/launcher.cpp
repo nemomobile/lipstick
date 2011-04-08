@@ -219,7 +219,7 @@ void Launcher::addDesktopEntriesWithKnownPlacements(QList<QSharedPointer<Launche
         if (placement.page >= 0) {
             while (placement.page >= pages.count()) {
                 // Create pages until the desired page exists. This may create empty pages which must be removed in the end
-                QSharedPointer<LauncherPage> page = QSharedPointer<LauncherPage>(new LauncherPage);
+                QSharedPointer<LauncherPage> page = createLauncherPage();
                 setMaximumPageSizeIfNecessary(page);
                 pages.append(page);
             }
@@ -292,6 +292,13 @@ QSharedPointer<LauncherButton> Launcher::createLauncherButton(const QString &des
     return button;
 }
 
+QSharedPointer<LauncherPage> Launcher::createLauncherPage()
+{
+    QSharedPointer<LauncherPage> page(new LauncherPage());
+    page->setObjectName("LauncherPage");
+    return page;
+}
+
 void Launcher::addLauncherButton(const QString &desktopEntryPath)
 {
     Launcher::Placement placement = buttonPlacement(desktopEntryPath);
@@ -317,7 +324,7 @@ Launcher::Placement Launcher::appendButtonToPages(QSharedPointer<LauncherButton>
     }
 
     if (!added) {
-        page = QSharedPointer<LauncherPage>(new LauncherPage());
+        page = createLauncherPage();
         setMaximumPageSizeIfNecessary(page);
         pages.append(page);
         //We created a page so update the model

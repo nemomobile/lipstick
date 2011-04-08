@@ -54,6 +54,7 @@ class LauncherStub : public StubBase {
   virtual void removeButtonPlacementFromStore(const QString &desktopEntryPath);
   virtual void setMaximumPageSizeIfNecessary(QSharedPointer<LauncherPage> &page);
   virtual void updatePackageName(const QString &desktopEntryPath, const QString &packageName);
+  virtual QSharedPointer<LauncherPage> createLauncherPage();
 };
 
 // 2. IMPLEMENT STUB
@@ -226,6 +227,13 @@ void LauncherStub::updatePackageName(const QString &desktopEntryPath, const QStr
   stubMethodEntered("updatePackageName",params);
 }
 
+QSharedPointer<LauncherPage> LauncherStub::createLauncherPage()
+{
+  stubMethodEntered("createLauncherPage");
+  return stubReturnValue<QSharedPointer<LauncherPage> >("createLauncherPage");
+}
+
+
 // 3. CREATE A STUB INSTANCE
 LauncherStub gDefaultLauncherStub;
 LauncherStub* gLauncherStub = &gDefaultLauncherStub;
@@ -334,6 +342,11 @@ void Launcher::removeButtonPlacementFromStore(const QString &desktopEntryPath) {
 
 void Launcher::setMaximumPageSizeIfNecessary(QSharedPointer<LauncherPage> &page) {
   gLauncherStub->setMaximumPageSizeIfNecessary(page);
+}
+
+QSharedPointer<LauncherPage> Launcher::createLauncherPage()
+{
+    return gLauncherStub->createLauncherPage();
 }
 
 Launcher::Placement::Placement() {
