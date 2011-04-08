@@ -16,7 +16,6 @@
 ** of this file.
 **
 ****************************************************************************/
-
 #include <cmath>
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsLinearLayout>
@@ -73,7 +72,7 @@ public:
 };
 
 #ifdef Q_WS_X11
-bool SwitcherButtonView::badMatchOccurred = false;
+unsigned char SwitcherButtonView::xErrorCode = Success;
 #endif
 
 // Time between icon geometry updates in milliseconds
@@ -278,7 +277,7 @@ void SwitcherButtonView::updateXWindowPixmap()
     // handler.
     X11Wrapper::XSync(QX11Info::display(), FALSE);
     XErrorHandler errh = X11Wrapper::XSetErrorHandler(handleXError);
-    badMatchOccurred = false;
+    xErrorCode = Success;
 
     // Get the pixmap ID of the X window
     Pixmap newWindowPixmap = X11Wrapper::XCompositeNameWindowPixmap(QX11Info::display(), model()->xWindow());
@@ -287,9 +286,8 @@ void SwitcherButtonView::updateXWindowPixmap()
     X11Wrapper::XSync(QX11Info::display(), FALSE);
 
     // If a BadMatch error occurred the window wasn't redirected yet
-    if (badMatchOccurred) {
-        if (++updateXWindowPixmapRetryCount
-            <= ICON_PIXMAP_RETRY_MAX_COUNT) {
+    if (xErrorCode != Success) {
+        if (++updateXWindowPixmapRetryCount <= ICON_PIXMAP_RETRY_MAX_COUNT) {
             updateXWindowPixmapRetryTimer.start();
         }
     } else {
@@ -321,9 +319,8 @@ void SwitcherButtonView::updateXWindowPixmap()
 #ifdef Q_WS_X11
 int SwitcherButtonView::handleXError(Display *, XErrorEvent *event)
 {
-    if (event->error_code == BadMatch) {
-        badMatchOccurred = true;
-    }
+    xErrorCode = event->error_code;
+
     return 0;
 }
 #endif

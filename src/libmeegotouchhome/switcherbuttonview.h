@@ -124,11 +124,11 @@ protected:
     void updateViewMode();
 
 #ifdef Q_WS_X11
-    //! Handles X BadMatch errors
+    //! Handles X errors
     static int handleXError(Display *display, XErrorEvent *event);
 
-    //! Whether a BadMatch X error has occurred
-    static bool badMatchOccurred;
+    //! The error code of last X error
+    static unsigned char xErrorCode;
 #endif
 
     //! The X window's pixmap
