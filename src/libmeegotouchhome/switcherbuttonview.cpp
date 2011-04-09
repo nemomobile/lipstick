@@ -77,19 +77,15 @@ unsigned char SwitcherButtonView::xErrorCode = Success;
 
 // Time between icon geometry updates in milliseconds
 static const int ICON_GEOMETRY_UPDATE_INTERVAL = 200;
-// Time between icon pixmap fetch retries in milliseconds
-static const int ICON_PIXMAP_RETRY_INTERVAL = 500;
-// Maximun number of icon pixmap fetch retries
-static const int ICON_PIXMAP_RETRY_MAX_COUNT = 2;
 Atom SwitcherButtonView::iconGeometryAtom = 0;
 
 SwitcherButtonView::SwitcherButtonView(SwitcherButton *button) :
     MButtonView(button),
     controller(button),
     xWindowPixmap(0),
+    xWindowPixmapIsValid(false),
     xWindowPixmapDamage(0),
     onDisplay(false),
-    updateXWindowPixmapRetryCount(0),
     xEventListener(new SwitcherButtonViewXEventListener(*this))
 {
     QGraphicsLinearLayout *titleBarLayout = new QGraphicsLinearLayout(Qt::Horizontal, controller);
@@ -110,9 +106,6 @@ SwitcherButtonView::SwitcherButtonView(SwitcherButton *button) :
     updateXWindowIconGeometryTimer.setSingleShot(true);
     updateXWindowIconGeometryTimer.setInterval(ICON_GEOMETRY_UPDATE_INTERVAL);
     connect(&updateXWindowIconGeometryTimer, SIGNAL(timeout()), this, SLOT(updateXWindowIconGeometry()));
-    updateXWindowPixmapRetryTimer.setSingleShot(true);
-    updateXWindowPixmapRetryTimer.setInterval(ICON_PIXMAP_RETRY_INTERVAL);
-    connect(&updateXWindowPixmapRetryTimer, SIGNAL(timeout()), this, SLOT(updateXWindowPixmap()));
 }
 
 SwitcherButtonView::~SwitcherButtonView()
@@ -126,6 +119,16 @@ SwitcherButtonView::~SwitcherButtonView()
         X11Wrapper::XFreePixmap(QX11Info::display(), xWindowPixmap);
     }
 #endif
+}
+
+void SwitcherButtonView::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    if (!xWindowPixmapIsValid) {
+        // Try to update the X window pixmap if it's not valid
+        updateXWindowPixmap();
+    }
+
+    MButtonView::paint(painter, option, widget);
 }
 
 void SwitcherButtonView::drawBackground(QPainter *painter, const QStyleOptionGraphicsItem *) const
@@ -218,7 +221,9 @@ void SwitcherButtonView::setupModel()
     MWidgetView::setupModel();
 
     if (model()->xWindow() != 0) {
-        updateXWindowPixmap();
+        // The X window has changed so the pixmap needs to be updated before it can be drawn
+        xWindowPixmapIsValid = false;
+        update();
 
         // Each window should always have at least some kind of a value for _NET_WM_ICON_GEOMETRY
         updateXWindowIconGeometry();
@@ -234,7 +239,9 @@ void SwitcherButtonView::updateData(const QList<const char *>& modifications)
     const char *member;
     foreach(member, modifications) {
         if (member == SwitcherButtonModel::XWindow && model()->xWindow() != 0) {
-            updateXWindowPixmap();
+            // The X window has changed so the pixmap needs to be updated before it can be drawn
+            xWindowPixmapIsValid = false;
+            update();
 
             // Each window should always have at least some kind of a value for _NET_WM_ICON_GEOMETRY
             updateXWindowIconGeometry();
@@ -271,7 +278,6 @@ void SwitcherButtonView::updateViewMode()
 void SwitcherButtonView::updateXWindowPixmap()
 {
 #ifdef Q_WS_X11
-
     // It is possible that the window is not redirected so check for errors.
     // XSync() needs to be called so that previous errors go to the original
     // handler.
@@ -281,18 +287,13 @@ void SwitcherButtonView::updateXWindowPixmap()
 
     // Get the pixmap ID of the X window
     Pixmap newWindowPixmap = X11Wrapper::XCompositeNameWindowPixmap(QX11Info::display(), model()->xWindow());
+
     // XCompositeNameWindowPixmap doesn't wait for the server to reply, we'll
     // need to do it ourselves to catch the possible BadMatch
     X11Wrapper::XSync(QX11Info::display(), FALSE);
 
-    // If a BadMatch error occurred the window wasn't redirected yet
-    if (xErrorCode != Success) {
-        if (++updateXWindowPixmapRetryCount <= ICON_PIXMAP_RETRY_MAX_COUNT) {
-            updateXWindowPixmapRetryTimer.start();
-        }
-    } else {
-        updateXWindowPixmapRetryCount = 0;
-
+    xWindowPixmapIsValid = xErrorCode == Success;
+    if (xWindowPixmapIsValid) {
         // Unregister the old pixmap from XDamage events
         destroyDamage();
 
@@ -307,11 +308,14 @@ void SwitcherButtonView::updateXWindowPixmap()
         createDamage();
 
         qWindowPixmap = QPixmap::fromX11Pixmap(xWindowPixmap, QPixmap::ExplicitlyShared);
-
-        update();
+    } else {
+        // If a BadMatch error occurred the window wasn't redirected yet; deference the invalid pixmap
+        if (newWindowPixmap != 0) {
+            X11Wrapper::XFreePixmap(QX11Info::display(), newWindowPixmap);
+        }
     }
 
-    // Reset the error handler.
+    // Reset the error handler
     X11Wrapper::XSetErrorHandler(errh);
 #endif
 }
@@ -327,11 +331,12 @@ int SwitcherButtonView::handleXError(Display *, XErrorEvent *event)
 
 bool SwitcherButtonView::windowFullyObscured(Window window)
 {
-    bool ownWindow = false;
+    bool ownWindow = window == model()->xWindow();
 
-    if (window == model()->xWindow()) {
-        updateXWindowPixmap();
-        ownWindow = true;
+    if (ownWindow) {
+        // The X window has been fully obscured so the pixmap needs to be updated before it can be drawn
+        xWindowPixmapIsValid = false;
+        update();
     }
 
     return ownWindow;
@@ -357,7 +362,8 @@ void SwitcherButtonView::setOnDisplay()
 {
     onDisplay = true;
     createDamage();
-    // Show interest in X pixmap change signals
+
+    // Start listening to X pixmap change signals
     connect(qApp, SIGNAL(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)), this, SLOT(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)));
     update();
 }
@@ -366,7 +372,8 @@ void SwitcherButtonView::unsetOnDisplay()
 {
     onDisplay = false;
     destroyDamage();
-    // disconnect the damage signal so that off-screen buttons aren't signalled by damage notifications of other buttons
+
+    // Disconnect the damage signal so that off-screen buttons aren't signaled by damage notifications of other buttons
     disconnect(qApp, SIGNAL(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)), this, SLOT(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)));
 }
 

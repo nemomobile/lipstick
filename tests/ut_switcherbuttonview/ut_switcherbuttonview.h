@@ -161,11 +161,11 @@ private slots:
     void testUpdateXWindowIconGeometry();
     void testUpdateXWindowPixmap();
     void testDamageCreationUponConstruction();
-    void testSwitcherButtonsVisibilityEventCausesUpdateToBeCalled();
-    void testSwitcherButtonsVisibilityEventWithIncorrectTypeDoesNotCauseUpdateToBeCalled();
-    void testSwitcherButtonsVisibilityEventWithIncorrectVisibilityStateDoesNotCauseUpdateToBeCalled();
-    void testSwitcherButtonsVisibilityEventWithIncorrectVisibilityWindowDoesNotCauseUpdateToBeCalled();
-    void testSwitcherButtonsVisibilityEventWithIncorrectVisibilitySendEventDoesNotCauseUpdateToBeCalled();
+    void testSwitcherButtonsVisibilityEventCausesXWindowPixmapToBeUpdated();
+    void testSwitcherButtonsVisibilityEventWithIncorrectTypeDoesNotCauseXWindowPixmapToBeUpdated();
+    void testSwitcherButtonsVisibilityEventWithIncorrectVisibilityStateDoesNotCauseXWindowPixmapToBeUpdated();
+    void testSwitcherButtonsVisibilityEventWithIncorrectVisibilityWindowDoesNotCauseXWindowPixmapToBeUpdated();
+    void testSwitcherButtonsVisibilityEventWithIncorrectVisibilitySendEventDoesNotCauseXWindowPixmapToBeUpdated();
 };
 
 #endif //_UT_SWITCHERBUTTONVIEW_

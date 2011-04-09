@@ -1,6 +1,7 @@
 meegotouchhome (0.23.23~1) unstable; urgency=low
 
-  * [UNRELEASED] 
+  * [UNRELEASED]
+  * Fixes: NB#242688 - UI glitch in Controlpanel textinput settings
 
  -- Pauli Lehtinen <pauli.lehtinen@nokia.com>  Fri, 08 Apr 2011 16:08:27 +0300
 

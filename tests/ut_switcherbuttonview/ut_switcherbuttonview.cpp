@@ -322,6 +322,7 @@ void Ut_SwitcherButtonView::testXWindow()
     // Setting an X window ID when the switcher button is not displayed should allocate a new Pixmap but not create Damage
     button->emitDisplayExited();
     button->model()->setXWindow(1);
+    m_subject->updateXWindowPixmap();
     QCOMPARE(allocatedPixmaps.count(), 1);
 
     Pixmap oldPixmap = allocatedPixmaps.at(0);
@@ -331,6 +332,7 @@ void Ut_SwitcherButtonView::testXWindow()
     // Setting another X window ID should free the previously allocated Pixmap and allocate a new one and create Damage
     button->emitDisplayEntered();
     button->model()->setXWindow(2);
+    m_subject->updateXWindowPixmap();
     QCOMPARE(allocatedPixmaps.count(), 1);
     QVERIFY(allocatedPixmaps.at(0) != oldPixmap);
     QCOMPARE(damageCreated, true);
@@ -426,10 +428,6 @@ void Ut_SwitcherButtonView::testSignalConnections()
                        SIGNAL(timeout()),
                        m_subject,
                        SLOT(updateXWindowIconGeometry())));
-    QVERIFY(disconnect(&m_subject->updateXWindowPixmapRetryTimer,
-                       SIGNAL(timeout()),
-                       m_subject,
-                       SLOT(updateXWindowPixmap())));
 }
 
 const qreal thumbnailStyleWidth = 180.0;
@@ -520,48 +518,32 @@ void Ut_SwitcherButtonView::testUpdateXWindowIconGeometry()
     QCOMPARE(iconGeometry[3], (unsigned int)iconSceneGeometry.height());
 }
 
-static const int ICON_PIXMAP_RETRY_MAX_COUNT = 2;
 void Ut_SwitcherButtonView::testUpdateXWindowPixmap()
 {
-    // damage handling is tested elsewhere, this test
-    // tests the error handling and retrying logic
+    // Damage handling is tested elsewhere, this test tests the error handling logic
 
-    // first update the pixmap successfully
+    // First update the pixmap successfully
     xCompositeNameWindowPixmapCausesBadMatch = false;
     button->model()->setXWindow(1);
+    m_subject->updateXWindowPixmap();
     Pixmap oldPixmap = m_subject->xWindowPixmap;
     QCOMPARE(allocatedPixmaps.count(), 1);
     QCOMPARE(gQPixmapX11Handle, oldPixmap);
+    QCOMPARE(m_subject->xWindowPixmapIsValid, true);
 
-    // test that the timer is started each time the pixmap
-    // fetch causes a badmatch, up to the max count and that
-    // nothing else is done
+    // Test that badmatch causes pixmap to be considered invalid
     xCompositeNameWindowPixmapCausesBadMatch = true;
-    for (int i = 0; i < ICON_PIXMAP_RETRY_MAX_COUNT; ++i) {
-        timerStarted = false;
-        m_subject->updateXWindowPixmap();
-        QVERIFY(timerStarted);
-        QCOMPARE(m_subject->updateXWindowPixmapRetryCount, i + 1);
-        QCOMPARE(m_subject->xWindowPixmap, oldPixmap);
-        QCOMPARE(allocatedPixmaps.count(), 1);
-        QCOMPARE(gQPixmapX11Handle, oldPixmap);
-    }
-    // the next attempt after max count doesn't even start the
-    // timer anymore
-    timerStarted = false;
     m_subject->updateXWindowPixmap();
-    QVERIFY(!timerStarted);
+    QCOMPARE(m_subject->xWindowPixmapIsValid, false);
     QCOMPARE(m_subject->xWindowPixmap, oldPixmap);
     QCOMPARE(allocatedPixmaps.count(), 1);
     QCOMPARE(gQPixmapX11Handle, oldPixmap);
 
-    // when badmatch doesn't occur the timer is not started,
-    // but the pixmap does get updated
+    // When badmatch doesn't occur the pixmap does get updated
     xCompositeNameWindowPixmapCausesBadMatch = false;
     timerStarted = false;
     m_subject->updateXWindowPixmap();
-    QVERIFY(!timerStarted);
-    QCOMPARE(m_subject->updateXWindowPixmapRetryCount, 0);
+    QCOMPARE(m_subject->xWindowPixmapIsValid, true);
     QVERIFY(m_subject->xWindowPixmap != oldPixmap);
     QCOMPARE(gQPixmapX11Handle, m_subject->xWindowPixmap);
     QCOMPARE(allocatedPixmaps.count(), 1);
@@ -573,6 +555,7 @@ XEvent Ut_SwitcherButtonView::setupVisibilityNotifyTest()
 {
     button->setXWindow(CORRECT_WINDOW_ID);
     viewUpdateCalled = false;
+    m_subject->updateXWindowPixmap();
 
     XEvent xevent;
     xevent.type = VisibilityNotify;
@@ -582,47 +565,52 @@ XEvent Ut_SwitcherButtonView::setupVisibilityNotifyTest()
     return xevent;
 }
 
-void Ut_SwitcherButtonView::testSwitcherButtonsVisibilityEventCausesUpdateToBeCalled()
+void Ut_SwitcherButtonView::testSwitcherButtonsVisibilityEventCausesXWindowPixmapToBeUpdated()
 {
     XEvent xevent = setupVisibilityNotifyTest();
 
     QCOMPARE(m_subject->xEventListener->handleXEvent(xevent), true);
+    QCOMPARE(m_subject->xWindowPixmapIsValid, false);
     QCOMPARE(viewUpdateCalled, true);
 }
 
-void Ut_SwitcherButtonView::testSwitcherButtonsVisibilityEventWithIncorrectTypeDoesNotCauseUpdateToBeCalled()
+void Ut_SwitcherButtonView::testSwitcherButtonsVisibilityEventWithIncorrectTypeDoesNotCauseXWindowPixmapToBeUpdated()
 {
     XEvent xevent = setupVisibilityNotifyTest();
     xevent.type = PropertyNotify;
 
     QCOMPARE(m_subject->xEventListener->handleXEvent(xevent), false);
+    QCOMPARE(m_subject->xWindowPixmapIsValid, true);
     QCOMPARE(viewUpdateCalled, false);
 }
 
-void Ut_SwitcherButtonView::testSwitcherButtonsVisibilityEventWithIncorrectVisibilityStateDoesNotCauseUpdateToBeCalled()
+void Ut_SwitcherButtonView::testSwitcherButtonsVisibilityEventWithIncorrectVisibilityStateDoesNotCauseXWindowPixmapToBeUpdated()
 {
     XEvent xevent = setupVisibilityNotifyTest();
     xevent.xvisibility.state = VisibilityPartiallyObscured;
 
     QCOMPARE(m_subject->xEventListener->handleXEvent(xevent), false);
+    QCOMPARE(m_subject->xWindowPixmapIsValid, true);
     QCOMPARE(viewUpdateCalled, false);
 }
 
-void Ut_SwitcherButtonView::testSwitcherButtonsVisibilityEventWithIncorrectVisibilityWindowDoesNotCauseUpdateToBeCalled()
+void Ut_SwitcherButtonView::testSwitcherButtonsVisibilityEventWithIncorrectVisibilityWindowDoesNotCauseXWindowPixmapToBeUpdated()
 {
     XEvent xevent = setupVisibilityNotifyTest();
     xevent.xvisibility.window = INCORRECT_WINDOW_ID;
 
     QCOMPARE(m_subject->xEventListener->handleXEvent(xevent), false);
+    QCOMPARE(m_subject->xWindowPixmapIsValid, true);
     QCOMPARE(viewUpdateCalled, false);
 }
 
-void Ut_SwitcherButtonView::testSwitcherButtonsVisibilityEventWithIncorrectVisibilitySendEventDoesNotCauseUpdateToBeCalled()
+void Ut_SwitcherButtonView::testSwitcherButtonsVisibilityEventWithIncorrectVisibilitySendEventDoesNotCauseXWindowPixmapToBeUpdated()
 {
     XEvent xevent = setupVisibilityNotifyTest();
     xevent.xvisibility.send_event = False;
 
     QCOMPARE(m_subject->xEventListener->handleXEvent(xevent), false);
+    QCOMPARE(m_subject->xWindowPixmapIsValid, true);
     QCOMPARE(viewUpdateCalled, false);
 }
 

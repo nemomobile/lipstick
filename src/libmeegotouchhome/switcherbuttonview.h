@@ -53,6 +53,7 @@ public:
     virtual ~SwitcherButtonView();
 
     //! \reimp
+    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
     virtual void drawBackground(QPainter *painter, const QStyleOptionGraphicsItem *option) const;
     virtual void drawContents(QPainter *painter, const QStyleOptionGraphicsItem *option) const;
     virtual void applyStyle();
@@ -134,6 +135,9 @@ protected:
     //! The X window's pixmap
     Pixmap xWindowPixmap;
 
+    //! Whether the X window's pixmap is valid or not
+    bool xWindowPixmapIsValid;
+
     //! XDamage handle for the X window's pixmap
     Damage xWindowPixmapDamage;
 
@@ -148,13 +152,6 @@ protected:
 
     //! Timer for updating the icon's position in scene coordination
     mutable QTimer updateXWindowIconGeometryTimer;
-
-    //! Timer for updating the icon's pixmap if it wasn't ready and
-    //! a badmatch occurred
-    QTimer updateXWindowPixmapRetryTimer;
-
-    //! Current count of retries for updating icon's pixmap
-    int updateXWindowPixmapRetryCount;
 
     //! The icon's current geometry in scene coordinates
     QRectF updatedXWindowIconGeometry;
