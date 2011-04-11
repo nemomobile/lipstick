@@ -820,19 +820,17 @@ void Ut_Switcher::testWhenStackingOrderChangesTopmostWindowGetsUpdated()
     populateWindowList(windowInfoList);
 
     switcher->handleWindowInfoList(windowInfoList);
+    QCOMPARE(switcher->model()->topmostWindow(), g_windows[FIRST_NON_APPLICATION_WINDOW - 1]);
 
-    QCOMPARE(switcher->model()->topmostWindow(), g_windows[FIRST_NON_APPLICATION_WINDOW + NON_APPLICATION_WINDOWS - 1]);
-
-    Window tmp = g_windows[FIRST_APPLICATION_WINDOW];
-    g_windows[FIRST_APPLICATION_WINDOW] = g_windows.last();
-    g_windows[g_windows.count() - 1] = tmp;
+    Window tmp = g_windows[FIRST_NON_APPLICATION_WINDOW - 2];
+    g_windows[FIRST_NON_APPLICATION_WINDOW - 2] = g_windows.at(FIRST_NON_APPLICATION_WINDOW - 1);
+    g_windows[FIRST_NON_APPLICATION_WINDOW - 1] = tmp;
 
     windowInfoList.clear();
     populateWindowList(windowInfoList);
 
     switcher->handleWindowInfoList(windowInfoList);
-
-    QCOMPARE(switcher->model()->topmostWindow(), g_windows[FIRST_NON_APPLICATION_WINDOW + NON_APPLICATION_WINDOWS - 1]);
+    QCOMPARE(switcher->model()->topmostWindow(), g_windows[FIRST_NON_APPLICATION_WINDOW - 1]);
 }
 
 void Ut_Switcher::testX11EventWindowNameChange_data()

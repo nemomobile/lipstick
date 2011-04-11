@@ -239,15 +239,14 @@ void Switcher::handleWindowInfoList(QList<WindowInfo> newWindowList)
     // The stacking order needs to be cleared out before we start updating the
     // buttons as the topmostWindow is set in the 'updateButtons()' method and
     // the method call is scheduled with a timer in the case of an addition
-    QList<WindowInfo> stackingWindowList;
-    foreach (WindowInfo window, newWindowList) {
-        stackingWindowList.append(window);
-    }
+    QList<WindowInfo> stackingWindowList(newWindowList);
 
-    if (!stackingWindowList.isEmpty()){
-        topmostWindow = stackingWindowList.last().window();
+    if (!stackingWindowList.isEmpty()) {
+        topmostWindow = topmostApplicationWindow(stackingWindowList);
         // Restore a possible window that was being removed but has now come on top
-        added |= restoreButtonBeingRemoved(topmostWindow, false);
+        if (topmostWindow > 0) {
+            added |= restoreButtonBeingRemoved(topmostWindow, false);
+        }
     }
     if (added || removed) {
         if (!removed) {
@@ -264,6 +263,16 @@ void Switcher::handleWindowInfoList(QList<WindowInfo> newWindowList)
             model()->setTopmostWindow(topmostWindow);
         }
     }
+}
+
+Window Switcher::topmostApplicationWindow(const QList<WindowInfo> &list)
+{
+    for (int i = list.count() - 1; i >= 0; i--) {
+        if (isApplicationWindow(list.at(i))) {
+            return list.at(i).window();
+        }
+    }
+    return 0;
 }
 
 bool Switcher::sceneEvent(QEvent *event)
