@@ -1,8 +1,8 @@
-meegotouchhome (0.23.24~1) unstable; urgency=low
+meegotouchhome (0.23.24-1) unstable; urgency=low
 
   * LauncherPage inheritable 
 
- -- Vesa Halttunen <vesa.halttunen@nokia.com>  Sat, 09 Apr 2011 20:00:07 +0300
+ -- Eetu Lehmusvuo <ext-eetu.6.lehmusvuo@nokia.com>  Sat, 11 Apr 2011 09:49:07 +0300
 
 meegotouchhome (0.23.23-1) unstable; urgency=low
 
