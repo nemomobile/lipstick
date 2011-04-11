@@ -139,7 +139,10 @@ Qt::GestureState QGesture::state() const
 
 // SwitcherButton stubs
 SwitcherButton::SwitcherButton(QGraphicsItem *parent, SwitcherButtonModel *model) :
-    MButton(parent, model)
+    MButton(parent, model),
+    visibility(false),
+    visibilityPropertyEnabled(true),
+    visibilityInitialized(false)
 {
     Q_UNUSED(parent);
 }

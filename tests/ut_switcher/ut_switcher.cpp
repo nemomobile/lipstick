@@ -348,7 +348,10 @@ QMap<SwitcherButton*, bool> gSwitcherButtonVisibleInSwitcherProperty;
 
 // SwitcherButton stubs (used by Switcher)
 SwitcherButton::SwitcherButton(QGraphicsItem *parent, SwitcherButtonModel *model) :
-    MButton(parent, model)
+    MButton(parent, model),
+    visibility(false),
+    visibilityPropertyEnabled(true),
+    visibilityInitialized(false)
 {
 }
 
