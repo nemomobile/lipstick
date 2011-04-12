@@ -69,9 +69,7 @@ Switcher::Switcher(MWidget *parent, SwitcherModel *model) :
 Switcher::~Switcher()
 {
     // Close all applications when the home screen shuts down
-    foreach (const QSharedPointer<SwitcherButton> &button, model()->buttons()) {
-        closeWindow(button->xWindow());
-    }
+    closeAllWindows();
 }
 
 bool Switcher::handleXEvent(const XEvent &event)
@@ -380,8 +378,8 @@ void Switcher::updateButtons()
                 button->setText(topmostWindowInfo.title());
                 button->setXWindow(topmostWindowInfo.window());
                 connect(button.data(), SIGNAL(windowToFront(Window)), this, SLOT(windowToFront(Window)));
-                connect(button.data(), SIGNAL(closeWindow(Window)), this, SLOT(closeWindow(Window)));
-                connect(button.data(), SIGNAL(closeAllWindows()), this, SLOT(closeAllWindows()));
+                connect(button.data(), SIGNAL(closeWindow(Window)), this, SLOT(closeWindowAndUpdateButtons(Window)));
+                connect(button.data(), SIGNAL(closeAllWindows()), this, SLOT(closeAllWindowsAndUpdateButtons()));
                 connect(button.data(), SIGNAL(closeTimedOutForWindow(Window)), this, SLOT(restoreButtonBeingRemoved(Window)));
 
                 newButtons.append(button);
@@ -444,8 +442,6 @@ void Switcher::closeWindow(Window window)
     }
 
     windowsBeingClosed.insert(window);
-    // Remove the closed window immediately by updating the buttons
-    updateButtons();
 }
 
 void Switcher::closeAllWindows()
@@ -453,6 +449,22 @@ void Switcher::closeAllWindows()
     foreach (const QSharedPointer<SwitcherButton> &button, model()->buttons()) {
         closeWindow(button->xWindow());
     }
+}
+
+void Switcher::closeWindowAndUpdateButtons(Window window)
+{
+    closeWindow(window);
+
+    // Remove the closed window immediately by updating the buttons
+    updateButtons();
+}
+
+void Switcher::closeAllWindowsAndUpdateButtons()
+{
+    closeAllWindows();
+
+    // Remove the closed windows immediately by updating the buttons
+    updateButtons();
 }
 
 Window Switcher::topmostTransientWindowFor(Window window)

@@ -590,7 +590,7 @@ void Ut_Switcher::testWhenCloseWindowThenButtonRemovedFromModel()
     connect(switcher, SIGNAL(windowListUpdated(const QList<WindowInfo> &)), &receiver,
             SLOT(windowListUpdated(const QList<WindowInfo> &)));
 
-    switcher->closeWindow(FIRST_APPLICATION_WINDOW);
+    switcher->closeWindowAndUpdateButtons(FIRST_APPLICATION_WINDOW);
 
     // Verify that button is in windowsBeingClosed and not in the model
     QCOMPARE(switcher->windowsBeingClosed.count(), 1);
@@ -1091,7 +1091,7 @@ void Ut_Switcher::testRestoringButtonBeingClosedWhenWindowComesOnTop()
 
     // Close window so it gets added to the buttons being closed list
     const Window CLOSING_WINDOW = FIRST_APPLICATION_WINDOW + 1;
-    switcher->closeWindow(CLOSING_WINDOW);
+    switcher->closeWindowAndUpdateButtons(CLOSING_WINDOW);
 
     QCOMPARE(switcher->windowsBeingClosed.count(), 1);
     QCOMPARE(switcher->model()->buttons().count(), APPLICATION_WINDOWS - 1);
@@ -1115,7 +1115,7 @@ void Ut_Switcher::testRestoringButtonBeingClosedWhenButtonCloseTimerTimeouts()
 
     // Close window so it gets added to the buttons being closed list
     const Window CLOSING_WINDOW = FIRST_APPLICATION_WINDOW + 1;
-    switcher->closeWindow(CLOSING_WINDOW);
+    switcher->closeWindowAndUpdateButtons(CLOSING_WINDOW);
 
     QCOMPARE(switcher->windowsBeingClosed.count(), 1);
     QCOMPARE(switcher->model()->buttons().count(), APPLICATION_WINDOWS - 1);

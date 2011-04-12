@@ -32,8 +32,8 @@ public:
     virtual bool handleXEvent(const XEvent &event);
     virtual void updateButtons();
     virtual void windowToFront(Window window);
-    virtual void closeWindow(Window window);
-    virtual void closeAllWindows();
+    virtual void closeWindowAndUpdateButtons(Window window);
+    virtual void closeAllWindowsAndUpdateButtons();
     virtual void scheduleUpdateButtons();
     virtual void handleWindowInfoList(QList<WindowInfo> newWindowList);
     virtual bool sceneEvent(QEvent *event);
@@ -70,16 +70,16 @@ void SwitcherStub::windowToFront(Window window)
     stubMethodEntered("windowToFront", params);
 }
 
-void SwitcherStub::closeWindow(Window window)
+void SwitcherStub::closeWindowAndUpdateButtons(Window window)
 {
     QList<ParameterBase *> params;
     params.append(new Parameter<Window>(window));
-    stubMethodEntered("closeWindow", params);
+    stubMethodEntered("closeWindowAndUpdateButtons", params);
 }
 
-void SwitcherStub::closeAllWindows()
+void SwitcherStub::closeAllWindowsAndUpdateButtons()
 {
-    stubMethodEntered("closeAllWindows");
+    stubMethodEntered("closeAllWindowsAndUpdateButtons");
 }
 
 void SwitcherStub::updateButtons()
@@ -153,14 +153,14 @@ void Switcher::windowToFront(Window window)
     gSwitcherStub->windowToFront(window);
 }
 
-void Switcher::closeWindow(Window window)
+void Switcher::closeWindowAndUpdateButtons(Window window)
 {
-    gSwitcherStub->closeWindow(window);
+    gSwitcherStub->closeWindowAndUpdateButtons(window);
 }
 
-void Switcher::closeAllWindows()
+void Switcher::closeAllWindowsAndUpdateButtons()
 {
-    gSwitcherStub->closeAllWindows();
+    gSwitcherStub->closeAllWindowsAndUpdateButtons();
 }
 
 void Switcher::updateButtons()

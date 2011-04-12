@@ -114,14 +114,14 @@ private slots:
     void windowToFront(Window window);
 
     /*!
-     * \brief Requests a window should be closed
+     * \brief Requests a window should be closed and updates the buttons
      */
-    void closeWindow(Window window);
+    void closeWindowAndUpdateButtons(Window window);
 
     /*!
-     * \brief Requests all windows to be closed
+     * \brief Requests all windows to be closed and updates the buttons
      */
-    void closeAllWindows();
+    void closeAllWindowsAndUpdateButtons();
 
     /*!
      * Updates the animation status of switcher by disabling the visibility property updates in switcher buttons.
@@ -131,6 +131,16 @@ private slots:
     void updateAnimationStatus(bool animating);
 
 private:
+    /*!
+     * \brief Requests a window should be closed
+     */
+    void closeWindow(Window window);
+
+    /*!
+     * \brief Requests all windows to be closed
+     */
+    void closeAllWindows();
+
     /*!
      * Adds all windows in the given set to the Switcher.
      *
