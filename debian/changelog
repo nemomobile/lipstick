@@ -1,3 +1,9 @@
+meegotouchhome (0.24.1~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Tue, 12 Apr 2011 11:18:20 +0300
+
 meegotouchhome (0.24.0-1) unstable; urgency=low
 
   * Fixes: NB#232069 - Defects found in coverity run from 1. March 2011
