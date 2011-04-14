@@ -1,3 +1,9 @@
+meegotouchhome (0.24.3~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Thu, 14 Apr 2011 16:44:26 +0300
+
 meegotouchhome (0.24.2-1) unstable; urgency=high
 
   * Fixes: NB#247083 - Switcher order incorrect after application switch
