@@ -26,6 +26,7 @@
 #include "windowinfo.h"
 #include <X11/Xlib.h>
 
+
 /*!
  * Switcher is a widget that shows the available windows.
  */
@@ -66,6 +67,7 @@ signals:
      * \param animating if true, something is animating
      */
     void animationStateChanged(bool animating);
+
 public slots:
     /*!
      * Gets the current stacked client window list as parameter and checks
@@ -285,13 +287,6 @@ private:
 
     //! Reflects the top most window id of the _NET_CLIENT_LIST_STACKING
     Window topmostWindow;
-
-    /*!
-     * Returns the topmost application window from the given list of windows.
-     *
-     * \param list The list of windows to return the topmost application window from
-     */
-    Window topmostApplicationWindow(const QList<WindowInfo> &list);
 
 #ifdef UNIT_TEST
     friend class Ut_Switcher;
