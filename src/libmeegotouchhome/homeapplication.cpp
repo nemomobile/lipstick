@@ -22,6 +22,8 @@
 #include <getopt.h>
 #include <QDBusMessage>
 #include <QDBusConnection>
+#include <QIcon>
+#include <MTheme>
 #include "homeapplication.h"
 #include "homescreenservice.h"
 #include "homescreenadaptor.h"
@@ -54,6 +56,11 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString& appIdent
 
     // Enable prestart mode
     MApplication::setPrestartMode(M::TerminateOnClose);
+
+    if (!MTheme::currentTheme().isEmpty()) {
+        // Set the icon theme name to match the current meegotouch theme
+        QIcon::setThemeName(MTheme::currentTheme());
+    }
 
     // launch a timer for sending a dbus-signal upstart when home is ready
     // and on screen
