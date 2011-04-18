@@ -1,8 +1,8 @@
-meegotouchhome (0.24.3~1) unstable; urgency=low
+meegotouchhome (0.24.3-1) unstable; urgency=low
 
   * Fixes: NB#247974 - Moving launcher button in launcher edit mode should be stored to data store
 
- -- Vesa Halttunen <vesa.halttunen@nokia.com>  Thu, 14 Apr 2011 16:44:26 +0300
+ -- Eetu Lehmusvuo <ext-eetu.6.lehmusvuo@nokia.com>  Mon, 18 Apr 2011 10:02:26 +0300
 
 meegotouchhome (0.24.2-1) unstable; urgency=high
 
