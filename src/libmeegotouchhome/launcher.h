@@ -191,6 +191,14 @@ public slots:
      * \param desktopEntryPath of an application
      */
     void removePlaceholderButton(const QString &desktopEntryPath);
+    /*!
+     * Updates current Launcher Button placements on LauncherPage to desktop files.
+     *
+     * \param Page for update
+     * \param firstIndex First index which will be updated
+     * \param lastIndex Last index which will be updated
+     */
+    void updateButtonPlacementsOnPage(LauncherPage *page, int firstIndex, int lastIndex);
 
 private slots:
 
