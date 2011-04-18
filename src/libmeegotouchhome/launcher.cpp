@@ -242,32 +242,6 @@ void Launcher::addDesktopEntriesWithKnownPlacements(QList<QSharedPointer<Launche
     }
 }
 
-void Launcher::updateButtonPlacementsOnPage(LauncherPage *page, int firstIndex, int lastIndex)
-{
-    // get page number
-    int pageNum = 0;
-    foreach (const QSharedPointer<LauncherPage> &p, model()->launcherPages()) {
-        if (page == p) {
-            break;
-        }
-        pageNum++;
-    }
-
-    if (firstIndex > lastIndex) {
-        int temp = lastIndex;
-        lastIndex = firstIndex;
-        firstIndex = temp;
-    }
-
-    if (firstIndex > -1) {
-        // update every button position between startPosition and endPosition
-        const QList< QSharedPointer<LauncherButton> > buttonsOnPage(page->model()->launcherButtons());
-        for (int i = firstIndex; i <= lastIndex && i < buttonsOnPage.count(); i++) {
-            dataStore->updateDataForDesktopEntry(buttonsOnPage.at(i)->desktopEntry(), Placement(pageNum, i).toString());
-        }
-    }
-}
-
 void Launcher::addDesktopEntriesWithUnknownPlacements(QList<QSharedPointer<LauncherPage> > &pages)
 {
     if (dataStore != NULL) {

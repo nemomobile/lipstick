@@ -55,7 +55,6 @@ class LauncherStub : public StubBase {
   virtual void setMaximumPageSizeIfNecessary(QSharedPointer<LauncherPage> &page);
   virtual void updatePackageName(const QString &desktopEntryPath, const QString &packageName);
   virtual QSharedPointer<LauncherPage> createLauncherPage();
-  virtual void updateButtonPlacementsOnPage(LauncherPage *page, int firstIndex, int lastIndex);
 };
 
 // 2. IMPLEMENT STUB
@@ -203,14 +202,6 @@ QSharedPointer<LauncherButton> LauncherStub::placeholderButton(const QString &de
   return stubReturnValue<QSharedPointer<LauncherButton> >("placeholderButton");
 }
 
-void LauncherStub::updateButtonPlacementsOnPage(LauncherPage *page, int firstIndex, int lastIndex) {
-  QList<ParameterBase*> params;
-  params.append( new Parameter<LauncherPage*>(page));
-  params.append( new Parameter<int>(firstIndex));
-  params.append( new Parameter<int>(lastIndex));
-  stubMethodEntered("updateButtonPlacementOnPage",params);
-}
-  
 void LauncherStub::updateButtonPlacementInStore(const QString &desktopEntryPath) {
   QList<ParameterBase*> params;
   params.append( new Parameter<QString>(desktopEntryPath));
@@ -275,10 +266,6 @@ int Launcher::focusToButton(const QString &desktopFileEntry) {
 
 void Launcher::setPage(uint page) {
   gLauncherStub->setPage(page);
-}
-
-void Launcher::updateButtonPlacementsOnPage(LauncherPage *page, int firstIndex, int lastIndex) {
-  gLauncherStub->updateButtonPlacementsOnPage(page, firstIndex, lastIndex);
 }
 
 void Launcher::updateButtonState(const QString &desktopEntryPath, const QString &packageName, LauncherButtonModel::State state, int progress) {
