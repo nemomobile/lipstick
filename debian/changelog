@@ -1,3 +1,9 @@
+meegotouchhome (0.24.6~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Pankaj Saharan <pankaj.saharan@nokia.com>  Mon, 18 Apr 2011 14:19:05 +0300
+
 meegotouchhome (0.24.5-1) unstable; urgency=low
 
   * Fixes: NB#247807 - Legal bug in meegotouchhome
