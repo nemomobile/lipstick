@@ -1,6 +1,7 @@
 meegotouchhome (0.24.6~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#247718 - _MEEGOTOUCH_VISIBLE_IN_SWITCHER incorrectly set
 
  -- Pankaj Saharan <pankaj.saharan@nokia.com>  Mon, 18 Apr 2011 14:19:05 +0300
 

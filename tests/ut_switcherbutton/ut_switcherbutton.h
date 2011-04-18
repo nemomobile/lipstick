@@ -85,6 +85,7 @@ private slots:
     void testSetVisibleInSwitcherProperty();
     void testSetVisibleInSwitcherPropertyNotUpdatedWhenValueDoesNotChange();
     void testWhenVisibilityPropertyDisabledThenPropertyChangesOnlyWhenEnabledAgain();
+    void testWhenSwitcherButtonDeletedThenVisibleInSwitcherSetFalse();
 };
 
 #endif //_UT_SWITCHERBUTTON_

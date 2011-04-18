@@ -131,6 +131,9 @@ protected:
 
 private:
 
+    //! Visiblity in switcher set by togling _MEEGO_VISIBLE_IN_SWITCHER between 0 and 1 (=visible)
+    void setX11VisiblityProperty(bool set);
+
     //! A timer to check if the window is closed when switcher button is dragged outside switcher before timer expires
     QTimer windowCloseTimer;
 

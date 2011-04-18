@@ -49,6 +49,7 @@ SwitcherButton::SwitcherButton(QGraphicsItem *parent, SwitcherButtonModel *model
 
 SwitcherButton::~SwitcherButton()
 {
+    setX11VisiblityProperty(false);
 }
 
 Window SwitcherButton::xWindow()
@@ -96,20 +97,24 @@ void SwitcherButton::exitDisplayEvent()
     setVisibleInSwitcherProperty(false);
 }
 
-void SwitcherButton::setVisibleInSwitcherProperty(bool set)
+void SwitcherButton::setVisibleInSwitcherProperty(bool visibleInSwitcher)
 {
-    if (visibilityPropertyEnabled && (visibility != set || !visibilityInitialized)) {
-        Display *dpy = QX11Info::display();
-        if (set) {
-            unsigned char data = 1;
-            X11Wrapper::XChangeProperty(dpy, xWindow(), visibleAtom, XA_CARDINAL, 8, PropModeReplace, &data, 1);
-        } else {
-            unsigned char data = 0;
-            X11Wrapper::XChangeProperty(dpy, xWindow(), visibleAtom, XA_CARDINAL, 8, PropModeReplace, &data, 1);
-        }
-
-        visibility = set;
+    if (visibilityPropertyEnabled && (visibility != visibleInSwitcher || !visibilityInitialized)) {
+        setX11VisiblityProperty(visibleInSwitcher);
+        visibility = visibleInSwitcher;
         visibilityInitialized = true;
+    }
+}
+
+void SwitcherButton::setX11VisiblityProperty(bool visibleInSwitcher)
+{
+    Display *dpy = QX11Info::display();
+    if (visibleInSwitcher) {
+        unsigned char data = 1;
+        X11Wrapper::XChangeProperty(dpy, xWindow(), visibleAtom, XA_CARDINAL, 8, PropModeReplace, &data, 1);
+    } else {
+        unsigned char data = 0;
+        X11Wrapper::XChangeProperty(dpy, xWindow(), visibleAtom, XA_CARDINAL, 8, PropModeReplace, &data, 1);
     }
 }
 
