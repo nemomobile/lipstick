@@ -16,6 +16,7 @@
 ** of this file.
 **
 ****************************************************************************/
+#include <QDebug>
 #include <QtTest/QtTest>
 #include <MApplication>
 #include <QSignalSpy>
@@ -59,6 +60,7 @@ void Ut_PagedPanning::cleanupTestCase()
 void Ut_PagedPanning::init()
 {
     m_subject = new PagedPanning(NULL);
+    m_subject->setMaximumVelocity(1000);
     QCOMPARE((int)m_subject->pageCount(), 1);
 
     fillDefaultIntegrationParameters(m_subject, DEFAULT_NUM_PAGES);
@@ -314,7 +316,6 @@ void Ut_PagedPanning::performMovement(qreal moveAmount,
     }
 }
 
-
 void Ut_PagedPanning::performIntegration(PagedPanning* pagedPanning)
 {
     Ut_MPhysics2DPanning physicsDriver(pagedPanning);
@@ -324,8 +325,7 @@ void Ut_PagedPanning::performIntegration(PagedPanning* pagedPanning)
     do {
         physicsDriver.advancePhysicsCalculation();
         i++;
-    } while (stopSpy.count() == 0 && i < 100000);
-
+    } while (stopSpy.count() < 2 && i < 100000);
 }
 
 void Ut_PagedPanning::fillDefaultIntegrationParameters(PagedPanning* pagedPanning, qreal newPageCount, qreal rangeStart, qreal rangeEnd)
@@ -367,7 +367,7 @@ void Ut_PagedPanning::testDragThreshold()
 
     // Drag the pointer over the drag threshold
     testMovement(0,
-                 22.0,
+                 32.0,
                  false,
                  1);
 
@@ -386,8 +386,10 @@ void Ut_PagedPanning::testVelocityThreshold()
 
     QSignalSpy spy(m_subject, SIGNAL(pageChanged(int)));
 
+    //Test that velocity is controlled and page is not changed
+    //All other parameters would allow the movement
     testMovement(0,
-                 1.0,
+                 45.0,
                  false,
                  0,
                  7.0);
@@ -395,8 +397,9 @@ void Ut_PagedPanning::testVelocityThreshold()
     // Should end up where started
     QCOMPARE(m_subject->position().x(), 0.0);
 
+    //Velocity is moved over treshold so page should be changed
     testMovement(0,
-                 31.0,
+                 45.0,
                  false,
                  1,
                  10.0);
@@ -626,6 +629,7 @@ void Ut_PagedPanning::testWhenPhysicsDisabledWhileActivelyPanningThenPositionIsP
     m_subject->setEnabled(false);
 
     QSignalSpy panningStoppedSpy(m_subject, SIGNAL(panningStopped()));
+    //Send signals so we can simulate the move
     performIntegration(m_subject);
 
     QCOMPARE(m_subject->position().x(), currentPage * DEFAULT_PAGE_WIDTH);
