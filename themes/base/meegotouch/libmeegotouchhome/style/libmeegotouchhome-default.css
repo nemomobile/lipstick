@@ -156,6 +156,8 @@ QuickLaunchBarStyle {
     margin-right: 0;
     margin-top: 0;
     margin-bottom: 0;
+    toggle-launcher-button-index: 2;
+    button-count: 4;
 }
 
 LauncherButtonStyle#QuickLaunchBarButton {

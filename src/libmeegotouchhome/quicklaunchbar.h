@@ -115,9 +115,6 @@ private:
      */
     QMap<QuickLaunchBar::Placement, QString> createPlacementMap(const QHash<QString, QVariant> &desktopEntryPlacements);
 
-    //! The number of launcher buttons in the quick launch bar
-    static const int NUMBER_OF_LAUNCHER_BUTTONS;
-
     //! A string used for identifying content to be placed in the quick launch bar
     static const QString LOCATION_IDENTIFIER;
 

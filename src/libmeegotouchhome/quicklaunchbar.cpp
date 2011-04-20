@@ -26,7 +26,6 @@
 #include <MWidgetCreator>
 M_REGISTER_WIDGET(QuickLaunchBar)
 
-const int QuickLaunchBar::NUMBER_OF_LAUNCHER_BUTTONS = 4;
 const QString QuickLaunchBar::LOCATION_IDENTIFIER = "quicklaunchbar";
 const char QuickLaunchBar::SECTION_SEPARATOR = '/';
 

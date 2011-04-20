@@ -26,9 +26,6 @@
 #include <MButton>
 #include <MViewCreator>
 
-const int QuickLaunchBarView::TOGGLE_LAUNCHER_BUTTON_INDEX = 2;
-const int QuickLaunchBarView::NUMBER_OF_QUICKLAUNCH_BUTTONS = 4;
-
 QuickLaunchBarView::QuickLaunchBarView(QuickLaunchBar *controller) : MWidgetView(controller),
     launcherButtonLayout(new QGraphicsLinearLayout(Qt::Horizontal)),
     toggleLauncherButton(new MButton)
@@ -61,6 +58,12 @@ QuickLaunchBarView::~QuickLaunchBarView()
     }
 }
 
+void QuickLaunchBarView::applyStyle()
+{
+    MWidgetView::applyStyle();
+    setupModel();
+}
+
 void QuickLaunchBarView::setupModel()
 {
     MWidgetView::setupModel();
@@ -77,8 +80,7 @@ void QuickLaunchBarView::updateData(const QList<const char *>& modifications)
         if (member == QuickLaunchBarModel::Buttons) {
             // Remove everything from the launcher button layout
             while (launcherButtonLayout->count() > 0) {
-                QGraphicsObject* obj =
-                    launcherButtonLayout->itemAt(0)->graphicsItem()->toGraphicsObject();
+                QGraphicsObject* obj = launcherButtonLayout->itemAt(0)->graphicsItem()->toGraphicsObject();
                 launcherButtonLayout->removeAt(0);
                 // If this was a placeholder widget, delete it
                 if (obj && obj->property("placeholder").isValid()) {
@@ -87,8 +89,8 @@ void QuickLaunchBarView::updateData(const QList<const char *>& modifications)
             }
 
             // Add launcher buttons to the layout and empty placeholder items into positions that have no buttons
-            for (int buttonIndex = 0, layoutIndex = 0; buttonIndex < NUMBER_OF_QUICKLAUNCH_BUTTONS ; layoutIndex++) {
-                if (layoutIndex == TOGGLE_LAUNCHER_BUTTON_INDEX) {
+            for (int buttonIndex = 0, layoutIndex = 0; buttonIndex < style()->buttonCount(); layoutIndex++) {
+                if (layoutIndex == style()->toggleLauncherButtonIndex()) {
                     launcherButtonLayout->addItem(toggleLauncherButton);
                 } else if (model()->buttons().contains(buttonIndex)) {
                     launcherButtonLayout->addItem(model()->buttons().value(buttonIndex).data());

@@ -48,6 +48,8 @@ private slots:
     // Test cases
     void testInitialization();
     void testUpdateData();
+    void testApplyStyle();
+
 private:
     // MApplication
     MApplication *app;

@@ -29,6 +29,12 @@ class QuickLaunchBarStyle : public MWidgetStyle
 {
     Q_OBJECT
     M_STYLE(QuickLaunchBarStyle)
+
+    //! The index of the toggle launcher button in the launcher button layout
+    M_STYLE_ATTRIBUTE(int, toggleLauncherButtonIndex, ToggleLauncherButtonIndex)
+
+    //! The number of buttons in quicklaunch bar
+    M_STYLE_ATTRIBUTE(int, buttonCount, ButtonCount)
 };
 
 class QuickLaunchBarStyleContainer : public MWidgetStyleContainer

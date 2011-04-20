@@ -51,22 +51,22 @@ protected slots:
     virtual void updateData(const QList<const char *>& modifications);
     //! \reimp_end
 
-private:
+protected:
     //! \reimp
+    virtual void applyStyle();
     virtual void setupModel();
     //! \reimp_end
 
-    //! The index of the toggle launcher button in the launcher button layout
-    static const int TOGGLE_LAUNCHER_BUTTON_INDEX;
-
-    //! The number of buttons in quicklaunch bar
-    static const int NUMBER_OF_QUICKLAUNCH_BUTTONS;
-
+private:
     //! Layout for the launcher buttons
     QGraphicsLinearLayout *launcherButtonLayout;
 
     //! The button to open the launcher
     MButton *toggleLauncherButton;
+
+#ifdef UNIT_TEST
+    friend class Ut_QuickLaunchBarView;
+#endif
 };
 
 #endif

@@ -21,6 +21,7 @@
 #include "ut_quicklaunchbarview.h"
 #include "quicklaunchbar.h"
 #include "quicklaunchbarview.h"
+#include "quicklaunchbarstyle.h"
 #include "homewindowmonitor.h"
 #include "launcherbutton_stub.h"
 #include "launcheraction_stub.h"
@@ -47,6 +48,12 @@ void Ut_QuickLaunchBarView::init()
     controller = new QuickLaunchBar;
     controller->setLauncherDataStore(launcherDataStore);
     m_subject = new QuickLaunchBarView(controller);
+
+    QuickLaunchBarStyle *style = static_cast<QuickLaunchBarStyle*>(const_cast<MStyle*>(MTheme::style("QuickLaunchBarStyle")));
+    style->setToggleLauncherButtonIndex(2);
+    style->setButtonCount(4);
+    MTheme::releaseStyle(style);
+
     connect(this, SIGNAL(updateData(const QList<const char *>&)), m_subject, SLOT(updateData(const QList<const char *>&)));
 }
 
@@ -58,7 +65,7 @@ void Ut_QuickLaunchBarView::cleanup()
 
 void Ut_QuickLaunchBarView::testInitialization()
 {
-     // Initially there should be 5 widgets but no LauncherButtons
+    // Initially there should be 5 widgets but no LauncherButtons
     QMap<int, QSharedPointer<LauncherButton> > buttons;
     QuickLaunchBarModel model;
     m_subject->setModel(&model);
@@ -93,7 +100,46 @@ void Ut_QuickLaunchBarView::testUpdateData()
     QCOMPARE(quickLaunchButtonLayout->itemAt(1), button2.data());
     // The toggleLauncherbutton is the third item so buttons3 is fourth
     QCOMPARE(quickLaunchButtonLayout->itemAt(3), button3.data());
+}
 
+void Ut_QuickLaunchBarView::testApplyStyle()
+{
+    QuickLaunchBarModel model;
+    m_subject->setModel(&model);
+    QMap<int, QSharedPointer<LauncherButton> > buttons;
+    QSharedPointer<LauncherButton> button1 = QSharedPointer<LauncherButton>(new LauncherButton);
+    QSharedPointer<LauncherButton> button2 = QSharedPointer<LauncherButton>(new LauncherButton);
+    QSharedPointer<LauncherButton> button3 = QSharedPointer<LauncherButton>(new LauncherButton);
+    buttons.insert(0, button1);
+    buttons.insert(1, button2);
+    buttons.insert(2, button3);
+    model.setButtons(buttons);
+
+    // Put the toggle launcher button to the first position
+    QuickLaunchBarStyle *style = static_cast<QuickLaunchBarStyle*>(const_cast<MStyle*>(MTheme::style("QuickLaunchBarStyle")));
+    style->setToggleLauncherButtonIndex(0);
+    style->setButtonCount(2);
+    MTheme::releaseStyle(style);
+    m_subject->applyStyle();
+
+    QGraphicsLinearLayout *layout = dynamic_cast<QGraphicsLinearLayout *>(controller->layout());
+    QGraphicsLinearLayout *quickLaunchButtonLayout = dynamic_cast<QGraphicsLinearLayout *>(layout->itemAt(0));
+    // toggleLauncherButton + two buttons = 3
+    QCOMPARE(quickLaunchButtonLayout->count(), 3);
+    // The toggleLauncherbutton is the first item so buttons1 is second
+    QCOMPARE(quickLaunchButtonLayout->itemAt(1), button1.data());
+    QCOMPARE(quickLaunchButtonLayout->itemAt(2), button2.data());
+
+    // Remove the toggle launcher button
+    style = static_cast<QuickLaunchBarStyle*>(const_cast<MStyle*>(MTheme::style("QuickLaunchBarStyle")));
+    style->setToggleLauncherButtonIndex(-1);
+    style->setButtonCount(2);
+    MTheme::releaseStyle(style);
+    m_subject->applyStyle();
+
+    QCOMPARE(quickLaunchButtonLayout->count(), 2);
+    QCOMPARE(quickLaunchButtonLayout->itemAt(0), button1.data());
+    QCOMPARE(quickLaunchButtonLayout->itemAt(1), button2.data());
 }
 
 QTEST_APPLESS_MAIN(Ut_QuickLaunchBarView)
