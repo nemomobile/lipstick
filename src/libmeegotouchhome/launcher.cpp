@@ -16,6 +16,7 @@
 ** of this file.
 **
 ****************************************************************************/
+
 #include "launcher.h"
 #include "launcherbutton.h"
 #include "launcherdatastore.h"
@@ -108,8 +109,6 @@ void Launcher::updateButtonState(const QString &desktopEntryPath, const QString 
         }
 
         if (!ApplicationPackageMonitorListener::isInstallerExtraEntry(desktopEntryPath) || state == LauncherButtonModel::Broken) {
-            // If new entry is an applications entry path or package is broken then remove the old entry path from store and update the new entry
-            removeButtonPlacementFromStore(button->desktopEntry());
             updateButtonPlacementInStore(desktopEntryPath);
             button->updateFromDesktopEntry(desktopEntryPath);
         }
@@ -402,12 +401,7 @@ bool Launcher::updateLauncherButton(const QString &desktopEntryPath)
     foreach (QSharedPointer<LauncherPage> page, model()->launcherPages()) {
         QSharedPointer<LauncherButton> button = page->button(desktopEntryPath);
         if (!button.isNull()) {
-            // If old entry is an installer extra entry path then remove it and update the new entry path
-            QString oldEntryPath = button->desktopEntry();
-            if (ApplicationPackageMonitorListener::isInstallerExtraEntry(oldEntryPath)) {
-                removeButtonPlacementFromStore(oldEntryPath);
-                updateButtonPlacementInStore(desktopEntryPath);
-            }
+            updateButtonPlacementInStore(desktopEntryPath);
 
             button->updateFromDesktopEntry(desktopEntryPath);
             found = true;
@@ -465,8 +459,12 @@ Launcher::Placement Launcher::buttonPlacement(const QString &desktopFileEntry)
 
 void Launcher::updateButtonPlacementInStore(const QString &desktopEntryPath)
 {
-    Placement placement = buttonPlacement(desktopEntryPath);
+    // Updating the entry path (possible from installer-extra to applications or other way around)
+    // we need to make sure we remove all previous entry paths to avoid multiple instances of one application
+    removeButtonPlacementFromStore(ApplicationPackageMonitorListener::toInstallerExtraEntryPath(desktopEntryPath));
+    removeButtonPlacementFromStore(ApplicationPackageMonitorListener::toApplicationsEntryPath(desktopEntryPath));
 
+    Placement placement = buttonPlacement(desktopEntryPath);
     dataStore->updateDataForDesktopEntry(desktopEntryPath, placement.toString());
 }
 
@@ -489,9 +487,15 @@ Launcher::Placement::Placement(int page, int position)
 void Launcher::Placement::setPlacement(const QString &placementString)
 {
     location = placementString.section(SECTION_SEPARATOR, 0, 0);
+    bool placementKnown = false;
     if (location == LOCATION_IDENTIFIER) {
-        page = placementString.section(SECTION_SEPARATOR, 1, 1).toInt();
-        position = placementString.section(SECTION_SEPARATOR, 2, 2).toInt();
+        page = placementString.section(SECTION_SEPARATOR, 1, 1).toInt(&placementKnown);
+        position = placementString.section(SECTION_SEPARATOR, 2, 2).toInt(&placementKnown);
+    }
+
+    if (!placementKnown) {
+        page = -1;
+        position = -1;
     }
 }
 

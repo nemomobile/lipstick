@@ -26,7 +26,8 @@ HEADERS += \
     $$SRCDIR/launcherpagemodel.h \
     $$SRCDIR/launcherbuttonmodel.h \
     $$SRCDIR/applicationpackagemonitor.h \
-    $$SRCDIR/applicationpackagemonitorlistener.h
+    $$SRCDIR/applicationpackagemonitorlistener.h \
+    $$SRCDIR/extradirwatcher.h
 
 # service classes
 HEADERS += \

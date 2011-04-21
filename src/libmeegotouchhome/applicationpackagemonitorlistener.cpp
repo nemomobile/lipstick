@@ -19,6 +19,7 @@
 #include "launcherbuttonmodel.h"
 #include "applicationpackagemonitor.h"
 #include "applicationpackagemonitorlistener.h"
+#include <QFileInfo>
 
 ApplicationPackageMonitorListener::ApplicationPackageMonitorListener()
     : packageMonitor(new ApplicationPackageMonitor)
@@ -81,4 +82,14 @@ void ApplicationPackageMonitorListener::setPackageUninstall(const QString &deskt
 bool ApplicationPackageMonitorListener::isInstallerExtraEntry(const QString &desktopEntryPath)
 {
     return desktopEntryPath.contains(ApplicationPackageMonitor::INSTALLER_EXTRA_FOLDER);
+}
+
+QString ApplicationPackageMonitorListener::toInstallerExtraEntryPath(const QString &desktopEntryPath)
+{
+    return APPLICATIONS_DIRECTORY + ApplicationPackageMonitor::INSTALLER_EXTRA_FOLDER + QFileInfo(desktopEntryPath).fileName();
+}
+
+QString ApplicationPackageMonitorListener::toApplicationsEntryPath(const QString &desktopEntryPath)
+{
+    return APPLICATIONS_DIRECTORY + QFileInfo(desktopEntryPath).fileName();
 }

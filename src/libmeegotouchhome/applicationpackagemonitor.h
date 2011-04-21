@@ -24,7 +24,7 @@
 #include <QDBusConnection>
 #include <QSharedPointer>
 
-class MFileDataStore;
+#include "extradirwatcher.h"
 
 /*!
  * ApplicationPackageMonitor listens dbus signals from Package Manager and watches installer-extra
@@ -153,70 +153,13 @@ private slots:
 
 private:
 
-    class ExtraDirWatcher;
-
-    //! Stores package properties
-    class PackageProperties {
-    public:
-        PackageProperties() :
-            desktopEntryName(QString()),
-            installing(false) {};
-
-        QString desktopEntryName;
-        bool installing;
-    };
-
     /*!
-     * Returns PackageProperties for package name and sets desktop entry path if one is found.
+     * Checks that package has desktop entry and operation is install or upgrade.
      *
-     *\param name of package being installed
-     *\return PackageProperties object.
+     *\param desktopEntryPath Desktop entry path.
+     *\param operation Type of the current operation.
      */
-    PackageProperties & activePackageProperties(const QString packageName);
-
-    /*!
-     * Checks that package has desktop entry name property and operation is install or upgrade.
-     *
-     *\param properties of package being installed.
-     *\param type of the current operation.
-     */
-    bool isValidOperation(const PackageProperties &properties, const QString &operation);
-
-    /*!
-     * Returns desktop entry path from APPLICATIONS_DIR/installer-extra/ or if it doesn't
-     * exist empty QString.
-     *
-     *\param name of the package being installed
-     *\return path to desktop file in installer-extra directory.
-     */
-    QString desktopEntryName(const QString &packageName);
-
-    /*!
-     * Stores package's current state to the dataStore.
-     *
-     *\param name of the package.
-     *\param state of the package.
-     */
-    void storePackageState(const QString &packageName, const QString &state);
-
-    /*!
-     * Creates a data store and packageKeyToDesktopEntry values of given key and desktopEntryPath
-     *
-     *\param packageKey is name of the package prefixed with PACKAGE_PREFIX.
-     *\param desktopEntry is desktop entry path of the package
-     */
-    void createPackageValueToDataStore(const QString &packageKey, const QString &desktopEntry);
-
-    /*!
-    * Removes package key and desktop entry path entries from data store and from packageKeyToDesktopEntry hash
-    *
-    *\packageKey package entry to be removed
-    */
-    void removePackageValueFromDataStore(const QString &packageKey);
-
-
-    //! Mapping of installing package names and installing phase properties
-    QMap<QString, PackageProperties> activePackages;
+    bool isValidOperation(const QString &desktopEntryPath, const QString &operation);
 
     //! DBus connection to system bus
     QDBusConnection con;
@@ -225,15 +168,13 @@ private:
      * Cache for the state of packages and the mapping from package names to .desktop files.
      * Not owned.
      */
-    MFileDataStore *dataStore;
+    ExtraDirWatcherData *dataStore;
 
     /*!
      * Keeps track of the .desktop files under installer-extra directory
      */
     QSharedPointer<ExtraDirWatcher> extraDirWatcher;
 
-    //! Hash of package names and corresponging installer extra desktop entry file paths
-    QHash<QString, QString> packageKeyToDesktopEntry;
 
 #ifdef UNIT_TEST
     friend class Ut_ApplicationPackageMonitor;

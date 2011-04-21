@@ -4,13 +4,6 @@
 #include "applicationpackagemonitor.h"
 #include <stubbase.h>
 
-class ApplicationPackageMonitor::ExtraDirWatcher
-{
-public:
-    ExtraDirWatcher(){}
-    ~ExtraDirWatcher(){}
-};
-
 const QString ApplicationPackageMonitor::INSTALLER_EXTRA_FOLDER = "installer-extra/";
 
 // 1. DECLARE STUB
@@ -19,16 +12,16 @@ class ApplicationPackageMonitorStub : public StubBase {
   public:
   virtual void ApplicationPackageMonitorConstructor();
   virtual void ApplicationPackageMonitorDestructor();
+  virtual void updatePackageStates();
+  virtual QString packageName(const QString &dekstopEntryPath);
   virtual void packageDownloadProgress(const QString &operation, const QString &packageName, const QString &packageVersion, int already, int total);
   virtual void packageOperationStarted(const QString &operation, const QString &packageName, const QString &packageVersion);
   virtual void packageOperationProgress(const QString &operation, const QString &packageame, const QString &packageVersion, int percentage);
   virtual void packageOperationComplete(const QString &operation, const QString &packageName, const QString &packageVersion, const QString &error, bool need_reboot);
   virtual void updatePackageState(const QString &desktopEntryPath);
-  virtual QString desktopEntryName(const QString &packageName);
   virtual void packageRemoved(const QString &desktopEntryPath);
-  virtual void updatePackageStates();
-  virtual QString packageName(const QString &desktopEntryPath);
-};
+  virtual bool isValidOperation(const QString &properties, const QString &operation);
+}; 
 
 // 2. IMPLEMENT STUB
 void ApplicationPackageMonitorStub::ApplicationPackageMonitorConstructor() {
@@ -36,6 +29,16 @@ void ApplicationPackageMonitorStub::ApplicationPackageMonitorConstructor() {
 }
 void ApplicationPackageMonitorStub::ApplicationPackageMonitorDestructor() {
 
+}
+void ApplicationPackageMonitorStub::updatePackageStates() {
+  stubMethodEntered("updatePackageStates");
+}
+
+QString ApplicationPackageMonitorStub::packageName(const QString &dekstopEntryPath) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<const QString & >(dekstopEntryPath));
+  stubMethodEntered("packageName",params);
+  return stubReturnValue<QString>("packageName");
 }
 
 void ApplicationPackageMonitorStub::packageDownloadProgress(const QString &operation, const QString &packageName, const QString &packageVersion, int already, int total) {
@@ -81,41 +84,42 @@ void ApplicationPackageMonitorStub::updatePackageState(const QString &desktopEnt
   stubMethodEntered("updatePackageState",params);
 }
 
-QString ApplicationPackageMonitorStub::desktopEntryName(const QString &packageName) {
-  QList<ParameterBase*> params;
-  params.append( new Parameter<const QString & >(packageName));
-  stubMethodEntered("desktopEntryName",params);
-  return stubReturnValue<QString>("desktopEntryName");
-}
-
 void ApplicationPackageMonitorStub::packageRemoved(const QString &desktopEntryPath) {
   QList<ParameterBase*> params;
   params.append( new Parameter<const QString & >(desktopEntryPath));
   stubMethodEntered("packageRemoved",params);
 }
 
-void ApplicationPackageMonitorStub::updatePackageStates() {
-  stubMethodEntered("updatePackageStates");
+bool ApplicationPackageMonitorStub::isValidOperation(const QString &properties, const QString &operation) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<const QString & >(properties));
+  params.append( new Parameter<const QString & >(operation));
+  stubMethodEntered("isValidOperation",params);
+  return stubReturnValue<bool>("isValidOperation");
 }
 
-QString ApplicationPackageMonitorStub::packageName(const QString &desktopEntryPath) {
-  QList<ParameterBase*> params;
-  params.append( new Parameter<QString>(desktopEntryPath));
-  stubMethodEntered("packageName",params);
-  return stubReturnValue<QString>("packageName");
-}
+
 
 // 3. CREATE A STUB INSTANCE
 ApplicationPackageMonitorStub gDefaultApplicationPackageMonitorStub;
 ApplicationPackageMonitorStub* gApplicationPackageMonitorStub = &gDefaultApplicationPackageMonitorStub;
 
+
 // 4. CREATE A PROXY WHICH CALLS THE STUB
-ApplicationPackageMonitor::ApplicationPackageMonitor() : con(QDBusConnection::systemBus()) {
+ApplicationPackageMonitor::ApplicationPackageMonitor() : con("") {
   gApplicationPackageMonitorStub->ApplicationPackageMonitorConstructor();
 }
 
 ApplicationPackageMonitor::~ApplicationPackageMonitor() {
   gApplicationPackageMonitorStub->ApplicationPackageMonitorDestructor();
+}
+
+void ApplicationPackageMonitor::updatePackageStates() {
+  gApplicationPackageMonitorStub->updatePackageStates();
+}
+
+QString ApplicationPackageMonitor::packageName(const QString &dekstopEntryPath) {
+  return gApplicationPackageMonitorStub->packageName(dekstopEntryPath);
 }
 
 void ApplicationPackageMonitor::packageDownloadProgress(const QString &operation, const QString &packageName, const QString &packageVersion, int already, int total) {
@@ -138,20 +142,13 @@ void ApplicationPackageMonitor::updatePackageState(const QString &desktopEntryPa
   gApplicationPackageMonitorStub->updatePackageState(desktopEntryPath);
 }
 
-QString ApplicationPackageMonitor::desktopEntryName(const QString &packageName) {
-  return gApplicationPackageMonitorStub->desktopEntryName(packageName);
-}
-
 void ApplicationPackageMonitor::packageRemoved(const QString &desktopEntryPath) {
-    gApplicationPackageMonitorStub->packageRemoved(desktopEntryPath);
+  gApplicationPackageMonitorStub->packageRemoved(desktopEntryPath);
 }
 
-void ApplicationPackageMonitor::updatePackageStates(){
-    gApplicationPackageMonitorStub->updatePackageStates();
+bool ApplicationPackageMonitor::isValidOperation(const QString &properties, const QString &operation) {
+  return gApplicationPackageMonitorStub->isValidOperation(properties, operation);
 }
 
-QString ApplicationPackageMonitor::packageName(const QString &desktopEntryPath) {
-  return gApplicationPackageMonitorStub->packageName(desktopEntryPath);
-}
 
 #endif

@@ -50,6 +50,10 @@ public:
 
     //! Checks whether given desktop entry is located in installer extra folder
     static bool isInstallerExtraEntry(const QString &desktopEntryPath);
+    //! Returns given entry file in installer extra path.
+    static QString toInstallerExtraEntryPath(const QString &entryPath);
+    //! Returns given entry file in applictions path.
+    static QString toApplicationsEntryPath(const QString &entryPath);
 
 signals:
 

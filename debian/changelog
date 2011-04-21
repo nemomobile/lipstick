@@ -2,7 +2,8 @@ meegotouchhome (0.24.6~1) unstable; urgency=low
 
   * [UNRELEASED]
   * Fixes: NB#247718 - _MEEGOTOUCH_VISIBLE_IN_SWITCHER incorrectly set
-
+  * Fixes: NB#237618 - Launcher does not notice all package state transitions
+ 
  -- Pankaj Saharan <pankaj.saharan@nokia.com>  Mon, 18 Apr 2011 14:19:05 +0300
 
 meegotouchhome (0.24.5-1) unstable; urgency=low

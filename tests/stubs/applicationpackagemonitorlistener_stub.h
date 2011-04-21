@@ -17,6 +17,8 @@ class ApplicationPackageMonitorListenerStub : public StubBase {
   virtual void setOperationSuccess(const QString &desktopEntryPath, const QString &packageName);
   virtual void setOperationError(const QString &desktopEntryPath, const QString &packageName, const QString &error);
   virtual bool isInstallerExtraEntry(const QString &desktopEntryPath);
+  virtual QString toInstallerExtraEntryPath(const QString &entryPath);
+  virtual QString toApplicationsEntryPath(const QString &entryPath);
   virtual void setPackageUninstall(const QString &desktopEntryPath, const QString &packageName);
 }; 
 
@@ -70,12 +72,27 @@ bool ApplicationPackageMonitorListenerStub::isInstallerExtraEntry(const QString 
   return stubReturnValue<bool>("isInstallerExtraEntry");
 }
 
+QString ApplicationPackageMonitorListenerStub::toInstallerExtraEntryPath(const QString &desktopEntryPath) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<QString>(desktopEntryPath));
+  stubMethodEntered("toInstallerExtraEntryPath",params);
+  return stubReturnValue<QString>("toInstallerExtraEntryPath");
+}
+
+QString ApplicationPackageMonitorListenerStub::toApplicationsEntryPath(const QString &desktopEntryPath) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<QString>(desktopEntryPath));
+  stubMethodEntered("toApplicationsEntryPath",params);
+  return stubReturnValue<QString>("toApplicationsEntryPath");
+}
+
 void ApplicationPackageMonitorListenerStub::setPackageUninstall(const QString &desktopEntryPath, const QString &packageName) {
   QList<ParameterBase*> params;
   params.append( new Parameter<QString>(desktopEntryPath));
   params.append( new Parameter<QString>(packageName));
   stubMethodEntered("setPackageUninstall",params);
 }
+
 
 // 3. CREATE A STUB INSTANCE
 ApplicationPackageMonitorListenerStub gDefaultApplicationPackageMonitorListenerStub;
@@ -111,13 +128,21 @@ void ApplicationPackageMonitorListener::setOperationError(const QString &desktop
   gApplicationPackageMonitorListenerStub->setOperationError(desktopEntryPath, packageName, error);
 }
 
-
 bool ApplicationPackageMonitorListener::isInstallerExtraEntry(const QString &desktopEntryPath) {
   return gApplicationPackageMonitorListenerStub->isInstallerExtraEntry(desktopEntryPath);
+}
+
+QString ApplicationPackageMonitorListener::toInstallerExtraEntryPath(const QString &desktopEntryPath) {
+  return gApplicationPackageMonitorListenerStub->toInstallerExtraEntryPath(desktopEntryPath);
+}
+
+QString ApplicationPackageMonitorListener::toApplicationsEntryPath(const QString &desktopEntryPath) {
+  return gApplicationPackageMonitorListenerStub->toApplicationsEntryPath(desktopEntryPath);
 }
 
 void ApplicationPackageMonitorListener::setPackageUninstall(const QString &desktopEntryPath, const QString &packageName)
 {
     gApplicationPackageMonitorListenerStub->setPackageUninstall(desktopEntryPath, packageName);
 }
+
 #endif

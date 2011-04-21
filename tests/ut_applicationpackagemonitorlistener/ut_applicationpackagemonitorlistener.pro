@@ -19,4 +19,6 @@ HEADERS += \
 # service classes
 HEADERS += \
 
+DEFINES += APPLICATIONS_DIRECTORY=\'$$quote(\"/tmp/ut_desktopview/applications/\")\'
+
 include(../common_bot.pri)

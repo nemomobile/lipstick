@@ -292,7 +292,7 @@ void Ut_Launcher::testUpdatingLauncherButtonFromInstallerExtraFolder()
     QString updateButtonEntry = QString(APPLICATIONS_DIRECTORY) + "testApp2.desktop";
     launcher->updateLauncherButton(updateButtonEntry);
 
-    QCOMPARE(gLauncherDataStoreStub->stubCallCount("removeDataForDesktopEntry"), 1);
+    QCOMPARE(gLauncherDataStoreStub->stubCallCount("removeDataForDesktopEntry"), 2);
     QCOMPARE(gLauncherDataStoreStub->stubCallCount("updateDataForDesktopEntry"), 1);
     QCOMPARE(gLauncherButtonStub->stubCallCount("updateFromDesktopEntry"), 1);
 }
@@ -571,6 +571,8 @@ void Ut_Launcher::testSetOperationErrorWhenButtonFoundFromLauncher()
     QString installerExtraEntry = "/applications/installer-extra/test.desktop";
     launcher->addLauncherButton(applicationsEntry);
     gLauncherButtonStub->stubSetReturnValue("desktopEntry", applicationsEntry);
+    gApplicationPackageMonitorListenerStub->stubSetReturnValue("toInstallerExtraEntryPath", installerExtraEntry);
+    gApplicationPackageMonitorListenerStub->stubSetReturnValue("toApplicationsEntryPath", applicationsEntry);
 
     launcher->updateButtonState(installerExtraEntry, QString(), LauncherButtonModel::Broken, 0);
 
@@ -579,6 +581,7 @@ void Ut_Launcher::testSetOperationErrorWhenButtonFoundFromLauncher()
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("updateFromDesktopEntry").parameter<QString>(0), installerExtraEntry);
 
     QCOMPARE(gLauncherDataStoreStub->stubLastCallTo("removeDataForDesktopEntry").parameter<QString>(0), applicationsEntry);
+    //QCOMPARE(gLauncherDataStoreStub->stubLastCallTo("removeDataForDesktopEntry").parameter<QString>(1), applicationsEntry);
     QCOMPARE(gLauncherDataStoreStub->stubLastCallTo("updateDataForDesktopEntry").parameter<QString>(0), installerExtraEntry);
 }
 

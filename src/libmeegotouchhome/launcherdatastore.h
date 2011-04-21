@@ -87,6 +87,27 @@ public:
      */
     void removeDataForDesktopEntry(const QString &entryPath);
 
+    /*!
+      * This helper method gets a key from entry path by adding key prefix to the path.
+      *
+      * Due QSettings MFileDataStore removes preceding forward slash from key.
+      * To overcome this we need to use a key prefix in the key.
+      *
+      * \param entryPath The absolute entry path of the desktop entry (eg. "/usr/share/applications/deskentry.desktop").
+      * \return The key for the entry.
+      */
+    static QString entryPathToKey(const QString &entryPath);
+
+    /*!
+      * This helper method gets entry path from key by removing key prefix.
+      *
+      * Due QSettings MFileDataStore removes preceding forward slash from key.
+      * To overcome this we need to use a key prefix in the key.
+      *
+      * \param key The key as key prefix and entry path (eg. "KEY_PREFIX/usr/share/applications/deskentry.desktop").
+      * \return The entry path.
+      */
+    static QString keyToEntryPath(const QString &key);
 
 signals:
     /*!
@@ -155,28 +176,6 @@ private:
      * \return is desktop entry valid
      */
     virtual bool isDesktopEntryValid(const MDesktopEntry &entry, const QStringList &acceptedTypes);
-
-    /*!
-      * This helper method gets a key from entry path by adding key prefix to the path.
-      *
-      * Due QSettings MFileDataStore removes preceding forward slash from key.
-      * To overcome this we need to use a key prefix in the key.
-      *
-      * \param entryPath The absolute entry path of the desktop entry (eg. "/usr/share/applications/deskentry.desktop").
-      * \return The key for the entry.
-      */
-    static QString entryPathToKey(const QString &entryPath);
-
-    /*!
-      * This helper method gets entry path from key by removing key prefix.
-      *
-      * Due QSettings MFileDataStore removes preceding forward slash from key.
-      * To overcome this we need to use a key prefix in the key.
-      *
-      * \param key The key as key prefix and entry path (eg. "KEY_PREFIX/usr/share/applications/deskentry.desktop").
-      * \return The entry path.
-      */
-    static QString keyToEntryPath(const QString &key);
 
     /*!
       * Add path to watcher, if path isn't already watched.

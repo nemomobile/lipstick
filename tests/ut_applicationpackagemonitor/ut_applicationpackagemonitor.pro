@@ -4,7 +4,9 @@ TARGET = ut_applicationpackagemonitor
 # unit test and unit
 SOURCES += \
     ut_applicationpackagemonitor.cpp \
-    $$SRCDIR/applicationpackagemonitor.cpp
+    $$SRCDIR/applicationpackagemonitor.cpp \
+    $$SRCDIR/launcherdatastore.cpp \
+    $$SRCDIR/extradirwatcher.cpp
 
 # base classes
 SOURCES += \
@@ -16,7 +18,8 @@ SOURCES += ../stubs/stubbase.cpp
 HEADERS += \
     ut_applicationpackagemonitor.h \
     $$SRCDIR/applicationpackagemonitor.h \
-    $$SRCDIR/launcherdatastore.h
+    $$SRCDIR/launcherdatastore.h \
+    $$SRCDIR/extradirwatcher.h
 
 # base classes
 HEADERS += \
