@@ -1,11 +1,10 @@
-meegotouchhome (0.24.6~1) unstable; urgency=low
+meegotouchhome (0.25.0-1) unstable; urgency=low
 
-  * [UNRELEASED]
   * Fixes: NB#247718 - _MEEGOTOUCH_VISIBLE_IN_SWITCHER incorrectly set
   * Fixes: NB#237618 - Launcher does not notice all package state transitions
   * Fixes: NB#246034 - Application icon is not visible after package installation if the .desktop file is installed before the icon
  
- -- Pankaj Saharan <pankaj.saharan@nokia.com>  Mon, 18 Apr 2011 14:19:05 +0300
+ -- Eetu Lehmusvuo <ext-eetu.6.lehmusvuo@nokia.com>  Fri, 22 Apr 2011 15:48:05 +0300
 
 meegotouchhome (0.24.5-1) unstable; urgency=low
 
