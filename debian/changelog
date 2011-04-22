@@ -1,3 +1,9 @@
+meegotouchhome (0.25.1~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Eetu Lehmusvuo <ext-eetu.6.lehmusvuo@nokia.com>  Fri, 22 Apr 2011 15:54:07 +0300
+
 meegotouchhome (0.25.0-1) unstable; urgency=low
 
   * Fixes: NB#247718 - _MEEGOTOUCH_VISIBLE_IN_SWITCHER incorrectly set
