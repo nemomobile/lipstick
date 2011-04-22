@@ -28,6 +28,11 @@
 #include "mprogressindicator_stub.h"
 #include "mdesktopentry_stub.h"
 
+bool QFileInfo::exists() const
+{
+    return true;
+}
+
 // MButton stubs
 QString mButtonText;
 QString MButton::text() const

@@ -140,6 +140,10 @@ void LauncherButtonView::resetProgressIndicator()
 
 void LauncherButtonView::updateButtonIcon()
 {
+    // To assure icon is updated we need to set icon and icon id to null.
+    model()->setIconID(QString());
+    model()->setIcon(QIcon());
+
     switch(model()->buttonState()) {
         case LauncherButtonModel::Downloading:
             model()->setIconID(style()->downloadingPlaceholderIcon());
@@ -160,10 +164,15 @@ void LauncherButtonView::setIconFromDesktopEntry()
 {
     if (!model()->desktopEntry().isNull()) {
         QString icon = model()->desktopEntry()->icon();
-
         if (!icon.isEmpty()) {
-            if (QFileInfo(icon).isAbsolute()) {
-                model()->setIcon(QIcon(icon));
+            QFileInfo fileInfo(icon);
+            if (fileInfo.isAbsolute()) {
+                // Only set the icon if it exists
+                if (fileInfo.exists()) {
+                    model()->setIcon(QIcon(icon));
+                } else {
+                    model()->setIconID(DEFAULT_APPLICATION_ICON_ID);
+                }
             } else {
                 if (QIcon::hasThemeIcon(icon)) {
                     model()->setIcon(QIcon::fromTheme(icon));
