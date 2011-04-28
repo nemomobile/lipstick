@@ -55,7 +55,8 @@ class LauncherStub : public StubBase {
   virtual void setMaximumPageSizeIfNecessary(QSharedPointer<LauncherPage> &page);
   virtual void updatePackageName(const QString &desktopEntryPath, const QString &packageName);
   virtual QSharedPointer<LauncherPage> createLauncherPage();
-  virtual void updateButtonPlacementsOnPage(LauncherPage *page, int firstIndex, int lastIndex);
+  virtual void updateButtonPlacementsOnPage(LauncherPage *page);
+  virtual int pageIndex(LauncherPage *page);
 };
 
 // 2. IMPLEMENT STUB
@@ -203,11 +204,9 @@ QSharedPointer<LauncherButton> LauncherStub::placeholderButton(const QString &de
   return stubReturnValue<QSharedPointer<LauncherButton> >("placeholderButton");
 }
 
-void LauncherStub::updateButtonPlacementsOnPage(LauncherPage *page, int firstIndex, int lastIndex) {
+void LauncherStub::updateButtonPlacementsOnPage(LauncherPage *page) {
   QList<ParameterBase*> params;
   params.append( new Parameter<LauncherPage*>(page));
-  params.append( new Parameter<int>(firstIndex));
-  params.append( new Parameter<int>(lastIndex));
   stubMethodEntered("updateButtonPlacementOnPage",params);
 }
   
@@ -240,6 +239,13 @@ QSharedPointer<LauncherPage> LauncherStub::createLauncherPage()
 {
   stubMethodEntered("createLauncherPage");
   return stubReturnValue<QSharedPointer<LauncherPage> >("createLauncherPage");
+}
+
+int LauncherStub::pageIndex(LauncherPage *page) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<LauncherPage *>(page));
+  stubMethodEntered("pageIndex",params);
+  return stubReturnValue<int>("pageIndex");
 }
 
 
@@ -277,8 +283,8 @@ void Launcher::setPage(uint page) {
   gLauncherStub->setPage(page);
 }
 
-void Launcher::updateButtonPlacementsOnPage(LauncherPage *page, int firstIndex, int lastIndex) {
-  gLauncherStub->updateButtonPlacementsOnPage(page, firstIndex, lastIndex);
+void Launcher::updateButtonPlacementsOnPage(LauncherPage *page) {
+  gLauncherStub->updateButtonPlacementsOnPage(page);
 }
 
 void Launcher::updateButtonState(const QString &desktopEntryPath, const QString &packageName, LauncherButtonModel::State state, int progress) {
@@ -371,6 +377,10 @@ Launcher::Placement::Placement(const QString &placement) {
 
 void Launcher::updatePackageName(const QString &desktopEntryPath, const QString &packageName){
     gLauncherStub->updatePackageName(desktopEntryPath, packageName);
+}
+
+int Launcher::pageIndex(LauncherPage *page) {
+    return gLauncherStub->pageIndex(page);
 }
 
 #endif

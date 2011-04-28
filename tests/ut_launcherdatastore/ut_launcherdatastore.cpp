@@ -24,6 +24,7 @@
 #include "launcherpage.h"
 #include "mockdatastore.h"
 #include "ut_launcherdatastore.h"
+#include "mfiledatastore_stub.h"
 
 // MDesktopEntry stubs (used by Launcher)
 QMap<const MDesktopEntry *, QString> desktopEntryFileName;
@@ -575,6 +576,28 @@ void Ut_LauncherDataStore::testNotReprocessingInvalidEntry()
 
     // Entry should not be found from list of created MDesktopEntry's
     QVERIFY(!desktopEntryFileName.key(fileNameWithPath("notShowInMeeGoApplication.desktop"), NULL));
+}
+
+void Ut_LauncherDataStore::testUpdatingMultipleEntries()
+{
+    LauncherDataStore dataStore(new MFileDataStore("path"), QStringList() << APPLICATIONS_DIRECTORY);
+
+    // Add one existing value that should be updated too
+    addDesktopEntry("testApplication1.desktop", "Test2", "Application", "Icon-camera", "test2");
+
+    QHash<QString, QString> updatedData;
+    const int AMOUNT_OF_BUTTONS = 3;
+    for(int i = 0; i < AMOUNT_OF_BUTTONS; i++) {
+        updatedData.insert(QString("testApplication%1.desktop").arg(i), QString("launcher/0/%1").arg(i));
+    }
+    dataStore.updateDataForDesktopEntries(updatedData);
+
+    QHash<QString, QVariant> storedEntries = gMFileDataStoreStub->stubLastCallTo("createValues").parameter<QHash<QString, QVariant> >(0);
+    QCOMPARE(storedEntries.count(), 3);
+    foreach (const QString &key, storedEntries.keys()) {
+        QString entryPath = LauncherDataStore::keyToEntryPath(key);
+        QCOMPARE(storedEntries.value(key).toString(), updatedData.value(entryPath));
+    }
 }
 
 QTEST_APPLESS_MAIN(Ut_LauncherDataStore)

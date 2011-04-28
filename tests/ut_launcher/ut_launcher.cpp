@@ -360,65 +360,46 @@ void Ut_Launcher::testUpdatingButtonPlacementsOnPage()
     QCOMPARE(launcher->model()->launcherPages().at(1)->model()->launcherButtons().count(), buttonCountOnSecondPage);
 }
 
-void Ut_Launcher::testMovingButtonsWithValidIndexes()
+void Ut_Launcher::testWhenMovingButtonsThenNewPlacementsAreStored()
 {
     // Add some content to page
     addButtonsToLauncher(BUTTONS_PER_PAGE);
-    gLauncherDataStoreStub->stubReset();
+    QList<QString> desktopEntries;
+    QList<QString> expectedValues;
+    for (int i = 0; i < BUTTONS_PER_PAGE; i++) {
+        desktopEntries.append(QString("testApp%1.desktop").arg(i));
+        expectedValues.append(QString("launcher/0/%1").arg(i));
+    }
 
-    // request update for buttons between indexes 0 and 1
-    launcher->updateButtonPlacementsOnPage(static_cast<LauncherPage*>(launcher->model()->launcherPages().at(0).data()), 0, 1);
-    QCOMPARE(gLauncherDataStoreStub->stubCallCount("updateDataForDesktopEntry"), 2);
-}
+    // Move some buttons around
+    desktopEntries.move(10, 0);
+    desktopEntries.move(4, 5);
 
-void Ut_Launcher::testMovingButtons()
-{
-    // Add some content to page
-    addButtonsToLauncher(BUTTONS_PER_PAGE);
+    gLauncherButtonStub->stubSetReturnValueList("desktopEntry", desktopEntries);
 
-    QList<QString> values;
-    values.append(QString("testApp1.desktop"));
-    values.append(QString("testApp2.desktop"));
-    gLauncherButtonStub->stubSetReturnValueList("desktopEntry", values);
-    gLauncherDataStoreStub->stubReset();
+    launcher->updateButtonPlacementsOnPage(launcher->model()->launcherPages().at(0).data());
 
-    // request update for buttons between indexes 0 and 1
-    launcher->updateButtonPlacementsOnPage(static_cast<LauncherPage*>(launcher->model()->launcherPages().at(0).data()), 0, 1);
+    QHash<QString, QString> storedEntries = gLauncherDataStoreStub->stubLastCallTo("updateDataForDesktopEntries").parameter<QHash<QString, QString> >(0);
+    int i = 0;
+    foreach (const QString &entry, desktopEntries) {
+        QCOMPARE(storedEntries.value(entry), expectedValues[i]);
+        i++;
+    }
 
-    QCOMPARE(gLauncherDataStoreStub->stubCallCount("updateDataForDesktopEntry"), 2);
-    QCOMPARE(gLauncherDataStoreStub->stubCallsTo("updateDataForDesktopEntry").at(0)->parameter<QString>(0), QString("testApp1.desktop"));
-    QCOMPARE(gLauncherDataStoreStub->stubCallsTo("updateDataForDesktopEntry").at(0)->parameter<QVariant>(1), QVariant("launcher/0/0"));
-    QCOMPARE(gLauncherDataStoreStub->stubCallsTo("updateDataForDesktopEntry").at(1)->parameter<QString>(0), QString("testApp2.desktop"));
-    QCOMPARE(gLauncherDataStoreStub->stubCallsTo("updateDataForDesktopEntry").at(1)->parameter<QVariant>(1), QVariant("launcher/0/1"));
+    // Move some more buttons around
+    desktopEntries.move(3, 0);
+    desktopEntries.move(6, 10);
+    desktopEntries.move(2, 1);
+    gLauncherButtonStub->stubSetReturnValueList("desktopEntry", desktopEntries);
 
-    gLauncherButtonStub->stubSetReturnValueList("desktopEntry", values);
-    gLauncherDataStoreStub->stubReset();
+    launcher->updateButtonPlacementsOnPage(launcher->model()->launcherPages().at(0).data());
 
-    // request update for buttons between indexes 1 and 0
-    launcher->updateButtonPlacementsOnPage(static_cast<LauncherPage*>(launcher->model()->launcherPages().at(0).data()), 1, 0);
-
-    QCOMPARE(gLauncherDataStoreStub->stubCallCount("updateDataForDesktopEntry"), 2);
-    QCOMPARE(gLauncherDataStoreStub->stubCallsTo("updateDataForDesktopEntry").at(0)->parameter<QString>(0), QString("testApp1.desktop"));
-    QCOMPARE(gLauncherDataStoreStub->stubCallsTo("updateDataForDesktopEntry").at(0)->parameter<QVariant>(1), QVariant("launcher/0/0"));
-    QCOMPARE(gLauncherDataStoreStub->stubCallsTo("updateDataForDesktopEntry").at(1)->parameter<QString>(0), QString("testApp2.desktop"));
-    QCOMPARE(gLauncherDataStoreStub->stubCallsTo("updateDataForDesktopEntry").at(1)->parameter<QVariant>(1), QVariant("launcher/0/1"));
-}
-
-void Ut_Launcher::testMovingButtonsWithInvalidIndexes()
-{
-    addButtonsToLauncher(BUTTONS_PER_PAGE);
-
-    gLauncherDataStoreStub->stubReset();
-
-    // first index invalid
-    launcher->updateButtonPlacementsOnPage(static_cast<LauncherPage*>(launcher->model()->launcherPages().at(0).data()), -1, 1);
-    // second index invalid
-    launcher->updateButtonPlacementsOnPage(static_cast<LauncherPage*>(launcher->model()->launcherPages().at(0).data()), 1, -1);
-    // both indexes invalid
-    launcher->updateButtonPlacementsOnPage(static_cast<LauncherPage*>(launcher->model()->launcherPages().at(0).data()), -1, -1);
-
-    // assure no buttons updated
-    QCOMPARE(gLauncherDataStoreStub->stubCallCount("updateDataForDesktopEntry"), 0);
+    storedEntries = gLauncherDataStoreStub->stubLastCallTo("updateDataForDesktopEntries").parameter<QHash<QString, QString> >(0);
+    i = 0;
+    foreach (const QString &entry, desktopEntries) {
+        QCOMPARE(storedEntries.value(entry), expectedValues[i]);
+        i++;
+    }
 }
 
 void Ut_Launcher::testRemovingButtons()

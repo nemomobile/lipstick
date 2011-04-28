@@ -23,6 +23,7 @@
 #include "launcherpage.h"
 #include "launcherbutton.h"
 #include "launcherdatastore.h"
+#include <MFileDataStore>
 
 static const QString KEY_PREFIX = "DesktopEntries";
 static const char* const FILE_FILTER = "*.desktop";
@@ -72,6 +73,29 @@ void LauncherDataStore::updateDataForDesktopEntry(const QString &entryPath, cons
 
     // Update the data store
     store->createValue(entryPathToKey(entryPath), data);
+
+    // Emit a dataStoreChanged() signal if something changes in the data store
+    connect(store, SIGNAL(valueChanged(QString, QVariant)), this, SIGNAL(dataStoreChanged()));
+}
+
+void LauncherDataStore::updateDataForDesktopEntries(const QHash<QString, QString> &newValues)
+{
+    // Disconnect listening store changes during the store is updated.
+    disconnect(store, SIGNAL(valueChanged(QString, QVariant)), this, SIGNAL(dataStoreChanged()));
+
+    // If data store is MFileDataStore then store values with createValues() method which does only one sync
+    MFileDataStore *fileDataStore = dynamic_cast<MFileDataStore *>(store);
+    if (fileDataStore) {
+        QHash<QString, QVariant> newStoreValues;
+        foreach (const QString &entryPath, newValues.keys()) {
+            newStoreValues.insert(entryPathToKey(entryPath), newValues.value(entryPath));
+        }
+        fileDataStore->createValues(newStoreValues);
+    } else {
+        foreach (const QString &entryPath, newValues.keys()) {
+            store->createValue(entryPathToKey(entryPath), newValues.value(entryPath));
+        }
+    }
 
     // Emit a dataStoreChanged() signal if something changes in the data store
     connect(store, SIGNAL(valueChanged(QString, QVariant)), this, SIGNAL(dataStoreChanged()));
