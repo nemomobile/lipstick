@@ -32,6 +32,7 @@ class MDataStore;
 class LauncherPage;
 class LauncherButton;
 class MDesktopEntry;
+class MDataStore;
 
 /*!
  * \class LauncherDataStore
@@ -78,13 +79,6 @@ public:
      * \param data the data to update the desktop entry with
      */
     void updateDataForDesktopEntry(const QString &entryPath, const QVariant &data);
-
-    /*!
-     * Updates the data for given desktop entries in the data store.
-     *
-     * \param newValues The desktop entries to update, as 'entry path'-'placement' pairs
-     */
-    void updateDataForDesktopEntries(const QHash<QString, QString> &newValues);
 
     /*!
      * Removes the data for a desktop entry in the data store.

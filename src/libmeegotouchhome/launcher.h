@@ -195,8 +195,10 @@ public slots:
      * Updates current Launcher Button placements on LauncherPage to desktop files.
      *
      * \param Page for update
+     * \param firstIndex First index which will be updated
+     * \param lastIndex Last index which will be updated
      */
-    void updateButtonPlacementsOnPage(LauncherPage *page);
+    void updateButtonPlacementsOnPage(LauncherPage *page, int firstIndex, int lastIndex);
 
 private slots:
 
@@ -230,10 +232,10 @@ private slots:
      */
     void updatePagesFromDataStore();
 
-    //! Updates package name of given desktop entry
     void updatePackageName(const QString &desktopEntryPath, const QString &packageName);
 
 private:
+
     /*!
      * Get desktop entry placement in datastore
      *
@@ -337,9 +339,6 @@ private:
      * \param page the LauncherPage whose maximum size should be set
      */
     void setMaximumPageSizeIfNecessary(QSharedPointer<LauncherPage> &page);
-
-    //! Returns index of given page
-    int pageIndex(LauncherPage *page);
 
     //! A string used for identifying content to be placed in the launcher
     static const QString LOCATION_IDENTIFIER;

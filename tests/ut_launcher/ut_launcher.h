@@ -87,7 +87,11 @@ private slots:
     // Test removing buttons
     void testUpdatingButtonPlacementsOnPage();
     // Test moving buttons
-    void testWhenMovingButtonsThenNewPlacementsAreStored();
+    void testMovingButtons();
+    // Test buttons moved with valid indexes
+    void testMovingButtonsWithValidIndexes();
+    // Test buttons not moved with invalid indexes
+    void testMovingButtonsWithInvalidIndexes();
     // Test removing buttons
     void testRemovingButtons();
     // Test setting launcher to show first page

@@ -167,7 +167,6 @@ void Launcher::removePlaceholderButton(const QString &desktopEntryPath)
         if (buttonForDesktopEntry->desktopEntry() == desktopEntryPath) {
             removeButtonPlacementFromStore(desktopEntryPath);
             removeLauncherButton(desktopEntryPath);
-            updateButtonPlacementsOnPage(page.data());
         }
     }
 }
@@ -242,20 +241,30 @@ void Launcher::addDesktopEntriesWithKnownPlacements(QList<QSharedPointer<Launche
     }
 }
 
-void Launcher::updateButtonPlacementsOnPage(LauncherPage *page)
+void Launcher::updateButtonPlacementsOnPage(LauncherPage *page, int firstIndex, int lastIndex)
 {
-    int pageNum = pageIndex(page);
-    if (pageNum < 0) {
-        return;
+    // get page number
+    int pageNum = 0;
+    foreach (const QSharedPointer<LauncherPage> &p, model()->launcherPages()) {
+        if (page == p) {
+            break;
+        }
+        pageNum++;
     }
 
-    QHash<QString, QString> newValues;
-    int position = 0;
-    foreach(const QSharedPointer<LauncherButton> &button, page->model()->launcherButtons()) {
-        QString entry = button->desktopEntry();
-        newValues.insert(entry, Placement(pageNum, position++).toString());
+    if (firstIndex > lastIndex) {
+        int temp = lastIndex;
+        lastIndex = firstIndex;
+        firstIndex = temp;
     }
-    dataStore->updateDataForDesktopEntries(newValues);
+
+    if (firstIndex > -1) {
+        // update every button position between startPosition and endPosition
+        const QList< QSharedPointer<LauncherButton> > buttonsOnPage(page->model()->launcherButtons());
+        for (int i = firstIndex; i <= lastIndex && i < buttonsOnPage.count(); i++) {
+            dataStore->updateDataForDesktopEntry(buttonsOnPage.at(i)->desktopEntry(), Placement(pageNum, i).toString());
+        }
+    }
 }
 
 void Launcher::addDesktopEntriesWithUnknownPlacements(QList<QSharedPointer<LauncherPage> > &pages)
@@ -364,21 +373,25 @@ void Launcher::removeLauncherButton(const QString &desktopEntryPath)
 {
     QList<QSharedPointer<LauncherPage> > pages = model()->launcherPages();
 
+    int pageIndex = 0;
     foreach (QSharedPointer<LauncherPage> page, pages) {
-        int removedButtonPosition = page->launcherButtonPosition(desktopEntryPath);
-        if (removedButtonPosition > -1) {
-            page->removeButton(desktopEntryPath);
+        if (page->removeButton(desktopEntryPath)) {
 
             QList<QSharedPointer<LauncherButton> > buttons = page->model()->launcherButtons();
             if (buttons.count() == 0) {
                 // remove empty page
                 pages.removeOne(page);
                 model()->setLauncherPages(pages);
-            } else {
-                updateButtonPlacementsOnPage(page.data());
+            } else if (dataStore != NULL) {
+                // Update new locations for other launcher buttons on page (when button is removed other buttons get shifted)
+                int buttonIndex = 0;
+                foreach (QSharedPointer<LauncherButton> button, buttons) {
+                    dataStore->updateDataForDesktopEntry(button->desktopEntry(), PLACEMENT_TEMPLATE.arg(pageIndex).arg(buttonIndex++));
+                }
             }
             break;
         }
+        pageIndex++;
     }
 }
 
@@ -458,20 +471,6 @@ void Launcher::updateButtonPlacementInStore(const QString &desktopEntryPath)
 void Launcher::removeButtonPlacementFromStore(const QString &desktopEntryPath)
 {
     dataStore->removeDataForDesktopEntry(desktopEntryPath);
-}
-
-int Launcher::pageIndex(LauncherPage *page)
-{
-    int pageNum = -1;
-    int index = 0;
-    foreach(const QSharedPointer<LauncherPage> &sharedPage, model()->launcherPages()) {
-        if (page == sharedPage.data()) {
-            pageNum = index;
-            break;
-        }
-        index++;
-    }
-    return pageNum;
 }
 
 Launcher::Placement::Placement() : page(-1), position(-1) {
