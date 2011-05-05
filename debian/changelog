@@ -1,3 +1,9 @@
+meegotouchhome (0.26.1~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Eetu Lehmusvuo <ext-eetu.6.lehmusvuo@nokia.com>  Thu, 05 May 2011 12:59:12 +0300
+
 meegotouchhome (0.26.0-1) unstable; urgency=low
 
   * Fixes: NB#251232 - Moving button in launcher produces noticeable lag
