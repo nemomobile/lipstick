@@ -81,6 +81,7 @@ void Ut_QuickLaunchBar::testLauncherDataStoreChanged()
     QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->buttons().value(1).data()) == NULL);
     QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->buttons().value(2).data()) == NULL);
     QVERIFY(dynamic_cast<LauncherButton *>(m_subject->model()->buttons().value(3).data()) != NULL);
+    QVERIFY(disconnect(m_subject->model()->buttons().value(3).data(), SIGNAL(clicked()), m_subject, SIGNAL(launcherButtonClicked())));
 }
 
 void Ut_QuickLaunchBar::testSettingApplicationPackageMonitor()

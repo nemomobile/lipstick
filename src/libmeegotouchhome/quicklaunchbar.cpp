@@ -101,6 +101,7 @@ LauncherButton *QuickLaunchBar::createLauncherButton(const QString &desktopEntry
 {
     LauncherButton *button = new LauncherButton(desktopEntryPath);
     button->setObjectName("QuickLaunchBarButton");
+    connect(button, SIGNAL(clicked()), this, SIGNAL(launcherButtonClicked()));
     return button;
 }
 

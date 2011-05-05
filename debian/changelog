@@ -1,6 +1,7 @@
 meegotouchhome (0.26.1~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#252623 - Quick Launch Bar fixes
 
  -- Eetu Lehmusvuo <ext-eetu.6.lehmusvuo@nokia.com>  Thu, 05 May 2011 12:59:12 +0300
 

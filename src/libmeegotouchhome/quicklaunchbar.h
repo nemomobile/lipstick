@@ -56,7 +56,7 @@ public:
     /*!
      * Destroys the QuickLaunchBar.
      */
-    ~QuickLaunchBar();
+    virtual ~QuickLaunchBar();
 
     /*!
      * Takes a LauncherDataStore into use.
@@ -78,6 +78,11 @@ signals:
      * \brief A signal for notifying that the launcher button has been clicked
      */
     void toggleLauncherButtonClicked();
+
+    /*!
+     * \brief Sent when a launcher button has been clicked
+     */
+    void launcherButtonClicked();
 
 public slots:
     /*!
