@@ -118,9 +118,6 @@ private:
      */
     void init();
 
-    //! Whether an object represented by any launcher button is being launched or not
-    static bool launching;
-
     //! The action for this button
     LauncherAction action;
 

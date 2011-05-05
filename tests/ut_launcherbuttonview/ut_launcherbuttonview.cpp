@@ -40,20 +40,6 @@ QString MButton::text() const
     return mButtonText;
 }
 
-// QTimer stubs
-bool qTimerStarted;
-void QTimer::start()
-{
-    qTimerStarted = true;
-    id = 0;
-}
-
-void QTimer::stop()
-{
-    qTimerStarted = false;
-    id = -1;
-}
-
 // MButtonIconView stubs
 bool mButtonIconViewApplyStyleCalled;
 void MButtonIconView::applyStyle()
@@ -118,7 +104,6 @@ void Ut_LauncherButtonView::init()
     controller->setView(m_subject);
     mWidgetViewUpdateCalled = false;
     mButtonIconViewApplyStyleCalled = false;
-    qTimerStarted = false;
     qIconHasThemeIcon = false;
     qIconFileName.clear();
     qIconName.clear();
@@ -136,9 +121,6 @@ void Ut_LauncherButtonView::cleanup()
 void Ut_LauncherButtonView::testInitialization()
 {
     QCOMPARE(m_subject->model()->buttonState(), LauncherButtonModel::Installed);
-    QVERIFY(disconnect(&m_subject->launchProgressTimeoutTimer, SIGNAL(timeout()), controller, SLOT(stopLaunchProgress())));
-    QVERIFY(m_subject->launchProgressTimeoutTimer.isSingleShot());
-    QVERIFY(!qTimerStarted);
 }
 
 void Ut_LauncherButtonView::testApplyStyle()
@@ -181,13 +163,11 @@ void Ut_LauncherButtonView::testResetProgressIndicator()
 void Ut_LauncherButtonView::testLaunchingProgress()
 {
     m_subject->model()->setButtonState(LauncherButtonModel::Launching);
-    QVERIFY(qTimerStarted);
     // one for reset and one for button state change
     QCOMPARE(gMProgressIndicatorStub->stubCallCount("setUnknownDuration"), 2);
     QCOMPARE(gMProgressIndicatorStub->stubLastCallTo("setUnknownDuration").parameter<bool>(0), true);
 
     m_subject->model()->setButtonState(LauncherButtonModel::Installed);
-    QVERIFY(!qTimerStarted);
 }
 
 void Ut_LauncherButtonView::testUpdateProgressWhenDownloading()

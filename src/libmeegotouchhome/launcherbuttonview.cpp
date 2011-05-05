@@ -33,10 +33,6 @@ LauncherButtonView::LauncherButtonView(LauncherButton *controller) :
     progressIndicator->setContentsMargins(0,0,0,0);
     progressIndicator->setRange(0, 100);
     progressIndicator->hide();
-
-    // When the progress indicator timer times out the progress indicator should be hidden
-    launchProgressTimeoutTimer.setSingleShot(true);
-    connect(&launchProgressTimeoutTimer, SIGNAL(timeout()), controller, SLOT(stopLaunchProgress()));
 }
 
 LauncherButtonView::~LauncherButtonView()
@@ -46,9 +42,6 @@ LauncherButtonView::~LauncherButtonView()
 void LauncherButtonView::applyStyle()
 {
     MButtonIconView::applyStyle();
-
-    // set launch progress maximum duration from style
-    launchProgressTimeoutTimer.setInterval(style()->launchProgressIndicatorTimeout());
 
     // Set position and size for progress indicator
     int hMargin = style()->paddingLeft() + style()->paddingRight() + style()->marginLeft() + style()->marginRight();
@@ -82,7 +75,6 @@ void LauncherButtonView::updateData(const QList<const char *>& modifications)
             resetProgressIndicator();
 
             if (model()->buttonState() == LauncherButtonModel::Launching) {
-                launchProgressTimeoutTimer.start();
                 controller->setEnabled(false);
             } else {
                 if (model()->buttonState()
@@ -92,10 +84,6 @@ void LauncherButtonView::updateData(const QList<const char *>& modifications)
                     controller->setEnabled(true);
                 } else {
                     controller->setEnabled(false);
-                }
-                // stop launch timer in case we were launching
-                if (launchProgressTimeoutTimer.isActive()) {
-                    launchProgressTimeoutTimer.stop();
                 }
             }
         } else if (member == LauncherButtonModel::OperationProgress) {

@@ -27,8 +27,6 @@ M_REGISTER_WIDGET(LauncherButton)
 
 #include "homewindowmonitor.h"
 
-bool LauncherButton::launching = false;
-
 LauncherButton::LauncherButton(const QString &desktopEntryPath, MWidget *parent, LauncherButtonModel *model) :
         MButton(parent, model)
 {
@@ -59,25 +57,20 @@ LauncherButtonModel::State LauncherButton::buttonState() const
 
 void LauncherButton::launch()
 {
-    if (!launching) {
-        if (model()->buttonState() == LauncherButtonModel::Installed) {
-            model()->setButtonState(LauncherButtonModel::Launching);
-
-            connect(HomeWindowMonitor::instance(), SIGNAL(fullscreenWindowOnTopOfOwnWindow()), SLOT(stopLaunchProgress()));
-
-            launching = true;
-            action.trigger();
-        } else if (model()->buttonState() == LauncherButtonModel::Broken) {
-            // Show the exception dialog for this package
-            if (!model()->desktopEntry().isNull()) {
-                QString package = model()->packageName();
-                if (!package.isEmpty()) {
-                    QDBusInterface interface("com.nokia.package_manager_install_ui",
-                                           "/com/nokia/package_manager_install_ui",
-                                           "com.nokia.package_manager_install_ui",
-                                           QDBusConnection::sessionBus());
-                    interface.call("show_installation_exception", package);
-                }
+    if (model()->buttonState() == LauncherButtonModel::Installed) {
+        model()->setButtonState(LauncherButtonModel::Launching);
+        connect(HomeWindowMonitor::instance(), SIGNAL(fullscreenWindowOnTopOfOwnWindow()), SLOT(stopLaunchProgress()));
+        action.trigger();
+    } else if (model()->buttonState() == LauncherButtonModel::Broken) {
+        // Show the exception dialog for this package
+        if (!model()->desktopEntry().isNull()) {
+            QString package = model()->packageName();
+            if (!package.isEmpty()) {
+                QDBusInterface interface("com.nokia.package_manager_install_ui",
+                        "/com/nokia/package_manager_install_ui",
+                        "com.nokia.package_manager_install_ui",
+                        QDBusConnection::sessionBus());
+                interface.call("show_installation_exception", package);
             }
         }
     }
@@ -86,9 +79,6 @@ void LauncherButton::launch()
 void LauncherButton::stopLaunchProgress()
 {
     model()->setButtonState(LauncherButtonModel::Installed);
-
-    launching = false;
-
     disconnect(HomeWindowMonitor::instance(), SIGNAL(fullscreenWindowOnTopOfOwnWindow()), this, SLOT(stopLaunchProgress()));
 }
 

@@ -80,9 +80,6 @@ private:
     //! Progress indicator for operation
     LauncherButtonProgressIndicator *progressIndicator;
 
-    //! A timer for disabling the progress indicator if the application startup takes a long time
-    QTimer launchProgressTimeoutTimer;
-
 #ifdef UNIT_TEST
     friend class Ut_LauncherButtonView;
 #endif

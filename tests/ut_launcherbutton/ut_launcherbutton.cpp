@@ -474,7 +474,7 @@ void Ut_LauncherButton::testTryingToLaunchSecondActionWhileLaunching()
     QCOMPARE(contentActionTriggerCalls, 1);
 
     secondTestButton->launch();
-    QCOMPARE(contentActionTriggerCalls, 1);
+    QCOMPARE(contentActionTriggerCalls, 2);
 }
 
 QTEST_APPLESS_MAIN(Ut_LauncherButton)

@@ -30,9 +30,6 @@ class LauncherButtonStyle : public MButtonIconStyle
     //! Launch progress indicator visibility.
     M_STYLE_ATTRIBUTE(bool, showLaunchProgress, ShowLaunchProgress)
 
-    //! The timeout for the progress indicator (in milliseconds)
-    M_STYLE_ATTRIBUTE(int, launchProgressIndicatorTimeout, LaunchProgressIndicatorTimeout)
-
     /*!
      * The progress indicator icon size (this is needed for implementation reasons
      * as progress indicator icons might be different size than button icon).

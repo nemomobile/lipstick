@@ -114,9 +114,6 @@ LauncherButtonStyle {
     press-feedback: press;
     release-feedback: release;
 
-    /* The timeout for the progress indicator (in milliseconds) */
-    launch-progress-indicator-timeout: 10000;
-
     downloading-placeholder-icon: "icon-l-downloading";
     installing-placeholder-icon: "icon-l-installing";
     broken-placeholder-icon: "icon-l-error";
