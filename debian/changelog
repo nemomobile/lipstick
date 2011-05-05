@@ -1,3 +1,9 @@
+meegotouchhome (0.25.2~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Eetu Lehmusvuo <ext-eetu.6.lehmusvuo@nokia.com>  Thu, 05 May 2011 16:28:12 +0300
+
 meegotouchhome (0.25.1-1) unstable; urgency=low
 
   * Fixes: NB#252623 - Quick Launch Bar fixes
