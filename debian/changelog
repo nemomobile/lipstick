@@ -1,3 +1,9 @@
+meegotouchhome (0.25.4~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Janne Sakko <ext-janne.2.sakko@nokia.com>  Fri, 06 May 2011 15:37:42 +0300
+
 meegotouchhome (0.25.3-1) unstable; urgency=low
 
   * Fixes: NB#251126 - [TASK] Remove timeout of new taps not activating app launch while previous tap is not completed yet
