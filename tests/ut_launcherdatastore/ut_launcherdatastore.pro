@@ -11,6 +11,9 @@ HEADERS += \
     ut_launcherdatastore.h \
     $$SRCDIR/launcherdatastore.h
 
+SOURCES += \
+    $$STUBSDIR/stubbase.cpp
+
 DEFINES += APPLICATIONS_DIRECTORY=\'$$quote(\"/tmp/ut_launcherdatastore/applications/\")\'
 
 include(../common_bot.pri)

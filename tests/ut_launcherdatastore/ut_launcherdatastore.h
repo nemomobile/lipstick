@@ -58,6 +58,7 @@ private slots:
     void testUpdatingInvalidEntry();
     void testRemovingEntriesWhenApplicationsDirectoryGetsEmpty();
     void testNotReprocessingInvalidEntry();
+    void testUpdatingMultipleEntries();
 
 signals:
     void directoryChanged();
