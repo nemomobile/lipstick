@@ -1,9 +1,8 @@
-meegotouchhome (0.25.4~1) unstable; urgency=low
+meegotouchhome (0.25.4-1) unstable; urgency=low
 
-  * [UNRELEASED]
   * Fixes: NB#251366 - Paged views resist horizontal panning
 
- -- Janne Sakko <ext-janne.2.sakko@nokia.com>  Fri, 06 May 2011 15:37:42 +0300
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Mon, 09 May 2011 19:18:26 +0300
 
 meegotouchhome (0.25.3-1) unstable; urgency=low
 
