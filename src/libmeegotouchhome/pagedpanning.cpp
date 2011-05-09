@@ -40,7 +40,7 @@ PagedPanning::PagedPanning(QObject* parent) : MPhysics2DPanning(parent),
                                               targetPage_(0),
                                               initialPage(0),
                                               previousPageWidth(0),
-                                              latestSwipeLenght(0),
+                                              latestSwipeLength(0),
                                               wrapMode(false),
                                               pageWrapping(false)
 {
@@ -306,6 +306,7 @@ void PagedPanning::pointerPress(const QPointF &pos)
     MPhysics2DPanning::pointerPress(pos);
 
     initialPage = currentPage;
+    pointerPressPosition = pos;
 
     // Stop the automatic panning when the pointer comes down
     snapMode = false;
@@ -325,9 +326,9 @@ void PagedPanning::pointerMove(const QPointF &pos)
     /* Target the next page if the view has been dragged over the
        dragThreshold. */
 
-    qreal distanceToInitialPage = position().x() - initialPage * pageWidth();
+    qreal distanceToInitialPage = pointerPressPosition.x() - pos.x();
 
-    latestSwipeLenght = distanceToInitialPage;
+    latestSwipeLength = distanceToInitialPage;
 
     int draggedPages;
 
@@ -358,7 +359,7 @@ void PagedPanning::goToNextPageWithStrongEnoughFlick()
     /* Pan to the next page if a strong enough flick was performed and pan threshold is exceeded. */
     if (targetPage_ == initialPage
         && std::fabs(velocity().x()) > velocityThreshold_
-        && std::fabs(latestSwipeLenght) > panThreshold) {
+        && std::fabs(latestSwipeLength) > panThreshold) {
         targetPage_ += velocity().x() > 0 ? 1 : -1;
         snapMode = true;
     }

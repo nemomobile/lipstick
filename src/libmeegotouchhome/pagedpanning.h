@@ -226,8 +226,11 @@ private:
      */
     qreal slideDistance(qreal initialVelocity, qreal friction);
 
-    //! Lenght of latest swipe gesture
-    qreal latestSwipeLenght;
+    //! The point in which the pointer was pressed
+    QPointF pointerPressPosition;
+
+    //! Length of latest swipe gesture
+    qreal latestSwipeLength;
 
     //! If true, panning wraps the page around the edges
     bool wrapMode;

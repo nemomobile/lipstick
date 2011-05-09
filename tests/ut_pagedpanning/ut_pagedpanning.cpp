@@ -469,9 +469,9 @@ void Ut_PagedPanning::testWhenSlideIsLimitedToOnePageAndPanningOverOnePageThenTh
     m_subject->setSlidingFriction(0.02);
     m_subject->setSlideLimit(1);
 
-    // Pan 1.5 pages (to page 1). Slide should continue only one page (to page 2) since it's limited
+    // Pan 1.4 pages (to page 1). Slide should continue only one page (to page 2) since it's limited
     testMovement(0,
-                 m_subject->pageWidth() * 1.5,
+                 m_subject->pageWidth() * 1.4,
                  false,
                  2,
                  8.0);
