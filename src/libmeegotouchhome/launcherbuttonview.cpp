@@ -20,6 +20,7 @@
 #include "launcherbuttonview.h"
 
 #include <QFileInfo>
+#include <QDir>
 #include "launcherbuttonprogressindicator.h"
 #include "launcherbutton.h"
 
@@ -30,30 +31,10 @@ LauncherButtonView::LauncherButtonView(LauncherButton *controller) :
     controller(controller),
     progressIndicator(new LauncherButtonProgressIndicator(controller))
 {
-    progressIndicator->setContentsMargins(0,0,0,0);
-    progressIndicator->setRange(0, 100);
-    progressIndicator->hide();
 }
 
 LauncherButtonView::~LauncherButtonView()
 {
-}
-
-void LauncherButtonView::applyStyle()
-{
-    MButtonIconView::applyStyle();
-
-    // Set position and size for progress indicator
-    int hMargin = style()->paddingLeft() + style()->paddingRight() + style()->marginLeft() + style()->marginRight();
-    int vMargin = style()->paddingTop() + style()->paddingBottom() + style()->marginTop() + style()->marginBottom();
-
-    int progressIndicatorHOffset = (style()->preferredSize().width() / 2) - (style()->progressIndicatorIconSize().width() / 2);
-    int progressIndicatorVOffset = (style()->iconSize().height() - style()->progressIndicatorIconSize().height())/2;
-    int progressIndicatorLeftPosition =  progressIndicatorHOffset + hMargin / 2;
-    int progressIndicatorTopPosition = progressIndicatorVOffset + vMargin / 2;
-
-    progressIndicator->setPreferredSize(style()->progressIndicatorIconSize());
-    progressIndicator->setPos(QPointF(progressIndicatorLeftPosition, progressIndicatorTopPosition));
 }
 
 void LauncherButtonView::setupModel()
@@ -117,8 +98,11 @@ void LauncherButtonView::resetProgressIndicator()
             progressIndicator->show();
             break;
         case LauncherButtonModel::Downloading:
-            progressIndicator->reset();
-            progressIndicator->show();
+            if (!progressIndicator) {
+                progressIndicator = createProgressIndicator();
+            }
+            progressIndicator->setIndicatorState(state);
+            progressIndicator->setUnknownDuration(false);
             break;
         default:
             progressIndicator->hide();
@@ -155,11 +139,14 @@ void LauncherButtonView::setIconFromDesktopEntry()
         if (!icon.isEmpty()) {
             QFileInfo fileInfo(icon);
             if (fileInfo.isAbsolute()) {
-                // Only set the icon if it exists
                 if (fileInfo.exists()) {
                     model()->setIcon(QIcon(icon));
                 } else {
                     model()->setIconID(DEFAULT_APPLICATION_ICON_ID);
+                    unavailableIconPath = icon;
+                    // Add non-existent icon path to watcher for to be loaded when available
+                    iconWatcher.addPath(QFileInfo(unavailableIconPath).absolutePath());
+                    connect(&iconWatcher, SIGNAL(directoryChanged(QString)), this, SLOT(updateUnavailableIcon(QString)), Qt::UniqueConnection);
                 }
             } else {
                 if (QIcon::hasThemeIcon(icon)) {
@@ -170,6 +157,25 @@ void LauncherButtonView::setIconFromDesktopEntry()
             }
         } else {
             model()->setIconID(DEFAULT_APPLICATION_ICON_ID);
+        }
+    }
+}
+
+void LauncherButtonView::updateUnavailableIcon(const QString& dirPath)
+{
+    if (!unavailableIconPath.isEmpty()) {
+        QFileInfo fileInfo(unavailableIconPath);
+        if (fileInfo.absoluteDir() == dirPath && fileInfo.exists()) {
+            // To assure icon is updated we need to set icon and icon id to null.
+            model()->setIconID(QString());
+            model()->setIcon(QIcon());
+
+            // Icon available, update
+            model()->setIcon(QIcon(unavailableIconPath));
+
+            iconWatcher.removePath(unavailableIconPath);
+            unavailableIconPath = QString();
+            disconnect(&iconWatcher, SIGNAL(directoryChanged(const QString&)), this, SLOT(updateUnavailableIcon(const QString&)));
         }
     }
 }

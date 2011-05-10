@@ -26,9 +26,11 @@
 #include <mbuttoniconview.h>
 #include "launcherbuttonmodel.h"
 #include "launcherbuttonstyle.h"
+#include <QFileSystemWatcher>
 
 class LauncherButton;
 class LauncherButtonProgressIndicator;
+
 /*!
  * The launcher button view allows a progress indicator to be displayed on top of it.
  */
@@ -52,7 +54,6 @@ public:
 
 protected:
     //! \reimp
-    virtual void applyStyle();
     virtual void setupModel();
     //! \reimp_end
 
@@ -60,6 +61,9 @@ protected slots:
     //! \reimp
     virtual void updateData(const QList<const char *>& modifications);
     //! \reimp_end
+
+    //! Updates the icon, only if icon file exists and unavailableIconPath is in given path
+    void updateUnavailableIcon(const QString& dirPath);
 
 private:
     //! Resets the progress indicator according to button state
@@ -79,6 +83,12 @@ private:
 
     //! Progress indicator for operation
     LauncherButtonProgressIndicator *progressIndicator;
+
+    //! File system watcher for icons that are not available at initialization
+    QFileSystemWatcher iconWatcher;
+
+    //! Path to icon that was unvailable at initialization
+    QString unavailableIconPath;
 
 #ifdef UNIT_TEST
     friend class Ut_LauncherButtonView;

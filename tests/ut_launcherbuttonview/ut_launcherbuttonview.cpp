@@ -28,9 +28,16 @@
 #include "mprogressindicator_stub.h"
 #include "mdesktopentry_stub.h"
 
+QString gFileWatcherAddedPath;
+void QFileSystemWatcher::addPath(const QString &file)
+{
+    gFileWatcherAddedPath = file;
+}
+
+bool gFileExistsReturnValue;
 bool QFileInfo::exists() const
 {
-    return true;
+    return gFileExistsReturnValue;
 }
 
 // MButton stubs
@@ -107,6 +114,8 @@ void Ut_LauncherButtonView::init()
     qIconHasThemeIcon = false;
     qIconFileName.clear();
     qIconName.clear();
+    gFileExistsReturnValue = true;
+    gFileWatcherAddedPath = QString();
 
     m_subject->modifiableStyle()->setShowLaunchProgress(true);
     gMProgressIndicatorStub->stubReset();
@@ -138,8 +147,8 @@ void Ut_LauncherButtonView::testResetProgressIndicator_data()
 
      QTest::newRow("Installed") << LauncherButtonModel::Installed << false << 0 << false;
 
-     QTest::newRow("Launching") << LauncherButtonModel::Launching << true << 2 << true;
-     QTest::newRow("Installing") << LauncherButtonModel::Installing << true << 2 << true;
+     QTest::newRow("Launching") << LauncherButtonModel::Launching << true << 1 << true;
+     QTest::newRow("Installing") << LauncherButtonModel::Installing << true << 1 << true;
      QTest::newRow("Downloading") << LauncherButtonModel::Downloading << true << 1 << false;
 }
 
@@ -164,7 +173,7 @@ void Ut_LauncherButtonView::testLaunchingProgress()
 {
     m_subject->model()->setButtonState(LauncherButtonModel::Launching);
     // one for reset and one for button state change
-    QCOMPARE(gMProgressIndicatorStub->stubCallCount("setUnknownDuration"), 2);
+    QCOMPARE(gMProgressIndicatorStub->stubCallCount("setUnknownDuration"), 1);
     QCOMPARE(gMProgressIndicatorStub->stubLastCallTo("setUnknownDuration").parameter<bool>(0), true);
 
     m_subject->model()->setButtonState(LauncherButtonModel::Installed);
@@ -288,5 +297,30 @@ void Ut_LauncherButtonView::testWhenStateIsChangedToLaunchingThenProgressIndicat
     QCOMPARE(m_subject->progressIndicator->isVisible(), visibility);
 }
 
+void Ut_LauncherButtonView::testUnavailableIcon()
+{
+    QString iconFilePath("/absolute/icon.png");
+    QString iconDirPath(QFileInfo(iconFilePath).absolutePath());
+
+    gFileExistsReturnValue = false;
+    m_subject->model()->setButtonState(LauncherButtonModel::Installed);
+    gMDesktopEntryStub->stubSetReturnValue("icon", iconFilePath);
+    m_subject->model()->setDesktopEntry(QSharedPointer<MDesktopEntry>(new MDesktopEntry("/dev/null")));
+
+    m_subject->updateButtonIcon();
+
+    QCOMPARE(m_subject->unavailableIconPath, iconFilePath);
+    QCOMPARE(gFileWatcherAddedPath, iconDirPath);
+    QVERIFY(disconnect(&m_subject->iconWatcher, SIGNAL(directoryChanged(QString)), m_subject, SLOT(updateUnavailableIcon(QString))));
+
+    // Icon comes available
+    gFileExistsReturnValue = true;
+    m_subject->updateUnavailableIcon(iconDirPath);
+
+    QCOMPARE(qIconFileName, iconFilePath);
+    QCOMPARE(m_subject->iconWatcher.files().count(), 0);
+    QVERIFY(m_subject->unavailableIconPath.isEmpty());
+    QVERIFY(!disconnect(&m_subject->iconWatcher, SIGNAL(directoryChanged(const QString&)), m_subject, SLOT(updateUnavailableIcon(const QString&))));
+}
 
 QTEST_APPLESS_MAIN(Ut_LauncherButtonView)
