@@ -2,6 +2,7 @@ meegotouchhome (0.25.5~1) unstable; urgency=low
 
   * [UNRELEASED]
   * Fixes: NB#246034 - Application icon is not visible after package installation if the .desktop file is installed before the icon
+  * Fixes: NB#251152 - home seems to create a spinner when starting apps
 
  -- Vesa Halttunen <vesa.halttunen@nokia.com>  Mon, 09 May 2011 19:19:11 +0300
 

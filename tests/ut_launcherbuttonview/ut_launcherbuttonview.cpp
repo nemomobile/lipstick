@@ -161,12 +161,16 @@ void Ut_LauncherButtonView::testResetProgressIndicator()
 
     m_subject->model()->setButtonState(state);
 
-    QCOMPARE(m_subject->progressIndicator->isVisible(), verifyVisible);
-    QCOMPARE(gMProgressIndicatorStub->stubCallCount("setUnknownDuration"), verifySetUnknownDurationCallCount);
-    if (verifySetUnknownDurationCallCount > 0) {
-        QCOMPARE(gMProgressIndicatorStub->stubLastCallTo("setUnknownDuration").parameter<bool>(0), verifySetUnknownDurationParam);
+    if (verifyVisible) {
+        QCOMPARE(m_subject->progressIndicator->isVisible(), true);
+        QCOMPARE(gMProgressIndicatorStub->stubCallCount("setUnknownDuration"), verifySetUnknownDurationCallCount);
+        if (verifySetUnknownDurationCallCount > 0) {
+            QCOMPARE(gMProgressIndicatorStub->stubLastCallTo("setUnknownDuration").parameter<bool>(0), verifySetUnknownDurationParam);
+        }
+        QCOMPARE(gLauncherButtonProgressIndicatorStub->stubLastCallTo("setIndicatorState").parameter<LauncherButtonModel::State>(0), state);
+    } else {
+        QVERIFY(m_subject->progressIndicator == NULL);
     }
-    QCOMPARE(gLauncherButtonProgressIndicatorStub->stubLastCallTo("setIndicatorState").parameter<LauncherButtonModel::State>(0), state);
 }
 
 void Ut_LauncherButtonView::testLaunchingProgress()
@@ -192,7 +196,7 @@ void Ut_LauncherButtonView::testUpdateProgressWhenNotDownloading()
     m_subject->model()->setButtonState(LauncherButtonModel::Installing);
 
     m_subject->model()->setOperationProgress(50);
-    QCOMPARE(gMProgressIndicatorStub->stubLastCallTo("setValue").parameter<int>(0), 0);
+    QCOMPARE(gMProgressIndicatorStub->stubCallCount("setValue"), 0);
 }
 
 void Ut_LauncherButtonView::testUpdatingIconFromDesktopEntry()
@@ -294,7 +298,11 @@ void Ut_LauncherButtonView::testWhenStateIsChangedToLaunchingThenProgressIndicat
 
     m_subject->modifiableStyle()->setShowLaunchProgress(showLaunchProgress);
     m_subject->model()->setButtonState(state);
-    QCOMPARE(m_subject->progressIndicator->isVisible(), visibility);
+    if (visibility) {
+        QCOMPARE(m_subject->progressIndicator->isVisible(), true);
+    } else {
+        QVERIFY(m_subject->progressIndicator == NULL);
+    }
 }
 
 void Ut_LauncherButtonView::testUnavailableIcon()

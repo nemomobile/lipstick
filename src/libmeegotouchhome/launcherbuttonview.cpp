@@ -29,7 +29,7 @@ static const QString DEFAULT_APPLICATION_ICON_ID = "icon-l-default-application";
 LauncherButtonView::LauncherButtonView(LauncherButton *controller) :
     MButtonIconView(controller),
     controller(controller),
-    progressIndicator(new LauncherButtonProgressIndicator(controller))
+    progressIndicator(NULL)
 {
 }
 
@@ -68,7 +68,7 @@ void LauncherButtonView::updateData(const QList<const char *>& modifications)
                 }
             }
         } else if (member == LauncherButtonModel::OperationProgress) {
-            if (model()->buttonState() == LauncherButtonModel::Downloading) {
+            if (model()->buttonState() == LauncherButtonModel::Downloading && progressIndicator) {
                 progressIndicator->setValue(model()->operationProgress());
             }
         } else if (member == LauncherButtonModel::DesktopEntry) {
@@ -81,21 +81,25 @@ void LauncherButtonView::resetProgressIndicator()
 {
     LauncherButtonModel::State state = model()->buttonState();
 
-    progressIndicator->setIndicatorState(state);
     switch(state) {
         case LauncherButtonModel::Launching:
             if (style()->showLaunchProgress()) {
-                progressIndicator->reset();
+                if (!progressIndicator) {
+                    progressIndicator = createProgressIndicator();
+                }
+                progressIndicator->setIndicatorState(state);
                 progressIndicator->setUnknownDuration(true);
-                progressIndicator->show();
             } else {
-                progressIndicator->hide();
+                delete progressIndicator;
+                progressIndicator = NULL;
             }
             break;
         case LauncherButtonModel::Installing:
-            progressIndicator->reset();
+            if (!progressIndicator) {
+                progressIndicator = createProgressIndicator();
+            }
+            progressIndicator->setIndicatorState(state);
             progressIndicator->setUnknownDuration(true);
-            progressIndicator->show();
             break;
         case LauncherButtonModel::Downloading:
             if (!progressIndicator) {
@@ -105,9 +109,31 @@ void LauncherButtonView::resetProgressIndicator()
             progressIndicator->setUnknownDuration(false);
             break;
         default:
-            progressIndicator->hide();
-            break;
+            delete progressIndicator;
+            progressIndicator = NULL;
+        break;
     }
+}
+
+LauncherButtonProgressIndicator *LauncherButtonView::createProgressIndicator()
+{
+    LauncherButtonProgressIndicator *progressInd = new LauncherButtonProgressIndicator(controller);
+    progressInd->setContentsMargins(0,0,0,0);
+    progressInd->setRange(0, 100);
+
+    // Set position and size for progress indicator
+    int hMargin = style()->paddingLeft() + style()->paddingRight() + style()->marginLeft() + style()->marginRight();
+    int vMargin = style()->paddingTop() + style()->paddingBottom() + style()->marginTop() + style()->marginBottom();
+
+    int progressIndicatorHOffset = (style()->preferredSize().width() / 2) - (style()->progressIndicatorIconSize().width() / 2);
+    int progressIndicatorVOffset = (style()->iconSize().height() - style()->progressIndicatorIconSize().height())/2;
+    int progressIndicatorLeftPosition =  progressIndicatorHOffset + hMargin / 2;
+    int progressIndicatorTopPosition = progressIndicatorVOffset + vMargin / 2;
+
+    progressInd->setPreferredSize(style()->progressIndicatorIconSize());
+    progressInd->setPos(QPointF(progressIndicatorLeftPosition, progressIndicatorTopPosition));
+
+    return progressInd;
 }
 
 void LauncherButtonView::updateButtonIcon()

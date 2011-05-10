@@ -66,6 +66,9 @@ protected slots:
     void updateUnavailableIcon(const QString& dirPath);
 
 private:
+    //! Creates a new progress indicator
+    LauncherButtonProgressIndicator *createProgressIndicator();
+
     //! Resets the progress indicator according to button state
     void resetProgressIndicator();
 
@@ -81,7 +84,7 @@ private:
     //! Position and size of the progress indicator
     QRectF progressIndicatorRect;
 
-    //! Progress indicator for operation
+    //! Progress indicator for operation. Deleted by parent if still instance in destructor.
     LauncherButtonProgressIndicator *progressIndicator;
 
     //! File system watcher for icons that are not available at initialization
