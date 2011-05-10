@@ -71,8 +71,12 @@ void Launcher::setLauncherDataStore(LauncherDataStore *dataStore)
     if (this->dataStore != NULL) {
         disconnect(dataStore, SIGNAL(dataStoreChanged()), this, SLOT(updatePagesFromDataStore()));
     }
+
     this->dataStore = dataStore;
-    connect(dataStore, SIGNAL(dataStoreChanged()), this, SLOT(updatePagesFromDataStore()));
+
+    if (dataStore != NULL) {
+        connect(dataStore, SIGNAL(dataStoreChanged()), this, SLOT(updatePagesFromDataStore()));
+    }
 }
 
 void Launcher::setApplicationPackageMonitorListener(ApplicationPackageMonitorListener *packageMonitorListener)
@@ -215,6 +219,10 @@ void Launcher::updatePackageName(const QString &desktopEntryPath, const QString 
 
 void Launcher::addDesktopEntriesWithKnownPlacements(QList<QSharedPointer<LauncherPage> > &pages)
 {
+    if (dataStore == NULL) {
+        return;
+    }
+
     // Put the desktop entries with known placements in the desired pages
     QMapIterator<Placement, QString> iterator(createPlacementMap(dataStore->dataForAllDesktopEntries()));
     while (iterator.hasNext()) {
@@ -269,18 +277,20 @@ void Launcher::updateButtonPlacementsOnPage(LauncherPage *page, int firstIndex, 
 
 void Launcher::addDesktopEntriesWithUnknownPlacements(QList<QSharedPointer<LauncherPage> > &pages)
 {
-    if (dataStore != NULL) {
-        // Put the desktop entries with no known placement on the last page
-        QHash<QString, QVariant> allDesktopEntryPlacements = dataStore->dataForAllDesktopEntries();
-        foreach (const QString &desktopEntryPath, allDesktopEntryPlacements.keys()) {
-            Placement placementInDatastore(allDesktopEntryPlacements.value(desktopEntryPath).toString());
-            if (placementInDatastore.location.isEmpty() || placementInDatastore.location == LOCATION_IDENTIFIER) {
-                // Check that desktop entry doesn't already have a button in launcher
-                Placement placementInPages = buttonPlacementInLauncherPages(desktopEntryPath, pages);
-                if (placementInDatastore.isNull() && placementInPages.isNull()) {
-                    Placement placementInPages = appendButtonToPages(createLauncherButton(desktopEntryPath), pages);
-                    dataStore->updateDataForDesktopEntry(desktopEntryPath, placementInPages.toString());
-                }
+    if (dataStore == NULL) {
+        return;
+    }
+
+    // Put the desktop entries with no known placement on the last page
+    QHash<QString, QVariant> allDesktopEntryPlacements = dataStore->dataForAllDesktopEntries();
+    foreach (const QString &desktopEntryPath, allDesktopEntryPlacements.keys()) {
+        Placement placementInDatastore(allDesktopEntryPlacements.value(desktopEntryPath).toString());
+        if (placementInDatastore.location.isEmpty() || placementInDatastore.location == LOCATION_IDENTIFIER) {
+            // Check that desktop entry doesn't already have a button in launcher
+            Placement placementInPages = buttonPlacementInLauncherPages(desktopEntryPath, pages);
+            if (placementInDatastore.isNull() && placementInPages.isNull()) {
+                Placement placementInPages = appendButtonToPages(createLauncherButton(desktopEntryPath), pages);
+                dataStore->updateDataForDesktopEntry(desktopEntryPath, placementInPages.toString());
             }
         }
     }

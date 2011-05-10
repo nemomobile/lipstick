@@ -44,8 +44,12 @@ void QuickLaunchBar::setLauncherDataStore(LauncherDataStore *dataStore)
     if (this->dataStore != NULL) {
         disconnect(dataStore, SIGNAL(dataStoreChanged()), this, SLOT(updateButtons()));
     }
+
     this->dataStore = dataStore;
-    connect(dataStore, SIGNAL(dataStoreChanged()), this, SLOT(updateButtons()));
+
+    if (dataStore != NULL) {
+        connect(dataStore, SIGNAL(dataStoreChanged()), this, SLOT(updateButtons()));
+    }
 }
 
 void QuickLaunchBar::setApplicationPackageMonitorListener(ApplicationPackageMonitorListener *packageMonitorListener)
@@ -72,6 +76,7 @@ void QuickLaunchBar::updateButtonState(const QString &desktopEntryPath, const QS
 void QuickLaunchBar::updateButtons()
 {
     if (dataStore == NULL) {
+        model()->setButtons(QMap<int, QSharedPointer<LauncherButton> >());
         return;
     }
 
@@ -79,7 +84,7 @@ void QuickLaunchBar::updateButtons()
     dataStore->disconnect(this);
 
     // Construct a map of buttons and their positions
-    QMap< int, QSharedPointer<LauncherButton> > newButtons;
+    QMap<int, QSharedPointer<LauncherButton> > newButtons;
 
     // Add the desktop entries with known placements to the map
     QMapIterator<Placement, QString> iterator(createPlacementMap(dataStore->dataForAllDesktopEntries()));
