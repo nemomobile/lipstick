@@ -1,3 +1,9 @@
+meegotouchhome (0.26.1~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Eetu Lehmusvuo <ext-eetu.6.lehmusvuo@nokia.com>  Wed, 11 May 2011 10:18:18 +0300
+
 meegotouchhome (0.26.0-1) unstable; urgency=low
 
   * Fixes: NB#246034 - Application icon is not visible after package installation if the .desktop file is installed before the icon
