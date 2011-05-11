@@ -1,15 +1,9 @@
-meegotouchhome (0.25.6~1) unstable; urgency=low
-
-  * [UNRELEASED]
-
- -- Eetu Lehmusvuo <ext-eetu.6.lehmusvuo@nokia.com>  Tue, 10 May 2011 11:29:13 +0300
-
-meegotouchhome (0.25.5-1) unstable; urgency=low
+meegotouchhome (0.26.0-1) unstable; urgency=low
 
   * Fixes: NB#246034 - Application icon is not visible after package installation if the .desktop file is installed before the icon
   * Fixes: NB#251152 - home seems to create a spinner when starting apps
 
- -- Eetu Lehmusvuo <ext-eetu.6.lehmusvuo@nokia.com>  Tue, 10 May 2011 11:27:11 +0300
+ -- Eetu Lehmusvuo <ext-eetu.6.lehmusvuo@nokia.com>  Wed, 11 May 2011 10:16:11 +0300
 
 meegotouchhome (0.25.4-1) unstable; urgency=low
 
