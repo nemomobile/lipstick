@@ -1,3 +1,9 @@
+meegotouchhome (0.26.2~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Wed, 11 May 2011 16:02:17 +0300
+
 meegotouchhome (0.26.1-1) unstable; urgency=low
 
   * Fixes: NB#246165 - Backup restore will corrupt the order of the applications in application grid
