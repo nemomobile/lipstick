@@ -47,6 +47,9 @@ public:
     virtual bool handleXEvent(const XEvent& event);
     //! \reimp_end
 
+    //! Returns whether Home is the topmost window
+    bool isHomeWindowOnTop() const;
+
 protected:
     /*!
      * Constructor.
@@ -69,7 +72,7 @@ private:
      * Queries the current window stacking order from X and returns the windows
      * in that order. The topmost window is the last one in the list.
      */
-    QList<Window> windowStackingOrder();
+    QList<Window> windowStackingOrder() const;
 
 #ifdef UNIT_TEST
     friend class Ut_HomeWindowMonitor;

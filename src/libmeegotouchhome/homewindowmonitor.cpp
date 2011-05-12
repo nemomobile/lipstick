@@ -111,7 +111,7 @@ bool HomeWindowMonitor::handleXEvent(const XEvent& event)
     return eventHandled;
 }
 
-QList<Window> HomeWindowMonitor::windowStackingOrder()
+QList<Window> HomeWindowMonitor::windowStackingOrder() const
 {
     Display *display = QX11Info::display();
     Atom actualType;
@@ -132,4 +132,10 @@ QList<Window> HomeWindowMonitor::windowStackingOrder()
     }
 
     return stackingWindowList;
+}
+
+bool HomeWindowMonitor::isHomeWindowOnTop() const
+{
+    QList<Window> windowOrder = windowStackingOrder();
+    return isOwnWindow(windowOrder.last());
 }

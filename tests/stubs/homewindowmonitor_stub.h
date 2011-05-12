@@ -81,7 +81,7 @@ bool HomeWindowMonitor::handleXEvent(const XEvent &event)
     return gHomeWindowMonitorStub->handleXEvent(event);
 }
 
-QList<Window> HomeWindowMonitor::windowStackingOrder() {
+QList<Window> HomeWindowMonitor::windowStackingOrder() const {
     return QList<Window>();
 }
 

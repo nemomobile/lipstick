@@ -1,6 +1,7 @@
 meegotouchhome (0.26.2~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#254543 - Edit mode not exited when application window comes on top
 
  -- Vesa Halttunen <vesa.halttunen@nokia.com>  Wed, 11 May 2011 16:02:17 +0300
 

@@ -65,6 +65,7 @@ private slots:
 
     void testOwnWindowOnTopDoesNotEmitFullscreenWindowOnTopSignal();
     void testOwnWindowOnTopDoesNotEmitAnyWindowOnTopSignal();
+    void testHomeWindowOnTop();
 
 private:
     // The object being tested

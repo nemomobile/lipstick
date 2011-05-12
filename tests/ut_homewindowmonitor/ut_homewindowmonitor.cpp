@@ -266,4 +266,14 @@ void Ut_HomeWindowMonitor::testOwnWindowOnTopDoesNotEmitAnyWindowOnTopSignal()
     QCOMPARE(listener.count(), 0);
 }
 
+void Ut_HomeWindowMonitor::testHomeWindowOnTop()
+{
+    addWindowInfoToActiveWindows(APPLICATION_WINDOW_ID_1);
+    addWindowInfoToActiveWindows(OWN_WINDOW_ID);
+    QVERIFY(m_subject->isHomeWindowOnTop());
+
+    addWindowInfoToActiveWindows(APPLICATION_WINDOW_ID_2);
+    QVERIFY(!m_subject->isHomeWindowOnTop());
+}
+
 QTEST_MAIN(Ut_HomeWindowMonitor)
