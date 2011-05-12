@@ -35,6 +35,12 @@
 #include "windowinfo_stub.h"
 #include "xeventlistener.h"
 #include <signal.h>
+#include <MTheme>
+
+QString MTheme::currentTheme()
+{
+    return QString("Needed because MApplication is stubbed");
+}
 
 // QDBusAbstractInterface stubs (used by HomeApplication through service framework)
 QDBusPendingCall QDBusAbstractInterface::asyncCallWithArgumentList(const QString &method, const QList<QVariant> & args)

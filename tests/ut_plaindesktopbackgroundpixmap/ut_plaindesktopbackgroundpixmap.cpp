@@ -60,10 +60,16 @@ bool QPixmap::load(const QString & fileName, const char *, Qt::ImageConversionFl
 QString MThemePixmapId;
 const QPixmap *MThemePixmapDefaultValue;
 const QPixmap *MThemePixmapReturnValue;
+static MTheme *theme = new MTheme("AppName");
 const QPixmap *MTheme::pixmap(const QString &id, const QSize &)
 {
     MThemePixmapId = id;
     return MThemePixmapReturnValue;
+}
+
+MTheme* MTheme::instance()
+{
+    return theme;
 }
 
 void MTheme::releasePixmap(const QPixmap *)
