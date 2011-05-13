@@ -32,10 +32,12 @@ QuickLaunchBarView::QuickLaunchBarView(QuickLaunchBar *controller) : MWidgetView
 {
     QGraphicsLinearLayout *l = new QGraphicsLinearLayout(Qt::Horizontal);
     l->setContentsMargins(0, 0, 0, 0);
+    l->setSpacing(0);
     controller->setLayout(l);
 
     // A layout for the launcher buttons
     launcherButtonLayout->setContentsMargins(0, 0, 0, 0);
+    launcherButtonLayout->setSpacing(0);
 
     // Create launcher button
     toggleLauncherButton->setViewType("icon");
