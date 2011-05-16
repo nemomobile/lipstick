@@ -140,6 +140,15 @@ signals:
      */
     void desktopEntryRemoved(const QString &);
 
+public slots:
+    /*!
+     * Updates a desktop entry.
+     * If file exists, sends a signal about the change. If file does NOT exist, removes path from watcher.
+     *
+     * \param desktopEntryPath Path to desktop entry that has changed
+     */
+    void updateDesktopEntry(const QString &desktopEntryPath);
+
 private slots:
     /*!
      * Updates the contents of the data store from the desktop entries in
@@ -159,14 +168,6 @@ private slots:
      * The dataStoreChanged() signal is emitted after changes are made.
      */
     void processUpdateQueue();
-
-    /*!
-     * Updates a desktop entry.
-     * If file exists, sends a signal about the change. If file does NOT exist, removes path from watcher.
-     *
-     * \param desktopEntryPath Path to desktop entry that has changed
-     */
-    void updateDesktopEntry(const QString &desktopEntryPath);
 
 private:
     /*!
@@ -218,7 +219,7 @@ private:
     //! The update queue
     QFileInfoList updateQueue;
 
-    //! The directories being watched
+    //! The directories being watched as canonical paths
     QStringList directories;
 
     //! Invalid entries in the watched dir

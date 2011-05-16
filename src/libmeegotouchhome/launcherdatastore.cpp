@@ -31,20 +31,30 @@ static const int FILES_PROCESSED_AT_ONCE = 3;
 
 LauncherDataStore::LauncherDataStore(MDataStore* dataStore, const QStringList &directories) :
         store(dataStore),
-        updatePending(false),
-        directories(directories)
+        updatePending(false)
 {
     connect(&processUpdateQueueTimer, SIGNAL(timeout()), this, SLOT(processUpdateQueue()));
     processUpdateQueueTimer.setSingleShot(true);
     processUpdateQueueTimer.setInterval(0);
 
+    // Set up the supported desktop entry types
     supportedDesktopEntryFileTypes << "Application" << "Link";
+
+    // Take only valid directories that exist into account
+    foreach (const QString &directory, directories) {
+        QFileInfo fileInfo(directory);
+        if (fileInfo.exists() && fileInfo.isDir()) {
+            this->directories.append(fileInfo.canonicalFilePath());
+        }
+    }
+
+    // Start updating with the .desktop files in the given directories
     updateDataFromDesktopEntryFiles();
 
     // Start watching the applications directory for changes
     connect(&watcher, SIGNAL(directoryChanged(const QString)), this, SLOT(updateDataFromDesktopEntryFiles()));
     connect(&watcher, SIGNAL(fileChanged(QString)), this, SLOT(updateDesktopEntry(QString)));
-    foreach (const QString &directoryPath, directories) {
+    foreach (const QString &directoryPath, this->directories) {
         watcher.addPath(directoryPath);
     }
 }
@@ -213,7 +223,8 @@ void LauncherDataStore::addFilePathToWatcher(const QString &filePath)
 
 void LauncherDataStore::updateDesktopEntry(const QString &desktopEntryPath)
 {
-    if (QFile::exists(desktopEntryPath)) {
+    QFileInfo fileInfo(desktopEntryPath);
+    if (fileInfo.exists() && directories.contains(fileInfo.canonicalPath())) {
         QString key = entryPathToKey(desktopEntryPath);
 
         if (store->contains(key)) {
@@ -230,9 +241,9 @@ void LauncherDataStore::updateDesktopEntry(const QString &desktopEntryPath)
         } else if (!isInQueue(key)) {
             MDesktopEntry desktopEntry(desktopEntryPath);
             if (isDesktopEntryValid(desktopEntry, supportedDesktopEntryFileTypes)) {
-                // if entry has been invalid before, but is now valid, add entry as a new entry
+                // If entry has been invalid before, but is now valid, add entry as a new entry
                 store->createValue(key, QVariant());
-		emit desktopEntryAdded(desktopEntryPath);
+                emit desktopEntryAdded(desktopEntryPath);
                 invalidEntries.removeOne(desktopEntryPath);
             }
         }

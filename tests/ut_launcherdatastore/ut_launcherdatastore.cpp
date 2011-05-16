@@ -110,18 +110,47 @@ QFileInfoList QDir::entryInfoList(Filters, SortFlags) const
 }
 
 // QFileInfo stubs
+QStringList qFileInfoDirs;
 bool QFileInfo::exists() const
 {
-    bool contains = false;
-    foreach (const QFileInfoList &fileInfoList, desktopFileInfoList.values()) {
-        foreach (const QFileInfo &file, fileInfoList) {
-            if (file.absoluteFilePath() == absoluteFilePath()) {
-                contains = true;
-                break;
+    bool contains = qFileInfoDirs.contains(canonicalFilePath());
+
+    if (!contains) {
+        foreach (const QFileInfoList &fileInfoList, desktopFileInfoList.values()) {
+            foreach (const QFileInfo &file, fileInfoList) {
+                if (file.absoluteFilePath() == absoluteFilePath()) {
+                    contains = true;
+                    break;
+                }
             }
         }
     }
+
     return contains;
+}
+
+bool QFileInfo::isDir() const
+{
+    return qFileInfoDirs.contains(canonicalFilePath());
+}
+
+QString QFileInfo::canonicalPath() const
+{
+    QString path = absolutePath();
+    while(path.endsWith('/')) {
+        path.chop(1);
+    }
+    return path;
+}
+
+
+QString QFileInfo::canonicalFilePath() const
+{
+    QString path = absoluteFilePath();
+    while(path.endsWith('/')) {
+        path.chop(1);
+    }
+    return path;
 }
 
 // QFile stubs
@@ -187,6 +216,8 @@ void Ut_LauncherDataStore::init()
     desktopFileInfoList.clear();
     addedWatcherPathCalls.clear();
     qTimerStarted = false;
+    qFileInfoDirs.clear();
+    qFileInfoDirs.append(QFileInfo(APPLICATIONS_DIRECTORY).canonicalFilePath());
 }
 
 void Ut_LauncherDataStore::cleanup()
@@ -459,11 +490,13 @@ void Ut_LauncherDataStore::testOnlyPrefixedKeys()
 
 void Ut_LauncherDataStore::testAddingWatcherDesktopEntryPaths()
 {
+    qFileInfoDirs.append("/test/directory1");
+
     // Test applications
     addDesktopEntry("testApplication1.desktop", "Test1", "Application", "Icon-camera", "test1");
     addDesktopEntry("testApplication2.desktop", "Test2", "Application", "Icon-camera", "test2");
 
-    LauncherDataStore dataStore(mockStore, QStringList() << APPLICATIONS_DIRECTORY << "/test/directory/");
+    LauncherDataStore dataStore(mockStore, QStringList() << APPLICATIONS_DIRECTORY << "/test/directory1/" << "/test/directory2/");
     connect(this, SIGNAL(directoryChanged()), &dataStore, SLOT(updateDataFromDesktopEntryFiles()));
     connect(this, SIGNAL(timeout()), &dataStore, SLOT(processUpdateQueue()));
 
@@ -471,29 +504,29 @@ void Ut_LauncherDataStore::testAddingWatcherDesktopEntryPaths()
 
     QCOMPARE(addedWatcherPathCalls.count(), 4);
     // The directories are added first
-    QCOMPARE(addedWatcherPathCalls.at(0), fileNameWithPath(""));
-    QCOMPARE(addedWatcherPathCalls.at(1), fileNameWithPath("", "/test/directory/"));
+    QCOMPARE(addedWatcherPathCalls.at(0), fileNameWithPath("", QFileInfo(APPLICATIONS_DIRECTORY).canonicalFilePath()));
+    QCOMPARE(addedWatcherPathCalls.at(1), fileNameWithPath("", "/test/directory1"));
     QCOMPARE(addedWatcherPathCalls.at(2), fileNameWithPath("testApplication1.desktop"));
     QCOMPARE(addedWatcherPathCalls.at(3), fileNameWithPath("testApplication2.desktop"));
 
-    addDesktopEntry("testApplication3.desktop", "Test3", "Application", "Icon-camera", "test3", "/test/directory/");
+    addDesktopEntry("testApplication3.desktop", "Test3", "Application", "Icon-camera", "test3", "/test/directory1/");
 
     emit directoryChanged();
     emit timeout();
 
     QCOMPARE(addedWatcherPathCalls.count(), 5);
-    QCOMPARE(addedWatcherPathCalls.at(0), fileNameWithPath(""));
-    QCOMPARE(addedWatcherPathCalls.at(1), fileNameWithPath("", "/test/directory/"));
-    QCOMPARE(addedWatcherPathCalls.at(2), fileNameWithPath("testApplication1.desktop"));
-    QCOMPARE(addedWatcherPathCalls.at(3), fileNameWithPath("testApplication2.desktop"));
-    QCOMPARE(addedWatcherPathCalls.at(4), fileNameWithPath("testApplication3.desktop", "/test/directory/"));
+    QCOMPARE(addedWatcherPathCalls.at(4), fileNameWithPath("testApplication3.desktop", "/test/directory1/"));
 }
 
 void Ut_LauncherDataStore::testUpdatingDesktopEntry()
 {
-    addDesktopEntry("testApplication1.desktop", "Test1", "Application", "Icon-camera", "test1");
-    addDesktopEntry("testApplication2.desktop", "Test2", "Application", "Icon-camera", "test2");
-    LauncherDataStore dataStore(mockStore, QStringList() << APPLICATIONS_DIRECTORY);
+    qFileInfoDirs.append("/test/directory1");
+    qFileInfoDirs.append("/test/directory2");
+
+    addDesktopEntry("testApplication0.desktop", "Test0", "Application", "Icon-camera", "test0");
+    addDesktopEntry("testApplication1.desktop", "Test1", "Application", "Icon-camera", "test1", "/test/directory1/");
+    addDesktopEntry("testApplication2.desktop", "Test2", "Application", "Icon-camera", "test2", "/test/directory2/");
+    LauncherDataStore dataStore(mockStore, QStringList() << APPLICATIONS_DIRECTORY << "/test/directory1" << "/test/directory2/");
     connect(this, SIGNAL(directoryChanged()), &dataStore, SLOT(updateDataFromDesktopEntryFiles()));
     connect(this, SIGNAL(timeout()), &dataStore, SLOT(processUpdateQueue()));
     emit directoryChanged();
@@ -502,12 +535,17 @@ void Ut_LauncherDataStore::testUpdatingDesktopEntry()
     QSignalSpy spyDesktopEntryChanged(&dataStore, SIGNAL(desktopEntryChanged(QString)));
     QSignalSpy spyDataStoreChanged(&dataStore, SIGNAL(dataStoreChanged()));
     connect(this, SIGNAL(fileChanged(QString)), &dataStore, SLOT(updateDesktopEntry(QString)));
-    emit fileChanged(fileNameWithPath("testApplication1.desktop"));
+    emit fileChanged(fileNameWithPath("testApplication0.desktop"));
+    emit fileChanged(fileNameWithPath("testApplication1.desktop", "/test/directory1/"));
+    emit fileChanged(fileNameWithPath("testApplication2.desktop", "/test/directory2/"));
+    emit fileChanged("testApplication3.desktop");
+
     // No data store change when entry is just updated
     QCOMPARE(spyDataStoreChanged.count(), 0);
-    QCOMPARE(spyDesktopEntryChanged.count(), 1);
-    QList<QVariant> arguments = spyDesktopEntryChanged.takeFirst();
-    QCOMPARE(arguments.at(0).toString(), QString(fileNameWithPath("testApplication1.desktop")));
+    QCOMPARE(spyDesktopEntryChanged.count(), 3);
+    QCOMPARE(spyDesktopEntryChanged.at(0).at(0).toString(), QString(fileNameWithPath("testApplication0.desktop")));
+    QCOMPARE(spyDesktopEntryChanged.at(1).at(0).toString(), QString(fileNameWithPath("testApplication1.desktop", "/test/directory1/")));
+    QCOMPARE(spyDesktopEntryChanged.at(2).at(0).toString(), QString(fileNameWithPath("testApplication2.desktop", "/test/directory2/")));
 }
 
 void Ut_LauncherDataStore::testUpdatingInvalidEntry()
