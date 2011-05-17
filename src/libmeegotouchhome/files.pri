@@ -64,7 +64,9 @@ HEADERS += homeapplication.h \
     launcherbuttonprogressindicatorstyle.h \
     launcherbuttonprogressindicator.h \
     launcherbuttonprogressindicatormodel.h \
-    extradirwatcher.h
+    extradirwatcher.h \
+    homefiledatastore.h \
+    homefiledatastore_p.h
 SOURCES += homeapplication.cpp \
     windowinfo.cpp \
     home.cpp \
@@ -105,7 +107,8 @@ SOURCES += homeapplication.cpp \
     xeventlistener.cpp \
     launcherbuttonprogressindicatorview.cpp \
     launcherbuttonprogressindicator.cpp \
-    extradirwatcher.cpp
+    extradirwatcher.cpp \
+    homefiledatastore.cpp
 MODEL_HEADERS += desktopmodel.h \
     launcherbuttonmodel.h \
     launchermodel.h \

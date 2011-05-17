@@ -24,7 +24,7 @@
 #include "launcherpage.h"
 #include "mockdatastore.h"
 #include "ut_launcherdatastore.h"
-#include "mfiledatastore_stub.h"
+#include "homefiledatastore_stub.h"
 
 // MDesktopEntry stubs (used by Launcher)
 QMap<const MDesktopEntry *, QString> desktopEntryFileName;
@@ -618,7 +618,7 @@ void Ut_LauncherDataStore::testNotReprocessingInvalidEntry()
 
 void Ut_LauncherDataStore::testUpdatingMultipleEntries()
 {
-    LauncherDataStore dataStore(new MFileDataStore("path"), QStringList() << APPLICATIONS_DIRECTORY);
+    LauncherDataStore dataStore(new HomeFileDataStore("path"), QStringList() << APPLICATIONS_DIRECTORY);
 
     // Add one existing value that should be updated too
     addDesktopEntry("testApplication1.desktop", "Test2", "Application", "Icon-camera", "test2");
@@ -630,7 +630,7 @@ void Ut_LauncherDataStore::testUpdatingMultipleEntries()
     }
     dataStore.updateDataForDesktopEntries(updatedData);
 
-    QHash<QString, QVariant> storedEntries = gMFileDataStoreStub->stubLastCallTo("createValues").parameter<QHash<QString, QVariant> >(0);
+    QHash<QString, QVariant> storedEntries = gHomeFileDataStoreStub->stubLastCallTo("createValues").parameter<QHash<QString, QVariant> >(0);
     QCOMPARE(storedEntries.count(), 3);
     foreach (const QString &key, storedEntries.keys()) {
         QString entryPath = LauncherDataStore::keyToEntryPath(key);

@@ -44,6 +44,7 @@
 #include "desktop_stub.h"
 #include <QDBusConnection>
 #include "x11wrapper.h"
+#include "homefiledatastore_stub.h"
 
 #define ATOM_TYPE_NORMAL 1
 #define ATOM_TYPE_NOTIFICATION 2

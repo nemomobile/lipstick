@@ -43,7 +43,8 @@ HEADERS += \
     $$SRCDIR/applicationpackagemonitor.h \
     $$SRCDIR/applicationpackagemonitorlistener.h \
     $$SRCDIR/windowmonitor.h \
-    $$SRCDIR/homewindowmonitor.h
+    $$SRCDIR/homewindowmonitor.h \
+    $$SRCDIR/homefiledatastore.h
 
 DEFINES += APPLICATIONS_DIRECTORY=\'$$quote(\"/tmp/ut_desktopview/applications/\")\'
 

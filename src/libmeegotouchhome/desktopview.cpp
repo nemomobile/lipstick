@@ -34,7 +34,7 @@
 #include "switcher.h"
 #include "quicklaunchbar.h"
 #include "mdesktopbackgroundextensioninterface.h"
-#include "mfiledatastore.h"
+#include "homefiledatastore.h"
 #include "applicationpackagemonitorlistener.h"
 #include "homewindowmonitor.h"
 
@@ -320,7 +320,7 @@ LauncherDataStore *DesktopView::createLauncherDataStore()
         }
     }
 
-    return new LauncherDataStore(new MFileDataStore(dataStoreFileName), (QStringList() << APPLICATIONS_DIRECTORY << (QDir::homePath() + "/.local/share/applications/")));
+    return new LauncherDataStore(new HomeFileDataStore(dataStoreFileName), (QStringList() << APPLICATIONS_DIRECTORY << (QDir::homePath() + "/.local/share/applications/")));
 }
 
 M_REGISTER_VIEW_NEW(DesktopView, Desktop)

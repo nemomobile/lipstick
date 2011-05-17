@@ -11,6 +11,9 @@ HEADERS += \
     ut_launcherdatastore.h \
     $$SRCDIR/launcherdatastore.h
 
+HEADERS += \
+    $$SRCDIR/homefiledatastore.h
+
 SOURCES += \
     $$STUBSDIR/stubbase.cpp
 

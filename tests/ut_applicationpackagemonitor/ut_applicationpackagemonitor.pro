@@ -19,7 +19,8 @@ HEADERS += \
     ut_applicationpackagemonitor.h \
     $$SRCDIR/applicationpackagemonitor.h \
     $$SRCDIR/launcherdatastore.h \
-    $$SRCDIR/extradirwatcher.h
+    $$SRCDIR/extradirwatcher.h \
+    $$SRCDIR/homefiledatastore.h
 
 # base classes
 HEADERS += \

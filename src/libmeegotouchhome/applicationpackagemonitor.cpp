@@ -22,8 +22,6 @@
 #include <QDir>
 #include <QDBusConnection>
 #include <mdesktopentry.h>
-#include <mfiledatastore.h>
-#include <msubdatastore.h>
 
 static const QString PACKAGE_MANAGER_DBUS_SERVICE="com.nokia.package_manager";
 static const QString PACKAGE_MANAGER_DBUS_PATH="/com/nokia/package_manager";

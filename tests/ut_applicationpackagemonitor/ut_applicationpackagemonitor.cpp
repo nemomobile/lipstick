@@ -23,8 +23,7 @@
 #include "applicationpackagemonitor.h"
 #include <QtDBus>
 #include "extradirwatcher.h"
-
-#include <mfiledatastore.h>
+#include "homefiledatastore_stub.h"
 #include <mdesktopentry.h>
 
 static const QString PACKAGE_MANAGER_DBUS_SERVICE="com.nokia.package_manager";

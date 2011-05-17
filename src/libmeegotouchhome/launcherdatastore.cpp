@@ -16,6 +16,7 @@
 ** of this file.
 **
 ****************************************************************************/
+
 #include <QDir>
 #include <QFile>
 #include <MDesktopEntry>
@@ -23,7 +24,7 @@
 #include "launcherpage.h"
 #include "launcherbutton.h"
 #include "launcherdatastore.h"
-#include <MFileDataStore>
+#include "homefiledatastore.h"
 
 static const QString KEY_PREFIX = "DesktopEntries";
 static const char* const FILE_FILTER = "*.desktop";
@@ -93,8 +94,8 @@ void LauncherDataStore::updateDataForDesktopEntries(const QHash<QString, QString
     // Disconnect listening store changes during the store is updated.
     disconnect(store, SIGNAL(valueChanged(QString, QVariant)), this, SIGNAL(dataStoreChanged()));
 
-    // If data store is MFileDataStore then store values with createValues() method which does only one sync
-    MFileDataStore *fileDataStore = dynamic_cast<MFileDataStore *>(store);
+    // If data store is HomeFileDataStore then store values with createValues() method which does only one sync
+    HomeFileDataStore *fileDataStore = dynamic_cast<HomeFileDataStore *>(store);
     if (fileDataStore) {
         QHash<QString, QVariant> newStoreValues;
         foreach (const QString &entryPath, newValues.keys()) {
