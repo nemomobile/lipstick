@@ -1,9 +1,8 @@
-meegotouchhome (0.28.2~1) unstable; urgency=low
+meegotouchhome (0.28.2-1) unstable; urgency=low
 
-  * [UNRELEASED]
   * Fixes: NB#254917 - Revealing User-local .desktop file entries fail always the first time
 
- -- Eetu Lehmusvuo <ext-eetu.6.lehmusvuo@nokia.com>  Wed, 18 May 2011 10:27:18 +0300
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Wed, 18 May 2011 15:23:24 +0300
 
 meegotouchhome (0.28.1-1) unstable; urgency=low
 
