@@ -92,6 +92,9 @@ void LauncherPageView::updateLayoutFromModel()
         iter.next();
         policy->insertItem(iter.key(), iter.value());
     }
+
+    // The layout needs to be activated so that the inserted items immediately get their new positions
+    layout->activate();
 }
 
 void LauncherPageView::setupModel()
