@@ -66,6 +66,10 @@ private slots:
     void testOwnWindowOnTopDoesNotEmitFullscreenWindowOnTopSignal();
     void testOwnWindowOnTopDoesNotEmitAnyWindowOnTopSignal();
     void testHomeWindowOnTop();
+    void testHomeWindowUnderIgnoreWindows_data();
+    void testHomeWindowUnderIgnoreWindows();
+    void testNoHomeWindowWithIgnoreWindows();
+    void testOnlyHomeWindowWithIgnoreWindows();
 
 private:
     // The object being tested

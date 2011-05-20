@@ -139,3 +139,19 @@ bool HomeWindowMonitor::isHomeWindowOnTop() const
     QList<Window> windowOrder = windowStackingOrder();
     return isOwnWindow(windowOrder.last());
 }
+
+bool HomeWindowMonitor::isHomeWindowOnTop(QSet<Atom> ignoredWindows) const
+{
+    QList<Window> windowOrder = windowStackingOrder();
+    for (int i = windowOrder.length() - 1; i >= 0; --i)
+    {
+        if (isOwnWindow(windowOrder[i])) {
+            return true;
+        }
+        QSet<Atom> windowTypes = WindowInfo(windowOrder[i]).types().toSet();
+        if (windowTypes.intersect(ignoredWindows).isEmpty()) {
+             break;
+        }
+    }
+    return false;
+}

@@ -1,6 +1,7 @@
-meegotouchhome (0.32.1~1) unstable; urgency=low
+meegotouchhome (0.33.0~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Changes: Enabler to allow fixing 257453
 
  -- Eetu Lehmusvuo <ext-eetu.6.lehmusvuo@nokia.com>  Fri, 3 Jun 2011 11:24:24 +0300
 

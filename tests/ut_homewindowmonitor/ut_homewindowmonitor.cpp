@@ -38,6 +38,9 @@ const Window NON_ROOT_WINDOW = 2;
 const Window APPLICATION_WINDOW_ID_1 = 101;
 const Window APPLICATION_WINDOW_ID_2 = 102;
 
+// Values for X11 atoms
+#define ATOM_TYPE_NOTIFICATION 0x00010003
+
 QList<Window> gActiveWindows;
 void addWindowInfoToActiveWindows(Window window)
 {
@@ -50,9 +53,13 @@ Atom X11Wrapper::XInternAtom(Display *, const char *atom_name, Bool)
     if (strcmp(atom_name, "_NET_CLIENT_LIST_STACKING") == 0) {
         return NET_CLIENT_LIST_STACKING;
     }
+    else if (strcmp(atom_name, "_NET_WM_WINDOW_TYPE_NOTIFICATION") == 0) {
+        return ATOM_TYPE_NOTIFICATION;
+    }
 
     return None;
 }
+
 
 int X11Wrapper::XGetWindowProperty(Display */*dpy*/, Window /*w*/, Atom property, long /*long_offset*/, long /*long_length*/, Bool /*del*/, Atom /*req_type*/, Atom */*actual_type_return*/, int */*actual_format_return*/, unsigned long *nitems_return, unsigned long */*bytes_after_return*/, unsigned char **prop_return)
 {
@@ -274,6 +281,60 @@ void Ut_HomeWindowMonitor::testHomeWindowOnTop()
 
     addWindowInfoToActiveWindows(APPLICATION_WINDOW_ID_2);
     QVERIFY(!m_subject->isHomeWindowOnTop());
+}
+
+void Ut_HomeWindowMonitor::testHomeWindowUnderIgnoreWindows_data()
+{
+    QTest::addColumn<Atom>("windowType");
+    QTest::addColumn<bool>("homeWindowOnTop");
+
+    QTest::newRow("Notification") << WindowInfo::NotificationAtom << true;
+    QTest::newRow("Dialog") << WindowInfo::DialogAtom << false;
+}
+
+void Ut_HomeWindowMonitor::testHomeWindowUnderIgnoreWindows()
+{
+    addWindowInfoToActiveWindows(APPLICATION_WINDOW_ID_1);
+    addWindowInfoToActiveWindows(OWN_WINDOW_ID);
+
+    QFETCH(Atom, windowType);
+
+    QList<Atom> types;
+    types << windowType;
+    gWindowInfoStub->stubSetReturnValue("types", types);
+
+    addWindowInfoToActiveWindows(APPLICATION_WINDOW_ID_2);
+
+    QSet<Atom> unaffectingTypes = QSet<Atom>() << WindowInfo::NotificationAtom;
+
+    QFETCH(bool, homeWindowOnTop);
+    QCOMPARE(homeWindowOnTop, m_subject->isHomeWindowOnTop(unaffectingTypes));
+}
+
+void Ut_HomeWindowMonitor::testNoHomeWindowWithIgnoreWindows()
+{
+    addWindowInfoToActiveWindows(APPLICATION_WINDOW_ID_1);
+
+    QList<Atom> types;
+    types << WindowInfo::NotificationAtom;
+    gWindowInfoStub->stubSetReturnValue("types", types);
+
+    addWindowInfoToActiveWindows(APPLICATION_WINDOW_ID_2);
+
+    QSet<Atom> unaffectingTypes = QSet<Atom>() << WindowInfo::NotificationAtom;
+    QVERIFY(!m_subject->isHomeWindowOnTop(unaffectingTypes));
+}
+
+void Ut_HomeWindowMonitor::testOnlyHomeWindowWithIgnoreWindows()
+{
+    addWindowInfoToActiveWindows(OWN_WINDOW_ID);
+
+    QList<Atom> types;
+    types << WindowInfo::DesktopAtom;
+    gWindowInfoStub->stubSetReturnValue("types", types);
+
+    QSet<Atom> unaffectingTypes = QSet<Atom>() << WindowInfo::NotificationAtom;
+    QVERIFY(m_subject->isHomeWindowOnTop(unaffectingTypes));
 }
 
 QTEST_MAIN(Ut_HomeWindowMonitor)
