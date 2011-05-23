@@ -108,6 +108,9 @@ private slots:
     void testSetMaximumPageSize();
     // Test handling of operation error when button is already found in launcher
     void testSetOperationErrorWhenButtonFoundFromLauncher();
+    // Test that when button state is installed from applications desktop entry then
+    // button information is updated from desktop entry and placement in data store is updated
+    void testButtonInfoIsUpdatedFromDesktopEntryWhenButtonStateIsUpdatedFromApplicationsEntry();
     // Test handling of operation error when entry has a placeholder launcher
     void testSetOperationErrorWhenButtonHasPlaceholder();
     // Test that placeholder map entry is removed for launcher button.

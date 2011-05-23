@@ -112,7 +112,7 @@ void Launcher::updateButtonState(const QString &desktopEntryPath, const QString 
             button->setPackageName(packageName);
         }
 
-        if (!ApplicationPackageMonitorListener::isInstallerExtraEntry(desktopEntryPath) || state == LauncherButtonModel::Broken) {
+        if (!ApplicationPackageMonitorListener::isInstallerExtraEntry(desktopEntryPath)) {
             updateButtonPlacementInStore(desktopEntryPath);
             button->updateFromDesktopEntry(desktopEntryPath);
         }

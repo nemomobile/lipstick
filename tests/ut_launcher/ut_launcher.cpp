@@ -555,15 +555,28 @@ void Ut_Launcher::testSetOperationErrorWhenButtonFoundFromLauncher()
     gApplicationPackageMonitorListenerStub->stubSetReturnValue("toInstallerExtraEntryPath", installerExtraEntry);
     gApplicationPackageMonitorListenerStub->stubSetReturnValue("toApplicationsEntryPath", applicationsEntry);
 
+    gApplicationPackageMonitorListenerStub->stubSetReturnValue("isInstallerExtraEntry", true);
     launcher->updateButtonState(installerExtraEntry, QString(), LauncherButtonModel::Broken, 0);
 
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<LauncherButtonModel::State>(0), LauncherButtonModel::Broken);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<int>(1), 0);
-    QCOMPARE(gLauncherButtonStub->stubLastCallTo("updateFromDesktopEntry").parameter<QString>(0), installerExtraEntry);
+    QCOMPARE(gLauncherButtonStub->stubCallCount("updateFromDesktopEntry"), 0);
+}
 
-    QCOMPARE(gLauncherDataStoreStub->stubLastCallTo("removeDataForDesktopEntry").parameter<QString>(0), applicationsEntry);
-    //QCOMPARE(gLauncherDataStoreStub->stubLastCallTo("removeDataForDesktopEntry").parameter<QString>(1), applicationsEntry);
-    QCOMPARE(gLauncherDataStoreStub->stubLastCallTo("updateDataForDesktopEntry").parameter<QString>(0), installerExtraEntry);
+void Ut_Launcher::testButtonInfoIsUpdatedFromDesktopEntryWhenButtonStateIsUpdatedFromApplicationsEntry()
+{
+    QString installedApplicationsEntry = QString(APPLICATIONS_DIRECTORY) + "test.desktop";
+
+    gApplicationPackageMonitorListenerStub->stubSetReturnValue("toApplicationsEntryPath", installedApplicationsEntry);
+
+    gApplicationPackageMonitorListenerStub->stubSetReturnValue("isInstallerExtraEntry", false);
+    launcher->updateButtonState(installedApplicationsEntry, "package", LauncherButtonModel::Installed, 0);
+
+    QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<LauncherButtonModel::State>(0), LauncherButtonModel::Installed);
+    QCOMPARE(gLauncherButtonStub->stubCallCount("updateFromDesktopEntry"), 1);
+
+    QCOMPARE(gLauncherDataStoreStub->stubLastCallTo("removeDataForDesktopEntry").parameter<QString>(0), installedApplicationsEntry);
+    QCOMPARE(gLauncherDataStoreStub->stubLastCallTo("updateDataForDesktopEntry").parameter<QString>(0), installedApplicationsEntry);
 }
 
 void Ut_Launcher::testSetOperationErrorWhenButtonHasPlaceholder()
@@ -734,6 +747,5 @@ void Ut_Launcher::testThatLauncherIconIsRemovedWhenApplicationUninstallProgressI
 
     QCOMPARE(launcher->model()->launcherPages().count(), 0);
 }
-
 
 QTEST_MAIN(Ut_Launcher)

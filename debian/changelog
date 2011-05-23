@@ -1,6 +1,7 @@
 meegotouchhome (0.28.4~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#258416 - Changing launcher button state to broken the button text is lost
 
  -- Vesa Halttunen <vesa.halttunen@nokia.com>  Mon, 23 May 2011 15:15:55 +0300
 
