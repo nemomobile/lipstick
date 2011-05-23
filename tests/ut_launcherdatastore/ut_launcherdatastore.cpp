@@ -526,10 +526,12 @@ void Ut_LauncherDataStore::testUpdatingDesktopEntry()
     addDesktopEntry("testApplication0.desktop", "Test0", "Application", "Icon-camera", "test0");
     addDesktopEntry("testApplication1.desktop", "Test1", "Application", "Icon-camera", "test1", "/test/directory1/");
     addDesktopEntry("testApplication2.desktop", "Test2", "Application", "Icon-camera", "test2", "/test/directory2/");
+    addDesktopEntry("testApplication3.desktop", "Test3", "Application", "Icon-camera", "test3", "/test/directory2/");
     LauncherDataStore dataStore(mockStore, QStringList() << APPLICATIONS_DIRECTORY << "/test/directory1" << "/test/directory2/");
     connect(this, SIGNAL(directoryChanged()), &dataStore, SLOT(updateDataFromDesktopEntryFiles()));
     connect(this, SIGNAL(timeout()), &dataStore, SLOT(processUpdateQueue()));
     emit directoryChanged();
+    emit timeout();
     emit timeout();
 
     QSignalSpy spyDesktopEntryChanged(&dataStore, SIGNAL(desktopEntryChanged(QString)));
@@ -539,13 +541,15 @@ void Ut_LauncherDataStore::testUpdatingDesktopEntry()
     emit fileChanged(fileNameWithPath("testApplication1.desktop", "/test/directory1/"));
     emit fileChanged(fileNameWithPath("testApplication2.desktop", "/test/directory2/"));
     emit fileChanged("testApplication3.desktop");
+    emit fileChanged("testApplication4.desktop");
 
     // No data store change when entry is just updated
     QCOMPARE(spyDataStoreChanged.count(), 0);
-    QCOMPARE(spyDesktopEntryChanged.count(), 3);
+    QCOMPARE(spyDesktopEntryChanged.count(), 4);
     QCOMPARE(spyDesktopEntryChanged.at(0).at(0).toString(), QString(fileNameWithPath("testApplication0.desktop")));
     QCOMPARE(spyDesktopEntryChanged.at(1).at(0).toString(), QString(fileNameWithPath("testApplication1.desktop", "/test/directory1/")));
     QCOMPARE(spyDesktopEntryChanged.at(2).at(0).toString(), QString(fileNameWithPath("testApplication2.desktop", "/test/directory2/")));
+    QCOMPARE(spyDesktopEntryChanged.at(3).at(0).toString(), QString(fileNameWithPath("testApplication3.desktop", "/test/directory2/")));
 }
 
 void Ut_LauncherDataStore::testUpdatingInvalidEntry()

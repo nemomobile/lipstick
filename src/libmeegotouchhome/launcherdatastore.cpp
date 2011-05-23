@@ -224,28 +224,44 @@ void LauncherDataStore::addFilePathToWatcher(const QString &filePath)
 
 void LauncherDataStore::updateDesktopEntry(const QString &desktopEntryPath)
 {
-    QFileInfo fileInfo(desktopEntryPath);
+    QString fullPath;
+    if (desktopEntryPath.startsWith('/')) {
+        // The path is an absolute path: use the path as is
+        fullPath = desktopEntryPath;
+    } else {
+        // The path is not an absolute path: try to find the desktop entry from the watched directories
+        foreach (const QString &directory, directories) {
+            QFileInfo fileInfo(directory, desktopEntryPath);
+            if (fileInfo.exists()) {
+                // Use the first existing file
+                fullPath = fileInfo.canonicalFilePath();
+                break;
+            }
+        }
+    }
+
+    QFileInfo fileInfo(fullPath);
     if (fileInfo.exists() && directories.contains(fileInfo.canonicalPath())) {
-        QString key = entryPathToKey(desktopEntryPath);
+        QString key = entryPathToKey(fullPath);
 
         if (store->contains(key)) {
-            MDesktopEntry desktopEntry(desktopEntryPath);
+            MDesktopEntry desktopEntry(fullPath);
             if (isDesktopEntryValid(desktopEntry, supportedDesktopEntryFileTypes)) {
                 // update valid & existing entry
-                emit desktopEntryChanged(desktopEntryPath);
+                emit desktopEntryChanged(fullPath);
             } else {
                 // remove existing but now invalid entry
                 store->remove(key);
-                emit desktopEntryRemoved(desktopEntryPath);
-                invalidEntries.append(desktopEntryPath);
+                emit desktopEntryRemoved(fullPath);
+                invalidEntries.append(fullPath);
             }
         } else if (!isInQueue(key)) {
-            MDesktopEntry desktopEntry(desktopEntryPath);
+            MDesktopEntry desktopEntry(fullPath);
             if (isDesktopEntryValid(desktopEntry, supportedDesktopEntryFileTypes)) {
                 // If entry has been invalid before, but is now valid, add entry as a new entry
                 store->createValue(key, QVariant());
-                emit desktopEntryAdded(desktopEntryPath);
-                invalidEntries.removeOne(desktopEntryPath);
+                emit desktopEntryAdded(fullPath);
+                invalidEntries.removeOne(fullPath);
             }
         }
     }
