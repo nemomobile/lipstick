@@ -21,7 +21,6 @@
 #include <QFile>
 #include <QTimer>
 #include <QTime>
-#include <QFileSystemWatcher>
 #endif
 
 #include <QDir>

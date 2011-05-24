@@ -78,6 +78,9 @@ private:
     //! Sets the icon from the MDesktopEntry
     void setIconFromDesktopEntry();
 
+    //! File system watcher for icons that are not available at initialization. A single shared instance is used due to bug #259177.
+    static QFileSystemWatcher iconWatcher;
+
     //! The controller for the view
     LauncherButton *controller;
 
@@ -87,10 +90,7 @@ private:
     //! Progress indicator for operation. Deleted by parent if still instance in destructor.
     LauncherButtonProgressIndicator *progressIndicator;
 
-    //! File system watcher for icons that are not available at initialization
-    QFileSystemWatcher iconWatcher;
-
-    //! Path to icon that was unvailable at initialization
+    //! Path to the icon that was not available during initialization
     QString unavailableIconPath;
 
 #ifdef UNIT_TEST

@@ -24,6 +24,7 @@
 #include "launcherbuttonprogressindicator.h"
 #include "launcherbutton.h"
 
+QFileSystemWatcher LauncherButtonView::iconWatcher;
 static const QString DEFAULT_APPLICATION_ICON_ID = "icon-l-default-application";
 
 LauncherButtonView::LauncherButtonView(LauncherButton *controller) :
