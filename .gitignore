@@ -12,7 +12,6 @@ lib/lib*.so*
 *.log.xml
 *.gcno
 *.gcda
-duihome
 *.pro.user
 configure-stamp
 build-stamp
