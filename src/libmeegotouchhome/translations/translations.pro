@@ -1,4 +1,4 @@
-LANGUAGES = fi
+LANGUAGES = 
 CATALOGNAME = libmeegotouchhome
 SOURCEDIR = $$PWD/..
 TRANSLATIONDIR = $$PWD
