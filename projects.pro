@@ -10,7 +10,6 @@ TEMPLATE = subdirs
 
 addSubDirs(src)
 addSubDirs(themes)
-addSubDirs(themes)
 addSubDirs(tests)
 
 QMAKE_CLEAN += \
