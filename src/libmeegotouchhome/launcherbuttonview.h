@@ -55,6 +55,7 @@ public:
 protected:
     //! \reimp
     virtual void setupModel();
+    virtual void applyStyle();
     //! \reimp_end
 
 protected slots:
@@ -92,6 +93,9 @@ private:
 
     //! Path to the icon that was not available during initialization
     QString unavailableIconPath;
+
+    //! Timer for resetting the button state after launching
+    QTimer launchStateResetTimer;
 
 #ifdef UNIT_TEST
     friend class Ut_LauncherButtonView;

@@ -117,6 +117,8 @@ LauncherButtonStyle {
     downloading-placeholder-icon: "icon-l-downloading";
     installing-placeholder-icon: "icon-l-installing";
     broken-placeholder-icon: "icon-l-error";
+
+    launch-timeout: 5000;
 }
 
 LauncherButton#LauncherButton MSpinnerStyle {

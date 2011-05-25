@@ -42,6 +42,8 @@ class LauncherButtonStyle : public MButtonIconStyle
     M_STYLE_ATTRIBUTE(QString, installingPlaceholderIcon, InstallingPlaceholderIcon);
     //! Placeholder icon for broken state
     M_STYLE_ATTRIBUTE(QString, brokenPlaceholderIcon, BrokenPlaceholderIcon);
+    //! Timeout for resetting the button state after launching
+    M_STYLE_ATTRIBUTE(int, launchTimeout, LaunchTimeout)
 };
 
 class LauncherButtonStyleContainer : public MButtonIconStyleContainer

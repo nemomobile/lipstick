@@ -98,6 +98,8 @@ private slots:
     void testWhenStateIsChangedToLaunchingThenProgressIndicatorIsShownAccordingToStyle_data();
     void testWhenStateIsChangedToLaunchingThenProgressIndicatorIsShownAccordingToStyle();
     void testUnavailableIcon();
+    void testWhenStateLaunchingThenStateResetsAfterTimeout();
+    void testWhenStateNotLaunchingThenStateResetTimerStopped();
 
 signals:
     void frameChanged(int frame);

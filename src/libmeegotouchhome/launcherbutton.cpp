@@ -16,7 +16,6 @@
 ** of this file.
 **
 ****************************************************************************/
-
 #include "launcherbutton.h"
 #include "launcher.h"
 #include <MDesktopEntry>
@@ -60,6 +59,7 @@ void LauncherButton::launch()
     if (model()->buttonState() == LauncherButtonModel::Installed) {
         model()->setButtonState(LauncherButtonModel::Launching);
         connect(HomeWindowMonitor::instance(), SIGNAL(fullscreenWindowOnTopOfOwnWindow()), SLOT(stopLaunchProgress()));
+
         action.trigger();
     } else if (model()->buttonState() == LauncherButtonModel::Broken) {
         // Show the exception dialog for this package

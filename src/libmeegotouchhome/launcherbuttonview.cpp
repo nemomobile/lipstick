@@ -32,6 +32,8 @@ LauncherButtonView::LauncherButtonView(LauncherButton *controller) :
     controller(controller),
     progressIndicator(NULL)
 {
+    connect(&launchStateResetTimer, SIGNAL(timeout()), controller, SLOT(stopLaunchProgress()));
+    launchStateResetTimer.setSingleShot(true);
 }
 
 LauncherButtonView::~LauncherButtonView()
@@ -46,6 +48,13 @@ void LauncherButtonView::setupModel()
     resetProgressIndicator();
 }
 
+void LauncherButtonView::applyStyle()
+{
+    MButtonIconView::applyStyle();
+
+    launchStateResetTimer.setInterval(style()->launchTimeout());
+}
+
 void LauncherButtonView::updateData(const QList<const char *>& modifications)
 {
     MButtonIconView::updateData(modifications);
@@ -53,11 +62,13 @@ void LauncherButtonView::updateData(const QList<const char *>& modifications)
     const char *member;
     foreach(member, modifications) {
         if (member == LauncherButtonModel::ButtonState) {
+            launchStateResetTimer.stop();
             updateButtonIcon();
             resetProgressIndicator();
 
             if (model()->buttonState() == LauncherButtonModel::Launching) {
                 controller->setEnabled(false);
+                launchStateResetTimer.start();
             } else {
                 if (model()->buttonState()
                     == LauncherButtonModel::Installed

@@ -1,6 +1,7 @@
-meegotouchhome (0.29.1~1) unstable; urgency=low
+meegotouchhome (0.30.0~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#257225 - Launcher does not allow the same launcher button to be pressed again if the started application crashes while the splash screen was visible
 
  -- Vesa Halttunen <vesa.halttunen@nokia.com>  Wed, 25 May 2011 12:19:20 +0300
 
