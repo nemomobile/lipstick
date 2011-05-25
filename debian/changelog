@@ -1,3 +1,9 @@
+meegotouchhome (0.29.1~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Wed, 25 May 2011 12:19:20 +0300
+
 meegotouchhome (0.29.0-1) unstable; urgency=low
 
   * Fixes: NB#259151 - Home uses alone more than half of user's allocation of inotify instances, starving tracker etc
