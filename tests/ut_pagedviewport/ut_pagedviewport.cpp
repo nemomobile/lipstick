@@ -26,10 +26,24 @@
 #include "layoutvisualizationwrapper_stub.h"
 
 #include <QGraphicsLinearLayout>
+#include <QGesture>
+#include <QPanGesture>
 
 const int FIRST_PAGE_INDEX = 0;
 const int DEFAULT_NUM_PAGES = 6;
 const int DEFAULT_LAST_PAGE_INDEX = DEFAULT_NUM_PAGES - 1;
+
+QGesture::GestureCancelPolicy gSetGestureCancelPolicy;
+void QGesture::setGestureCancelPolicy(QGesture::GestureCancelPolicy policy)
+{
+    gSetGestureCancelPolicy = policy;
+}
+
+Qt::GestureState gGestureStateReturnValue;
+Qt::GestureState QGesture::state() const
+{
+    return gGestureStateReturnValue;
+}
 
 void Ut_PagedViewport::initTestCase()
 {
@@ -47,6 +61,9 @@ void Ut_PagedViewport::cleanupTestCase()
 
 void Ut_PagedViewport::init()
 {
+    gSetGestureCancelPolicy = QGesture::CancelNone;
+    gGestureStateReturnValue = Qt::GestureStarted;
+
     m_subject = new PagedViewport(NULL);
     connect(this, SIGNAL(panningStopped()), m_subject->physics(), SIGNAL(panningStopped()));
     connect(this, SIGNAL(pageWrapped()), m_subject->physics(), SIGNAL(pageWrapped()));
@@ -395,6 +412,39 @@ void Ut_PagedViewport::testWhenPageWrappingGetsDisabledThenVisualizationWrapperD
     emit panningStopped();
 
     QCOMPARE(gLayoutVisualizationWrapperStub->stubCallCount("setWrappingMode"), 0);
+}
+
+void Ut_PagedViewport::testStoppingPanning()
+{
+    m_subject->stopPanning();
+
+    QCOMPARE(gPagedPanningStub->stubCallCount("pointerRelease"), 1);
+    QCOMPARE(m_subject->explicitlyStopped, true);
+}
+
+void Ut_PagedViewport::testGettingGestureUpdatesAfterPanningHasBeenExplicitlyStopped()
+{
+    m_subject->stopPanning();
+
+    QPanGesture updateGesture;
+    QGestureEvent gestureEvent(QList<QGesture *>() << &updateGesture);
+    gGestureStateReturnValue = Qt::GestureUpdated;
+    m_subject->panGestureEvent(&gestureEvent, &updateGesture);
+
+    QCOMPARE(m_subject->explicitlyStopped, true);
+    QCOMPARE(gSetGestureCancelPolicy, QGesture::CancelAllInContext);
+}
+
+void Ut_PagedViewport::testGettingGestureStartAfterPanningHasBeenExplicitlyStopped()
+{
+    m_subject->stopPanning();
+
+    QPanGesture startGesture;
+    QGestureEvent gestureEvent(QList<QGesture *>() << &startGesture);
+    gGestureStateReturnValue = Qt::GestureStarted;
+    m_subject->panGestureEvent(&gestureEvent, &startGesture);
+
+    QCOMPARE(m_subject->explicitlyStopped, false);
 }
 
 QTEST_APPLESS_MAIN(Ut_PagedViewport)

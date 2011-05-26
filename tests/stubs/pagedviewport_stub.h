@@ -38,6 +38,8 @@ public:
     virtual void focusFirstPage();
     virtual void newPageSet(int newPage);
     virtual void updateVisualizationWrapper();
+    virtual void stopPanning();
+    virtual void panGestureEvent(QGestureEvent *event, QPanGesture* panGesture);
 };
 
 // 2. IMPLEMENT STUB
@@ -110,6 +112,17 @@ void PagedViewportStub::updateVisualizationWrapper() {
     stubMethodEntered("updateVisualizationWrapper");
 }
 
+void PagedViewportStub::stopPanning() {
+    stubMethodEntered("stopPanning");
+}
+
+void PagedViewportStub::panGestureEvent(QGestureEvent *event, QPanGesture* panGesture) {
+    QList<ParameterBase*> params;
+    params.append(new Parameter<QGestureEvent *>(event));
+    params.append(new Parameter<QPanGesture *>(panGesture));
+    stubMethodEntered("panGestureEvent", params);
+}
+
 
 PagedViewportStub gDefaultPagedViewportStub;
 PagedViewportStub* gPagedViewportStub = &gDefaultPagedViewportStub;
@@ -167,6 +180,14 @@ void PagedViewport::newPageSet(int newPage) {
 
 void PagedViewport::updateVisualizationWrapper() {
     gPagedViewportStub->updateVisualizationWrapper();
+}
+
+void PagedViewport::stopPanning() {
+    gPagedViewportStub->stopPanning();
+}
+
+void PagedViewport::panGestureEvent(QGestureEvent *event, QPanGesture* panGesture) {
+    gPagedViewportStub->panGestureEvent(event, panGesture);
 }
 
 #endif

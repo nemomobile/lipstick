@@ -16,6 +16,7 @@
 ** of this file.
 **
 ****************************************************************************/
+
 #include "pagedpanning.h"
 #include <stdlib.h>
 #include <QtGlobal>

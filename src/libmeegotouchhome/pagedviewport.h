@@ -141,6 +141,9 @@ public Q_SLOTS:
      */
     void focusFirstPage();
 
+    //! Stops the panning by releasing the pointer and stopping physics
+    void stopPanning();
+
 private Q_SLOTS:
     /*!
      * A slot for handling page changes in the paged viewport. Updates the visualization
@@ -153,6 +156,11 @@ private Q_SLOTS:
      */
     void updateVisualizationWrapper();
 
+protected:
+    //! \reimp
+    void panGestureEvent(QGestureEvent *event, QPanGesture* panGesture);
+    //! \reimp_end
+
 private:
     //! Our custom physics implementation
     PagedPanning* pagedPanning;
@@ -164,6 +172,9 @@ private:
 
     //! A layout visualization wrapper to be used when page wrap mode is on
     QSharedPointer<LayoutVisualizationWrapper> layoutVisualizationWrapper;
+
+    //! Whether panning has been explicitly stopped after last pan gesture start.
+    bool explicitlyStopped;
 
 #ifdef UNIT_TEST
     friend class Ut_PagedViewport;

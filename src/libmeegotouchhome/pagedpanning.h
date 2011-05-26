@@ -130,6 +130,12 @@ public:
      */
     bool pageWrapMode() const;
 
+    //! \reimp
+    virtual void pointerPress(const QPointF &pos);
+    virtual void pointerMove(const QPointF &pos);
+    virtual void pointerRelease();
+    //! \reimp_end
+
 protected:
 
     //! \reimp
@@ -140,13 +146,6 @@ protected:
                                 qreal &pointerDifference,
                                 bool pointerPressed
                                 );
-
-    virtual void pointerPress(const QPointF &pos);
-
-    virtual void pointerMove(const QPointF &pos);
-
-    virtual void pointerRelease();
-
     //! \reimp_end
 
 signals:

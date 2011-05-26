@@ -86,6 +86,10 @@ private slots:
 
     void testWhenPageWrappingGetsDisabledThenVisualizationWrapperDoesNotGetCalled();
 
+    void testStoppingPanning();
+    void testGettingGestureUpdatesAfterPanningHasBeenExplicitlyStopped();
+    void testGettingGestureStartAfterPanningHasBeenExplicitlyStopped();
+
 private:
     // MApplication
     MApplication *app;

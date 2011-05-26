@@ -16,6 +16,7 @@
 ** of this file.
 **
 ****************************************************************************/
+
 #include <mwidgetview.h>
 #include "pagedviewport.h"
 #include "pagedpanning.h"
@@ -23,6 +24,8 @@
 #include "mpositionindicator.h"
 #include "pagepositionindicator.h"
 #include <QGraphicsLinearLayout>
+#include <QGestureEvent>
+#include <QPanGesture>
 
 #include <MWidgetCreator>
 M_REGISTER_WIDGET(PagedViewport)
@@ -30,7 +33,8 @@ M_REGISTER_WIDGET(PagedViewport)
 PagedViewport::PagedViewport(QGraphicsItem *parent) :
         MPannableViewport(parent),
         previousPage(0),
-        layoutVisualizationWrapper(NULL)
+        layoutVisualizationWrapper(NULL),
+        explicitlyStopped(false)
 {
     // The strategy will be deleted by the pannable viewport
     pagedPanning = new PagedPanning(this);
@@ -154,5 +158,27 @@ void PagedViewport::updateVisualizationWrapper()
     } else {
         // Middle page
         layoutVisualizationWrapper->setWrappingMode(LayoutVisualizationWrapper::NoWrap);
+    }
+}
+
+void PagedViewport::stopPanning()
+{
+    pagedPanning->pointerRelease();
+    pagedPanning->stop();
+    explicitlyStopped = true;
+}
+
+void PagedViewport::panGestureEvent(QGestureEvent *event, QPanGesture* panGesture)
+{
+    // In case pan has been explicitly stopped but gesture has not been canceled yet (no mouse release or cancel)
+    // then instead of reacting to gesture updates we need to cancel the gesture
+    if (explicitlyStopped && panGesture->state() == Qt::GestureUpdated) {
+        panGesture->setGestureCancelPolicy(QGesture::CancelAllInContext);
+        event->accept(panGesture);
+    } else {
+        // Not explicitly stopped anymore after getting gesture start, finish or cancel events
+        explicitlyStopped = false;
+
+        MPannableViewport::panGestureEvent(event, panGesture);
     }
 }
