@@ -1,3 +1,9 @@
+meegotouchhome (0.31.1~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Eetu Lehmusvuo <ext-eetu.6.lehmusvuo@nokia.com>  Mon, 30 May 2011 10:45:12 +0300
+
 meegotouchhome (0.31.0-1) unstable; urgency=low
 
   * Fixes: NB#259372 - [TASK] Launcher should not show X buttons for applications that can't be removed
