@@ -1,10 +1,9 @@
-meegotouchhome (0.30.1~1) unstable; urgency=low
+meegotouchhome (0.31.0-1) unstable; urgency=low
 
-  * [UNRELEASED]
   * Fixes: NB#259372 - [TASK] Launcher should not show X buttons for applications that can't be removed
   * Fixes: NB#257711 - Able to have "edit mode" and/or "button dragging" and pan of launcher at the same time
 
- -- Pauli Lehtinen <pauli.lehtinen@nokia.com>  Wed, 25 May 2011 16:17:34 +0300
+ -- Eetu Lehmusvuo <ext-eetu.6.lehmusvuo@nokia.com>  Mon, 30 May 2011 10:43:34 +0300
 
 meegotouchhome (0.30.0-1) unstable; urgency=low
 
