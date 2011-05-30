@@ -24,6 +24,8 @@ class LauncherButtonStub : public StubBase {
   virtual LauncherButtonModel::State buttonState() const;
   virtual void setPackageName(const QString packageName);
   virtual QString packageName() const;
+  virtual void setPackageRemovable(const bool packageRemovable);
+  virtual bool packageRemovable() const;
 };
 
 // 2. IMPLEMENT STUB
@@ -92,6 +94,17 @@ QString LauncherButtonStub::packageName() const {
   return stubReturnValue<QString>("packageName");
 }
 
+void LauncherButtonStub::setPackageRemovable(const bool packageRemovable) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<bool>(packageRemovable));
+  stubMethodEntered("setPackageRemovable", params);
+}
+
+bool LauncherButtonStub::packageRemovable() const {
+  stubMethodEntered("packageRemovable");
+  return stubReturnValue<bool>("packageRemovable");
+}
+
 // 3. CREATE A STUB INSTANCE
 LauncherButtonStub gDefaultLauncherButtonStub;
 LauncherButtonStub* gLauncherButtonStub = &gDefaultLauncherButtonStub;
@@ -151,6 +164,16 @@ void LauncherButton::setPackageName(const QString &packageName)
 QString LauncherButton::packageName() const
 {
     return gLauncherButtonStub->packageName();
+}
+
+void LauncherButton::setPackageRemovable(const bool removable)
+{
+    gLauncherButtonStub->setPackageRemovable(removable);
+}
+
+bool LauncherButton::packageRemovable() const
+{
+    return gLauncherButtonStub->packageRemovable();
 }
 
 #endif

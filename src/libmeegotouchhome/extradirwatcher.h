@@ -33,6 +33,7 @@ public:
     static const QString DESKTOP_ENTRY_KEY_PACKAGE_STATE;
     static const QString DESKTOP_ENTRY_KEY_PACKAGE_HAD_ERROR;
     static const QString DESKTOP_ENTRY_KEY_PACKAGE_NAME;
+    static const QString DESKTOP_ENTRY_KEY_PACKAGE_REMOVABLE;
     static const QString DESKTOP_ENTRY_GROUP_MEEGO;
 
 protected:

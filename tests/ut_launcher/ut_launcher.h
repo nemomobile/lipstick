@@ -100,6 +100,8 @@ private slots:
     void testUpdateButtonStateForButtonThatHasOtherLocationInDatastore();
     // Test that package name is set to button when status of button is updated
     void testSettingPackageNameForButtonWhenButtonStateIsUpdated();
+    // Test that package's removability is set to button when status of button is updated
+    void testSettingPackageRemovabilityForButtonWhenButtonStateIsUpdated();
     // Test adding palceholder button to launcher
     void testAddPlaceholderButtonToLauncher();
     // Test getting entrys placement in datastore

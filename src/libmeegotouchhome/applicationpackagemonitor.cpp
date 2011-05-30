@@ -98,7 +98,7 @@ void ApplicationPackageMonitor::packageDownloadProgress(const QString &operation
 
     QString desktopEntryPath = LauncherDataStore::keyToEntryPath(dataStore->key(packageName));
     if (isValidOperation(desktopEntryPath, operation)) {
-        emit downloadProgress(desktopEntryPath, packageName, already, total);
+        emit downloadProgress(desktopEntryPath, packageName, already, total, isPackageRemovable(desktopEntryPath));
     }
 }
 
@@ -109,7 +109,7 @@ void ApplicationPackageMonitor::packageOperationStarted(const QString &operation
     Q_UNUSED(version)
     QString desktopEntryPath = LauncherDataStore::keyToEntryPath(dataStore->key(packageName));
     if (!desktopEntryPath.isEmpty() && operation.compare(OPERATION_UNINSTALL, Qt::CaseInsensitive) == 0) {
-        emit packageUninstall(desktopEntryPath, packageName);
+        emit packageUninstall(desktopEntryPath, packageName, true);
     }
 }
 
@@ -122,7 +122,7 @@ void ApplicationPackageMonitor::packageOperationProgress(const QString &operatio
 
     QString desktopEntryPath = LauncherDataStore::keyToEntryPath(dataStore->key(packageName));
     if (isValidOperation(desktopEntryPath, operation)) {
-        emit installProgress(desktopEntryPath, packageName, percentage);
+        emit installProgress(desktopEntryPath, packageName, percentage, isPackageRemovable(desktopEntryPath));
     }
 }
 
@@ -141,9 +141,9 @@ void ApplicationPackageMonitor::packageOperationComplete(const QString &operatio
     }
 
     if (!error.isEmpty()) {
-        updatePackageState(desktopEntryPath);
+        emit operationError(desktopEntryPath, packageName, QString(), isPackageRemovable(desktopEntryPath));
     } else {
-        emit operationSuccess(desktopEntryPath.replace(INSTALLER_EXTRA_FOLDER, QString()), packageName);
+        emit operationSuccess(desktopEntryPath.replace(INSTALLER_EXTRA_FOLDER, QString()), packageName, isPackageRemovable(desktopEntryPath));
     }
 }
 
@@ -159,6 +159,13 @@ bool ApplicationPackageMonitor::isValidOperation(const QString &desktopEntryPath
     }
 }
 
+bool ApplicationPackageMonitor::isPackageRemovable(const QString &desktopEntryPath)
+{
+    MDesktopEntry entry(desktopEntryPath);
+    QString removable= entry.value(ExtraDirWatcher::DESKTOP_ENTRY_GROUP_MEEGO, ExtraDirWatcher::DESKTOP_ENTRY_KEY_PACKAGE_REMOVABLE);
+    return removable == "true" || removable.isEmpty();
+}
+
 void ApplicationPackageMonitor::updatePackageState(const QString &desktopEntryPath)
 {
     MDesktopEntry entry(desktopEntryPath);
@@ -167,20 +174,24 @@ void ApplicationPackageMonitor::updatePackageState(const QString &desktopEntryPa
     QString packageState = entry.value(ExtraDirWatcher::DESKTOP_ENTRY_GROUP_MEEGO, ExtraDirWatcher::DESKTOP_ENTRY_KEY_PACKAGE_STATE);
     bool packageHadError = entry.value(ExtraDirWatcher::DESKTOP_ENTRY_GROUP_MEEGO, ExtraDirWatcher::DESKTOP_ENTRY_KEY_PACKAGE_HAD_ERROR) == "true";
 
+    bool packageRemovable;
+    QString removable= entry.value(ExtraDirWatcher::DESKTOP_ENTRY_GROUP_MEEGO, ExtraDirWatcher::DESKTOP_ENTRY_KEY_PACKAGE_REMOVABLE);
+    packageRemovable = removable == "true" || removable.isEmpty();
+
     if (packageHadError)
       packageState = PACKAGE_STATE_BROKEN;
 
     if (!packageName.isEmpty()) {
         if (packageState == PACKAGE_STATE_BROKEN) {
-            emit operationError(desktopEntryPath, packageName, QString());
+            emit operationError(desktopEntryPath, packageName, QString(), packageRemovable);
         } else if (packageState == PACKAGE_STATE_INSTALLED || packageState == PACKAGE_STATE_UPDATEABLE) {
             QString applicationsFolderPath(desktopEntryPath);
             applicationsFolderPath.replace(INSTALLER_EXTRA_FOLDER, QString());
-            emit operationSuccess(applicationsFolderPath, packageName);
+            emit operationSuccess(applicationsFolderPath, packageName, packageRemovable);
         } else if(packageState == PACKAGE_STATE_DOWNLOADING) {
-                emit downloadProgress(desktopEntryPath, packageName, 0, 0);
+                emit downloadProgress(desktopEntryPath, packageName, 0, 0, packageRemovable);
         } else if(packageState == PACKAGE_STATE_INSTALLING) {
-            emit installProgress(desktopEntryPath, packageName, 0);
+            emit installProgress(desktopEntryPath, packageName, 0, packageRemovable);
         }
 
         extraDirWatcher->updateDataForDesktopEntry(desktopEntryPath, packageName);

@@ -101,11 +101,12 @@ bool QFile::exists(const QString &filename)
 const static QString INSTALLER_EXTRA_ENTRY_NAME_TEMPLATE("/null/dev/applications/installer-extra/test_entry%1.desktop");
 const static QString APPLICATIONS_ENTRY_NAME_TEMPLATE("/null/dev/applications/test_entry%1.desktop");
 const static QString PACKAGE_NAME_TEMPLATE("package%1");
-void Ut_ApplicationPackageMonitor::initializeEntries(int count, const QStringList &states)
+void Ut_ApplicationPackageMonitor::initializeEntries(int count, const QStringList &states, bool packageRemovable)
 {
     for (int i = 0; i < count; i++) {
         QString entry = INSTALLER_EXTRA_ENTRY_NAME_TEMPLATE.arg(i);
         QString packageName = PACKAGE_NAME_TEMPLATE.arg(i);
+        QString removable = packageRemovable ? "true" : "false";
         m_subject->dataStore->setValue("DesktopEntries" + entry, QVariant(packageName));
 
         QMap<QString, QString> value;
@@ -115,6 +116,7 @@ void Ut_ApplicationPackageMonitor::initializeEntries(int count, const QStringLis
         } else {
             value["X-MeeGo/PackageState"] = "installed";
         }
+        value["X-MeeGo/PackageRemovable"] = removable;
         g_desktopEntryValue[entry] = value;
     }
 }
@@ -147,10 +149,10 @@ void Ut_ApplicationPackageMonitor::testUpdatingPackageStates()
 {
     initializeEntries(4, QStringList() << "installing" << "downloading" << "broken" << "installed");
 
-    QSignalSpy spyInstalling(m_subject, SIGNAL(installProgress(QString, QString, int)));
-    QSignalSpy spyDownloading(m_subject, SIGNAL(downloadProgress(QString, QString, int, int)));
-    QSignalSpy spyError(m_subject, SIGNAL(operationError(QString, QString, QString)));
-    QSignalSpy spyInstalled(m_subject, SIGNAL(operationSuccess(QString, QString)));
+    QSignalSpy spyInstalling(m_subject, SIGNAL(installProgress(QString, QString, int, bool)));
+    QSignalSpy spyDownloading(m_subject, SIGNAL(downloadProgress(QString, QString, int, int, bool)));
+    QSignalSpy spyError(m_subject, SIGNAL(operationError(QString, QString, QString, bool)));
+    QSignalSpy spyInstalled(m_subject, SIGNAL(operationSuccess(QString, QString, bool)));
 
     m_subject->updatePackageStates();
 
@@ -194,10 +196,10 @@ void Ut_ApplicationPackageMonitor::testUpdatingPackageStateWhenDesktopEntryChang
     QTest::addColumn<QString>("state");
     QTest::addColumn<void *>("signal");
 
-    QTest::newRow("Broken state") << QString("broken") << (void *)SIGNAL(operationError(QString, QString, QString));
-    QTest::newRow("Installing state") << QString("installing") << (void *)SIGNAL(installProgress(QString, QString, int));
-    QTest::newRow("Downloading state") << QString("downloading") << (void *)SIGNAL(downloadProgress(QString, QString, int, int));
-    QTest::newRow("Installed state") << QString("installed") << (void *)SIGNAL(operationSuccess(QString, QString));
+    QTest::newRow("Broken state") << QString("broken") << (void *)SIGNAL(operationError(QString, QString, QString, bool));
+    QTest::newRow("Installing state") << QString("installing") << (void *)SIGNAL(installProgress(QString, QString, int, bool));
+    QTest::newRow("Downloading state") << QString("downloading") << (void *)SIGNAL(downloadProgress(QString, QString, int, int, bool));
+    QTest::newRow("Installed state") << QString("installed") << (void *)SIGNAL(operationSuccess(QString, QString, bool));
 }
 
 void Ut_ApplicationPackageMonitor::testUpdatingPackageStateWhenDesktopEntryChanges()
@@ -239,9 +241,9 @@ void Ut_ApplicationPackageMonitor::testDownloadProgressSignal()
     QVERIFY(m_subject->con.disconnect(QString(),PACKAGE_MANAGER_DBUS_PATH, PACKAGE_MANAGER_DBUS_INTERFACE, "download_progress",
                     m_subject, SLOT(packageDownloadProgress(const QString&, const QString&, const QString&, int, int))));
 
-    initializeEntries(1, QStringList() << "installed");
+    initializeEntries(1, QStringList() << "installed", false);
 
-    QSignalSpy signalSpy(m_subject, SIGNAL(downloadProgress(QString, QString, int, int)));
+    QSignalSpy signalSpy(m_subject, SIGNAL(downloadProgress(QString, QString, int, int, bool)));
 
     m_subject->packageDownloadProgress("Install", PACKAGE_NAME_TEMPLATE.arg(0), "", 50, 100);
     QCOMPARE(signalSpy.count(), 1);
@@ -249,6 +251,7 @@ void Ut_ApplicationPackageMonitor::testDownloadProgressSignal()
     QCOMPARE(signalSpy.at(0).at(1).toString(), QString(PACKAGE_NAME_TEMPLATE.arg(0)));
     QCOMPARE(signalSpy.at(0).at(2).toInt(), 50);
     QCOMPARE(signalSpy.at(0).at(3).toInt(), 100);
+    QCOMPARE(signalSpy.at(0).at(4).toBool(), false);
 }
 
 void Ut_ApplicationPackageMonitor::testInstallProgressSignal()
@@ -256,15 +259,16 @@ void Ut_ApplicationPackageMonitor::testInstallProgressSignal()
     QVERIFY(m_subject->con.disconnect(QString(),PACKAGE_MANAGER_DBUS_PATH, PACKAGE_MANAGER_DBUS_INTERFACE, "operation_progress",
                     m_subject, SLOT(packageOperationProgress(const QString&, const QString &, const QString&, int))));
 
-    initializeEntries(1, QStringList() << "installed");
+    initializeEntries(1, QStringList() << "installed", true);
 
-    QSignalSpy signalSpy(m_subject, SIGNAL(installProgress(QString, QString, int)));
+    QSignalSpy signalSpy(m_subject, SIGNAL(installProgress(QString, QString, int, bool)));
 
     m_subject->packageOperationProgress("Install", PACKAGE_NAME_TEMPLATE.arg(0), "", 50);
     QCOMPARE(signalSpy.count(), 1);
     QCOMPARE(signalSpy.at(0).at(0).toString(), QString(INSTALLER_EXTRA_ENTRY_NAME_TEMPLATE.arg(0)));
     QCOMPARE(signalSpy.at(0).at(1).toString(), QString(PACKAGE_NAME_TEMPLATE.arg(0)));
     QCOMPARE(signalSpy.at(0).at(2).toInt(), 50);
+    QCOMPARE(signalSpy.at(0).at(3).toBool(), true);
 }
 
 void Ut_ApplicationPackageMonitor::testInstallSuccessSignal()
@@ -274,24 +278,26 @@ void Ut_ApplicationPackageMonitor::testInstallSuccessSignal()
 
     initializeEntries(1, QStringList() << "installed");
 
-    QSignalSpy signalSpy(m_subject, SIGNAL(operationSuccess(QString, QString)));
+    QSignalSpy signalSpy(m_subject, SIGNAL(operationSuccess(QString, QString, bool)));
 
     m_subject->packageOperationComplete("Install", PACKAGE_NAME_TEMPLATE.arg(0), "", "", false);
     QCOMPARE(signalSpy.count(), 1);
     QCOMPARE(signalSpy.at(0).at(0).toString(), QString(APPLICATIONS_ENTRY_NAME_TEMPLATE.arg(0)));
     QCOMPARE(signalSpy.at(0).at(1).toString(), QString(PACKAGE_NAME_TEMPLATE.arg(0)));
+    QCOMPARE(signalSpy.at(0).at(2).toBool(), true);
 }
 
 void Ut_ApplicationPackageMonitor::testInstallSuccessSignalWithError()
 {
     initializeEntries(1, QStringList() << "broken");
 
-    QSignalSpy signalSpy(m_subject, SIGNAL(operationError(QString, QString, QString)));
+    QSignalSpy signalSpy(m_subject, SIGNAL(operationError(QString, QString, QString, bool)));
 
     m_subject->packageOperationComplete("Install", PACKAGE_NAME_TEMPLATE.arg(0), "", "BAR_ERROR", false);
     QCOMPARE(signalSpy.count(), 1);
     QCOMPARE(signalSpy.at(0).at(0).toString(), QString(INSTALLER_EXTRA_ENTRY_NAME_TEMPLATE.arg(0)));
     QCOMPARE(signalSpy.at(0).at(1).toString(), QString(PACKAGE_NAME_TEMPLATE.arg(0)));
+    QCOMPARE(signalSpy.at(0).at(3).toBool(), true);
 }
 
 void Ut_ApplicationPackageMonitor::testUninstallSignal()
@@ -301,12 +307,13 @@ void Ut_ApplicationPackageMonitor::testUninstallSignal()
 
     initializeEntries(1, QStringList() << "installed");
 
-    QSignalSpy signalSpy(m_subject, SIGNAL(packageUninstall(QString, QString)));
+    QSignalSpy signalSpy(m_subject, SIGNAL(packageUninstall(QString, QString, bool)));
 
     m_subject->packageOperationStarted("Uninstall", PACKAGE_NAME_TEMPLATE.arg(0), "");
     QCOMPARE(signalSpy.count(), 1);
     QCOMPARE(signalSpy.at(0).at(0).toString(), QString(INSTALLER_EXTRA_ENTRY_NAME_TEMPLATE.arg(0)));
     QCOMPARE(signalSpy.at(0).at(1).toString(), QString(PACKAGE_NAME_TEMPLATE.arg(0)));
+    QCOMPARE(signalSpy.at(0).at(2).toBool(), true);
 }
 
 QTEST_APPLESS_MAIN(Ut_ApplicationPackageMonitor)

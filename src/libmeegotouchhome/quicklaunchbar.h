@@ -92,8 +92,9 @@ public slots:
      * \param packageName name of the package
      * \param state State button should be set to
      * \param progress Progress of operation
+     * \param packageRemovable is the package represented by this button removable
      */
-    void updateButtonState(const QString &desktopEntryPath, const QString &packageName, LauncherButtonModel::State state, int progress);
+    void updateButtonState(const QString &desktopEntryPath, const QString &packageName, LauncherButtonModel::State state, int progress, bool packageRemovable);
 
 private slots:
     /*!

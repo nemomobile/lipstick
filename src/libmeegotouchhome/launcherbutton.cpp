@@ -120,3 +120,13 @@ QString LauncherButton::packageName() const
 {
     return model()->packageName();
 }
+
+void LauncherButton::setPackageRemovable(const bool removable)
+{
+    model()->setPackageRemovable(removable);
+}
+
+bool LauncherButton::packageRemovable() const
+{
+    return model()->packageRemovable();
+}

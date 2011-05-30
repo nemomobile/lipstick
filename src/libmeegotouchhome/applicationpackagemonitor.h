@@ -73,31 +73,35 @@ signals:
      *\param packageName name of the package
      *\param bytesLoaded is current amount of bytes downloaded.
      *\param bytesTotal is size of downloading package in bytes.
+     *\param packageRemovable is package removable
      */
-    void downloadProgress(const QString &packageExtraPath, const QString &packageName, int bytesLoaded, int bytesTotal);
+    void downloadProgress(const QString &packageExtraPath, const QString &packageName, int bytesLoaded, int bytesTotal, bool packageRemovable);
     /*!
      * Status of install progress of package being installed.
      *
      *\param desktopEntryName is name of preliminary desktop entry file under installer-extra/.
      *\param packageName name of the package
      *\param percentage is install completion level.
+     *\param packageRemovable is package removable
      */
-    void installProgress(const QString &packageExtraPath, const QString &packageName, int percentage);
+    void installProgress(const QString &packageExtraPath, const QString &packageName, int percentage, bool packageRemovable);
     /*!
      * Notifies about success in installing a package.
      *
      *\param desktopEntryName is name of the installed desktop entry file.
      *\param packageName name of the package
+     *\param packageRemovable is package removable
      */
-    void operationSuccess(const QString &packageExtraPath, const QString &packageName);
+    void operationSuccess(const QString &packageExtraPath, const QString &packageName, bool packageRemovable);
     /*!
      * Notifies about error in installing and downloading package.
      *
      *\param desktopEntryName is name of preliminary desktop entry file under installer-extra/.
      *\param packageName name of the package
      *\param error is string format description of error occured.
+     *\param packageRemovable is package removable
      */
-    void operationError(const QString &packageExtraPath, const QString &packageName, const QString& error);
+    void operationError(const QString &packageExtraPath, const QString &packageName, const QString& error, bool packageRemovable);
 
     /*!
      * Notifes about removal of install extra desktop entry.
@@ -119,8 +123,9 @@ signals:
      *
      *\param desktopEntryPath path that specifies the package.
      *\param packageName name of the package
+     *\param packageRemovable is package removable
      */
-    void packageUninstall(const QString &desktopEntryPath, const QString &packageName);
+    void packageUninstall(const QString &desktopEntryPath, const QString &packageName, bool packageRemovable);
 
 private slots:
     /*!
@@ -174,6 +179,13 @@ private:
      * Keeps track of the .desktop files under installer-extra directory
      */
     QSharedPointer<ExtraDirWatcher> extraDirWatcher;
+
+    /*!
+     * Checks whether the package related to desktop entry is removable.
+     *
+     *\param desktopEntryPath path that specifies the package.
+     */
+    bool isPackageRemovable(const QString &desktopEntryPath);
 
 
 #ifdef UNIT_TEST

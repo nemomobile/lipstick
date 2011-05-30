@@ -96,6 +96,18 @@ public:
      */
      QString packageName() const;
 
+     /*!
+      * Sets whether the package represented by button is removable
+      * \param removable Is package removable
+      */
+      void setPackageRemovable(const bool removable);
+
+      /*!
+       * Return whether the package represented by button is removable
+       * \return \c true if package is removable, \c false otherwise
+       */
+       bool packageRemovable() const;
+
 protected:
     //! \reimp
     virtual void retranslateUi();

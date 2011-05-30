@@ -86,8 +86,8 @@ void Ut_QuickLaunchBar::testLauncherDataStoreChanged()
 
 void Ut_QuickLaunchBar::testSettingApplicationPackageMonitor()
 {
-    QVERIFY(disconnect(packageMonitorListener, SIGNAL(packageStateChanged(const QString&, QString, LauncherButtonModel::State, int)),
-            m_subject, SLOT(updateButtonState(const QString, QString, LauncherButtonModel::State, int))));
+    QVERIFY(disconnect(packageMonitorListener, SIGNAL(packageStateChanged(const QString&, QString, LauncherButtonModel::State, int, bool)),
+            m_subject, SLOT(updateButtonState(const QString, QString, LauncherButtonModel::State, int, bool))));
 }
 
 void Ut_QuickLaunchBar::testUpdateButtonState()
@@ -97,11 +97,11 @@ void Ut_QuickLaunchBar::testUpdateButtonState()
     int progress = 50;
 
     // With invalid desktop entry updateButtonState() shouldn't call setState()
-    m_subject->updateButtonState("invalid.desktop", QString(), LauncherButtonModel::Downloading, progress);
+    m_subject->updateButtonState("invalid.desktop", QString(), LauncherButtonModel::Downloading, progress, true);
     QCOMPARE(gLauncherButtonStub->stubCallCount("setState"), 0);
 
     //Valid desktop entry
-    m_subject->updateButtonState("test.desktop", QString(), LauncherButtonModel::Installing, progress);
+    m_subject->updateButtonState("test.desktop", QString(), LauncherButtonModel::Installing, progress, true);
     QCOMPARE(gLauncherButtonStub->stubCallCount("setState"), 1);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<LauncherButtonModel::State>(0), LauncherButtonModel::Installing);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<int>(1), progress);

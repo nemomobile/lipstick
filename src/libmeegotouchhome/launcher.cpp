@@ -95,7 +95,7 @@ void Launcher::setMaximumPageSize(int maximumPageSize)
     }
 }
 
-void Launcher::updateButtonState(const QString &desktopEntryPath, const QString &packageName, LauncherButtonModel::State state, int progress)
+void Launcher::updateButtonState(const QString &desktopEntryPath, const QString &packageName, LauncherButtonModel::State state, int progress, bool packageRemovable)
 {
     Launcher::Placement buttonPlacementInDatastore = entryPlacementInDatastore(desktopEntryPath);
 
@@ -118,6 +118,7 @@ void Launcher::updateButtonState(const QString &desktopEntryPath, const QString 
         }
 
         button->setState(state, progress);
+        button->setPackageRemovable(packageRemovable);
 
         if (!QFileInfo(desktopEntryPath).exists()) {
             // In error case that package doesn't have desktop entry yet,
@@ -195,8 +196,8 @@ void Launcher::updatePagesFromDataStore()
 
     // After updating launcher from launcher data store we can connect package listener and update the states
     if (packageMonitorListener != NULL) {
-        connect(packageMonitorListener, SIGNAL(packageStateChanged(QString, QString, LauncherButtonModel::State, int)),
-            this, SLOT(updateButtonState(QString, QString, LauncherButtonModel::State, int)), Qt::UniqueConnection);
+        connect(packageMonitorListener, SIGNAL(packageStateChanged(QString, QString, LauncherButtonModel::State, int, bool)),
+            this, SLOT(updateButtonState(QString, QString, LauncherButtonModel::State, int, bool)), Qt::UniqueConnection);
         connect(packageMonitorListener, SIGNAL(installExtraEntryRemoved(QString)),
             this, SLOT(removePlaceholderButton(QString)), Qt::UniqueConnection);
         connect(packageMonitorListener, SIGNAL(updatePackageName(QString, QString)),

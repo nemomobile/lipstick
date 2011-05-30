@@ -24,6 +24,7 @@
 const QString ExtraDirWatcher::DESKTOP_ENTRY_KEY_PACKAGE_STATE = "PackageState";
 const QString ExtraDirWatcher::DESKTOP_ENTRY_KEY_PACKAGE_HAD_ERROR = "PackageHadError";
 const QString ExtraDirWatcher::DESKTOP_ENTRY_KEY_PACKAGE_NAME = "Package";
+const QString ExtraDirWatcher::DESKTOP_ENTRY_KEY_PACKAGE_REMOVABLE = "PackageRemovable";
 const QString ExtraDirWatcher::DESKTOP_ENTRY_GROUP_MEEGO = "X-MeeGo";
 
 ExtraDirWatcher::ExtraDirWatcher(MDataStore *dataStore, const QStringList &directories) :

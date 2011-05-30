@@ -60,7 +60,7 @@ signals:
     /*!
      * Signal sent when we have received and handled a signal from ApplicationPackageMonitor
      */
-    void packageStateChanged(const QString &desktopEntryPath, const QString &packageName, LauncherButtonModel::State state, int progress);
+    void packageStateChanged(const QString &desktopEntryPath, const QString &packageName, LauncherButtonModel::State state, int progress, bool packageRemovable);
 
     /*!
      * Signal sent when we have received a installExtraEntryRemoved signal from ApplicationPackageMonitor
@@ -84,8 +84,9 @@ public slots:
      * \param packageName name of the package
      * \param bytesLoaded Amount of bytes loaded
      * \param bytesTotal Total amount of bytes to download
+     * \param packageRemovable is package removable
      */
-    void setDownloadProgress(const QString& desktopEntryPath, const QString &packageName, int bytesLoaded, int bytesTotal);
+    void setDownloadProgress(const QString& desktopEntryPath, const QString &packageName, int bytesLoaded, int bytesTotal, bool packageRemovable);
 
     /*!
      * Set button state to "installing", and set it's progress
@@ -93,16 +94,18 @@ public slots:
      * \param desktopEntryName Desktop entry of the application button represents
      * \param packageName name of the package
      * \param percentage Percentage of installation completed
+     * \param packageRemovable is package removable
      */
-    void setInstallProgress(const QString& desktopEntryPath, const QString &packageName, int percentage);
+    void setInstallProgress(const QString& desktopEntryPath, const QString &packageName, int percentage, bool packageRemovable);
 
     /*!
      * Set button state to "installed"
      *
      * \param desktopEntryName Desktop entry of the application button represents
      * \param packageName name of the package
+     * \param packageRemovable is package removable
      */
-    void setOperationSuccess(const QString& desktopEntryPath, const QString &packageName);
+    void setOperationSuccess(const QString& desktopEntryPath, const QString &packageName, bool packageRemovable);
 
     /*!
      * Set button state to "broken"
@@ -110,8 +113,9 @@ public slots:
      * \param desktopEntryName Desktop entry of the application button represents
      * \param packageName name of the package
      * \param error Error message
+     * \param packageRemovable is package removable
      */
-    void setOperationError(const QString& desktopEntryPath, const QString &packageName, const QString& error);
+    void setOperationError(const QString& desktopEntryPath, const QString &packageName, const QString& error, bool packageRemovable);
 
 
     /*!
@@ -119,8 +123,9 @@ public slots:
      *
      * \param desktopEntryName Desktop entry of the application button represents
      * \param packageName name of the package
+     * \param packageRemovable is package removable
      */
-    void setPackageUninstall(const QString &desktopEntryPath, const QString &packageName);
+    void setPackageUninstall(const QString &desktopEntryPath, const QString &packageName, bool packageRemovable);
 
 private:
     //! Application package monitor

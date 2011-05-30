@@ -55,6 +55,8 @@ public:
     M_MODEL_PROPERTY(int, operationProgress, OperationProgress, true, 0)
     //! Package name of the application that button is representing
     M_MODEL_PROPERTY(QString, packageName, PackageName, true, QString())
+    //! Is package represented by button removable
+    M_MODEL_PROPERTY(bool, packageRemovable, PackageRemovable, true, false)
 };
 
 #endif /* LAUNCHERBUTTONMODEL_H_ */

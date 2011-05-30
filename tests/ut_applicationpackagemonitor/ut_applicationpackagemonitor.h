@@ -52,7 +52,7 @@ private slots:
     void testUninstallSignal();
 
 private:
-    void initializeEntries(int count, const QStringList &states);
+    void initializeEntries(int count, const QStringList &states, bool packageRemovable = true);
 
     // MApplication
     MApplication *app;
