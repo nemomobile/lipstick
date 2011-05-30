@@ -51,7 +51,18 @@ class TestLauncherButtonProgressIndicatorView : public LauncherButtonProgressInd
     M_VIEW(LauncherButtonProgressIndicatorModel, Ut_LauncherButtonProgressIndicatorStyle)
 
 public:
-    TestLauncherButtonProgressIndicatorView(LauncherButtonProgressIndicator *button) : LauncherButtonProgressIndicatorView(button) {}
+    TestLauncherButtonProgressIndicatorView(LauncherButtonProgressIndicator *button)
+        : LauncherButtonProgressIndicatorView(button) {}
+
+    LauncherButtonProgressIndicatorStyle *modifiableStyle() {
+        LauncherButtonProgressIndicatorStyleContainer &sc = style();
+        const LauncherButtonProgressIndicatorStyle *const_s = sc.operator ->();
+        LauncherButtonProgressIndicatorStyle *s = const_cast<LauncherButtonProgressIndicatorStyle *>(const_s);
+        return s;
+    }
+    LauncherButtonProgressIndicatorStyleContainer& styleContainer() {
+        return style();
+    }
 
     friend class Ut_LauncherButtonProgressIndicatorView;
 };
@@ -73,6 +84,19 @@ private slots:
     // Test cases
     void testUpdateDataForStyleModes_data();
     void testUpdateDataForStyleModes();
+    void testAnimationPauseAndResumeOnVisibilityChanges_data();
+    void testAnimationPauseAndResumeOnVisibilityChanges();
+    void testAnimationPausedWhenDisplayExited();
+    void testAnimationResumedWhenDisplayEntered();
+    void testApplyAnimationStyle();
+    void testLoadingFramePixmaps();
+    void testNotLoadingFramePixmapsWhenBaseImageIsEmpty();
+    void testReleasingFramePixmapsWhenLoadingNew();
+    void testReleasingFramePixmapsInDestructor();
+    void testSettingCurrentFrame_data();
+    void testSettingCurrentFrame();
+    void testDrawingFrameWhenUnknownDuration();
+    void testDrawingFramesWhenKnownDuration();
 
 private:
     // MApplication

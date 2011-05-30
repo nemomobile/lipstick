@@ -1,6 +1,7 @@
 meegotouchhome (0.31.1~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#220519 - Installation spinner missing from launcher items
 
  -- Eetu Lehmusvuo <ext-eetu.6.lehmusvuo@nokia.com>  Mon, 30 May 2011 10:45:12 +0300
 

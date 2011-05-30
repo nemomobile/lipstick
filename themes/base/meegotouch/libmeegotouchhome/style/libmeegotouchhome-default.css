@@ -109,7 +109,7 @@ LauncherButtonStyle {
     show-launch-progress: true;
     /* The size of the progress indicator icon */
     /* (due implementation reasons progress indicator might be of different size than button icon) */
-    progress-indicator-icon-size: 9.4mm 9.4mm;
+    progress-indicator-icon-size: 7.8mm 7.8mm;
 
     press-feedback: press;
     release-feedback: release;
@@ -121,30 +121,21 @@ LauncherButtonStyle {
     launch-timeout: 5000;
 }
 
-LauncherButton#LauncherButton MSpinnerStyle {
-    refresh-rate: 300;
-    period: 8000;
-    bg-pixmap: meegotouch-progressindicator-spinner-hollow-background;
-    progress-pixmap: meegotouch-progressindicator-spinner-hollow-progress;
+LauncherButtonProgressIndicatorStyle {
+    base-image-name: "";
+    period: 2000;
+    base-image-size: 7.8mm;
 }
 
-LauncherButton#LauncherButton MSpinnerStyle:installing {
-    refresh-rate: 100;
-    period: 16000;
+LauncherButtonProgressIndicatorStyle:installing {
+    base-image-name: "spinnerinverted";
+    number-of-frames: 10;
 }
 
-LauncherButton#QuickLaunchBarButton MSpinnerStyle {
-    refresh-rate: 300;
-    period: 8000;
-    bg-pixmap: meegotouch-progressindicator-spinner-hollow-background-small;
-    progress-pixmap: meegotouch-progressindicator-spinner-hollow-progress-small;
+LauncherButtonProgressIndicatorStyle:downloading {
+    base-image-name: "progress";
+    number-of-frames: 21;
 }
-
-LauncherButton#QuickLaunchBarButton MSpinnerStyle:installing {
-    refresh-rate: 100;
-    period: 16000;
-}
-
 
 QuickLaunchBarStyle {
     background-image: "meegotouch-quicklaunchbar-background" 0px 0px 0px 0px;

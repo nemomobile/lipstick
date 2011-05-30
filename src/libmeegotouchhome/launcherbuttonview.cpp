@@ -64,7 +64,6 @@ void LauncherButtonView::updateData(const QList<const char *>& modifications)
         if (member == LauncherButtonModel::ButtonState) {
             launchStateResetTimer.stop();
             updateButtonIcon();
-            resetProgressIndicator();
 
             if (model()->buttonState() == LauncherButtonModel::Launching) {
                 controller->setEnabled(false);
@@ -79,6 +78,8 @@ void LauncherButtonView::updateData(const QList<const char *>& modifications)
                     controller->setEnabled(false);
                 }
             }
+            // To have progress indicator always enabled, reset only after buttons setEnabled() is called
+            resetProgressIndicator();
         } else if (member == LauncherButtonModel::OperationProgress) {
             if (model()->buttonState() == LauncherButtonModel::Downloading && progressIndicator) {
                 progressIndicator->setValue(model()->operationProgress());
@@ -101,6 +102,7 @@ void LauncherButtonView::resetProgressIndicator()
                 }
                 progressIndicator->setIndicatorState(state);
                 progressIndicator->setUnknownDuration(true);
+                progressIndicator->setEnabled(true);
             } else {
                 delete progressIndicator;
                 progressIndicator = NULL;
@@ -112,6 +114,7 @@ void LauncherButtonView::resetProgressIndicator()
             }
             progressIndicator->setIndicatorState(state);
             progressIndicator->setUnknownDuration(true);
+            progressIndicator->setEnabled(true);
             break;
         case LauncherButtonModel::Downloading:
             if (!progressIndicator) {
@@ -119,6 +122,7 @@ void LauncherButtonView::resetProgressIndicator()
             }
             progressIndicator->setIndicatorState(state);
             progressIndicator->setUnknownDuration(false);
+            progressIndicator->setEnabled(true);
             break;
         default:
             delete progressIndicator;

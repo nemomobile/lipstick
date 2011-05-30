@@ -146,8 +146,9 @@ void Ut_LauncherButtonView::testResetProgressIndicator_data()
      QTest::addColumn<bool>("verifySetUnknownDurationParam");
 
      QTest::newRow("Installed") << LauncherButtonModel::Installed << false << 0 << false;
+     QTest::newRow("Launching with style property showLaunchProgress") << LauncherButtonModel::Launching << true << 1 << true;
+     QTest::newRow("Launching without style property showLaunchProgress") << LauncherButtonModel::Launching << false << 0 << false;
 
-     QTest::newRow("Launching") << LauncherButtonModel::Launching << true << 1 << true;
      QTest::newRow("Installing") << LauncherButtonModel::Installing << true << 1 << true;
      QTest::newRow("Downloading") << LauncherButtonModel::Downloading << true << 1 << false;
 }
@@ -159,10 +160,18 @@ void Ut_LauncherButtonView::testResetProgressIndicator()
     QFETCH(int, verifySetUnknownDurationCallCount);
     QFETCH(bool, verifySetUnknownDurationParam);
 
+    if (state == LauncherButtonModel::Launching) {
+        // Mode is set to disabled when launching so style for that mode needs to be initialized
+        m_subject->style().setModeDisabled();
+        m_subject->modifiableStyle()->setShowLaunchProgress(verifyVisible);
+        m_subject->style().setModeDefault();
+    }
+
     m_subject->model()->setButtonState(state);
 
     if (verifyVisible) {
         QCOMPARE(m_subject->progressIndicator->isVisible(), true);
+        QCOMPARE(m_subject->progressIndicator->isEnabled(), true);
         QCOMPARE(gMProgressIndicatorStub->stubCallCount("setUnknownDuration"), verifySetUnknownDurationCallCount);
         if (verifySetUnknownDurationCallCount > 0) {
             QCOMPARE(gMProgressIndicatorStub->stubLastCallTo("setUnknownDuration").parameter<bool>(0), verifySetUnknownDurationParam);
@@ -175,6 +184,11 @@ void Ut_LauncherButtonView::testResetProgressIndicator()
 
 void Ut_LauncherButtonView::testLaunchingProgress()
 {
+    // Mode is set to disabled when launching so style for that mode needs to be initialized
+    m_subject->style().setModeDisabled();
+    m_subject->modifiableStyle()->setShowLaunchProgress(true);
+    m_subject->style().setModeDefault();
+
     m_subject->model()->setButtonState(LauncherButtonModel::Launching);
     // one for reset and one for button state change
     QCOMPARE(gMProgressIndicatorStub->stubCallCount("setUnknownDuration"), 1);
@@ -296,6 +310,8 @@ void Ut_LauncherButtonView::testWhenStateIsChangedToLaunchingThenProgressIndicat
     QFETCH(LauncherButtonModel::State, state);
     QFETCH(bool, visibility);
 
+    // Mode is set to disabled when launching so style for that mode needs to be initialized
+    m_subject->style().setModeDisabled();
     m_subject->modifiableStyle()->setShowLaunchProgress(showLaunchProgress);
     m_subject->model()->setButtonState(state);
     if (visibility) {
@@ -346,6 +362,5 @@ void Ut_LauncherButtonView::testWhenStateNotLaunchingThenStateResetTimerStopped(
     m_subject->model()->setButtonState(LauncherButtonModel::Installed);
     QVERIFY(!m_subject->launchStateResetTimer.isActive());
 }
-
 
 QTEST_APPLESS_MAIN(Ut_LauncherButtonView)
