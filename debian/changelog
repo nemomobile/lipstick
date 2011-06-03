@@ -1,9 +1,8 @@
-meegotouchhome (0.31.1~1) unstable; urgency=low
+meegotouchhome (0.32.0-1) unstable; urgency=low
 
-  * [UNRELEASED]
   * Fixes: NB#220519 - Installation spinner missing from launcher items
 
- -- Eetu Lehmusvuo <ext-eetu.6.lehmusvuo@nokia.com>  Mon, 30 May 2011 10:45:12 +0300
+ -- Eetu Lehmusvuo <ext-eetu.6.lehmusvuo@nokia.com>  Fri, 3 Jun 2011 11:20:12 +0300
 
 meegotouchhome (0.31.0-1) unstable; urgency=low
 
