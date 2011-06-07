@@ -1,8 +1,8 @@
 meegotouchhome (1.0.1~1) unstable; urgency=low
 
-  * Fixes: NB#262895 - Viewport jumps when closing an application
   * Fixes: NB#262761 - Open applications are not displayed in recents
-  * Fixes: NB#256634 - Closing an application in switcher zooms other switcher buttons bigger or smaller in given scenario
+  * Fixes: 256634 - Closing an application in switcher zooms other switcher buttons bigger or smaller in given scenario
+  * Fixes: 262895 - Viewport jumps when closing an application
 
  -- Vesa Halttunen <vesa.halttunen@nokia.com>  Tue, 07 Jun 2011 15:16:46 +0300
 
