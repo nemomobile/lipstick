@@ -63,6 +63,8 @@ public:
      * it's currently not supported
      */
     void setPanDirection(const Qt::Orientations &panDirection);
+
+    bool event(QEvent *event);
     //! \reimp_end
 
     /*!
@@ -175,6 +177,9 @@ private:
 
     //! Whether panning has been explicitly stopped after last pan gesture start.
     bool explicitlyStopped;
+
+    //! Whether the viewport is currently being panned.
+    bool beingPanned;
 
 #ifdef UNIT_TEST
     friend class Ut_PagedViewport;

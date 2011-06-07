@@ -90,6 +90,7 @@ private slots:
     void testGettingGestureUpdatesAfterPanningHasBeenExplicitlyStopped();
     void testGettingGestureStartAfterPanningHasBeenExplicitlyStopped();
 
+    void testOtherGesturesAreOverriddenWhilePanning();
 private:
     // MApplication
     MApplication *app;

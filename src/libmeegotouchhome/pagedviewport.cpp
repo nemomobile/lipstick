@@ -34,7 +34,8 @@ PagedViewport::PagedViewport(QGraphicsItem *parent) :
         MPannableViewport(parent),
         previousPage(0),
         layoutVisualizationWrapper(NULL),
-        explicitlyStopped(false)
+        explicitlyStopped(false),
+        beingPanned(false)
 {
     // The strategy will be deleted by the pannable viewport
     pagedPanning = new PagedPanning(this);
@@ -51,6 +52,8 @@ PagedViewport::PagedViewport(QGraphicsItem *parent) :
     connect(pagedPanning, SIGNAL(pageIsPanning(bool)), positionIndicator, SIGNAL(pageIsPanning(bool)));
 
     emit pageChanged(0);
+
+    grabGesture(Qt::PinchGesture);
 }
 
 PagedViewport::~PagedViewport()
@@ -166,6 +169,7 @@ void PagedViewport::stopPanning()
     pagedPanning->pointerRelease();
     pagedPanning->stop();
     explicitlyStopped = true;
+    beingPanned = false;
 }
 
 void PagedViewport::panGestureEvent(QGestureEvent *event, QPanGesture* panGesture)
@@ -179,6 +183,18 @@ void PagedViewport::panGestureEvent(QGestureEvent *event, QPanGesture* panGestur
         // Not explicitly stopped anymore after getting gesture start, finish or cancel events
         explicitlyStopped = false;
 
+        beingPanned = !(panGesture->state() == Qt::GestureFinished || panGesture->state() == Qt::GestureCanceled);
         MPannableViewport::panGestureEvent(event, panGesture);
     }
+}
+
+bool PagedViewport::event(QEvent *event)
+{
+    if (beingPanned && event->type() == QEvent::GestureOverride) {
+        event->setAccepted(true);
+
+        return true;
+    }
+
+    return MPannableViewport::event(event);
 }

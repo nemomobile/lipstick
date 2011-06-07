@@ -45,6 +45,14 @@ Qt::GestureState QGesture::state() const
     return gGestureStateReturnValue;
 }
 
+QSet<Qt::GestureType> gGrabbedGestures;
+void QGraphicsObject::grabGesture(Qt::GestureType gesture, Qt::GestureFlags flags)
+{
+    Q_UNUSED(flags);
+
+    gGrabbedGestures.insert(gesture);
+}
+
 void Ut_PagedViewport::initTestCase()
 {
     static int argc = 1;
@@ -63,6 +71,7 @@ void Ut_PagedViewport::init()
 {
     gSetGestureCancelPolicy = QGesture::CancelNone;
     gGestureStateReturnValue = Qt::GestureStarted;
+    gGrabbedGestures.clear();
 
     m_subject = new PagedViewport(NULL);
     connect(this, SIGNAL(panningStopped()), m_subject->physics(), SIGNAL(panningStopped()));
@@ -445,6 +454,22 @@ void Ut_PagedViewport::testGettingGestureStartAfterPanningHasBeenExplicitlyStopp
     m_subject->panGestureEvent(&gestureEvent, &startGesture);
 
     QCOMPARE(m_subject->explicitlyStopped, false);
+}
+
+void Ut_PagedViewport::testOtherGesturesAreOverriddenWhilePanning()
+{
+    QPanGesture startGesture;
+    QGestureEvent gestureEvent(QList<QGesture *>() << &startGesture);
+    gGestureStateReturnValue = Qt::GestureStarted;
+    m_subject->panGestureEvent(&gestureEvent, &startGesture);
+
+    QVERIFY(gGrabbedGestures.contains(Qt::PinchGesture));
+
+    QEvent event(QEvent::GestureOverride);
+
+    m_subject->event(&event);
+
+    QVERIFY(event.isAccepted());
 }
 
 QTEST_APPLESS_MAIN(Ut_PagedViewport)

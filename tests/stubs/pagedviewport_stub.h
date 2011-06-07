@@ -40,6 +40,7 @@ public:
     virtual void updateVisualizationWrapper();
     virtual void stopPanning();
     virtual void panGestureEvent(QGestureEvent *event, QPanGesture* panGesture);
+    virtual bool event(QEvent *event);
 };
 
 // 2. IMPLEMENT STUB
@@ -123,6 +124,12 @@ void PagedViewportStub::panGestureEvent(QGestureEvent *event, QPanGesture* panGe
     stubMethodEntered("panGestureEvent", params);
 }
 
+bool PagedViewportStub::event(QEvent *event) {
+    QList<ParameterBase*> params;
+    params.append(new Parameter<QEvent *>(event));
+    stubMethodEntered("event", params);
+    return stubReturnValue<bool>("event");
+}
 
 PagedViewportStub gDefaultPagedViewportStub;
 PagedViewportStub* gPagedViewportStub = &gDefaultPagedViewportStub;
@@ -188,6 +195,10 @@ void PagedViewport::stopPanning() {
 
 void PagedViewport::panGestureEvent(QGestureEvent *event, QPanGesture* panGesture) {
     gPagedViewportStub->panGestureEvent(event, panGesture);
+}
+
+bool PagedViewport::event(QEvent *event) {
+    return gPagedViewportStub->event(event);
 }
 
 #endif
