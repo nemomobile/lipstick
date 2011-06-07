@@ -1,9 +1,9 @@
-meegotouchhome (0.33.0~1) unstable; urgency=low
+meegotouchhome (1.0.0-1) unstable; urgency=low
 
-  * [UNRELEASED]
   * Changes: Enabler to allow fixing 257453
+  * Fixes: NB#260232 - [TASK] The major version of MeeGo Touch Desktop packages should be 1
 
- -- Eetu Lehmusvuo <ext-eetu.6.lehmusvuo@nokia.com>  Fri, 3 Jun 2011 11:24:24 +0300
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Tue, 07 Jun 2011 14:57:12 +0300
 
 meegotouchhome (0.32.0-1) unstable; urgency=low
 
