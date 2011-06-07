@@ -134,6 +134,9 @@ protected:
     /*! Transform animations for the widgets in the layout */
     QList<TransformAnimation*> animations;
 
+    //! Resets the internal animation state variables
+    void reset();
+
 private slots:
     /*! Updates the container position for animating it when the animation is active */
     void updateContainerPosition();
