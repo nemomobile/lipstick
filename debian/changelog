@@ -1,16 +1,10 @@
-meegotouchhome (1.0.2~1) unstable; urgency=low
-
-  * [UNRELEASED]
-
- -- Eetu Lehmusvuo <ext-eetu.6.lehmusvuo@nokia.com>  Tue, 07 Jun 2011 15:16:46 +0300
-
-meegotouchhome (1.0.1-1) unstable; urgency=low
+meegotouchhome (1.0.1-2) unstable; urgency=low
 
   * Fixes: NB#262761 - Open applications are not displayed in recents
   * Fixes: 256634 - Closing an application in switcher zooms other switcher buttons bigger or smaller in given scenario
   * Fixes: 262895 - Viewport jumps when closing an application
 
- -- Eetu Lehmusvuo <ext-eetu.6.lehmusvuo@nokia.com>  Tue, 07 Jun 2011 15:16:46 +0300
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Tue, 07 Jun 2011 16:28:43 +0300
 
 meegotouchhome (1.0.0-1) unstable; urgency=low
 

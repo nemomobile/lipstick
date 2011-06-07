@@ -237,7 +237,7 @@ void TransformLayoutAnimation::updateState(State newState, State)
             animationGroup->pause();
         }
 
-        reset();
+        resetAnimationAttributes();
         break;
     case Stopped:
         if(animationGroup->state() != Stopped) {
@@ -283,7 +283,7 @@ void TransformLayoutAnimation::setItemGeometry(int index, const QRectF &geometry
     }
 }
 
-void TransformLayoutAnimation::reset()
+void TransformLayoutAnimation::resetAnimationAttributes()
 {
     currentProgress = 0.0f;
     lastProgress    = 0.0f;

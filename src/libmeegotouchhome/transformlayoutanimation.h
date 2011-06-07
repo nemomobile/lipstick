@@ -135,7 +135,7 @@ protected:
     QList<TransformAnimation*> animations;
 
     //! Resets the internal animation state variables
-    void reset();
+    void resetAnimationAttributes();
 
 private slots:
     /*! Updates the container position for animating it when the animation is active */
