@@ -372,4 +372,37 @@ void Ut_LauncherButtonProgressIndicatorView::testDrawingFramesWhenKnownDuration(
     QCOMPARE(gPixmapsDrawn.count(), expectedDraws);
 }
 
+void Ut_LauncherButtonProgressIndicatorView::testDrawingWhenModesHaveDifferentAmountOfPixmaps()
+{
+    // Initialize style modes
+    const static int framesWhenDownloading = 20;
+    const static int baseImageSize = 78;
+    m_subject->style().setModeDownloading();
+    m_subject->modifiableStyle()->setNumberOfFrames(framesWhenDownloading);
+    m_subject->modifiableStyle()->setBaseImageSize(baseImageSize);
+    m_subject->modifiableStyle()->setBaseImageName("downloadingbaseimage");
+    m_subject->style().setModeInstalling();
+
+    const static int framesWhenInstalling = 10;
+    const static QString installingBaseImage = "installingbaseimage";
+    m_subject->modifiableStyle()->setNumberOfFrames(framesWhenInstalling);
+    m_subject->modifiableStyle()->setBaseImageSize(baseImageSize);
+    m_subject->modifiableStyle()->setBaseImageName(installingBaseImage);
+
+    m_subject->model()->setIndicatorState(LauncherButtonModel::Downloading);
+
+    // Set current frame to last frame for donwloading
+    m_subject->setCurrentFrame(framesWhenDownloading - 1);
+
+    m_subject->model()->setIndicatorState(LauncherButtonModel::Installing);
+    QCOMPARE(m_subject->currentFrame(), 0);
+
+    QPainter painter;
+    m_subject->drawContents(&painter, NULL);
+    QString expectedFrame = QString("%1_%2_%3").arg(installingBaseImage)\
+                                                    .arg(baseImageSize)\
+                                                    .arg(1);
+    QCOMPARE(gPixmapsDrawn.contains(loadedPixmaps.value(expectedFrame)), true);
+}
+
 QTEST_APPLESS_MAIN(Ut_LauncherButtonProgressIndicatorView)

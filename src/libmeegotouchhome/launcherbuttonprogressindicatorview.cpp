@@ -67,13 +67,13 @@ void LauncherButtonProgressIndicatorView::updateData(const QList<const char *>& 
 
 void LauncherButtonProgressIndicatorView::updateStyleMode()
 {
+    setCurrentFrame(0);
     switch(model()->indicatorState()) {
         case LauncherButtonModel::Installing:
             style().setModeInstalling();
         break;
         case LauncherButtonModel::Downloading:
             style().setModeDownloading();
-            setCurrentFrame(0);
         break;
         case LauncherButtonModel::Launching:
             style().setModeLaunching();
@@ -184,7 +184,7 @@ void LauncherButtonProgressIndicatorView::drawContents(QPainter *painter, const 
 {
     Q_UNUSED(option);
 
-    if (animationPixmaps.isEmpty() ||  currentFrameIndex < 0)
+    if (animationPixmaps.isEmpty() ||  currentFrameIndex < 0 || currentFrameIndex >= animationPixmaps.count())
         return;
 
     int minimumFrame;

@@ -97,6 +97,8 @@ private slots:
     void testSettingCurrentFrame();
     void testDrawingFrameWhenUnknownDuration();
     void testDrawingFramesWhenKnownDuration();
+    // Test for bug 263961
+    void testDrawingWhenModesHaveDifferentAmountOfPixmaps();
 
 private:
     // MApplication
