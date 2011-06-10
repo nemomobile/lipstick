@@ -1,8 +1,8 @@
-meegotouchhome (1.1.0~1) unstable; urgency=low
+meegotouchhome (1.1.0-1) unstable; urgency=low
 
   * Fixes: NB#263961 - COREWEB: LauncherButtonProgressIndicatorView::drawContents at launcherbuttonprogressindicatorview.cpp:200
 
- -- Vesa Halttunen <vesa.halttunen@nokia.com>  Tue, 07 Jun 2011 16:29:33 +0300
+ -- Eetu Lehmusvuo <ext-eetu.6.lehmusvuo@nokia.com>  Fri, 10 Jun 2011 09:46:33 +0300
 
 meegotouchhome (1.0.1-2) unstable; urgency=low
 
