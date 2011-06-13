@@ -287,7 +287,7 @@ void Ut_ApplicationPackageMonitor::testInstallSuccessSignal()
     QCOMPARE(signalSpy.at(0).at(2).toBool(), true);
 }
 
-void Ut_ApplicationPackageMonitor::testInstallSuccessSignalWithError()
+void Ut_ApplicationPackageMonitor::testInstallSuccessSignalWithErrorAndPackageBroken()
 {
     initializeEntries(1, QStringList() << "broken");
 
@@ -298,6 +298,19 @@ void Ut_ApplicationPackageMonitor::testInstallSuccessSignalWithError()
     QCOMPARE(signalSpy.at(0).at(0).toString(), QString(INSTALLER_EXTRA_ENTRY_NAME_TEMPLATE.arg(0)));
     QCOMPARE(signalSpy.at(0).at(1).toString(), QString(PACKAGE_NAME_TEMPLATE.arg(0)));
     QCOMPARE(signalSpy.at(0).at(3).toBool(), true);
+}
+
+void Ut_ApplicationPackageMonitor::testInstallSuccessSignalWithErrorAndPackageNotBroken()
+{
+    initializeEntries(1, QStringList() << "installed");
+
+    QSignalSpy signalSpy(m_subject, SIGNAL(operationSuccess(QString, QString, bool)));
+
+    m_subject->packageOperationComplete("Install", PACKAGE_NAME_TEMPLATE.arg(0), "", "BAR_ERROR", false);
+    QCOMPARE(signalSpy.count(), 1);
+    QCOMPARE(signalSpy.at(0).at(0).toString(), QString(APPLICATIONS_ENTRY_NAME_TEMPLATE.arg(0)));
+    QCOMPARE(signalSpy.at(0).at(1).toString(), QString(PACKAGE_NAME_TEMPLATE.arg(0)));
+    QCOMPARE(signalSpy.at(0).at(2).toBool(), true);
 }
 
 void Ut_ApplicationPackageMonitor::testUninstallSignal()

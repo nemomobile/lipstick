@@ -187,7 +187,6 @@ private:
      */
     bool isPackageRemovable(const QString &desktopEntryPath);
 
-
 #ifdef UNIT_TEST
     friend class Ut_ApplicationPackageMonitor;
 #endif

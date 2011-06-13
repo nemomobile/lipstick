@@ -141,7 +141,7 @@ void ApplicationPackageMonitor::packageOperationComplete(const QString &operatio
     }
 
     if (!error.isEmpty()) {
-        emit operationError(desktopEntryPath, packageName, QString(), isPackageRemovable(desktopEntryPath));
+        updatePackageState(desktopEntryPath);
     } else {
         emit operationSuccess(desktopEntryPath.replace(INSTALLER_EXTRA_FOLDER, QString()), packageName, isPackageRemovable(desktopEntryPath));
     }
@@ -189,7 +189,7 @@ void ApplicationPackageMonitor::updatePackageState(const QString &desktopEntryPa
             applicationsFolderPath.replace(INSTALLER_EXTRA_FOLDER, QString());
             emit operationSuccess(applicationsFolderPath, packageName, packageRemovable);
         } else if(packageState == PACKAGE_STATE_DOWNLOADING) {
-                emit downloadProgress(desktopEntryPath, packageName, 0, 0, packageRemovable);
+            emit downloadProgress(desktopEntryPath, packageName, 0, 0, packageRemovable);
         } else if(packageState == PACKAGE_STATE_INSTALLING) {
             emit installProgress(desktopEntryPath, packageName, 0, packageRemovable);
         }

@@ -48,7 +48,8 @@ private slots:
     void testDownloadProgressSignal();
     void testInstallProgressSignal();
     void testInstallSuccessSignal();
-    void testInstallSuccessSignalWithError();
+    void testInstallSuccessSignalWithErrorAndPackageBroken();
+    void testInstallSuccessSignalWithErrorAndPackageNotBroken();
     void testUninstallSignal();
 
 private:
