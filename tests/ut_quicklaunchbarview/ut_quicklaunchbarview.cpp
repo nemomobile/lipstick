@@ -29,6 +29,7 @@
 #include "windowinfo_stub.h"
 #include "mockdatastore.h"
 #include <QGraphicsLinearLayout>
+#include "launcher_stub.h"
 
 void Ut_QuickLaunchBarView::initTestCase()
 {

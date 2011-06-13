@@ -27,7 +27,7 @@
 
 class MDesktopEntry;
 class LauncherDataStore;
-class ApplicationPackageMonitorListener;
+class ApplicationPackageMonitor;
 
 /*!
  * Widget for launching and browsing installed applications.
@@ -102,9 +102,9 @@ public:
      * Connects the Launcher to an ApplicationPackageMonitor for monitoring
      * installation and update progress of application packages.
      *
-     * \param packageMonitorListener Listens to signals from application package monitor
+     * \param packageMonitor Sets a package monitor which signals package state changes
      */
-    void setApplicationPackageMonitorListener(ApplicationPackageMonitorListener *packageMonitorListener);
+    void setApplicationPackageMonitor(ApplicationPackageMonitor *packageMonitor);
 
     /*!
      * Sets the maximum size of the Launcher pages. Negative values are ignored.
@@ -114,6 +114,9 @@ public:
      * \param maximumPageSize the maximum number of buttons on a single LauncherPage
      */
     void setMaximumPageSize(int maximumPageSize);
+
+    //! Returns button state enum that matches the given package state
+    static LauncherButtonModel::State buttonStateFromPackageState(const QString &packageState);
 
 protected:
     /*!
@@ -172,7 +175,7 @@ public slots:
     void setPage(uint page);
 
     /*!
-     * Updates the state and operation progress of a launcher button.
+     * Updates the state of a launcher button.
      * Creates a new placeholder button if one doesn't exist for the given desktopentryfile.
      *
      * \param desktopEntryPath Desktop entry of the package that button represents
@@ -180,7 +183,16 @@ public slots:
      * \param progress Progress of operation
      * \param packageRemovable is the package represented by this button removable
      */
-    void updateButtonState(const QString& desktopEntryPath, const QString &packageName, LauncherButtonModel::State state, int progress, bool packageRemovable);
+    void updateButtonState(const QString& desktopEntryPath, const QString &packageName, const QString &state, bool packageRemovable);
+
+    /*!
+     * Update progress of a launcher button.
+     *
+     * \param desktopEntryPath Desktop entry of the package that button represents
+     * \param progress Progress of operation
+     * \param total Maximum progress of operation
+     */
+    void updateProgress(const QString& desktopEntryPath, int already, int total);
 
     /*!
      * Removes placeholder launcher button for an application if application is not installed.
@@ -230,9 +242,6 @@ private slots:
      * Updates pages according to the contents of the data store.
      */
     void updatePagesFromDataStore();
-
-    //! Updates package name of given desktop entry
-    void updatePackageName(const QString &desktopEntryPath, const QString &packageName);
 
 private:
     /*!
@@ -354,8 +363,8 @@ private:
     //! LauncherDataStore for storing launcher button positions and entries
     LauncherDataStore *dataStore;
 
-    //! PackageMonitorListener which listens to signals from application package monitor
-    ApplicationPackageMonitorListener *packageMonitorListener;
+    //! packageMonitor which signals the package state changes
+    ApplicationPackageMonitor *packageMonitor;
 
     //! The maximum page size of each LauncherPage
     int maximumPageSize;

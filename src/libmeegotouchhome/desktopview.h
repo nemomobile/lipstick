@@ -40,7 +40,7 @@ class MApplicationExtensionArea;
 class MApplicationExtensionInterface;
 class MDesktopBackgroundExtensionInterface;
 class HomeScreenService;
-class ApplicationPackageMonitorListener;
+class ApplicationPackageMonitor;
 
 /*!
  * The desktop view draws a background for the desktop and manages layouts
@@ -150,7 +150,7 @@ private:
     LauncherDataStore *launcherDataStore;
 
     //! Application package monitor
-    ApplicationPackageMonitorListener *packageMonitorListener;
+    ApplicationPackageMonitor *packageMonitor;
 
     //! Application launcher
     Launcher *launcher;

@@ -25,7 +25,7 @@
 
 class Launcher;
 class LauncherDataStore;
-class ApplicationPackageMonitorListener;
+class ApplicationPackageMonitor;
 class MApplication;
 class MWidget;
 
@@ -36,7 +36,7 @@ class Ut_Launcher : public QObject
 private:
     Launcher *launcher;
     LauncherDataStore *launcherDataStore;
-    ApplicationPackageMonitorListener *packageMonitorListener;
+    ApplicationPackageMonitor *packageMonitor;
     MApplication *app;
 
     void writeDesktopFile(QString fileName, QString type, QString name, QString iconName, QString exec);
@@ -92,8 +92,8 @@ private slots:
     void testRemovingButtons();
     // Test setting launcher to show first page
     void testSettingLauncherToFirstPage();
-    // Test updating button state
     void testUpdateButtonState();
+    void testUpdateButtonProgress();
     // Test updating button state for a button just in launcher (not a placeholder)
     void testUpdateButtonStateForButtonInLauncher();
     // Test trying to update button state for a button that is in other location (eg. quicklaunchbar)
@@ -120,8 +120,6 @@ private slots:
     // Test that when application's install extra file is removed, placeholder
     // launcher button for that application is removed when application is not installed.
     void testRemovingLauncherButtonPlaceholderWhenInstallExtraEntryIsRemoved();
-    // Test that package name is updated for launcher button
-    void testUpdatingPackageNameOfLauncherButton();
     // Test that when application's install extra file is removed, launcher button
     // for that application is not removed when application is installed.
     void testWhenApplicationIsInstalledAndInstallExtraEntryIsRemovedThenLauncherButtonIsNotRemoved();
@@ -130,7 +128,7 @@ private slots:
     void testRemovingNonExistentPlaceholderButton();
     // Test that when we get an operation error for a button that doesn't yet have a desktop entry, we remove the button
     void testOperationSuccessForButtonWithoutDesktopEntry();
-    // Test correct signal connections to data store and package listener after launcher initialization
+    // Test correct signal connections to data store and package monitor after launcher initialization
     void testConnectionsAfterLauncherInitialization();
     // Test initializing launcher with buttons that have no location yet(are not stored in data store)
     void testInitializingLauncherWithButtonsInUnknownLocation();

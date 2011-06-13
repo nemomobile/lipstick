@@ -39,7 +39,6 @@
 #include "mwindow_stub.h"
 #include "mscenemanager_stub.h"
 #include "applicationpackagemonitor_stub.h"
-#include "applicationpackagemonitorlistener_stub.h"
 #include "homewindowmonitor_stub.h"
 #include "desktop_stub.h"
 #include <QDBusConnection>

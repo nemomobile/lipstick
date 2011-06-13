@@ -30,11 +30,12 @@ class QuickLaunchBarStub : public StubBase {
   virtual void QuickLaunchBarConstructor(QGraphicsItem *parent);
   virtual void QuickLaunchBarDestructor();
   virtual void setLauncherDataStore(LauncherDataStore *dataStore);
-  virtual void setApplicationPackageMonitorListener(ApplicationPackageMonitorListener *packageMonitorListener);
-  virtual void updateButtonState(const QString &desktopEntryPath, const QString &packageName, LauncherButtonModel::State state, int progress, bool packageRemovable);
+  virtual void setApplicationPackageMonitor(ApplicationPackageMonitor *packageMonitor);
+  virtual void updateButtonState(const QString &desktopEntryPath, const QString &packageName, const QString &state, bool packageRemovable);
   virtual void updateButtons();
   virtual LauncherButton * createLauncherButton(const QString &desktopEntryPath);
   virtual QMap<QuickLaunchBar::Placement, QString> createPlacementMap(const QHash<QString, QVariant> &desktopEntryPlacements);
+  virtual void updateProgress(const QString& desktopEntryPath, int already, int total);
 }; 
 
 // 2. IMPLEMENT STUB
@@ -52,20 +53,19 @@ void QuickLaunchBarStub::setLauncherDataStore(LauncherDataStore *dataStore)
     stubMethodEntered("setLauncherDataStore", params);
 }
 
-void QuickLaunchBarStub::setApplicationPackageMonitorListener(ApplicationPackageMonitorListener *packageMonitorListener)
+void QuickLaunchBarStub::setApplicationPackageMonitor(ApplicationPackageMonitor *packageMonitor)
 {
     QList<ParameterBase*> params;
-    params.append( new Parameter<ApplicationPackageMonitorListener *>(packageMonitorListener));
-    stubMethodEntered("setApplicationPackageMonitorListener", params);
+    params.append( new Parameter<ApplicationPackageMonitor *>(packageMonitor));
+    stubMethodEntered("setApplicationPackageMonitor", params);
 }
 
-void QuickLaunchBarStub::updateButtonState(const QString &desktopEntryPath, const QString &packageName, LauncherButtonModel::State state, int progress, bool packageRemovable)
+void QuickLaunchBarStub::updateButtonState(const QString &desktopEntryPath, const QString &packageName, const QString &state, bool packageRemovable)
 {
   QList<ParameterBase*> params;
   params.append( new Parameter<QString>(desktopEntryPath));
   params.append( new Parameter<QString>(packageName));
-  params.append( new Parameter<LauncherButtonModel::State>(state));
-  params.append( new Parameter<int>(progress));
+  params.append( new Parameter<QString>(state));
   params.append( new Parameter<bool>(packageRemovable));
   stubMethodEntered("updateButtonState", params);
 }
@@ -88,6 +88,14 @@ QMap<QuickLaunchBar::Placement, QString> QuickLaunchBarStub::createPlacementMap(
   return stubReturnValue<QMap<QuickLaunchBar::Placement, QString> >("createPlacementMap");
 }
 
+void QuickLaunchBarStub::updateProgress(const QString& desktopEntryPath, int already, int total)
+{
+  QList<ParameterBase*> params;
+  params.append( new Parameter<QString>(desktopEntryPath));
+  params.append( new Parameter<int>(already));
+  params.append( new Parameter<int>(total));
+  stubMethodEntered("updateProgress", params);
+}
 
 
 // 3. CREATE A STUB INSTANCE
@@ -109,14 +117,14 @@ void QuickLaunchBar::setLauncherDataStore(LauncherDataStore *dataStore)
   gQuickLaunchBarStub->setLauncherDataStore(dataStore);
 }
 
-void QuickLaunchBar::setApplicationPackageMonitorListener(ApplicationPackageMonitorListener *packageMonitorListener)
+void QuickLaunchBar::setApplicationPackageMonitor(ApplicationPackageMonitor *packageMonitor)
 {
-  gQuickLaunchBarStub->setApplicationPackageMonitorListener(packageMonitorListener);
+  gQuickLaunchBarStub->setApplicationPackageMonitor(packageMonitor);
 }
 
-void QuickLaunchBar::updateButtonState(const QString& desktopEntryPath, const QString &packageName, LauncherButtonModel::State state, int progress, bool packageRemovable)
+void QuickLaunchBar::updateButtonState(const QString& desktopEntryPath, const QString &packageName, const QString &state, bool packageRemovable)
 {
-  gQuickLaunchBarStub->updateButtonState(desktopEntryPath, packageName, state, progress, packageRemovable);
+  gQuickLaunchBarStub->updateButtonState(desktopEntryPath, packageName, state, packageRemovable);
 }
 
 void QuickLaunchBar::updateButtons() {
@@ -131,5 +139,9 @@ QMap<QuickLaunchBar::Placement, QString> QuickLaunchBar::createPlacementMap(cons
   return gQuickLaunchBarStub->createPlacementMap(desktopEntryPlacements);
 }
 
+void QuickLaunchBar::updateProgress(const QString& desktopEntryPath, int already, int total)
+{
+  gQuickLaunchBarStub->updateProgress(desktopEntryPath, already, total);
+}
 
 #endif

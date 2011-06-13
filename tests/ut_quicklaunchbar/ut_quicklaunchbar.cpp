@@ -26,9 +26,9 @@
 #include "launcheraction_stub.h"
 #include "launcherdatastore_stub.h"
 #include "applicationpackagemonitor_stub.h"
-#include "applicationpackagemonitorlistener_stub.h"
 #include "mockdatastore.h"
 #include "windowinfo_stub.h"
+#include "launcher_stub.h"
 
 void Ut_QuickLaunchBar::addButton(QString entryPath, int position)
 {
@@ -51,11 +51,11 @@ void Ut_QuickLaunchBar::cleanupTestCase()
 void Ut_QuickLaunchBar::init()
 {
     launcherDataStore = new LauncherDataStore(new MockDataStore, QStringList());
-    packageMonitorListener = new ApplicationPackageMonitorListener();
+    packageMonitor = new ApplicationPackageMonitor();
 
     m_subject = new QuickLaunchBar;
     m_subject->setLauncherDataStore(launcherDataStore);
-    m_subject->setApplicationPackageMonitorListener(packageMonitorListener);
+    m_subject->setApplicationPackageMonitor(packageMonitor);
     connect(this, SIGNAL(updateButtons()), m_subject, SLOT(updateButtons()));
     connect(this, SIGNAL(launcherDataStoreChanged()), launcherDataStore, SIGNAL(dataStoreChanged()));
 }
@@ -64,8 +64,8 @@ void Ut_QuickLaunchBar::cleanup()
 {
     delete launcherDataStore;
     launcherDataStore = NULL;
-    delete packageMonitorListener;
-    packageMonitorListener = NULL;
+    delete packageMonitor;
+    packageMonitor = NULL;
     delete m_subject;
     m_subject = NULL;
 }
@@ -86,25 +86,22 @@ void Ut_QuickLaunchBar::testLauncherDataStoreChanged()
 
 void Ut_QuickLaunchBar::testSettingApplicationPackageMonitor()
 {
-    QVERIFY(disconnect(packageMonitorListener, SIGNAL(packageStateChanged(const QString&, QString, LauncherButtonModel::State, int, bool)),
-            m_subject, SLOT(updateButtonState(const QString, QString, LauncherButtonModel::State, int, bool))));
+    QVERIFY(disconnect(packageMonitor, SIGNAL(packageStateChanged(const QString&, QString, LauncherButtonModel::State, int, bool)),
+            m_subject, SLOT(updateButtonState(const QString, QString, QString, bool))));
 }
 
 void Ut_QuickLaunchBar::testUpdateButtonState()
 {
     addButton("/dev/null/test.desktop", 1);
 
-    int progress = 50;
-
     // With invalid desktop entry updateButtonState() shouldn't call setState()
-    m_subject->updateButtonState("invalid.desktop", QString(), LauncherButtonModel::Downloading, progress, true);
+    m_subject->updateButtonState("invalid.desktop", QString(), "downloading", true);
     QCOMPARE(gLauncherButtonStub->stubCallCount("setState"), 0);
 
     //Valid desktop entry
-    m_subject->updateButtonState("test.desktop", QString(), LauncherButtonModel::Installing, progress, true);
+    m_subject->updateButtonState("test.desktop", QString(), "installing", true);
     QCOMPARE(gLauncherButtonStub->stubCallCount("setState"), 1);
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<LauncherButtonModel::State>(0), LauncherButtonModel::Installing);
-    QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<int>(1), progress);
 }
 
 QTEST_MAIN(Ut_QuickLaunchBar)

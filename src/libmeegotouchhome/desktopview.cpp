@@ -34,7 +34,7 @@
 #include "quicklaunchbar.h"
 #include "mdesktopbackgroundextensioninterface.h"
 #include "homefiledatastore.h"
-#include "applicationpackagemonitorlistener.h"
+#include "applicationpackagemonitor.h"
 #include "homewindowmonitor.h"
 
 #include <MViewCreator>
@@ -128,11 +128,11 @@ DesktopView::DesktopView(Desktop *desktop) :
     launcherDataStore = createLauncherDataStore();
 
     // Create application package monitor
-    packageMonitorListener = new ApplicationPackageMonitorListener();
+    packageMonitor = new ApplicationPackageMonitor();
 
     // Create a quick launch bar and put it in a scene window
     quickLaunchBar->setLauncherDataStore(launcherDataStore);
-    quickLaunchBar->setApplicationPackageMonitorListener(packageMonitorListener);
+    quickLaunchBar->setApplicationPackageMonitor(packageMonitor);
     connect(quickLaunchBar, SIGNAL(toggleLauncherButtonClicked()), this, SLOT(toggleLauncher()));
     windowLayout = new QGraphicsLinearLayout();
     windowLayout->setContentsMargins(0, 0, 0, 0);
@@ -143,7 +143,7 @@ DesktopView::DesktopView(Desktop *desktop) :
 
     // Add the launcher into a scene window
     launcher->setLauncherDataStore(launcherDataStore);
-    launcher->setApplicationPackageMonitorListener(packageMonitorListener);
+    launcher->setApplicationPackageMonitor(packageMonitor);
     connect(qApp, SIGNAL(focusToLauncherAppRequested(const QString &)), this, SLOT(showLauncherAndFocusToButton(const QString &)));
     connect(HomeWindowMonitor::instance(), SIGNAL(fullscreenWindowOnTopOfOwnWindow()), SLOT(hideLauncher()));
     connect(switcher, SIGNAL(windowListUpdated(const QList<WindowInfo> &)), this, SLOT(setSwitcherHasContent(const QList<WindowInfo> &)));
@@ -181,7 +181,7 @@ DesktopView::~DesktopView()
     delete quickLaunchBarWindow;
     delete backgroundExtensionArea;
     delete launcherDataStore;
-    delete packageMonitorListener;
+    delete packageMonitor;
 }
 
 #ifdef BENCHMARKS_ON

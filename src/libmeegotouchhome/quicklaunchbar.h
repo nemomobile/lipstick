@@ -25,7 +25,7 @@
 
 class LauncherDataStore;
 class LauncherButton;
-class ApplicationPackageMonitorListener;
+class ApplicationPackageMonitor;
 
 /*!
  * A widget for showing a quick launch bar.
@@ -66,12 +66,12 @@ public:
     void setLauncherDataStore(LauncherDataStore *dataStore);
 
     /*!
-     * Sets the ApplicationPackageMonitorListener for monitoring
+     * Sets the ApplicationPackageMonitor for signaling
      * installation and update progress of application packages.
      *
-     * \param packageMonitorListener Listens to signals from application package monitor
+     * \param packageMonitor Signals the package state changes
      */
-    void setApplicationPackageMonitorListener(ApplicationPackageMonitorListener *packageMonitorListener);
+    void setApplicationPackageMonitor(ApplicationPackageMonitor *packageMonitor);
 
 signals:
     /*!
@@ -91,10 +91,19 @@ public slots:
      * \param desktopEntryPath Desktop entry of the package that button represents
      * \param packageName name of the package
      * \param state State button should be set to
-     * \param progress Progress of operation
      * \param packageRemovable is the package represented by this button removable
      */
-    void updateButtonState(const QString &desktopEntryPath, const QString &packageName, LauncherButtonModel::State state, int progress, bool packageRemovable);
+    void updateButtonState(const QString &desktopEntryPath, const QString &packageName, const QString &state, bool packageRemovable);
+
+
+    /*!
+     * Update progress of a launcher button.
+     *
+     * \param desktopEntryPath Desktop entry of the package that button represents
+     * \param progress Progress of operation
+     * \param total Maximum progress of operation
+     */
+    void updateProgress(const QString& desktopEntryPath, int already, int total);
 
 private slots:
     /*!
@@ -130,8 +139,8 @@ private:
     //! The data store for quick launch bar configuration
     LauncherDataStore *dataStore;
 
-    //! PackageMonitorListener which listens to signals from application package monitor
-    ApplicationPackageMonitorListener *packageMonitorListener;
+    //! PackageMonitor signals the package state changes
+    ApplicationPackageMonitor *packageMonitor;
 
 #ifdef UNIT_TEST
     friend class Ut_QuickLaunchBar;

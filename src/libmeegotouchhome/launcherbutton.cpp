@@ -98,11 +98,16 @@ void LauncherButton::updateFromDesktopEntry(const QString &desktopEntryPath)
     model()->setDesktopEntry(entry);
 }
 
-void LauncherButton::setState(LauncherButtonModel::State state, int progress)
+void LauncherButton::setState(LauncherButtonModel::State state)
 {
     model()->setButtonState(state);
-    if (progress >= 0 && progress <= 100) {
-        model()->setOperationProgress(progress);
+}
+
+void LauncherButton::setOperationProgress(int newProgress, int total)
+{
+    if (newProgress >= 0 && newProgress <= total) {
+        int normalizedProgress = (newProgress*100)/total;
+        model()->setOperationProgress(normalizedProgress);
     }
 }
 

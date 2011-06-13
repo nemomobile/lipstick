@@ -423,35 +423,41 @@ void Ut_LauncherButton::testLanguageChange()
     QCOMPARE(m_subject->text(), QString("nonenglish"));
 }
 
-void Ut_LauncherButton::testSettingButtonStateAndProgress()
+void Ut_LauncherButton::testSettingButtonState()
 {
-    //Default value for state is "installed" and 0 for progress
+    //Default value for state is "installed"
     QCOMPARE(m_subject->model()->buttonState(), LauncherButtonModel::Installed);
+
+    m_subject->setState(LauncherButtonModel::Downloading);
+    QCOMPARE(m_subject->model()->buttonState(), LauncherButtonModel::Downloading);
+
+    m_subject->setState(LauncherButtonModel::Installing);
+    QCOMPARE(m_subject->model()->buttonState(), LauncherButtonModel::Installing);
+}
+
+void Ut_LauncherButton::testSettingOperationProgress()
+{
+    //Default value for progress is 0
     QCOMPARE(m_subject->model()->operationProgress(), 0);
 
     int progress = 50;
-    m_subject->setState(LauncherButtonModel::Downloading, progress);
-    QCOMPARE(m_subject->model()->buttonState(), LauncherButtonModel::Downloading);
+    m_subject->setOperationProgress(progress, 100);
     QCOMPARE(m_subject->model()->operationProgress(), progress);
 
-    //Only progress should change
     progress = 99;
-    m_subject->setState(LauncherButtonModel::Downloading, progress);
-    QCOMPARE(m_subject->model()->buttonState(), LauncherButtonModel::Downloading);
+    m_subject->setOperationProgress(progress, 100);
     QCOMPARE(m_subject->model()->operationProgress(), progress);
 }
 
-void Ut_LauncherButton::testSettingButtonStateAndProgressWithInvalidValues()
+void Ut_LauncherButton::testSettingProgressWithInvalidValues()
 {
     //With invalid values progress shouldn't change from default value 0
     int progress = -1;
-    m_subject->setState(LauncherButtonModel::Installing, progress);
-    QCOMPARE(m_subject->model()->buttonState(), LauncherButtonModel::Installing);
+    m_subject->setOperationProgress(progress, 100);
     QCOMPARE(m_subject->model()->operationProgress(), 0);
 
     progress = 101;
-    m_subject->setState(LauncherButtonModel::Downloading, progress);
-    QCOMPARE(m_subject->model()->buttonState(), LauncherButtonModel::Downloading);
+    m_subject->setOperationProgress(progress, 100);
     QCOMPARE(m_subject->model()->operationProgress(), 0);
 }
 

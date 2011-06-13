@@ -17,8 +17,7 @@ SOURCES += \
 HEADERS += \
     ut_quicklaunchbar.h \
     $$SRCDIR/quicklaunchbar.h \
-    $$SRCDIR/applicationpackagemonitor.h \
-    $$SRCDIR/applicationpackagemonitorlistener.h
+    $$SRCDIR/applicationpackagemonitor.h
 
 # service classes
 HEADERS += \
@@ -26,7 +25,8 @@ HEADERS += \
     $$SRCDIR/launcherbutton.h \
     $$SRCDIR/launcherdatastore.h \
     $$SRCDIR/windowinfo.h \
-    $$SRCDIR/launcherbuttonmodel.h
+    $$SRCDIR/launcherbuttonmodel.h \
+    $$SRCDIR/launcher.h
 
 DEFINES += APPLICATIONS_DIRECTORY=\'$$quote(\"/tmp/ut_launcher/applications/\")\'
 

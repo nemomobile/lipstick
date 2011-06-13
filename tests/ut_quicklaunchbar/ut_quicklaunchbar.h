@@ -24,7 +24,7 @@
 
 class QuickLaunchBar;
 class LauncherDataStore;
-class ApplicationPackageMonitorListener;
+class ApplicationPackageMonitor;
 
 class Ut_QuickLaunchBar : public QObject
 {
@@ -57,7 +57,7 @@ private:
     // The datastore object used by the test subject
     LauncherDataStore *launcherDataStore;
     // Application package monitor used by test subject
-    ApplicationPackageMonitorListener *packageMonitorListener;
+    ApplicationPackageMonitor *packageMonitor;
 };
 
 #endif

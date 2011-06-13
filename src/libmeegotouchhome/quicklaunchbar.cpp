@@ -20,8 +20,9 @@
 #include "quicklaunchbar.h"
 #include "launcherdatastore.h"
 #include "launcherbutton.h"
-#include "applicationpackagemonitorlistener.h"
+#include "applicationpackagemonitor.h"
 #include <MDesktopEntry>
+#include "launcher.h"
 
 #include <MWidgetCreator>
 M_REGISTER_WIDGET(QuickLaunchBar)
@@ -52,15 +53,15 @@ void QuickLaunchBar::setLauncherDataStore(LauncherDataStore *dataStore)
     }
 }
 
-void QuickLaunchBar::setApplicationPackageMonitorListener(ApplicationPackageMonitorListener *packageMonitorListener)
+void QuickLaunchBar::setApplicationPackageMonitor(ApplicationPackageMonitor *packageMonitor)
 {
-    this->packageMonitorListener = packageMonitorListener;
+    this->packageMonitor = packageMonitor;
 
-    connect(packageMonitorListener, SIGNAL(packageStateChanged(QString, QString, LauncherButtonModel::State, int, bool)),
-        this, SLOT(updateButtonState(QString, QString, LauncherButtonModel::State, int, bool)));
+    connect(packageMonitor, SIGNAL(packageStateUpdated(QString, QString, QString, bool)),
+        this, SLOT(updateButtonState(QString, QString, QString, bool)));
 }
 
-void QuickLaunchBar::updateButtonState(const QString &desktopEntryPath, const QString &packageName, LauncherButtonModel::State state, int progress, bool packageRemovable)
+void QuickLaunchBar::updateButtonState(const QString &desktopEntryPath, const QString &packageName, const QString &state, bool packageRemovable)
 {
     Q_UNUSED(packageName);
     Q_UNUSED(packageRemovable);
@@ -69,7 +70,21 @@ void QuickLaunchBar::updateButtonState(const QString &desktopEntryPath, const QS
     QString entryFileName = QFileInfo(desktopEntryPath).fileName();
     for (int i = 0 ; i < buttons.count() ; i++) {
         if (QFileInfo(buttons.at(i)->desktopEntry()).fileName() == entryFileName) {
-            buttons.at(i)->setState(state, progress);
+            buttons.at(i)->setState(Launcher::buttonStateFromPackageState(state));
+            break;
+        }
+    }
+}
+
+void QuickLaunchBar::updateProgress(const QString& desktopEntryPath, int already, int total)
+{
+    //If there is a quicklaunch button for desktopEntryPath, update it's progress
+    QList<QSharedPointer<LauncherButton> > buttons = model()->buttons().values();
+    QString entryFileName = QFileInfo(desktopEntryPath).fileName();
+    for (int i = 0 ; i < buttons.count() ; i++) {
+        if (QFileInfo(buttons.at(i)->desktopEntry()).fileName() == entryFileName) {
+            buttons.at(i)->setOperationProgress(already, total);
+            break;
         }
     }
 }

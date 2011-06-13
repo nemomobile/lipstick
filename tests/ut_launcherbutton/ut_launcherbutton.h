@@ -49,8 +49,9 @@ private slots:
     void testWhenLauncherButtonIsClickedInInstallingStateContentActionIsNotTriggered();
     void testWhenLauncherButtonIsClickedInBrokenStateAndHasPackageErrorThenDBusCallIsMade();
     void testStopLaunchProgressIfObscured();
-    void testSettingButtonStateAndProgress();
-    void testSettingButtonStateAndProgressWithInvalidValues();
+    void testSettingButtonState();
+    void testSettingOperationProgress();
+    void testSettingProgressWithInvalidValues();
     void testLaunchingMultipleTimes();
     void testTryingToLaunchSecondActionWhileLaunching();
 

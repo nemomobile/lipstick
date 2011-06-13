@@ -71,12 +71,20 @@ public:
     void updateFromDesktopEntry(const QString &desktopEntryPath);
 
     /*!
-     * Sets the state and progress of a button
-     * Progress property is changed only if parameter progress is valid (0..100)
+     * Sets the state of a button
+     *
      * \param state State of a button
-     * \param progress Progress of operation
      */
-    void setState(LauncherButtonModel::State state, int progress);
+    void setState(LauncherButtonModel::State state);
+
+    /*!
+     * Sets the progress of a button
+     * Progress is normalized between (0..100)
+     *
+     * \param newProgress Progress of operation
+     * \param total Maximum value for progress
+     */
+    void setOperationProgress(int newProgress, int total = 100);
 
     /*!
      * Returns progress of button's ongoing operation

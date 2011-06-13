@@ -35,9 +35,9 @@ TESTSUITES = \
     ut_windowinfo \
     ut_pagepositionindicatorview \
     ut_applicationpackagemonitor \
-    ut_applicationpackagemonitorlistener \
     ut_xeventlistener \
-    ut_launcherbuttonprogressindicatorview
+    ut_launcherbuttonprogressindicatorview \
+    ut_homefiledatastore
 #   ut_test \
 
 for(suitename, TESTSUITES):{

@@ -46,11 +46,11 @@ private slots:
     void testUpdatingPackageStateWhenDesktopEntryChanges();
     void testRemovingPackageDataWhenDesktopEntryIsRemoved();
     void testDownloadProgressSignal();
-    void testInstallProgressSignal();
     void testInstallSuccessSignal();
     void testInstallSuccessSignalWithErrorAndPackageBroken();
     void testInstallSuccessSignalWithErrorAndPackageNotBroken();
     void testUninstallSignal();
+    void testIsInstallerExtraEntry();
 
 private:
     void initializeEntries(int count, const QStringList &states, bool packageRemovable = true);

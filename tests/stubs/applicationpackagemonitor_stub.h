@@ -5,6 +5,13 @@
 #include <stubbase.h>
 
 const QString ApplicationPackageMonitor::INSTALLER_EXTRA_FOLDER = "installer-extra/";
+const QString ApplicationPackageMonitor::PACKAGE_STATE_INSTALLED = "installed";
+const QString ApplicationPackageMonitor::PACKAGE_STATE_INSTALLABLE = "installable";
+const QString ApplicationPackageMonitor::PACKAGE_STATE_BROKEN = "broken";
+const QString ApplicationPackageMonitor::PACKAGE_STATE_UPDATEABLE = "updateable";
+const QString ApplicationPackageMonitor::PACKAGE_STATE_INSTALLING ="installing";
+const QString ApplicationPackageMonitor::PACKAGE_STATE_DOWNLOADING ="downloading";
+const QString ApplicationPackageMonitor::PACKAGE_STATE_UNINSTALLING ="uninstalling";
 
 // 1. DECLARE STUB
 // FIXME - stubgen is not yet finished
@@ -14,14 +21,17 @@ class ApplicationPackageMonitorStub : public StubBase {
   virtual void ApplicationPackageMonitorDestructor();
   virtual void updatePackageStates();
   virtual QString packageName(const QString &dekstopEntryPath);
+  virtual bool isInstallerExtraEntry(const QString &desktopEntryPath);
+  virtual QString toInstallerExtraEntryPath(const QString &desktopEntryPath);
+  virtual QString toApplicationsEntryPath(const QString &desktopEntryPath);
   virtual void packageDownloadProgress(const QString &operation, const QString &packageName, const QString &packageVersion, int already, int total);
   virtual void packageOperationStarted(const QString &operation, const QString &packageName, const QString &packageVersion);
-  virtual void packageOperationProgress(const QString &operation, const QString &packageame, const QString &packageVersion, int percentage);
   virtual void packageOperationComplete(const QString &operation, const QString &packageName, const QString &packageVersion, const QString &error, bool need_reboot);
   virtual void updatePackageState(const QString &desktopEntryPath);
   virtual void packageRemoved(const QString &desktopEntryPath);
-  virtual bool isValidOperation(const QString &properties, const QString &operation);
-}; 
+  virtual bool isValidOperation(const QString &desktopEntryPath, const QString &operation);
+  virtual bool isPackageRemovable(const QString &desktopEntryPath);
+};
 
 // 2. IMPLEMENT STUB
 void ApplicationPackageMonitorStub::ApplicationPackageMonitorConstructor() {
@@ -41,6 +51,27 @@ QString ApplicationPackageMonitorStub::packageName(const QString &dekstopEntryPa
   return stubReturnValue<QString>("packageName");
 }
 
+bool ApplicationPackageMonitorStub::isInstallerExtraEntry(const QString &desktopEntryPath) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<const QString & >(desktopEntryPath));
+  stubMethodEntered("isInstallerExtraEntry",params);
+  return stubReturnValue<bool>("isInstallerExtraEntry");
+}
+
+QString ApplicationPackageMonitorStub::toInstallerExtraEntryPath(const QString &desktopEntryPath) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<const QString & >(desktopEntryPath));
+  stubMethodEntered("toInstallerExtraEntryPath",params);
+  return stubReturnValue<QString>("toInstallerExtraEntryPath");
+}
+
+QString ApplicationPackageMonitorStub::toApplicationsEntryPath(const QString &desktopEntryPath) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<const QString & >(desktopEntryPath));
+  stubMethodEntered("toApplicationsEntryPath",params);
+  return stubReturnValue<QString>("toApplicationsEntryPath");
+}
+
 void ApplicationPackageMonitorStub::packageDownloadProgress(const QString &operation, const QString &packageName, const QString &packageVersion, int already, int total) {
   QList<ParameterBase*> params;
   params.append( new Parameter<const QString & >(operation));
@@ -57,15 +88,6 @@ void ApplicationPackageMonitorStub::packageOperationStarted(const QString &opera
   params.append( new Parameter<const QString & >(packageName));
   params.append( new Parameter<const QString & >(packageVersion));
   stubMethodEntered("packageOperationStarted",params);
-}
-
-void ApplicationPackageMonitorStub::packageOperationProgress(const QString &operation, const QString &packageame, const QString &packageVersion, int percentage) {
-  QList<ParameterBase*> params;
-  params.append( new Parameter<const QString & >(operation));
-  params.append( new Parameter<const QString & >(packageame));
-  params.append( new Parameter<const QString & >(packageVersion));
-  params.append( new Parameter<int >(percentage));
-  stubMethodEntered("packageOperationProgress",params);
 }
 
 void ApplicationPackageMonitorStub::packageOperationComplete(const QString &operation, const QString &packageName, const QString &packageVersion, const QString &error, bool need_reboot) {
@@ -90,14 +112,20 @@ void ApplicationPackageMonitorStub::packageRemoved(const QString &desktopEntryPa
   stubMethodEntered("packageRemoved",params);
 }
 
-bool ApplicationPackageMonitorStub::isValidOperation(const QString &properties, const QString &operation) {
+bool ApplicationPackageMonitorStub::isValidOperation(const QString &desktopEntryPath, const QString &operation) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const QString & >(properties));
+  params.append( new Parameter<const QString & >(desktopEntryPath));
   params.append( new Parameter<const QString & >(operation));
   stubMethodEntered("isValidOperation",params);
   return stubReturnValue<bool>("isValidOperation");
 }
 
+bool ApplicationPackageMonitorStub::isPackageRemovable(const QString &desktopEntryPath) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<const QString & >(desktopEntryPath));
+  stubMethodEntered("isPackageRemovable",params);
+  return stubReturnValue<bool>("isPackageRemovable");
+}
 
 
 // 3. CREATE A STUB INSTANCE
@@ -106,7 +134,7 @@ ApplicationPackageMonitorStub* gApplicationPackageMonitorStub = &gDefaultApplica
 
 
 // 4. CREATE A PROXY WHICH CALLS THE STUB
-ApplicationPackageMonitor::ApplicationPackageMonitor() : con("") {
+ApplicationPackageMonitor::ApplicationPackageMonitor() : con(QDBusConnection::systemBus()) {
   gApplicationPackageMonitorStub->ApplicationPackageMonitorConstructor();
 }
 
@@ -122,16 +150,24 @@ QString ApplicationPackageMonitor::packageName(const QString &dekstopEntryPath) 
   return gApplicationPackageMonitorStub->packageName(dekstopEntryPath);
 }
 
+bool ApplicationPackageMonitor::isInstallerExtraEntry(const QString &desktopEntryPath) {
+  return gApplicationPackageMonitorStub->isInstallerExtraEntry(desktopEntryPath);
+}
+
+QString ApplicationPackageMonitor::toInstallerExtraEntryPath(const QString &desktopEntryPath) {
+  return gApplicationPackageMonitorStub->toInstallerExtraEntryPath(desktopEntryPath);
+}
+
+QString ApplicationPackageMonitor::toApplicationsEntryPath(const QString &desktopEntryPath) {
+  return gApplicationPackageMonitorStub->toApplicationsEntryPath(desktopEntryPath);
+}
+
 void ApplicationPackageMonitor::packageDownloadProgress(const QString &operation, const QString &packageName, const QString &packageVersion, int already, int total) {
   gApplicationPackageMonitorStub->packageDownloadProgress(operation, packageName, packageVersion, already, total);
 }
 
 void ApplicationPackageMonitor::packageOperationStarted(const QString &operation, const QString &packageName, const QString &packageVersion) {
   gApplicationPackageMonitorStub->packageOperationStarted(operation, packageName, packageVersion);
-}
-
-void ApplicationPackageMonitor::packageOperationProgress(const QString &operation, const QString &packageame, const QString &packageVersion, int percentage) {
-  gApplicationPackageMonitorStub->packageOperationProgress(operation, packageame, packageVersion, percentage);
 }
 
 void ApplicationPackageMonitor::packageOperationComplete(const QString &operation, const QString &packageName, const QString &packageVersion, const QString &error, bool need_reboot) {
@@ -146,8 +182,12 @@ void ApplicationPackageMonitor::packageRemoved(const QString &desktopEntryPath) 
   gApplicationPackageMonitorStub->packageRemoved(desktopEntryPath);
 }
 
-bool ApplicationPackageMonitor::isValidOperation(const QString &properties, const QString &operation) {
-  return gApplicationPackageMonitorStub->isValidOperation(properties, operation);
+bool ApplicationPackageMonitor::isValidOperation(const QString &desktopEntryPath, const QString &operation) {
+  return gApplicationPackageMonitorStub->isValidOperation(desktopEntryPath, operation);
+}
+
+bool ApplicationPackageMonitor::isPackageRemovable(const QString &desktopEntryPath) {
+  return gApplicationPackageMonitorStub->isPackageRemovable(desktopEntryPath);
 }
 
 

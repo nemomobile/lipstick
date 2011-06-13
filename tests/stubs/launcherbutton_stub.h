@@ -18,7 +18,7 @@ class LauncherButtonStub : public StubBase {
   virtual void retranslateUi();
   virtual void launch();
   virtual void stopLaunchProgress();
-  virtual void setState(LauncherButtonModel::State state, int progress);
+  virtual void setState(LauncherButtonModel::State state);
   virtual int operationProgress() const;
   virtual void init();
   virtual LauncherButtonModel::State buttonState() const;
@@ -26,6 +26,7 @@ class LauncherButtonStub : public StubBase {
   virtual QString packageName() const;
   virtual void setPackageRemovable(const bool packageRemovable);
   virtual bool packageRemovable() const;
+  virtual void setOperationProgress(int newProgress, int total);
 };
 
 // 2. IMPLEMENT STUB
@@ -71,10 +72,9 @@ LauncherButtonModel::State LauncherButtonStub::buttonState() const {
   return stubReturnValue<LauncherButtonModel::State>("buttonState");
 }
 
-void LauncherButtonStub::setState(LauncherButtonModel::State state, int progress) {
+void LauncherButtonStub::setState(LauncherButtonModel::State state) {
   QList<ParameterBase*> params;
   params.append( new Parameter<LauncherButtonModel::State>(state));
-  params.append( new Parameter<int>(progress));
   stubMethodEntered("setState",params);
 }
 
@@ -103,6 +103,15 @@ void LauncherButtonStub::setPackageRemovable(const bool packageRemovable) {
 bool LauncherButtonStub::packageRemovable() const {
   stubMethodEntered("packageRemovable");
   return stubReturnValue<bool>("packageRemovable");
+}
+
+
+void LauncherButtonStub::setOperationProgress(int newProgress, int total)
+{
+  QList<ParameterBase*> params;
+  params.append( new Parameter<int>(newProgress));
+  params.append( new Parameter<int>(total));
+  stubMethodEntered("setOperationProgress", params);
 }
 
 // 3. CREATE A STUB INSTANCE
@@ -147,9 +156,9 @@ LauncherButtonModel::State LauncherButton::buttonState() const {
     return gLauncherButtonStub->buttonState();
 }
 
-void LauncherButton::setState(LauncherButtonModel::State state, int progress)
+void LauncherButton::setState(LauncherButtonModel::State state)
 {
-    gLauncherButtonStub->setState(state, progress);
+    gLauncherButtonStub->setState(state);
 }
 
 int LauncherButton::operationProgress() const {
@@ -174,6 +183,11 @@ void LauncherButton::setPackageRemovable(const bool removable)
 bool LauncherButton::packageRemovable() const
 {
     return gLauncherButtonStub->packageRemovable();
+}
+
+void LauncherButton::setOperationProgress(int newProgress, int total)
+{
+    gLauncherButtonStub->setOperationProgress(newProgress, total);
 }
 
 #endif

@@ -20,7 +20,7 @@
 #include "launcher.h"
 #include "launcherbutton.h"
 #include "launcherdatastore.h"
-#include "applicationpackagemonitorlistener.h"
+#include "applicationpackagemonitor.h"
 
 #include <MWidgetCreator>
 M_REGISTER_WIDGET(Launcher)
@@ -57,7 +57,7 @@ static Launcher::Placement buttonPlacementInLauncherPages(const QString &desktop
 Launcher::Launcher(QGraphicsItem *parent, LauncherModel *model) :
     MWidgetController(model != NULL ? model : new LauncherModel, parent),
     dataStore(NULL),
-    packageMonitorListener(NULL),
+    packageMonitor(NULL),
     maximumPageSize(-1)
 {
 }
@@ -79,9 +79,9 @@ void Launcher::setLauncherDataStore(LauncherDataStore *dataStore)
     }
 }
 
-void Launcher::setApplicationPackageMonitorListener(ApplicationPackageMonitorListener *packageMonitorListener)
+void Launcher::setApplicationPackageMonitor(ApplicationPackageMonitor *packageMonitor)
 {
-    this->packageMonitorListener = packageMonitorListener;
+    this->packageMonitor = packageMonitor;
 }
 
 void Launcher::setMaximumPageSize(int maximumPageSize)
@@ -95,29 +95,37 @@ void Launcher::setMaximumPageSize(int maximumPageSize)
     }
 }
 
-void Launcher::updateButtonState(const QString &desktopEntryPath, const QString &packageName, LauncherButtonModel::State state, int progress, bool packageRemovable)
+void Launcher::updateButtonState(const QString &desktopEntryPath, const QString &packageName, const QString &state, bool packageRemovable)
 {
+    LauncherButtonModel::State buttonState = buttonStateFromPackageState(state);
+    QString entryPath(desktopEntryPath);
+    if (buttonState == LauncherButtonModel::Installed) {
+        // When package in installed state, always use the desktop entry from applications folder
+        entryPath = ApplicationPackageMonitor::toApplicationsEntryPath(desktopEntryPath);
+    }
+
     Launcher::Placement buttonPlacementInDatastore = entryPlacementInDatastore(desktopEntryPath);
 
-    bool buttonInLauncher = !buttonPlacementInDatastore.location.isEmpty();
-    if (state == LauncherButtonModel::Uninstall && buttonInLauncher) {
-        removeLauncherButton(desktopEntryPath);
+    if (buttonState == LauncherButtonModel::Uninstall) {
+        if (buttonPlacementInDatastore.location == Launcher::LOCATION_IDENTIFIER) {
+            removeLauncherButton(desktopEntryPath);
+        }
         return;
     }
 
     // Check that button is not stored in some other location before adding/updating placeholder and setting state
-    if (!buttonInLauncher || buttonPlacementInDatastore.location == Launcher::LOCATION_IDENTIFIER) {
+    if (buttonPlacementInDatastore.location.isEmpty() || buttonPlacementInDatastore.location == Launcher::LOCATION_IDENTIFIER) {
         QSharedPointer<LauncherButton> button = placeholderButton(desktopEntryPath);
         if (button->packageName().isEmpty()) {
             button->setPackageName(packageName);
         }
 
-        if (!ApplicationPackageMonitorListener::isInstallerExtraEntry(desktopEntryPath)) {
+        if (!ApplicationPackageMonitor::isInstallerExtraEntry(desktopEntryPath)) {
             updateButtonPlacementInStore(desktopEntryPath);
             button->updateFromDesktopEntry(desktopEntryPath);
         }
 
-        button->setState(state, progress);
+        button->setState(buttonState);
         button->setPackageRemovable(packageRemovable);
 
         if (!QFileInfo(desktopEntryPath).exists()) {
@@ -126,6 +134,17 @@ void Launcher::updateButtonState(const QString &desktopEntryPath, const QString 
             // to handle button addition when/if desktop entry comes available
             removeLauncherButton(desktopEntryPath);
         }
+    }
+}
+
+void Launcher::updateProgress(const QString& desktopEntryPath, int already, int total)
+{
+    Launcher::Placement placement(buttonPlacement(desktopEntryPath));
+    if (!placement.isNull()) {
+        QSharedPointer<LauncherPage> page = model()->launcherPages().at(placement.page);
+        QSharedPointer<LauncherButton> button = page->model()->launcherButtons().at(placement.position);
+
+        button->setOperationProgress(already, total);
     }
 }
 
@@ -195,27 +214,15 @@ void Launcher::updatePagesFromDataStore()
     model()->setLauncherPages(pages);
 
     // After updating launcher from launcher data store we can connect package listener and update the states
-    if (packageMonitorListener != NULL) {
-        connect(packageMonitorListener, SIGNAL(packageStateChanged(QString, QString, LauncherButtonModel::State, int, bool)),
-            this, SLOT(updateButtonState(QString, QString, LauncherButtonModel::State, int, bool)), Qt::UniqueConnection);
-        connect(packageMonitorListener, SIGNAL(installExtraEntryRemoved(QString)),
+    if (packageMonitor != NULL) {
+        connect(packageMonitor, SIGNAL(packageStateUpdated(QString, QString, QString, bool)),
+            this, SLOT(updateButtonState(QString, QString, QString, bool)), Qt::UniqueConnection);
+        connect(packageMonitor, SIGNAL(installExtraEntryRemoved(QString)),
             this, SLOT(removePlaceholderButton(QString)), Qt::UniqueConnection);
-        connect(packageMonitorListener, SIGNAL(updatePackageName(QString, QString)),
-            this, SLOT(updatePackageName(QString, QString)));
+        connect(packageMonitor, SIGNAL(downloadProgressUpdated(QString, int, int)),
+            this, SLOT(updateProgress(QString, int, int)), Qt::UniqueConnection);
 
-        packageMonitorListener->updatePackageStates();
-    }
-}
-
-void Launcher::updatePackageName(const QString &desktopEntryPath, const QString &packageName)
-{
-    QList<QSharedPointer<LauncherPage> > pages = model()->launcherPages();
-    foreach(const QSharedPointer<LauncherPage> &page, pages) {
-        QSharedPointer<LauncherButton> button = page->button(desktopEntryPath);
-        if(!button.isNull()) {
-            button->setPackageName(packageName);
-            break;
-        }
+        packageMonitor->updatePackageStates();
     }
 }
 
@@ -459,8 +466,8 @@ void Launcher::updateButtonPlacementInStore(const QString &desktopEntryPath)
 {
     // Updating the entry path (possible from installer-extra to applications or other way around)
     // we need to make sure we remove all previous entry paths to avoid multiple instances of one application
-    removeButtonPlacementFromStore(ApplicationPackageMonitorListener::toInstallerExtraEntryPath(desktopEntryPath));
-    removeButtonPlacementFromStore(ApplicationPackageMonitorListener::toApplicationsEntryPath(desktopEntryPath));
+    removeButtonPlacementFromStore(ApplicationPackageMonitor::toInstallerExtraEntryPath(desktopEntryPath));
+    removeButtonPlacementFromStore(ApplicationPackageMonitor::toApplicationsEntryPath(desktopEntryPath));
 
     Placement placement = buttonPlacement(desktopEntryPath);
     dataStore->updateDataForDesktopEntry(desktopEntryPath, placement.toString());
@@ -523,4 +530,23 @@ inline bool operator<(const Launcher::Placement &p1, const Launcher::Placement &
     }
 
     return p1.position < p2.position;
+}
+
+LauncherButtonModel::State Launcher::buttonStateFromPackageState(const QString &packageState)
+{
+    LauncherButtonModel::State buttonState;
+    if (packageState == ApplicationPackageMonitor::PACKAGE_STATE_INSTALLED) {
+        buttonState = LauncherButtonModel::Installed;
+    } else if (packageState == ApplicationPackageMonitor::PACKAGE_STATE_BROKEN) {
+        buttonState = LauncherButtonModel::Broken;
+    } else if (packageState == ApplicationPackageMonitor::PACKAGE_STATE_INSTALLING) {
+        buttonState = LauncherButtonModel::Installing;
+    } else if (packageState == ApplicationPackageMonitor::PACKAGE_STATE_DOWNLOADING) {
+        buttonState = LauncherButtonModel::Downloading;
+    } else if (packageState == ApplicationPackageMonitor::PACKAGE_STATE_UNINSTALLING) {
+        buttonState = LauncherButtonModel::Uninstall;
+    } else {
+        buttonState = LauncherButtonModel::Installed;
+    }
+    return buttonState;
 }

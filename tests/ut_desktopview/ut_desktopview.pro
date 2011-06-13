@@ -41,7 +41,6 @@ HEADERS += \
     $$SRCDIR/launcher.h \
     $$SRCDIR/launcherdatastore.h \
     $$SRCDIR/applicationpackagemonitor.h \
-    $$SRCDIR/applicationpackagemonitorlistener.h \
     $$SRCDIR/windowmonitor.h \
     $$SRCDIR/homewindowmonitor.h \
     $$SRCDIR/homefiledatastore.h
