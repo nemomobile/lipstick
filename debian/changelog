@@ -1,8 +1,8 @@
-meegotouchhome (1.1.1~1) unstable; urgency=low
+meegotouchhome (1.1.1-1) unstable; urgency=low
 
-  * [UNRELEASED]
+  * Fixes: NB#264707 - [ JUNIPERQA-17432] Store client state is broken on launcher grid after canceling an update
 
- -- Eetu Lehmusvuo <ext-eetu.6.lehmusvuo@nokia.com>  Fri, 10 Jun 2011 09:49:22 +0300
+ -- Eetu Lehmusvuo <ext-eetu.6.lehmusvuo@nokia.com>  Mon, 13 Jun 2011 09:17:22 +0300
 
 meegotouchhome (1.1.0-1) unstable; urgency=low
 
