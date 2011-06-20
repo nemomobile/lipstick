@@ -76,6 +76,7 @@ void Launcher::setLauncherDataStore(LauncherDataStore *dataStore)
 
     if (dataStore != NULL) {
         connect(dataStore, SIGNAL(dataStoreChanged()), this, SLOT(updatePagesFromDataStore()));
+        dataStore->updateDesktopEntryFiles();
     }
 }
 
@@ -284,6 +285,7 @@ void Launcher::addDesktopEntriesWithUnknownPlacements(QList<QSharedPointer<Launc
 
     // Put the desktop entries with no known placement on the last page
     QHash<QString, QVariant> allDesktopEntryPlacements = dataStore->dataForAllDesktopEntries();
+    QHash<QString, QString> addedDesktopEntries;
     foreach (const QString &desktopEntryPath, allDesktopEntryPlacements.keys()) {
         Placement placementInDatastore(allDesktopEntryPlacements.value(desktopEntryPath).toString());
         if (placementInDatastore.location.isEmpty() || placementInDatastore.location == LOCATION_IDENTIFIER) {
@@ -291,11 +293,12 @@ void Launcher::addDesktopEntriesWithUnknownPlacements(QList<QSharedPointer<Launc
             Placement placementInPages = buttonPlacementInLauncherPages(desktopEntryPath, pages);
             if (placementInDatastore.isNull() && placementInPages.isNull()) {
                 QSharedPointer<MDesktopEntry> desktopEntry(new MDesktopEntry(desktopEntryPath));
-                Placement placementInPages = appendButtonToPages(createLauncherButton(desktopEntry), pages);
-                dataStore->updateDataForDesktopEntry(desktopEntryPath, placementInPages.toString());
+                Placement newPlacement = appendButtonToPages(createLauncherButton(desktopEntry), pages);
+                addedDesktopEntries.insert(desktopEntryPath, newPlacement.toString());
             }
         }
     }
+    dataStore->updateDataForDesktopEntries(addedDesktopEntries);
 }
 
 void Launcher::removeEmptyPages(QList<QSharedPointer<LauncherPage> > &pages)
@@ -318,12 +321,14 @@ void Launcher::removeEmptyPages(QList<QSharedPointer<LauncherPage> > &pages)
     if (dataStore != NULL) {
         // Locations of launcher buttons on subsequent pages have changed so update all of them
         if (firstRemovedPage >= 0) {
+            QHash<QString, QString> movedEntries;
             for (int page = firstRemovedPage; page < pages.count(); page++) {
                 const QList<QSharedPointer<LauncherButton> > &launcherButtons = pages.at(page)->model()->launcherButtons();
                 for (int position = 0; position < launcherButtons.count(); position++) {
-                    dataStore->updateDataForDesktopEntry(launcherButtons.at(position)->desktopEntry(), PLACEMENT_TEMPLATE.arg(page).arg(position));
+                    movedEntries.insert(launcherButtons.at(position)->desktopEntry(), PLACEMENT_TEMPLATE.arg(page).arg(position));
                 }
             }
+            dataStore->updateDataForDesktopEntries(movedEntries);
         }
     }
 }

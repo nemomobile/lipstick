@@ -73,6 +73,7 @@ public:
 
     /*!
      * Updates the data for a desktop entry in the data store.
+     * Should be called once to initialize the data store.
      *
      * \param entryPath the path of the desktop entry to update
      * \param data the data to update the desktop entry with
@@ -149,25 +150,14 @@ public slots:
      */
     void updateDesktopEntry(const QString &desktopEntryPath);
 
-private slots:
     /*!
      * Updates the contents of the data store from the desktop entries in
-     * the directory. If no update is currently in progress the
-     * .desktop entry file list is added to the update queue and the
-     * update queue processing timer is started. If an update is already
-     * in progress the updatePending flag is raised to indicate that
-     * another update should be done.
-     */
-    void updateDataFromDesktopEntryFiles();
-
-    /*!
-     * Updates the contents of the data store from the desktop entries in
-     * the update queue.
+     * the watched directories.
      * New .desktop files are added to the data store with no associated data.
      * .desktop files that do not exist anymore are removed from the data store.
      * The dataStoreChanged() signal is emitted after changes are made.
      */
-    void processUpdateQueue();
+    void updateDesktopEntryFiles();
 
 private:
     /*!
@@ -194,13 +184,6 @@ private:
       */
     void addFilePathToWatcher(const QString &filePath);
 
-    /*!
-     * Checks if given key is in desktop entry queue.
-     *
-     * \param key Key to be checked
-     */
-    bool isInQueue(const QString &key);
-
     //! A file system watcher for the desktop entry file directory
     QFileSystemWatcher watcher;
 
@@ -209,15 +192,6 @@ private:
 
     //! The actual data store where the data is stored.
     MDataStore *store;
-
-    //! Whether an update is pending
-    bool updatePending;
-
-    //! A timer for processing the update queue
-    QTimer processUpdateQueueTimer;
-
-    //! The update queue
-    QFileInfoList updateQueue;
 
     //! The directories being watched as canonical paths
     QStringList directories;

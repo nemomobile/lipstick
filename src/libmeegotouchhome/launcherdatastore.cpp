@@ -28,16 +28,10 @@
 
 static const QString KEY_PREFIX = "DesktopEntries";
 static const char* const FILE_FILTER = "*.desktop";
-static const int FILES_PROCESSED_AT_ONCE = 3;
 
 LauncherDataStore::LauncherDataStore(MDataStore* dataStore, const QStringList &directories) :
-        store(dataStore),
-        updatePending(false)
+        store(dataStore)
 {
-    connect(&processUpdateQueueTimer, SIGNAL(timeout()), this, SLOT(processUpdateQueue()));
-    processUpdateQueueTimer.setSingleShot(true);
-    processUpdateQueueTimer.setInterval(0);
-
     // Set up the supported desktop entry types
     supportedDesktopEntryFileTypes << "Application" << "Link";
 
@@ -49,11 +43,8 @@ LauncherDataStore::LauncherDataStore(MDataStore* dataStore, const QStringList &d
         }
     }
 
-    // Start updating with the .desktop files in the given directories
-    updateDataFromDesktopEntryFiles();
-
     // Start watching the applications directory for changes
-    connect(&watcher, SIGNAL(directoryChanged(const QString)), this, SLOT(updateDataFromDesktopEntryFiles()));
+    connect(&watcher, SIGNAL(directoryChanged(const QString)), this, SLOT(updateDesktopEntryFiles()));
     connect(&watcher, SIGNAL(fileChanged(QString)), this, SLOT(updateDesktopEntry(QString)));
     foreach (const QString &directoryPath, this->directories) {
         watcher.addPath(directoryPath);
@@ -124,76 +115,52 @@ void LauncherDataStore::removeDataForDesktopEntry(const QString &entryPath)
     connect(store, SIGNAL(valueChanged(QString, QVariant)), this, SIGNAL(dataStoreChanged()));
 }
 
-void LauncherDataStore::updateDataFromDesktopEntryFiles()
+void LauncherDataStore::updateDesktopEntryFiles()
 {
-    if (updateQueue.isEmpty()) {
-        // Only start an update if one isn't already in progress
-        startProcessingUpdateQueue();
-    } else {
-        // An update is already in progress but a new one has been requested: raise the update pending flag
-        updatePending = true;
-    }
-}
-
-void LauncherDataStore::startProcessingUpdateQueue()
-{
-    updatePending = false;
-    updateQueue.clear();
+    QFileInfoList updateQueue;
     foreach (const QString &directoryPath, directories) {
         updateQueue.append(QDir(directoryPath, FILE_FILTER).entryInfoList(QDir::Files));
     }
-    processUpdateQueueTimer.start();
-}
 
-void LauncherDataStore::processUpdateQueue()
-{
-    // Disconnect listening store changes during the store is updated.
-    disconnect(store, SIGNAL(valueChanged(QString, QVariant)), this, SIGNAL(dataStoreChanged()));
-
-    for (int i = 0; i < FILES_PROCESSED_AT_ONCE && !updateQueue.isEmpty(); i++) {
+    QSet<QSharedPointer<MDesktopEntry> > addedEntries;
+    QHash<QString, QString> addedEntriesData;
+    while (!updateQueue.isEmpty()) {
         QFileInfo fileInfo = updateQueue.takeFirst();
         QString desktopEntryPath(fileInfo.absoluteFilePath());
         QString key = entryPathToKey(desktopEntryPath);
 
+        // Add an entry if it is not yet invalidated or added to store
         if (!invalidEntries.contains(desktopEntryPath) && !store->contains(key)) {
             QSharedPointer<MDesktopEntry> desktopEntry(new MDesktopEntry(desktopEntryPath));
             if (isDesktopEntryValid(*desktopEntry.data(), supportedDesktopEntryFileTypes)) {
-                // Add the entry with an unknown location
-                store->createValue(key, QVariant());
-                emit desktopEntryAdded(desktopEntry);
+                // Add the new entry with an unknown location
+                addedEntriesData.insert(desktopEntryPath, QString());
+                addedEntries.insert(desktopEntry);
             } else {
                 invalidEntries.append(desktopEntryPath);
             }
         }
-
-        addFilePathToWatcher(desktopEntryPath);
     }
 
-    if (updateQueue.isEmpty()) {
-        // When the update queue has been processed remove all non-existent desktop entries
-        QStringList allKeys(store->allKeys());
-        foreach (const QString &key, allKeys) {
-            QString desktopEntryPath = keyToEntryPath(key);
-            if (key.startsWith(KEY_PREFIX) && !QFileInfo(desktopEntryPath).exists()) {
-                store->remove(key);
-                emit desktopEntryRemoved(desktopEntryPath);
-            }
-        }
-
-        // Emit a dataStoreChanged() signal since the contents have changed
-        emit dataStoreChanged();
-
-        if (updatePending) {
-            // If another update is pending start processing the queue again
-            startProcessingUpdateQueue();
-        }
-    } else {
-        // There are still files in the queue: restart the timer
-        processUpdateQueueTimer.start();
+    // Add new entries to store and emit signals about the additions
+    updateDataForDesktopEntries(addedEntriesData);
+    foreach (const QSharedPointer<MDesktopEntry> &desktopEntry, addedEntries) {
+        emit desktopEntryAdded(desktopEntry);
+        addFilePathToWatcher(desktopEntry->fileName());
     }
 
-    // Emit a dataStoreChanged() signal if something changes in the data store during runtime
-    connect(store, SIGNAL(valueChanged(QString, QVariant)), this, SIGNAL(dataStoreChanged()));
+    // When the update queue has been processed remove all non-existent desktop entries
+    QStringList allKeys(store->allKeys());
+    foreach (const QString &key, allKeys) {
+        QString desktopEntryPath = keyToEntryPath(key);
+        if (!key.startsWith(KEY_PREFIX) || !QFileInfo(desktopEntryPath).exists()) {
+            removeDataForDesktopEntry(desktopEntryPath);
+            emit desktopEntryRemoved(desktopEntryPath);
+        }
+    }
+
+    // Emit a dataStoreChanged() signal since the contents have changed
+    emit dataStoreChanged();
 }
 
 bool LauncherDataStore::isDesktopEntryValid(const MDesktopEntry &entry, const QStringList &acceptedTypes)
@@ -255,7 +222,7 @@ void LauncherDataStore::updateDesktopEntry(const QString &desktopEntryPath)
                 emit desktopEntryRemoved(fullPath);
                 invalidEntries.append(fullPath);
             }
-        } else if (!isInQueue(key)) {
+        } else {
             QSharedPointer<MDesktopEntry> desktopEntry(new MDesktopEntry(fullPath));
             if (isDesktopEntryValid(*desktopEntry.data(), supportedDesktopEntryFileTypes)) {
                 // If entry has been invalid before, but is now valid, add entry as a new entry
@@ -265,15 +232,4 @@ void LauncherDataStore::updateDesktopEntry(const QString &desktopEntryPath)
             }
         }
     }
-}
-
-bool LauncherDataStore::isInQueue(const QString &key)
-{
-    bool contains = false;
-    foreach (const QFileInfo &fileInfo, updateQueue) {
-        contains = (fileInfo.absolutePath() == keyToEntryPath(key));
-        if (contains)
-            break;
-    }
-    return contains;
 }

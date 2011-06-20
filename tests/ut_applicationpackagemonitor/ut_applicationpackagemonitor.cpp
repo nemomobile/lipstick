@@ -148,35 +148,6 @@ void Ut_ApplicationPackageMonitor::cleanup()
     delete m_subject;
 }
 
-void Ut_ApplicationPackageMonitor::testUpdatingPackageStates()
-{
-    QStringList expectedStates = QStringList() << ApplicationPackageMonitor::PACKAGE_STATE_INSTALLING
-                                << ApplicationPackageMonitor::PACKAGE_STATE_DOWNLOADING
-                                << ApplicationPackageMonitor::PACKAGE_STATE_BROKEN
-                                << ApplicationPackageMonitor::PACKAGE_STATE_INSTALLED;
-    initializeEntries(4, expectedStates);
-
-    QSignalSpy spyStateUpdate(m_subject, SIGNAL(packageStateUpdated(QSharedPointer<MDesktopEntry>, QString, QString,bool)));
-
-    m_subject->updatePackageStates();
-
-    QCOMPARE(spyStateUpdate.count(), 4);
-
-    // Get expected values to lists as datastore (QHash) sorts the keys (entries) randomly
-    QStringList expectedEntries;
-    QStringList expectedPackageNames;
-    for (int i = 0; i < 4; i++) {
-        expectedEntries << QString(INSTALLER_EXTRA_ENTRY_NAME_TEMPLATE.arg(i));
-        expectedPackageNames << QString(PACKAGE_NAME_TEMPLATE.arg(i));
-    }
-
-    for (int i = 0; i < spyStateUpdate.count(); i++) {
-        QVERIFY(expectedEntries.removeOne(spyStateUpdate.at(i).at(0).value<QSharedPointer<MDesktopEntry> >()->fileName()));
-        QVERIFY(expectedPackageNames.removeOne(spyStateUpdate.at(i).at(1).toString()));
-        QVERIFY(expectedStates.removeOne(spyStateUpdate.at(i).at(2).toString()));
-    }
-}
-
 void Ut_ApplicationPackageMonitor::testUpdatingPackageDataWhenDesktopEntryAdded()
 {
     QString entryPath = INSTALLER_EXTRA_ENTRY_NAME_TEMPLATE.arg(0);

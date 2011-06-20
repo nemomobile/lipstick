@@ -41,29 +41,18 @@ private slots:
     void cleanup();
 
     // Test cases
-    void testUpdateStartedDuringInitialization();
-    void testUpdateStartedWhenApplicationsDirectoryChanges();
-    void testUpdateNotStartedWhenInProgress();
-    void testProcessUpdateQueueDoesNothingWhenQueueEmpty();
-    void testProcessUpdateQueueProcessesNFilesAtATime();
-    void testProcessUpdateQueueFinishesProcessingCorrectly();
-    void testProcessUpdateQueueRemovesDeletedFilesWhenDone();
-    void testProcessUpdateQueueRestartsIfRequested();
-    void testProcessUpdateQueueFiltersDesktopFiles();
+    void testAddingDesktopEntryFiles();
+    void testRemovingDesktopEntryFiles();
+    void testUpdatingDesktopFilesFiltersDesktopEntries();
     void testUpdatingDataForDesktopEntry();
     void testRemovingDataForDesktopEntry();
-    void testOnlyPrefixedKeys();
+    void testRemovingNonPrefixedKeys();
     void testAddingWatcherDesktopEntryPaths();
     void testUpdatingDesktopEntry();
     void testUpdatingInvalidEntry();
     void testRemovingEntriesWhenApplicationsDirectoryGetsEmpty();
     void testNotReprocessingInvalidEntry();
     void testUpdatingMultipleEntries();
-
-signals:
-    void directoryChanged();
-    void timeout();
-    void fileChanged(QString);
 
 private:
     // MApplication

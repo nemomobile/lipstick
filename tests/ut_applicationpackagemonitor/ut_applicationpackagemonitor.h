@@ -42,7 +42,6 @@ private slots:
     void cleanup();
 
     // Test cases
-    void testUpdatingPackageStates();
     void testUpdatingPackageDataWhenDesktopEntryAdded();
     void testUpdatingPackageStateWhenDesktopEntryChanges_data();
     void testUpdatingPackageStateWhenDesktopEntryChanges();

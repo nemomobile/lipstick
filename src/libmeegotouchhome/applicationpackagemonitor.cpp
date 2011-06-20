@@ -82,10 +82,7 @@ void ApplicationPackageMonitor::packageRemoved(const QString &desktopEntryPath)
 
 void ApplicationPackageMonitor::updatePackageStates()
 {
-    foreach (const QString &key, dataStore->allKeys()) {
-        const QSharedPointer<MDesktopEntry> entry(new MDesktopEntry(LauncherDataStore::keyToEntryPath(key)));
-        updatePackageState(entry);
-    }
+    extraDirWatcher->updateDesktopEntryFiles();
 }
 
 void ApplicationPackageMonitor::packageDownloadProgress(const QString &operation,
