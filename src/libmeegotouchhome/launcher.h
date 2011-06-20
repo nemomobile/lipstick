@@ -125,7 +125,7 @@ protected:
      * \param desktopEntryPath The path of the .desktop entry file to create a launcher button from
      * \return a LauncherButton representing the .desktop entry file
      */
-    virtual QSharedPointer<LauncherButton> createLauncherButton(const QString &desktopEntryPath);
+    virtual QSharedPointer<LauncherButton> createLauncherButton(const QSharedPointer<MDesktopEntry> &desktopEntry);
 
     //! Creates a launcher page
     virtual QSharedPointer<LauncherPage> createLauncherPage();
@@ -178,12 +178,12 @@ public slots:
      * Updates the state of a launcher button.
      * Creates a new placeholder button if one doesn't exist for the given desktopentryfile.
      *
-     * \param desktopEntryPath Desktop entry of the package that button represents
+     * \param desktopEntry Desktop entry of the package that button represents
      * \param state State button should be set to
      * \param progress Progress of operation
      * \param packageRemovable is the package represented by this button removable
      */
-    void updateButtonState(const QString& desktopEntryPath, const QString &packageName, const QString &state, bool packageRemovable);
+    void updateButtonState(const QSharedPointer<MDesktopEntry> &desktopEntry, const QString &packageName, const QString &state, bool packageRemovable);
 
     /*!
      * Update progress of a launcher button.
@@ -218,9 +218,9 @@ private slots:
      *
      * If button already exists in launcher then it is updated.
      *
-     * \param desktopEntryPath Path to desktop entry that button should represent
+     * \param desktopEntry Desktop entry for the button
      */
-    void addLauncherButton(const QString &desktopEntryPath);
+    void addLauncherButton(const QSharedPointer<MDesktopEntry> &desktopEntry);
 
     /*!
      * Remove a launcher button from launcher.
@@ -232,11 +232,11 @@ private slots:
     /*!
      * Updates a launcher button from a .desktop entry file.
      *
-     * \param desktopEntryPath Entry the path of the .desktop entry file to update the launcher button from
+     * \param desktopEntry Desktop entry for the button
      *
      * \return Whether button for the desktop entry was found
      */
-    bool updateLauncherButton(const QString &desktopEntryPath);
+    bool updateLauncherButton(const QSharedPointer<MDesktopEntry> &desktopEntry);
 
     /*!
      * Updates pages according to the contents of the data store.
@@ -321,9 +321,9 @@ private:
      * Finds and returns a button that represents the given entry. If button is not yet found in launcher
      * we add a new placeholder button.
      *
-     * \param desktopEntryPath Path to the buttons desktop entry
+     * \param desktopEntry Desktop entry the button should represent
      */
-    QSharedPointer<LauncherButton> placeholderButton(const QString& desktopEntryPath);
+    QSharedPointer<LauncherButton> placeholderButton(const QSharedPointer<MDesktopEntry> &desktopEntry);
 
     /*!
      * Updates button placement to the launcher data store.

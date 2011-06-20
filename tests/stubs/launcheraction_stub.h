@@ -6,6 +6,7 @@ class LauncherActionStub : public StubBase {
     public:
         virtual void LauncherActionConstructor();
         virtual void LauncherActionConstructor(const QString& desktopEntry);
+        virtual void LauncherActionConstructor(const QSharedPointer<MDesktopEntry> &desktopEntry);
 };
 
 // 2. IMPLEMENT STUB
@@ -13,6 +14,10 @@ void LauncherActionStub::LauncherActionConstructor() {
 }
 
 void LauncherActionStub::LauncherActionConstructor(const QString& desktopEntry) {
+    Q_UNUSED(desktopEntry);
+}
+
+void LauncherActionStub::LauncherActionConstructor(const QSharedPointer<MDesktopEntry> &desktopEntry) {
     Q_UNUSED(desktopEntry);
 }
 
@@ -26,6 +31,10 @@ LauncherAction::LauncherAction() {
 }
 
 LauncherAction::LauncherAction(const QString& desktopEntry) {
+    gLauncherActionStub->LauncherActionConstructor(desktopEntry);
+}
+
+LauncherAction::LauncherAction(const QSharedPointer<MDesktopEntry> &desktopEntry) {
     gLauncherActionStub->LauncherActionConstructor(desktopEntry);
 }
 

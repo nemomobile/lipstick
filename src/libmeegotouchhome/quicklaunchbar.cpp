@@ -57,14 +57,15 @@ void QuickLaunchBar::setApplicationPackageMonitor(ApplicationPackageMonitor *pac
 {
     this->packageMonitor = packageMonitor;
 
-    connect(packageMonitor, SIGNAL(packageStateUpdated(QString, QString, QString, bool)),
-        this, SLOT(updateButtonState(QString, QString, QString, bool)));
+    connect(packageMonitor, SIGNAL(packageStateUpdated(QSharedPointer<MDesktopEntry>, QString, QString, bool)),
+        this, SLOT(updateButtonState(QSharedPointer<MDesktopEntry>, QString, QString, bool)));
 }
 
-void QuickLaunchBar::updateButtonState(const QString &desktopEntryPath, const QString &packageName, const QString &state, bool packageRemovable)
+void QuickLaunchBar::updateButtonState(const QSharedPointer<MDesktopEntry> &desktopEntry, const QString &packageName, const QString &state, bool packageRemovable)
 {
     Q_UNUSED(packageName);
     Q_UNUSED(packageRemovable);
+    QString desktopEntryPath(desktopEntry->fileName());
     //If there is a quicklaunch button for desktopEntryPath, update it's state
     QList<QSharedPointer<LauncherButton> > buttons = model()->buttons().values();
     QString entryFileName = QFileInfo(desktopEntryPath).fileName();
@@ -120,7 +121,8 @@ void QuickLaunchBar::updateButtons()
 
 LauncherButton *QuickLaunchBar::createLauncherButton(const QString &desktopEntryPath)
 {
-    LauncherButton *button = new LauncherButton(desktopEntryPath);
+    QSharedPointer<MDesktopEntry> desktopEntry(new MDesktopEntry(desktopEntryPath));
+    LauncherButton *button = new LauncherButton(desktopEntry);
     button->setObjectName("QuickLaunchBarButton");
     connect(button, SIGNAL(clicked()), this, SIGNAL(launcherButtonClicked()));
     return button;

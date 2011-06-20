@@ -16,6 +16,7 @@
 ** of this file.
 **
 ****************************************************************************/
+
 #include "launcherpage.h"
 #include "launcherpagemodel.h"
 #include "launcherpageview.h"
@@ -83,13 +84,13 @@ bool LauncherPage::removeButton(const QString &desktopEntryPath)
     return contains;
 }
 
-bool LauncherPage::updateButton(const QString &desktopEntryPath)
+bool LauncherPage::updateButton(const QSharedPointer<MDesktopEntry> &entry)
 {
     bool contains = false;
-    int buttonPosition = launcherButtonPosition(desktopEntryPath);
+    int buttonPosition = launcherButtonPosition(entry->fileName());
     if (buttonPosition >= 0) {
         contains = true;
-        model()->launcherButtons().at(buttonPosition)->updateFromDesktopEntry(desktopEntryPath);
+        model()->launcherButtons().at(buttonPosition)->updateFromDesktopEntry(entry);
     }
     return contains;
 }

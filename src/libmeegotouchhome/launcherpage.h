@@ -95,7 +95,7 @@ public:
      *
      * \return True if button representing the given desktop entry was found from the page
      */
-    bool updateButton(const QString &desktopEntryPath);
+    bool updateButton(const QSharedPointer<MDesktopEntry> &entry);
 
     /*!
      * Get position of button from launcher page.

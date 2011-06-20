@@ -21,6 +21,8 @@
 #define UT_APPLICATIONPACKAGEMONITOR_H
 
 #include <QObject>
+#include <QSharedPointer>
+#include <MDesktopEntry>
 
 class MApplication;
 class ApplicationPackageMonitor;

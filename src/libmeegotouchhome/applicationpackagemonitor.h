@@ -108,7 +108,7 @@ signals:
      * \param state Package state
      * \param packageRemovable Whether package is removable from launcher
      */
-    void packageStateUpdated(const QString &desktopEntryPath, const QString &packageName, const QString &state, bool packageRemovable);
+    void packageStateUpdated(const QSharedPointer<MDesktopEntry> &, const QString &packageName, const QString &state, bool packageRemovable);
 
 private slots:
     /*!
@@ -127,7 +127,7 @@ private slots:
     /*!
      * Update the cached package information from the given desktop file.
      */
-    void updatePackageState(const QString &desktopEntryPath);
+    void updatePackageState(const QSharedPointer<MDesktopEntry> &entry);
 
     /*!
      * Slot is called when entry from dataStore is removed.
@@ -162,9 +162,9 @@ private:
     /*!
      * Checks whether the package related to desktop entry is removable.
      *
-     *\param desktopEntryPath path that specifies the package.
+     *\param entry Desktop entry to be checked for removability
      */
-    bool isPackageRemovable(const QString &desktopEntryPath);
+    bool isPackageRemovable(const MDesktopEntry *entry);
 
 #ifdef UNIT_TEST
     friend class Ut_ApplicationPackageMonitor;

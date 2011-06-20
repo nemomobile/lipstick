@@ -88,13 +88,12 @@ public slots:
     /*!
      * Finds the correct button based on desktop entry path and updates it's state and operation progress
      *
-     * \param desktopEntryPath Desktop entry of the package that button represents
+     * \param desktopEntry Desktop entry of the package that button represents
      * \param packageName name of the package
      * \param state State button should be set to
      * \param packageRemovable is the package represented by this button removable
      */
-    void updateButtonState(const QString &desktopEntryPath, const QString &packageName, const QString &state, bool packageRemovable);
-
+    void updateButtonState(const QSharedPointer<MDesktopEntry> &desktopEntry, const QString &packageName, const QString &state, bool packageRemovable);
 
     /*!
      * Update progress of a launcher button.

@@ -101,11 +101,12 @@ void Ut_LauncherPage::testUpdateButton()
     m_subject->appendButton(button2);
 
     gLauncherButtonStub->stubSetReturnValue("desktopEntry", QString("my-entry-name-1"));
-    m_subject->updateButton("my-entry-name-updated");
+    QSharedPointer<MDesktopEntry> entry(new MDesktopEntry("my-entry-name-updated"));
+    m_subject->updateButton(entry);
     QCOMPARE(gLauncherButtonStub->stubCallCount("updateFromDesktopEntry"), 0);
 
     gLauncherButtonStub->stubSetReturnValue("desktopEntry", QString("my-entry-name-updated"));
-    m_subject->updateButton("my-entry-name-updated");
+    m_subject->updateButton(entry);
     QCOMPARE(gLauncherButtonStub->stubCallCount("updateFromDesktopEntry"), 1);
 }
 

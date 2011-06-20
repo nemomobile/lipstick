@@ -27,10 +27,10 @@ class ApplicationPackageMonitorStub : public StubBase {
   virtual void packageDownloadProgress(const QString &operation, const QString &packageName, const QString &packageVersion, int already, int total);
   virtual void packageOperationStarted(const QString &operation, const QString &packageName, const QString &packageVersion);
   virtual void packageOperationComplete(const QString &operation, const QString &packageName, const QString &packageVersion, const QString &error, bool need_reboot);
-  virtual void updatePackageState(const QString &desktopEntryPath);
+  virtual void updatePackageState(const QSharedPointer<MDesktopEntry> &desktopEntry);
   virtual void packageRemoved(const QString &desktopEntryPath);
   virtual bool isValidOperation(const QString &desktopEntryPath, const QString &operation);
-  virtual bool isPackageRemovable(const QString &desktopEntryPath);
+  virtual bool isPackageRemovable(const MDesktopEntry *desktopEntry);
 };
 
 // 2. IMPLEMENT STUB
@@ -100,9 +100,9 @@ void ApplicationPackageMonitorStub::packageOperationComplete(const QString &oper
   stubMethodEntered("packageOperationComplete",params);
 }
 
-void ApplicationPackageMonitorStub::updatePackageState(const QString &desktopEntryPath) {
+void ApplicationPackageMonitorStub::updatePackageState(const QSharedPointer<MDesktopEntry> &desktopEntry) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const QString & >(desktopEntryPath));
+  params.append( new Parameter<QSharedPointer<MDesktopEntry> >(desktopEntry));
   stubMethodEntered("updatePackageState",params);
 }
 
@@ -120,9 +120,9 @@ bool ApplicationPackageMonitorStub::isValidOperation(const QString &desktopEntry
   return stubReturnValue<bool>("isValidOperation");
 }
 
-bool ApplicationPackageMonitorStub::isPackageRemovable(const QString &desktopEntryPath) {
+bool ApplicationPackageMonitorStub::isPackageRemovable(const MDesktopEntry *desktopEntry) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const QString & >(desktopEntryPath));
+  params.append( new Parameter<const MDesktopEntry *>(desktopEntry));
   stubMethodEntered("isPackageRemovable",params);
   return stubReturnValue<bool>("isPackageRemovable");
 }
@@ -174,8 +174,8 @@ void ApplicationPackageMonitor::packageOperationComplete(const QString &operatio
   gApplicationPackageMonitorStub->packageOperationComplete(operation, packageName, packageVersion, error, need_reboot);
 }
 
-void ApplicationPackageMonitor::updatePackageState(const QString &desktopEntryPath) {
-  gApplicationPackageMonitorStub->updatePackageState(desktopEntryPath);
+void ApplicationPackageMonitor::updatePackageState(const QSharedPointer<MDesktopEntry> &desktopEntry) {
+  gApplicationPackageMonitorStub->updatePackageState(desktopEntry);
 }
 
 void ApplicationPackageMonitor::packageRemoved(const QString &desktopEntryPath) {
@@ -186,8 +186,8 @@ bool ApplicationPackageMonitor::isValidOperation(const QString &desktopEntryPath
   return gApplicationPackageMonitorStub->isValidOperation(desktopEntryPath, operation);
 }
 
-bool ApplicationPackageMonitor::isPackageRemovable(const QString &desktopEntryPath) {
-  return gApplicationPackageMonitorStub->isPackageRemovable(desktopEntryPath);
+bool ApplicationPackageMonitor::isPackageRemovable(const MDesktopEntry *desktopEntry) {
+  return gApplicationPackageMonitorStub->isPackageRemovable(desktopEntry);
 }
 
 

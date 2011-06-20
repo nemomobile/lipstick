@@ -31,7 +31,7 @@ class QuickLaunchBarStub : public StubBase {
   virtual void QuickLaunchBarDestructor();
   virtual void setLauncherDataStore(LauncherDataStore *dataStore);
   virtual void setApplicationPackageMonitor(ApplicationPackageMonitor *packageMonitor);
-  virtual void updateButtonState(const QString &desktopEntryPath, const QString &packageName, const QString &state, bool packageRemovable);
+  virtual void updateButtonState(const QSharedPointer<MDesktopEntry> &desktopEntry, const QString &packageName, const QString &state, bool packageRemovable);
   virtual void updateButtons();
   virtual LauncherButton * createLauncherButton(const QString &desktopEntryPath);
   virtual QMap<QuickLaunchBar::Placement, QString> createPlacementMap(const QHash<QString, QVariant> &desktopEntryPlacements);
@@ -60,10 +60,10 @@ void QuickLaunchBarStub::setApplicationPackageMonitor(ApplicationPackageMonitor 
     stubMethodEntered("setApplicationPackageMonitor", params);
 }
 
-void QuickLaunchBarStub::updateButtonState(const QString &desktopEntryPath, const QString &packageName, const QString &state, bool packageRemovable)
+void QuickLaunchBarStub::updateButtonState(const QSharedPointer<MDesktopEntry> &desktopEntry, const QString &packageName, const QString &state, bool packageRemovable)
 {
   QList<ParameterBase*> params;
-  params.append( new Parameter<QString>(desktopEntryPath));
+  params.append( new Parameter<QSharedPointer<MDesktopEntry> >(desktopEntry));
   params.append( new Parameter<QString>(packageName));
   params.append( new Parameter<QString>(state));
   params.append( new Parameter<bool>(packageRemovable));
@@ -122,9 +122,9 @@ void QuickLaunchBar::setApplicationPackageMonitor(ApplicationPackageMonitor *pac
   gQuickLaunchBarStub->setApplicationPackageMonitor(packageMonitor);
 }
 
-void QuickLaunchBar::updateButtonState(const QString& desktopEntryPath, const QString &packageName, const QString &state, bool packageRemovable)
+void QuickLaunchBar::updateButtonState(const QSharedPointer<MDesktopEntry> &desktopEntry, const QString &packageName, const QString &state, bool packageRemovable)
 {
-  gQuickLaunchBarStub->updateButtonState(desktopEntryPath, packageName, state, packageRemovable);
+  gQuickLaunchBarStub->updateButtonState(desktopEntry, packageName, state, packageRemovable);
 }
 
 void QuickLaunchBar::updateButtons() {

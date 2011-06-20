@@ -12,9 +12,10 @@
 class LauncherButtonStub : public StubBase {
   public:
   virtual void LauncherButtonConstructor(const QString &desktopEntryPath, MWidget *parent, LauncherButtonModel *model);
+  virtual void LauncherButtonConstructor(const QSharedPointer<MDesktopEntry> &entry, MWidget *parent, LauncherButtonModel *model);
   virtual void LauncherButtonDestructor();
   virtual QString desktopEntry() const;
-  virtual void updateFromDesktopEntry(const QString &desktopEntryPath);
+  virtual void updateFromDesktopEntry(const QSharedPointer<MDesktopEntry> &desktopEntry);
   virtual void retranslateUi();
   virtual void launch();
   virtual void stopLaunchProgress();
@@ -36,6 +37,12 @@ void LauncherButtonStub::LauncherButtonConstructor(const QString &desktopEntryPa
   Q_UNUSED(model);
 }
 
+void LauncherButtonStub::LauncherButtonConstructor(const QSharedPointer<MDesktopEntry> &entry, MWidget *parent, LauncherButtonModel *model) {
+  Q_UNUSED(entry);
+  Q_UNUSED(parent);
+  Q_UNUSED(model);
+}
+
 void LauncherButtonStub::LauncherButtonDestructor() {
 
 }
@@ -45,9 +52,9 @@ QString LauncherButtonStub::desktopEntry() const {
   return stubReturnValue<QString>("desktopEntry");
 }
 
-void LauncherButtonStub::updateFromDesktopEntry(const QString &desktopEntryPath) {
+void LauncherButtonStub::updateFromDesktopEntry(const QSharedPointer<MDesktopEntry> &desktopEntry) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<QString >(desktopEntryPath));
+  params.append( new Parameter<QSharedPointer<MDesktopEntry> >(desktopEntry));
   stubMethodEntered("updateFromDesktopEntry",params);
 }
 
@@ -124,6 +131,10 @@ LauncherButton::LauncherButton(const QString &desktopEntryPath, MWidget *parent,
   gLauncherButtonStub->LauncherButtonConstructor(desktopEntryPath, parent, model);
 }
 
+LauncherButton::LauncherButton(const QSharedPointer<MDesktopEntry> &entry, MWidget *parent, LauncherButtonModel *model) {
+  gLauncherButtonStub->LauncherButtonConstructor(entry, parent, model);
+}
+
 LauncherButton::~LauncherButton() {
   gLauncherButtonStub->LauncherButtonDestructor();
 }
@@ -132,8 +143,8 @@ QString LauncherButton::desktopEntry() const {
   return gLauncherButtonStub->desktopEntry();
 }
 
-void LauncherButton::updateFromDesktopEntry(const QString &desktopEntryPath) {
-  gLauncherButtonStub->updateFromDesktopEntry(desktopEntryPath);
+void LauncherButton::updateFromDesktopEntry(const QSharedPointer<MDesktopEntry> &desktopEntry) {
+  gLauncherButtonStub->updateFromDesktopEntry(desktopEntry);
 }
 
 void LauncherButton::retranslateUi() {

@@ -26,6 +26,8 @@
 #include "ut_launcherdatastore.h"
 #include "homefiledatastore_stub.h"
 
+Q_DECLARE_METATYPE(QSharedPointer<MDesktopEntry>)
+
 // MDesktopEntry stubs (used by Launcher)
 QMap<const MDesktopEntry *, QString> desktopEntryFileName;
 QMap<QString, QStringList> desktopEntryCategories;
@@ -188,6 +190,8 @@ void QTimer::start()
 
 void Ut_LauncherDataStore::initTestCase()
 {
+    qRegisterMetaType<QSharedPointer<MDesktopEntry> >();
+
     static int argc = 1;
     static char *app_name[1] = { (char *) "./ut_launcherdatastore" };
     app = new MApplication(argc, app_name);
@@ -294,7 +298,7 @@ void Ut_LauncherDataStore::testProcessUpdateQueueProcessesNFilesAtATime()
     addDesktopEntry("testApplication3.desktop", "Test3", "Application", "Icon-camera", "test3");
     addDesktopEntry("testApplication4.desktop", "Test4", "Application", "Icon-camera", "test4");
     LauncherDataStore dataStore(mockStore, QStringList() << APPLICATIONS_DIRECTORY);
-    QSignalSpy spyDesktopEntryAdded(&dataStore, SIGNAL(desktopEntryAdded(QString)));
+    QSignalSpy spyDesktopEntryAdded(&dataStore, SIGNAL(desktopEntryAdded(QSharedPointer<MDesktopEntry>)));
     QSignalSpy spyDataStoreChanged(&dataStore, SIGNAL(dataStoreChanged()));
     connect(this, SIGNAL(timeout()), &dataStore, SLOT(processUpdateQueue()));
     emit timeout();
@@ -317,7 +321,7 @@ void Ut_LauncherDataStore::testProcessUpdateQueueFinishesProcessingCorrectly()
     addDesktopEntry("testApplication3.desktop", "Test3", "Application", "Icon-camera", "test3");
     addDesktopEntry("testApplication4.desktop", "Test4", "Application", "Icon-camera", "test4");
     LauncherDataStore dataStore(mockStore, QStringList() << APPLICATIONS_DIRECTORY);
-    QSignalSpy spyDesktopEntryAdded(&dataStore, SIGNAL(desktopEntryAdded(QString)));
+    QSignalSpy spyDesktopEntryAdded(&dataStore, SIGNAL(desktopEntryAdded(QSharedPointer<MDesktopEntry>)));
     QSignalSpy spyDataStoreChanged(&dataStore, SIGNAL(dataStoreChanged()));
     connect(this, SIGNAL(timeout()), &dataStore, SLOT(processUpdateQueue()));
     emit timeout();
@@ -329,10 +333,10 @@ void Ut_LauncherDataStore::testProcessUpdateQueueFinishesProcessingCorrectly()
     QHash<QString, QVariant> data = dataStore.dataForAllDesktopEntries();
     QCOMPARE(data.count(), 4);
     QCOMPARE(spyDesktopEntryAdded.count(), 4);
-    QCOMPARE(spyDesktopEntryAdded.takeFirst().at(0).toString(), QString(fileNameWithPath("testApplication1.desktop")));
-    QCOMPARE(spyDesktopEntryAdded.takeFirst().at(0).toString(), QString(fileNameWithPath("testApplication2.desktop")));
-    QCOMPARE(spyDesktopEntryAdded.takeFirst().at(0).toString(), QString(fileNameWithPath("testApplication3.desktop")));
-    QCOMPARE(spyDesktopEntryAdded.takeFirst().at(0).toString(), QString(fileNameWithPath("testApplication4.desktop")));
+    QCOMPARE(spyDesktopEntryAdded.takeFirst().at(0).value<QSharedPointer<MDesktopEntry> >()->fileName(), QString(fileNameWithPath("testApplication1.desktop")));
+    QCOMPARE(spyDesktopEntryAdded.takeFirst().at(0).value<QSharedPointer<MDesktopEntry> >()->fileName(), QString(fileNameWithPath("testApplication2.desktop")));
+    QCOMPARE(spyDesktopEntryAdded.takeFirst().at(0).value<QSharedPointer<MDesktopEntry> >()->fileName(), QString(fileNameWithPath("testApplication3.desktop")));
+    QCOMPARE(spyDesktopEntryAdded.takeFirst().at(0).value<QSharedPointer<MDesktopEntry> >()->fileName(), QString(fileNameWithPath("testApplication4.desktop")));
 
     // Since there are no items remaining the timer should not be started and dataStoreChanged() should be emitted
     QVERIFY(!qTimerStarted);
@@ -400,14 +404,14 @@ void Ut_LauncherDataStore::testProcessUpdateQueueFiltersDesktopFiles()
     desktopEntryNotShowIn.insert(fileNameWithPath("notShowInMeeGoApplication.desktop"), QStringList() << "X-MeeGo");
 
     LauncherDataStore dataStore(mockStore, QStringList() << APPLICATIONS_DIRECTORY);
-    QSignalSpy spyDesktopEntryAdded(&dataStore, SIGNAL(desktopEntryAdded(QString)));
+    QSignalSpy spyDesktopEntryAdded(&dataStore, SIGNAL(desktopEntryAdded(QSharedPointer<MDesktopEntry>)));
     connect(this, SIGNAL(timeout()), &dataStore, SLOT(processUpdateQueue()));
     emit timeout();
     emit timeout();
 
     QCOMPARE(spyDesktopEntryAdded.count(), 2);
-    QCOMPARE(spyDesktopEntryAdded.takeFirst().at(0).toString(), QString(fileNameWithPath("regularApplication.desktop")));
-    QCOMPARE(spyDesktopEntryAdded.takeFirst().at(0).toString(), QString(fileNameWithPath("onlyShowInMeeGoApplication.desktop")));
+    QCOMPARE(spyDesktopEntryAdded.takeFirst().at(0).value<QSharedPointer<MDesktopEntry> >()->fileName(), QString(fileNameWithPath("regularApplication.desktop")));
+    QCOMPARE(spyDesktopEntryAdded.takeFirst().at(0).value<QSharedPointer<MDesktopEntry> >()->fileName(), QString(fileNameWithPath("onlyShowInMeeGoApplication.desktop")));
     QCOMPARE(dataStore.invalidEntries.count(), 3);
 
     // The data store should contain two entries and the default value should be empty
@@ -534,7 +538,7 @@ void Ut_LauncherDataStore::testUpdatingDesktopEntry()
     emit timeout();
     emit timeout();
 
-    QSignalSpy spyDesktopEntryChanged(&dataStore, SIGNAL(desktopEntryChanged(QString)));
+    QSignalSpy spyDesktopEntryChanged(&dataStore, SIGNAL(desktopEntryChanged(QSharedPointer<MDesktopEntry>)));
     QSignalSpy spyDataStoreChanged(&dataStore, SIGNAL(dataStoreChanged()));
     connect(this, SIGNAL(fileChanged(QString)), &dataStore, SLOT(updateDesktopEntry(QString)));
     emit fileChanged(fileNameWithPath("testApplication0.desktop"));
@@ -546,10 +550,10 @@ void Ut_LauncherDataStore::testUpdatingDesktopEntry()
     // No data store change when entry is just updated
     QCOMPARE(spyDataStoreChanged.count(), 0);
     QCOMPARE(spyDesktopEntryChanged.count(), 4);
-    QCOMPARE(spyDesktopEntryChanged.at(0).at(0).toString(), QString(fileNameWithPath("testApplication0.desktop")));
-    QCOMPARE(spyDesktopEntryChanged.at(1).at(0).toString(), QString(fileNameWithPath("testApplication1.desktop", "/test/directory1/")));
-    QCOMPARE(spyDesktopEntryChanged.at(2).at(0).toString(), QString(fileNameWithPath("testApplication2.desktop", "/test/directory2/")));
-    QCOMPARE(spyDesktopEntryChanged.at(3).at(0).toString(), QString(fileNameWithPath("testApplication3.desktop", "/test/directory2/")));
+    QCOMPARE(spyDesktopEntryChanged.at(0).at(0).value<QSharedPointer<MDesktopEntry> >()->fileName(), QString(fileNameWithPath("testApplication0.desktop")));
+    QCOMPARE(spyDesktopEntryChanged.at(1).at(0).value<QSharedPointer<MDesktopEntry> >()->fileName(), QString(fileNameWithPath("testApplication1.desktop", "/test/directory1/")));
+    QCOMPARE(spyDesktopEntryChanged.at(2).at(0).value<QSharedPointer<MDesktopEntry> >()->fileName(), QString(fileNameWithPath("testApplication2.desktop", "/test/directory2/")));
+    QCOMPARE(spyDesktopEntryChanged.at(3).at(0).value<QSharedPointer<MDesktopEntry> >()->fileName(), QString(fileNameWithPath("testApplication3.desktop", "/test/directory2/")));
 }
 
 void Ut_LauncherDataStore::testUpdatingInvalidEntry()
@@ -563,7 +567,7 @@ void Ut_LauncherDataStore::testUpdatingInvalidEntry()
 
     // connect signals only after entries have been added first time
     QSignalSpy spyDataStoreChanged(&dataStore, SIGNAL(dataStoreChanged()));
-    QSignalSpy spyDesktopEntryAdded(&dataStore, SIGNAL(desktopEntryAdded(QString)));
+    QSignalSpy spyDesktopEntryAdded(&dataStore, SIGNAL(desktopEntryAdded(QSharedPointer<MDesktopEntry>)));
     QSignalSpy spyDesktopEntryRemoved(&dataStore, SIGNAL(desktopEntryRemoved(QString)));
 
     // change to valid and send changed
@@ -571,7 +575,7 @@ void Ut_LauncherDataStore::testUpdatingInvalidEntry()
     emit fileChanged(fileNameWithPath("invalidAndValidApplication.desktop"));
 
     QCOMPARE(spyDesktopEntryAdded.count(), 1);
-    QCOMPARE(spyDesktopEntryAdded.takeFirst().at(0).toString(), QString(fileNameWithPath("invalidAndValidApplication.desktop")));
+    QCOMPARE(spyDesktopEntryAdded.takeFirst().at(0).value<QSharedPointer<MDesktopEntry> >()->fileName(), QString(fileNameWithPath("invalidAndValidApplication.desktop")));
     QCOMPARE(spyDataStoreChanged.count(), 1);
     QVERIFY(!dataStore.invalidEntries.contains(fileNameWithPath("invalidAndValidApplication.desktop")));
 

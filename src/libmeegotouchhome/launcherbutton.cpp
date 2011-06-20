@@ -29,9 +29,19 @@ M_REGISTER_WIDGET(LauncherButton)
 LauncherButton::LauncherButton(const QString &desktopEntryPath, MWidget *parent, LauncherButtonModel *model) :
         MButton(parent, model)
 {
+    QSharedPointer<MDesktopEntry> entry(new MDesktopEntry(desktopEntryPath));
+
     init();
 
-    updateFromDesktopEntry(desktopEntryPath);
+    updateFromDesktopEntry(entry);
+}
+
+LauncherButton::LauncherButton(const QSharedPointer<MDesktopEntry> &entry, MWidget *parent, LauncherButtonModel *model) :
+        MButton(parent, model)
+{
+    init();
+
+    updateFromDesktopEntry(entry);
 }
 
 LauncherButton::~LauncherButton()
@@ -90,11 +100,10 @@ void LauncherButton::retranslateUi()
     MButton::retranslateUi();
 }
 
-void LauncherButton::updateFromDesktopEntry(const QString &desktopEntryPath)
+void LauncherButton::updateFromDesktopEntry(const QSharedPointer<MDesktopEntry> &entry)
 {
-    QSharedPointer<MDesktopEntry> entry(new MDesktopEntry(desktopEntryPath));
     setText(entry->name());
-    action = LauncherAction(desktopEntryPath);
+    action = LauncherAction(entry);
     model()->setDesktopEntry(entry);
 }
 

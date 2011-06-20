@@ -25,7 +25,12 @@ LauncherAction::LauncherAction()
 }
 
 LauncherAction::LauncherAction(const QString& desktopEntry)
-    : Action(Action::defaultActionForFile(desktopEntry, "application/x-desktop"))
+    : Action(Action::launcherAction(desktopEntry, QStringList()))
+{
+}
+
+LauncherAction::LauncherAction(const QSharedPointer<MDesktopEntry> &desktopEntry)
+    : Action(Action::launcherAction(desktopEntry, QStringList()))
 {
 }
 

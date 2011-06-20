@@ -29,6 +29,7 @@
 #include "mdesktopentry_stub.h"
 #include <QDBusMessage>
 #include <QDBusAbstractInterface>
+#include "launcheraction.h"
 
 #include "launcherbuttonmodel.h"
 Q_DECLARE_METATYPE(LauncherButtonModel::State);
@@ -191,24 +192,6 @@ using namespace ContentAction;
 QString language;
 QMap< QString, QSharedPointer<ActionPrivate> > contentActionPrivate;
 
-// LauncherAction stubs (used by LauncherButton)
-LauncherAction::LauncherAction()
-    : Action()
-{
-}
-
-LauncherAction::LauncherAction(const QString& desktopEntry)
-    : Action(Action::defaultActionForFile(desktopEntry, ""))
-{
-}
-
-bool operator!=(const LauncherAction &a, const LauncherAction &b)
-{
-    Q_UNUSED(a);
-    Q_UNUSED(b);
-    return true;
-}
-
 // ContentAction stubs (used by LauncherAction)
 struct ContentAction::ActionPrivate
 {
@@ -257,13 +240,25 @@ Action::~Action()
 {
 }
 
-Action Action::defaultActionForFile(const QUrl& fileUri, const QString& mimeType)
+Action Action::launcherAction(const QString& desktopEntry, const QStringList& params)
 {
-    Q_UNUSED(mimeType);
+    Q_UNUSED(params);
 
-    QString fileName = fileUri.toString();
     QSharedPointer<ActionPrivate> priv =
-       contentActionPrivate.value(fileName);
+       contentActionPrivate.value(desktopEntry);
+
+    Action action;
+    action.d = priv;
+
+    return action;
+}
+
+Action Action::launcherAction(QSharedPointer<MDesktopEntry> desktopEntry, const QStringList& params)
+{
+    Q_UNUSED(params);
+
+    QSharedPointer<ActionPrivate> priv =
+       contentActionPrivate.value(desktopEntry->fileName());
 
     Action action;
     action.d = priv;

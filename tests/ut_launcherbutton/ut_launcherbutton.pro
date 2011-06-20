@@ -7,7 +7,8 @@ MODEL_HEADERS += $$SRCDIR/launcherbuttonmodel.h
 SOURCES += \
     ut_launcherbutton.cpp \
     $$SRCDIR/launcherbutton.cpp \
-    $$SRCDIR/windowinfo.cpp
+    $$SRCDIR/windowinfo.cpp \
+    $$SRCDIR/launcheraction.cpp
 
 # base classes
 SOURCES += \
@@ -22,6 +23,7 @@ HEADERS += \
     $$SRCDIR/homewindowmonitor.h \
     $$SRCDIR/windowinfo.h \
     $$SRCDIR/x11wrapper.h \
-    $$SRCDIR/windowmonitor.h
+    $$SRCDIR/windowmonitor.h \
+    $$SRCDIR/launcheraction.h
 
 include(../common_bot.pri)

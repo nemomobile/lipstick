@@ -65,8 +65,8 @@ ApplicationPackageMonitor::ApplicationPackageMonitor()
     // ExtraDirWatcher takes ownership of dataStore
     extraDirWatcher = QSharedPointer<ExtraDirWatcher>(new ExtraDirWatcher(dataStore, QStringList() << (APPLICATIONS_DIRECTORY+INSTALLER_EXTRA_FOLDER)));
 
-    connect(extraDirWatcher.data(), SIGNAL(desktopEntryAdded(QString)), this, SLOT(updatePackageState(QString)), Qt::UniqueConnection);
-    connect(extraDirWatcher.data(), SIGNAL(desktopEntryChanged(QString)), this, SLOT(updatePackageState(QString)), Qt::UniqueConnection);
+    connect(extraDirWatcher.data(), SIGNAL(desktopEntryAdded(QSharedPointer<MDesktopEntry>)), this, SLOT(updatePackageState(QSharedPointer<MDesktopEntry>)), Qt::UniqueConnection);
+    connect(extraDirWatcher.data(), SIGNAL(desktopEntryChanged(QSharedPointer<MDesktopEntry>)), this, SLOT(updatePackageState(QSharedPointer<MDesktopEntry>)), Qt::UniqueConnection);
     connect(extraDirWatcher.data(), SIGNAL(desktopEntryRemoved(QString)), this, SLOT(packageRemoved(QString)), Qt::UniqueConnection);
 }
 
@@ -83,7 +83,8 @@ void ApplicationPackageMonitor::packageRemoved(const QString &desktopEntryPath)
 void ApplicationPackageMonitor::updatePackageStates()
 {
     foreach (const QString &key, dataStore->allKeys()) {
-        updatePackageState(LauncherDataStore::keyToEntryPath(key));
+        const QSharedPointer<MDesktopEntry> entry(new MDesktopEntry(LauncherDataStore::keyToEntryPath(key)));
+        updatePackageState(entry);
     }
 }
 
@@ -108,7 +109,8 @@ void ApplicationPackageMonitor::packageOperationStarted(const QString &operation
     Q_UNUSED(version)
     QString desktopEntryPath = LauncherDataStore::keyToEntryPath(dataStore->key(packageName));
     if (!desktopEntryPath.isEmpty() && operation.compare(OPERATION_UNINSTALL, Qt::CaseInsensitive) == 0) {
-        emit packageStateUpdated(desktopEntryPath, packageName, PACKAGE_STATE_UNINSTALLING, true);
+        const QSharedPointer<MDesktopEntry> entry(new MDesktopEntry(desktopEntryPath));
+        emit packageStateUpdated(entry, packageName, PACKAGE_STATE_UNINSTALLING, true);
     }
 }
 
@@ -122,14 +124,16 @@ void ApplicationPackageMonitor::packageOperationComplete(const QString &operatio
     Q_UNUSED(need_reboot)
 
     QString desktopEntryPath = LauncherDataStore::keyToEntryPath(dataStore->key(packageName));
+
     if (!isValidOperation(desktopEntryPath, operation)) {
         return;
     }
 
+    const QSharedPointer<MDesktopEntry> entry(new MDesktopEntry(desktopEntryPath));
     if (!error.isEmpty()) {
-        updatePackageState(desktopEntryPath);
+        updatePackageState(entry);
     } else {
-        emit packageStateUpdated(desktopEntryPath, packageName, PACKAGE_STATE_INSTALLED, isPackageRemovable(desktopEntryPath));
+        emit packageStateUpdated(entry, packageName, PACKAGE_STATE_INSTALLED, isPackageRemovable(entry.data()));
     }
 }
 
@@ -145,32 +149,21 @@ bool ApplicationPackageMonitor::isValidOperation(const QString &desktopEntryPath
     }
 }
 
-bool ApplicationPackageMonitor::isPackageRemovable(const QString &desktopEntryPath)
+bool ApplicationPackageMonitor::isPackageRemovable(const MDesktopEntry *entry)
 {
-    MDesktopEntry entry(desktopEntryPath);
-    QString removable= entry.value(ExtraDirWatcher::DESKTOP_ENTRY_GROUP_MEEGO, ExtraDirWatcher::DESKTOP_ENTRY_KEY_PACKAGE_REMOVABLE);
+    QString removable= entry->value(ExtraDirWatcher::DESKTOP_ENTRY_GROUP_MEEGO, ExtraDirWatcher::DESKTOP_ENTRY_KEY_PACKAGE_REMOVABLE);
     return removable == "true" || removable.isEmpty();
 }
 
-void ApplicationPackageMonitor::updatePackageState(const QString &desktopEntryPath)
+void ApplicationPackageMonitor::updatePackageState(const QSharedPointer<MDesktopEntry> &entry)
 {
-    MDesktopEntry entry(desktopEntryPath);
-
-    QString packageName = entry.value(ExtraDirWatcher::DESKTOP_ENTRY_GROUP_MEEGO, ExtraDirWatcher::DESKTOP_ENTRY_KEY_PACKAGE_NAME);
-    QString packageState = entry.value(ExtraDirWatcher::DESKTOP_ENTRY_GROUP_MEEGO, ExtraDirWatcher::DESKTOP_ENTRY_KEY_PACKAGE_STATE);
-    bool packageHadError = entry.value(ExtraDirWatcher::DESKTOP_ENTRY_GROUP_MEEGO, ExtraDirWatcher::DESKTOP_ENTRY_KEY_PACKAGE_HAD_ERROR) == "true";
-
-    bool packageRemovable;
-    QString removable= entry.value(ExtraDirWatcher::DESKTOP_ENTRY_GROUP_MEEGO, ExtraDirWatcher::DESKTOP_ENTRY_KEY_PACKAGE_REMOVABLE);
-    packageRemovable = removable == "true" || removable.isEmpty();
-
-    if (packageHadError)
-      packageState = PACKAGE_STATE_BROKEN;
+    QString packageName = entry->value(ExtraDirWatcher::DESKTOP_ENTRY_GROUP_MEEGO, ExtraDirWatcher::DESKTOP_ENTRY_KEY_PACKAGE_NAME);
+    QString packageState = entry->value(ExtraDirWatcher::DESKTOP_ENTRY_GROUP_MEEGO, ExtraDirWatcher::DESKTOP_ENTRY_KEY_PACKAGE_STATE);
 
     if (!packageName.isEmpty()) {
-        emit packageStateUpdated(desktopEntryPath, packageName, packageState, packageRemovable);
+        emit packageStateUpdated(entry, packageName, packageState, isPackageRemovable(entry.data()));
 
-        extraDirWatcher->updateDataForDesktopEntry(desktopEntryPath, packageName);
+        extraDirWatcher->updateDataForDesktopEntry(entry->fileName(), packageName);
     }
 }
 

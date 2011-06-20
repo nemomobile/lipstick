@@ -120,18 +120,18 @@ signals:
      * \brief A signal for informing that the contents of the data store have changed.
      */
     void dataStoreChanged();
-    
+
     /*!
      * \brief A signal for informing that the contents of a desktop entry have changed.
      */
-    void desktopEntryChanged(const QString &);
+    void desktopEntryChanged(const QSharedPointer<MDesktopEntry> &);
 
     /*!
      * A signal for informing that the a new entry has been added.
      *
      * Added desktop entry path as parameter.
      */
-    void desktopEntryAdded(const QString &);
+    void desktopEntryAdded(const QSharedPointer<MDesktopEntry> &);
 
     /*!
      * A signal for informing that the a entry has been removed.

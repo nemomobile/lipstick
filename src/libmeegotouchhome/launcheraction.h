@@ -21,6 +21,7 @@
 #define LAUNCHERACTION_H
 
 #include <contentaction.h>
+#include <MDesktopEntry>
 
 /*!
  * A convenience wrapper around libcontentaction's ContentAction::Action.
@@ -43,10 +44,18 @@ class LauncherAction : public ContentAction::Action
         /*!
          * Constructs a LauncherAction object from a given .desktop file.
          *
-         * \param dekstopEntry Path to the .desktop file to initialize
+         * \param desktopEntry Path to the .desktop file to initialize
          * the action for.
          */
-        LauncherAction(const QString& dekstopEntry);
+        LauncherAction(const QString& desktopEntry);
+
+        /*!
+         * Constructs a LauncherAction object from a given .desktop file.
+         *
+         * \param desktopEntry The parsed desktop entry object to initialize
+         * the action for.
+         */
+        LauncherAction(const QSharedPointer<MDesktopEntry> &desktopEntry);
 };
 
 //! Comparison operator for LauncherAction objects
