@@ -27,49 +27,9 @@
 #include <MCancelEvent>
 #include <MSceneManager>
 #include "switcherbuttonview.h"
+#include "switcherbuttonviewxeventlistener.h"
 #include "switcherbutton.h"
-#include "xeventlistener.h"
 #include "x11wrapper.h"
-
-/*!
- * An X event listener for the switcher button view. Reacts to visibility
- * notify events.
- */
-class SwitcherButtonViewXEventListener : public XEventListener
-{
-    //! The SwitcherButtonView object that owns this listener
-    SwitcherButtonView &parent;
-
-public:
-    /*!
-     * Constructs a new listener for switcher button view.
-     * \param parent the owner of this object.
-     */
-    SwitcherButtonViewXEventListener(SwitcherButtonView &parent) :
-            parent(parent)
-    {
-    }
-
-    /*!
-     * Destructor.
-     */
-    virtual ~SwitcherButtonViewXEventListener()
-    {
-    }
-
-    //! \reimp
-    virtual bool handleXEvent(const XEvent &event)
-    {
-        bool handled = false;
-
-        if (event.type == VisibilityNotify && event.xvisibility.state == VisibilityFullyObscured && event.xvisibility.send_event == True) {
-            handled = parent.windowFullyObscured(event.xvisibility.window);
-        }
-
-        return handled;
-    }
-    //! \reimp_end
-};
 
 #ifdef Q_WS_X11
 unsigned char SwitcherButtonView::xErrorCode = Success;

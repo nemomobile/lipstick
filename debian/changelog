@@ -1,6 +1,7 @@
 meegotouchhome (1.1.2~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Changes: Enabler to fix 255416
 
  -- Eetu Lehmusvuo <ext-eetu.6.lehmusvuo@nokia.com>  Mon, 13 Jun 2011 09:19:43 +0300
 

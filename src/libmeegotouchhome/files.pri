@@ -65,7 +65,8 @@ HEADERS += homeapplication.h \
     launcherbuttonprogressindicatormodel.h \
     extradirwatcher.h \
     homefiledatastore.h \
-    homefiledatastore_p.h
+    homefiledatastore_p.h \
+    switcherbuttonviewxeventlistener.h
 SOURCES += homeapplication.cpp \
     windowinfo.cpp \
     home.cpp \
