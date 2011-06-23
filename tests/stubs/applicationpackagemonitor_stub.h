@@ -31,6 +31,7 @@ class ApplicationPackageMonitorStub : public StubBase {
   virtual void packageRemoved(const QString &desktopEntryPath);
   virtual bool isValidOperation(const QString &desktopEntryPath, const QString &operation);
   virtual bool isPackageRemovable(const MDesktopEntry *desktopEntry);
+  virtual void packageOperationProgress(const QString &operation, const QString &packageName, const QString &packageVersion, int percentage);
 };
 
 // 2. IMPLEMENT STUB
@@ -127,6 +128,15 @@ bool ApplicationPackageMonitorStub::isPackageRemovable(const MDesktopEntry *desk
   return stubReturnValue<bool>("isPackageRemovable");
 }
 
+void ApplicationPackageMonitorStub::packageOperationProgress(const QString &operation, const QString &packageName, const QString &packageVersion, int percentage) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<QString>(operation));
+  params.append( new Parameter<QString>(packageName));
+  params.append( new Parameter<QString>(packageVersion));
+  params.append( new Parameter<int>(percentage));
+  stubMethodEntered("packageOperationProgress",params);
+}
+
 
 // 3. CREATE A STUB INSTANCE
 ApplicationPackageMonitorStub gDefaultApplicationPackageMonitorStub;
@@ -190,5 +200,8 @@ bool ApplicationPackageMonitor::isPackageRemovable(const MDesktopEntry *desktopE
   return gApplicationPackageMonitorStub->isPackageRemovable(desktopEntry);
 }
 
+void ApplicationPackageMonitor::packageOperationProgress(const QString &operation, const QString &packageName, const QString &packageVersion, int percentage) {
+  gApplicationPackageMonitorStub->packageOperationProgress(operation, packageName, packageVersion, percentage);
+}
 
 #endif

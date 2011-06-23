@@ -53,7 +53,8 @@ ApplicationPackageMonitor::ApplicationPackageMonitor()
                     this, SLOT(packageOperationStarted(const QString&, const QString&, const QString&)));
     con.connect(QString(),PACKAGE_MANAGER_DBUS_PATH, PACKAGE_MANAGER_DBUS_INTERFACE, "operation_complete",
                     this, SLOT(packageOperationComplete(const QString&, const QString&, const QString&, const QString&, bool)));
-
+    con.connect(QString(),PACKAGE_MANAGER_DBUS_PATH, PACKAGE_MANAGER_DBUS_INTERFACE, "operation_progress",
+                    this, SLOT(packageOperationProgress(const QString&, const QString &, const QString&, int)));
     QString configPath = QDir::homePath() + CONFIG_PATH;
 
     if (!QDir::root().exists(configPath)) {
@@ -96,6 +97,21 @@ void ApplicationPackageMonitor::packageDownloadProgress(const QString &operation
     QString desktopEntryPath = LauncherDataStore::keyToEntryPath(dataStore->key(packageName));
     if (isValidOperation(desktopEntryPath, operation)) {
         emit downloadProgressUpdated(desktopEntryPath, already, total);
+    }
+}
+
+void ApplicationPackageMonitor::packageOperationProgress(const QString &operation,
+                                const QString &packageName,
+                                const QString &packageVersion,
+                                int percentage)
+{
+    Q_UNUSED(packageVersion)
+    Q_UNUSED(percentage)
+
+    QString desktopEntryPath = LauncherDataStore::keyToEntryPath(dataStore->key(packageName));
+    if (isValidOperation(desktopEntryPath, operation)) {
+        const QSharedPointer<MDesktopEntry> entry(new MDesktopEntry(desktopEntryPath));
+        emit packageStateUpdated(entry, packageName, PACKAGE_STATE_INSTALLING, isPackageRemovable(entry.data()));
     }
 }
 
@@ -148,7 +164,7 @@ bool ApplicationPackageMonitor::isValidOperation(const QString &desktopEntryPath
 
 bool ApplicationPackageMonitor::isPackageRemovable(const MDesktopEntry *entry)
 {
-    QString removable= entry->value(ExtraDirWatcher::DESKTOP_ENTRY_GROUP_MEEGO, ExtraDirWatcher::DESKTOP_ENTRY_KEY_PACKAGE_REMOVABLE);
+    QString removable = entry->value(ExtraDirWatcher::DESKTOP_ENTRY_GROUP_MEEGO, ExtraDirWatcher::DESKTOP_ENTRY_KEY_PACKAGE_REMOVABLE);
     return removable == "true" || removable.isEmpty();
 }
 

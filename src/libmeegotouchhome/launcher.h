@@ -180,7 +180,6 @@ public slots:
      *
      * \param desktopEntry Desktop entry of the package that button represents
      * \param state State button should be set to
-     * \param progress Progress of operation
      * \param packageRemovable is the package represented by this button removable
      */
     void updateButtonState(const QSharedPointer<MDesktopEntry> &desktopEntry, const QString &packageName, const QString &state, bool packageRemovable);

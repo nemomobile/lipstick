@@ -139,6 +139,8 @@ void LauncherDataStore::updateDesktopEntryFiles()
             } else {
                 invalidEntries.append(desktopEntryPath);
             }
+
+            addFilePathToWatcher(desktopEntry->fileName());
         }
     }
 
@@ -146,7 +148,6 @@ void LauncherDataStore::updateDesktopEntryFiles()
     updateDataForDesktopEntries(addedEntriesData);
     foreach (const QSharedPointer<MDesktopEntry> &desktopEntry, addedEntries) {
         emit desktopEntryAdded(desktopEntry);
-        addFilePathToWatcher(desktopEntry->fileName());
     }
 
     // When the update queue has been processed remove all non-existent desktop entries

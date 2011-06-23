@@ -125,6 +125,11 @@ private slots:
     void packageOperationComplete(const QString& operation, const QString& packageName, const QString& packageVersion, const QString& error, bool need_reboot);
 
     /*!
+     * This is only needed to workaround bug #268255.
+     */
+    void packageOperationProgress(const QString &operation, const QString &packageName, const QString &packageVersion, int percentage);
+
+    /*!
      * Update the cached package information from the given desktop file.
      */
     void updatePackageState(const QSharedPointer<MDesktopEntry> &entry);
