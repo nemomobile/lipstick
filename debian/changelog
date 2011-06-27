@@ -1,9 +1,10 @@
 meegotouchhome (1.1.2~1) unstable; urgency=low
 
-  * [UNRELEASED]
+  * [UNRELEASED] 
   * Changes: Enabler to fix 255416
+  * Changes: Make virtual removeLauncherButton in launcher
 
- -- Eetu Lehmusvuo <ext-eetu.6.lehmusvuo@nokia.com>  Mon, 13 Jun 2011 09:19:43 +0300
+ -- Sachin Kundu <ext-sachin.kundu@nokia.com>  Mon, 27 Jun 2011 09:19:43 +0300
 
 meegotouchhome (1.1.1-1) unstable; urgency=low
 
