@@ -79,6 +79,8 @@ void Ut_LauncherPage::testAddButtonWhenPageIsFull()
 
 void Ut_LauncherPage::testRemoveButton()
 {
+    QSignalSpy removeSpy(m_subject, SIGNAL(buttonRemoved()));
+
     m_subject->setMaximumButtonCount(1);
     QSharedPointer<LauncherButton> button = createLauncherButton("my-entry-name");
     bool added = m_subject->appendButton(button);
@@ -87,6 +89,7 @@ void Ut_LauncherPage::testRemoveButton()
 
     m_subject->removeButton(button);
     QCOMPARE(m_subject->model()->launcherButtons().count(), 0);
+    QCOMPARE(removeSpy.count(), 1);
 
     // Try to remove the same button again
     m_subject->removeButton(button);

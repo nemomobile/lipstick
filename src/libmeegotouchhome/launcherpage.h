@@ -76,7 +76,7 @@ public:
      *
      * \param button Button to be removed.
      */
-    void removeButton(QSharedPointer<LauncherButton> button);
+    virtual void removeButton(QSharedPointer<LauncherButton> button);
 
     /*!
      * Remove button from page.
@@ -111,6 +111,10 @@ public:
      * \return Button representing the given desktop entry or NULL shared pointer if button is not found
      */
     QSharedPointer<LauncherButton> button(const QString &desktopEntryPath);
+
+signals:
+    //! Signals that a button was removed from the page
+    void buttonRemoved();
 };
 
 #endif

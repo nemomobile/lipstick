@@ -58,6 +58,7 @@ class LauncherStub : public StubBase {
   virtual int pageIndex(LauncherPage *page);
   virtual void updateProgress(const QString& desktopEntryPath, int already, int total);
   virtual LauncherButtonModel::State buttonStateFromPackageState(const QString &packageState);
+  virtual void prunePage();
 };
 
 // 2. IMPLEMENT STUB
@@ -259,6 +260,12 @@ LauncherButtonModel::State LauncherStub::buttonStateFromPackageState(const QStri
   return stubReturnValue<LauncherButtonModel::State>("buttonStateFromPackageState");
 }
 
+void LauncherStub::prunePage()
+{
+  QList<ParameterBase*> params;
+  stubMethodEntered("prunePage");
+}
+
 
 // 3. CREATE A STUB INSTANCE
 LauncherStub gDefaultLauncherStub;
@@ -398,6 +405,11 @@ void Launcher::updateProgress(const QString& desktopEntryPath, int already, int 
 LauncherButtonModel::State Launcher::buttonStateFromPackageState(const QString &packageState)
 {
     return gLauncherStub->buttonStateFromPackageState(packageState);
+}
+
+void Launcher::prunePage()
+{
+    gLauncherStub->prunePage();
 }
 
 #endif

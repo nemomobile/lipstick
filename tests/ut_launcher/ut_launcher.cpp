@@ -773,4 +773,12 @@ void Ut_Launcher::testThatLauncherIconIsRemovedWhenApplicationUninstallProgressI
     QCOMPARE(launcher->model()->launcherPages().count(), 0);
 }
 
+void Ut_Launcher::testWhenLauncherPageCreatedThenPruningConnectedToButtonRemoval()
+{
+    QSharedPointer<LauncherPage> page = launcher->createLauncherPage();
+
+    QVERIFY(disconnect(page.data(), SIGNAL(buttonRemoved()), launcher, SLOT(prunePage())));
+}
+
+
 QTEST_MAIN(Ut_Launcher)

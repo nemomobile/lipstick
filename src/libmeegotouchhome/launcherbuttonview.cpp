@@ -18,7 +18,6 @@
 ****************************************************************************/
 
 #include "launcherbuttonview.h"
-
 #include <QFileInfo>
 #include <QDir>
 #include "launcherbuttonprogressindicator.h"

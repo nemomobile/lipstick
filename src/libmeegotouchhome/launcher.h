@@ -253,6 +253,12 @@ private slots:
      */
     void updatePagesFromDataStore();
 
+    /*!
+     * Cleans up the page that sent a signal to this slot after button removal. Removes the
+     * page if it became empty, updates button placements otherwise.
+     */
+    void prunePage();
+
 private:
     /*!
      * Get desktop entry placement in datastore

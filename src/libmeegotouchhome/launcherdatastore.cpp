@@ -16,7 +16,6 @@
 ** of this file.
 **
 ****************************************************************************/
-
 #include <QDir>
 #include <QFile>
 #include <MDesktopEntry>

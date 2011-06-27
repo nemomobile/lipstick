@@ -16,7 +16,6 @@
 ** of this file.
 **
 ****************************************************************************/
-
 #include "launcher.h"
 #include "launcherbutton.h"
 #include "launcherdatastore.h"
@@ -357,6 +356,8 @@ QSharedPointer<LauncherPage> Launcher::createLauncherPage()
 {
     QSharedPointer<LauncherPage> page(new LauncherPage());
     page->setObjectName("LauncherPage");
+    connect(page.data(), SIGNAL(buttonRemoved()), this, SLOT(prunePage()));
+
     return page;
 }
 
@@ -386,6 +387,7 @@ Launcher::Placement Launcher::appendButtonToPages(QSharedPointer<LauncherButton>
 
     if (!added) {
         page = createLauncherPage();
+
         setMaximumPageSizeIfNecessary(page);
         pages.append(page);
         //We created a page so update the model
@@ -406,7 +408,17 @@ void Launcher::removeLauncherButton(const QString &desktopEntryPath)
         int removedButtonPosition = page->launcherButtonPosition(desktopEntryPath);
         if (removedButtonPosition > -1) {
             page->removeButton(desktopEntryPath);
+            break;
+        }
+    }
+}
 
+void Launcher::prunePage()
+{
+    QList<QSharedPointer<LauncherPage> > pages = model()->launcherPages();
+
+    foreach (QSharedPointer<LauncherPage> page, pages) {
+        if(page.data() == sender()) {
             QList<QSharedPointer<LauncherButton> > buttons = page->model()->launcherButtons();
             if (buttons.count() == 0) {
                 // remove empty page

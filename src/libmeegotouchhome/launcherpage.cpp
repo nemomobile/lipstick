@@ -70,6 +70,8 @@ void LauncherPage::removeButton(QSharedPointer<LauncherButton> button)
     QList< QSharedPointer<LauncherButton> > buttons(model()->launcherButtons());
     buttons.removeOne(button);
     model()->setLauncherButtons(buttons);
+
+    emit buttonRemoved();
 }
 
 bool LauncherPage::removeButton(const QString &desktopEntryPath)

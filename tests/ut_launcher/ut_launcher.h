@@ -134,5 +134,6 @@ private slots:
     void testInitializingLauncherWithButtonsInUnknownLocation();
     // Launcher icon of uninstallable application is removed from launcher when button state is changed to Uninstall
     void testThatLauncherIconIsRemovedWhenApplicationUninstallProgressIsStarted();
+    void testWhenLauncherPageCreatedThenPruningConnectedToButtonRemoval();
 };
 #endif //_UT_LAUNCHER_
