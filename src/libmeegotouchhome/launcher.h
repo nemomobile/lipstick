@@ -130,6 +130,17 @@ protected:
     //! Creates a launcher page
     virtual QSharedPointer<LauncherPage> createLauncherPage();
 
+    /*!
+     * Returns Placement for button.
+     *
+     * \param desktopFileEntry is application's desktop file.
+     * Name should be given in format "filename.desktop" or in absolute path.
+     * Default applications directory path is used if only file name is given.
+     *\return Placement object. If placement is not found for button, placement
+     * is initialized with placement.page=-1 and placement.position=-1
+     */
+    Placement buttonPlacement(const QString &desktopEntryFile);
+
 signals:
     /*!
      * Signal sent when a launcher button was clicked.
@@ -210,6 +221,13 @@ public slots:
      */
     void updateButtonPlacementsOnPage(LauncherPage *page);
 
+    /*!
+     * Remove a launcher button from launcher.
+     *
+     * \param desktopEntryPath Path to desktop entry that button to be removed represents
+     */
+    virtual void removeLauncherButton(const QString &desktopEntryPath);
+
 private slots:
 
     /*!
@@ -220,13 +238,6 @@ private slots:
      * \param desktopEntry Desktop entry for the button
      */
     void addLauncherButton(const QSharedPointer<MDesktopEntry> &desktopEntry);
-
-    /*!
-     * Remove a launcher button from launcher.
-     *
-     * \param desktopEntryPath Path to desktop entry that button to be removed represents
-     */
-    void removeLauncherButton(const QString &desktopEntryPath);
 
     /*!
      * Updates a launcher button from a .desktop entry file.
@@ -269,17 +280,6 @@ private:
      * \return placement where button was added
      */
     Launcher::Placement appendButtonToPages(QSharedPointer<LauncherButton> button, QList<QSharedPointer<LauncherPage> > &pages);
-
-    /*!
-     * Returns Placement for button.
-     *
-     * \param desktopFileEntry is application's desktop file.
-     * Name should be given in format "filename.desktop" or in absolute path.
-     * Default applications directory path is used if only file name is given.
-     *\return Placement object. If placement is not found for button, placement
-     * is initialized with placement.page=-1 and placement.position=-1
-     */
-    Placement buttonPlacement(const QString &desktopEntryFile);
 
     /*!
      * Update the given pages list by putting the desktop entries with known
