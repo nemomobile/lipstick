@@ -51,6 +51,8 @@ void QuickLaunchBar::setLauncherDataStore(LauncherDataStore *dataStore)
     if (dataStore != NULL) {
         connect(dataStore, SIGNAL(dataStoreChanged()), this, SLOT(updateButtons()));
     }
+
+    updateButtons();
 }
 
 void QuickLaunchBar::setApplicationPackageMonitor(ApplicationPackageMonitor *packageMonitor)
