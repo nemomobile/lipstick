@@ -1,6 +1,7 @@
 meegotouchhome (1.1.6~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#259022 - Duplicated application icons in main menu
 
  -- Vesa Halttunen <vesa.halttunen@nokia.com>  Wed, 27 Jul 2011 18:01:12 +0300
 
