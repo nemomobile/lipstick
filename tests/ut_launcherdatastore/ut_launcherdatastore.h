@@ -53,12 +53,11 @@ private slots:
     void testRemovingEntriesWhenApplicationsDirectoryGetsEmpty();
     void testNotReprocessingInvalidEntry();
     void testUpdatingMultipleEntries();
+    void testValidatingPreviouslyAddedDesktopEntiesOnStartUp();
 
 private:
     // MApplication
     MApplication *app;
-    // Data store for testing
-    MockDataStore* mockStore;
 };
 
 #endif
