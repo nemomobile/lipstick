@@ -16,7 +16,6 @@
 ** of this file.
 **
 ****************************************************************************/
-
 #include "launcherbuttonview.h"
 #include <QFileInfo>
 #include <QDir>
@@ -153,9 +152,11 @@ LauncherButtonProgressIndicator *LauncherButtonView::createProgressIndicator()
 
 void LauncherButtonView::updateButtonIcon()
 {
-    // To assure icon is updated we need to set icon and icon id to null.
-    model()->setIconID(QString());
-    model()->setIcon(QIcon());
+    if(model()->buttonState() != LauncherButtonModel::Closing) {
+        // To assure icon is updated we need to set icon and icon id to null.
+        model()->setIconID(QString());
+        model()->setIcon(QIcon());
+    }
 
     switch(model()->buttonState()) {
         case LauncherButtonModel::Downloading:
@@ -166,6 +167,9 @@ void LauncherButtonView::updateButtonIcon()
             break;
         case LauncherButtonModel::Broken:
             model()->setIconID(style()->brokenPlaceholderIcon());
+            break;
+        case LauncherButtonModel::Closing:
+            /* Don't change the icon in any way while the button is closing */
             break;
         default:
             setIconFromDesktopEntry();

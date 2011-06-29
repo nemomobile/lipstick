@@ -363,4 +363,13 @@ void Ut_LauncherButtonView::testWhenStateNotLaunchingThenStateResetTimerStopped(
     QVERIFY(!m_subject->launchStateResetTimer.isActive());
 }
 
+void Ut_LauncherButtonView::testWhenStateClosingThenButtonIconNotUpdated()
+{
+    QString iconID = "testID";
+    m_subject->model()->setIconID(iconID);
+    m_subject->model()->setButtonState(LauncherButtonModel::Closing);
+    QCOMPARE(m_subject->model()->iconID(), iconID);
+}
+
+
 QTEST_APPLESS_MAIN(Ut_LauncherButtonView)

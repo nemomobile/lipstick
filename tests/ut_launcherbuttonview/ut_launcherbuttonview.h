@@ -100,6 +100,7 @@ private slots:
     void testUnavailableIcon();
     void testWhenStateLaunchingThenStateResetsAfterTimeout();
     void testWhenStateNotLaunchingThenStateResetTimerStopped();
+    void testWhenStateClosingThenButtonIconNotUpdated();
 
 signals:
     void frameChanged(int frame);
