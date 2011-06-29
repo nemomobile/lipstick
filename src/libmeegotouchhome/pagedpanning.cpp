@@ -85,7 +85,7 @@ void PagedPanning::integrateAxis(Qt::Orientation orientation,
 
     qreal currentPageWidth = pageWidth();
 
-    if (position >= range().left() && position <= range().right()) {
+    if ((position >= range().left() && position <= range().right()) || wrapMode) {
         // Inside range
         if (snapMode) {
             force = -pageSnapFriction_ * velocity;
