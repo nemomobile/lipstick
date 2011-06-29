@@ -1,10 +1,16 @@
+meegotouchhome (1.1.2~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Eetu Lehmusvuo <ext-eetu.6.lehmusvuo@nokia.com>  Wed, 29 Jun 2011 13:28:14 +0300
+
 meegotouchhome (1.1.2-1) unstable; urgency=low
 
   * Fixes: NB#269064 - Panning animation of Events/Switcher is different from other screens
   * Changes: Enabler to fix 255416
   * Changes: Make virtual removeLauncherButton in launcher
 
- -- Eetu Lehmusvuo <ext-eetu.6.lehmusvuo@nokia.com>  Mon, 29 Jun 2011 13:25:43 +0300
+ -- Eetu Lehmusvuo <ext-eetu.6.lehmusvuo@nokia.com>  Wed, 29 Jun 2011 13:25:43 +0300
 
 meegotouchhome (1.1.1-1) unstable; urgency=low
 
