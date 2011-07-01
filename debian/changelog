@@ -1,6 +1,7 @@
 meegotouchhome (1.1.4~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#250144 - Desktop entry parsing is not optimized in launcher
 
  -- Pauli Lehtinen <pauli.lehtinen@nokia.com>  Wed, 29 Jun 2011 14:59:14 +0300
 
