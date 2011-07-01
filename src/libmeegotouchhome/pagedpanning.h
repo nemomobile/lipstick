@@ -19,7 +19,6 @@
 #ifndef PAGEDPANNING_H
 #define PAGEDPANNING_H
 
-#include <QObject>
 #include <mphysics2dpanning.h>
 
 /*!
@@ -29,7 +28,6 @@
  * a paged effect to the viewport
  *
  * The paging is only supported in the horizontal direction.
- *
  */
 class PagedPanning : public MPhysics2DPanning
 {
@@ -97,7 +95,7 @@ public:
     void setPageSnapFriction(qreal value);
 
     /*!
-     * Sets the pan treshold value
+     * Sets the pan threshold value
      */
     void setPanThreshold(qreal value);
 
@@ -139,13 +137,7 @@ public:
 protected:
 
     //! \reimp
-    virtual void integrateAxis( Qt::Orientation orientation,
-                                qreal &position,
-                                qreal &velocity,
-                                qreal &acceleration,
-                                qreal &pointerDifference,
-                                bool pointerPressed
-                                );
+    virtual void integrateAxis(Qt::Orientation orientation, qreal &position, qreal &velocity, qreal &acceleration, qreal &pointerDifference, bool pointerPressed);
     //! \reimp_end
 
 signals:
@@ -173,9 +165,6 @@ private slots:
      * Pan to the current page if not already on it
      */
     void panToCurrentPage();
-
-private:
-    void goToNextPageWithStrongEnoughFlick();
 
 private:
     //! The number of pages
@@ -226,10 +215,13 @@ private:
     qreal slideDistance(qreal initialVelocity, qreal friction);
 
     //! The point in which the pointer was pressed
-    QPointF pointerPressPosition;
+    QPointF pressPosition;
 
-    //! Length of latest swipe gesture
-    qreal latestSwipeLength;
+    //! Distance from the press position
+    qreal distanceToPressPosition;
+
+    //! Velocity threshold to be exceeded in order to pan to the initial target page
+    qreal initialTargetPageVelocityThreshold;
 
     //! If true, panning wraps the page around the edges
     bool wrapMode;
@@ -241,7 +233,6 @@ private:
     //! Test unit is defined as a friend of production code to access private members
     friend class Ut_PagedPanning;
 #endif
-
 };
 
 #endif

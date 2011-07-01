@@ -168,6 +168,9 @@ private slots:
 
     void testWhenPhysicsDisabledWhileActivelyPanningThenPositionIsPannedToNearestPage();
 
+    void testMovingToNearestPageWhenVelocityIsTooSmall();
+    void testMovingToOriginalPageWhenVelocityIsNotTowardsOriginalTarget();
+
 private:
     // MApplication
     MApplication *app;

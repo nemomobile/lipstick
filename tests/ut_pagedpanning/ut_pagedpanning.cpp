@@ -16,7 +16,6 @@
 ** of this file.
 **
 ****************************************************************************/
-#include <QDebug>
 #include <QtTest/QtTest>
 #include <MApplication>
 #include <QSignalSpy>
@@ -415,6 +414,7 @@ void Ut_PagedPanning::testVelocityThreshold()
 void Ut_PagedPanning::testSlide()
 {
     m_subject->setSlidingFriction(0.02);
+    m_subject->setVelocityThreshold(7.0);
 
     QSignalSpy spy(m_subject, SIGNAL(pageChanged(int)));
 
@@ -467,6 +467,7 @@ void Ut_PagedPanning::testSlide()
 void Ut_PagedPanning::testWhenSlideIsLimitedToOnePageAndPanningOverOnePageThenTheSlideContinuesOneMorePage()
 {
     m_subject->setSlidingFriction(0.02);
+    m_subject->setVelocityThreshold(7.0);
     m_subject->setSlideLimit(1);
 
     // Pan 1.4 pages (to page 1). Slide should continue only one page (to page 2) since it's limited
@@ -634,6 +635,74 @@ void Ut_PagedPanning::testWhenPhysicsDisabledWhileActivelyPanningThenPositionIsP
 
     QCOMPARE(m_subject->position().x(), currentPage * DEFAULT_PAGE_WIDTH);
     QCOMPARE(panningStoppedSpy.count(), 2);
+}
+
+void Ut_PagedPanning::testMovingToNearestPageWhenVelocityIsTooSmall()
+{
+    QSignalSpy spy(m_subject, SIGNAL(pageChanged(int)));
+    m_subject->setVelocityThreshold(9.0);
+    m_subject->setPointerSpringK(1.0);
+
+    // Panning less than half a page when the velocity is too small should end up on the original page
+    testMovement(0, DEFAULT_PAGE_WIDTH / 2 - 1, false, 0, 7.0);
+    QCOMPARE(m_subject->position().x(), 0.0);
+
+    // Panning more than half a page when the velocity is too small should end up on the next page
+    testMovement(0, DEFAULT_PAGE_WIDTH / 2 + 1, false, 1, 7.0);
+    QCOMPARE(m_subject->position().x(), 100.0);
+    QCOMPARE(spy.count(), 1);
+    QList<QVariant> arguments = spy.takeLast();
+    QCOMPARE(arguments.at(0).toInt(), 1);
+}
+
+void Ut_PagedPanning::testMovingToOriginalPageWhenVelocityIsNotTowardsOriginalTarget()
+{
+    QSignalSpy spy(m_subject, SIGNAL(pageChanged(int)));
+    m_subject->setVelocityThreshold(9.0);
+    m_subject->setPointerSpringK(1.0);
+
+    m_subject->currentPage = 0;
+    m_subject->setPosition(QPointF(0, 0));
+    Ut_MPhysics2DPanning physicsDriver(m_subject);
+    qreal moveAmount = DEFAULT_PAGE_WIDTH - 20;
+    qreal speed = 10;
+    int i = 0;
+    qreal movePosition = 0;
+    bool pointerPressControl = true;
+
+    // Pan full page to the left
+    m_subject->pointerPress(QPointF(movePosition, 0));
+    while (pointerPressControl || qAbs(m_subject->velocity().x()) >= 1.0) {
+        if (i++ < (moveAmount / speed)) {
+            movePosition -= speed;
+            m_subject->pointerMove(QPointF(movePosition, 0));
+        } else if (pointerPressControl) {
+            pointerPressControl = false;
+        }
+
+        physicsDriver.advancePhysicsCalculation();
+    }
+
+    // Pan a bit to the right
+    i = 0;
+    moveAmount = 20;
+    pointerPressControl = true;
+    while (pointerPressControl || qAbs(m_subject->velocity().x()) >= 1.0) {
+        if (i++ < (moveAmount / speed)) {
+            movePosition += speed;
+            m_subject->pointerMove(QPointF(movePosition, 0));
+            physicsDriver.advancePhysicsCalculation();
+        } else if (pointerPressControl) {
+            physicsDriver.advancePhysicsCalculation();
+            m_subject->pointerRelease();
+            pointerPressControl = false;
+        }
+
+        physicsDriver.advancePhysicsCalculation();
+    }
+
+    // Canceling should cause the viewport to be on the original page
+    QCOMPARE(m_subject->position().x(), 0.0);
 }
 
 QTEST_APPLESS_MAIN(Ut_PagedPanning)

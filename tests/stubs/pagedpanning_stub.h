@@ -48,7 +48,6 @@ public:
     virtual void pointerMove(const QPointF &pos);
     virtual void pointerRelease();
     virtual void panToCurrentPage();
-    virtual void goToNextPageWithStrongEnoughFlick();
 };
 
 void PagedPanningStub::PagedPanningConstructor(QObject *parent) {
@@ -177,10 +176,6 @@ void PagedPanningStub::panToCurrentPage() {
     stubMethodEntered("panToCurrentPage");
 }
 
-void PagedPanningStub::goToNextPageWithStrongEnoughFlick() {
-    stubMethodEntered("goToNextPageWithStrongEnoughFlick");
-}
-
 
 PagedPanningStub gDefaultPagedPanningStub;
 PagedPanningStub* gPagedPanningStub = &gDefaultPagedPanningStub;
@@ -274,10 +269,6 @@ void PagedPanning::pointerRelease() {
 
 void PagedPanning::panToCurrentPage() {
     gPagedPanningStub->panToCurrentPage();
-}
-
-void PagedPanning::goToNextPageWithStrongEnoughFlick() {
-    gPagedPanningStub->goToNextPageWithStrongEnoughFlick();
 }
 
 #endif
