@@ -85,7 +85,6 @@ MainWindow::~MainWindow()
 {
     mainWindowInstance = NULL;
     openGLContext = NULL;
-    delete home;
 }
 
 MainWindow *MainWindow::instance(bool create)
