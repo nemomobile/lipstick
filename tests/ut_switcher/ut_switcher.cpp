@@ -821,7 +821,8 @@ void Ut_Switcher::testWhenStackingOrderChangesTopmostWindowGetsUpdated()
 
     switcher->handleWindowInfoList(windowInfoList);
 
-    QCOMPARE(switcher->model()->topmostWindow(), g_windows[FIRST_NON_APPLICATION_WINDOW + NON_APPLICATION_WINDOWS - 1]);
+    // Top most window should be the last application window
+    QCOMPARE(switcher->model()->topmostWindow(), g_windows[FIRST_NON_APPLICATION_WINDOW - 1]);
 
     Window tmp = g_windows[FIRST_APPLICATION_WINDOW];
     g_windows[FIRST_APPLICATION_WINDOW] = g_windows.last();
@@ -832,6 +833,7 @@ void Ut_Switcher::testWhenStackingOrderChangesTopmostWindowGetsUpdated()
 
     switcher->handleWindowInfoList(windowInfoList);
 
+    // Top most window should be last application window moved in the end after non-application windows
     QCOMPARE(switcher->model()->topmostWindow(), g_windows[FIRST_NON_APPLICATION_WINDOW + NON_APPLICATION_WINDOWS - 1]);
 }
 
@@ -964,6 +966,7 @@ void Ut_Switcher::testTransiencyChanges()
 
 void Ut_Switcher::testTransientWindowClosing()
 {
+
     // Configure the windows
     x11WrapperWMName[FIRST_APPLICATION_WINDOW] = "First";
     x11WrapperWMName[FIRST_APPLICATION_WINDOW + 1] = "Second";
@@ -1147,6 +1150,63 @@ void Ut_Switcher::testWindowsAreClosedWhenSwitcherIsDestroyed()
     for (int i = 0; i < APPLICATION_WINDOWS; i++) {
         QCOMPARE(x11WrapperSendEventCalls.at(i).event.xclient.window, windows.at(i));
     }
+}
+
+void Ut_Switcher::testUpdatingButtonsWhenTopmostWindowBecomesTransient()
+{
+    Window window = 100;
+    Window window1 = 101;
+
+    WindowInfo winfo(window);
+    WindowInfo winfo1(window1);
+
+    QList<WindowInfo> windowList;
+    windowList.append(winfo);
+    windowList.append(winfo1);
+    updateWindowList();
+    switcher->handleWindowInfoList(windowList);
+
+    QCOMPARE(switcher->model()->buttons().count(), 2);
+    QCOMPARE(switcher->model()->buttons().at(0)->xWindow(), window);
+    QCOMPARE(switcher->model()->buttons().at(1)->xWindow(), window1);
+
+    x11WrapperTransientForHint[window1] = window;
+    XEvent event;
+    event.type = PropertyNotify;
+    event.xproperty.window = window1;
+    event.xproperty.atom = XA_WM_TRANSIENT_FOR;
+    QVERIFY(switcher->handleXEvent(event));
+
+    switcher->handleWindowInfoList(windowList);
+    QVERIFY(winfo1.transientFor() != 0);
+    QCOMPARE(switcher->model()->buttons().count(), 1);
+    QCOMPARE(switcher->model()->buttons().at(0)->xWindow(), window1);
+    QCOMPARE(switcher->isRelevantTopmostWindow(winfo1), true);
+}
+
+
+void Ut_Switcher::testUpdatingButtonsWhenWindowIsClosed()
+{
+    Window window = 100;
+    Window window1 = 101;
+
+    WindowInfo winfo(window);
+    WindowInfo winfo1(window1);
+
+    QList<WindowInfo> windowList;
+    windowList.append(winfo);
+    windowList.append(winfo1);
+    updateWindowList();
+    switcher->handleWindowInfoList(windowList);
+
+    QCOMPARE(switcher->model()->buttons().count(), 2);
+    QCOMPARE(switcher->model()->buttons().at(0)->xWindow(), window);
+    QCOMPARE(switcher->model()->buttons().at(1)->xWindow(), window1);
+
+    windowList.removeFirst();
+    switcher->handleWindowInfoList(windowList);
+    QCOMPARE(switcher->model()->buttons().count(), 1);
+    QCOMPARE(switcher->model()->buttons().at(0)->xWindow(), window1);
 }
 
 QTEST_APPLESS_MAIN(Ut_Switcher)

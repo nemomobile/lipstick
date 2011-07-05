@@ -218,6 +218,11 @@ void Switcher::scheduleUpdateButtons()
     }
 }
 
+bool Switcher::isRelevantTopmostWindow(const WindowInfo &windowInfo)
+{
+    return (isApplicationWindow(windowInfo) || HomeWindowMonitor::instance()->isOwnWindow(windowInfo.window()) || windowInfo.transientFor() != 0);
+}
+
 void Switcher::handleWindowInfoList(QList<WindowInfo> newWindowList)
 {
     foreach(WindowInfo wi, newWindowList) {
@@ -242,19 +247,29 @@ void Switcher::handleWindowInfoList(QList<WindowInfo> newWindowList)
         stackingWindowList.append(window);
     }
 
-    if (!stackingWindowList.isEmpty()){
-        topmostWindow = stackingWindowList.last().window();
+    bool transientTopMostWindow = false;
+    if (!stackingWindowList.isEmpty()) {
+        for (int i = stackingWindowList.count() -1; i >= 0; i--) {
+            if (isRelevantTopmostWindow(stackingWindowList.at(i))) {
+                topmostWindow = stackingWindowList.at(i).window();
+                if (stackingWindowList.at(i).transientFor() != 0) {
+                    transientTopMostWindow = true;
+                }
+                break;
+            }
+        }
         // Restore a possible window that was being removed but has now come on top
         added |= restoreButtonBeingRemoved(topmostWindow, false);
     }
-    if (added || removed) {
-        if (!removed) {
-            // If windows have been added but not removed, update the switcher with a delay
-            scheduleUpdateButtons();
-        } else {
-            // If windows have been removed update the switcher instantly
-            updateButtons();
-        }
+
+    if (added) {
+        // If windows have been added but not removed, update the switcher with a delay
+        scheduleUpdateButtons();
+    } else if(removed || transientTopMostWindow) {
+        // If windows have been removed or topmost transient window is changed, update the switcher instantly
+        // Update is needed when topmost transient window is changed because updateButtons() will update button's xwindow with it's
+        // corresponding topmost transient window
+        updateButtons();
     } else if (!stackingWindowList.isEmpty()) {
         if (!HomeWindowMonitor::instance()->isOwnWindow(topmostWindow)) {
             // The view might also need to react (== pan to the correct page) if no buttons were added
@@ -348,6 +363,7 @@ void Switcher::updateButtons()
     foreach (const WindowInfo &windowInfo, applicationWindows) {
         Window w = topmostTransientWindowFor(windowInfo.window());
         WindowInfo topmostWindowInfo = WindowInfo(w);
+
         if (windowInfoSet.contains(topmostWindowInfo)) {
             if (switcherButtonMap.contains(windowInfo.window())) {
                 QSharedPointer<SwitcherButton> button = switcherButtonMap[windowInfo.window()];

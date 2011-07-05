@@ -4,6 +4,7 @@ meegotouchhome (1.1.4~1) unstable; urgency=low
   * Fixes: NB#250144 - Desktop entry parsing is not optimized in launcher
   * Fixes: NB#248129 - Paging canceling behavior is off
   * Fixes: NB#260216 - COREWEB: MWidgetModel::styleName MTheme::style MStyleContainer::updateCurrentStyle MStyleContainer::currentStyle operator->
+  * Fixes: NB#267590 - swiping application having VKB on top in recents view - appears an image of application where the image is going to place.
 
  -- Pauli Lehtinen <pauli.lehtinen@nokia.com>  Wed, 29 Jun 2011 14:59:14 +0300
 

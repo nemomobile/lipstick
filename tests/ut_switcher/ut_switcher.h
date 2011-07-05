@@ -169,6 +169,9 @@ private slots:
 
     void testWindowsAreClosedWhenSwitcherIsDestroyed();
 
+    void testUpdatingButtonsWhenTopmostWindowBecomesTransient();
+    void testUpdatingButtonsWhenWindowIsClosed();
+
 private:
     MSceneManager *mSceneManager;
     HomeWindowMonitor *homeWindowMonitor;

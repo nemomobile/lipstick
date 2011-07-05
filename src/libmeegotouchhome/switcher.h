@@ -288,6 +288,16 @@ private:
     //! Reflects the top most window id of the _NET_CLIENT_LIST_STACKING
     Window topmostWindow;
 
+    /*! Checks whether the given window is a relevant topmost window
+     * This will check:
+     * - If the topmost window is an application window
+     * - If the topmost window is HOME. OR
+     * - If the topmost window is a transient window
+     * \param windowInfo the window to check
+     * \return true if any of the above conditions are true, false otherwise
+     */
+    bool isRelevantTopmostWindow(const WindowInfo &windowInfo);
+
 #ifdef UNIT_TEST
     friend class Ut_Switcher;
 #endif
