@@ -1209,4 +1209,25 @@ void Ut_Switcher::testUpdatingButtonsWhenWindowIsClosed()
     QCOMPARE(switcher->model()->buttons().at(0)->xWindow(), window1);
 }
 
+void Ut_Switcher::testUpdatingButtonWindowWhenApplicationHasVirtualKeyboardOnTop()
+{
+    x11WrapperTransientForHint[FIRST_NON_APPLICATION_WINDOW + 5] = FIRST_APPLICATION_WINDOW;
+
+    WindowInfo winfo(FIRST_APPLICATION_WINDOW);
+    WindowInfo winfo1(FIRST_NON_APPLICATION_WINDOW + 5);
+
+    QList<WindowInfo> windowList;
+    windowList.append(winfo);
+    windowList.append(winfo1);
+
+    switcher->addWindowInfo(winfo);
+    switcher->addWindowInfo(winfo1);
+
+    switcher->updateButtons();
+
+    QCOMPARE(switcher->model()->buttons().count(), 1);
+    QCOMPARE(switcher->model()->buttons().at(0)->xWindow(), (Window)FIRST_APPLICATION_WINDOW);
+}
+
+
 QTEST_APPLESS_MAIN(Ut_Switcher)

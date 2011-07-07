@@ -171,6 +171,7 @@ private slots:
 
     void testUpdatingButtonsWhenTopmostWindowBecomesTransient();
     void testUpdatingButtonsWhenWindowIsClosed();
+    void testUpdatingButtonWindowWhenApplicationHasVirtualKeyboardOnTop();
 
 private:
     MSceneManager *mSceneManager;

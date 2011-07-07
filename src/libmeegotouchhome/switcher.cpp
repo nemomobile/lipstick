@@ -180,7 +180,10 @@ void Switcher::markWindowBeingClosed(Window window)
 
 void Switcher::markWindowTransientFor(Window window, Window transientFor)
 {
-    transientMap[transientFor].append(window);
+    WindowInfo info(window);
+    if (!info.types().contains(WindowInfo::InputWindowAtom)) {
+        transientMap[transientFor].append(window);
+    }
 }
 
 void Switcher::unmarkWindowTransientFor(Window window, Window transientFor)
@@ -220,7 +223,8 @@ void Switcher::scheduleUpdateButtons()
 
 bool Switcher::isRelevantTopmostWindow(const WindowInfo &windowInfo)
 {
-    return (isApplicationWindow(windowInfo) || HomeWindowMonitor::instance()->isOwnWindow(windowInfo.window()) || windowInfo.transientFor() != 0);
+    return (isApplicationWindow(windowInfo) || HomeWindowMonitor::instance()->isOwnWindow(windowInfo.window()) || windowInfo.transientFor() != 0)
+            && !windowInfo.types().contains(WindowInfo::InputWindowAtom);
 }
 
 void Switcher::handleWindowInfoList(QList<WindowInfo> newWindowList)
@@ -370,7 +374,6 @@ void Switcher::updateButtons()
 
                 // Button already exists - set title (as it may have changed)
                 button->setText(topmostWindowInfo.title());
-
                 // Change the window id if replaced by a transient
                 if (button->xWindow() != topmostWindowInfo.window()) {
                     button->setXWindow(topmostWindowInfo.window());
