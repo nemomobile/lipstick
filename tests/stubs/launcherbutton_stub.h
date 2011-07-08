@@ -4,8 +4,6 @@
 #include "launcherbutton.h"
 #include <stubbase.h>
 
-#include "launcherbuttonmodel.h"
-
 
 // 1. DECLARE STUB
 // FIXME - stubgen is not yet finished
@@ -15,19 +13,22 @@ class LauncherButtonStub : public StubBase {
   virtual void LauncherButtonConstructor(const QSharedPointer<MDesktopEntry> &entry, MWidget *parent, LauncherButtonModel *model);
   virtual void LauncherButtonDestructor();
   virtual QString desktopEntry() const;
-  virtual void updateFromDesktopEntry(const QSharedPointer<MDesktopEntry> &desktopEntry);
-  virtual void retranslateUi();
-  virtual void launch();
-  virtual void stopLaunchProgress();
-  virtual void setState(LauncherButtonModel::State state);
-  virtual int operationProgress() const;
-  virtual void init();
   virtual LauncherButtonModel::State buttonState() const;
-  virtual void setPackageName(const QString packageName);
-  virtual QString packageName() const;
-  virtual void setPackageRemovable(const bool packageRemovable);
-  virtual bool packageRemovable() const;
+  virtual void updateFromDesktopEntry(const QSharedPointer<MDesktopEntry> &entry);
+  virtual void setState(LauncherButtonModel::State state);
   virtual void setOperationProgress(int newProgress, int total);
+  virtual int operationProgress() const;
+  virtual void setPackageName(const QString &packageName);
+  virtual QString packageName() const;
+  virtual void setPackageRemovable(const bool removable);
+  virtual bool packageRemovable() const;
+  virtual void retranslateUi();
+  virtual void enableLaunchingState();
+  virtual void disableLaunchingState();
+  virtual void updateData(const QList<const char *> &modifications);
+  virtual void launch();
+  virtual void windowOnTopOfHome(const WindowInfo &window);
+  virtual void init();
 };
 
 // 2. IMPLEMENT STUB
@@ -46,32 +47,9 @@ void LauncherButtonStub::LauncherButtonConstructor(const QSharedPointer<MDesktop
 void LauncherButtonStub::LauncherButtonDestructor() {
 
 }
-
 QString LauncherButtonStub::desktopEntry() const {
   stubMethodEntered("desktopEntry");
   return stubReturnValue<QString>("desktopEntry");
-}
-
-void LauncherButtonStub::updateFromDesktopEntry(const QSharedPointer<MDesktopEntry> &desktopEntry) {
-  QList<ParameterBase*> params;
-  params.append( new Parameter<QSharedPointer<MDesktopEntry> >(desktopEntry));
-  stubMethodEntered("updateFromDesktopEntry",params);
-}
-
-void LauncherButtonStub::retranslateUi() {
-  stubMethodEntered("retranslateUi");
-}
-
-void LauncherButtonStub::launch() {
-  stubMethodEntered("launch");
-}
-
-void LauncherButtonStub::stopLaunchProgress() {
-  stubMethodEntered("stopLaunchProgress");
-}
-
-void LauncherButtonStub::init() {
-  stubMethodEntered("init");
 }
 
 LauncherButtonModel::State LauncherButtonStub::buttonState() const {
@@ -79,10 +57,23 @@ LauncherButtonModel::State LauncherButtonStub::buttonState() const {
   return stubReturnValue<LauncherButtonModel::State>("buttonState");
 }
 
+void LauncherButtonStub::updateFromDesktopEntry(const QSharedPointer<MDesktopEntry> &entry) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<const QSharedPointer<MDesktopEntry> & >(entry));
+  stubMethodEntered("updateFromDesktopEntry",params);
+}
+
 void LauncherButtonStub::setState(LauncherButtonModel::State state) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<LauncherButtonModel::State>(state));
+  params.append( new Parameter<LauncherButtonModel::State >(state));
   stubMethodEntered("setState",params);
+}
+
+void LauncherButtonStub::setOperationProgress(int newProgress, int total) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<int >(newProgress));
+  params.append( new Parameter<int >(total));
+  stubMethodEntered("setOperationProgress",params);
 }
 
 int LauncherButtonStub::operationProgress() const {
@@ -90,10 +81,10 @@ int LauncherButtonStub::operationProgress() const {
   return stubReturnValue<int>("operationProgress");
 }
 
-void LauncherButtonStub::setPackageName(const QString packageName) {
+void LauncherButtonStub::setPackageName(const QString &packageName) {
   QList<ParameterBase*> params;
   params.append( new Parameter<QString>(packageName));
-  stubMethodEntered("setPackageName", params);
+  stubMethodEntered("setPackageName",params);
 }
 
 QString LauncherButtonStub::packageName() const {
@@ -101,10 +92,10 @@ QString LauncherButtonStub::packageName() const {
   return stubReturnValue<QString>("packageName");
 }
 
-void LauncherButtonStub::setPackageRemovable(const bool packageRemovable) {
+void LauncherButtonStub::setPackageRemovable(const bool removable) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<bool>(packageRemovable));
-  stubMethodEntered("setPackageRemovable", params);
+  params.append( new Parameter<bool>(removable));
+  stubMethodEntered("setPackageRemovable",params);
 }
 
 bool LauncherButtonStub::packageRemovable() const {
@@ -112,14 +103,39 @@ bool LauncherButtonStub::packageRemovable() const {
   return stubReturnValue<bool>("packageRemovable");
 }
 
-
-void LauncherButtonStub::setOperationProgress(int newProgress, int total)
-{
-  QList<ParameterBase*> params;
-  params.append( new Parameter<int>(newProgress));
-  params.append( new Parameter<int>(total));
-  stubMethodEntered("setOperationProgress", params);
+void LauncherButtonStub::retranslateUi() {
+  stubMethodEntered("retranslateUi");
 }
+
+void LauncherButtonStub::enableLaunchingState() {
+  stubMethodEntered("enableLaunchingState");
+}
+
+void LauncherButtonStub::disableLaunchingState() {
+  stubMethodEntered("disableLaunchingState");
+}
+
+void LauncherButtonStub::updateData(const QList<const char *> &modifications) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<const QList<const char *> & >(modifications));
+  stubMethodEntered("updateData",params);
+}
+
+void LauncherButtonStub::launch() {
+  stubMethodEntered("launch");
+}
+
+void LauncherButtonStub::windowOnTopOfHome(const WindowInfo &window) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<const WindowInfo & >(window));
+  stubMethodEntered("windowOnTopOfHome",params);
+}
+
+void LauncherButtonStub::init() {
+  stubMethodEntered("init");
+}
+
+
 
 // 3. CREATE A STUB INSTANCE
 LauncherButtonStub gDefaultLauncherButtonStub;
@@ -143,62 +159,69 @@ QString LauncherButton::desktopEntry() const {
   return gLauncherButtonStub->desktopEntry();
 }
 
-void LauncherButton::updateFromDesktopEntry(const QSharedPointer<MDesktopEntry> &desktopEntry) {
-  gLauncherButtonStub->updateFromDesktopEntry(desktopEntry);
+LauncherButtonModel::State LauncherButton::buttonState() const {
+  return gLauncherButtonStub->buttonState();
+}
+
+void LauncherButton::updateFromDesktopEntry(const QSharedPointer<MDesktopEntry> &entry) {
+  gLauncherButtonStub->updateFromDesktopEntry(entry);
+}
+
+void LauncherButton::setState(LauncherButtonModel::State state) {
+  gLauncherButtonStub->setState(state);
+}
+
+void LauncherButton::setOperationProgress(int newProgress, int total) {
+  gLauncherButtonStub->setOperationProgress(newProgress, total);
+}
+
+int LauncherButton::operationProgress() const {
+  return gLauncherButtonStub->operationProgress();
+}
+
+void LauncherButton::setPackageName(const QString &packageName) {
+  gLauncherButtonStub->setPackageName(packageName);
+}
+
+QString LauncherButton::packageName() const {
+  return gLauncherButtonStub->packageName();
+}
+
+void LauncherButton::setPackageRemovable(const bool removable) {
+  gLauncherButtonStub->setPackageRemovable(removable);
+}
+
+bool LauncherButton::packageRemovable() const {
+  return gLauncherButtonStub->packageRemovable();
 }
 
 void LauncherButton::retranslateUi() {
   gLauncherButtonStub->retranslateUi();
 }
 
+void LauncherButton::enableLaunchingState() {
+  gLauncherButtonStub->enableLaunchingState();
+}
+
+void LauncherButton::disableLaunchingState() {
+  gLauncherButtonStub->disableLaunchingState();
+}
+
+void LauncherButton::updateData(const QList<const char *> &modifications) {
+  gLauncherButtonStub->updateData(modifications);
+}
+
 void LauncherButton::launch() {
   gLauncherButtonStub->launch();
 }
 
-void LauncherButton::stopLaunchProgress() {
-  gLauncherButtonStub->stopLaunchProgress();
+void LauncherButton::windowOnTopOfHome(const WindowInfo &window) {
+  gLauncherButtonStub->windowOnTopOfHome(window);
 }
 
 void LauncherButton::init() {
-    gLauncherButtonStub->init();
+  gLauncherButtonStub->init();
 }
 
-LauncherButtonModel::State LauncherButton::buttonState() const {
-    return gLauncherButtonStub->buttonState();
-}
-
-void LauncherButton::setState(LauncherButtonModel::State state)
-{
-    gLauncherButtonStub->setState(state);
-}
-
-int LauncherButton::operationProgress() const {
-    return gLauncherButtonStub->operationProgress();
-}
-
-void LauncherButton::setPackageName(const QString &packageName)
-{
-    gLauncherButtonStub->setPackageName(packageName);
-}
-
-QString LauncherButton::packageName() const
-{
-    return gLauncherButtonStub->packageName();
-}
-
-void LauncherButton::setPackageRemovable(const bool removable)
-{
-    gLauncherButtonStub->setPackageRemovable(removable);
-}
-
-bool LauncherButton::packageRemovable() const
-{
-    return gLauncherButtonStub->packageRemovable();
-}
-
-void LauncherButton::setOperationProgress(int newProgress, int total)
-{
-    gLauncherButtonStub->setOperationProgress(newProgress, total);
-}
 
 #endif

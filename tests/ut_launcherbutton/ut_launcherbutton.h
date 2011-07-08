@@ -47,17 +47,19 @@ private slots:
     void testWhenLauncherButtonIsClickedContentActionIsTriggered();
     void testWhenLauncherButtonIsClickedInDownloadingStateContentActionIsNotTriggered();
     void testWhenLauncherButtonIsClickedInInstallingStateContentActionIsNotTriggered();
-    void testWhenLauncherButtonIsClickedInBrokenStateAndHasPackageErrorThenDBusCallIsMade();
     void testStopLaunchProgressIfObscured();
+    void testWhenLauncherButtonIsClickedInBrokenStateThenPMExceptionDialogIsLaunched();
     void testSettingButtonState();
     void testSettingOperationProgress();
     void testSettingProgressWithInvalidValues();
     void testLaunchingMultipleTimes();
     void testTryingToLaunchSecondActionWhileLaunching();
+    void testWhenButtonClickedThenLaunchTimerIsStarted();
+    void testWhenLaunchTimerTimeoutThenLaunchStateIsDisabled_data();
+    void testWhenLaunchTimerTimeoutThenLaunchStateIsDisabled();
 
 signals:
     void clicked();
-    void obscured();
 
 private:
     // Application

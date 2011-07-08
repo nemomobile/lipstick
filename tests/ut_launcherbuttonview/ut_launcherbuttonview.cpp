@@ -347,22 +347,6 @@ void Ut_LauncherButtonView::testUnavailableIcon()
     QVERIFY(!disconnect(&m_subject->iconWatcher, SIGNAL(directoryChanged(const QString&)), m_subject, SLOT(updateUnavailableIcon(const QString&))));
 }
 
-void Ut_LauncherButtonView::testWhenStateLaunchingThenStateResetsAfterTimeout()
-{
-    QVERIFY(disconnect(&m_subject->launchStateResetTimer, SIGNAL(timeout()), controller, SLOT(stopLaunchProgress())));
-    m_subject->model()->setButtonState(LauncherButtonModel::Launching);
-    QVERIFY(m_subject->launchStateResetTimer.isActive());
-}
-
-void Ut_LauncherButtonView::testWhenStateNotLaunchingThenStateResetTimerStopped()
-{
-    m_subject->model()->setButtonState(LauncherButtonModel::Launching);
-    QVERIFY(m_subject->launchStateResetTimer.isActive());
-
-    m_subject->model()->setButtonState(LauncherButtonModel::Installed);
-    QVERIFY(!m_subject->launchStateResetTimer.isActive());
-}
-
 void Ut_LauncherButtonView::testWhenStateClosingThenButtonIconNotUpdated()
 {
     QString iconID = "testID";

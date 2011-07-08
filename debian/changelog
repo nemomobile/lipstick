@@ -1,6 +1,7 @@
 meegotouchhome (1.1.4~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#270603 - Launcher icon in "dimmed" state when dismissing error dialog by tapping on it
   * Fixes: NB#259022 - Duplicated application icons in main menu
   * Fixes: NB#250144 - Desktop entry parsing is not optimized in launcher
   * Fixes: NB#248129 - Paging canceling behavior is off

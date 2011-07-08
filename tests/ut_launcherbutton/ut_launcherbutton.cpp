@@ -30,6 +30,8 @@
 #include <QDBusMessage>
 #include <QDBusAbstractInterface>
 #include "launcheraction.h"
+#include "xeventlistener_stub.h"
+#include "homewindowmonitor_stub.h"
 
 #include "launcherbuttonmodel.h"
 Q_DECLARE_METATYPE(LauncherButtonModel::State);
@@ -317,6 +319,7 @@ void Ut_LauncherButton::cleanupTestCase()
 void Ut_LauncherButton::init()
 {
     homeWindowMonitor = new HomeWindowMonitor();
+
     gHomeWindowMonitorStub->stubSetReturnValue("instance", homeWindowMonitor);
     language = "english";
     contentActionPrivate.clear();
@@ -325,12 +328,11 @@ void Ut_LauncherButton::init()
 
     m_subject = new LauncherButton("");
     connect(this, SIGNAL(clicked()), m_subject, SLOT(launch()));
-    connect(this, SIGNAL(obscured()), HomeWindowMonitor::instance(), SIGNAL(fullscreenWindowOnTopOfOwnWindow()));
 }
 
 void Ut_LauncherButton::cleanup()
 {
-    m_subject->stopLaunchProgress();
+    //m_subject->stopLaunchProgress();
     delete m_subject;
     gMDesktopEntryStub->stubReset();
     gHomeWindowMonitorStub->stubReset();
@@ -376,31 +378,34 @@ void Ut_LauncherButton::testWhenLauncherButtonIsClickedInInstallingStateContentA
     QCOMPARE(contentActionTriggerCalls, 0);
 }
 
-void Ut_LauncherButton::testWhenLauncherButtonIsClickedInBrokenStateAndHasPackageErrorThenDBusCallIsMade()
-{
-    m_subject->model()->setButtonState(LauncherButtonModel::Broken);
-    emit clicked();
-    QCOMPARE(contentActionTriggerCalls, 0);
-
-    m_subject->setPackageName("test");
-    m_subject->launch();
-
-   QCOMPARE(g_qDBusInterfaceCall, QString("show_installation_exception"));
-}
-
 void Ut_LauncherButton::testStopLaunchProgressIfObscured()
 {
     emit clicked();
     QCOMPARE(m_subject->buttonState(), LauncherButtonModel::Launching);
 
-    emit obscured();
-    QCOMPARE(m_subject->buttonState(), LauncherButtonModel::Installed);
+    gHomeWindowMonitorStub->stubSetReturnValue("isHomeWindowOnTop", false);
 
-    // Change the button state artificially so something else and see that another
-    // obscured signal does nothing
-    m_subject->model()->setButtonState(LauncherButtonModel::Downloading);
-    emit obscured();
-    QCOMPARE(m_subject->buttonState(), LauncherButtonModel::Downloading);
+    // Verify connection to home window monitor and then connect the signal back
+    QVERIFY(disconnect(HomeWindowMonitor::instance(),
+                       SIGNAL(anyWindowOnTopOfOwnWindow(WindowInfo)), m_subject, SLOT(windowOnTopOfHome(WindowInfo))));
+    // remove verify!!!!
+    QVERIFY(connect(HomeWindowMonitor::instance(), SIGNAL(anyWindowOnTopOfOwnWindow(WindowInfo)), m_subject, SLOT(windowOnTopOfHome(WindowInfo))));
+    m_subject->windowOnTopOfHome(WindowInfo(0));
+
+    QCOMPARE(m_subject->buttonState(), LauncherButtonModel::Installed);
+    QVERIFY(!disconnect(HomeWindowMonitor::instance(), SIGNAL(anyWindowOnTopOfOwnWindow(WindowInfo)), m_subject, SLOT(windowOnTopOfHome(WindowInfo))));
+}
+
+void Ut_LauncherButton::testWhenLauncherButtonIsClickedInBrokenStateThenPMExceptionDialogIsLaunched()
+{
+    m_subject->model()->setButtonState(LauncherButtonModel::Broken);
+    m_subject->setPackageName("test");
+
+    emit clicked();
+    QCOMPARE(contentActionTriggerCalls, 0);
+
+    QCOMPARE(g_qDBusInterfaceCall, QString("show_installation_exception"));
+    QCOMPARE(m_subject->buttonState(), LauncherButtonModel::Launching);
 }
 
 void Ut_LauncherButton::testLanguageChange()
@@ -461,7 +466,7 @@ void Ut_LauncherButton::testLaunchingMultipleTimes()
     emit clicked();
     QCOMPARE(contentActionTriggerCalls, 1);
 
-    emit obscured();
+    m_subject->disableLaunchingState();
 
     emit clicked();
     QCOMPARE(contentActionTriggerCalls, 2);
@@ -476,6 +481,38 @@ void Ut_LauncherButton::testTryingToLaunchSecondActionWhileLaunching()
 
     secondTestButton->launch();
     QCOMPARE(contentActionTriggerCalls, 2);
+}
+
+void Ut_LauncherButton::testWhenButtonClickedThenLaunchTimerIsStarted()
+{
+    emit clicked();
+    QCOMPARE(m_subject->buttonState(), LauncherButtonModel::Launching);
+
+    QVERIFY(disconnect(&m_subject->launchStateResetTimer, SIGNAL(timeout()), m_subject, SLOT(disableLaunchingState())));
+    QVERIFY(m_subject->launchStateResetTimer.isActive());
+}
+
+void Ut_LauncherButton::testWhenLaunchTimerTimeoutThenLaunchStateIsDisabled_data()
+{
+    QTest::addColumn<LauncherButtonModel::State>("previousState");
+
+    QTest::newRow("Installed") << LauncherButtonModel::Installed;
+    QTest::newRow("Broken") << LauncherButtonModel::Broken;
+}
+
+void Ut_LauncherButton::testWhenLaunchTimerTimeoutThenLaunchStateIsDisabled()
+{
+    QFETCH(LauncherButtonModel::State, previousState);
+    m_subject->model()->setButtonState(previousState);
+
+    emit clicked();
+
+    QVERIFY(disconnect(&m_subject->launchStateResetTimer, SIGNAL(timeout()), m_subject, SLOT(disableLaunchingState())));
+    m_subject->disableLaunchingState();
+
+    QCOMPARE(m_subject->buttonState(), previousState);
+    QVERIFY(!disconnect(&m_subject->launchStateResetTimer, SIGNAL(timeout()), m_subject, SLOT(disableLaunchingState())));
+    QVERIFY(!m_subject->launchStateResetTimer.isActive());
 }
 
 QTEST_APPLESS_MAIN(Ut_LauncherButton)

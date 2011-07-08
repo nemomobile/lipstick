@@ -24,6 +24,8 @@ HEADERS += \
     $$SRCDIR/windowinfo.h \
     $$SRCDIR/x11wrapper.h \
     $$SRCDIR/windowmonitor.h \
-    $$SRCDIR/launcheraction.h
+    $$SRCDIR/launcheraction.h \
+    $$SRCDIR/xeventlistener.h
+
 
 include(../common_bot.pri)

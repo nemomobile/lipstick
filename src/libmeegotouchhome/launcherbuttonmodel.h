@@ -59,6 +59,9 @@ public:
     M_MODEL_PROPERTY(QString, packageName, PackageName, true, QString())
     //! Is package represented by button removable
     M_MODEL_PROPERTY(bool, packageRemovable, PackageRemovable, true, false)
+    //! Timeout after which the launch state should be disabled
+    M_MODEL_PROPERTY(int, launchTimeout, LaunchTimeout, true, 5000)
+
 };
 
 #endif /* LAUNCHERBUTTONMODEL_H_ */

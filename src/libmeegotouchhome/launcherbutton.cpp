@@ -16,10 +16,13 @@
 ** of this file.
 **
 ****************************************************************************/
+
 #include "launcherbutton.h"
 #include "launcher.h"
 #include <MDesktopEntry>
 #include <QDBusInterface>
+#include <MWidgetStyle>
+#include "windowinfo.h"
 
 #include <MWidgetCreator>
 M_REGISTER_WIDGET(LauncherButton)
@@ -34,6 +37,8 @@ LauncherButton::LauncherButton(const QString &desktopEntryPath, MWidget *parent,
     init();
 
     updateFromDesktopEntry(entry);
+    connect(&launchStateResetTimer, SIGNAL(timeout()), this, SLOT(disableLaunchingState()));
+    launchStateResetTimer.setSingleShot(true);
 }
 
 LauncherButton::LauncherButton(const QSharedPointer<MDesktopEntry> &entry, MWidget *parent, LauncherButtonModel *model) :
@@ -67,11 +72,12 @@ LauncherButtonModel::State LauncherButton::buttonState() const
 void LauncherButton::launch()
 {
     if (model()->buttonState() == LauncherButtonModel::Installed) {
-        model()->setButtonState(LauncherButtonModel::Launching);
-        connect(HomeWindowMonitor::instance(), SIGNAL(fullscreenWindowOnTopOfOwnWindow()), SLOT(stopLaunchProgress()));
+        enableLaunchingState();
 
         action.trigger();
     } else if (model()->buttonState() == LauncherButtonModel::Broken) {
+        enableLaunchingState();
+
         // Show the exception dialog for this package
         if (!model()->desktopEntry().isNull()) {
             QString package = model()->packageName();
@@ -86,10 +92,28 @@ void LauncherButton::launch()
     }
 }
 
-void LauncherButton::stopLaunchProgress()
+void LauncherButton::windowOnTopOfHome(const WindowInfo &window)
 {
-    model()->setButtonState(LauncherButtonModel::Installed);
-    disconnect(HomeWindowMonitor::instance(), SIGNAL(fullscreenWindowOnTopOfOwnWindow()), this, SLOT(stopLaunchProgress()));
+    QSet<Atom> unaffectingTypes = QSet<Atom>() << WindowInfo::NotificationAtom << WindowInfo::MenuAtom;
+    if (window.types().toSet().intersect(unaffectingTypes).isEmpty()) {
+        disableLaunchingState();
+    }
+}
+
+void LauncherButton::enableLaunchingState()
+{
+    stateBeforeLaunch = model()->buttonState();
+    model()->setButtonState(LauncherButtonModel::Launching);
+    connect(HomeWindowMonitor::instance(), SIGNAL(anyWindowOnTopOfOwnWindow(WindowInfo)), SLOT(windowOnTopOfHome(WindowInfo)));
+    launchStateResetTimer.start();
+}
+
+void LauncherButton::disableLaunchingState()
+{
+    launchStateResetTimer.stop();
+    disconnect(HomeWindowMonitor::instance(), SIGNAL(anyWindowOnTopOfOwnWindow(WindowInfo)), this, SLOT(windowOnTopOfHome(WindowInfo)));
+    model()->setButtonState(stateBeforeLaunch);
+    setActive(true);
 }
 
 void LauncherButton::retranslateUi()
@@ -143,4 +167,16 @@ void LauncherButton::setPackageRemovable(const bool removable)
 bool LauncherButton::packageRemovable() const
 {
     return model()->packageRemovable();
+}
+
+void LauncherButton::updateData(const QList<const char *>& modifications)
+{
+    MButton::updateData(modifications);
+
+    const char *member;
+    foreach(member, modifications) {
+        if (member == LauncherButtonModel::LaunchTimeout) {
+            launchStateResetTimer.setInterval(model()->launchTimeout());
+        }
+    }
 }

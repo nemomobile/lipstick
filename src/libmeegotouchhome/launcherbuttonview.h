@@ -20,7 +20,6 @@
 #ifndef LAUNCHERBUTTONVIEW_H_
 #define LAUNCHERBUTTONVIEW_H_
 
-#include <QTimer>
 #include <QTimeLine>
 #include <QRectF>
 #include <mbuttoniconview.h>
@@ -93,9 +92,6 @@ private:
 
     //! Path to the icon that was not available during initialization
     QString unavailableIconPath;
-
-    //! Timer for resetting the button state after launching
-    QTimer launchStateResetTimer;
 
 #ifdef UNIT_TEST
     friend class Ut_LauncherButtonView;

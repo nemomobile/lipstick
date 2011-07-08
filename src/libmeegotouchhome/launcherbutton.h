@@ -20,9 +20,12 @@
 #ifndef LAUNCHERBUTTON_H
 #define LAUNCHERBUTTON_H
 
+#include <QTimer>
 #include <MButton>
 #include "launcherbuttonmodel.h"
 #include "launcheraction.h"
+
+class WindowInfo;
 
 /*!
  * A button widget that represents a .desktop file. Triggers the default
@@ -131,6 +134,22 @@ protected:
     virtual void retranslateUi();
     //! \reimp_end
 
+public slots:
+    /*!
+     * Enables the launching state for button
+     */
+    void enableLaunchingState();
+
+    /*!
+     * Disables the launching state for button
+     */
+    void disableLaunchingState();
+
+protected slots:
+    //! \reimp
+    virtual void updateData(const QList<const char *>& modifications);
+    //! \reimp_end
+
 private slots:
     /*!
      * Attempts to launch the configured object.
@@ -138,9 +157,9 @@ private slots:
     void launch();
 
     /*!
-     * Stops the launch animation.
+     * Handles window on top of home window.
      */
-    void stopLaunchProgress();
+    void windowOnTopOfHome(const WindowInfo &window);
 
 private:
     /*!
@@ -150,6 +169,13 @@ private:
 
     //! The action for this button
     LauncherAction action;
+
+    //! Button state when launching is initiated
+    LauncherButtonModel::State stateBeforeLaunch;
+
+    //! Timer for resetting the button state after launching
+    QTimer launchStateResetTimer;
+
 
 #ifdef UNIT_TEST
     friend class Ut_LauncherButton;
