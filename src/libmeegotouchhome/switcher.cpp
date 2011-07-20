@@ -230,7 +230,7 @@ bool Switcher::isRelevantTopmostWindow(const WindowInfo &windowInfo)
 void Switcher::handleWindowInfoList(QList<WindowInfo> newWindowList)
 {
     foreach(WindowInfo wi, newWindowList) {
-        if (!isRelevantWindow(wi.window())) {
+        if (!isRelevantWindow(wi.window()) || wi.types().contains(WindowInfo::DockAtom)) {
             newWindowList.removeOne(wi);
         }
     }

@@ -30,9 +30,9 @@
 #include "x11wrapper.h"
 
 // The numbers of different windows the stubs are testing
-#define INVALID_WINDOWS 16
+#define INVALID_WINDOWS 17
 #define APPLICATION_WINDOWS 2
-#define NON_APPLICATION_WINDOWS 7
+#define NON_APPLICATION_WINDOWS 6
 #define VALID_WINDOWS (NON_APPLICATION_WINDOWS + APPLICATION_WINDOWS)
 #define NUMBER_OF_WINDOWS (INVALID_WINDOWS + VALID_WINDOWS)
 
@@ -40,6 +40,7 @@
 #define FIRST_APPLICATION_WINDOW (FIRST_INVALID_WINDOW + INVALID_WINDOWS)
 #define FIRST_NON_APPLICATION_WINDOW (FIRST_APPLICATION_WINDOW + APPLICATION_WINDOWS)
 #define SKIP_TASKBAR_WINDOW (FIRST_NON_APPLICATION_WINDOW + NON_APPLICATION_WINDOWS - 1)
+#define INPUT_WINDOW (FIRST_NON_APPLICATION_WINDOW + NON_APPLICATION_WINDOWS - 2)
 
 // Values for X11 atoms
 #define ATOM_TYPE 0x00010000
@@ -463,14 +464,17 @@ void Ut_Switcher::init()
         g_windows[w] = w;
     }
 
+    // Make the last invalid window invalid because it's a dock window
+    g_windowTypeMap[FIRST_INVALID_WINDOW + INVALID_WINDOWS - 1][0] = ATOM_TYPE_DOCK;
+
     // Add non-application windows
     g_windowTypeMap[FIRST_NON_APPLICATION_WINDOW + 0][0] = ATOM_TYPE_DESKTOP;
     g_windowTypeMap[FIRST_NON_APPLICATION_WINDOW + 1][0] = ATOM_TYPE_NOTIFICATION;
     g_windowTypeMap[FIRST_NON_APPLICATION_WINDOW + 2][0] = ATOM_TYPE_DIALOG;
-    g_windowTypeMap[FIRST_NON_APPLICATION_WINDOW + 3][0] = ATOM_TYPE_DOCK;
-    g_windowTypeMap[FIRST_NON_APPLICATION_WINDOW + 4][0] = ATOM_TYPE_MENU;
-    g_windowTypeMap[FIRST_NON_APPLICATION_WINDOW + 5][0] = ATOM_TYPE_INPUT_WINDOW;
+    g_windowTypeMap[FIRST_NON_APPLICATION_WINDOW + 3][0] = ATOM_TYPE_MENU;
+    g_windowTypeMap[INPUT_WINDOW][0] = ATOM_TYPE_INPUT_WINDOW;
 
+    // Add SKIP_TASKBAR window as the last non-application window
     g_windowStateMap.clear();
     QVector<Atom> states(1);
     states[0] = ATOM_STATE_SKIP_TASKBAR;
@@ -1211,10 +1215,10 @@ void Ut_Switcher::testUpdatingButtonsWhenWindowIsClosed()
 
 void Ut_Switcher::testUpdatingButtonWindowWhenApplicationHasVirtualKeyboardOnTop()
 {
-    x11WrapperTransientForHint[FIRST_NON_APPLICATION_WINDOW + 5] = FIRST_APPLICATION_WINDOW;
+    x11WrapperTransientForHint[INPUT_WINDOW] = FIRST_APPLICATION_WINDOW;
 
     WindowInfo winfo(FIRST_APPLICATION_WINDOW);
-    WindowInfo winfo1(FIRST_NON_APPLICATION_WINDOW + 5);
+    WindowInfo winfo1(INPUT_WINDOW);
 
     QList<WindowInfo> windowList;
     windowList.append(winfo);

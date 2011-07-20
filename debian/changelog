@@ -8,6 +8,7 @@ meegotouchhome (1.1.4~1) unstable; urgency=low
   * Fixes: NB#260216 - COREWEB: MWidgetModel::styleName MTheme::style MStyleContainer::updateCurrentStyle MStyleContainer::currentStyle operator->
   * Fixes: NB#267590 - swiping application having VKB on top in recents view - appears an image of application where the image is going to place.
   * Fixes: NB#270272 - Sometimes there are no notifications on lockscreen for received SMS
+  * Fixes: NB#269423 - QLB is empty with the following steps
 
  -- Pauli Lehtinen <pauli.lehtinen@nokia.com>  Wed, 29 Jun 2011 14:59:14 +0300
 
