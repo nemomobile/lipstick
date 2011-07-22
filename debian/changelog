@@ -1,6 +1,5 @@
-meegotouchhome (1.1.4~1) unstable; urgency=low
+meegotouchhome (1.1.4-1) unstable; urgency=low
 
-  * [UNRELEASED]
   * Fixes: NB#270603 - Launcher icon in "dimmed" state when dismissing error dialog by tapping on it
   * Fixes: NB#250144 - Desktop entry parsing is not optimized in launcher
   * Fixes: NB#248129 - Paging canceling behavior is off
@@ -9,7 +8,7 @@ meegotouchhome (1.1.4~1) unstable; urgency=low
   * Fixes: NB#270272 - Sometimes there are no notifications on lockscreen for received SMS
   * Fixes: NB#269423 - QLB is empty with the following steps
 
- -- Pauli Lehtinen <pauli.lehtinen@nokia.com>  Wed, 29 Jun 2011 14:59:14 +0300
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Fri, 22 Jul 2011 11:57:53 +0300
 
 meegotouchhome (1.1.3-1) unstable; urgency=low
 
