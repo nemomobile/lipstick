@@ -16,7 +16,6 @@
 ** of this file.
 **
 ****************************************************************************/
-
 #include <QDir>
 #include <QFile>
 #include <MDesktopEntry>
@@ -28,10 +27,6 @@
 
 static const QString KEY_PREFIX = "DesktopEntries";
 static const char* const FILE_FILTER = "*.desktop";
-
-static const QString DESKTOP_ENTRY_TYPE_KEY = "Desktop Entry/Type";
-static const QString DESKTOP_ONLY_SHOW_IN_KEY = "Desktop Entry/OnlyShowIn";
-static const QString DESKTOP_NOT_SHOW_IN_KEY = "Desktop Entry/NotShowIn";
 
 LauncherDataStore::LauncherDataStore(MDataStore* dataStore, const QStringList &directories) :
         store(dataStore)
@@ -134,26 +129,17 @@ void LauncherDataStore::updateDesktopEntryFiles()
         QString key = entryPathToKey(desktopEntryPath);
 
         // Add an entry if it is not yet invalidated or added to store
-        if (!invalidEntries.contains(desktopEntryPath)) {
-            if (!store->contains(key)) {
-                if (isDesktopEntryValid(desktopEntryPath, supportedDesktopEntryFileTypes)) {
-                    QSharedPointer<MDesktopEntry> desktopEntry(new MDesktopEntry(desktopEntryPath));
-                    // Add the new entry with an unknown location
-                    addedEntriesData.insert(desktopEntryPath, QString());
-                    addedEntries.insert(desktopEntry);
-                } else {
-                    invalidEntries.append(desktopEntryPath);
-                }
+        if (!invalidEntries.contains(desktopEntryPath) && !store->contains(key)) {
+            QSharedPointer<MDesktopEntry> desktopEntry(new MDesktopEntry(desktopEntryPath));
+            if (isDesktopEntryValid(*desktopEntry.data(), supportedDesktopEntryFileTypes)) {
+                // Add the new entry with an unknown location
+                addedEntriesData.insert(desktopEntryPath, QString());
+                addedEntries.insert(desktopEntry);
             } else {
-                // Check that entry found already from store is still valid, if not then remove
-                if (!isDesktopEntryValid(desktopEntryPath, supportedDesktopEntryFileTypes)) {
-                    removeDataForDesktopEntry(desktopEntryPath);
-                    emit desktopEntryRemoved(desktopEntryPath);
-                    invalidEntries.append(desktopEntryPath);
-                }
+                invalidEntries.append(desktopEntryPath);
             }
 
-            addFilePathToWatcher(desktopEntryPath);
+            addFilePathToWatcher(desktopEntry->fileName());
         }
     }
 
@@ -177,25 +163,11 @@ void LauncherDataStore::updateDesktopEntryFiles()
     emit dataStoreChanged();
 }
 
-bool LauncherDataStore::isDesktopEntryValid(const QString &entryPath, const QStringList &acceptedTypes)
+bool LauncherDataStore::isDesktopEntryValid(const MDesktopEntry &entry, const QStringList &acceptedTypes)
 {
-    bool valid = false;
-    QFile file(entryPath);
-
-    // Checks if the file exists and opens in readonly mode
-    if (file.exists() && file.open(QIODevice::ReadOnly)) {
-        QMap<QString, QString> desktopEntryData;
-        if (MDesktopEntry::readDesktopFile(file, desktopEntryData)) {
-            valid = acceptedTypes.contains(desktopEntryData.value(DESKTOP_ENTRY_TYPE_KEY))
-                    && (!desktopEntryData.contains(DESKTOP_ONLY_SHOW_IN_KEY)
-                        || desktopEntryData.value(DESKTOP_ONLY_SHOW_IN_KEY).contains("X-MeeGo"))
-                    && (!desktopEntryData.contains(DESKTOP_NOT_SHOW_IN_KEY)
-                        || !desktopEntryData.value(DESKTOP_NOT_SHOW_IN_KEY).contains("X-MeeGo"));
-        }
-    }
-    file.close();
-
-    return valid;
+    return (entry.isValid() && acceptedTypes.contains(entry.type())) &&
+    (entry.onlyShowIn().count() == 0 || entry.onlyShowIn().contains("X-DUI") || entry.onlyShowIn().contains("X-MeeGo")) &&
+    (entry.notShowIn().count() == 0 || !(entry.notShowIn().contains("X-DUI") || entry.notShowIn().contains("X-MeeGo")));
 }
 
 QString LauncherDataStore::entryPathToKey(const QString &entryPath)
@@ -240,8 +212,8 @@ void LauncherDataStore::updateDesktopEntry(const QString &desktopEntryPath)
         QString key = entryPathToKey(fullPath);
 
         if (store->contains(key)) {
-            if (isDesktopEntryValid(fullPath, supportedDesktopEntryFileTypes)) {
-                QSharedPointer<MDesktopEntry> desktopEntry(new MDesktopEntry(fullPath));
+            QSharedPointer<MDesktopEntry> desktopEntry(new MDesktopEntry(fullPath));
+            if (isDesktopEntryValid(*desktopEntry.data(), supportedDesktopEntryFileTypes)) {
                 // update valid & existing entry
                 emit desktopEntryChanged(desktopEntry);
             } else {
@@ -251,8 +223,8 @@ void LauncherDataStore::updateDesktopEntry(const QString &desktopEntryPath)
                 invalidEntries.append(fullPath);
             }
         } else {
-            if (isDesktopEntryValid(fullPath, supportedDesktopEntryFileTypes)) {
-                QSharedPointer<MDesktopEntry> desktopEntry(new MDesktopEntry(fullPath));
+            QSharedPointer<MDesktopEntry> desktopEntry(new MDesktopEntry(fullPath));
+            if (isDesktopEntryValid(*desktopEntry.data(), supportedDesktopEntryFileTypes)) {
                 // If entry has been invalid before, but is now valid, add entry as a new entry
                 store->createValue(key, QVariant());
                 emit desktopEntryAdded(desktopEntry);
