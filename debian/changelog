@@ -25,7 +25,6 @@ meegotouchhome (1.1.3-1) unstable; urgency=low
 
 meegotouchhome (1.1.2-1) unstable; urgency=low
 
-  * Fixes: NB#269064 - Panning animation of Events/Switcher is different from other screens
   * Changes: Enabler to fix 255416
   * Changes: Make virtual removeLauncherButton in launcher
 
