@@ -28,31 +28,80 @@
 
 Q_DECLARE_METATYPE(QSharedPointer<MDesktopEntry>)
 
-static const QString DESKTOP_ENTRY_TYPE_KEY = "Desktop Entry/Type";
-static const QString DESKTOP_ONLY_SHOW_IN_KEY = "Desktop Entry/OnlyShowIn";
-static const QString DESKTOP_NOT_SHOW_IN_KEY = "Desktop Entry/NotShowIn";
-
-QMap<QString, QMap<QString, QString> > desktopEntryDataMap;
-
+// MDesktopEntry stubs (used by Launcher)
 QMap<const MDesktopEntry *, QString> desktopEntryFileName;
+QMap<QString, QStringList> desktopEntryCategories;
 QMap<QString, QStringList> desktopEntryOnlyShowIn;
 QMap<QString, QStringList> desktopEntryNotShowIn;
 QMap<QString, QString> desktopEntryType;
-QSet<QString> desktopEntryHasInvalidNotation;
+QMap<QString, QString> desktopEntryXMaemoService;
+QMap<QString, QString> desktopEntryName;
+QMap<QString, QString> desktopEntryIcon;
+QMap<QString, QString> desktopEntryExec;
+QMap<QString, QString> desktopEntryUrl;
+QMap<QString, QString> desktopEntryNameUnlocalized;
 
 QStringList addedWatcherPathCalls;
 
-bool MDesktopEntry::readDesktopFile(QIODevice &device, QMap<QString, QString> &desktopEntriesMap)
+MDesktopEntry::MDesktopEntry(const QString &fileName) :
+    d_ptr(NULL)
 {
-    QString filePath = QFileInfo(*dynamic_cast<QFile *>(&device)).absoluteFilePath();
-    desktopEntriesMap.insert(DESKTOP_ENTRY_TYPE_KEY, desktopEntryType.value(filePath));
-    if (desktopEntryOnlyShowIn.contains(filePath)) {
-        desktopEntriesMap.insert(DESKTOP_ONLY_SHOW_IN_KEY, desktopEntryOnlyShowIn.value(filePath).join(""));
-    }
-    if (desktopEntryNotShowIn.contains(filePath)) {
-        desktopEntriesMap.insert(DESKTOP_NOT_SHOW_IN_KEY, desktopEntryNotShowIn.value(filePath).join(""));
-    }
-    return !desktopEntryHasInvalidNotation.contains(filePath);
+    desktopEntryFileName.insert(this, fileName);
+}
+
+QString MDesktopEntry::fileName() const
+{
+    return desktopEntryFileName[this];
+}
+
+bool MDesktopEntry::isValid() const
+{
+    return true;
+}
+
+QStringList MDesktopEntry::onlyShowIn() const
+{
+    return desktopEntryOnlyShowIn.value(desktopEntryFileName.value(this));
+}
+
+QStringList MDesktopEntry::notShowIn() const
+{
+    return desktopEntryNotShowIn.value(desktopEntryFileName.value(this));
+}
+
+QString MDesktopEntry::type() const
+{
+    return desktopEntryType.value(desktopEntryFileName.value(this));
+}
+
+QString MDesktopEntry::xMaemoService() const
+{
+    return desktopEntryXMaemoService.value(desktopEntryFileName.value(this));
+}
+
+QString MDesktopEntry::name() const
+{
+    return desktopEntryName.value(desktopEntryFileName.value(this));
+}
+
+QString MDesktopEntry::icon() const
+{
+    return desktopEntryIcon.value(desktopEntryFileName.value(this));
+}
+
+QString MDesktopEntry::exec() const
+{
+    return desktopEntryExec.value(desktopEntryFileName.value(this));
+}
+
+QString MDesktopEntry::url() const
+{
+    return desktopEntryUrl.value(desktopEntryFileName.value(this));
+}
+
+QString MDesktopEntry::nameUnlocalized() const
+{
+    return desktopEntryNameUnlocalized.value(desktopEntryFileName.value(this));
 }
 
 // QDir stubs
@@ -107,32 +156,18 @@ QString QFileInfo::canonicalFilePath() const
 }
 
 // QFile stubs
-bool QFile::exists() const
+bool QFile::exists(const QString &file)
 {
     bool contains = false;
     foreach (const QFileInfoList &fileInfoList, desktopFileInfoList.values()) {
         foreach (const QFileInfo &fileInfo, fileInfoList) {
-            if (fileInfo.absoluteFilePath() == QFileInfo(*this).absoluteFilePath()) {
+            if (fileInfo.absoluteFilePath() == file) {
                 contains = true;
                 break;
             }
         }
     }
     return contains;
-}
-
-bool QFile::open(OpenMode flags)
-{
-    // Return value needs to be stubbed but opening must still work for MApplication style files
-    // (QFile::exists() is a stubbed method)
-    bool opened = exists();
-    if (!opened) {
-        if (fileEngine()->open(flags)) {
-            QIODevice::open(flags);
-            opened = true;
-        }
-    }
-    return opened;
 }
 
 // QFileSystemWatcher stubs
@@ -162,11 +197,19 @@ void Ut_LauncherDataStore::cleanupTestCase()
 
 void Ut_LauncherDataStore::init()
 {
+    mockStore = new MockDataStore;
+    mockStore->clear();
     desktopEntryFileName.clear();
+    desktopEntryCategories.clear();
     desktopEntryOnlyShowIn.clear();
     desktopEntryNotShowIn.clear();
     desktopEntryType.clear();
-    desktopEntryHasInvalidNotation.clear();
+    desktopEntryXMaemoService.clear();
+    desktopEntryName.clear();
+    desktopEntryIcon.clear();
+    desktopEntryExec.clear();
+    desktopEntryUrl.clear();
+    desktopEntryNameUnlocalized.clear();
     desktopFileInfoList.clear();
     addedWatcherPathCalls.clear();
     qFileInfoDirs.clear();
@@ -182,31 +225,34 @@ QString fileNameWithPath(const QString &fileName, const QString &directoryName =
     return directoryName + fileName;
 }
 
-void addDesktopEntry(const QString &fileName, const QString &type = QString("Application"), const QString &directoryName = QString(APPLICATIONS_DIRECTORY))
+void addDesktopEntry(const QString &fileName, const QString &name, const QString &type, const QString &icon, const QString &exec, const QString &directoryName = QString(APPLICATIONS_DIRECTORY))
 {
     QString fullFileName = fileNameWithPath(fileName, directoryName);
+    desktopEntryName.insert(fullFileName, name);
     desktopEntryType.insert(fullFileName, type);
+    desktopEntryIcon.insert(fullFileName, icon);
+    desktopEntryExec.insert(fullFileName, exec);
     desktopFileInfoList[QFileInfo(directoryName).path()].append(fullFileName);
 }
 
 void removeDesktopEntries()
 {
+    desktopEntryName.clear();
     desktopEntryType.clear();
-    desktopEntryOnlyShowIn.clear();
-    desktopEntryNotShowIn.clear();
+    desktopEntryIcon.clear();
+    desktopEntryExec.clear();
     desktopFileInfoList.clear();
-    desktopEntryHasInvalidNotation.clear();
 }
 
 void Ut_LauncherDataStore::testAddingDesktopEntryFiles()
 {
-    LauncherDataStore dataStore(new MockDataStore, QStringList() << APPLICATIONS_DIRECTORY);
+    LauncherDataStore dataStore(mockStore, QStringList() << APPLICATIONS_DIRECTORY);
 
     QStringList addedEntries;
     for (int i = 0; i < 4; i++) {
         QString entry = QString("testApplication%1.desktop").arg(i);
         addedEntries.append(fileNameWithPath(entry));
-        addDesktopEntry(entry, "Application");
+        addDesktopEntry(entry, "Test", "Application", "Icon-camera", "test");
     }
 
     QSignalSpy spyDesktopEntryAdded(&dataStore, SIGNAL(desktopEntryAdded(QSharedPointer<MDesktopEntry>)));
@@ -225,11 +271,11 @@ void Ut_LauncherDataStore::testAddingDesktopEntryFiles()
 
 void Ut_LauncherDataStore::testRemovingDesktopEntryFiles()
 {
-    addDesktopEntry("testApplication1.desktop", "Application");
-    addDesktopEntry("testApplication2.desktop", "Application");
-    addDesktopEntry("testApplication3.desktop", "Application");
-    addDesktopEntry("testApplication4.desktop", "Application");
-    LauncherDataStore dataStore(new MockDataStore, QStringList() << APPLICATIONS_DIRECTORY);
+    addDesktopEntry("testApplication1.desktop", "Test1", "Application", "Icon-camera", "test1");
+    addDesktopEntry("testApplication2.desktop", "Test2", "Application", "Icon-camera", "test2");
+    addDesktopEntry("testApplication3.desktop", "Test3", "Application", "Icon-camera", "test3");
+    addDesktopEntry("testApplication4.desktop", "Test4", "Application", "Icon-camera", "test4");
+    LauncherDataStore dataStore(mockStore, QStringList() << APPLICATIONS_DIRECTORY);
     QSignalSpy spyDesktopEntryRemoved(&dataStore, SIGNAL(desktopEntryRemoved(QString)));
 
     dataStore.updateDesktopEntryFiles();
@@ -239,7 +285,7 @@ void Ut_LauncherDataStore::testRemovingDesktopEntryFiles()
 
     // Updating the desktop entry directory should be reflected in the data
     removeDesktopEntries();
-    addDesktopEntry("testApplication.desktop", "Application");
+    addDesktopEntry("testApplication.desktop", "Test", "Application", "Icon-camera", "test");
 
     dataStore.updateDesktopEntryFiles();
 
@@ -255,23 +301,23 @@ void Ut_LauncherDataStore::testRemovingDesktopEntryFiles()
 
 void Ut_LauncherDataStore::testUpdatingDesktopFilesFiltersDesktopEntries()
 {
-    LauncherDataStore dataStore(new MockDataStore, QStringList() << APPLICATIONS_DIRECTORY);
+    LauncherDataStore dataStore(mockStore, QStringList() << APPLICATIONS_DIRECTORY);
 
     // Add valid entries:
     QStringList expectedEntries;
     QString regularEntry("regularApplication.desktop");
     expectedEntries.append(fileNameWithPath(regularEntry));
-    addDesktopEntry(regularEntry, "Application");
+    addDesktopEntry(regularEntry, "Test4", "Application", "Icon-camera", "test4");
 
     QString meegoApp("onlyShowInMeeGoApplication.desktop");
     expectedEntries.append(fileNameWithPath(meegoApp));
-    addDesktopEntry(meegoApp, "Link");
+    addDesktopEntry(meegoApp, "Test0", "Link", "Icon-camera", "test0");
     desktopEntryOnlyShowIn.insert(fileNameWithPath("onlyShowInMeeGoApplication.desktop"), QStringList() << "X-MeeGo");
 
     // Add invalid entries:
-    addDesktopEntry("onlyShowInInvalidApplication.desktop", "Application");
-    addDesktopEntry("notShowInMeeGoApplication.desktop", "Application");
-    addDesktopEntry("invalidApplication.desktop", "Invalid");
+    addDesktopEntry("onlyShowInInvalidApplication.desktop", "Test1", "Application", "Icon-camera", "test1");
+    addDesktopEntry("notShowInMeeGoApplication.desktop", "Test2", "Application", "Icon-camera", "test2");
+    addDesktopEntry("invalidApplication.desktop", "Test3", "Invalid", "Icon-camera", "test3");
     desktopEntryOnlyShowIn.insert(fileNameWithPath("onlyShowInInvalidApplication.desktop"), QStringList() << "X-Invalid");
     desktopEntryNotShowIn.insert(fileNameWithPath("notShowInMeeGoApplication.desktop"), QStringList() << "X-MeeGo");
 
@@ -297,8 +343,8 @@ void Ut_LauncherDataStore::testUpdatingDesktopFilesFiltersDesktopEntries()
 void Ut_LauncherDataStore::testUpdatingDataForDesktopEntry()
 {
     // Test application
-    addDesktopEntry("regularApplication.desktop", "Application");
-    MockDataStore *mockStore = new MockDataStore;
+    addDesktopEntry("regularApplication.desktop", "Test0", "Application", "Icon-camera", "test0");
+
     LauncherDataStore dataStore(mockStore, QStringList() << APPLICATIONS_DIRECTORY);
     dataStore.updateDesktopEntryFiles();
 
@@ -332,9 +378,9 @@ void Ut_LauncherDataStore::testUpdatingDataForDesktopEntry()
 
 void Ut_LauncherDataStore::testRemovingDataForDesktopEntry()
 {
-    addDesktopEntry("test.desktop", "Application");
+    addDesktopEntry("test.desktop", "Test0", "Application", "Icon-camera", "test0");
 
-    LauncherDataStore dataStore(new MockDataStore, QStringList() << APPLICATIONS_DIRECTORY);
+    LauncherDataStore dataStore(mockStore, QStringList() << APPLICATIONS_DIRECTORY);
     dataStore.updateDesktopEntryFiles();
     QSignalSpy spy(&dataStore, SIGNAL(dataStoreChanged()));
 
@@ -345,8 +391,6 @@ void Ut_LauncherDataStore::testRemovingDataForDesktopEntry()
 
 void Ut_LauncherDataStore::testRemovingNonPrefixedKeys()
 {
-    MockDataStore *mockStore = new MockDataStore;
-
     // Test applications
     QString regularDesktopEntry(fileNameWithPath("regularApplication.desktop"));
     mockStore->createValue("DesktopEntries" + regularDesktopEntry, QVariant("data0"));
@@ -374,14 +418,14 @@ void Ut_LauncherDataStore::testAddingWatcherDesktopEntryPaths()
     QString dirPath("/test/directory1");
     qFileInfoDirs.append(dirPath);
 
-    LauncherDataStore dataStore(new MockDataStore, QStringList() << APPLICATIONS_DIRECTORY << dirPath << "/test/directory2/");
+    LauncherDataStore dataStore(mockStore, QStringList() << APPLICATIONS_DIRECTORY << dirPath << "/test/directory2/");
 
     // Test applications
     QStringList expectedEntryPaths;
     for (int i = 0; i < 2; i++) {
         QString entry = QString("testApplication%1.desktop").arg(i);
         expectedEntryPaths.append(fileNameWithPath(entry));
-        addDesktopEntry(entry, "Application");
+        addDesktopEntry(entry, "Test", "Application", "Icon-camera", "test");
     }
 
     dataStore.updateDesktopEntryFiles();
@@ -395,7 +439,7 @@ void Ut_LauncherDataStore::testAddingWatcherDesktopEntryPaths()
         QVERIFY(addedWatcherPathCalls.contains(expectedPath));
     }
 
-    addDesktopEntry("testApplication3.desktop", "Application", "/test/directory1/");
+    addDesktopEntry("testApplication3.desktop", "Test3", "Application", "Icon-camera", "test3", "/test/directory1/");
 
     dataStore.updateDesktopEntryFiles();
 
@@ -408,11 +452,11 @@ void Ut_LauncherDataStore::testUpdatingDesktopEntry()
     qFileInfoDirs.append("/test/directory1");
     qFileInfoDirs.append("/test/directory2");
 
-    addDesktopEntry("testApplication0.desktop", "Application");
-    addDesktopEntry("testApplication1.desktop", "Application", "/test/directory1/");
-    addDesktopEntry("testApplication2.desktop", "Application", "/test/directory2/");
-    addDesktopEntry("testApplication3.desktop", "Application", "/test/directory2/");
-    LauncherDataStore dataStore(new MockDataStore, QStringList() << APPLICATIONS_DIRECTORY << "/test/directory1" << "/test/directory2/");
+    addDesktopEntry("testApplication0.desktop", "Test0", "Application", "Icon-camera", "test0");
+    addDesktopEntry("testApplication1.desktop", "Test1", "Application", "Icon-camera", "test1", "/test/directory1/");
+    addDesktopEntry("testApplication2.desktop", "Test2", "Application", "Icon-camera", "test2", "/test/directory2/");
+    addDesktopEntry("testApplication3.desktop", "Test3", "Application", "Icon-camera", "test3", "/test/directory2/");
+    LauncherDataStore dataStore(mockStore, QStringList() << APPLICATIONS_DIRECTORY << "/test/directory1" << "/test/directory2/");
     dataStore.updateDesktopEntryFiles();
 
     QSignalSpy spyDesktopEntryChanged(&dataStore, SIGNAL(desktopEntryChanged(QSharedPointer<MDesktopEntry>)));
@@ -434,9 +478,9 @@ void Ut_LauncherDataStore::testUpdatingDesktopEntry()
 
 void Ut_LauncherDataStore::testUpdatingInvalidEntry()
 {
-    addDesktopEntry("invalidAndValidApplication.desktop", "invalid");
-    addDesktopEntry("testApplication2.desktop", "Application");
-    LauncherDataStore dataStore(new MockDataStore, QStringList() << APPLICATIONS_DIRECTORY);
+    addDesktopEntry("invalidAndValidApplication.desktop", "Test3", "invalid", "Icon-camera", "test3");
+    addDesktopEntry("testApplication2.desktop", "Test2", "Application", "Icon-camera", "test2");
+    LauncherDataStore dataStore(mockStore, QStringList() << APPLICATIONS_DIRECTORY);
 
     dataStore.updateDesktopEntryFiles();
 
@@ -466,9 +510,9 @@ void Ut_LauncherDataStore::testUpdatingInvalidEntry()
 void Ut_LauncherDataStore::testRemovingEntriesWhenApplicationsDirectoryGetsEmpty()
 {
     // Add desktop entries
-    addDesktopEntry("testApplication1.desktop", "Application");
-    addDesktopEntry("testApplication2.desktop", "Application");
-    LauncherDataStore dataStore(new MockDataStore, QStringList() << APPLICATIONS_DIRECTORY);
+    addDesktopEntry("testApplication1.desktop", "Test1", "Application", "Icon-camera", "test1");
+    addDesktopEntry("testApplication2.desktop", "Test2", "Application", "Icon-camera", "test2");
+    LauncherDataStore dataStore(mockStore, QStringList() << APPLICATIONS_DIRECTORY);
     dataStore.updateDesktopEntryFiles();
 
     QSignalSpy spyDesktopEntryRemoved(&dataStore, SIGNAL(desktopEntryRemoved(QString)));
@@ -483,9 +527,9 @@ void Ut_LauncherDataStore::testRemovingEntriesWhenApplicationsDirectoryGetsEmpty
 
 void Ut_LauncherDataStore::testNotReprocessingInvalidEntry()
 {
-    addDesktopEntry("notShowInMeeGoApplication.desktop", "Application");
+    addDesktopEntry("notShowInMeeGoApplication.desktop", "Test2", "Application", "Icon-camera", "test2");
     desktopEntryNotShowIn.insert(fileNameWithPath("notShowInMeeGoApplication.desktop"), QStringList() << "X-MeeGo");
-    LauncherDataStore dataStore(new MockDataStore, QStringList() << APPLICATIONS_DIRECTORY);
+    LauncherDataStore dataStore(mockStore, QStringList() << APPLICATIONS_DIRECTORY);
     dataStore.updateDesktopEntryFiles();
     QVERIFY(dataStore.invalidEntries.contains(fileNameWithPath("notShowInMeeGoApplication.desktop")));
     desktopEntryFileName.clear();
@@ -501,7 +545,7 @@ void Ut_LauncherDataStore::testUpdatingMultipleEntries()
     LauncherDataStore dataStore(new HomeFileDataStore("path"), QStringList() << APPLICATIONS_DIRECTORY);
 
     // Add one existing value that should be updated too
-    addDesktopEntry("testApplication1.desktop", "Application");
+    addDesktopEntry("testApplication1.desktop", "Test2", "Application", "Icon-camera", "test2");
 
     QHash<QString, QString> updatedData;
     const int AMOUNT_OF_BUTTONS = 3;
@@ -516,28 +560,6 @@ void Ut_LauncherDataStore::testUpdatingMultipleEntries()
         QString entryPath = LauncherDataStore::keyToEntryPath(key);
         QCOMPARE(storedEntries.value(key).toString(), updatedData.value(entryPath));
     }
-}
-
-void Ut_LauncherDataStore::testValidatingPreviouslyAddedDesktopEntiesOnStartUp()
-{
-    MockDataStore *mockStore = new MockDataStore;
-
-    // Add two valid values to data store
-    QString invalidDesktopEntryPath = fileNameWithPath("testApplication1.desktop", APPLICATIONS_DIRECTORY);
-    desktopEntryHasInvalidNotation.insert(invalidDesktopEntryPath);
-    QString validDesktopEntryPath = fileNameWithPath("testApplication2.desktop", APPLICATIONS_DIRECTORY);
-    addDesktopEntry("testApplication1.desktop");
-    addDesktopEntry("testApplication2.desktop");
-    mockStore->createValue(LauncherDataStore::entryPathToKey(invalidDesktopEntryPath), QVariant("data1"));
-    mockStore->createValue(LauncherDataStore::entryPathToKey(validDesktopEntryPath), QVariant("validData"));
-
-    LauncherDataStore dataStore(mockStore, QStringList() << APPLICATIONS_DIRECTORY);
-    dataStore.updateDesktopEntryFiles();
-
-    // Verify that invalid entry was removed when datastore when desktop entries were processed
-    QCOMPARE(mockStore->allKeys().count(), 1);
-    QCOMPARE(mockStore->value(LauncherDataStore::entryPathToKey(invalidDesktopEntryPath)), QVariant());
-    QCOMPARE(mockStore->value(LauncherDataStore::entryPathToKey(validDesktopEntryPath)).toString(), QString("validData"));
 }
 
 QTEST_APPLESS_MAIN(Ut_LauncherDataStore)

@@ -32,7 +32,7 @@ class LauncherDataStoreStub : public StubBase {
   virtual QHash<QString, QVariant> dataForAllDesktopEntries();
   virtual void updateDataForDesktopEntry(const QString &entryPath, const QVariant &data);
   virtual void updateDesktopEntryFiles();
-  virtual bool isDesktopEntryValid(const QString &entry, const QStringList &acceptedTypes);
+  virtual bool isDesktopEntryValid(const MDesktopEntry &entry, const QStringList &acceptedTypes);
   virtual QString entryPathToKey(const QString &entryPath);
   virtual QString keyToEntryPath(const QString &key);
   virtual void updateDesktopEntry(const QString &desktopEntryPath);
@@ -68,9 +68,9 @@ void LauncherDataStoreStub::updateDesktopEntryFiles() {
   stubMethodEntered("updateDesktopEntryFiles");
 }
 
-bool LauncherDataStoreStub::isDesktopEntryValid(const QString &entry, const QStringList &acceptedTypes) {
+bool LauncherDataStoreStub::isDesktopEntryValid(const MDesktopEntry &entry, const QStringList &acceptedTypes) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const QString & >(entry));
+  params.append( new Parameter<const MDesktopEntry & >(entry));
   params.append( new Parameter<const QStringList & >(acceptedTypes));
   stubMethodEntered("isDesktopEntryValid",params);
   return stubReturnValue<bool>("isDesktopEntryValid");
@@ -135,7 +135,7 @@ void LauncherDataStore::updateDesktopEntryFiles() {
   gLauncherDataStoreStub->updateDesktopEntryFiles();
 }
 
-bool LauncherDataStore::isDesktopEntryValid(const QString &entry, const QStringList &acceptedTypes) {
+bool LauncherDataStore::isDesktopEntryValid(const MDesktopEntry &entry, const QStringList &acceptedTypes) {
   return gLauncherDataStoreStub->isDesktopEntryValid(entry, acceptedTypes);
 }
 
