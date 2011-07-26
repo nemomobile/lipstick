@@ -116,6 +116,15 @@ public:
       */
     static QString keyToEntryPath(const QString &key);
 
+    /*!
+     * Returns \c true if the data store is aware of the desktop entry and
+     * has checked it to be an invalid entry. Otherwise returns \c false.
+     *
+     * \param entryPath the path of the desktop entry to get validity for
+     * \return \c true if the desktop entry is known to be invalid, \c false otherwise
+     */
+    bool isDesktopEntryKnownToBeInvalid(const QString &entryPath) const;
+
 signals:
     /*!
      * \brief A signal for informing that the contents of the data store have changed.

@@ -116,6 +116,7 @@ void Ut_Launcher::cleanup()
     delete launcher;
     delete launcherDataStore;
     delete packageMonitor;
+    gLauncherDataStoreStub->stubReset();
 }
 
 int Ut_Launcher::buttonsCount()
@@ -780,5 +781,15 @@ void Ut_Launcher::testWhenLauncherPageCreatedThenPruningConnectedToButtonRemoval
     QVERIFY(disconnect(page.data(), SIGNAL(buttonRemoved()), launcher, SLOT(prunePage())));
 }
 
+void Ut_Launcher::testPlaceholderButtonIsNotAddedIfApplicationDesktopEntryIsInvalid()
+{
+    QSharedPointer<MDesktopEntry> desktopEntry(new MDesktopEntry("/dev/null/test.desktop"));
+    gLauncherButtonStub->stubSetReturnValue("desktopEntry", desktopEntry->fileName());
+    gLauncherDataStoreStub->stubSetReturnValue("isDesktopEntryKnownToBeInvalid", true);
+
+    // If the application desktop entry is invalid nothing should happen
+    launcher->updateButtonState(desktopEntry, "pkg", ApplicationPackageMonitor::PACKAGE_STATE_INSTALLED, true);
+    QCOMPARE(launcher->model()->launcherPages().count(), 0);
+}
 
 QTEST_MAIN(Ut_Launcher)

@@ -261,3 +261,8 @@ void LauncherDataStore::updateDesktopEntry(const QString &desktopEntryPath)
         }
     }
 }
+
+bool LauncherDataStore::isDesktopEntryKnownToBeInvalid(const QString &entryPath) const
+{
+    return invalidEntries.contains(entryPath);
+}

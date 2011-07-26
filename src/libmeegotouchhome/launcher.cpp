@@ -105,9 +105,16 @@ void Launcher::updateButtonState(const QSharedPointer<MDesktopEntry> &desktopEnt
     if (!buttonPlacementInDatastore.location.isEmpty() && buttonPlacementInDatastore.location != Launcher::LOCATION_IDENTIFIER) {
         return;
     }
+
     // When button state changes to uninstall, remove button right away
     if (buttonState == LauncherButtonModel::Uninstall) {
         removeLauncherButton(entryPath);
+        return;
+    }
+
+    // If a .desktop file exists for the application itself but is invalid ignore the button
+    QString applicationEntryPath(ApplicationPackageMonitor::toApplicationsEntryPath(entryPath));
+    if (dataStore != NULL && dataStore->isDesktopEntryKnownToBeInvalid(applicationEntryPath)) {
         return;
     }
 
@@ -115,19 +122,16 @@ void Launcher::updateButtonState(const QSharedPointer<MDesktopEntry> &desktopEnt
 
     // When package in installed state and desktop entry is currently from installer-extra, then always
     // change to use the desktop entry from applications folder
-    if (buttonState == LauncherButtonModel::Installed
-            && ApplicationPackageMonitor::isInstallerExtraEntry(button->desktopEntry())) {
-        entryPath = ApplicationPackageMonitor::toApplicationsEntryPath(entryPath);
-
-        if (!QFileInfo(entryPath).exists()) {
+    if (buttonState == LauncherButtonModel::Installed && ApplicationPackageMonitor::isInstallerExtraEntry(button->desktopEntry())) {
+        if (!QFileInfo(applicationEntryPath).exists()) {
             // In error case that package doesn't have desktop entry in applications folder even when in installed state,
             // just remove button from launcher and let launcher datastore
             // to handle button addition when/if desktop entry comes available
-            removeLauncherButton(entryPath);
+            removeLauncherButton(applicationEntryPath);
             return;
         }
 
-        QSharedPointer<MDesktopEntry> desktopEntry(new MDesktopEntry(entryPath));
+        QSharedPointer<MDesktopEntry> desktopEntry(new MDesktopEntry(applicationEntryPath));
         updateButtonPlacementInStore(desktopEntry->fileName());
         button->updateFromDesktopEntry(desktopEntry);
     }

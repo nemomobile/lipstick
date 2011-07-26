@@ -102,7 +102,7 @@ private slots:
     void testSettingPackageNameForButtonWhenButtonStateIsUpdated();
     // Test that package's removability is set to button when status of button is updated
     void testSettingPackageRemovabilityForButtonWhenButtonStateIsUpdated();
-    // Test adding palceholder button to launcher
+    // Test adding placeholder button to launcher
     void testAddPlaceholderButtonToLauncher();
     // Test getting entrys placement in datastore
     void testEntryPlamenentInDatastoreMethod();
@@ -135,5 +135,7 @@ private slots:
     // Launcher icon of uninstallable application is removed from launcher when button state is changed to Uninstall
     void testThatLauncherIconIsRemovedWhenApplicationUninstallProgressIsStarted();
     void testWhenLauncherPageCreatedThenPruningConnectedToButtonRemoval();
+    // Test that a placeholder button is not added to launcher if application desktop entry is invalid
+    void testPlaceholderButtonIsNotAddedIfApplicationDesktopEntryIsInvalid();
 };
 #endif //_UT_LAUNCHER_

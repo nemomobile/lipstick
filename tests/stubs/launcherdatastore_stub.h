@@ -38,6 +38,7 @@ class LauncherDataStoreStub : public StubBase {
   virtual void updateDesktopEntry(const QString &desktopEntryPath);
   virtual void removeDataForDesktopEntry(const QString &entryPath);
   virtual void updateDataForDesktopEntries(const QHash<QString, QString> &newValues);
+  virtual bool isDesktopEntryKnownToBeInvalid(const QString &entryPath) const;
 };
 
 // 2. IMPLEMENT STUB
@@ -108,6 +109,13 @@ void LauncherDataStoreStub::updateDataForDesktopEntries(const QHash<QString, QSt
   stubMethodEntered("updateDataForDesktopEntries",params);
 }
 
+bool LauncherDataStoreStub::isDesktopEntryKnownToBeInvalid(const QString &entryPath) const {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<QString >(entryPath));
+  stubMethodEntered("isDesktopEntryKnownToBeInvalid",params);
+  return stubReturnValue<bool>("isDesktopEntryKnownToBeInvalid");
+}
+
 
 // 3. CREATE A STUB INSTANCE
 LauncherDataStoreStub gDefaultLauncherDataStoreStub;
@@ -155,8 +163,12 @@ void LauncherDataStore::removeDataForDesktopEntry(const QString &entryPath) {
     gLauncherDataStoreStub->removeDataForDesktopEntry(entryPath);
 }
 
-void LauncherDataStore::updateDataForDesktopEntries(const QHash<QString, QString> &newValues){
+void LauncherDataStore::updateDataForDesktopEntries(const QHash<QString, QString> &newValues) {
     gLauncherDataStoreStub->updateDataForDesktopEntries(newValues);
+}
+
+bool LauncherDataStore::isDesktopEntryKnownToBeInvalid(const QString &entryPath) const {
+  return gLauncherDataStoreStub->isDesktopEntryKnownToBeInvalid(entryPath);
 }
 
 #endif
