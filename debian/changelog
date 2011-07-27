@@ -1,3 +1,9 @@
+meegotouchhome (1.1.6~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Wed, 27 Jul 2011 18:01:12 +0300
+
 meegotouchhome (1.1.5-1) unstable; urgency=low
 
   * Fixes: NB#260410 - Invalid desktop entry will be added to Launcher if it has entry in /usr/share/applications/installer-extra/ folder
