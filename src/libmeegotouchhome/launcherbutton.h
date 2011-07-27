@@ -47,18 +47,16 @@ public:
      * \param desktopEntryPath path to the .desktop file to create a launcher button from
      * \param parent the parent widget, defaults to NULL
      */
-    LauncherButton(const QString &desktopEntryPath = QString(), MWidget *parent = 0,
-                   LauncherButtonModel *model = new LauncherButtonModel);
+    LauncherButton(const QString &desktopEntryPath = QString(), MWidget *parent = 0, LauncherButtonModel *model = new LauncherButtonModel);
 
-   /*!
+    /*!
      * Creates a launcher button representing a .desktop file.
      *
      * \param entry The desktop entry that button represents
      * \param parent Parent object
      * \param model Model for controller
      */
-    LauncherButton(const QSharedPointer<MDesktopEntry> &entry, MWidget *parent = 0,
-                   LauncherButtonModel *model = new LauncherButtonModel);
+    LauncherButton(const QSharedPointer<MDesktopEntry> &entry, MWidget *parent = 0, LauncherButtonModel *model = new LauncherButtonModel);
 
     /*!
      * Destroys the Launcher.
@@ -109,25 +107,25 @@ public:
      * Sets the package name of the application that button is representing
      * \param packageName Package name
      */
-     void setPackageName(const QString& packageName);
+    void setPackageName(const QString& packageName);
 
-     /*!
+    /*!
      * Returns the package name of the application that button is representing
      * \return name Package name
      */
-     QString packageName() const;
+    QString packageName() const;
 
-     /*!
-      * Sets whether the package represented by button is removable
-      * \param removable Is package removable
-      */
-      void setPackageRemovable(const bool removable);
+    /*!
+     * Sets whether the package represented by button is removable
+     * \param removable Is package removable
+     */
+    void setPackageRemovable(const bool removable);
 
-      /*!
-       * Return whether the package represented by button is removable
-       * \return \c true if package is removable, \c false otherwise
-       */
-       bool packageRemovable() const;
+    /*!
+     * Return whether the package represented by button is removable
+     * \return \c true if package is removable, \c false otherwise
+     */
+    bool packageRemovable() const;
 
 protected:
     //! \reimp
@@ -166,6 +164,9 @@ private:
      * Initializes the launcher button.
      */
     void init();
+
+    //! Sets the text to the given text or a single whitespace if the text is empty. This is to work around bug #256910.
+    void setTextEnsuringItIsNotEmpty(const QString &text = QString());
 
     //! The action for this button
     LauncherAction action;

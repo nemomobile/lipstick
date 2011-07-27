@@ -55,6 +55,9 @@ LauncherButton::~LauncherButton()
 
 void LauncherButton::init()
 {
+    // Make sure the text is not empty
+    setTextEnsuringItIsNotEmpty(text());
+
     // When the button is clicked the related object should be launched
     connect(this, SIGNAL(clicked()), this, SLOT(launch()), Qt::UniqueConnection);
 }
@@ -119,14 +122,14 @@ void LauncherButton::disableLaunchingState()
 void LauncherButton::retranslateUi()
 {
     if (!model()->desktopEntry().isNull()) {
-        setText(model()->desktopEntry()->name());
+        setTextEnsuringItIsNotEmpty(model()->desktopEntry()->name());
     }
     MButton::retranslateUi();
 }
 
 void LauncherButton::updateFromDesktopEntry(const QSharedPointer<MDesktopEntry> &entry)
 {
-    setText(entry->name());
+    setTextEnsuringItIsNotEmpty(entry->name());
     action = LauncherAction(entry);
     model()->setDesktopEntry(entry);
 }
@@ -179,4 +182,9 @@ void LauncherButton::updateData(const QList<const char *>& modifications)
             launchStateResetTimer.setInterval(model()->launchTimeout());
         }
     }
+}
+
+void LauncherButton::setTextEnsuringItIsNotEmpty(const QString &text)
+{
+    setText(text.isEmpty() ? " " : text);
 }

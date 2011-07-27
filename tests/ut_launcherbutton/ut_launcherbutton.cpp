@@ -358,6 +358,11 @@ void Ut_LauncherButton::testInitialization()
     QCOMPARE(m_subject->action.name(), QString("name"));
 }
 
+void Ut_LauncherButton::testInitializationWithoutText()
+{
+    QCOMPARE(m_subject->text(), QString(" "));
+}
+
 void Ut_LauncherButton::testWhenLauncherButtonIsClickedContentActionIsTriggered()
 {
     emit clicked();
@@ -421,6 +426,11 @@ void Ut_LauncherButton::testLanguageChange()
     gMDesktopEntryStub->stubSetReturnValue("name", QString("nonenglish"));
     m_subject->retranslateUi();
     QCOMPARE(m_subject->text(), QString("nonenglish"));
+
+    // Test empty name
+    gMDesktopEntryStub->stubSetReturnValue("name", QString());
+    m_subject->retranslateUi();
+    QCOMPARE(m_subject->text(), QString(" "));
 }
 
 void Ut_LauncherButton::testSettingButtonState()

@@ -792,4 +792,14 @@ void Ut_Launcher::testPlaceholderButtonIsNotAddedIfApplicationDesktopEntryIsInva
     QCOMPARE(launcher->model()->launcherPages().count(), 0);
 }
 
+void Ut_Launcher::testPlaceholderButtonIsNotAddedIfPackageIsInstallable()
+{
+    QSharedPointer<MDesktopEntry> desktopEntry(new MDesktopEntry("/dev/null/test.desktop"));
+    gLauncherButtonStub->stubSetReturnValue("desktopEntry", desktopEntry->fileName());
+
+    // If the package state is installable nothing should happen
+    launcher->updateButtonState(desktopEntry, "pkg", ApplicationPackageMonitor::PACKAGE_STATE_INSTALLABLE, true);
+    QCOMPARE(launcher->model()->launcherPages().count(), 0);
+}
+
 QTEST_MAIN(Ut_Launcher)

@@ -43,6 +43,7 @@ private slots:
 
     // Test cases
     void testInitialization();
+    void testInitializationWithoutText();
     void testLanguageChange();
     void testWhenLauncherButtonIsClickedContentActionIsTriggered();
     void testWhenLauncherButtonIsClickedInDownloadingStateContentActionIsNotTriggered();
