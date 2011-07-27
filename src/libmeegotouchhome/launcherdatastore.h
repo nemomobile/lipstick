@@ -177,11 +177,11 @@ private:
     /*!
      * Checks if desktop entry is valid.
      *
-     * \param entryPath Path to desktop entry to be validated
+     * \param entry Desktop entry to be validated
      * \param acceptedTypes List of accepted entry types
      * \return is desktop entry valid
      */
-    virtual bool isDesktopEntryValid(const QString &entryPath, const QStringList &acceptedTypes);
+    virtual bool isDesktopEntryValid(const MDesktopEntry &entry, const QStringList &acceptedTypes);
 
     /*!
       * Add path to watcher, if path isn't already watched.
