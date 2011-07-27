@@ -97,11 +97,6 @@ void Launcher::setMaximumPageSize(int maximumPageSize)
 
 void Launcher::updateButtonState(const QSharedPointer<MDesktopEntry> &desktopEntry, const QString &packageName, const QString &state, bool packageRemovable)
 {
-    // If the package is "installable" it should not be shown in the launcher
-    if (state == ApplicationPackageMonitor::PACKAGE_STATE_INSTALLABLE) {
-        return;
-    }
-
     QString entryPath(desktopEntry->fileName());
     Launcher::Placement buttonPlacementInDatastore = entryPlacementInDatastore(entryPath);
 
@@ -582,6 +577,8 @@ LauncherButtonModel::State Launcher::buttonStateFromPackageState(const QString &
         buttonState = LauncherButtonModel::Broken;
     } else if (packageState == ApplicationPackageMonitor::PACKAGE_STATE_INSTALLING) {
         buttonState = LauncherButtonModel::Installing;
+    } else if (packageState == ApplicationPackageMonitor::PACKAGE_STATE_INSTALLABLE) {
+        buttonState = LauncherButtonModel::Downloading;
     } else if (packageState == ApplicationPackageMonitor::PACKAGE_STATE_DOWNLOADING) {
         buttonState = LauncherButtonModel::Downloading;
     } else if (packageState == ApplicationPackageMonitor::PACKAGE_STATE_UNINSTALLING) {
