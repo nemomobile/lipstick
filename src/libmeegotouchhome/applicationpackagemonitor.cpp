@@ -31,7 +31,6 @@ static const QString OPERATION_INSTALL = "Install";
 static const QString OPERATION_UNINSTALL = "Uninstall";
 static const QString OPERATION_REFRESH = "Refresh";
 static const QString OPERATION_UPGRADE = "Upgrade";
-static const QString OPERATION_UPGRADE_ALL = "UpgradeAll";
 
 const QString ApplicationPackageMonitor::INSTALLER_EXTRA_FOLDER = "installer-extra/";
 
@@ -154,8 +153,7 @@ void ApplicationPackageMonitor::packageOperationComplete(const QString &operatio
 bool ApplicationPackageMonitor::isValidOperation(const QString &desktopEntryPath, const QString &operation)
 {
     bool operationValid = (operation.compare(OPERATION_INSTALL, Qt::CaseInsensitive) == 0 ||
-                           operation.compare(OPERATION_UPGRADE, Qt::CaseInsensitive) == 0 ||
-                           operation.compare(OPERATION_UPGRADE_ALL, Qt::CaseInsensitive) == 0);
+           operation.compare(OPERATION_UPGRADE, Qt::CaseInsensitive) == 0);
 
     if (operationValid && !desktopEntryPath.isEmpty()) {
          return true;

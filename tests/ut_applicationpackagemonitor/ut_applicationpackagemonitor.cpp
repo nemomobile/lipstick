@@ -35,7 +35,6 @@ static const QString OPERATION_INSTALL = "Install";
 static const QString OPERATION_UNINSTALL = "Uninstall";
 static const QString OPERATION_REFRESH = "Refresh";
 static const QString OPERATION_UPGRADE = "Upgrade";
-static const QString OPERATION_UPGRADE_ALL = "UpgradeAll";
 
 static const QString PACKAGE_STATE_INSTALLED = "installed";
 static const QString PACKAGE_STATE_INSTALLABLE = "installable";
@@ -209,59 +208,20 @@ void Ut_ApplicationPackageMonitor::testRemovingPackageDataWhenDesktopEntryIsRemo
     QCOMPARE(m_subject->dataStore->value(LauncherDataStore::entryPathToKey(entryPath)), QVariant(QString()));
 }
 
-void Ut_ApplicationPackageMonitor::testDownloadProgressSignal_data()
-{
-    QTest::addColumn<QString>("operation");
-
-    QTest::newRow("Installing") << QString(OPERATION_INSTALL);
-    QTest::newRow("Upgrading") << QString(OPERATION_UPGRADE);
-    QTest::newRow("Upgrading all") << QString(OPERATION_UPGRADE_ALL);
-}
-
 void Ut_ApplicationPackageMonitor::testDownloadProgressSignal()
 {
     QVERIFY(m_subject->con.disconnect(QString(),PACKAGE_MANAGER_DBUS_PATH, PACKAGE_MANAGER_DBUS_INTERFACE, "download_progress",
                     m_subject, SLOT(packageDownloadProgress(const QString&, const QString&, const QString&, int, int))));
 
-    QFETCH(QString, operation);
-
     initializeEntries(1, QStringList() << "installed", false);
 
     QSignalSpy signalSpy(m_subject, SIGNAL(downloadProgressUpdated(QString, int, int)));
 
-    m_subject->packageDownloadProgress(operation, PACKAGE_NAME_TEMPLATE.arg(0), "", 50, 100);
+    m_subject->packageDownloadProgress("Install", PACKAGE_NAME_TEMPLATE.arg(0), "", 50, 100);
     QCOMPARE(signalSpy.count(), 1);
     QCOMPARE(signalSpy.at(0).at(0).toString(), QString(INSTALLER_EXTRA_ENTRY_NAME_TEMPLATE.arg(0)));
     QCOMPARE(signalSpy.at(0).at(1).toInt(), 50);
     QCOMPARE(signalSpy.at(0).at(2).toInt(), 100);
-}
-
-void Ut_ApplicationPackageMonitor::testOperationProgressSignal_data()
-{
-    QTest::addColumn<QString>("operation");
-
-    QTest::newRow("Installing") << QString(OPERATION_INSTALL);
-    QTest::newRow("Upgrading") << QString(OPERATION_UPGRADE);
-    QTest::newRow("Upgrading all") << QString(OPERATION_UPGRADE_ALL);
-}
-
-void Ut_ApplicationPackageMonitor::testOperationProgressSignal()
-{
-    QVERIFY(m_subject->con.disconnect(QString(),PACKAGE_MANAGER_DBUS_PATH, PACKAGE_MANAGER_DBUS_INTERFACE, "operation_progress",
-                    m_subject, SLOT(packageOperationProgress(const QString&, const QString &, const QString&, int))));
-
-    QFETCH(QString, operation);
-
-    initializeEntries(1, QStringList() << "installed", true);
-
-    QSignalSpy signalSpy(m_subject, SIGNAL(installProgress(QString, QString, int, bool)));
-
-    m_subject->packageOperationProgress(operation, PACKAGE_NAME_TEMPLATE.arg(0), "", 50);
-    QCOMPARE(signalSpy.count(), 1);
-    QCOMPARE(signalSpy.at(0).at(0).toString(), QString(INSTALLER_EXTRA_ENTRY_NAME_TEMPLATE.arg(0)));
-    QCOMPARE(signalSpy.at(0).at(1).toString(), QString(PACKAGE_NAME_TEMPLATE.arg(0)));
-    QCOMPARE(signalSpy.at(0).at(2).toInt(), 50);
-    QCOMPARE(signalSpy.at(0).at(3).toBool(), true);
 }
 
 void Ut_ApplicationPackageMonitor::testInstallSuccessSignal()

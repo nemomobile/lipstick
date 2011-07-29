@@ -46,10 +46,7 @@ private slots:
     void testUpdatingPackageStateWhenDesktopEntryChanges_data();
     void testUpdatingPackageStateWhenDesktopEntryChanges();
     void testRemovingPackageDataWhenDesktopEntryIsRemoved();
-    void testDownloadProgressSignal_data();
     void testDownloadProgressSignal();
-    void testOperationProgressSignal_data();
-    void testOperationProgressSignal();
     void testInstallSuccessSignal();
     void testInstallSuccessSignalWithErrorAndPackageBroken();
     void testInstallSuccessSignalWithErrorAndPackageNotBroken();
