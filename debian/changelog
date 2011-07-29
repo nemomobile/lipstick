@@ -1,3 +1,9 @@
+meegotouchhome (1.1.7~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Fri, 29 Jul 2011 16:03:49 +0300
+
 meegotouchhome (1.1.6-1) unstable; urgency=low
 
   * Fixes: NB#271819 - [TASK] Applications being updated are not marked as such in the Launcher if Update all is selected
