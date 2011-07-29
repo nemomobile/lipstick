@@ -1,13 +1,13 @@
-meegotouchhome (1.1.6~1) unstable; urgency=low
+meegotouchhome (1.1.6-1) unstable; urgency=low
 
-  * [UNRELEASED]
+  * Fixes: NB#271819 - [TASK] Applications being updated are not marked as such in the Launcher if Update all is selected
 
- -- Vesa Halttunen <vesa.halttunen@nokia.com>  Wed, 27 Jul 2011 18:01:12 +0300
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Fri, 29 Jul 2011 15:09:42 +0300
 
 meegotouchhome (1.1.5-1) unstable; urgency=low
 
   * Fixes: NB#260410 - Invalid desktop entry will be added to Launcher if it has entry in /usr/share/applications/installer-extra/ folder
-  * Fixes: NB#274768 - Installation progress isn't visible in launcher for applications installed from Ovi Store
+  * Fixes: NB#274842 - Showing installation progress of an application that has been previously uninstalled in Launcher does not work properly
 
  -- Vesa Halttunen <vesa.halttunen@nokia.com>  Wed, 27 Jul 2011 17:59:55 +0300
 
