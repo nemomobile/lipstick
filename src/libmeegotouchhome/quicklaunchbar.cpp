@@ -59,11 +59,11 @@ void QuickLaunchBar::setApplicationPackageMonitor(ApplicationPackageMonitor *pac
 {
     this->packageMonitor = packageMonitor;
 
-    connect(packageMonitor, SIGNAL(packageStateUpdated(QSharedPointer<MDesktopEntry>, QString, QString, bool)),
-        this, SLOT(updateButtonState(QSharedPointer<MDesktopEntry>, QString, QString, bool)));
+    connect(packageMonitor, SIGNAL(packageStateUpdated(QSharedPointer<MDesktopEntry>, QString, ApplicationPackageMonitor::PackageState, bool)),
+        this, SLOT(updateButtonState(QSharedPointer<MDesktopEntry>, QString, ApplicationPackageMonitor::PackageState, bool)));
 }
 
-void QuickLaunchBar::updateButtonState(const QSharedPointer<MDesktopEntry> &desktopEntry, const QString &packageName, const QString &state, bool packageRemovable)
+void QuickLaunchBar::updateButtonState(const QSharedPointer<MDesktopEntry> &desktopEntry, const QString &packageName, ApplicationPackageMonitor::PackageState state, bool packageRemovable)
 {
     Q_UNUSED(packageName);
     Q_UNUSED(packageRemovable);

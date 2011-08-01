@@ -24,10 +24,10 @@
 #include <QList>
 #include <MWidgetController>
 #include "launchermodel.h"
+#include "applicationpackagemonitor.h"
 
 class MDesktopEntry;
 class LauncherDataStore;
-class ApplicationPackageMonitor;
 
 /*!
  * Widget for launching and browsing installed applications.
@@ -116,7 +116,7 @@ public:
     void setMaximumPageSize(int maximumPageSize);
 
     //! Returns button state enum that matches the given package state
-    static LauncherButtonModel::State buttonStateFromPackageState(const QString &packageState);
+    static LauncherButtonModel::State buttonStateFromPackageState(ApplicationPackageMonitor::PackageState);
 
 protected:
     /*!
@@ -193,7 +193,7 @@ public slots:
      * \param state State button should be set to
      * \param packageRemovable is the package represented by this button removable
      */
-    void updateButtonState(const QSharedPointer<MDesktopEntry> &desktopEntry, const QString &packageName, const QString &state, bool packageRemovable);
+    void updateButtonState(const QSharedPointer<MDesktopEntry> &desktopEntry, const QString &packageName, ApplicationPackageMonitor::PackageState, bool packageRemovable);
 
     /*!
      * Update progress of a launcher button.

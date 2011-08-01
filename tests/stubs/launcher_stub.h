@@ -34,7 +34,7 @@ class LauncherStub : public StubBase {
   virtual void setMaximumPageSize(int maximumPageSize);
   virtual int focusToButton(const QString &desktopFileEntry);
   virtual void setPage(uint page);
-  virtual void updateButtonState(const QSharedPointer<MDesktopEntry> &desktopEntry, const QString &packageName, const QString &state, bool packageRemovable);
+  virtual void updateButtonState(const QSharedPointer<MDesktopEntry> &desktopEntry, const QString &packageName, ApplicationPackageMonitor::PackageState state, bool packageRemovable);
   virtual void removePlaceholderButton(const QString &desktopEntryPath);
   virtual void addLauncherButton(const QSharedPointer<MDesktopEntry> &desktopEntry);
   virtual void removeLauncherButton(const QString &desktopEntryPath);
@@ -57,7 +57,7 @@ class LauncherStub : public StubBase {
   virtual void updateButtonPlacementsOnPage(LauncherPage *page);
   virtual int pageIndex(LauncherPage *page);
   virtual void updateProgress(const QString& desktopEntryPath, int already, int total);
-  virtual LauncherButtonModel::State buttonStateFromPackageState(const QString &packageState);
+  virtual LauncherButtonModel::State buttonStateFromPackageState(ApplicationPackageMonitor::PackageState);
   virtual void prunePage();
 };
 
@@ -100,11 +100,11 @@ void LauncherStub::setPage(uint page) {
   stubMethodEntered("setPage",params);
 }
 
-void LauncherStub::updateButtonState(const QSharedPointer<MDesktopEntry> &desktopEntry, const QString &packageName, const QString &state, bool packageRemovable) {
+void LauncherStub::updateButtonState(const QSharedPointer<MDesktopEntry> &desktopEntry, const QString &packageName, ApplicationPackageMonitor::PackageState state, bool packageRemovable) {
   QList<ParameterBase*> params;
   params.append( new Parameter<QSharedPointer<MDesktopEntry> >(desktopEntry));
   params.append( new Parameter<QString>(packageName));
-  params.append( new Parameter<QString>(state));
+  params.append( new Parameter<int>(state));
   params.append( new Parameter<bool>(packageRemovable));
   stubMethodEntered("updateButtonState",params);
 }
@@ -252,10 +252,10 @@ void LauncherStub::updateProgress(const QString& desktopEntryPath, int already, 
   stubMethodEntered("updateProgress",params);
 }
 
-LauncherButtonModel::State LauncherStub::buttonStateFromPackageState(const QString &packageState)
+LauncherButtonModel::State LauncherStub::buttonStateFromPackageState(ApplicationPackageMonitor::PackageState packageState)
 {
   QList<ParameterBase*> params;
-  params.append( new Parameter<QString>(packageState));
+  params.append( new Parameter<int>(packageState));
   stubMethodEntered("buttonStateFromPackageState",params);
   return stubReturnValue<LauncherButtonModel::State>("buttonStateFromPackageState");
 }
@@ -305,7 +305,7 @@ void Launcher::updateButtonPlacementsOnPage(LauncherPage *page) {
   gLauncherStub->updateButtonPlacementsOnPage(page);
 }
 
-void Launcher::updateButtonState(const QSharedPointer<MDesktopEntry> &desktopEntry, const QString &packageName, const QString &state, bool packageRemovable) {
+void Launcher::updateButtonState(const QSharedPointer<MDesktopEntry> &desktopEntry, const QString &packageName, ApplicationPackageMonitor::PackageState state, bool packageRemovable) {
   gLauncherStub->updateButtonState(desktopEntry, packageName, state, packageRemovable);
 }
 
@@ -402,7 +402,7 @@ void Launcher::updateProgress(const QString& desktopEntryPath, int already, int 
     gLauncherStub->updateProgress(desktopEntryPath, already, total);
 }
 
-LauncherButtonModel::State Launcher::buttonStateFromPackageState(const QString &packageState)
+LauncherButtonModel::State Launcher::buttonStateFromPackageState(ApplicationPackageMonitor::PackageState packageState)
 {
     return gLauncherStub->buttonStateFromPackageState(packageState);
 }

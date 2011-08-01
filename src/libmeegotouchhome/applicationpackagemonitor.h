@@ -37,6 +37,7 @@
 class ApplicationPackageMonitor : public QObject
 {
     Q_OBJECT
+
 public:
     /*!
      * Initializes ApplicationPackageMonitor object. Connects dbus signals to slots.
@@ -57,14 +58,17 @@ public:
     //! Installer extra folder path
     static const QString INSTALLER_EXTRA_FOLDER;
 
-    // Package states
-    static const QString PACKAGE_STATE_INSTALLED;
-    static const QString PACKAGE_STATE_INSTALLABLE;
-    static const QString PACKAGE_STATE_BROKEN;
-    static const QString PACKAGE_STATE_UPDATEABLE;
-    static const QString PACKAGE_STATE_INSTALLING;
-    static const QString PACKAGE_STATE_DOWNLOADING;
-    static const QString PACKAGE_STATE_UNINSTALLING;
+    //! Package states
+    enum PackageState {
+        Installed,
+        Installable,
+        Broken,
+        Missing,
+        Updateable,
+        Installing,
+        Downloading,
+        Uninstalling
+    };
 
     /*!
      * Returns package name from desktop entry. Returns empty QString if desktop entry is not found.
@@ -108,7 +112,7 @@ signals:
      * \param state Package state
      * \param packageRemovable Whether package is removable from launcher
      */
-    void packageStateUpdated(const QSharedPointer<MDesktopEntry> &, const QString &packageName, const QString &state, bool packageRemovable);
+    void packageStateUpdated(const QSharedPointer<MDesktopEntry> &, const QString &packageName, ApplicationPackageMonitor::PackageState state, bool packageRemovable);
 
 private slots:
     /*!
@@ -125,7 +129,7 @@ private slots:
     void packageOperationComplete(const QString& operation, const QString& packageName, const QString& packageVersion, const QString& error, bool need_reboot);
 
     /*!
-     * This is only needed to workaround bug #268255.
+     * Slot to handle PackageManagers operation_progress signal.
      */
     void packageOperationProgress(const QString &operation, const QString &packageName, const QString &packageVersion, int percentage);
 
@@ -136,7 +140,7 @@ private slots:
 
     /*!
      * Slot is called when entry from dataStore is removed.
-     * Removes activePackages entry if package has one.
+     * Removes knownPackages entry if package has one.
      */
     void packageRemoved(const QString &desktopEntryPath);
 
@@ -153,11 +157,17 @@ private:
     //! DBus connection to system bus
     QDBusConnection con;
 
-    /*!
-     * Cache for the state of packages and the mapping from package names to .desktop files.
-     * Not owned.
-     */
-    ExtraDirWatcherData *dataStore;
+    //! A struct to hold the extra .desktop file path and the state of a package
+    struct PackageInfo {
+        PackageInfo() : desktopEntryPath(QString()), state(Missing) {}
+        PackageInfo(const QString &path, PackageState packageState) : desktopEntryPath(path), state(packageState) {}
+
+        QString desktopEntryPath;
+        PackageState state;
+    };
+
+    //! Mapping from package name to known package info
+    QHash<QString, PackageInfo> knownPackages;
 
     /*!
      * Keeps track of the .desktop files under installer-extra directory

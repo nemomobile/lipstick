@@ -5,13 +5,6 @@
 #include <stubbase.h>
 
 const QString ApplicationPackageMonitor::INSTALLER_EXTRA_FOLDER = "installer-extra/";
-const QString ApplicationPackageMonitor::PACKAGE_STATE_INSTALLED = "installed";
-const QString ApplicationPackageMonitor::PACKAGE_STATE_INSTALLABLE = "installable";
-const QString ApplicationPackageMonitor::PACKAGE_STATE_BROKEN = "broken";
-const QString ApplicationPackageMonitor::PACKAGE_STATE_UPDATEABLE = "updateable";
-const QString ApplicationPackageMonitor::PACKAGE_STATE_INSTALLING ="installing";
-const QString ApplicationPackageMonitor::PACKAGE_STATE_DOWNLOADING ="downloading";
-const QString ApplicationPackageMonitor::PACKAGE_STATE_UNINSTALLING ="uninstalling";
 
 // 1. DECLARE STUB
 // FIXME - stubgen is not yet finished

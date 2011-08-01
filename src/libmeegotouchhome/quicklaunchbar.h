@@ -22,10 +22,10 @@
 
 #include <MWidgetController>
 #include "quicklaunchbarmodel.h"
+#include "applicationpackagemonitor.h"
 
 class LauncherDataStore;
 class LauncherButton;
-class ApplicationPackageMonitor;
 
 /*!
  * A widget for showing a quick launch bar.
@@ -93,7 +93,7 @@ public slots:
      * \param state State button should be set to
      * \param packageRemovable is the package represented by this button removable
      */
-    void updateButtonState(const QSharedPointer<MDesktopEntry> &desktopEntry, const QString &packageName, const QString &state, bool packageRemovable);
+    void updateButtonState(const QSharedPointer<MDesktopEntry> &desktopEntry, const QString &packageName, ApplicationPackageMonitor::PackageState, bool packageRemovable);
 
     /*!
      * Update progress of a launcher button.

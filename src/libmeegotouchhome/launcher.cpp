@@ -95,7 +95,7 @@ void Launcher::setMaximumPageSize(int maximumPageSize)
     }
 }
 
-void Launcher::updateButtonState(const QSharedPointer<MDesktopEntry> &desktopEntry, const QString &packageName, const QString &state, bool packageRemovable)
+void Launcher::updateButtonState(const QSharedPointer<MDesktopEntry> &desktopEntry, const QString &packageName, ApplicationPackageMonitor::PackageState state, bool packageRemovable)
 {
     QString entryPath(desktopEntry->fileName());
     Launcher::Placement buttonPlacementInDatastore = entryPlacementInDatastore(entryPath);
@@ -149,14 +149,7 @@ void Launcher::updateProgress(const QString& desktopEntryPath, int already, int 
         QSharedPointer<LauncherPage> page = model()->launcherPages().at(placement.page);
         QSharedPointer<LauncherButton> button = page->model()->launcherButtons().at(placement.position);
 
-        // This is needed to workaround bug #268255
-        button->setState(LauncherButtonModel::Downloading);
-
         button->setOperationProgress(already, total);
-    } else {
-        // This is needed to workaround bug #268255
-        QSharedPointer<MDesktopEntry> desktopEntry(new MDesktopEntry(desktopEntryPath));
-        QSharedPointer<LauncherButton> button = placeholderButton(desktopEntry);
     }
 }
 
@@ -232,8 +225,8 @@ void Launcher::updatePagesFromDataStore()
 
     // After updating launcher from launcher data store we can connect package listener and update the states
     if (packageMonitor != NULL) {
-        connect(packageMonitor, SIGNAL(packageStateUpdated(QSharedPointer<MDesktopEntry>, QString, QString, bool)),
-            this, SLOT(updateButtonState(QSharedPointer<MDesktopEntry>, QString, QString, bool)), Qt::UniqueConnection);
+        connect(packageMonitor, SIGNAL(packageStateUpdated(QSharedPointer<MDesktopEntry>, QString, ApplicationPackageMonitor::PackageState, bool)),
+            this, SLOT(updateButtonState(QSharedPointer<MDesktopEntry>, QString, ApplicationPackageMonitor::PackageState, bool)), Qt::UniqueConnection);
         connect(packageMonitor, SIGNAL(installExtraEntryRemoved(QString)),
             this, SLOT(removePlaceholderButton(QString)), Qt::UniqueConnection);
         connect(packageMonitor, SIGNAL(downloadProgressUpdated(QString, int, int)),
@@ -568,20 +561,20 @@ inline bool operator<(const Launcher::Placement &p1, const Launcher::Placement &
     return p1.position < p2.position;
 }
 
-LauncherButtonModel::State Launcher::buttonStateFromPackageState(const QString &packageState)
+LauncherButtonModel::State Launcher::buttonStateFromPackageState(ApplicationPackageMonitor::PackageState packageState)
 {
     LauncherButtonModel::State buttonState;
-    if (packageState == ApplicationPackageMonitor::PACKAGE_STATE_INSTALLED) {
+    if (packageState == ApplicationPackageMonitor::Installed) {
         buttonState = LauncherButtonModel::Installed;
-    } else if (packageState == ApplicationPackageMonitor::PACKAGE_STATE_BROKEN) {
+    } else if (packageState == ApplicationPackageMonitor::Broken) {
         buttonState = LauncherButtonModel::Broken;
-    } else if (packageState == ApplicationPackageMonitor::PACKAGE_STATE_INSTALLING) {
+    } else if (packageState == ApplicationPackageMonitor::Installing) {
         buttonState = LauncherButtonModel::Installing;
-    } else if (packageState == ApplicationPackageMonitor::PACKAGE_STATE_INSTALLABLE) {
+    } else if (packageState == ApplicationPackageMonitor::Installable) {
         buttonState = LauncherButtonModel::Downloading;
-    } else if (packageState == ApplicationPackageMonitor::PACKAGE_STATE_DOWNLOADING) {
+    } else if (packageState == ApplicationPackageMonitor::Downloading) {
         buttonState = LauncherButtonModel::Downloading;
-    } else if (packageState == ApplicationPackageMonitor::PACKAGE_STATE_UNINSTALLING) {
+    } else if (packageState == ApplicationPackageMonitor::Uninstalling) {
         buttonState = LauncherButtonModel::Uninstall;
     } else {
         buttonState = LauncherButtonModel::Installed;
