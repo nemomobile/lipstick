@@ -365,10 +365,10 @@ void PagedPanning::pointerRelease()
             }
         } else if ((initialTargetPageVelocityThreshold > 0 && velocity().x() < 0) || (initialTargetPageVelocityThreshold < 0 && velocity().x() > 0) || std::fabs(distanceToPressPosition) / pageWidth() < dragThreshold_) {
             // Velocity was to the wrong direction away from the initial target page or movement didn't exceed the drag threshold: return to the initial page, wrapping if necessary
-            if (currentPage == pageCount_ - 1 && initialPage == 0) {
-                setPosition(QPointF(position().x() + pageWidth() * pageCount() , position().y()));
-            } else if (currentPage == 0 && initialPage == pageCount_ - 1) {
-                setPosition(QPointF(position().x() - pageWidth() * pageCount() , position().y()));
+            if (currentPage == pageCount_ - 1 && initialPage == 0 && velocity().x() > 0) {
+                setPosition(QPointF(position().x() + pageWidth() * pageCount(), position().y()));
+            } else if (currentPage == 0 && initialPage == pageCount_ - 1 && velocity().x() < 0) {
+                setPosition(QPointF(position().x() - pageWidth() * pageCount(), position().y()));
             }
 
             targetPage_ = initialPage;

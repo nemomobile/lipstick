@@ -1,6 +1,7 @@
 meegotouchhome (1.2.0~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#248129 - Paging canceling behavior is off
 
  -- Pankaj Saharan <pankaj.saharan@nokia.com>  Thu, 04 Aug 2011 17:21:49 +0300
 
