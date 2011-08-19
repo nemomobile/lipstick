@@ -114,7 +114,7 @@ bool HomeWindowMonitor::isHomeWindowOnTop(QSet<Atom> ignoredWindows) const {
   return gHomeWindowMonitorStub->isHomeWindowOnTop(ignoredWindows);
 }
 
-HomeWindowMonitor::HomeWindowMonitor() : netClientListStacking(NULL) {
+HomeWindowMonitor::HomeWindowMonitor() : netClientListStacking(0) {
   gHomeWindowMonitorStub->HomeWindowMonitorConstructor();
 }
 

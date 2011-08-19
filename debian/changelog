@@ -2,6 +2,7 @@ meegotouchhome (1.2.0~1) unstable; urgency=low
 
   * [UNRELEASED]
   * Fixes: NB#248129 - Paging canceling behavior is off
+  * Fixes: NB#277233 - meegotouchhome: unbuildable with gcc-4.5
 
  -- Pankaj Saharan <pankaj.saharan@nokia.com>  Thu, 04 Aug 2011 17:21:49 +0300
 
