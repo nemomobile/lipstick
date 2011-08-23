@@ -1,3 +1,9 @@
+meegotouchhome (1.2.1~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Eetu Lehmusvuo <ext-eetu.6.lehmusvuo@nokia.com>  Tue, 23 Aug 2011 16:53:13 +0300
+
 meegotouchhome (1.2.0-1) unstable; urgency=low
 
   * Fixes: NB#276677 - Home has increased startup time for applications
