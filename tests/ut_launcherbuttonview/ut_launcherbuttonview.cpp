@@ -105,7 +105,8 @@ void Ut_LauncherButtonView::cleanupTestCase()
 
 void Ut_LauncherButtonView::init()
 {
-    controller = new LauncherButton("");
+    QSharedPointer<MDesktopEntry> entry(new MDesktopEntry(""));
+    controller = new LauncherButton(entry);
     controller->setModel(new LauncherButtonModel);
     m_subject = new TestLauncherButtonView(controller);
     controller->setView(m_subject);

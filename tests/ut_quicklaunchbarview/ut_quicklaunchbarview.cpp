@@ -84,9 +84,10 @@ void Ut_QuickLaunchBarView::testUpdateData()
     QuickLaunchBarModel model;
     m_subject->setModel(&model);
     QMap<int, QSharedPointer<LauncherButton> > buttons;
-    QSharedPointer<LauncherButton> button1 = QSharedPointer<LauncherButton>(new LauncherButton);
-    QSharedPointer<LauncherButton> button2 = QSharedPointer<LauncherButton>(new LauncherButton);
-    QSharedPointer<LauncherButton> button3 = QSharedPointer<LauncherButton>(new LauncherButton);
+    QSharedPointer<MDesktopEntry> entry(new MDesktopEntry(""));
+    QSharedPointer<LauncherButton> button1 = QSharedPointer<LauncherButton>(new LauncherButton(entry));
+    QSharedPointer<LauncherButton> button2 = QSharedPointer<LauncherButton>(new LauncherButton(entry));
+    QSharedPointer<LauncherButton> button3 = QSharedPointer<LauncherButton>(new LauncherButton(entry));
     buttons.insert(0, button1);
     buttons.insert(1, button2);
     buttons.insert(2, button3);
@@ -108,9 +109,10 @@ void Ut_QuickLaunchBarView::testApplyStyle()
     QuickLaunchBarModel model;
     m_subject->setModel(&model);
     QMap<int, QSharedPointer<LauncherButton> > buttons;
-    QSharedPointer<LauncherButton> button1 = QSharedPointer<LauncherButton>(new LauncherButton);
-    QSharedPointer<LauncherButton> button2 = QSharedPointer<LauncherButton>(new LauncherButton);
-    QSharedPointer<LauncherButton> button3 = QSharedPointer<LauncherButton>(new LauncherButton);
+    QSharedPointer<MDesktopEntry> entry(new MDesktopEntry(""));
+    QSharedPointer<LauncherButton> button1 = QSharedPointer<LauncherButton>(new LauncherButton(entry));
+    QSharedPointer<LauncherButton> button2 = QSharedPointer<LauncherButton>(new LauncherButton(entry));
+    QSharedPointer<LauncherButton> button3 = QSharedPointer<LauncherButton>(new LauncherButton(entry));
     buttons.insert(0, button1);
     buttons.insert(1, button2);
     buttons.insert(2, button3);

@@ -104,8 +104,9 @@ void Ut_LauncherView::testPagedViewportObjectName()
 
 void Ut_LauncherView::testSetButtons()
 {
-    QSharedPointer<LauncherButton> button1(new LauncherButton(""));
-    QSharedPointer<LauncherButton> button2(new LauncherButton(""));
+    QSharedPointer<MDesktopEntry> entry(new MDesktopEntry(""));
+    QSharedPointer<LauncherButton> button1(new LauncherButton(entry));
+    QSharedPointer<LauncherButton> button2(new LauncherButton(entry));
     QList< QSharedPointer<LauncherPage> > pages;
     QSharedPointer<LauncherPage> page(new LauncherPage());
     page->appendButton(button1);
@@ -133,7 +134,8 @@ void Ut_LauncherView::testAddPages()
     for (int iter1 = 0; iter1 < NUM_ITEMS; iter1++){
         QSharedPointer<LauncherPage> page(new LauncherPage());
         for (int iter2 = 0; iter2 < NUM_ITEMS; iter2++) {
-            QSharedPointer<LauncherButton> button(new LauncherButton(""));
+            QSharedPointer<MDesktopEntry> entry(new MDesktopEntry(""));
+            QSharedPointer<LauncherButton> button(new LauncherButton(entry));
             page->appendButton(button);
         }
         pages.append(page);
@@ -238,9 +240,10 @@ void Ut_LauncherView::testUpdateData()
 void Ut_LauncherView::testFocusToButton()
 {
     const QString desktop1 = "button1.desktop";
+    QSharedPointer<MDesktopEntry> entry(new MDesktopEntry(desktop1));
     QSharedPointer<LauncherPage> page1(new LauncherPage);
     QSharedPointer<LauncherPage> page2(new LauncherPage);
-    QSharedPointer<LauncherButton> button1(new LauncherButton(desktop1));
+    QSharedPointer<LauncherButton> button1(new LauncherButton(entry));
     page2->appendButton(button1);
 
     LauncherModel::LauncherPageList pages;

@@ -44,19 +44,11 @@ public:
     /*!
      * Creates a launcher button representing a .desktop file.
      *
-     * \param desktopEntryPath path to the .desktop file to create a launcher button from
-     * \param parent the parent widget, defaults to NULL
-     */
-    LauncherButton(const QString &desktopEntryPath = QString(), MWidget *parent = 0, LauncherButtonModel *model = new LauncherButtonModel);
-
-    /*!
-     * Creates a launcher button representing a .desktop file.
-     *
      * \param entry The desktop entry that button represents
      * \param parent Parent object
      * \param model Model for controller
      */
-    LauncherButton(const QSharedPointer<MDesktopEntry> &entry, MWidget *parent = 0, LauncherButtonModel *model = new LauncherButtonModel);
+    LauncherButton(const QSharedPointer<MDesktopEntry> &entry = QSharedPointer<MDesktopEntry>(NULL), MWidget *parent = 0, LauncherButtonModel *model = new LauncherButtonModel);
 
     /*!
      * Destroys the Launcher.

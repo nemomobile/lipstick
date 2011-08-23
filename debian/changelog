@@ -1,6 +1,12 @@
 meegotouchhome (1.2.0~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#276677 - Home has increased startup time for applications
+
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Wed, 10 Aug 2011 19:27:22 +0300
+
+meegotouchhome (1.1.8-1) unstable; urgency=low
+
   * Fixes: NB#248129 - Paging canceling behavior is off
   * Fixes: NB#277233 - meegotouchhome: unbuildable with gcc-4.5
 

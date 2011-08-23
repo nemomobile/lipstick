@@ -29,18 +29,6 @@ M_REGISTER_WIDGET(LauncherButton)
 
 #include "homewindowmonitor.h"
 
-LauncherButton::LauncherButton(const QString &desktopEntryPath, MWidget *parent, LauncherButtonModel *model) :
-        MButton(parent, model)
-{
-    QSharedPointer<MDesktopEntry> entry(new MDesktopEntry(desktopEntryPath));
-
-    init();
-
-    updateFromDesktopEntry(entry);
-    connect(&launchStateResetTimer, SIGNAL(timeout()), this, SLOT(disableLaunchingState()));
-    launchStateResetTimer.setSingleShot(true);
-}
-
 LauncherButton::LauncherButton(const QSharedPointer<MDesktopEntry> &entry, MWidget *parent, LauncherButtonModel *model) :
         MButton(parent, model)
 {
@@ -60,6 +48,9 @@ void LauncherButton::init()
 
     // When the button is clicked the related object should be launched
     connect(this, SIGNAL(clicked()), this, SLOT(launch()), Qt::UniqueConnection);
+
+    connect(&launchStateResetTimer, SIGNAL(timeout()), this, SLOT(disableLaunchingState()));
+    launchStateResetTimer.setSingleShot(true);
 }
 
 QString LauncherButton::desktopEntry() const

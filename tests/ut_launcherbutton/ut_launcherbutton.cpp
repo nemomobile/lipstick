@@ -326,7 +326,8 @@ void Ut_LauncherButton::init()
     contentActionTriggerCalls = 0;
     g_qDBusInterfaceCall.clear();
 
-    m_subject = new LauncherButton("");
+    QSharedPointer<MDesktopEntry> entry(new MDesktopEntry(""));
+    m_subject = new LauncherButton(entry);
     connect(this, SIGNAL(clicked()), m_subject, SLOT(launch()));
 }
 
@@ -350,7 +351,8 @@ void Ut_LauncherButton::testInitialization()
     addActionPrivate("/dev/null", true, "name", "english", "nonenglish", "icon");
 
     // Check whether the subject is populated from the desktop file
-    m_subject = new LauncherButton("/dev/null");
+    QSharedPointer<MDesktopEntry> entry(new MDesktopEntry("/dev/null"));
+    m_subject = new LauncherButton(entry);
     QCOMPARE(gMDesktopEntryStub->stubCallCount("MDesktopEntry"), 1);
     QCOMPARE(gMDesktopEntryStub->stubLastCallTo("MDesktopEntry").parameter<QString>(0), QString("/dev/null"));
     QCOMPARE(m_subject->desktopEntry(), QString("/dev/null"));
@@ -422,7 +424,8 @@ void Ut_LauncherButton::testLanguageChange()
     gMDesktopEntryStub->stubSetReturnValue("name", QString("english"));
 
     // Check whether the subject is populated from the desktop file
-    m_subject = new LauncherButton("/dev/null");
+    QSharedPointer<MDesktopEntry> entry(new MDesktopEntry("/dev/null"));
+    m_subject = new LauncherButton(entry);
     gMDesktopEntryStub->stubSetReturnValue("name", QString("nonenglish"));
     m_subject->retranslateUi();
     QCOMPARE(m_subject->text(), QString("nonenglish"));
@@ -484,7 +487,8 @@ void Ut_LauncherButton::testLaunchingMultipleTimes()
 
 void Ut_LauncherButton::testTryingToLaunchSecondActionWhileLaunching()
 {
-    QSharedPointer<LauncherButton> secondTestButton = QSharedPointer<LauncherButton>(new LauncherButton(""));
+    QSharedPointer<MDesktopEntry> entry(new MDesktopEntry(""));
+    QSharedPointer<LauncherButton> secondTestButton = QSharedPointer<LauncherButton>(new LauncherButton(entry));
 
     emit clicked();
     QCOMPARE(contentActionTriggerCalls, 1);
