@@ -62,6 +62,14 @@ public:
     virtual void closeEvent(QCloseEvent *event);
     //! \reimp_end
 
+public slots:
+    /*!
+     * \brief Initializes the Home scene window.
+     *
+     * Constructs the Home scene window and adds it to scene manager.
+     */
+    void initializeHomeSceneWindow();
+
 private slots:
     //! Clears keyPressesBeingSent and sends keyPressesToBeSent (if any)
     void markKeyPressesSentAndSendRemainingKeyPresses();

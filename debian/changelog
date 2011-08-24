@@ -1,6 +1,8 @@
 meegotouchhome (1.2.1~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#277602 - [PR1.0 Regression] PR1.1 boot time is 10 seconds slower
+    than PR1.0
 
  -- Eetu Lehmusvuo <ext-eetu.6.lehmusvuo@nokia.com>  Tue, 23 Aug 2011 16:53:13 +0300
 

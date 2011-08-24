@@ -16,6 +16,7 @@
 ** of this file.
 **
 ****************************************************************************/
+
 #include <sys/types.h>
 #include <signal.h>
 #include <unistd.h>
@@ -29,6 +30,7 @@
 #include "homescreenadaptor.h"
 #include "windowinfo.h"
 #include "xeventlistener.h"
+#include "mainwindow.h"
 
 /*!
  * D-Bus names for the home screen service
@@ -62,8 +64,7 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString& appIdent
         QIcon::setThemeName(MTheme::currentTheme());
     }
 
-    // launch a timer for sending a dbus-signal upstart when home is ready
-    // and on screen
+    // launch a timer for sending a dbus-signal upstart when basic construct is done
     connect(&startupNotificationTimer, SIGNAL(timeout()),
             this, SLOT(sendStartupNotifications()));
     startupNotificationTimer.setSingleShot(true);
@@ -118,11 +119,15 @@ void HomeApplication::sendStartupNotifications()
                                    HOME_READY_SIGNAL_NAME);
     systemBus.send(homeReadySignal);
 
-    // Stop the application after it's ready but only when run by upstart
+    // Stop the application after the basic construction but only when run by upstart
     if (upstartMode) {
         static pid_t selfPid = getpid();
         kill(selfPid, SIGSTOP);
     }
+
+    // For device boot performance reasons initializing Home scene window must be done
+    // only after ready signal is sent (NB#277602)
+    MainWindow::instance(true)->initializeHomeSceneWindow();
 }
 
 bool HomeApplication::x11EventFilter(XEvent *event)

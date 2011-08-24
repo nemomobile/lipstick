@@ -73,11 +73,6 @@ MainWindow::MainWindow(QWidget *parent) :
     excludeFromTaskBar();
     applyStyle();
 
-    // Create Home; the scene manager must be created before this
-    setSceneManager(new MSceneManager);
-    home = new Home;
-    sceneManager()->appearSceneWindowNow(home);
-
     setBackgroundBrush(Qt::black);
 }
 
@@ -243,4 +238,14 @@ void MainWindow::markKeyPressesNotSent()
     // Since the external service didn't launch prepend the sent keypresses to the keypresses to be sent but don't retry
     keyPressesToBeSent.prepend(keyPressesBeingSent);
     keyPressesBeingSent.clear();
+}
+
+void MainWindow::initializeHomeSceneWindow()
+{
+    if (!home) {
+        // Create Home; the scene manager must be created before this
+        setSceneManager(new MSceneManager);
+        home = new Home;
+        sceneManager()->appearSceneWindowNow(home);
+    }
 }

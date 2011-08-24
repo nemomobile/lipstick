@@ -37,6 +37,7 @@ public:
     virtual void closeEvent(QCloseEvent *event);
     virtual void markKeyPressesSentAndSendRemainingKeyPresses();
     virtual void markKeyPressesNotSent();
+    virtual void initializeHomeSceneWindow();
 };
 
 // 2. IMPLEMENT STUB
@@ -101,6 +102,11 @@ void MainWindowStub::markKeyPressesNotSent()
     stubMethodEntered("markKeyPressesNotSent");
 }
 
+void MainWindowStub::initializeHomeSceneWindow()
+{
+    stubMethodEntered("initializeHomeSceneWindow");
+}
+
 // 3. CREATE A STUB INSTANCE
 MainWindowStub gDefaultMainWindowStub;
 MainWindowStub *gMainWindowStub = &gDefaultMainWindowStub;
@@ -161,6 +167,11 @@ void MainWindow::markKeyPressesSentAndSendRemainingKeyPresses()
 void MainWindow::markKeyPressesNotSent()
 {
     gMainWindowStub->markKeyPressesNotSent();
+}
+
+void MainWindow::initializeHomeSceneWindow()
+{
+    gMainWindowStub->initializeHomeSceneWindow();
 }
 
 #endif

@@ -168,6 +168,8 @@ void Ut_HomeApplication::init()
 
 void Ut_HomeApplication::cleanup()
 {
+    gMainWindowStub->stubReset();
+
     delete m_subject;
     m_subject = NULL;
 }
@@ -204,6 +206,7 @@ void Ut_HomeApplication::testUpstartStartup()
     QCOMPARE(signalPid, getpid());
     QCOMPARE(signalValue, SIGSTOP);
     compareDbusValues();
+    QCOMPARE(gMainWindowStub->stubCallCount("initializeHomeSceneWindow"), 1);
 }
 
 void Ut_HomeApplication::testNonUpstartStartup()
@@ -222,6 +225,7 @@ void Ut_HomeApplication::testNonUpstartStartup()
     QCOMPARE(signalPid, 0);
     QCOMPARE(signalValue, 0);
     compareDbusValues();
+    QCOMPARE(gMainWindowStub->stubCallCount("initializeHomeSceneWindow"), 1);
 }
 
 void Ut_HomeApplication::testWhenNoEventListenerExistsXEventFilterReturnsMApplicationReturnValue()

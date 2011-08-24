@@ -126,6 +126,7 @@ void Ut_MainWindow::initTestCase()
     app = new HomeApplication(argc, &app_name);
 
     mainWindow = MainWindow::instance(true);
+    mainWindow->initializeHomeSceneWindow();
 
     // Check that receiving of VisibilityChange events was requested
     QCOMPARE(true, (bool)(gX11WrapperStub->stubLastCallTo("XSelectInput").parameter<long>(2) & VisibilityChangeMask));
@@ -396,6 +397,7 @@ void Ut_MainWindow::testOrientationLocking()
     // Create a new window
     delete mainWindow;
     mainWindow = MainWindow::instance(true);
+    mainWindow->initializeHomeSceneWindow();
     QCOMPARE(mWindowOrientationLocked, orientationLocked);
     QCOMPARE(mWindowOrientationAngleLocked, orientationLocked);
     QCOMPARE(mWindowOrientation, expectedOrientation);
