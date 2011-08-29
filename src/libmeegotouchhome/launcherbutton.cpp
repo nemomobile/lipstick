@@ -99,7 +99,7 @@ void LauncherButton::enableLaunchingState()
     stateBeforeLaunch = model()->buttonState();
     model()->setButtonState(LauncherButtonModel::Launching);
     connect(HomeWindowMonitor::instance(), SIGNAL(anyWindowOnTopOfOwnWindow(WindowInfo)), SLOT(windowOnTopOfHome(WindowInfo)));
-    launchStateResetTimer.start();
+    launchStateResetTimer.start(model()->launchTimeout());
 }
 
 void LauncherButton::disableLaunchingState()
@@ -166,13 +166,6 @@ bool LauncherButton::packageRemovable() const
 void LauncherButton::updateData(const QList<const char *>& modifications)
 {
     MButton::updateData(modifications);
-
-    const char *member;
-    foreach(member, modifications) {
-        if (member == LauncherButtonModel::LaunchTimeout) {
-            launchStateResetTimer.setInterval(model()->launchTimeout());
-        }
-    }
 }
 
 void LauncherButton::setTextEnsuringItIsNotEmpty(const QString &text)

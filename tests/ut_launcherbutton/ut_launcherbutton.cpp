@@ -303,6 +303,18 @@ void addActionPrivate(QString fileName, bool isValid, QString name,
                                 QSharedPointer<ActionPrivate>(priv));
 }
 
+int gTimerTimeout = -1;
+void QTimer::start(int msec)
+{
+    gTimerTimeout = msec;
+}
+
+void QTimer::stop()
+{
+    gTimerTimeout = -1;
+}
+
+
 void Ut_LauncherButton::initTestCase()
 {
     static int argc = 1;
@@ -325,6 +337,7 @@ void Ut_LauncherButton::init()
     contentActionPrivate.clear();
     contentActionTriggerCalls = 0;
     g_qDBusInterfaceCall.clear();
+    gTimerTimeout = -1;
 
     QSharedPointer<MDesktopEntry> entry(new MDesktopEntry(""));
     m_subject = new LauncherButton(entry);
@@ -499,11 +512,14 @@ void Ut_LauncherButton::testTryingToLaunchSecondActionWhileLaunching()
 
 void Ut_LauncherButton::testWhenButtonClickedThenLaunchTimerIsStarted()
 {
+    m_subject->model()->setLaunchTimeout(123);
+
     emit clicked();
+
     QCOMPARE(m_subject->buttonState(), LauncherButtonModel::Launching);
 
     QVERIFY(disconnect(&m_subject->launchStateResetTimer, SIGNAL(timeout()), m_subject, SLOT(disableLaunchingState())));
-    QVERIFY(m_subject->launchStateResetTimer.isActive());
+    QCOMPARE(gTimerTimeout, 123);
 }
 
 void Ut_LauncherButton::testWhenLaunchTimerTimeoutThenLaunchStateIsDisabled_data()
@@ -526,7 +542,7 @@ void Ut_LauncherButton::testWhenLaunchTimerTimeoutThenLaunchStateIsDisabled()
 
     QCOMPARE(m_subject->buttonState(), previousState);
     QVERIFY(!disconnect(&m_subject->launchStateResetTimer, SIGNAL(timeout()), m_subject, SLOT(disableLaunchingState())));
-    QVERIFY(!m_subject->launchStateResetTimer.isActive());
+    QCOMPARE(gTimerTimeout, -1);
 }
 
 QTEST_APPLESS_MAIN(Ut_LauncherButton)
