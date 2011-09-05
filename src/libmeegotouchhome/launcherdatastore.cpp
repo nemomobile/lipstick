@@ -32,6 +32,7 @@ static const char* const FILE_FILTER = "*.desktop";
 static const QString DESKTOP_ENTRY_TYPE_KEY = "Desktop Entry/Type";
 static const QString DESKTOP_ONLY_SHOW_IN_KEY = "Desktop Entry/OnlyShowIn";
 static const QString DESKTOP_NOT_SHOW_IN_KEY = "Desktop Entry/NotShowIn";
+static const int INVALIDATE_MODIFIED_INVALID_ENTRY_TIMEOUT = 200;
 
 LauncherDataStore::LauncherDataStore(MDataStore* dataStore, const QStringList &directories) :
         store(dataStore)
@@ -53,6 +54,9 @@ LauncherDataStore::LauncherDataStore(MDataStore* dataStore, const QStringList &d
     foreach (const QString &directoryPath, this->directories) {
         watcher.addPath(directoryPath);
     }
+    removeModifiedInvalidEntriesTimer.setSingleShot(true);
+    removeModifiedInvalidEntriesTimer.setInterval(INVALIDATE_MODIFIED_INVALID_ENTRY_TIMEOUT);
+    connect(&removeModifiedInvalidEntriesTimer, SIGNAL(timeout()), this, SLOT(removeNextPendingInvalidEntry()));
 }
 
 LauncherDataStore::~LauncherDataStore()
@@ -152,7 +156,6 @@ void LauncherDataStore::updateDesktopEntryFiles()
                     invalidEntries.append(desktopEntryPath);
                 }
             }
-
             addFilePathToWatcher(desktopEntryPath);
         }
     }
@@ -238,6 +241,8 @@ void LauncherDataStore::updateDesktopEntry(const QString &desktopEntryPath)
     QFileInfo fileInfo(fullPath);
     if (fileInfo.exists() && directories.contains(fileInfo.canonicalPath())) {
         QString key = entryPathToKey(fullPath);
+        // Make sure all existing modified entries are added to watcher
+        addFilePathToWatcher(desktopEntryPath);
 
         if (store->contains(key)) {
             if (isDesktopEntryValid(fullPath, supportedDesktopEntryFileTypes)) {
@@ -245,10 +250,13 @@ void LauncherDataStore::updateDesktopEntry(const QString &desktopEntryPath)
                 // update valid & existing entry
                 emit desktopEntryChanged(desktopEntry);
             } else {
-                // remove existing but now invalid entry
-                store->remove(key);
-                emit desktopEntryRemoved(fullPath);
-                invalidEntries.append(fullPath);
+                if (!pendingInvalidEntries.contains(fullPath)) {
+                    pendingInvalidEntries.append(fullPath);
+                    // Start timer for removing existing but now invalid entry.
+                    // Needed because QFileSystemWatcher may send multiple fileChanged() signals
+                    // during a file write. (NB#278417)
+                    removeModifiedInvalidEntriesTimer.start();
+                }
             }
         } else {
             if (isDesktopEntryValid(fullPath, supportedDesktopEntryFileTypes)) {
@@ -265,4 +273,25 @@ void LauncherDataStore::updateDesktopEntry(const QString &desktopEntryPath)
 bool LauncherDataStore::isDesktopEntryKnownToBeInvalid(const QString &entryPath) const
 {
     return invalidEntries.contains(entryPath);
+}
+
+void LauncherDataStore::removeNextPendingInvalidEntry()
+{
+    if (!pendingInvalidEntries.isEmpty() ) {
+        QString entryPath = pendingInvalidEntries.takeFirst();
+        if (!isDesktopEntryValid(entryPath, supportedDesktopEntryFileTypes)) {
+            QString key = entryPathToKey(entryPath);
+            store->remove(key);
+            emit desktopEntryRemoved(entryPath);
+            invalidEntries.append(entryPath);
+        } else {
+            QSharedPointer<MDesktopEntry> desktopEntry(new MDesktopEntry(entryPath));
+            // update valid & existing entry
+            emit desktopEntryChanged(desktopEntry);
+        }
+
+        if (!pendingInvalidEntries.isEmpty()) {
+            removeModifiedInvalidEntriesTimer.start();
+        }
+    }
 }

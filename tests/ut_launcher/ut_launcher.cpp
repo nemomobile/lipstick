@@ -792,4 +792,15 @@ void Ut_Launcher::testPlaceholderButtonIsNotAddedIfApplicationDesktopEntryIsInva
     QCOMPARE(launcher->model()->launcherPages().count(), 0);
 }
 
+void Ut_Launcher::testPruningWithButtonRemoved()
+{
+    // adding more than one page
+    addButtonsToLauncher(2);
+    gLauncherDataStoreStub->stubReset();
+
+    launcher->prunePage("testApp00.desktop");
+    QCOMPARE(gLauncherDataStoreStub->stubCallCount("removeDataForDesktopEntry"), 1);
+    QCOMPARE(gLauncherDataStoreStub->stubLastCallTo("removeDataForDesktopEntry").parameter<QString>(0), QString("testApp00.desktop"));
+}
+
 QTEST_MAIN(Ut_Launcher)

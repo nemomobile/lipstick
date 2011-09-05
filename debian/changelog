@@ -1,6 +1,8 @@
 meegotouchhome (1.2.1~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * ABI break
+  * Fixes: NB#278417 - Inconsistent behaviour with launcher icons while modifying .desktop files
   * Fixes: NB#277602 - [PR1.0 Regression] PR1.1 boot time is 10 seconds slower than PR1.0
   * Fixes: NB#279627 - Launcher buttons are not grayed out while an application is starting
 

@@ -39,6 +39,7 @@ class LauncherDataStoreStub : public StubBase {
   virtual void removeDataForDesktopEntry(const QString &entryPath);
   virtual void updateDataForDesktopEntries(const QHash<QString, QString> &newValues);
   virtual bool isDesktopEntryKnownToBeInvalid(const QString &entryPath) const;
+  virtual void removeNextPendingInvalidEntry();
 };
 
 // 2. IMPLEMENT STUB
@@ -116,6 +117,10 @@ bool LauncherDataStoreStub::isDesktopEntryKnownToBeInvalid(const QString &entryP
   return stubReturnValue<bool>("isDesktopEntryKnownToBeInvalid");
 }
 
+void LauncherDataStoreStub::removeNextPendingInvalidEntry() {
+    stubMethodEntered("removeNextPendingInvalidEntry");
+}
+
 
 // 3. CREATE A STUB INSTANCE
 LauncherDataStoreStub gDefaultLauncherDataStoreStub;
@@ -169,6 +174,10 @@ void LauncherDataStore::updateDataForDesktopEntries(const QHash<QString, QString
 
 bool LauncherDataStore::isDesktopEntryKnownToBeInvalid(const QString &entryPath) const {
   return gLauncherDataStoreStub->isDesktopEntryKnownToBeInvalid(entryPath);
+}
+
+void LauncherDataStore::removeNextPendingInvalidEntry() {
+    gLauncherDataStoreStub->removeNextPendingInvalidEntry();
 }
 
 #endif

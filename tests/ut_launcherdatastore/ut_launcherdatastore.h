@@ -54,6 +54,8 @@ private slots:
     void testNotReprocessingInvalidEntry();
     void testUpdatingMultipleEntries();
     void testValidatingPreviouslyAddedDesktopEntiesOnStartUp();
+    void testGettingInvalidatingSignalForValidEntry();
+    void testGettingInvalidatingSignalsForMultipleValidEntries();
 
 private:
     // MApplication

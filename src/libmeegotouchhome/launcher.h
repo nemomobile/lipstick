@@ -256,8 +256,10 @@ private slots:
     /*!
      * Cleans up the page that sent a signal to this slot after button removal. Removes the
      * page if it became empty, updates button placements otherwise.
+     *
+     * \param removedButton Button to be removed while pruning. No buttons removed if NULL.
      */
-    void prunePage();
+    void prunePage(const QString &removedEntry = QString());
 
 private:
     /*!

@@ -78,7 +78,7 @@ public:
      *
      * \param state State of a button
      */
-    void setState(LauncherButtonModel::State state);
+    virtual void setState(LauncherButtonModel::State state);
 
     /*!
      * Sets the progress of a button

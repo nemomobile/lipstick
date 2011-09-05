@@ -137,5 +137,6 @@ private slots:
     void testWhenLauncherPageCreatedThenPruningConnectedToButtonRemoval();
     // Test that a placeholder button is not added to launcher if application desktop entry is invalid
     void testPlaceholderButtonIsNotAddedIfApplicationDesktopEntryIsInvalid();
+    void testPruningWithButtonRemoved();
 };
 #endif //_UT_LAUNCHER_

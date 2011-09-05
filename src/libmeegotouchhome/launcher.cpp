@@ -16,6 +16,7 @@
 ** of this file.
 **
 ****************************************************************************/
+
 #include "launcher.h"
 #include "launcherbutton.h"
 #include "launcherdatastore.h"
@@ -410,7 +411,7 @@ void Launcher::removeLauncherButton(const QString &desktopEntryPath)
     }
 }
 
-void Launcher::prunePage()
+void Launcher::prunePage(const QString &removedEntry)
 {
     QList<QSharedPointer<LauncherPage> > pages = model()->launcherPages();
 
@@ -426,6 +427,10 @@ void Launcher::prunePage()
             }
             break;
         }
+    }
+
+    if (!removedEntry.isEmpty()) {
+        removeButtonPlacementFromStore(removedEntry);
     }
 }
 

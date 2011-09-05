@@ -58,7 +58,7 @@ class LauncherStub : public StubBase {
   virtual int pageIndex(LauncherPage *page);
   virtual void updateProgress(const QString& desktopEntryPath, int already, int total);
   virtual LauncherButtonModel::State buttonStateFromPackageState(ApplicationPackageMonitor::PackageState);
-  virtual void prunePage();
+  virtual void prunePage(const QString &removedEntry);
 };
 
 // 2. IMPLEMENT STUB
@@ -260,10 +260,11 @@ LauncherButtonModel::State LauncherStub::buttonStateFromPackageState(Application
   return stubReturnValue<LauncherButtonModel::State>("buttonStateFromPackageState");
 }
 
-void LauncherStub::prunePage()
+void LauncherStub::prunePage(const QString &removedEntry)
 {
   QList<ParameterBase*> params;
-  stubMethodEntered("prunePage");
+  params.append( new Parameter<QString>(removedEntry));
+  stubMethodEntered("prunePage", params);
 }
 
 
@@ -407,9 +408,9 @@ LauncherButtonModel::State Launcher::buttonStateFromPackageState(ApplicationPack
     return gLauncherStub->buttonStateFromPackageState(packageState);
 }
 
-void Launcher::prunePage()
+void Launcher::prunePage(const QString &removedEntry)
 {
-    gLauncherStub->prunePage();
+    gLauncherStub->prunePage(removedEntry);
 }
 
 #endif

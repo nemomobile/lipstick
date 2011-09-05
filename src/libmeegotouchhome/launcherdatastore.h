@@ -168,6 +168,13 @@ public slots:
      */
     void updateDesktopEntryFiles();
 
+private slots:
+    /*!
+     * Removes next entry from pendingInvalidEntries and adds it to invalid entries list.
+     * Entry is only removed if it's still invalid.
+     */
+    void removeNextPendingInvalidEntry();
+
 private:
     /*!
      * Starts processing of the update queue.
@@ -207,6 +214,12 @@ private:
 
     //! Invalid entries in the watched dir
     QStringList invalidEntries;
+
+    //! Invalid entries pending validation
+    QStringList pendingInvalidEntries;
+
+    //! Timer for removing modified entries that has turned to invalid
+    QTimer removeModifiedInvalidEntriesTimer;
 
 #ifdef UNIT_TEST
     friend class Ut_LauncherDataStore;

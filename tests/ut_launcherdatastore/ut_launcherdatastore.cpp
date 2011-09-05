@@ -462,6 +462,9 @@ void Ut_LauncherDataStore::testUpdatingInvalidEntry()
     // change back to invalid and send changed
     desktopEntryType.insert(fileNameWithPath("invalidAndValidApplication.desktop"), QString("invalid_again"));
     dataStore.updateDesktopEntry(fileNameWithPath("invalidAndValidApplication.desktop"));
+    // Process pending entry
+    QVERIFY(disconnect(&dataStore.removeModifiedInvalidEntriesTimer, SIGNAL(timeout()), &dataStore, SLOT(removeNextPendingInvalidEntry())));
+    dataStore.removeNextPendingInvalidEntry();
 
     QCOMPARE(spyDesktopEntryRemoved.count(), 1);
     QCOMPARE(spyDataStoreChanged.count(), 2);
@@ -543,6 +546,86 @@ void Ut_LauncherDataStore::testValidatingPreviouslyAddedDesktopEntiesOnStartUp()
     QCOMPARE(mockStore->allKeys().count(), 1);
     QCOMPARE(mockStore->value(LauncherDataStore::entryPathToKey(invalidDesktopEntryPath)), QVariant());
     QCOMPARE(mockStore->value(LauncherDataStore::entryPathToKey(validDesktopEntryPath)).toString(), QString("validData"));
+}
+
+void Ut_LauncherDataStore::testGettingInvalidatingSignalForValidEntry()
+{
+    QString entryPath("validApplication.desktop");
+    addDesktopEntry(entryPath, "Application");
+    LauncherDataStore dataStore(new MockDataStore, QStringList() << APPLICATIONS_DIRECTORY);
+
+    QCOMPARE(dataStore.removeModifiedInvalidEntriesTimer.isSingleShot(), true);
+    QVERIFY(dataStore.removeModifiedInvalidEntriesTimer.interval() > 0);
+
+    dataStore.updateDesktopEntryFiles();
+
+    // connect signals only after entries have been added first time
+    QSignalSpy spyDesktopEntryChanged(&dataStore, SIGNAL(desktopEntryChanged(QSharedPointer<MDesktopEntry>)));
+    QSignalSpy spyDesktopEntryRemoved(&dataStore, SIGNAL(desktopEntryRemoved(QString)));
+    QSignalSpy spyDataStoreChanged(&dataStore, SIGNAL(dataStoreChanged()));
+
+    // change to invalid and "send" multiple changed signals
+    desktopEntryType.insert(fileNameWithPath(entryPath), QString("invalid"));
+    dataStore.updateDesktopEntry(fileNameWithPath(entryPath));
+    dataStore.updateDesktopEntry(fileNameWithPath(entryPath));
+    dataStore.updateDesktopEntry(fileNameWithPath(entryPath));
+
+    // Verify that there is no reaction to the changed signals
+    QCOMPARE(spyDesktopEntryRemoved.count(), 0);
+    QCOMPARE(spyDataStoreChanged.count(), 0);
+    QCOMPARE(dataStore.isDesktopEntryKnownToBeInvalid(fileNameWithPath(entryPath)), false);
+
+    // Verify that there is one invalid entry pending
+    QCOMPARE(dataStore.pendingInvalidEntries.count(), 1);
+    QCOMPARE(dataStore.pendingInvalidEntries.at(0), fileNameWithPath(entryPath));
+    QCOMPARE(dataStore.removeModifiedInvalidEntriesTimer.isActive(), true);
+
+    // Change entry back to valid
+    desktopEntryType.insert(fileNameWithPath(entryPath), QString("Application"));
+    dataStore.updateDesktopEntry(fileNameWithPath(entryPath));
+    QCOMPARE(spyDesktopEntryChanged.count(), 1);
+
+    // Process pending entry
+    QVERIFY(disconnect(&dataStore.removeModifiedInvalidEntriesTimer, SIGNAL(timeout()), &dataStore, SLOT(removeNextPendingInvalidEntry())));
+    dataStore.removeNextPendingInvalidEntry();
+
+    // Verify that entry was processed as valid
+    QCOMPARE(spyDesktopEntryChanged.count(), 2);
+    QCOMPARE(spyDataStoreChanged.count(), 0);
+}
+
+void Ut_LauncherDataStore::testGettingInvalidatingSignalsForMultipleValidEntries()
+{
+    QString entryPath1("validApplication1.desktop");
+    QString entryPath2("validApplication2.desktop");
+    addDesktopEntry(entryPath1, "Application");
+    addDesktopEntry(entryPath2, "Application");
+    LauncherDataStore dataStore(new MockDataStore, QStringList() << APPLICATIONS_DIRECTORY);
+    dataStore.updateDesktopEntryFiles();
+    // connect signals only after entries have been added first time
+    QSignalSpy spyDesktopEntryChanged(&dataStore, SIGNAL(desktopEntryChanged(QSharedPointer<MDesktopEntry>)));
+
+    // change to invalid and "send" changed signals
+    desktopEntryType.insert(fileNameWithPath(entryPath1), QString("invalid"));
+    dataStore.updateDesktopEntry(fileNameWithPath(entryPath1));
+    desktopEntryType.insert(fileNameWithPath(entryPath2), QString("invalid"));
+    dataStore.updateDesktopEntry(fileNameWithPath(entryPath2));
+
+    // Verify that there are two invalid entries pending
+    QCOMPARE(dataStore.pendingInvalidEntries.count(), 2);
+    QCOMPARE(dataStore.removeModifiedInvalidEntriesTimer.isActive(), true);
+
+    // Change 1st entry back to valid and process pending entry
+    desktopEntryType.insert(fileNameWithPath(entryPath1), QString("Application"));
+    dataStore.removeNextPendingInvalidEntry();
+    // Verify that entry was processed as valid
+    QCOMPARE(spyDesktopEntryChanged.count(), 1);
+
+    // Change 1st entry back to valid and process pending entry
+    desktopEntryType.insert(fileNameWithPath(entryPath2), QString("Application"));
+    dataStore.removeNextPendingInvalidEntry();
+    // Verify that entry was processed as valid
+    QCOMPARE(spyDesktopEntryChanged.count(), 2);
 }
 
 QTEST_APPLESS_MAIN(Ut_LauncherDataStore)
