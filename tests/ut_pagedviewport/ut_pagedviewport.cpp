@@ -116,6 +116,7 @@ void Ut_PagedViewport::fillSubjectWithPages(int numPages)
 void Ut_PagedViewport::testInitialState()
 {
     QVERIFY(disconnect(m_subject->pagedPanning, SIGNAL(pageIsPanning(bool)), m_subject, SIGNAL(pageIsPanning(bool))));
+    QCOMPARE(m_subject->acceptGesturesFromAnyDirection(), true);
 }
 
 void Ut_PagedViewport::test_updatePageCount()

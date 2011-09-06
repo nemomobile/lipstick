@@ -43,6 +43,7 @@ PagedViewport::PagedViewport(QGraphicsItem *parent) :
     connect(pagedPanning, SIGNAL(pageChanged(int)), this, SIGNAL(pageChanged(int)));
     connect(pagedPanning, SIGNAL(pageIsPanning(bool)), this, SIGNAL(pageIsPanning(bool)));
     setPanDirection(Qt::Horizontal);
+    setAcceptGesturesFromAnyDirection(true);
 
     PagePositionIndicator *positionIndicator = new PagePositionIndicator();
     connect(this, SIGNAL(pageCountChanged(int)), positionIndicator, SLOT(setPageCount(int)));

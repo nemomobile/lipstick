@@ -5,6 +5,7 @@ meegotouchhome (1.2.1~1) unstable; urgency=low
   * Fixes: NB#278417 - Inconsistent behaviour with launcher icons while modifying .desktop files
   * Fixes: NB#277602 - [PR1.0 Regression] PR1.1 boot time is 10 seconds slower than PR1.0
   * Fixes: NB#279627 - Launcher buttons are not grayed out while an application is starting
+  * Fixes: NB#260942 - Second touch mess up transition from switcher to the other main view in the UI
 
  -- Eetu Lehmusvuo <ext-eetu.6.lehmusvuo@nokia.com>  Tue, 23 Aug 2011 16:53:13 +0300
 
