@@ -1,26 +1,51 @@
-meegotouchhome (1.2.1~1) unstable; urgency=low
+meegotouchhome (1.2.1-1) unstable; urgency=low
 
-  * [UNRELEASED]
   * ABI break
-  * Fixes: NB#278417 - Inconsistent behaviour with launcher icons while modifying .desktop files
-  * Fixes: NB#277602 - [PR1.0 Regression] PR1.1 boot time is 10 seconds slower than PR1.0
-  * Fixes: NB#279627 - Launcher buttons are not grayed out while an application is starting
-  * Fixes: NB#260942 - Second touch mess up transition from switcher to the other main view in the UI
 
- -- Eetu Lehmusvuo <ext-eetu.6.lehmusvuo@nokia.com>  Tue, 23 Aug 2011 16:53:13 +0300
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Thu, 08 Sep 2011 12:59:13 +0300
 
 meegotouchhome (1.2.0-1) unstable; urgency=low
 
-  * Fixes: NB#276677 - Home has increased startup time for applications
+  * Fixes: NB#277233 - meegotouchhome: unbuildable with gcc-4.5
 
  -- Eetu Lehmusvuo <ext-eetu.6.lehmusvuo@nokia.com>  Tue, 23 Aug 2011 16:51:22 +0300
+
+meegotouchhome (1.1.13-1) unstable; urgency=low
+
+  * Fixes: NB#260942 - Second touch mess up transition from switcher to the other main view in the UI
+
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Tue, 06 Sep 2011 16:52:58 +0300
+
+meegotouchhome (1.1.12-1) unstable; urgency=low
+
+  * ABI break
+  * Fixes: NB#278417 - Inconsistent behaviour with launcher icons while modifying .desktop files
+
+ -- Eetu Lehmusvuo <ext-eetu.6.lehmusvuo@nokia.com>  Wed, 31 Aug 2011 13:18:58 +0300
+
+meegotouchhome (1.1.11-1) unstable; urgency=low
+
+  * Fixes: NB#279627 - Launcher buttons are not grayed out while an application is starting
+
+ -- Pauli Lehtinen <pauli.lehtinen@nokia.com>  Mon, 29 Aug 2011 16:23:56 +0300
+
+meegotouchhome (1.1.10-1) unstable; urgency=low
+
+  * Fixes: NB#277602 - [PR1.0 Regression] PR1.1 boot time is 10 seconds slower than PR1.0
+
+ -- Eetu Lehmusvuo <ext-eetu.6.lehmusvuo@nokia.com>  Thu, 25 Aug 2011 14:38:13 +0300
+
+meegotouchhome (1.1.9-1) unstable; urgency=low
+
+  * Fixes: NB#276677 - Home has increased startup time for applications
+
+ -- Eetu Lehmusvuo <ext-eetu.6.lehmusvuo@nokia.com>  Tue, 23 Aug 2011 16:34:22 +0300
 
 meegotouchhome (1.1.8-1) unstable; urgency=low
 
   * Fixes: NB#248129 - Paging canceling behavior is off
-  * Fixes: NB#277233 - meegotouchhome: unbuildable with gcc-4.5
 
- -- Pankaj Saharan <pankaj.saharan@nokia.com>  Thu, 04 Aug 2011 17:21:49 +0300
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Wed, 10 Aug 2011 19:26:56 +0300
 
 meegotouchhome (1.1.7-1) unstable; urgency=low
 
