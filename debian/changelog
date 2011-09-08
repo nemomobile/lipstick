@@ -1,3 +1,9 @@
+meegotouchhome (1.2.2~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Vesa Halttunen <vesa.halttunen@nokia.com>  Thu, 08 Sep 2011 12:59:42 +0300
+
 meegotouchhome (1.2.1-1) unstable; urgency=low
 
   * ABI break
