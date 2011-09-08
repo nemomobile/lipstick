@@ -115,8 +115,7 @@ private slots:
     void testButtonInfoIsUpdatedFromDesktopEntryWhenButtonStateIsUpdatedFromApplicationsEntry();
     // Test handling of operation error when entry has a placeholder launcher
     void testSetOperationErrorWhenButtonHasPlaceholder();
-    // Test that placeholder map entry is removed for launcher button.
-    void testRemovingPlaceholderMapEntryWhenButtonIsRemoved();
+    void testConvertingToPlaceholderWhenButtonIsRemovedAndInstallerExtraRemains();
     // Test that when application's install extra file is removed, placeholder
     // launcher button for that application is removed when application is not installed.
     void testRemovingLauncherButtonPlaceholderWhenInstallExtraEntryIsRemoved();

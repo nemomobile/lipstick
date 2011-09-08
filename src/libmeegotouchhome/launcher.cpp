@@ -187,10 +187,23 @@ QSharedPointer<LauncherButton> Launcher::placeholderButton(const QSharedPointer<
     return button;
 }
 
+QSharedPointer<LauncherButton> Launcher::findButtonForDesktopEntryPath(const QString &desktopEntryPath)
+{
+    QSharedPointer<LauncherButton> buttonForDesktopEntry;
+
+    Launcher::Placement placement(buttonPlacement(QFileInfo(desktopEntryPath).fileName()));
+    if (!placement.isNull()) {
+        QSharedPointer<LauncherPage> page = model()->launcherPages().at(placement.page);
+        buttonForDesktopEntry = page->model()->launcherButtons().at(placement.position);
+    }
+
+    return buttonForDesktopEntry;
+}
+
 void Launcher::removePlaceholderButton(const QString &desktopEntryPath)
 {
-     Launcher::Placement placement(buttonPlacement(QFileInfo(desktopEntryPath).fileName()));
-     if (!placement.isNull()) {
+    Launcher::Placement placement(buttonPlacement(QFileInfo(desktopEntryPath).fileName()));
+    if (!placement.isNull()) {
         QSharedPointer<LauncherPage> page = model()->launcherPages().at(placement.page);
         QSharedPointer<LauncherButton> buttonForDesktopEntry = page->model()->launcherButtons().at(placement.position);
 
@@ -398,8 +411,33 @@ Launcher::Placement Launcher::appendButtonToPages(QSharedPointer<LauncherButton>
     return Placement(pageIndex, position);
 }
 
+bool Launcher::convertToPlaceHolderButton(const QString &desktopEntryPath)
+{
+    if(!ApplicationPackageMonitor::isInstallerExtraEntry(desktopEntryPath)) {
+        QString extraPath = ApplicationPackageMonitor::toInstallerExtraEntryPath(desktopEntryPath);
+
+        if(QFileInfo(extraPath).exists()) {
+            QSharedPointer<LauncherButton> button = findButtonForDesktopEntryPath(desktopEntryPath);
+
+            if(!button.isNull()) {
+                QSharedPointer<MDesktopEntry> entry(new MDesktopEntry(extraPath));
+                button->updateFromDesktopEntry(entry);
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 void Launcher::removeLauncherButton(const QString &desktopEntryPath)
 {
+    // If the desktop entry can be converted to a placeholder button, the installer-extra entry still exists
+    // and the button is not removed from launcher
+    if(convertToPlaceHolderButton(desktopEntryPath)) {
+        return;
+    }
+
     QList<QSharedPointer<LauncherPage> > pages = model()->launcherPages();
 
     foreach (QSharedPointer<LauncherPage> page, pages) {

@@ -349,6 +349,8 @@ void Ut_Launcher::testUpdatingButtonPlacementsOnPage()
     // remove 2 buttons from 1st page
     buttonCountOnFirstPage = BUTTONS_PER_PAGE - 2;
 
+    fileExists = false; // installer-extra entries don't exist
+
     gLauncherButtonStub->stubSetReturnValue("desktopEntry", QString("testApp3.desktop"));
     launcher->removeLauncherButton("testApp3.desktop");
 
@@ -412,6 +414,8 @@ void Ut_Launcher::testRemovingButtons()
 
     // remove 2 buttons from 1st page
     buttonCountOnFirstPage = BUTTONS_PER_PAGE - 2;
+
+    fileExists = false; // installer-extra entries don't exist
 
     gLauncherButtonStub->stubSetReturnValue("desktopEntry", QString("testApp3.desktop"));
     launcher->removeLauncherButton("testApp3.desktop");
@@ -625,9 +629,9 @@ void Ut_Launcher::testSetOperationErrorWhenButtonHasPlaceholder()
     QCOMPARE(gLauncherButtonStub->stubLastCallTo("setState").parameter<LauncherButtonModel::State>(0), LauncherButtonModel::Broken);
 }
 
-void Ut_Launcher::testRemovingPlaceholderMapEntryWhenButtonIsRemoved()
+void Ut_Launcher::testConvertingToPlaceholderWhenButtonIsRemovedAndInstallerExtraRemains()
 {
-    QSharedPointer<MDesktopEntry> installExtraEntry(new MDesktopEntry("install-extra/testRemoveInstallExtra.desktop"));
+    QSharedPointer<MDesktopEntry> installExtraEntry(new MDesktopEntry("installer-extra/testRemoveInstallExtra.desktop"));
     QSharedPointer<MDesktopEntry> applicationsEntry(new MDesktopEntry("applications/testRemoveInstallExtra.desktop"));
 
     addButtonsToLauncher(BUTTONS_PER_PAGE-1);
@@ -637,10 +641,15 @@ void Ut_Launcher::testRemovingPlaceholderMapEntryWhenButtonIsRemoved()
 
     QCOMPARE(launcher->model()->launcherPages().at(0)->model()->launcherButtons().count(), BUTTONS_PER_PAGE);
 
+    gApplicationPackageMonitorStub->stubSetReturnValue("isInstallerExtraEntry", false);
+    gApplicationPackageMonitorStub->stubSetReturnValue("toInstallerExtraEntryPath", installExtraEntry->fileName());
     gLauncherButtonStub->stubSetReturnValue("desktopEntry", applicationsEntry->fileName());
     launcher->removeLauncherButton(applicationsEntry->fileName());
 
-    QCOMPARE(launcher->model()->launcherPages().at(0)->model()->launcherButtons().count(), BUTTONS_PER_PAGE-1);
+    // Nothing removed, since installer-extra entry still exists
+    QCOMPARE(launcher->model()->launcherPages().at(0)->model()->launcherButtons().count(), BUTTONS_PER_PAGE);
+    QCOMPARE(gLauncherButtonStub->stubCallCount("updateFromDesktopEntry"), 1);
+    QCOMPARE(gLauncherButtonStub->stubLastCallTo("updateFromDesktopEntry").parameter<const QSharedPointer<MDesktopEntry> >(0)->fileName(), installExtraEntry->fileName());
 }
 
 void Ut_Launcher::testRemovingLauncherButtonPlaceholderWhenInstallExtraEntryIsRemoved()
@@ -648,6 +657,7 @@ void Ut_Launcher::testRemovingLauncherButtonPlaceholderWhenInstallExtraEntryIsRe
     QSharedPointer<MDesktopEntry> entry(new MDesktopEntry("testRemoveInstallExtra.desktop"));
     addButtonsToLauncher(BUTTONS_PER_PAGE-1);
 
+    gApplicationPackageMonitorStub->stubSetReturnValue("isInstallerExtraEntry", true);
     gLauncherButtonStub->stubSetReturnValue("desktopEntry", QString(""));
 
     // add a new placeholder button
@@ -762,6 +772,8 @@ void Ut_Launcher::testThatLauncherIconIsRemovedWhenApplicationUninstallProgressI
 {
     QSharedPointer<MDesktopEntry> uninstallableInstallerExtraEntry(new MDesktopEntry(INSTALLER_EXTRA_PATH + "uninstallableApp.desktop"));
     QSharedPointer<MDesktopEntry> uninstallableApplicationsEntry(new MDesktopEntry(QString(APPLICATIONS_DIRECTORY) + "uninstallableApp.desktop"));
+
+    gApplicationPackageMonitorStub->stubSetReturnValue("isInstallerExtraEntry", true);
 
     QHash<QString, QVariant> dataForAllDesktopEntries;
     dataForAllDesktopEntries.insert(uninstallableApplicationsEntry->fileName(), QVariant("launcher/0/0"));

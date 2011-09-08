@@ -52,7 +52,7 @@ LauncherButtonModel::State LauncherButtonStub::buttonState() const {
 
 void LauncherButtonStub::updateFromDesktopEntry(const QSharedPointer<MDesktopEntry> &entry) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const QSharedPointer<MDesktopEntry> & >(entry));
+  params.append( new Parameter<const QSharedPointer<MDesktopEntry> >(entry));
   stubMethodEntered("updateFromDesktopEntry",params);
 }
 

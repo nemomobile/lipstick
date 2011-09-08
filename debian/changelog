@@ -1,6 +1,7 @@
 meegotouchhome (1.2.2~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#252550 - Package installation / Launcher error icon disappear and comes back
 
  -- Vesa Halttunen <vesa.halttunen@nokia.com>  Thu, 08 Sep 2011 12:59:42 +0300
 

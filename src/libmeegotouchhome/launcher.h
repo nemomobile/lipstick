@@ -271,6 +271,14 @@ private:
     Launcher::Placement entryPlacementInDatastore(const QString &desktopEntryPath);
 
     /*!
+     * Find the button corresponding to the desktop entry path.
+     *
+     * \param desktopEntryPath path to the desktop entry of the button
+     * \return pointer to the button, or null if the button was not found
+     */
+    QSharedPointer<LauncherButton> findButtonForDesktopEntryPath(const QString &desktopEntryPath);
+
+    /*!
      * Add a new launcher button to given pages.
      *
      * \param desktopEntryPath Path to desktop entry that button should represent
@@ -331,6 +339,15 @@ private:
      * \param desktopEntry Desktop entry the button should represent
      */
     QSharedPointer<LauncherButton> placeholderButton(const QSharedPointer<MDesktopEntry> &desktopEntry);
+
+    /*!
+     * If the button in the given desktop entry path has a corresponding installer-extra desktop entry,
+     * makes the button's desktop entry point to that path.
+     *
+     * \param desktopEntryPath path to the desktop entry of the button
+     * \return true if the conversion could be done, false otherwise
+     */
+    bool convertToPlaceHolderButton(const QString &desktopEntryPath);
 
     /*!
      * Updates button placement to the launcher data store.
