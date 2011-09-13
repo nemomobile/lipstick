@@ -194,12 +194,40 @@ void Ut_ApplicationPackageMonitor::testUpdatingPackageStateWhenDesktopEntryChang
     initializeEntries(1, QStringList() << stateString);
 
     QSignalSpy signalSpy(m_subject, SIGNAL(packageStateUpdated(QSharedPointer<MDesktopEntry>, QString, ApplicationPackageMonitor::PackageState, bool)));
-
     m_subject->updatePackageState(entry);
 
     QCOMPARE(signalSpy.count(), 1);
     QCOMPARE(signalSpy.at(0).at(0).value<QSharedPointer<MDesktopEntry> >()->fileName(), QString(INSTALLER_EXTRA_ENTRY_NAME_TEMPLATE.arg(0)));
     QCOMPARE(signalSpy.at(0).at(2).value<ApplicationPackageMonitor::PackageState>(), stateEnum);
+}
+
+void Ut_ApplicationPackageMonitor::testUpdatingPackageStateWhenDesktopEntryChangesDuringInstallation()
+{
+    // Check when the desktop entry changes during installation in progress
+    QString stateString = PACKAGE_STATE_BROKEN;
+
+    QSharedPointer<MDesktopEntry> entry(new MDesktopEntry(INSTALLER_EXTRA_ENTRY_NAME_TEMPLATE.arg(0)));
+
+    QVERIFY(disconnect(m_subject->extraDirWatcher.data(), SIGNAL(desktopEntryChanged(QSharedPointer<MDesktopEntry>)), m_subject, SLOT(updatePackageState(QSharedPointer<MDesktopEntry>))));
+    initializeEntries(1, QStringList() << stateString);
+
+    QSignalSpy signalSpy(m_subject, SIGNAL(packageStateUpdated(QSharedPointer<MDesktopEntry>, QString, ApplicationPackageMonitor::PackageState, bool)));
+
+    m_subject->knownPackages[entry->value(ExtraDirWatcher::DESKTOP_ENTRY_GROUP_MEEGO, ExtraDirWatcher::DESKTOP_ENTRY_KEY_PACKAGE_NAME)].state = ApplicationPackageMonitor::Installing;
+    m_subject->updatePackageState(entry);
+
+    QCOMPARE(signalSpy.count(), 1);
+    QCOMPARE(signalSpy.at(0).at(0).value<QSharedPointer<MDesktopEntry> >()->fileName(), QString(INSTALLER_EXTRA_ENTRY_NAME_TEMPLATE.arg(0)));
+    QCOMPARE(signalSpy.at(0).at(2).value<ApplicationPackageMonitor::PackageState>(), ApplicationPackageMonitor::Installing);
+
+    // Check when the desktop entry changes when installation is not in progress
+    signalSpy.clear();
+    m_subject->knownPackages[entry->value(ExtraDirWatcher::DESKTOP_ENTRY_GROUP_MEEGO, ExtraDirWatcher::DESKTOP_ENTRY_KEY_PACKAGE_NAME)].state = ApplicationPackageMonitor::Broken;
+    m_subject->updatePackageState(entry);
+
+    QCOMPARE(signalSpy.count(), 1);
+    QCOMPARE(signalSpy.at(0).at(0).value<QSharedPointer<MDesktopEntry> >()->fileName(), QString(INSTALLER_EXTRA_ENTRY_NAME_TEMPLATE.arg(0)));
+    QCOMPARE(signalSpy.at(0).at(2).value<ApplicationPackageMonitor::PackageState>(), ApplicationPackageMonitor::Broken);
 }
 
 void Ut_ApplicationPackageMonitor::testRemovingPackageDataWhenDesktopEntryIsRemoved()
@@ -327,11 +355,21 @@ void Ut_ApplicationPackageMonitor::testInstallSuccessSignalWithErrorAndPackageNo
 
     QSignalSpy signalSpy(m_subject, SIGNAL(packageStateUpdated(QSharedPointer<MDesktopEntry>, QString, ApplicationPackageMonitor::PackageState, bool)));
 
-    m_subject->packageOperationComplete(OPERATION_INSTALL, PACKAGE_NAME_TEMPLATE.arg(0), "", "BAR_ERROR", false);
+    // Check when error is empty
+    m_subject->packageOperationComplete(OPERATION_INSTALL, PACKAGE_NAME_TEMPLATE.arg(0), "", "", false);
     QCOMPARE(signalSpy.count(), 1);
     QCOMPARE(signalSpy.at(0).at(0).value<QSharedPointer<MDesktopEntry> >()->fileName(), QString(INSTALLER_EXTRA_ENTRY_NAME_TEMPLATE.arg(0)));
     QCOMPARE(signalSpy.at(0).at(1).toString(), QString(PACKAGE_NAME_TEMPLATE.arg(0)));
     QCOMPARE(signalSpy.at(0).at(2).value<ApplicationPackageMonitor::PackageState>(), ApplicationPackageMonitor::Installed);
+    QCOMPARE(signalSpy.at(0).at(3).toBool(), true);
+
+    // Check when there is error
+    signalSpy.clear();
+    m_subject->packageOperationComplete(OPERATION_INSTALL, PACKAGE_NAME_TEMPLATE.arg(0), "", "BAR_ERROR", false);
+    QCOMPARE(signalSpy.count(), 1);
+    QCOMPARE(signalSpy.at(0).at(0).value<QSharedPointer<MDesktopEntry> >()->fileName(), QString(INSTALLER_EXTRA_ENTRY_NAME_TEMPLATE.arg(0)));
+    QCOMPARE(signalSpy.at(0).at(1).toString(), QString(PACKAGE_NAME_TEMPLATE.arg(0)));
+    QCOMPARE(signalSpy.at(0).at(2).value<ApplicationPackageMonitor::PackageState>(), ApplicationPackageMonitor::Broken);
     QCOMPARE(signalSpy.at(0).at(3).toBool(), true);
 }
 

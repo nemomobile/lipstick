@@ -16,7 +16,6 @@
 ** of this file.
 **
 ****************************************************************************/
-
 #include "applicationpackagemonitor.h"
 #include "launcherdatastore.h"
 #include <QDir>
@@ -170,13 +169,15 @@ void ApplicationPackageMonitor::packageOperationComplete(const QString &operatio
     }
 
     const QSharedPointer<MDesktopEntry> entry(new MDesktopEntry(desktopEntryPath));
-    if (!error.isEmpty()) {
-        updatePackageState(entry);
-    } else {
-        emit packageStateUpdated(entry, packageName, Installed, isPackageRemovable(entry.data()));
 
-        knownPackages[packageName].state = Installed;
+    PackageState packageState;
+    if (!error.isEmpty()) {
+        packageState = Broken;
+    } else {
+        packageState = Installed;
     }
+    emit packageStateUpdated(entry, packageName, packageState, isPackageRemovable(entry.data()));
+    knownPackages[packageName].state = packageState;
 }
 
 bool ApplicationPackageMonitor::isValidOperation(const QString &desktopEntryPath, const QString &operation)
@@ -205,11 +206,15 @@ void ApplicationPackageMonitor::updatePackageState(const QSharedPointer<MDesktop
 
     if (!packageName.isEmpty()) {
         PackageState packageState = Installable;
-
         if (packageStateString == PACKAGE_STATE_INSTALLED) {
             packageState = Installed;
         } else if (packageStateString == PACKAGE_STATE_BROKEN) {
-            packageState = Broken;
+            // NB#264571: Not reacting to desktop entry changes when currently installing package changes to broken
+            if (knownPackages[packageName].state == Installing) {
+                packageState = Installing;
+            } else {
+                packageState = Broken;
+            }
         }
 
         emit packageStateUpdated(entry, packageName, packageState, isPackageRemovable(entry.data()));
