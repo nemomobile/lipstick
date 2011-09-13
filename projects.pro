@@ -10,22 +10,17 @@ TEMPLATE = subdirs
 
 addSubDirs(src)
 addSubDirs(themes)
-addSubDirs(tests)
 
 QMAKE_CLEAN += \
     build-stamp \
     configure-stamp \
     artifacts/*.deb \
-    tests/*/*.log.xml \
-    tests/*/*.log \
     *.log.xml \
     *.log
 
 QMAKE_DISTCLEAN += \
     build-stamp \
     configure-stamp \
-    tests/*/*.log.xml \
-    tests/*/*.log \
     *.log.xml \
     *.log
 
