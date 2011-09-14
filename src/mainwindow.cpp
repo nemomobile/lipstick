@@ -60,8 +60,11 @@ MainWindow::MainWindow(QWidget *parent) :
 #endif
 
     excludeFromTaskBar();
+    setSource(QUrl::fromLocalFile("./main.qml"));
+    setResizeMode(SizeRootObjectToView);
 
-    setBackgroundBrush(Qt::black);
+    setAttribute(Qt::WA_OpaquePaintEvent);
+    setAttribute(Qt::WA_NoSystemBackground);
 }
 
 MainWindow::~MainWindow()

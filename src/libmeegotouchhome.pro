@@ -37,12 +37,15 @@ HEADERS += homeapplication.h \
     windowinfo.h \
     mainwindow.h \
     x11wrapper.h \
-    launcherdatastore.h \
+    menumodel.h \
+    menuitem.h \
+    desktop.h \
     layoutvisualizationwrapper.h \
     homescreenservice.h \
     homewindowmonitor.h \
     windowmonitor.h \
-    xeventlistener.h
+    xeventlistener.h \
+    qticonloader.h
 
 SOURCES += main.cpp \
     homeapplication.cpp \
@@ -50,10 +53,13 @@ SOURCES += main.cpp \
     mainwindow.cpp \
     layoutvisualizationwrapper.cpp \
     x11wrapper.cpp \
-    launcherdatastore.cpp \
+    menumodel.cpp \
+    menuitem.cpp \
+    desktop.cpp \
     homescreenservice.cpp \
     homewindowmonitor.cpp \
-    xeventlistener.cpp
+    xeventlistener.cpp \
+    qticonloader.cpp
 
 INSTALL_HEADERS += $$HEADERS \
     mdesktopbackgroundextensioninterface.h
@@ -66,9 +72,8 @@ INSTALLS += target \
     headers
 
 CONFIG += link_pkgconfig
-PKGCONFIG += xcomposite \
-    contextsubscriber-1.0 \
-    contentaction-0.1
+PKGCONFIG += xcomposite mlite
+
 QT += network \
     svg \
     dbus \
