@@ -40,7 +40,6 @@ HEADERS += homeapplication.h \
     menumodel.h \
     menuitem.h \
     desktop.h \
-    layoutvisualizationwrapper.h \
     homescreenservice.h \
     homewindowmonitor.h \
     windowmonitor.h \
@@ -51,7 +50,6 @@ SOURCES += main.cpp \
     homeapplication.cpp \
     windowinfo.cpp \
     mainwindow.cpp \
-    layoutvisualizationwrapper.cpp \
     x11wrapper.cpp \
     menumodel.cpp \
     menuitem.cpp \
