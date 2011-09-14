@@ -33,6 +33,11 @@ Item {
                 width: 80
                 elide: Text.ElideRight
             }
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: model.object.launch()
+            }
         }
     }
 }

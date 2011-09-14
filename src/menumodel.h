@@ -10,7 +10,6 @@
 #define MENUMODEL_H
 
 #include <QObject>
-#include <QProcess>
 #include <QtDeclarative>
 #include <QAbstractItemModel>
 #include <QHash>
@@ -42,7 +41,7 @@ public:
         icon,
         filename,
         nodisplay,
-        custom
+        object
     };
 
     QDeclarativeListProperty<Desktop> apps();
@@ -81,9 +80,6 @@ signals:
 
 public slots:
     QString value(QString id, QString key);
-    void launchDesktop(QObject *);
-    void launchDesktopByName(QString name);
-    void launch(QString);
     QVariant getNameByIndex(int idx);
     QVariant getExecByIndex(int idx);
     QVariant getCommentByIndex(int idx);

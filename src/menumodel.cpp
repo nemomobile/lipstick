@@ -34,7 +34,7 @@ MenuModel::MenuModel(QObject *parent) :
     roles[icon]="icon";
     roles[filename]="filename";
     roles[nodisplay]="nodisplay";
-    roles[custom]="custom";
+    roles[object]="object";
 
     setRoleNames(roles);
 
@@ -244,6 +244,8 @@ QVariant MenuModel::data(const QModelIndex& index, int role) const
             return i->filename();
         case nodisplay:
             return i->nodisplay();
+        case object:
+            return QVariant::fromValue<QObject *>(i);
         default:
             break;
     }
@@ -270,47 +272,6 @@ QString MenuModel::value(QString id, QString key)
 			return item->value(key);
 	}
 	return "";
-}
-
-void MenuModel::launchDesktop(QObject *object)
-{
-    Desktop *target = qobject_cast<Desktop *>(object);
-    if (!target)
-        return;
-
-    QString cmd = target->exec();
-
-    // http://standards.freedesktop.org/desktop-entry-spec/latest/ar01s06.html
-    cmd.replace(QRegExp("%k"), target->filename());
-    cmd.replace(QRegExp("%i"), QString("--icon ") + target->icon());
-    cmd.replace(QRegExp("%c"), target->title());
-    cmd.replace(QRegExp("%[fFuU]"), target->filename()); // stuff we don't handle
-
-    QProcess::startDetached(cmd);
-
-    emit startingApp(target->title(), target->icon());
-}
-
-void MenuModel::launchDesktopByName(QString name)
-{
-
-    if (m_apps.length() == 0)
-        return;
-
-    for (int i = 0; i < m_apps.length(); i++)
-    {
-        Desktop *d = m_apps[i];
-        if (d->filename().contains(name))
-        {
-            launchDesktop(d);
-            return;
-        }
-    }
-}
-
-void MenuModel::launch(QString cmd)
-{
-    QProcess::startDetached(cmd);
 }
 
 QVariant MenuModel::getNameByIndex(int idx)

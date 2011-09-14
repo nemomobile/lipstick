@@ -14,6 +14,7 @@
 #include <QObject>
 #include <QIcon>
 #include <mdesktopentry.h>
+#include <QProcess>
 #include "qticonloader.h"
 
 class Desktop : public QObject
@@ -93,6 +94,21 @@ public:
         Filename = Qt::UserRole + 7,
         NoDisplay = Qt::UserRole + 8
     };
+
+    Q_INVOKABLE void launch() const
+    {
+        // TODO: we should use dbus activation like we used to do via ContextProperty
+        QString cmd = exec();
+
+        // http://standards.freedesktop.org/desktop-entry-spec/latest/ar01s06.html
+        cmd.replace(QRegExp("%k"), filename());
+        cmd.replace(QRegExp("%i"), QString("--icon ") + icon());
+        cmd.replace(QRegExp("%c"), title());
+        cmd.replace(QRegExp("%[fFuU]"), filename()); // stuff we don't handle
+
+        qDebug("Launching %s", qPrintable(cmd));
+        QProcess::startDetached(cmd);
+    }
 
 public slots:
 
