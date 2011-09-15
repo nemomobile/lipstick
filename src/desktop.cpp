@@ -20,11 +20,13 @@
 #define COLUMN_KEY "Desktop Entry/X-MEEGO-APP-HOME-COLUMN"
 #define PAGE_KEY "Desktop Entry/X-MEEGO-APP-HOME-PAGE"
 
-Desktop::Desktop(const QString &fileName, QObject *parent):
-    QObject(parent),
-    m_filename(fileName),
-    m_entry(new MDesktopEntry(fileName)),
-    m_assigned(false)
+Desktop::Desktop(const QString &fileName, QObject *parent)
+    : QObject(parent)
+    , m_filename(fileName)
+    , m_entry(new MDesktopEntry(fileName))
+    , m_pid(0)
+    , m_wid(0)
+    , m_assigned(false)
 {
     ///Set the id:
     QFile file(m_filename);

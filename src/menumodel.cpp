@@ -24,7 +24,6 @@ MenuModel::MenuModel(QObject *parent) :
 
     // Default dirs
     m_watcher->addPath("/usr/share/applications");
-    m_watcher->addPath("/usr/share/meego-ux-ivi/applications");
 
     QHash<int, QByteArray> roles;
     roles[id]="id";

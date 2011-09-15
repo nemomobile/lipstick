@@ -7,7 +7,7 @@ Item {
 
     GridView {
         anchors.fill: parent
-        model: MenuModel {
+        model: SwitcherModel {
         }
 
         delegate: Item {
@@ -29,7 +29,7 @@ Item {
                 text: model.name
                 anchors.top: launcherIcon.bottom
                 anchors.topMargin: 10
-                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.horizontalCenter: launcherIcon.horizontalCenter
                 width: 80
                 elide: Text.ElideRight
             }

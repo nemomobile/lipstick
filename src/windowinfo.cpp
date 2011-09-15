@@ -36,7 +36,8 @@ public:
             transientFor(0),
             title(),
             types(),
-            states()
+            states(),
+            pid(0)
     {
     }
 
@@ -68,6 +69,8 @@ public:
 
     //! The status atoms of this window
     QList<Atom> states;
+
+    int pid;
 };
 
 
@@ -199,6 +202,16 @@ void WindowInfo::updateWindowProperties()
     if (!X11Wrapper::XGetTransientForHint(QX11Info::display(), d->window, &d->transientFor) || d->transientFor == d->window) {
         d->transientFor = 0;
     }
+}
+
+int WindowInfo::pid() const
+{
+    return d->pid;
+}
+
+void WindowInfo::setPid(int pid)
+{
+    d->pid = pid;
 }
 
 QList<Atom> WindowInfo::getWindowProperties(Window winId, Atom propertyAtom, long maxCount)

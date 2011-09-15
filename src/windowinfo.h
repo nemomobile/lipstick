@@ -119,6 +119,14 @@ public:
      */
     void updateWindowProperties();
 
+    /*! Retrieve the PID associated with this window.
+     */
+    int pid() const;
+
+    /*! Set the PID associated with this window.
+     */
+    void setPid(int pid);
+
 private:
     //! Storage for the WindowInfo data objects. A central storage enables constructing
     //! new WindowInfo objects with shared data.

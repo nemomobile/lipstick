@@ -29,6 +29,8 @@ class Desktop : public QObject
     Q_PROPERTY(QStringList categories READ categories NOTIFY categoriesChanged);
     Q_PROPERTY(bool nodisplay READ nodisplay NOTIFY nodisplayChanged);
     Q_PROPERTY(QString filename READ filename NOTIFY filenameChanged);
+    Q_PROPERTY(int pid READ pid WRITE setPid);
+    Q_PROPERTY(int wid READ wid WRITE setWid);
 
 public:
     Desktop(const QString &filename, QObject *parent = 0);
@@ -80,6 +82,25 @@ public:
         return m_filename;
     } 
 
+    int wid() const
+    {
+        return m_wid;
+    }
+
+    void setWid(int wid) {
+        m_wid = wid;
+    }
+
+    int pid()
+    {
+        return m_pid;
+    }
+
+    void setPid(int pid)
+    {
+        m_pid = pid;
+    }
+
     bool nodisplay() const {
         return m_entry->noDisplay();
     } 
@@ -92,7 +113,9 @@ public:
         Exec = Qt::UserRole + 5,
         Categories = Qt::UserRole + 6,
         Filename = Qt::UserRole + 7,
-        NoDisplay = Qt::UserRole + 8
+        NoDisplay = Qt::UserRole + 8,
+        Pid = Qt::UserRole + 9,
+        Wid = Qt::UserRole + 10
     };
 
     Q_INVOKABLE void launch() const
@@ -143,6 +166,8 @@ private:
     QString m_filename;
     MDesktopEntry *m_entry;
     QString m_id;
+    int m_pid;
+    int m_wid;
 
     bool m_assigned;
     Q_DISABLE_COPY(Desktop)
