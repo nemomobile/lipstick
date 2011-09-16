@@ -51,34 +51,42 @@ Item {
             }
 
             GridView {
+                id: switcherView
                 height: root.height
                 width: root.width
+                cellHeight: 190
+                cellWidth: 300
+
                 model: SwitcherModel {
                     id: switcherModel
                 }
 
-                delegate: Item {
-                    width: 100
-                    height: 110
+                delegate: Rectangle {
+                    id: switcherCell
+                    height: switcherView.cellHeight
+                    width: switcherView.cellWidth
+                    color: "red"
 
                     Image {
                         id: launcherIcon
                         source: "image://windows/" + model.windowId + "/" + Math.random()
                         cache: false
                         anchors.centerIn: parent
-                        height: 64
-                        width: 64
-                        sourceSize.height: 64
-                        sourceSize.width: 64
+                        height: 180
+                        width: 280
+                        sourceSize.height: 180
+                        sourceSize.width: 280
                         asynchronous: true
                     }
 
                     Text {
+                        id: launcherLabel
                         text: model.name
+                        horizontalAlignment: Text.AlignHCenter
                         anchors.top: launcherIcon.bottom
                         anchors.topMargin: 10
                         anchors.horizontalCenter: launcherIcon.horizontalCenter
-                        width: 80
+                        width: launcherIcon.width - 20
                         elide: Text.ElideRight
                     }
 
