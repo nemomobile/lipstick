@@ -2,12 +2,8 @@ MOC_DIR = .moc
 M_MGEN_OUTDIR = .gen
 OBJECTS_DIR = .obj
 
-include(../../m_targets.pri)
-include(../../mconfig.pri)
-
 TEMPLATE = app
-TARGET = meegotouchhome
-CONFIG += meegotouch
+TARGET = lipstick
 
 # For setting the coverage flag ON
 contains(COV_OPTION, on) {
@@ -18,8 +14,6 @@ contains(COV_OPTION, on) {
 
 system(m-servicefwgen -a com.meego.core.HomeScreen)
 
-include(../../localconfig.pri)
-
 QMAKE_STRIP = echo
 OBJECTS_DIR = .obj
 MOC_DIR = .moc
@@ -29,8 +23,6 @@ CONFIG += qmake_cache target_qt
 
 #contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols
 #unix:contains(QT_CONFIG, reduce_relocations):CONFIG += bsymbolic_functions
-
-include(../../m_targets.pri)
 
 # Input
 HEADERS += homeapplication.h \
