@@ -46,6 +46,7 @@ HEADERS += homeapplication.h \
     xeventlistener.h \
     switchermodel.h \
     windowinfo.h \
+    windowpixmapprovider.h \
     qticonloader.h
 
 SOURCES += main.cpp \
@@ -60,6 +61,7 @@ SOURCES += main.cpp \
     homewindowmonitor.cpp \
     xeventlistener.cpp \
     switchermodel.cpp \
+    windowpixmapprovider.cpp \
     qticonloader.cpp
 
 INSTALL_HEADERS += $$HEADERS \

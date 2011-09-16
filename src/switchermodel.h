@@ -37,7 +37,8 @@ public:
         icon,
         filename,
         nodisplay,
-        object
+        object,
+        windowId
     };
 
     virtual bool handleXEvent(const XEvent &event);

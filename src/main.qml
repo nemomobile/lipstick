@@ -62,7 +62,8 @@ Item {
 
                     Image {
                         id: launcherIcon
-                        source: model.icon
+                        source: "image://windows/" + model.windowId + "/" + Math.random()
+                        cache: false
                         anchors.centerIn: parent
                         height: 64
                         width: 64

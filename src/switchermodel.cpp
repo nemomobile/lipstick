@@ -59,6 +59,7 @@ SwitcherModel::SwitcherModel(QObject *parent)
     roles[filename]="filename";
     roles[nodisplay]="nodisplay";
     roles[object]="object";
+    roles[windowId] = "windowId";
 
     setRoleNames(roles);
 }
@@ -386,6 +387,10 @@ QVariant SwitcherModel::data(const QModelIndex& index, int role) const
     switch (role) {
         case name:
             return i.title();
+        case windowId: {
+            qulonglong wid = i.window();
+            return wid;
+        }
         default:
             break;
     }

@@ -20,6 +20,7 @@
 #ifndef X11WRAPPER_H_
 #define X11WRAPPER_H_
 
+#include <QPixmap>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
@@ -38,7 +39,7 @@ public:
     static Status XGetTextProperty(Display *display, Window w, XTextProperty *text_prop_return, Atom property);
     static XWMHints *XGetWMHints(Display *display, Window w);
     static int XFreePixmap(Display *display, Pixmap pixmap);
-    static Pixmap XCompositeNameWindowPixmap(Display *dpy, Window window);
+    static QPixmap XCompositeNameWindowPixmap(Display *dpy, Window window);
     static Damage XDamageCreate(Display *dpy, Drawable drawable, int level);
     static void XDamageDestroy(Display *dpy, Damage damage);
     static int XSync(Display *display, Bool discard);
