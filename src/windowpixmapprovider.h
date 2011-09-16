@@ -5,10 +5,14 @@
 #include "xeventlistener.h"
 
 #include <QDeclarativeImageProvider>
+#include <QString>
+#include <QHash>
 #include <QPixmap>
+#include <QObject>
 
-class WindowPixmapProvider : public QDeclarativeImageProvider, XEventListener
+class WindowPixmapProvider : public QObject, public QDeclarativeImageProvider, XEventListener
 {
+    Q_OBJECT
 public:
     WindowPixmapProvider();
     ~WindowPixmapProvider();
@@ -18,6 +22,9 @@ public:
 
     void clearCacheFor(const QString &windowId);
     void refreshPixmapFor(const QString &windowId);
+
+private slots:
+    void damageEvent(Qt::HANDLE &damage, short &x, short &y, unsigned short &width, unsigned short &height);
 
 private:
     // TODO: move these to a struct?

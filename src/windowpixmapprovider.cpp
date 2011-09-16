@@ -1,4 +1,5 @@
 #include <QDebug>
+#include <QApplication>
 #include <QX11Info>
 
 #include "windowpixmapprovider.h"
@@ -8,6 +9,8 @@
 WindowPixmapProvider::WindowPixmapProvider()
     : QDeclarativeImageProvider(Pixmap)
 {
+    // TODO: as in mhome, we should disconnect this when appropriate
+    connect(qApp, SIGNAL(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)), this, SLOT(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)));
 
 }
 
@@ -57,6 +60,26 @@ bool WindowPixmapProvider::handleXEvent(const XEvent &event)
     }
 
     return false;
+}
+
+void WindowPixmapProvider::damageEvent(Qt::HANDLE &damage, short &x, short &y, unsigned short &width, unsigned short &height)
+{
+    Q_UNUSED(x);
+    Q_UNUSED(y);
+    Q_UNUSED(width);
+    Q_UNUSED(height);
+
+    // XXX: TODO: this is inefficient
+    foreach (const QString &wid, mDamages.keys()) {
+        if (mDamages.value(wid) == damage) {
+            qDebug() << Q_FUNC_INFO << "Got damage event for " << wid;
+            X11Wrapper::XDamageSubtract(QX11Info::display(), mDamages.value(wid), None, None);
+
+            // XXX: when we have our pixmap update serial, we will need to
+            // increment it here
+            return;
+        }
+    }
 }
 
 void WindowPixmapProvider::clearCacheFor(const QString &windowId)

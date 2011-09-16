@@ -90,6 +90,11 @@ signals:
     void stopBenchmarking();
 #endif
 
+    /*!
+     * Signal application about a changed X pixmap
+     */
+    void damageEvent(Qt::HANDLE &damage, short &x, short &y, unsigned short &width, unsigned short &height);
+
 protected:
     //! \reimp
     virtual bool x11EventFilter(XEvent *event);
@@ -136,6 +141,8 @@ private:
     //! Once a listener is on this list, it won't receive any X events any more.
     QList<XEventListener*> toBeRemovedEventListeners;
 
+    int xDamageEventBase;
+    int xDamageErrorBase;
 #ifdef UNIT_TEST
     friend class Ut_HomeApplication;
 #endif

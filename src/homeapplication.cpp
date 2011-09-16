@@ -25,6 +25,9 @@
 #include <QDBusMessage>
 #include <QDBusConnection>
 #include <QIcon>
+#include <QX11Info>
+#include <QDebug>
+
 #include "homeapplication.h"
 #include "homescreenservice.h"
 #ifdef HAS_ADAPTER
@@ -32,6 +35,7 @@
 #endif
 #include "windowinfo.h"
 #include "xeventlistener.h"
+#include "x11wrapper.h"
 
 /*!
  * D-Bus names for the home screen service
@@ -47,14 +51,18 @@ static const QString HOME_READY_SIGNAL_INTERFACE = "com.nokia.duihome.readyNotif
 static const QString HOME_READY_SIGNAL_NAME = "ready";
 
 HomeApplication::HomeApplication(int &argc, char **argv)
-    : QApplication(argc, argv),
-    upstartMode(false),
-    lockedOrientation_(QVariant::Invalid),
-    homeScreenService(new HomeScreenService),
-    xEventListeners(),
-    iteratorActiveForEventListenerContainer(false),
-    toBeRemovedEventListeners()
+    : QApplication(argc, argv)
+    , upstartMode(false)
+    , lockedOrientation_(QVariant::Invalid)
+    , homeScreenService(new HomeScreenService)
+    , xEventListeners()
+    , iteratorActiveForEventListenerContainer(false)
+    , toBeRemovedEventListeners()
+    , xDamageEventBase(0)
+    , xDamageErrorBase(0)
 {
+    XDamageQueryExtension(QX11Info::display(), &xDamageEventBase, &xDamageErrorBase);
+
     parseArguments(argc, argv);
     // launch a timer for sending a dbus-signal upstart when basic construct is done
     connect(&startupNotificationTimer, SIGNAL(timeout()),
@@ -128,6 +136,19 @@ bool HomeApplication::x11EventFilter(XEvent *event)
 {
     bool eventHandled = false;
     iteratorActiveForEventListenerContainer = true;
+
+    if (event->type == xDamageEventBase + XDamageNotify) {
+        qDebug() << Q_FUNC_INFO << "Processing damage event";
+        XDamageNotifyEvent *xevent = (XDamageNotifyEvent *) event;
+
+        // xevent->more would inform us if there is more events for the
+        // rendering operation. but there isn't interface to pass the
+        // information to damageEvent.
+        emit damageEvent(xevent->damage, xevent->area.x, xevent->area.y, xevent->area.width, xevent->area.height);
+        eventHandled = true;
+    }
+
+
     foreach (XEventListener* listener, xEventListeners) {
         if (!toBeRemovedEventListeners.contains(listener)) {
             if (listener->handleXEvent(*event)) {
