@@ -61,11 +61,8 @@ INSTALL_HEADERS += $$HEADERS \
     mdesktopbackgroundextensioninterface.h
 
 # Input
-headers.path += /usr/include/$$TARGET
-headers.files += $$INSTALL_HEADERS
-target.path += /usr/lib
-INSTALLS += target \
-    headers
+target.path += /usr/bin
+INSTALLS += target
 
 CONFIG += link_pkgconfig
 PKGCONFIG += xcomposite mlite

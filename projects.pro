@@ -9,7 +9,7 @@ include(mconfig.pri)
 TEMPLATE = subdirs
 
 addSubDirs(src)
-addSubDirs(themes)
+#addSubDirs(themes)
 
 QMAKE_CLEAN += \
     build-stamp \
@@ -27,8 +27,8 @@ QMAKE_DISTCLEAN += \
 include(check.pri)
 include(debian/deb.pri)
 
-NODOCS:{
-  message("Not building the documentation for this package")
-} else {
-  addSubDirs(doc)
-}
+#NODOCS:{
+#  message("Not building the documentation for this package")
+#} else {
+#  addSubDirs(doc)
+#}
