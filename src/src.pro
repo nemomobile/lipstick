@@ -65,7 +65,7 @@ target.path += /usr/bin
 INSTALLS += target
 
 CONFIG += link_pkgconfig
-PKGCONFIG += xcomposite mlite
+PKGCONFIG += xcomposite mlite xdamage
 
 QT += network \
     svg \
