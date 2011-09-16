@@ -53,6 +53,10 @@ public:
     QVariant data(const QModelIndex& index, int role) const;
     bool hasChildren ( const QModelIndex & parent = QModelIndex() ) const;
 
+    // TODO: would be nice to make these some kind of QObject methods instead of
+    // stuck onto the model randomly
+    Q_INVOKABLE void closeWindow(qulonglong window);
+    Q_INVOKABLE void windowToFront(qulonglong window);
 private:
     QList<Window> windowsBeingClosed;
     QList<WindowInfo> m_windows;

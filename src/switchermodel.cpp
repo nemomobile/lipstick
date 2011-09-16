@@ -404,4 +404,41 @@ bool SwitcherModel::hasChildren ( const QModelIndex & parent ) const
     return false;
 }
 
+void SwitcherModel::windowToFront(qulonglong window)
+{
+    XEvent ev;
+    memset(&ev, 0, sizeof(ev));
+    ev.xclient.type         = ClientMessage;
+    ev.xclient.window       = window;
+    ev.xclient.message_type = activeWindowAtom;
+    ev.xclient.format       = 32;
+    ev.xclient.data.l[0]    = 1;
+    ev.xclient.data.l[1]    = CurrentTime;
+    X11Wrapper::XSendEvent(QX11Info::display(), QX11Info::appRootWindow(QX11Info::appScreen()), False, StructureNotifyMask, &ev);
+    qDebug() << Q_FUNC_INFO << "Foregrounded " << window;
+}
+
+void SwitcherModel::closeWindow(qulonglong window)
+{
+    Window rootWin = QX11Info::appRootWindow(QX11Info::appScreen());
+
+    XEvent ev;
+    memset(&ev, 0, sizeof(ev));
+    ev.xclient.type         = ClientMessage;
+    ev.xclient.window       = window;
+    ev.xclient.message_type = closeWindowAtom;
+    ev.xclient.format       = 32;
+    ev.xclient.data.l[0]    = CurrentTime;
+    ev.xclient.data.l[1]    = rootWin;
+    X11Wrapper::XSendEvent(QX11Info::display(), rootWin, False, SubstructureRedirectMask, &ev);
+    qDebug() << Q_FUNC_INFO << "Closed " << window;
+
+    // Close also the window this one is transient for, if any
+    WindowInfo windowInfo = WindowInfo(window);
+    if (windowInfo.transientFor() != 0 && windowInfo.transientFor() != window) {
+        qDebug() << Q_FUNC_INFO << "Closing transient " << windowInfo.transientFor();
+        closeWindow(windowInfo.transientFor());
+    }
+}
+
 QML_DECLARE_TYPE(SwitcherModel);

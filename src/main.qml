@@ -54,6 +54,7 @@ Item {
                 height: root.height
                 width: root.width
                 model: SwitcherModel {
+                    id: switcherModel
                 }
 
                 delegate: Item {
@@ -83,7 +84,9 @@ Item {
 
                     MouseArea {
                         anchors.fill: parent
-                        onClicked: model.object.launch()
+                        onClicked: {
+                            switcherModel.windowToFront(model.windowId)
+                        }
                     }
                 }
             }
