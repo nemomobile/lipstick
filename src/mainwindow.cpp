@@ -22,6 +22,7 @@
 #include <QGLWidget>
 #include <QDBusInterface>
 #include <QX11Info>
+#include <QFile>
 #include <QDeclarativeEngine>
 
 #include "x11wrapper.h"
