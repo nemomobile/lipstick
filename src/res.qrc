@@ -1,6 +1,8 @@
 <RCC>
     <qresource prefix="/">
         <file>qml/main.qml</file>
+        <file>qml/Switcher.qml</file>
+        <file>qml/Launcher.qml</file>
     </qresource>
     <qresource prefix="/js">
     </qresource>
