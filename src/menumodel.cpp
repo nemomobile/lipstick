@@ -236,7 +236,7 @@ QVariant MenuModel::data(const QModelIndex& index, int role) const
         case exec:
             return i->exec();
         case icon:
-            return i->icon();
+            return "file:///" + i->icon();
         case comment:
             return i->comment();
         case filename:
