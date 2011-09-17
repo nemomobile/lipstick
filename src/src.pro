@@ -61,7 +61,9 @@ RESOURCES += \
     res.qrc
 
 OTHER_FILES += \
-    qml/main.qml
+    qml/main.qml \
+    qml/Launcher.qml \
+    qml/Switcher.qml
 
 
 # Input
