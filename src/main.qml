@@ -56,7 +56,6 @@ Item {
                 width: root.width
                 cellHeight: 190
                 cellWidth: 300
-
                 model: SwitcherModel {
                     id: switcherModel
                 }
@@ -77,8 +76,14 @@ Item {
                         sourceSize.height: 180
                         sourceSize.width: 280
                         asynchronous: true
-                    }
 
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                switcherModel.windowToFront(model.windowId)
+                            }
+                        }
+                    }
                     Text {
                         id: launcherLabel
                         text: model.name
@@ -90,12 +95,30 @@ Item {
                         elide: Text.ElideRight
                     }
 
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: {
-                            switcherModel.windowToFront(model.windowId)
+                    Rectangle
+                    {
+
+                        anchors.top: switcherCell.top
+                        anchors.right: switcherCell.right
+                        width: 80
+                        height: 60
+                        color: "red"
+
+                        Text { 
+                            anchors.fill: parent
+                            font.pixelSize: 50
+                            text: "X"
+                            color: "blue"
+
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: {
+                                    switcherModel.closeWindow(model.windowId)
+                                }
+                            }
                         }
                     }
+
                 }
             }
 
