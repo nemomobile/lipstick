@@ -57,8 +57,12 @@ SOURCES += main.cpp \
     windowpixmapprovider.cpp \
     qticonloader.cpp
 
-INSTALL_HEADERS += $$HEADERS \
-    mdesktopbackgroundextensioninterface.h
+RESOURCES += \
+    res.qrc
+
+OTHER_FILES += \
+    qml/main.qml
+
 
 # Input
 target.path += /usr/bin

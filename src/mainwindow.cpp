@@ -62,7 +62,7 @@ MainWindow::MainWindow(QWidget *parent) :
 #endif
 
     excludeFromTaskBar();
-    setSource(QUrl::fromLocalFile("./main.qml"));
+    setSource(QUrl("qrc:/qml/main.qml"));
     setResizeMode(SizeRootObjectToView);
 
     setAttribute(Qt::WA_OpaquePaintEvent);
