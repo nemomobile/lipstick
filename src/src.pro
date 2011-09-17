@@ -67,6 +67,17 @@ INSTALLS += target
 CONFIG += link_pkgconfig
 PKGCONFIG += xcomposite mlite xdamage
 
+packagesExist(contentaction-0.1) {
+    message("Using contentaction to launch applications")
+    PKGCONFIG += contentaction-0.1
+    DEFINES += HAS_CONTENTACTION
+    HEADERS += launcheraction.h
+    SOURCES += launcheraction.cpp
+
+} else {
+    warning("contentaction doesn't exist; falling back to exec - this may not work so great")
+}
+
 QT += network \
     svg \
     dbus \

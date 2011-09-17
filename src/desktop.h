@@ -17,6 +17,10 @@
 #include <QProcess>
 #include "qticonloader.h"
 
+#ifdef HAS_CONTENTACTION
+#include "launcheraction.h"
+#endif
+
 class Desktop : public QObject
 {
     Q_OBJECT
@@ -120,7 +124,8 @@ public:
 
     Q_INVOKABLE void launch() const
     {
-        // TODO: we should use dbus activation like we used to do via ContextProperty
+#ifndef HAS_CONTENTACTION
+        // fallback code: contentaction not available
         QString cmd = exec();
 
         // http://standards.freedesktop.org/desktop-entry-spec/latest/ar01s06.html
@@ -131,6 +136,10 @@ public:
 
         qDebug("Launching %s", qPrintable(cmd));
         QProcess::startDetached(cmd);
+#else
+        LauncherAction action(m_entry);
+        action.trigger();
+#endif
     }
 
 public slots:
