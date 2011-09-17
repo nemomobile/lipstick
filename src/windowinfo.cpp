@@ -18,15 +18,13 @@
 ****************************************************************************/
 
 #include <QHash>
+#include <QDebug>
+
 #include "windowinfo.h"
 #include "x11wrapper.h"
 #include <QX11Info>
 
-
-/*!
-  The window data is explicitly shared between window info objects through this class
- */
-class WindowData : public QSharedData
+class WindowInfo::WindowData
 {
 
 public:
@@ -37,16 +35,8 @@ public:
             title(),
             types(),
             states(),
-            pid(0)
-    {
-    }
-
-    //! Copy constructor
-    WindowData(const WindowData& source) : QSharedData(source),
-            window(source.window),
-            transientFor(source.transientFor),
-            types(source.types),
-            states(source.states)
+            pid(0),
+            pixmapSerial(0)
     {
     }
 
@@ -71,6 +61,8 @@ public:
     QList<Atom> states;
 
     int pid;
+
+    int pixmapSerial;
 };
 
 
@@ -109,41 +101,30 @@ void WindowInfo::initializeAtoms()
     }
 }
 
-QHash<Window, QExplicitlySharedDataPointer<WindowData> > WindowInfo::windowDatas;
+//! Storage for the WindowInfo data objects. A central storage enables constructing
+//! new WindowInfo objects with shared data.
+static QHash<Window, WindowInfo * > windowDatas;
 
-WindowInfo::WindowInfo(Window window)
+WindowInfo *WindowInfo::windowFor(Window wid)
 {
-    if (QExplicitlySharedDataPointer<WindowData> data = windowDatas.value(window)) {
-        d = data;
+    if (WindowInfo *wi = windowDatas.value(wid)) {
+        return wi;
     } else {
-        d = new WindowData(window);
-        updateWindowTitle();
-        updateWindowProperties();
-        windowDatas[window] = d;
+        return new WindowInfo(wid);
     }
 }
 
-WindowInfo::WindowInfo(const WindowInfo &other) :
-        d(other.d)
+WindowInfo::WindowInfo(Window window)
+    : d(new WindowData(window))
 {
+    updateWindowTitle();
+    updateWindowProperties();
+    windowDatas[window] = this;
 }
 
 WindowInfo::~WindowInfo()
 {
-    // If the data object's reference count is two, it means that the only alive
-    // references are in this object and the global container. That means that this
-    // object is the last WindowInfo object containing a reference to the data object.
-    // We don't want to leave a dangling data object to the global container so we'll
-    // remove the data object here.
-    if (d->ref == 2) {
-        windowDatas.remove(d->window);
-    }
-}
-
-WindowInfo& WindowInfo::operator=(const WindowInfo &rhs)
-{
-    d = rhs.d;
-    return *this;
+    windowDatas.remove(d->window);
 }
 
 const QString& WindowInfo::title() const
@@ -231,6 +212,18 @@ QList<Atom> WindowInfo::getWindowProperties(Window winId, Atom propertyAtom, lon
         X11Wrapper::XFree(typeData);
     }
     return properties;
+}
+
+int WindowInfo::pixmapSerial() const
+{
+    return d->pixmapSerial;
+}
+
+void WindowInfo::setPixmapSerial(int pixmapSerial)
+{
+    d->pixmapSerial = pixmapSerial;
+    qDebug() << Q_FUNC_INFO << "Changed pixmap serial on " << d->window << " to " << d->pixmapSerial;
+    emit pixmapSerialChanged();
 }
 
 uint qHash(WindowInfo wi) {

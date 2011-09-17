@@ -71,9 +71,9 @@ bool HomeWindowMonitor::handleXEvent(const XEvent& event)
             QList<Window> windowOrder = windowStackingOrder();
 
             if (numWindowStackingOrderReceivers > 0) {
-                QList<WindowInfo> windowStackingList;
-                foreach (Window window, windowOrder) {
-                    windowStackingList.append(WindowInfo(window));
+                QList<WindowInfo *> windowStackingList;
+                foreach (Window wid, windowOrder) {
+                    windowStackingList.append(WindowInfo::windowFor(wid));
                 }
 
                 emit windowStackingOrderChanged(windowStackingList);
@@ -85,8 +85,8 @@ bool HomeWindowMonitor::handleXEvent(const XEvent& event)
                     iter.toBack();
                     bool anyWindowSignalEmitted = false;
                     while (iter.hasPrevious()) {
-                        WindowInfo windowInfo(iter.previous());
-                        if (isOwnWindow(windowInfo.window())) {
+                        WindowInfo *windowInfo = WindowInfo::windowFor(iter.previous());
+                        if (isOwnWindow(windowInfo->window())) {
                             break;
                         }
                         if (numAnyWindowReceivers > 0 && !anyWindowSignalEmitted) {
@@ -98,7 +98,7 @@ bool HomeWindowMonitor::handleXEvent(const XEvent& event)
                                 break;
                             }
                         }
-                        if (windowInfo.types().toSet().intersect(nonFullscreenApplicationWindowTypes).isEmpty()) {
+                        if (windowInfo->types().toSet().intersect(nonFullscreenApplicationWindowTypes).isEmpty()) {
                             emit fullscreenWindowOnTopOfOwnWindow();
                             break;
                         }
@@ -149,7 +149,7 @@ bool HomeWindowMonitor::isHomeWindowOnTop(QSet<Atom> ignoredWindows) const
         if (isOwnWindow(windowOrder[i])) {
             return true;
         }
-        QSet<Atom> windowTypes = WindowInfo(windowOrder[i]).types().toSet();
+        QSet<Atom> windowTypes = WindowInfo::windowFor(windowOrder[i])->types().toSet();
         if (windowTypes.intersect(ignoredWindows).isEmpty()) {
              break;
         }

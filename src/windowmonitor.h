@@ -48,7 +48,7 @@ signals:
      * A signal that gets emitted when the stacking order of the windows changes.
      * The topmost window is the last one in the argument list.
      */
-    void windowStackingOrderChanged(QList<WindowInfo>);
+    void windowStackingOrderChanged(QList<WindowInfo *>);
 
     /*!
      * A signal that gets emitted when a fullscreen window appears on top of application's
@@ -60,7 +60,7 @@ signals:
      * own window's.
      * \param window the WindowInfo for the window that appeared.
      */
-    void anyWindowOnTopOfOwnWindow(WindowInfo windowInfo);
+    void anyWindowOnTopOfOwnWindow(WindowInfo *windowInfo);
 };
 
 #endif // WINDOWMONITOR_H

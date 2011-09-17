@@ -3,6 +3,7 @@
 #include <QX11Info>
 
 #include "windowpixmapprovider.h"
+#include "windowinfo.h"
 
 // TODO: handle damage events on mDamage. need to get it from MApplication...
 
@@ -121,6 +122,10 @@ void WindowPixmapProvider::refreshPixmapFor(const QString &windowId)
         // Register the pixmap for XDamage events
         // TODO: mhome-mtf only registered if onDisplay
         mDamages.insert(windowId, X11Wrapper::XDamageCreate(QX11Info::display(), wid, XDamageReportNonEmpty));
+
+        // force reload from QML
+        WindowInfo *winInfo = WindowInfo::windowFor(wid);
+        winInfo->setPixmapSerial(winInfo->pixmapSerial() + 1);
     }
 }
 

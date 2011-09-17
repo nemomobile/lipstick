@@ -21,18 +21,18 @@
 #define WINDOWINFO_H_
 
 #include <QString>
+#include <QObject>
 #include <QHash>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <QExplicitlySharedDataPointer>
 
-class WindowData;
-
 /*!
  * WindowInfo is a helper class for storing information about an open window.
  */
-class WindowInfo
+class WindowInfo : public QObject
 {
+    Q_OBJECT
 public:
     // X11 atoms
     static Atom TypeAtom;
@@ -48,27 +48,12 @@ public:
     static Atom InputWindowAtom;
     static Atom NameAtom;
 
-    /*!
-     * Constructs a WindowInfo that contains information about an open window.
-     *
-     * \param window The X window id
-     */
-    explicit WindowInfo(Window window);
-
-    /*!
-     * Copy constructor.
-     */
-    WindowInfo(const WindowInfo &other);
+    static WindowInfo *windowFor(Window wid);
 
     /*!
      * Destroys a WindowInfo object.
      */
     ~WindowInfo();
-
-    /*!
-     * Assignment operator.
-     */
-    WindowInfo& operator=(const WindowInfo &rhs);
 
     /*!
      * Initializes the X11 atoms
@@ -127,10 +112,15 @@ public:
      */
     void setPid(int pid);
 
+    Q_PROPERTY(int pixmapSerial READ pixmapSerial WRITE setPixmapSerial NOTIFY pixmapSerialChanged);
+    int pixmapSerial() const;
+    void setPixmapSerial(int pixmapSerial);
+
+signals:
+    void pixmapSerialChanged();
+
 private:
-    //! Storage for the WindowInfo data objects. A central storage enables constructing
-    //! new WindowInfo objects with shared data.
-    static QHash<Window, QExplicitlySharedDataPointer<WindowData> > windowDatas;
+    WindowInfo(Window window);
 
     /*!
      * Gets the atoms and places them into the list
@@ -138,7 +128,8 @@ private:
     QList<Atom> getWindowProperties(Window winId, Atom propertyAtom, long maxCount = 16L);
 
     //! The explicitly shared data object \c WindowData
-    QExplicitlySharedDataPointer<WindowData> d;
+    class WindowData;
+    WindowData * const d;
 
 };
 

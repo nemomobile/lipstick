@@ -59,7 +59,7 @@ public:
     Q_INVOKABLE void windowToFront(qulonglong window);
 private:
     QList<Window> windowsBeingClosed;
-    QList<WindowInfo> m_windows;
+    QList<WindowInfo *> m_windows;
 
     Q_DISABLE_COPY(SwitcherModel)
 };

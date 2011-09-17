@@ -206,7 +206,7 @@ void SwitcherModel::updateWindowList()
 
     qDebug() << "Read list of " << numWindowItems << " windows";
     QList<Window> windowsStillBeingClosed;
-    QList<WindowInfo> windowList;
+    QList<WindowInfo *> windowList;
     Window *wins = (Window *)windowData;
 
     for (unsigned int i = 0; i < numWindowItems; i++)
@@ -321,7 +321,7 @@ void SwitcherModel::updateWindowList()
                                         PropModeReplace,
                                         (unsigned char *)&geom, 4);
 
-                        WindowInfo wi(wins[i]);
+                        WindowInfo *wi = WindowInfo::windowFor(wins[i]);
                         windowList.append(wi);
                     }
                     else
@@ -382,15 +382,17 @@ QVariant SwitcherModel::data(const QModelIndex& index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    WindowInfo i = m_windows.at(index.row());
+    WindowInfo *i = m_windows.at(index.row());
 
     switch (role) {
         case name:
-            return i.title();
+            return i->title();
         case windowId: {
-            qulonglong wid = i.window();
+            qulonglong wid = i->window();
             return wid;
         }
+        case object:
+            return QVariant::fromValue<QObject *>(i);
         default:
             break;
     }
@@ -434,10 +436,10 @@ void SwitcherModel::closeWindow(qulonglong window)
     qDebug() << Q_FUNC_INFO << "Closed " << window;
 
     // Close also the window this one is transient for, if any
-    WindowInfo windowInfo = WindowInfo(window);
-    if (windowInfo.transientFor() != 0 && windowInfo.transientFor() != window) {
-        qDebug() << Q_FUNC_INFO << "Closing transient " << windowInfo.transientFor();
-        closeWindow(windowInfo.transientFor());
+    WindowInfo *windowInfo = WindowInfo::windowFor(window);
+    if (windowInfo->transientFor() != 0 && windowInfo->transientFor() != window) {
+        qDebug() << Q_FUNC_INFO << "Closing transient " << windowInfo->transientFor();
+        closeWindow(windowInfo->transientFor());
     }
 }
 

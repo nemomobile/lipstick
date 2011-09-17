@@ -19,7 +19,7 @@ GridView {
 
         Image {
             id: launcherIcon
-            source: "image://windows/" + model.windowId + "/" + Math.random()
+            source: "image://windows/" + model.windowId + "/" + model.object.pixmapSerial
             cache: false
             anchors.centerIn: parent
             height: 180
