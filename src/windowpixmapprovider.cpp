@@ -76,8 +76,8 @@ void WindowPixmapProvider::damageEvent(Qt::HANDLE &damage, short &x, short &y, u
             qDebug() << Q_FUNC_INFO << "Got damage event for " << wid;
             X11Wrapper::XDamageSubtract(QX11Info::display(), mDamages.value(wid), None, None);
 
-            // XXX: when we have our pixmap update serial, we will need to
-            // increment it here
+            WindowInfo *winInfo = WindowInfo::windowFor(wid.toULongLong());
+            winInfo->setPixmapSerial(winInfo->pixmapSerial() + 1);
             return;
         }
     }
