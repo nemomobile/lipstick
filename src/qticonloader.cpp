@@ -177,57 +177,46 @@ void QtIconLoaderImplementation::lookupIconTheme() const
     dataDirs.prepend(QDir::homePath() + QLatin1String("/:"));
     iconDirs = dataDirs.split(QLatin1Char(':'));
 
+    if (!themeName.isEmpty())
+        return;
+
     // If we are running GNOME we resolve and use GConf. In all other
     // cases we currently use the KDE icon theme
+    // Resolve glib and gconf
+    p_g_type_init =              (Ptr_g_type_init)QLibrary::resolve(QLatin1String("gobject-2.0"), 0, "g_type_init");
+    p_gconf_client_get_default = (Ptr_gconf_client_get_default)QLibrary::resolve(QLatin1String("gconf-2"), 4, "gconf_client_get_default");
+    p_gconf_client_get_string =  (Ptr_gconf_client_get_string)QLibrary::resolve(QLatin1String("gconf-2"), 4, "gconf_client_get_string");
+    p_g_object_unref =           (Ptr_g_object_unref)QLibrary::resolve(QLatin1String("gobject-2.0"), 0, "g_object_unref");
+    p_g_free =                   (Ptr_g_free)QLibrary::resolve(QLatin1String("glib-2.0"), 0, "g_free");
 
-    if (qgetenv("DESKTOP_SESSION") == "gnome" ||
-        !qgetenv("GNOME_DESKTOP_SESSION_ID").isEmpty()) {
+    if (p_g_type_init && p_gconf_client_get_default &&
+        p_gconf_client_get_string && p_g_object_unref &&
+        p_g_free) {
 
-        if (themeName.isEmpty()) {
-            // Resolve glib and gconf
+        p_g_type_init();
+        GConfClient* client = p_gconf_client_get_default();
 
-            p_g_type_init =              (Ptr_g_type_init)QLibrary::resolve(QLatin1String("gobject-2.0"), 0, "g_type_init");
-            p_gconf_client_get_default = (Ptr_gconf_client_get_default)QLibrary::resolve(QLatin1String("gconf-2"), 4, "gconf_client_get_default");
-            p_gconf_client_get_string =  (Ptr_gconf_client_get_string)QLibrary::resolve(QLatin1String("gconf-2"), 4, "gconf_client_get_string");
-            p_g_object_unref =           (Ptr_g_object_unref)QLibrary::resolve(QLatin1String("gobject-2.0"), 0, "g_object_unref");
-            p_g_free =                   (Ptr_g_free)QLibrary::resolve(QLatin1String("glib-2.0"), 0, "g_free");
-
-            if (p_g_type_init && p_gconf_client_get_default &&
-                p_gconf_client_get_string && p_g_object_unref &&
-                p_g_free) {
-
-                p_g_type_init();
-                GConfClient* client = p_gconf_client_get_default();
-
-                // try meego first, since our 'default' target is meego
-                char *str = p_gconf_client_get_string(client, "/meegotouch/theme/name", 0);
-                if (str) {
-                    themeName = QString::fromUtf8(str);
-                        qDebug() << Q_FUNC_INFO << "Picked theme name from MeeGo key: " << themeName;
-                } else {
-                    // default gnome case
-                    str = p_gconf_client_get_string(client, "/desktop/gnome/interface/icon_theme", 0);
-                    if (str) {
-                        themeName = QString::fromUtf8(str);
-                        qDebug() << Q_FUNC_INFO << "Picked theme name from gnome key: " << themeName;
-                    } else {
-                        themeName = QString();
-                    }
-                }
-
-                p_g_free(str);
-                p_g_object_unref(client);
-            }
-
-            if (themeName.isEmpty()) {
-                qDebug() << Q_FUNC_INFO << "Defaulted to 'gnome'";
-                themeName = QLatin1String("gnome");
+        // try meego first, since our 'default' target is meego
+        char *str = p_gconf_client_get_string(client, "/meegotouch/theme/name", 0);
+        if (str) {
+            themeName = QString::fromUtf8(str);
+                qDebug() << Q_FUNC_INFO << "Picked theme name from MeeGo key: " << themeName;
+        } else {
+            // default gnome case
+            str = p_gconf_client_get_string(client, "/desktop/gnome/interface/icon_theme", 0);
+            if (str) {
+                themeName = QString::fromUtf8(str);
+                qDebug() << Q_FUNC_INFO << "Picked theme name from gnome key: " << themeName;
+            } else {
+                themeName = QString();
             }
         }
 
-        if (!themeName.isEmpty())
-            return;
+        p_g_free(str);
+        p_g_object_unref(client);
     }
+
+    // TODO: should we default to something?
 
     // KDE (and others)
     if (dataDirs.isEmpty())
