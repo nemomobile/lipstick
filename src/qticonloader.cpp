@@ -45,6 +45,7 @@
 #include <QtCore/QList>
 #include <QtCore/QHash>
 #include <QtCore/QDir>
+#include <QtCore/QDebug>
 #include <QtCore/QString>
 #include <QtCore/QLibrary>
 #include <QtCore/QSettings>
@@ -133,13 +134,11 @@ extern "C" {
     typedef GConfClient* (*Ptr_gconf_client_get_default)();
     typedef char* (*Ptr_gconf_client_get_string)(GConfClient*, const char*, GError **);
     typedef void (*Ptr_g_object_unref)(void *);
-    typedef void (*Ptr_g_error_free)(GError *);
     typedef void (*Ptr_g_free)(void*);
     static Ptr_g_type_init p_g_type_init = 0;
     static Ptr_gconf_client_get_default p_gconf_client_get_default = 0;
     static Ptr_gconf_client_get_string p_gconf_client_get_string = 0;
     static Ptr_g_object_unref p_g_object_unref = 0;
-    static Ptr_g_error_free p_g_error_free = 0;
     static Ptr_g_free p_g_free = 0;
 }
 
@@ -191,29 +190,39 @@ void QtIconLoaderImplementation::lookupIconTheme() const
             p_gconf_client_get_default = (Ptr_gconf_client_get_default)QLibrary::resolve(QLatin1String("gconf-2"), 4, "gconf_client_get_default");
             p_gconf_client_get_string =  (Ptr_gconf_client_get_string)QLibrary::resolve(QLatin1String("gconf-2"), 4, "gconf_client_get_string");
             p_g_object_unref =           (Ptr_g_object_unref)QLibrary::resolve(QLatin1String("gobject-2.0"), 0, "g_object_unref");
-            p_g_error_free =             (Ptr_g_error_free)QLibrary::resolve(QLatin1String("glib-2.0"), 0, "g_error_free");
             p_g_free =                   (Ptr_g_free)QLibrary::resolve(QLatin1String("glib-2.0"), 0, "g_free");
 
             if (p_g_type_init && p_gconf_client_get_default &&
                 p_gconf_client_get_string && p_g_object_unref &&
-                p_g_error_free && p_g_free) {
+                p_g_free) {
 
                 p_g_type_init();
                 GConfClient* client = p_gconf_client_get_default();
-                GError *err = 0;
 
-                char *str = p_gconf_client_get_string(client, "/desktop/gnome/interface/icon_theme", &err);
-                if (!err) {
+                // try meego first, since our 'default' target is meego
+                char *str = p_gconf_client_get_string(client, "/meegotouch/theme/name", 0);
+                if (str) {
                     themeName = QString::fromUtf8(str);
-                    p_g_free(str);
+                        qDebug() << Q_FUNC_INFO << "Picked theme name from MeeGo key: " << themeName;
+                } else {
+                    // default gnome case
+                    str = p_gconf_client_get_string(client, "/desktop/gnome/interface/icon_theme", 0);
+                    if (str) {
+                        themeName = QString::fromUtf8(str);
+                        qDebug() << Q_FUNC_INFO << "Picked theme name from gnome key: " << themeName;
+                    } else {
+                        themeName = QString();
+                    }
                 }
 
+                p_g_free(str);
                 p_g_object_unref(client);
-                if (err)
-                    p_g_error_free (err);
             }
-            if (themeName.isEmpty())
+
+            if (themeName.isEmpty()) {
+                qDebug() << Q_FUNC_INFO << "Defaulted to 'gnome'";
                 themeName = QLatin1String("gnome");
+            }
         }
 
         if (!themeName.isEmpty())
@@ -239,6 +248,7 @@ void QtIconLoaderImplementation::lookupIconTheme() const
     settings.beginGroup(QLatin1String("Icons"));
     themeName = settings.value(QLatin1String("Theme"), defaultTheme).toString();
 #endif
+    qDebug() << Q_FUNC_INFO << "Decided an icon theme of " << themeName;
 }
 
 QIconTheme QtIconLoaderImplementation::parseIndexFile(const QString &themeName) const
