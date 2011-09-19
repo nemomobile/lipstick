@@ -9,7 +9,6 @@ include(mconfig.pri)
 TEMPLATE = subdirs
 
 addSubDirs(src)
-#addSubDirs(themes)
 
 QMAKE_CLEAN += \
     build-stamp \
