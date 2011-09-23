@@ -214,6 +214,10 @@ void QtIconLoaderImplementation::lookupIconTheme() const
 
         p_g_free(str);
         p_g_object_unref(client);
+
+        // if gconf lookup worked, return now
+        if (!themeName.isEmpty())
+            return;
     }
 
     // TODO: should we default to something?
