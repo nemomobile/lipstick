@@ -70,6 +70,9 @@ QString QtIconLoader::icon(const QString &name)
         }
     }
 
+    // they also seem to get plonked here
+    QString retval = findIconHelper("/usr/share/pixmaps/", name);
+
     return QString();
 }
 
