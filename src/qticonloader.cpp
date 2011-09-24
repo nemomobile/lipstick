@@ -72,6 +72,17 @@ QString QtIconLoader::icon(const QString &name)
 
     // they also seem to get plonked here
     QString retval = findIconHelper("/usr/share/pixmaps/", name);
+    if (!retval.isNull()) {
+        settings.setValue(name, retval);
+        return retval;
+    }
+
+    // I hate all application developers
+    retval = findIconHelper("/usr/share/icons/hicolor/64x64/", name);
+    if (!retval.isNull()) {
+        settings.setValue(name, retval);
+        return retval;
+    }
 
     return QString();
 }
