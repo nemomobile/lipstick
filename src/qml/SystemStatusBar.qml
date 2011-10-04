@@ -1,5 +1,5 @@
 /*
- * main.qml
+ * SystemStatusBar.qml
  *
  * Copyright (c) 2011 - Tom Swindell <t.swindell@rubyx.co.uk>
  *
@@ -21,41 +21,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import QtQuick 1.0
+import QtQuick 1.1
 
 Item {
-    id:main
+    id:root
+    width:parent.width;height:42
 
-    width:800;height:480
-
-    Image {
-        id:background
-        anchors.fill:parent
-        source:'/usr/share/themes/meego/meegotouch/images/MeeGo-People-landscape.png'
-    }
+    Rectangle {id:background;width:parent.width;height:parent.height - 10;color:'black'}
 
     Rectangle {
-        id:overlay
-        anchors.fill:parent
-        opacity:0.6
-        color:'black'
+        id:shadow
+        width:parent.width;height:10
+        anchors.bottom:parent.bottom
+        gradient: Gradient {
+            GradientStop {position:0.0;color:'#8f000000'}
+            GradientStop {position:1.0;color:'#00000000'}
+        }
     }
 
-    SystemStatusBar {id:systemStatusBar;z:100}
+    Text {
+      anchors {left:parent.left;verticalCenter:background.verticalCenter;margins:10}
+      color:'white'
+      font.pixelSize:18
+      text:'Vodafone UK'
+    }
 
-    ListView {
-        id:dashboard
-
-        width:parent.width;height:parent.height - systemStatusBar.height
-        anchors.top: systemStatusBar.bottom
-
-        snapMode:ListView.SnapOneItem
-        orientation:ListView.Horizontal
-        boundsBehavior:Flickable.DragOverBounds
-
-        model:VisualItemModel {
-            Switcher {id:switcher;width:dashboard.width;height:dashboard.height}
-            Launcher {id:launcher;width:dashboard.width;height:dashboard.height}
-        }
+    Text {
+      anchors {right:parent.right;verticalCenter:background.verticalCenter;margins:10}
+      color:'white'
+      font.pixelSize:18
+      text:'00:00 <sub>PM</sub>'
     }
 }

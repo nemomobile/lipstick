@@ -1,5 +1,5 @@
 /*
- * main.qml
+ * SwitcherItem.qml
  *
  * Copyright (c) 2011 - Tom Swindell <t.swindell@rubyx.co.uk>
  *
@@ -21,41 +21,56 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import QtQuick 1.0
+import QtQuick 1.1
 
 Item {
-    id:main
+  id:root
 
-    width:800;height:480
-
-    Image {
-        id:background
-        anchors.fill:parent
-        source:'/usr/share/themes/meego/meegotouch/images/MeeGo-People-landscape.png'
+  Rectangle {
+    id:titleBackground
+    width:parent.width;height:30
+    gradient: Gradient {
+      GradientStop {position:0.0;color:'#1f2f2f2f'}
+      GradientStop {position:1.0;color:'#ff2f2f2f'}
     }
+  }
 
-    Rectangle {
-        id:overlay
-        anchors.fill:parent
-        opacity:0.6
-        color:'black'
+  Text {
+    id:titleText
+    anchors {left:titleBackground.left;leftMargin:10;verticalCenter:titleBackground.verticalCenter}
+    color:'white'
+    smooth:true
+    font.pixelSize:18
+    text:model.name
+  }
+
+  Rectangle {
+    id:preview
+    anchors {bottom:parent.bottom}
+    width:parent.width;height:parent.height - titleBackground.height + 1
+    color:'#1f1f1f'
+  }
+
+  Image {
+    anchors.fill:preview
+    cache:false
+    source:'image://windows/' + model.windowId + '/' + model.object.pixmapSerial
+  }
+
+  MouseArea {
+    anchors.fill:parent
+    onClicked:switcherModel.windowToFront(model.windowId);
+  }
+
+  Rectangle {
+    id:closeButton
+    width:30;height:width
+    color:'red'
+    anchors {top:titleBackground.top;right:titleBackground.right;margins:-5}
+
+    MouseArea {
+      anchors.fill:parent
+      onClicked:switcherModel.closeWindow(model.windowId)
     }
-
-    SystemStatusBar {id:systemStatusBar;z:100}
-
-    ListView {
-        id:dashboard
-
-        width:parent.width;height:parent.height - systemStatusBar.height
-        anchors.top: systemStatusBar.bottom
-
-        snapMode:ListView.SnapOneItem
-        orientation:ListView.Horizontal
-        boundsBehavior:Flickable.DragOverBounds
-
-        model:VisualItemModel {
-            Switcher {id:switcher;width:dashboard.width;height:dashboard.height}
-            Launcher {id:launcher;width:dashboard.width;height:dashboard.height}
-        }
-    }
+  }
 }

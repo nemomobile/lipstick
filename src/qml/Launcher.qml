@@ -1,44 +1,67 @@
+/*
+ * Launcher.qml
+ *
+ * Copyright (c) 2011 - Tom Swindell <t.swindell@rubyx.co.uk>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+import QtQuick 1.0
 import Pyro 0.1
-import QtQuick 1.1
 
-GridView {
-    id: launcherRoot
-    height: root.height
-    width: root.width
-    cellWidth: 130
-    cellHeight: 140
-    model: MenuModel {
-    }
+Item {
+    id:root
 
-    delegate: Item {
-        width: launcherRoot.cellWidth
-        height: launcherRoot.cellHeight
+    property alias gridWidth: gridview.width
+    property alias cellWidth: gridview.cellWidth
 
-        Image {
-            id: launcherIcon
-            source: model.icon
-            anchors.centerIn: parent
-            height: 100
-            width: 100
-            sourceSize.height: 100
-            sourceSize.width: 100
-            asynchronous: true
-        }
+    GridView {
+        id:gridview
+        width:cellWidth * 5
+        anchors {top:parent.top;bottom:parent.bottom;horizontalCenter:parent.horizontalCenter;topMargin:20}
+        cellWidth:80 + 60;cellHeight:cellWidth
 
-        Text {
-            text: model.name
-            horizontalAlignment: Text.AlignHCenter
-            anchors.top: launcherIcon.bottom
-            anchors.topMargin: 10
-            anchors.horizontalCenter: launcherIcon.horizontalCenter
-            width: 100
-            elide: Text.ElideRight
-        }
+        model: MenuModel {}
 
-        MouseArea {
-            anchors.fill: parent
-            onClicked: model.object.launch()
+        delegate: Item {
+            width:gridview.cellWidth;height:gridview.cellHeight
+
+            Image {
+                id:icon
+                anchors {top:parent.top;horizontalCenter:parent.horizontalCenter;margins:8}
+                width:80;height:width
+                source:model.icon
+            }
+
+            Text {
+                width:parent.width - 10
+                anchors {bottom:parent.bottom;horizontalCenter:parent.horizontalCenter;margins:30}
+                horizontalAlignment:Text.AlignHCenter
+                elide:Text.ElideRight
+                font.pixelSize:18
+                color:'white'
+                text:model.name
+            }
+
+            MouseArea {
+                anchors.fill:parent
+                onClicked:model.object.launch();
+            }
         }
     }
 }
-

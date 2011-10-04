@@ -63,7 +63,9 @@ RESOURCES += \
 OTHER_FILES += \
     qml/main.qml \
     qml/Launcher.qml \
-    qml/Switcher.qml
+    qml/Switcher.qml \
+    qml/SwitcherItem.qml \
+    qml/SystemStatusBar.qml
 
 
 # Input
@@ -106,3 +108,5 @@ QMAKE_EXTRA_TARGETS += check
 check.commands = $$system(true)
 QMAKE_EXTRA_TARGETS += check-xml
 check-xml.commands = $$system(true)
+
+

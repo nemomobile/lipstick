@@ -1,75 +1,42 @@
+/*
+ * Switcher.qml
+ *
+ * Copyright (c) 2011 - Tom Swindell <t.swindell@rubyx.co.uk>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+import QtQuick 1.0
 import Pyro 0.1
-import QtQuick 1.1
 
-GridView {
-    id: switcherView
-    height: root.height
-    width: root.width
-    cellHeight: 190
-    cellWidth: 300
-    model: SwitcherModel {
-        id: switcherModel
-    }
+Item {
+    id:root
 
-    delegate: Rectangle {
-        id: switcherCell
-        height: switcherView.cellHeight
-        width: switcherView.cellWidth
-        color: "red"
+    GridView {
+        id:gridview
+        width:parent.width * 0.9
+        anchors {top:parent.top;bottom:parent.bottom;horizontalCenter:parent.horizontalCenter;topMargin:35}
+        cellWidth:width / 3 - 1;cellHeight:cellWidth * (480.0 / 800)
 
-        Image {
-            id: launcherIcon
-            source: "image://windows/" + model.windowId + "/" + model.object.pixmapSerial
-            cache: false
-            anchors.centerIn: parent
-            height: 180
-            width: 280
-            sourceSize.height: 180
-            sourceSize.width: 280
-            asynchronous: true
+        model: SwitcherModel {id:switcherModel}
 
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    switcherModel.windowToFront(model.windowId)
-                }
-            }
+        delegate: SwitcherItem {
+            width:gridview.cellWidth;height:gridview.cellHeight
         }
-        Text {
-            id: launcherLabel
-            text: model.name
-            horizontalAlignment: Text.AlignHCenter
-            anchors.top: launcherIcon.bottom
-            anchors.topMargin: 10
-            anchors.horizontalCenter: launcherIcon.horizontalCenter
-            width: launcherIcon.width - 20
-            elide: Text.ElideRight
-        }
-
-        Rectangle
-        {
-
-            anchors.top: switcherCell.top
-            anchors.right: switcherCell.right
-            width: 80
-            height: 60
-            color: "red"
-
-            Text { 
-                anchors.fill: parent
-                font.pixelSize: 50
-                text: "X"
-                color: "blue"
-
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        switcherModel.closeWindow(model.windowId)
-                    }
-                }
-            }
-        }
-
     }
 }
-
