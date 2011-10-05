@@ -23,7 +23,7 @@
 Desktop::Desktop(const QString &fileName, QObject *parent)
     : QObject(parent)
     , m_filename(fileName)
-    , m_entry(new MDesktopEntry(fileName))
+    , m_entry(QSharedPointer<MDesktopEntry>(new MDesktopEntry(fileName)))
     , m_pid(0)
     , m_wid(0)
     , m_assigned(false)

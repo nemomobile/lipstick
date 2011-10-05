@@ -173,7 +173,7 @@ signals:
 
 private:
     QString m_filename;
-    MDesktopEntry *m_entry;
+    QSharedPointer<MDesktopEntry> m_entry;
     QString m_id;
     int m_pid;
     int m_wid;

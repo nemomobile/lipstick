@@ -19,7 +19,6 @@
 
 #include "mainwindow.h"
 #include "homeapplication.h"
-#include <QGLWidget>
 #include <QDBusInterface>
 #include <QX11Info>
 #include <QFile>
