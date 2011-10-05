@@ -13,7 +13,7 @@ static QString findIconHelper(const QString &pathName, const QString &icon)
     extensions << "";
     extensions << ".png";
     extensions << ".svg";
-    qDebug() << "Trying " << pathName << " for " << icon;
+//    qDebug() << "Trying " << pathName << " for " << icon;
 
     foreach (const QString &extension, extensions) {
         if (QFile::exists(pathName + QDir::separator() + icon + extension))
