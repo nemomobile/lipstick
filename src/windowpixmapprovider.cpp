@@ -25,6 +25,23 @@ QPixmap WindowPixmapProvider::requestPixmap(const QString &id, QSize *size, cons
     QString windowId = id.section('/', 0, 0);
     qDebug() << Q_FUNC_INFO << "Requested pixmap for window " << windowId;
 
+    QPixmap winPix;
+
+    // temporary code; not at all efficient, but it seems to actually work in a
+    // lot more cases
+    if (requestedSize.isValid())
+        winPix = QPixmap::grabWindow(windowId.toLongLong(), 0, 0,
+                requestedSize.width(), requestedSize.height());
+    else
+        winPix = QPixmap::grabWindow(windowId.toLongLong());
+
+    if (size)
+        *size = winPix.size();
+
+    return winPix;
+    // end temporary code
+    
+
     QHash<QString, QPixmap>::ConstIterator it = mPixmaps.find(windowId);
     if (it == mPixmaps.constEnd()) {
         qWarning() << Q_FUNC_INFO << "PANIC! No pixmap for " << windowId;
