@@ -65,41 +65,9 @@ int X11Wrapper::XFreePixmap(Display *display, Pixmap pixmap)
     return ::XFreePixmap(display, pixmap);
 }
 
-static unsigned char xErrorCode = Success;
-
-QPixmap X11Wrapper::XCompositeNameWindowPixmap(Display *dpy, Window window)
+Pixmap X11Wrapper::XCompositeNameWindowPixmap(Display *dpy, Window window)
 {
-    // fuck X11, fuck it good
-    // It is possible that the window is not redirected so check for errors.
-    // XSync() needs to be called so that previous errors go to the original
-    // handler.
-    X11Wrapper::XSync(QX11Info::display(), FALSE);
-// TODO: adapt error handling from SwitcherButtonView too
-//    XErrorHandler errh = X11Wrapper::XSetErrorHandler(handleXError);
-    xErrorCode = Success;
-
-    Pixmap newWindowPixmap = ::XCompositeNameWindowPixmap(dpy, window);
-
-    // XCompositeNameWindowPixmap doesn't wait for the server to reply, we'll
-    // need to do it ourselves to catch the possible BadMatch
-    X11Wrapper::XSync(QX11Info::display(), FALSE);
-
-//    bool xWindowPixmapIsValid = xErrorCode == Success;
-    bool xWindowPixmapIsValid = true;
-
-    if (!xWindowPixmapIsValid) {
-        // If a BadMatch error occurred the window wasn't redirected yet; deference the invalid pixmap
-        if (newWindowPixmap != 0) {
-            X11Wrapper::XFreePixmap(QX11Info::display(), newWindowPixmap);
-        }
-
-        return QPixmap();
-    }
-
-    // Reset the error handler
-//    X11Wrapper::XSetErrorHandler(errh);
-
-    return QPixmap::fromX11Pixmap(newWindowPixmap, QPixmap::ExplicitlyShared);
+    return ::XCompositeNameWindowPixmap(dpy, window);
 }
 
 Damage X11Wrapper::XDamageCreate(Display *dpy, Drawable drawable, int level)

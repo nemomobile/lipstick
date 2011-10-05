@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 import QtQuick 1.1
+import Pyro 0.1
 
 Item {
   id:root
@@ -51,10 +52,9 @@ Item {
     color:'#1f1f1f'
   }
 
-  Image {
+  WindowPixmap {
     anchors.fill:preview
-    cache:false
-    source:'image://windows/' + model.windowId + '/' + model.object.pixmapSerial
+    windowId: model.windowId
   }
 
   MouseArea {

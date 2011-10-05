@@ -22,11 +22,9 @@
 #include <QDBusInterface>
 #include <QX11Info>
 #include <QFile>
-#include <QDeclarativeEngine>
 #include <QGLWidget>
 
 #include "x11wrapper.h"
-#include "windowpixmapprovider.h"
 
 MainWindow *MainWindow::mainWindowInstance = NULL;
 const QString MainWindow::CONTENT_SEARCH_DBUS_SERVICE = "com.nokia.maemo.meegotouch.ContentSearch";
@@ -75,9 +73,6 @@ MainWindow::MainWindow(QWidget *parent) :
     setAttribute(Qt::WA_OpaquePaintEvent);
     setAttribute(Qt::WA_NoSystemBackground);
     setViewport(new QGLWidget);
-
-    QDeclarativeEngine *e = engine();
-    e->addImageProvider(QLatin1String("windows"), new WindowPixmapProvider);
 }
 
 MainWindow::~MainWindow()

@@ -38,8 +38,8 @@ HEADERS += homeapplication.h \
     windowmonitor.h \
     xeventlistener.h \
     switchermodel.h \
-    windowpixmapprovider.h \
-    qticonloader.h
+    qticonloader.h \
+    switcherpixmapitem.h
 
 SOURCES += main.cpp \
     homeapplication.cpp \
@@ -53,8 +53,8 @@ SOURCES += main.cpp \
     homewindowmonitor.cpp \
     xeventlistener.cpp \
     switchermodel.cpp \
-    windowpixmapprovider.cpp \
-    qticonloader.cpp
+    qticonloader.cpp \
+    switcherpixmapitem.cpp
 
 RESOURCES += \
     res.qrc
