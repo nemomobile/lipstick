@@ -89,7 +89,8 @@ QT += network \
     svg \
     dbus \
     xml \
-    declarative
+    declarative \
+    opengl
 
 exists($$[QT_INSTALL_LIBS]/libQtOpenGL.so):QT += opengl
 DEFINES += APPLICATIONS_DIRECTORY=\'$$quote(\"/usr/share/applications/\")\'
