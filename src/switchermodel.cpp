@@ -107,6 +107,7 @@ bool SwitcherModel::handleXEvent(const XEvent &event)
     else if (event.type == ClientMessage &&
              event.xclient.message_type == closeWindowAtom)
     {
+        qDebug() << Q_FUNC_INFO << "Got close WindowInfo event for " << event.xclient.window;
         if (!windowsBeingClosed.contains(event.xclient.window))
         {
             windowsBeingClosed.append(event.xclient.window);
@@ -205,7 +206,6 @@ void SwitcherModel::updateWindowList()
         return;
 
     qDebug() << "Read list of " << numWindowItems << " windows";
-    QList<Window> windowsStillBeingClosed;
     QList<WindowInfo *> windowList;
     Window *wins = (Window *)windowData;
 
@@ -345,6 +345,14 @@ void SwitcherModel::updateWindowList()
         }
     }
 
+    qDebug() << Q_FUNC_INFO << "Deleting WindowInfos for " << windowsStillBeingClosed;
+    foreach (Window wid, windowsStillBeingClosed) {
+        WindowInfo *wi = WindowInfo::windowFor(wid);
+        delete wi;
+    }
+
+    windowsStillBeingClosed.clear();
+
     // TODO: don't reset whole model
     beginResetModel();
     m_windows = windowList;
@@ -435,12 +443,20 @@ void SwitcherModel::closeWindow(qulonglong window)
     X11Wrapper::XSendEvent(QX11Info::display(), rootWin, False, SubstructureRedirectMask, &ev);
     qDebug() << Q_FUNC_INFO << "Closed " << window;
 
+    if (!windowsStillBeingClosed.contains(window))
+        windowsStillBeingClosed.append(window);
+
     // Close also the window this one is transient for, if any
     WindowInfo *windowInfo = WindowInfo::windowFor(window);
     if (windowInfo->transientFor() != 0 && windowInfo->transientFor() != window) {
         qDebug() << Q_FUNC_INFO << "Closing transient " << windowInfo->transientFor();
         closeWindow(windowInfo->transientFor());
+    } else {
+        qDebug() << Q_FUNC_INFO << "Updating WindowInfo list, deleting " << windowsBeingClosed;
+        updateWindowList();
     }
+
+
 }
 
 QML_DECLARE_TYPE(SwitcherModel);

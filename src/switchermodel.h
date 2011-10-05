@@ -60,6 +60,7 @@ public:
 private:
     QList<Window> windowsBeingClosed;
     QList<WindowInfo *> m_windows;
+    QList<Window> windowsStillBeingClosed;
 
     Q_DISABLE_COPY(SwitcherModel)
 };

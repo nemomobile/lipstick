@@ -38,7 +38,6 @@ HEADERS += homeapplication.h \
     windowmonitor.h \
     xeventlistener.h \
     switchermodel.h \
-    windowinfo.h \
     windowpixmapprovider.h \
     qticonloader.h
 

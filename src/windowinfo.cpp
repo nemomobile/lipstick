@@ -117,6 +117,7 @@ WindowInfo *WindowInfo::windowFor(Window wid)
 WindowInfo::WindowInfo(Window window)
     : d(new WindowData(window))
 {
+    qDebug() << Q_FUNC_INFO << "Created WindowInfo for " << window;
     updateWindowTitle();
     updateWindowProperties();
     windowDatas[window] = this;
@@ -124,6 +125,7 @@ WindowInfo::WindowInfo(Window window)
 
 WindowInfo::~WindowInfo()
 {
+    qDebug() << Q_FUNC_INFO << "Destroyed windwo for " << d->window;
     windowDatas.remove(d->window);
 }
 
