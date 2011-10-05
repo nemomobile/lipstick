@@ -21,7 +21,7 @@
 #define LAUNCHERACTION_H
 
 #include <contentaction.h>
-#include <MDesktopEntry>
+#include <mdesktopentry.h>
 
 /*!
  * A convenience wrapper around libcontentaction's ContentAction::Action.
