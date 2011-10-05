@@ -54,8 +54,8 @@ Item {
         boundsBehavior:Flickable.DragOverBounds
 
         model:VisualItemModel {
-            Switcher {id:switcher;width:dashboard.width;height:dashboard.height}
             Launcher {id:launcher;width:dashboard.width;height:dashboard.height}
+            Switcher {id:switcher;width:dashboard.width;height:dashboard.height}
         }
     }
 }
