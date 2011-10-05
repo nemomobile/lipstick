@@ -29,7 +29,7 @@ Item {
 
     GridView {
         id:gridview
-        width:parent.width * 0.9
+        width:parent.width * 0.95
         anchors {top:parent.top;bottom:parent.bottom;horizontalCenter:parent.horizontalCenter;topMargin:35}
         cellWidth:width / 3 - 1;cellHeight:cellWidth * (480.0 / 800)
 
