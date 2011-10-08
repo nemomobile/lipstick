@@ -2,9 +2,7 @@
 # Main projectfile
 # ####################################################################
 
-system(./configure)
 include(shared.pri)
-include(mconfig.pri)
 
 TEMPLATE = subdirs
 
