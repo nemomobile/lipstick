@@ -31,7 +31,7 @@ Item {
     Image {
         id:background
         anchors.fill:parent
-        source:'/usr/share/themes/meego/meegotouch/images/MeeGo-People-landscape.png'
+        source:'file:///usr/share/themes/meego/meegotouch/images/MeeGo-People-landscape.png'
     }
 
     Rectangle {
