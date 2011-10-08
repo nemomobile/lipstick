@@ -1,6 +1,19 @@
-MeeGo Touch HomeScreen
-======================
-Please refer to the documentation for more details. To build the documentation run
+lipstick
+========
+
+lipstick is a research project aimed at offering easy to modify user experiences
+for varying mobile device form factors, e.g. handsets, netbooks, tablets.
+
+User experiences are written in QML.
+
+acknowledgements
+================
+
+lipstick builds heavily on the work of the meegotouchhome and meego-ux-daemon
+authors. Thanks.
+
+building
+========
 
 qmake
 make doc
