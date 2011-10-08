@@ -22,7 +22,6 @@ QMAKE_DISTCLEAN += \
     *.log
 
 include(check.pri)
-include(debian/deb.pri)
 
 #NODOCS:{
 #  message("Not building the documentation for this package")
