@@ -12,6 +12,14 @@ acknowledgements
 lipstick builds heavily on the work of the meegotouchhome and meego-ux-daemon
 authors. Thanks.
 
+requirements
+============
+
+libX
+libXcomposite
+libXdamage
+libmlite (https://github.com/chive/mlite)
+
 building
 ========
 
