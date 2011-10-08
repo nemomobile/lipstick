@@ -38,11 +38,17 @@ Item {
 
   Text {
     id:titleText
-    anchors {left:titleBackground.left;leftMargin:10;verticalCenter:titleBackground.verticalCenter}
+    anchors {
+      left:titleBackground.left
+      leftMargin:10
+      right:closeButton.left
+      verticalCenter:titleBackground.verticalCenter
+    }
     color:'white'
     smooth:true
     font.pixelSize:18
     text:model.name
+    elide:Text.ElideRight
   }
 
   Rectangle {
@@ -66,7 +72,7 @@ Item {
     id:closeButton
     width:30;height:width
     color:'red'
-    anchors {top:titleBackground.top;right:titleBackground.right;margins:-5}
+    anchors {top:titleBackground.top;right:titleBackground.right}
 
     MouseArea {
       anchors.fill:parent
