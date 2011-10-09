@@ -24,4 +24,4 @@ building
 ========
 
 qmake
-make doc
+make
