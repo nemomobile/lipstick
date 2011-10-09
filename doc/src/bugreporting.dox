@@ -1,9 +1,0 @@
-/*! \page bugreporting How to Report a Bug
-
-Bugs can be entered in the <a href="https://bugs.meego.com/enter_bug.cgi?product=MeeGo%20Touch%20Framework">MeeGo Bugzilla</a>, component "Home".
-
-Please check Bugzilla for existing bugs that might cover your problem before filing a new one.
-
-If possible, try to include a small test case or program that demonstrates the problem.
-
-*/

@@ -23,8 +23,3 @@ QMAKE_DISTCLEAN += \
 
 include(check.pri)
 
-#NODOCS:{
-#  message("Not building the documentation for this package")
-#} else {
-#  addSubDirs(doc)
-#}
