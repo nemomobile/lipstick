@@ -7,7 +7,6 @@ Makefile
 *moc_*.cpp
 *moc_*.o
 *~
-lib/lib*.so*
 *.log
 *.log.xml
 *.gcno
@@ -15,6 +14,5 @@ lib/lib*.so*
 *.pro.user
 configure-stamp
 build-stamp
-localconfig.pri
 .project
 .cproject
