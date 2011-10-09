@@ -1,4 +1,0 @@
-- handle transient windows in pixmap gatherer
-  (this may be the cause of bad pixmaps for things like Helium)
-- fix icons on MeeGo (think this is qticonloader finding the wrong theme, gconf
-  problem?)
