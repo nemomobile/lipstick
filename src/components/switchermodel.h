@@ -13,7 +13,6 @@
 #include <QtDeclarative>
 #include <QAbstractItemModel>
 #include <QHash>
-#include "menuitem.h"
 #include "windowinfo.h"
 #include "desktop.h"
 #include "xeventlistener.h"

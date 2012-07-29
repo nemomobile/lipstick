@@ -36,7 +36,6 @@ HEADERS += homeapplication.h \
     xeventlistener.h \
     qticonloader.h \
     components/menumodel.h \
-    components/menuitem.h \
     components/switchermodel.h \
     components/switcherpixmapitem.h \
     components/statusbar.h
@@ -51,7 +50,6 @@ SOURCES += main.cpp \
     xeventlistener.cpp \
     qticonloader.cpp \
     components/menumodel.cpp \
-    components/menuitem.cpp \
     components/switchermodel.cpp \
     components/switcherpixmapitem.cpp \
     components/statusbar.cpp

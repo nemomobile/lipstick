@@ -14,7 +14,6 @@
 #include <QAbstractItemModel>
 #include <QHash>
 #include <mdesktopentry.h>
-#include "menuitem.h"
 #include "desktop.h"
 
 class QFileSystemWatcher;
@@ -95,8 +94,6 @@ private:
     QString m_customValue;
     QString m_type;
     QFileSystemWatcher *m_watcher;
-    QList<MenuItem *> m_categories;
-    QHash<QString, MenuItem *> m_appsHash;
 
     Q_DISABLE_COPY(MenuModel)
 };

@@ -157,9 +157,6 @@ void MenuModel::resetApps()
     while (!m_apps.isEmpty())
         delete m_apps.takeFirst();
 
-    m_categories.clear();
-    m_appsHash.clear();
-
     QStringList addedDirectories;
 
     foreach (QString target, m_watcher->directories())
