@@ -101,8 +101,16 @@ Item {
             boundsBehavior:Flickable.DragOverBounds
 
             model:VisualItemModel {
-                Launcher {id:launcher;width:desktop.width;height:desktop.height}
-                Switcher {id:switcher;width:desktop.width;height:desktop.height}
+                Launcher {
+                    id: launcher
+                    width: desktop.width
+                    height: desktop.height
+                }
+                Switcher {
+                    id: switcher
+                    width: desktop.width
+                    height: desktop.height
+                }
             }
         }
     }
