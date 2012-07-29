@@ -209,7 +209,7 @@ void SwitcherPixmapItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
     }
 
     QT_TRY {
-        painter->drawPixmap(QRect(0, 0, boundingRect().width(), boundingRect().height()), d->qWindowPixmap);
+        painter->drawPixmap(QRect(0, 0, width(), height()), d->qWindowPixmap);
     } QT_CATCH (std::bad_alloc e) {
         // XGetImage failed, the window has been already unmapped
     }

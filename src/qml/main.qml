@@ -64,6 +64,8 @@ Item {
     }
 
     Item {
+        property bool isPortrait : height > width
+
         id: desktop
         anchors.top: parent.top
         anchors.left: parent.left
@@ -77,9 +79,9 @@ Item {
         }
 
         Image {
-            id:background
-            anchors.fill:parent
-            source:'file:///usr/share/themes/meego/meegotouch/images/MeeGo-People-landscape.png'
+            id: background
+            anchors.fill: parent
+            source: ':/images/background.jpg'
         }
         Rectangle {
             id:overlay

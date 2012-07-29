@@ -6,4 +6,7 @@
         <file>qml/Launcher.qml</file>
     </qresource>
     <qresource prefix="/js"/>
+    <qresource prefix="/images">
+        <file alias="background.jpg">images/clarity_03_by_pr09studio.jpg</file>
+    </qresource>
 </RCC>

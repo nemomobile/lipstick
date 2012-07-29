@@ -40,7 +40,7 @@ Item {
         elide: Text.ElideRight
     }
 
-    WindowPixmap {
+    Item {
         anchors {
             top: titleText.bottom
             bottom: parent.bottom
@@ -49,7 +49,17 @@ Item {
             topMargin: 3
         }
 
-        windowId: model.windowId
+        WindowPixmap {
+            id: windowPixmap
+            width: desktop.isPortrait ? parent.height : parent.width
+            height: desktop.isPortrait ? parent.width : parent.height
+            windowId: model.windowId
+            transform: Rotation {
+                angle: desktop.isPortrait ? 90 : 0
+                origin.x: windowPixmap.height / 2
+                origin.y: windowPixmap.width / 2
+            }
+        }
     }
 
     MouseArea {
