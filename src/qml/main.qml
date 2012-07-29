@@ -38,6 +38,8 @@ Item {
             console.log("orienation change");
             console.log(reading.orientation);
 
+            var previousIndex = Math.round(dashboard.contentX / dashboard.width);
+
             if (reading.orientation === OrientationReading.TopUp) {
                 // The top of the device is upwards - meaning: portrait
                 desktopRotation.angle = -90;
@@ -56,6 +58,8 @@ Item {
                 desktop.height = main.height;
                 systemStatusBar.isPortrait = false;
             }
+
+            dashboard.contentX = previousIndex * dashboard.width;
         }
     }
 

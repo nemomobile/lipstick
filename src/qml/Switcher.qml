@@ -25,18 +25,32 @@ import QtQuick 1.0
 import Pyro 0.1
 
 Item {
-    id:root
+    property int columnNumber: 3
+
+    id: switcherRoot
+    clip: true
 
     GridView {
-        id:gridview
-        width:parent.width * 0.95
-        anchors {top:parent.top;bottom:parent.bottom;horizontalCenter:parent.horizontalCenter;topMargin:35}
-        cellWidth:width / 3 - 1;cellHeight:cellWidth * (480.0 / 800)
+        id: gridview
+        width: parent.width * 0.95
+        cellWidth: desktop.width / columnNumber - 1
+        cellHeight: cellWidth * (desktop.height / desktop.width)
+        anchors {
+            top: parent.top
+            bottom: parent.bottom
+            horizontalCenter: parent.horizontalCenter
+            topMargin: 35
+            bottomMargin: 35
+        }
 
-        model: SwitcherModel {id:switcherModel}
+        model: SwitcherModel {
+            id:switcherModel
+        }
 
         delegate: SwitcherItem {
-            width:gridview.cellWidth;height:gridview.cellHeight
+            width: gridview.cellWidth - 10
+            height: gridview.cellHeight - 10
+            anchors.margins: 5
         }
     }
     Text {

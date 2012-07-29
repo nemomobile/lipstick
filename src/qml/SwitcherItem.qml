@@ -25,58 +25,58 @@ import QtQuick 1.1
 import Pyro 0.1
 
 Item {
-  id:root
+    id:root
 
-  Rectangle {
-    id:titleBackground
-    width:parent.width;height:30
-    gradient: Gradient {
-      GradientStop {position:0.0;color:'#1f2f2f2f'}
-      GradientStop {position:1.0;color:'#ff2f2f2f'}
+    Rectangle {
+        id:titleBackground
+        width:parent.width;height:30
+        gradient: Gradient {
+            GradientStop {position:0.0;color:'#1f2f2f2f'}
+            GradientStop {position:1.0;color:'#ff2f2f2f'}
+        }
     }
-  }
 
-  Text {
-    id:titleText
-    anchors {
-      left:titleBackground.left
-      leftMargin:10
-      right:closeButton.left
-      verticalCenter:titleBackground.verticalCenter
+    Text {
+        id:titleText
+        anchors {
+            left:titleBackground.left
+            leftMargin:10
+            right:closeButton.left
+            verticalCenter:titleBackground.verticalCenter
+        }
+        color:'white'
+        smooth:true
+        font.pixelSize:18
+        text:model.name
+        elide:Text.ElideRight
     }
-    color:'white'
-    smooth:true
-    font.pixelSize:18
-    text:model.name
-    elide:Text.ElideRight
-  }
 
-  Rectangle {
-    id:preview
-    anchors {bottom:parent.bottom}
-    width:parent.width;height:parent.height - titleBackground.height + 1
-    color:'#1f1f1f'
-  }
+    Rectangle {
+        id:preview
+        anchors {bottom:parent.bottom}
+        width:parent.width;height:parent.height - titleBackground.height + 1
+        color:'#1f1f1f'
+    }
 
-  WindowPixmap {
-    anchors.fill:preview
-    windowId: model.windowId
-  }
-
-  MouseArea {
-    anchors.fill:parent
-    onClicked:switcherModel.windowToFront(model.windowId);
-  }
-
-  Rectangle {
-    id:closeButton
-    width:30;height:width
-    color:'red'
-    anchors {top:titleBackground.top;right:titleBackground.right}
+    WindowPixmap {
+        anchors.fill:preview
+        windowId: model.windowId
+    }
 
     MouseArea {
-      anchors.fill:parent
-      onClicked:switcherModel.closeWindow(model.windowId)
+        anchors.fill:parent
+        onClicked:switcherModel.windowToFront(model.windowId);
     }
-  }
+
+    Rectangle {
+        id:closeButton
+        width:30;height:width
+        color:'red'
+        anchors {top:titleBackground.top;right:titleBackground.right}
+
+        MouseArea {
+            anchors.fill:parent
+            onClicked:switcherModel.closeWindow(model.windowId)
+        }
+    }
 }
