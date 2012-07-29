@@ -19,12 +19,13 @@
 
 #include <QX11Info>
 
-#include "menumodel.h"
-#include "switchermodel.h"
-#include "switcherpixmapitem.h"
-#include "statusbar.h"
 #include "mainwindow.h"
 #include "homeapplication.h"
+
+#include "components/menumodel.h"
+#include "components/switchermodel.h"
+#include "components/switcherpixmapitem.h"
+#include "components/statusbar.h"
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
