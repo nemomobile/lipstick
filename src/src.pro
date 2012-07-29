@@ -56,6 +56,8 @@ SOURCES += main.cpp \
     qticonloader.cpp \
     switcherpixmapitem.cpp
 
+LIBS += -lX11
+
 RESOURCES += \
     res.qrc
 
