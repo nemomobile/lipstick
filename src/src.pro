@@ -29,12 +29,12 @@ CONFIG += qmake_cache target_qt
 HEADERS += homeapplication.h \
     windowinfo.h \
     mainwindow.h \
-    desktop.h \
     homescreenservice.h \
     homewindowmonitor.h \
     windowmonitor.h \
     xeventlistener.h \
     qticonloader.h \
+    components/desktop.h \
     components/menumodel.h \
     components/switchermodel.h \
     components/switcherpixmapitem.h \
@@ -44,11 +44,11 @@ SOURCES += main.cpp \
     homeapplication.cpp \
     windowinfo.cpp \
     mainwindow.cpp \
-    desktop.cpp \
     homescreenservice.cpp \
     homewindowmonitor.cpp \
     xeventlistener.cpp \
     qticonloader.cpp \
+    components/desktop.cpp \
     components/menumodel.cpp \
     components/switchermodel.cpp \
     components/switcherpixmapitem.cpp \
