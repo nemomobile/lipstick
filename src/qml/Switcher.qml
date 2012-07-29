@@ -39,4 +39,12 @@ Item {
             width:gridview.cellWidth;height:gridview.cellHeight
         }
     }
+    Text {
+        // Empty switcher indicator
+        anchors.centerIn: parent
+        visible: switcherModel.itemCount === 0
+        text: "No apps open"
+        color: "white"
+        font.pixelSize: 30
+    }
 }

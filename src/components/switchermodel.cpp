@@ -362,6 +362,8 @@ void SwitcherModel::updateWindowList()
     beginResetModel();
     m_windows = windowList;
     endResetModel();
+
+    emit itemCountChanged();
 }
 
 QModelIndex SwitcherModel::index(int row, int column, const QModelIndex &parent) const
@@ -460,8 +462,9 @@ void SwitcherModel::closeWindow(qulonglong window)
         qDebug() << Q_FUNC_INFO << "Updating WindowInfo list, deleting " << windowsBeingClosed;
         updateWindowList();
     }
-
-
 }
 
-QML_DECLARE_TYPE(SwitcherModel);
+int SwitcherModel::itemCount()
+{
+    return rowCount();
+}
