@@ -39,7 +39,8 @@ HEADERS += homeapplication.h \
     xeventlistener.h \
     switchermodel.h \
     qticonloader.h \
-    switcherpixmapitem.h
+    switcherpixmapitem.h \
+    statusbar.h
 
 SOURCES += main.cpp \
     homeapplication.cpp \
@@ -54,7 +55,8 @@ SOURCES += main.cpp \
     xeventlistener.cpp \
     switchermodel.cpp \
     qticonloader.cpp \
-    switcherpixmapitem.cpp
+    switcherpixmapitem.cpp \
+    statusbar.cpp
 
 RESOURCES += \
     res.qrc
@@ -63,8 +65,7 @@ OTHER_FILES += \
     qml/main.qml \
     qml/Launcher.qml \
     qml/Switcher.qml \
-    qml/SwitcherItem.qml \
-    qml/SystemStatusBar.qml
+    qml/SwitcherItem.qml
 
 
 # Input
@@ -72,7 +73,7 @@ target.path += /usr/bin
 INSTALLS += target
 
 CONFIG += link_pkgconfig
-PKGCONFIG += xcomposite mlite xdamage
+PKGCONFIG += xcomposite mlite xdamage x11
 
 packagesExist(contentaction-0.1) {
     message("Using contentaction to launch applications")

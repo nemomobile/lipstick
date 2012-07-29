@@ -22,11 +22,12 @@
  * SOFTWARE.
  */
 import QtQuick 1.0
+import Pyro 0.1
 
 Item {
-    id:main
-
-    width:800;height:480
+    id: main
+    width: initialSize.width
+    height: initialSize.height
 
     Image {
         id:background
@@ -41,13 +42,19 @@ Item {
         color:'black'
     }
 
-    SystemStatusBar {id:systemStatusBar;z:100}
+    StatusBar {
+        id: systemStatusBar
+        anchors.top: parent.top
+        z: 100
+    }
 
     ListView {
         id:dashboard
 
-        width:parent.width;height:parent.height - systemStatusBar.height
         anchors.top: systemStatusBar.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
 
         snapMode:ListView.SnapOneItem
         orientation:ListView.Horizontal

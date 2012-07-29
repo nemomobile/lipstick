@@ -22,6 +22,7 @@
 #include "menumodel.h"
 #include "switchermodel.h"
 #include "switcherpixmapitem.h"
+#include "statusbar.h"
 #include "mainwindow.h"
 #include "homeapplication.h"
 #include "x11wrapper.h"
@@ -31,6 +32,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<MenuModel>("Pyro", 0, 1, "MenuModel");
     qmlRegisterType<SwitcherModel>("Pyro", 0, 1, "SwitcherModel");
     qmlRegisterType<SwitcherPixmapItem>("Pyro", 0, 1, "WindowPixmap");
+    qmlRegisterType<StatusBar>("Pyro", 0, 1, "StatusBar");
 
     HomeApplication app(argc, argv);
 

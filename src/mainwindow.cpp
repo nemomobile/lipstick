@@ -23,6 +23,9 @@
 #include <QX11Info>
 #include <QFile>
 #include <QGLWidget>
+#include <QDeclarativeEngine>
+#include <QDeclarativeContext>
+#include <QDesktopWidget>
 
 #include "x11wrapper.h"
 
@@ -62,17 +65,19 @@ MainWindow::MainWindow(QWidget *parent) :
 
     excludeFromTaskBar();
 
+    setResizeMode(SizeRootObjectToView);
+    setAttribute(Qt::WA_OpaquePaintEvent);
+    setAttribute(Qt::WA_NoSystemBackground);
+    setViewport(new QGLWidget);
+
+    QObject::connect(this->engine(), SIGNAL(quit()), QApplication::instance(), SLOT(quit()));
+    rootContext()->setContextProperty("initialSize", QApplication::desktop()->screenGeometry(this).size());
+
     // TODO: disable this for non-debug builds
     if (QFile::exists("main.qml"))
         setSource(QUrl::fromLocalFile("./main.qml"));
     else
         setSource(QUrl("qrc:/qml/main.qml"));
-
-    setResizeMode(SizeRootObjectToView);
-
-    setAttribute(Qt::WA_OpaquePaintEvent);
-    setAttribute(Qt::WA_NoSystemBackground);
-    setViewport(new QGLWidget);
 }
 
 MainWindow::~MainWindow()
