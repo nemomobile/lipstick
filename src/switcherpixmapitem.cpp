@@ -23,7 +23,12 @@
 #include <QX11Info>
 
 #include "switcherpixmapitem.h"
-#include "x11wrapper.h"
+
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/Xatom.h>
+#include <X11/extensions/Xcomposite.h>
+#include <X11/extensions/Xdamage.h>
 
 // TODO: disable damage event processing when not on the screen
 // TODO: handle visibility/obscuring invalidating pixmaps
@@ -67,7 +72,7 @@ SwitcherPixmapItem::SwitcherPixmapItem()
     setFlag(QGraphicsItem::ItemHasNoContents, false);
 
     if (iconGeometryAtom == 0)
-        iconGeometryAtom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_WM_ICON_GEOMETRY", false);
+        iconGeometryAtom = XInternAtom(QX11Info::display(), "_NET_WM_ICON_GEOMETRY", false);
 
     d->updateXWindowIconGeometryTimer.setSingleShot(true);
     d->updateXWindowIconGeometryTimer.setInterval(ICON_GEOMETRY_UPDATE_INTERVAL);
@@ -80,7 +85,7 @@ SwitcherPixmapItem::~SwitcherPixmapItem()
 {
     destroyDamage();
     if (d->xWindowPixmap)
-        X11Wrapper::XFreePixmap(QX11Info::display(), d->xWindowPixmap);
+        XFreePixmap(QX11Info::display(), d->xWindowPixmap);
     delete d;
 }
 
@@ -92,7 +97,7 @@ void SwitcherPixmapItem::damageEvent(Qt::HANDLE &damage, short &x, short &y, uns
     Q_UNUSED(height);
 #ifdef Q_WS_X11
     if (d->xWindowPixmapDamage == damage) {
-        X11Wrapper::XDamageSubtract(QX11Info::display(), d->xWindowPixmapDamage, None, None);
+        XDamageSubtract(QX11Info::display(), d->xWindowPixmapDamage, None, None);
         update();
     }
 #else
@@ -113,7 +118,7 @@ void SwitcherPixmapItem::updateXWindowIconGeometryIfNecessary()
 void SwitcherPixmapItem::destroyDamage()
 {
     if (d->xWindowPixmapDamage != 0) {
-        X11Wrapper::XDamageDestroy(QX11Info::display(), d->xWindowPixmapDamage);
+        XDamageDestroy(QX11Info::display(), d->xWindowPixmapDamage);
         d->xWindowPixmapDamage = 0;
     }
 }
@@ -125,7 +130,7 @@ void SwitcherPixmapItem::createDamage()
         return;
 
     // Register the pixmap for XDamage events
-    d->xWindowPixmapDamage = X11Wrapper::XDamageCreate(QX11Info::display(), d->windowId, XDamageReportNonEmpty);
+    d->xWindowPixmapDamage = XDamageCreate(QX11Info::display(), d->windowId, XDamageReportNonEmpty);
 }
 
 void SwitcherPixmapItem::updateXWindowPixmap()
@@ -134,16 +139,16 @@ void SwitcherPixmapItem::updateXWindowPixmap()
     // It is possible that the window is not redirected so check for errors.
     // XSync() needs to be called so that previous errors go to the original
     // handler.
-    X11Wrapper::XSync(QX11Info::display(), FALSE);
-    XErrorHandler errh = X11Wrapper::XSetErrorHandler(handleXError);
+    XSync(QX11Info::display(), FALSE);
+    XErrorHandler errh = XSetErrorHandler(handleXError);
     xErrorCode = Success;
 
     // Get the pixmap ID of the X window
-    Pixmap newWindowPixmap = X11Wrapper::XCompositeNameWindowPixmap(QX11Info::display(), d->windowId);
+    Pixmap newWindowPixmap = XCompositeNameWindowPixmap(QX11Info::display(), d->windowId);
 
     // XCompositeNameWindowPixmap doesn't wait for the server to reply, we'll
     // need to do it ourselves to catch the possible BadMatch
-    X11Wrapper::XSync(QX11Info::display(), FALSE);
+    XSync(QX11Info::display(), FALSE);
 
     d->xWindowPixmapIsValid = xErrorCode == Success;
     if (d->xWindowPixmapIsValid) {
@@ -152,7 +157,7 @@ void SwitcherPixmapItem::updateXWindowPixmap()
 
         if (d->xWindowPixmap != 0) {
             // Dereference the old pixmap ID
-            X11Wrapper::XFreePixmap(QX11Info::display(), d->xWindowPixmap);
+            XFreePixmap(QX11Info::display(), d->xWindowPixmap);
         }
 
         d->xWindowPixmap = newWindowPixmap;
@@ -164,12 +169,12 @@ void SwitcherPixmapItem::updateXWindowPixmap()
     } else {
         // If a BadMatch error occurred the window wasn't redirected yet; deference the invalid pixmap
         if (newWindowPixmap != 0) {
-            X11Wrapper::XFreePixmap(QX11Info::display(), newWindowPixmap);
+            XFreePixmap(QX11Info::display(), newWindowPixmap);
         }
     }
 
     // Reset the error handler
-    X11Wrapper::XSetErrorHandler(errh);
+    XSetErrorHandler(errh);
 #else
 #error "not implemented"
 #endif

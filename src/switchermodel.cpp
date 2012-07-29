@@ -16,7 +16,12 @@
 #include <mdesktopentry.h>
 #include "switchermodel.h"
 #include "desktop.h"
-#include "x11wrapper.h"
+
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/Xatom.h>
+#include <X11/extensions/Xcomposite.h>
+#include <X11/extensions/Xdamage.h>
 
 // TODO: generic atom cache would be nice
 static Atom clientListAtom;
@@ -36,19 +41,19 @@ static Atom iconGeometryAtom;
 SwitcherModel::SwitcherModel(QObject *parent)
     : QAbstractItemModel(parent)
 {
-    clientListAtom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_CLIENT_LIST", False);
-    closeWindowAtom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_CLOSE_WINDOW", False);
-    windowTypeAtom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_WM_WINDOW_TYPE", False);
-    windowStateAtom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_WM_STATE", False);
-    activeWindowAtom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_ACTIVE_WINDOW", False);
-    skipTaskbarAtom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_WM_STATE_SKIP_TASKBAR", False);
-    windowTypeDesktopAtom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_WM_WINDOW_TYPE_DESKTOP", False);
-    windowTypeNotificationAtom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_WM_WINDOW_TYPE_NOTIFICATION", False);
-    windowTypeDockAtom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_WM_WINDOW_TYPE_DOCK", False);
-    windowTypeNormalAtom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_WM_WINDOW_TYPE_NORMAL", False);
-    utf8StringAtom = X11Wrapper::XInternAtom(QX11Info::display(), "UTF8_STRING", False);
-    windowPidAtom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_WM_PID", False);
-    iconGeometryAtom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_WM_ICON_GEOMETRY", False);
+    clientListAtom = XInternAtom(QX11Info::display(), "_NET_CLIENT_LIST", False);
+    closeWindowAtom = XInternAtom(QX11Info::display(), "_NET_CLOSE_WINDOW", False);
+    windowTypeAtom = XInternAtom(QX11Info::display(), "_NET_WM_WINDOW_TYPE", False);
+    windowStateAtom = XInternAtom(QX11Info::display(), "_NET_WM_STATE", False);
+    activeWindowAtom = XInternAtom(QX11Info::display(), "_NET_ACTIVE_WINDOW", False);
+    skipTaskbarAtom = XInternAtom(QX11Info::display(), "_NET_WM_STATE_SKIP_TASKBAR", False);
+    windowTypeDesktopAtom = XInternAtom(QX11Info::display(), "_NET_WM_WINDOW_TYPE_DESKTOP", False);
+    windowTypeNotificationAtom = XInternAtom(QX11Info::display(), "_NET_WM_WINDOW_TYPE_NOTIFICATION", False);
+    windowTypeDockAtom = XInternAtom(QX11Info::display(), "_NET_WM_WINDOW_TYPE_DOCK", False);
+    windowTypeNormalAtom = XInternAtom(QX11Info::display(), "_NET_WM_WINDOW_TYPE_NORMAL", False);
+    utf8StringAtom = XInternAtom(QX11Info::display(), "UTF8_STRING", False);
+    windowPidAtom = XInternAtom(QX11Info::display(), "_NET_WM_PID", False);
+    iconGeometryAtom = XInternAtom(QX11Info::display(), "_NET_WM_ICON_GEOMETRY", False);
 
     QHash<int, QByteArray> roles;
     roles[id]="pid";
@@ -424,7 +429,7 @@ void SwitcherModel::windowToFront(qulonglong window)
     ev.xclient.format       = 32;
     ev.xclient.data.l[0]    = 1;
     ev.xclient.data.l[1]    = CurrentTime;
-    X11Wrapper::XSendEvent(QX11Info::display(), QX11Info::appRootWindow(QX11Info::appScreen()), False, StructureNotifyMask, &ev);
+    XSendEvent(QX11Info::display(), QX11Info::appRootWindow(QX11Info::appScreen()), False, StructureNotifyMask, &ev);
     qDebug() << Q_FUNC_INFO << "Foregrounded " << window;
 }
 
@@ -440,7 +445,7 @@ void SwitcherModel::closeWindow(qulonglong window)
     ev.xclient.format       = 32;
     ev.xclient.data.l[0]    = CurrentTime;
     ev.xclient.data.l[1]    = rootWin;
-    X11Wrapper::XSendEvent(QX11Info::display(), rootWin, False, SubstructureRedirectMask, &ev);
+    XSendEvent(QX11Info::display(), rootWin, False, SubstructureRedirectMask, &ev);
     qDebug() << Q_FUNC_INFO << "Closed " << window;
 
     if (!windowsStillBeingClosed.contains(window))

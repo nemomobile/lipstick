@@ -29,7 +29,6 @@ CONFIG += qmake_cache target_qt
 HEADERS += homeapplication.h \
     windowinfo.h \
     mainwindow.h \
-    x11wrapper.h \
     menumodel.h \
     menuitem.h \
     desktop.h \
@@ -46,7 +45,6 @@ SOURCES += main.cpp \
     homeapplication.cpp \
     windowinfo.cpp \
     mainwindow.cpp \
-    x11wrapper.cpp \
     menumodel.cpp \
     menuitem.cpp \
     desktop.cpp \

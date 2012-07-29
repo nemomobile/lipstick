@@ -28,6 +28,12 @@
 #include <QX11Info>
 #include <QDebug>
 
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/Xatom.h>
+#include <X11/extensions/Xcomposite.h>
+#include <X11/extensions/Xdamage.h>
+
 #include "homeapplication.h"
 #include "homescreenservice.h"
 #ifdef HAS_ADAPTER
@@ -35,7 +41,8 @@
 #endif
 #include "windowinfo.h"
 #include "xeventlistener.h"
-#include "x11wrapper.h"
+
+
 
 /*!
  * D-Bus names for the home screen service

@@ -26,8 +26,11 @@
 #include <QDeclarativeEngine>
 #include <QDeclarativeContext>
 #include <QDesktopWidget>
-
-#include "x11wrapper.h"
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/Xatom.h>
+#include <X11/extensions/Xcomposite.h>
+#include <X11/extensions/Xdamage.h>
 
 MainWindow *MainWindow::mainWindowInstance = NULL;
 const QString MainWindow::CONTENT_SEARCH_DBUS_SERVICE = "com.nokia.maemo.meegotouch.ContentSearch";
@@ -59,8 +62,8 @@ MainWindow::MainWindow(QWidget *parent) :
     WId window = winId();
     XWindowAttributes attributes;
     Display *display = QX11Info::display();
-    X11Wrapper::XGetWindowAttributes(display, window, &attributes);
-    X11Wrapper::XSelectInput(display, window, attributes.your_event_mask | VisibilityChangeMask);
+    XGetWindowAttributes(display, window, &attributes);
+    XSelectInput(display, window, attributes.your_event_mask | VisibilityChangeMask);
 #endif
 
     excludeFromTaskBar();
@@ -98,15 +101,15 @@ MainWindow *MainWindow::instance(bool create)
 void MainWindow::excludeFromTaskBar()
 {
     // Tell the window to not to be shown in the switcher
-    Atom skipTaskbarAtom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_WM_STATE_SKIP_TASKBAR", False);
+    Atom skipTaskbarAtom = XInternAtom(QX11Info::display(), "_NET_WM_STATE_SKIP_TASKBAR", False);
     changeNetWmState(true, skipTaskbarAtom);
 
     // Also set the _NET_WM_STATE window property to ensure Home doesn't try to
     // manage this window in case the window manager fails to set the property in time
-    Atom netWmStateAtom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_WM_STATE", False);
+    Atom netWmStateAtom = XInternAtom(QX11Info::display(), "_NET_WM_STATE", False);
     QVector<Atom> atoms;
     atoms.append(skipTaskbarAtom);
-    X11Wrapper::XChangeProperty(QX11Info::display(), internalWinId(), netWmStateAtom, XA_ATOM, 32, PropModeReplace, (unsigned char *)atoms.data(), atoms.count());
+    XChangeProperty(QX11Info::display(), internalWinId(), netWmStateAtom, XA_ATOM, 32, PropModeReplace, (unsigned char *)atoms.data(), atoms.count());
 }
 
 void MainWindow::changeNetWmState(bool set, Atom one, Atom two)
@@ -114,7 +117,7 @@ void MainWindow::changeNetWmState(bool set, Atom one, Atom two)
     XEvent e;
     e.xclient.type = ClientMessage;
     Display *display = QX11Info::display();
-    Atom netWmStateAtom = X11Wrapper::XInternAtom(display, "_NET_WM_STATE", FALSE);
+    Atom netWmStateAtom = XInternAtom(display, "_NET_WM_STATE", FALSE);
     e.xclient.message_type = netWmStateAtom;
     e.xclient.display = display;
     e.xclient.window = internalWinId();
@@ -124,7 +127,7 @@ void MainWindow::changeNetWmState(bool set, Atom one, Atom two)
     e.xclient.data.l[2] = two;
     e.xclient.data.l[3] = 0;
     e.xclient.data.l[4] = 0;
-    X11Wrapper::XSendEvent(display, RootWindow(display, x11Info().screen()), FALSE, (SubstructureNotifyMask | SubstructureRedirectMask), &e);
+    XSendEvent(display, RootWindow(display, x11Info().screen()), FALSE, (SubstructureNotifyMask | SubstructureRedirectMask), &e);
 }
 
 bool MainWindow::isCallUILaunchingKey(int key)

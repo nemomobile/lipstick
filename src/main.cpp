@@ -25,7 +25,12 @@
 #include "statusbar.h"
 #include "mainwindow.h"
 #include "homeapplication.h"
-#include "x11wrapper.h"
+
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/Xatom.h>
+#include <X11/extensions/Xcomposite.h>
+#include <X11/extensions/Xdamage.h>
 
 int main(int argc, char *argv[])
 {
@@ -45,7 +50,7 @@ int main(int argc, char *argv[])
     // for getting window close events. Note that QWidget calls XSelectInput
     // as well so this call cannot be done in the HomeApplication constructor
     // since Qt's own call would then override this.
-    X11Wrapper::XSelectInput(QX11Info::display(), DefaultRootWindow(QX11Info::display()), PropertyChangeMask | SubstructureNotifyMask);
+    XSelectInput(QX11Info::display(), DefaultRootWindow(QX11Info::display()), PropertyChangeMask | SubstructureNotifyMask);
 
     return app.exec();
 }
