@@ -25,10 +25,6 @@
 
 #include <X11/Xdefs.h>
 
-class Home;
-class MScene;
-class MSceneManager;
-
 /*!
  * Main window for the Home application. Contains a MHome widget.
  */
@@ -133,9 +129,6 @@ private:
 
     //! The MainWindow instance
     static MainWindow *mainWindowInstance;
-
-    //! The Home widget
-    Home *home;
 
     //! The service name of the external service being called
     const QString *externalServiceService;

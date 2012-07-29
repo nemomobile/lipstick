@@ -19,6 +19,7 @@
 
 #include "mainwindow.h"
 #include "homeapplication.h"
+
 #include <QDBusInterface>
 #include <QX11Info>
 #include <QFile>
@@ -26,6 +27,7 @@
 #include <QDeclarativeEngine>
 #include <QDeclarativeContext>
 #include <QDesktopWidget>
+
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
@@ -45,7 +47,6 @@ const QString MainWindow::CALL_UI_DBUS_METHOD = "dialer";
 
 MainWindow::MainWindow(QWidget *parent) :
     QDeclarativeView(parent),
-    home(NULL),
     externalServiceService(NULL),
     externalServicePath(NULL),
     externalServiceInterface(NULL),

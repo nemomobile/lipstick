@@ -68,7 +68,8 @@ OTHER_FILES += \
 target.path += /usr/bin
 INSTALLS += target
 
-CONFIG += link_pkgconfig
+CONFIG += link_pkgconfig mobility
+MOBILITY += sensors
 PKGCONFIG += xcomposite mlite xdamage x11
 
 packagesExist(contentaction-0.1) {

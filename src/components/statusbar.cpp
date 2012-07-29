@@ -104,13 +104,20 @@ void StatusBar::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
         return;
     }
 
-    // TODO: implement portrait mode status bar
-
     // Info: The shared pixmap contains both the portrait and the landscape mode status bars below each other.
     //       Landscape is on top, portrait on bottom. They have the same height.
     //       All we need is check the orientation here and set the source rect accordingly.
 
-    painter->drawPixmap(QRectF(0, 0, width(), height()), _sharedPixmap, QRectF(0, 0, width(), height()));
+    painter->drawPixmap(QRectF(0, 0, width(), height()), _sharedPixmap, QRectF(0, _isPortrait ? height() : 0, width(), height()));
 }
 
+bool StatusBar::isPortrait() const
+{
+    return _isPortrait;
+}
 
+void StatusBar::setIsPortrait(bool value)
+{
+    _isPortrait = value;
+    emit isPortraitChanged();
+}

@@ -21,48 +21,89 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import QtQuick 1.0
+import QtQuick 1.1
 import Pyro 0.1
+import QtMobility.sensors 1.2
 
 Item {
     id: main
     width: initialSize.width
     height: initialSize.height
 
-    Image {
-        id:background
-        anchors.fill:parent
-        source:'file:///usr/share/themes/meego/meegotouch/images/MeeGo-People-landscape.png'
+    OrientationSensor {
+        id: orientation
+        active: true
+
+        onReadingChanged: {
+            console.log("orienation change");
+            console.log(reading.orientation);
+
+            if (reading.orientation === OrientationReading.TopUp) {
+                // The top of the device is upwards - meaning: portrait
+                desktopRotation.angle = -90;
+                desktopRotation.origin.x = main.height / 2;
+                desktopRotation.origin.y = main.height / 2;
+                desktop.width = main.height;
+                desktop.height = main.width;
+                systemStatusBar.isPortrait = true;
+            }
+            else if (reading.orientation === OrientationReading.RightUp) {
+                // The right side of the device is upwards - meaning: landscape
+                desktopRotation.angle = 0;
+                desktopRotation.origin.x = 0;
+                desktopRotation.origin.y = 0;
+                desktop.width = main.width;
+                desktop.height = main.height;
+                systemStatusBar.isPortrait = false;
+            }
+        }
     }
 
-    Rectangle {
-        id:overlay
-        anchors.fill:parent
-        opacity:0.6
-        color:'black'
-    }
-
-    StatusBar {
-        id: systemStatusBar
+    Item {
+        id: desktop
         anchors.top: parent.top
-        z: 100
-    }
-
-    ListView {
-        id:dashboard
-
-        anchors.top: systemStatusBar.bottom
         anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
+        width: parent.width
+        height: parent.height
+        transform: Rotation {
+            id: desktopRotation;
+            origin.x: 0;
+            origin.y: 0;
+            angle: 0
+        }
 
-        snapMode:ListView.SnapOneItem
-        orientation:ListView.Horizontal
-        boundsBehavior:Flickable.DragOverBounds
+        Image {
+            id:background
+            anchors.fill:parent
+            source:'file:///usr/share/themes/meego/meegotouch/images/MeeGo-People-landscape.png'
+        }
+        Rectangle {
+            id:overlay
+            anchors.fill:parent
+            opacity:0.6
+            color:'black'
+        }
+        StatusBar {
+            id: systemStatusBar
+            anchors.top: parent.top
+            z: 100
+        }
+        ListView {
+            id:dashboard
 
-        model:VisualItemModel {
-            Launcher {id:launcher;width:dashboard.width;height:dashboard.height}
-            Switcher {id:switcher;width:dashboard.width;height:dashboard.height}
+            anchors.top: systemStatusBar.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+
+            snapMode:ListView.SnapOneItem
+            orientation:ListView.Horizontal
+            boundsBehavior:Flickable.DragOverBounds
+
+            model:VisualItemModel {
+                Launcher {id:launcher;width:desktop.width;height:desktop.height}
+                Switcher {id:switcher;width:desktop.width;height:desktop.height}
+            }
         }
     }
 }
