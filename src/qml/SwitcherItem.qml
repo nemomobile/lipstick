@@ -25,58 +25,73 @@ import QtQuick 1.1
 import Pyro 0.1
 
 Item {
-    id:root
-
-    Rectangle {
-        id:titleBackground
-        width:parent.width;height:30
-        gradient: Gradient {
-            GradientStop {position:0.0;color:'#1f2f2f2f'}
-            GradientStop {position:1.0;color:'#ff2f2f2f'}
-        }
-    }
+    id: switcherItemRoot
 
     Text {
         id:titleText
         anchors {
-            left:titleBackground.left
-            leftMargin:10
-            right:closeButton.left
-            verticalCenter:titleBackground.verticalCenter
+            left: parent.left
+            right: closeButton.left
         }
-        color:'white'
-        smooth:true
-        font.pixelSize:18
-        text:model.name
-        elide:Text.ElideRight
-    }
-
-    Rectangle {
-        id:preview
-        anchors {bottom:parent.bottom}
-        width:parent.width;height:parent.height - titleBackground.height + 1
-        color:'#1f1f1f'
+        color: 'white'
+        smooth: true
+        font.pixelSize: 18
+        text: model.name
+        elide: Text.ElideRight
     }
 
     WindowPixmap {
-        anchors.fill:preview
+        anchors {
+            top: titleText.bottom
+            bottom: parent.bottom
+            left: parent.left
+            right: parent.right
+            topMargin: 3
+        }
+
         windowId: model.windowId
     }
 
     MouseArea {
-        anchors.fill:parent
-        onClicked:switcherModel.windowToFront(model.windowId);
+        anchors.fill: parent
+        onClicked: switcherModel.windowToFront(model.windowId)
     }
 
-    Rectangle {
-        id:closeButton
-        width:30;height:width
-        color:'red'
-        anchors {top:titleBackground.top;right:titleBackground.right}
+    Item {
+        id: closeButton
+        width: 30
+        height: width
+        anchors {
+            top: parent.top
+            right: parent.right
+        }
+
+        Rectangle {
+            anchors.centerIn: parent
+            color: 'red'
+            width: 40
+            height: 8
+            transform: Rotation {
+                angle: 45
+                origin.x: 20
+                origin.y: 4
+            }
+        }
+        Rectangle {
+            anchors.centerIn: parent
+            color: 'red'
+            width: 40
+            height: 8
+            transform: Rotation {
+                angle: -45
+                origin.x: 20
+                origin.y: 4
+            }
+        }
 
         MouseArea {
-            anchors.fill:parent
-            onClicked:switcherModel.closeWindow(model.windowId)
+            anchors.fill: parent
+            onClicked: switcherModel.closeWindow(model.windowId)
         }
     }
 }
