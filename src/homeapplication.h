@@ -107,23 +107,6 @@ private slots:
     void sendStartupNotifications();
 
 private:
-    /*!
-     * Parses the command line parameters and sets upstart mode and forced
-     * orientation locking based on the arguments.
-     *
-     * \param argc number of parameters
-     * \param argv parameters
-     */
-    void parseArguments(int argc, char *argv[]);
-
-    //! Flag that indicates whether the process was started by upstart or not
-    bool upstartMode;
-
-    //! A QVariant representing the locked orientation: invalid (use default), an empty string (unlocked), portrait or landscape
-    QVariant lockedOrientation_;
-
-    //! Timer used for sending startup notifications
-    QTimer startupNotificationTimer;
 
     /*!
      * The X event listener objects registered for receiving X events.
@@ -139,9 +122,6 @@ private:
 
     int xDamageEventBase;
     int xDamageErrorBase;
-#ifdef UNIT_TEST
-    friend class Ut_HomeApplication;
-#endif
 };
 
 #endif /* HOMEAPPLICATION_H_ */
