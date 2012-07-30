@@ -16,7 +16,7 @@
 #include <mdesktopentry.h>
 
 #ifdef HAS_CONTENTACTION
-#include "launcheraction.h"
+#include <contentaction.h>
 #endif
 
 #include "desktop.h"
@@ -210,7 +210,7 @@ void Desktop::launch() const
     qDebug("Launching %s", qPrintable(cmd));
     QProcess::startDetached(cmd);
 #else
-    LauncherAction action(m_entry);
+    ContentAction::Action action = ContentAction::Action::launcherAction(m_entry, QStringList());
     action.trigger();
 #endif
 }

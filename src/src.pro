@@ -74,8 +74,8 @@ packagesExist(contentaction-0.1) {
     message("Using contentaction to launch applications")
     PKGCONFIG += contentaction-0.1
     DEFINES += HAS_CONTENTACTION
-    HEADERS += launcheraction.h
-    SOURCES += launcheraction.cpp
+    HEADERS +=
+    SOURCES +=
 
 } else {
     warning("contentaction doesn't exist; falling back to exec - this may not work so great")
