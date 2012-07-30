@@ -9,105 +9,58 @@
 #ifndef DESKTOP_H
 #define DESKTOP_H
 
-#include <QDebug>
-#include <QFile>
 #include <QObject>
-#include <QIcon>
-#include <mdesktopentry.h>
-#include <QProcess>
-#include "qticonloader.h"
+#include <QSharedPointer>
+#include <QStringList>
 
-#ifdef HAS_CONTENTACTION
-#include "launcheraction.h"
-#endif
+class MDesktopEntry;
 
 class Desktop : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString id READ id);
-    Q_PROPERTY(QString type READ type NOTIFY typeChanged);
-    Q_PROPERTY(QString title READ title NOTIFY titleChanged);
-    Q_PROPERTY(QString comment READ comment NOTIFY commentChanged);
-    Q_PROPERTY(QString icon READ icon NOTIFY iconChanged);
-    Q_PROPERTY(QString exec READ exec NOTIFY execChanged);
-    Q_PROPERTY(QStringList categories READ categories NOTIFY categoriesChanged);
-    Q_PROPERTY(bool nodisplay READ nodisplay NOTIFY nodisplayChanged);
-    Q_PROPERTY(QString filename READ filename NOTIFY filenameChanged);
-    Q_PROPERTY(int pid READ pid WRITE setPid);
-    Q_PROPERTY(int wid READ wid WRITE setWid);
+    Q_DISABLE_COPY(Desktop)
+
+    Q_PROPERTY(QString id READ id)
+    Q_PROPERTY(QString type READ type NOTIFY typeChanged)
+    Q_PROPERTY(QString title READ title NOTIFY titleChanged)
+    Q_PROPERTY(QString comment READ comment NOTIFY commentChanged)
+    Q_PROPERTY(QString icon READ icon NOTIFY iconChanged)
+    Q_PROPERTY(QString exec READ exec NOTIFY execChanged)
+    Q_PROPERTY(QStringList categories READ categories NOTIFY categoriesChanged)
+    Q_PROPERTY(bool nodisplay READ nodisplay NOTIFY nodisplayChanged)
+    Q_PROPERTY(QString filename READ filename NOTIFY filenameChanged)
+    Q_PROPERTY(int pid READ pid WRITE setPid)
+    Q_PROPERTY(int wid READ wid WRITE setWid)
+
+private:
+    QString m_filename;
+    QSharedPointer<MDesktopEntry> m_entry;
+    QString m_id;
+    int m_pid;
+    int m_wid;
+
+    bool m_assigned;
 
 public:
     Desktop(const QString &filename, QObject *parent = 0);
     ~Desktop();
 
-    QString id() const {
-        return m_id;
-    }
+    QString id() const;
+    bool isValid() const;
+    QString type() const;
+    QString title() const;
+    QString comment() const;
+    QString icon() const;
+    QString exec() const;
+    QStringList categories() const;
+    QString filename() const;
+    int wid() const;
+    void setWid(int wid);
+    int pid();
+    void setPid(int pid);
+    bool nodisplay() const;
 
-    bool isValid() const {
-        QStringList onlyShowIn = m_entry->onlyShowIn();
-        if (!onlyShowIn.isEmpty() && !onlyShowIn.contains("X-MEEGO") &&
-            !onlyShowIn.contains("X-MEEGO-HS"))
-            return false;
-
-        QStringList notShowIn = m_entry->notShowIn();
-        if (!notShowIn.isEmpty() && (notShowIn.contains("X-MEEGO") ||
-                                     notShowIn.contains("X-MEEGO-HS")))
-            return false;
-
-        return m_entry->isValid();
-    }
-
-    QString type() const {
-        return m_entry->type();
-    }
-
-    QString title() const {
-        return m_entry->name();
-    }
-
-    QString comment() const {
-        return m_entry->comment();
-    }
-
-    QString icon() const {
-        return QtIconLoader::icon(m_entry->icon());
-    }
-
-    QString exec() const {
-        return m_entry->exec();
-    }
-
-    QStringList categories() const {
-        return m_entry->categories();
-    }
-
-    QString filename() const {
-        return m_filename;
-    } 
-
-    int wid() const
-    {
-        return m_wid;
-    }
-
-    void setWid(int wid) {
-        m_wid = wid;
-    }
-
-    int pid()
-    {
-        return m_pid;
-    }
-
-    void setPid(int pid)
-    {
-        m_pid = pid;
-    }
-
-    bool nodisplay() const {
-        return m_entry->noDisplay();
-    } 
+    Q_INVOKABLE void launch() const;
 
     enum Role {
         Type = Qt::UserRole + 1,
@@ -122,44 +75,10 @@ public:
         Wid = Qt::UserRole + 10
     };
 
-    Q_INVOKABLE void launch() const
-    {
-#ifndef HAS_CONTENTACTION
-        // fallback code: contentaction not available
-        QString cmd = exec();
-
-        // http://standards.freedesktop.org/desktop-entry-spec/latest/ar01s06.html
-        cmd.replace(QRegExp("%k"), filename());
-        cmd.replace(QRegExp("%i"), QString("--icon ") + icon());
-        cmd.replace(QRegExp("%c"), title());
-        cmd.replace(QRegExp("%[fFuU]"), filename()); // stuff we don't handle
-
-        qDebug("Launching %s", qPrintable(cmd));
-        QProcess::startDetached(cmd);
-#else
-        LauncherAction action(m_entry);
-        action.trigger();
-#endif
-    }
-
 public slots:
-
-    QString value(QString key) const {
-        return m_entry->value(key);
-    }
-
-    bool contains(QString val) const {
-        return m_entry->contains(val);
-    }
-
-    bool uninstall() {
-        if (m_entry->type() == "Widget")
-        {
-            return QFile::remove(m_entry->fileName());
-        }
-
-        return false;
-    }
+    QString value(QString key) const;
+    bool contains(QString val) const;
+    bool uninstall();
 
 signals:
     void typeChanged();
@@ -170,16 +89,6 @@ signals:
     void categoriesChanged();
     void filenameChanged();
     void nodisplayChanged();
-
-private:
-    QString m_filename;
-    QSharedPointer<MDesktopEntry> m_entry;
-    QString m_id;
-    int m_pid;
-    int m_wid;
-
-    bool m_assigned;
-    Q_DISABLE_COPY(Desktop)
 };
 
 #endif // DESKTOP_H
