@@ -32,9 +32,9 @@ Item {
 
     GridView {
         id: gridview
-        width: parent.width * 0.95
-        cellWidth: desktop.width / columnNumber - 1
-        cellHeight: cellWidth * (desktop.height / desktop.width)
+        width: cellWidth * columnNumber
+        cellWidth: (parent.width - 60) / columnNumber
+        cellHeight: cellWidth * (desktop.height / desktop.width) + 20
         anchors {
             top: parent.top
             bottom: parent.bottom
@@ -47,10 +47,15 @@ Item {
             id:switcherModel
         }
 
-        delegate: SwitcherItem {
-            width: gridview.cellWidth - 10
-            height: gridview.cellHeight - 10
-            anchors.margins: 5
+        delegate: Item {
+            width: gridview.cellWidth
+            height: gridview.cellHeight
+
+            SwitcherItem {
+                width: parent.width - 10
+                height: parent.height - 10
+                anchors.centerIn: parent
+            }
         }
     }
     Text {

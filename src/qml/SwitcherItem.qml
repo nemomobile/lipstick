@@ -29,6 +29,7 @@ Item {
 
     Text {
         id:titleText
+        height: 20
         anchors {
             left: parent.left
             right: closeButton.left
@@ -57,7 +58,7 @@ Item {
             transform: Rotation {
                 angle: desktop.isPortrait ? 90 : 0
                 origin.x: windowPixmap.height / 2
-                origin.y: windowPixmap.width / 2
+                origin.y: windowPixmap.height / 2
             }
         }
     }

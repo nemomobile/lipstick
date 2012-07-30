@@ -35,9 +35,7 @@ Item {
         active: true
 
         onReadingChanged: {
-            console.log("orienation change");
-            console.log(reading.orientation);
-
+            var orientationChanged = false;
             var previousIndex = Math.round(dashboard.contentX / dashboard.width);
 
             if (reading.orientation === OrientationReading.TopUp) {
@@ -48,6 +46,7 @@ Item {
                 desktop.width = main.height;
                 desktop.height = main.width;
                 systemStatusBar.isPortrait = true;
+                orientationChanged = true;
             }
             else if (reading.orientation === OrientationReading.RightUp) {
                 // The right side of the device is upwards - meaning: landscape
@@ -57,9 +56,11 @@ Item {
                 desktop.width = main.width;
                 desktop.height = main.height;
                 systemStatusBar.isPortrait = false;
+                orientationChanged = true;
             }
 
-            dashboard.contentX = previousIndex * dashboard.width;
+            if (orientationChanged)
+                dashboard.contentX = previousIndex * dashboard.width;
         }
     }
 
