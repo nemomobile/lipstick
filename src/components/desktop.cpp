@@ -7,15 +7,10 @@
  */
 
 #include <QProcess>
-#include <QtDeclarative/qdeclarative.h>
+#include <QtDeclarative>
 #include <QCryptographicHash>
 #include <QFile>
-
-#include <QDebug>
 #include <QDir>
-#include <QApplication>
-#include <QIcon>
-#include <QFile>
 #include <QSettings>
 
 #include <mdesktopentry.h>
