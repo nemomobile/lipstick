@@ -33,7 +33,6 @@ HEADERS += homeapplication.h \
     homewindowmonitor.h \
     windowmonitor.h \
     xeventlistener.h \
-    qticonloader.h \
     components/desktop.h \
     components/menumodel.h \
     components/switchermodel.h \
@@ -47,7 +46,6 @@ SOURCES += main.cpp \
     homescreenservice.cpp \
     homewindowmonitor.cpp \
     xeventlistener.cpp \
-    qticonloader.cpp \
     components/desktop.cpp \
     components/menumodel.cpp \
     components/switchermodel.cpp \
