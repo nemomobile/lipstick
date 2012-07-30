@@ -25,7 +25,6 @@
 #include <QSet>
 #include <QVariant>
 
-class HomeScreenService;
 class XEventListener;
 
 /*!
@@ -125,9 +124,6 @@ private:
 
     //! Timer used for sending startup notifications
     QTimer startupNotificationTimer;
-
-    //! Implementations for com.meego.core.HomeScreen interface.
-    HomeScreenService *homeScreenService;
 
     /*!
      * The X event listener objects registered for receiving X events.

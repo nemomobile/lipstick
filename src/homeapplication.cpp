@@ -35,20 +35,8 @@
 #include <X11/extensions/Xdamage.h>
 
 #include "homeapplication.h"
-#include "homescreenservice.h"
-#ifdef HAS_ADAPTER
-#include "homescreenadaptor.h"
-#endif
 #include "windowinfo.h"
 #include "xeventlistener.h"
-
-
-
-/*!
- * D-Bus names for the home screen service
- */
-static const QString MEEGO_CORE_HOME_SCREEN_SERVICE_NAME = "com.meego.core.HomeScreen";
-static const QString MEEGO_CORE_HOME_SCREEN_OBJECT_PATH = "/homescreen";
 
 /*!
  * D-Bus names for the notification that's sent when home is ready
@@ -61,7 +49,6 @@ HomeApplication::HomeApplication(int &argc, char **argv)
     : QApplication(argc, argv)
     , upstartMode(false)
     , lockedOrientation_(QVariant::Invalid)
-    , homeScreenService(new HomeScreenService)
     , xEventListeners()
     , iteratorActiveForEventListenerContainer(false)
     , toBeRemovedEventListeners()
@@ -78,24 +65,12 @@ HomeApplication::HomeApplication(int &argc, char **argv)
     startupNotificationTimer.setInterval(0);
     startupNotificationTimer.start();
 
-#ifdef HAS_ADAPTER
-    new HomeScreenAdaptor(homeScreenService);
-#endif
-
-    QDBusConnection connection = QDBusConnection::sessionBus();
-
-    connection.registerService(MEEGO_CORE_HOME_SCREEN_SERVICE_NAME);
-    connection.registerObject(MEEGO_CORE_HOME_SCREEN_OBJECT_PATH, homeScreenService);
-
-    connect(homeScreenService, SIGNAL(focusToLauncherApp(const QString&)), this, SIGNAL(focusToLauncherAppRequested(const QString &)));
-
     // Initialize the X11 atoms used in the UI components
     WindowInfo::initializeAtoms();
 }
 
 HomeApplication::~HomeApplication()
 {
-    delete homeScreenService;
 }
 
 void HomeApplication::addXEventListener(XEventListener *listener)

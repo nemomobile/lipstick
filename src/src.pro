@@ -29,7 +29,6 @@ CONFIG += qmake_cache target_qt
 HEADERS += homeapplication.h \
     windowinfo.h \
     mainwindow.h \
-    homescreenservice.h \
     homewindowmonitor.h \
     windowmonitor.h \
     xeventlistener.h \
@@ -43,7 +42,6 @@ SOURCES += main.cpp \
     homeapplication.cpp \
     windowinfo.cpp \
     mainwindow.cpp \
-    homescreenservice.cpp \
     homewindowmonitor.cpp \
     xeventlistener.cpp \
     components/desktop.cpp \
