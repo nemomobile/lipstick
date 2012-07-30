@@ -1,7 +1,9 @@
+
 /*
  * main.qml
  *
  * Copyright (c) 2011 - Tom Swindell <t.swindell@rubyx.co.uk>
+ * Copyright (c) 2012 - Timur Kristóf <timur.kristof@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,41 +23,109 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import QtQuick 1.0
+
+import QtQuick 1.1
+import QtMobility.sensors 1.2
+import org.nemomobile.lipstick 0.1
 
 Item {
-    id:main
+    property bool isPortrait: false;
 
-    width:800;height:480
+    id: main
+    width: initialSize.width
+    height: initialSize.height
 
-    Image {
-        id:background
-        anchors.fill:parent
-        source:'file:///usr/share/themes/meego/meegotouch/images/MeeGo-People-landscape.png'
+    OrientationSensor {
+        id: orientation
+        active: true
+
+        onReadingChanged: {
+            var orientationChanged = false;
+            var previousIndex = Math.round(dashboard.contentX / dashboard.width);
+
+            if (reading.orientation === OrientationReading.TopUp && !isPortrait) {
+                // The top of the device is upwards - meaning: portrait
+                isPortrait = true;
+                desktopRotation.angle = -90;
+                desktopRotation.origin.x = main.height / 2;
+                desktopRotation.origin.y = main.height / 2;
+                desktop.width = main.height;
+                desktop.height = main.width;
+                systemStatusBar.isPortrait = true;
+                orientationChanged = true;
+            }
+            if (reading.orientation === OrientationReading.RightUp && isPortrait) {
+                // The right side of the device is upwards - meaning: landscape
+                isPortrait = false;
+                desktopRotation.angle = 0;
+                desktopRotation.origin.x = 0;
+                desktopRotation.origin.y = 0;
+                desktop.width = main.width;
+                desktop.height = main.height;
+                systemStatusBar.isPortrait = false;
+                orientationChanged = true;
+            }
+
+            if (orientationChanged)
+                dashboard.contentX = previousIndex * dashboard.width;
+        }
     }
 
-    Rectangle {
-        id:overlay
-        anchors.fill:parent
-        opacity:0.6
-        color:'black'
-    }
+    Item {
+        property bool isPortrait : height > width
 
-    SystemStatusBar {id:systemStatusBar;z:100}
+        id: desktop
+        anchors.top: parent.top
+        anchors.left: parent.left
+        width: parent.width
+        height: parent.height
+        transform: Rotation {
+            id: desktopRotation;
+            origin.x: 0;
+            origin.y: 0;
+            angle: 0
+        }
 
-    ListView {
-        id:dashboard
+        Image {
+            id: background
+            anchors.fill: parent
+            source: ':/images/background.jpg'
+        }
+        Rectangle {
+            id:overlay
+            anchors.fill:parent
+            opacity:0.6
+            color:'black'
+        }
+        StatusBar {
+            id: systemStatusBar
+            anchors.top: parent.top
+            z: 100
+        }
+        ListView {
+            id:dashboard
 
-        width:parent.width;height:parent.height - systemStatusBar.height
-        anchors.top: systemStatusBar.bottom
+            anchors.top: systemStatusBar.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
 
-        snapMode:ListView.SnapOneItem
-        orientation:ListView.Horizontal
-        boundsBehavior:Flickable.DragOverBounds
+            snapMode:ListView.SnapOneItem
+            orientation:ListView.Horizontal
+            boundsBehavior:Flickable.DragOverBounds
 
-        model:VisualItemModel {
-            Launcher {id:launcher;width:dashboard.width;height:dashboard.height}
-            Switcher {id:switcher;width:dashboard.width;height:dashboard.height}
+            model:VisualItemModel {
+                Launcher {
+                    id: launcher
+                    width: desktop.width
+                    height: desktop.height
+                }
+                Switcher {
+                    id: switcher
+                    width: desktop.width
+                    height: desktop.height
+                }
+            }
         }
     }
 }

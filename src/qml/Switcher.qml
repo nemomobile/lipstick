@@ -1,7 +1,9 @@
+
 /*
  * Switcher.qml
  *
  * Copyright (c) 2011 - Tom Swindell <t.swindell@rubyx.co.uk>
+ * Copyright (c) 2012 - Timur Kristóf <timur.kristof@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,22 +23,50 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import QtQuick 1.0
-import Pyro 0.1
+
+import QtQuick 1.1
+import org.nemomobile.lipstick 0.1
 
 Item {
-    id:root
+    property int columnNumber: 3
+
+    id: switcherRoot
+    clip: true
 
     GridView {
-        id:gridview
-        width:parent.width * 0.95
-        anchors {top:parent.top;bottom:parent.bottom;horizontalCenter:parent.horizontalCenter;topMargin:35}
-        cellWidth:width / 3 - 1;cellHeight:cellWidth * (480.0 / 800)
-
-        model: SwitcherModel {id:switcherModel}
-
-        delegate: SwitcherItem {
-            width:gridview.cellWidth;height:gridview.cellHeight
+        id: gridview
+        width: cellWidth * columnNumber
+        cellWidth: (parent.width - 60) / columnNumber
+        cellHeight: cellWidth * (desktop.height / desktop.width) + 20
+        anchors {
+            top: parent.top
+            bottom: parent.bottom
+            horizontalCenter: parent.horizontalCenter
+            topMargin: 35
+            bottomMargin: 35
         }
+
+        model: SwitcherModel {
+            id:switcherModel
+        }
+
+        delegate: Item {
+            width: gridview.cellWidth
+            height: gridview.cellHeight
+
+            SwitcherItem {
+                width: parent.width - 10
+                height: parent.height - 10
+                anchors.centerIn: parent
+            }
+        }
+    }
+    Text {
+        // Empty switcher indicator
+        anchors.centerIn: parent
+        visible: switcherModel.itemCount === 0
+        text: "No apps open"
+        color: "white"
+        font.pixelSize: 30
     }
 }

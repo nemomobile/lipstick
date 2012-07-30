@@ -1,7 +1,9 @@
+
 /*
  * SwitcherItem.qml
  *
  * Copyright (c) 2011 - Tom Swindell <t.swindell@rubyx.co.uk>
+ * Copyright (c) 2012 - Timur Kristóf <timur.kristof@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,62 +23,89 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 import QtQuick 1.1
-import Pyro 0.1
+import org.nemomobile.lipstick 0.1
 
 Item {
-  id:root
+    id: switcherItemRoot
 
-  Rectangle {
-    id:titleBackground
-    width:parent.width;height:30
-    gradient: Gradient {
-      GradientStop {position:0.0;color:'#1f2f2f2f'}
-      GradientStop {position:1.0;color:'#ff2f2f2f'}
+    Text {
+        id:titleText
+        height: 20
+        anchors {
+            left: parent.left
+            right: closeButton.left
+        }
+        color: 'white'
+        smooth: true
+        font.pixelSize: 18
+        text: model.name
+        elide: Text.ElideRight
     }
-  }
 
-  Text {
-    id:titleText
-    anchors {
-      left:titleBackground.left
-      leftMargin:10
-      right:closeButton.left
-      verticalCenter:titleBackground.verticalCenter
+    Item {
+        anchors {
+            top: titleText.bottom
+            bottom: parent.bottom
+            left: parent.left
+            right: parent.right
+            topMargin: 3
+        }
+
+        WindowPixmap {
+            id: windowPixmap
+            width: desktop.isPortrait ? parent.height : parent.width
+            height: desktop.isPortrait ? parent.width : parent.height
+            windowId: model.windowId
+            transform: Rotation {
+                angle: desktop.isPortrait ? 90 : 0
+                origin.x: windowPixmap.height / 2
+                origin.y: windowPixmap.height / 2
+            }
+        }
     }
-    color:'white'
-    smooth:true
-    font.pixelSize:18
-    text:model.name
-    elide:Text.ElideRight
-  }
-
-  Rectangle {
-    id:preview
-    anchors {bottom:parent.bottom}
-    width:parent.width;height:parent.height - titleBackground.height + 1
-    color:'#1f1f1f'
-  }
-
-  WindowPixmap {
-    anchors.fill:preview
-    windowId: model.windowId
-  }
-
-  MouseArea {
-    anchors.fill:parent
-    onClicked:switcherModel.windowToFront(model.windowId);
-  }
-
-  Rectangle {
-    id:closeButton
-    width:30;height:width
-    color:'red'
-    anchors {top:titleBackground.top;right:titleBackground.right}
 
     MouseArea {
-      anchors.fill:parent
-      onClicked:switcherModel.closeWindow(model.windowId)
+        anchors.fill: parent
+        onClicked: switcherModel.windowToFront(model.windowId)
     }
-  }
+
+    Item {
+        id: closeButton
+        width: 30
+        height: width
+        anchors {
+            top: parent.top
+            right: parent.right
+        }
+
+        Rectangle {
+            anchors.centerIn: parent
+            color: 'red'
+            width: 40
+            height: 8
+            transform: Rotation {
+                angle: 45
+                origin.x: 20
+                origin.y: 4
+            }
+        }
+        Rectangle {
+            anchors.centerIn: parent
+            color: 'red'
+            width: 40
+            height: 8
+            transform: Rotation {
+                angle: -45
+                origin.x: 20
+                origin.y: 4
+            }
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: switcherModel.closeWindow(model.windowId)
+        }
+    }
 }

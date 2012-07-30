@@ -6,14 +6,10 @@
  * http://www.apache.org/licenses/LICENSE-2.0
  */
 
-#include <QtDeclarative/qdeclarative.h>
 #include <QDir>
-#include <QFileInfoList>
 #include <QFileSystemWatcher>
-#include <QRegExp>
-#include <mdesktopentry.h>
+#include <QDebug>
 #include "menumodel.h"
-#include "desktop.h"
 
 MenuModel::MenuModel(QObject *parent) :
     QAbstractItemModel(parent),
@@ -157,9 +153,6 @@ void MenuModel::resetApps()
     while (!m_apps.isEmpty())
         delete m_apps.takeFirst();
 
-    m_categories.clear();
-    m_appsHash.clear();
-
     QStringList addedDirectories;
 
     foreach (QString target, m_watcher->directories())
@@ -263,6 +256,10 @@ QDeclarativeListProperty<Desktop> MenuModel::apps()
     return QDeclarativeListProperty<Desktop>(this, m_apps);
 }
 
+QStringList MenuModel::directories() const {
+    return m_watcher->directories();
+}
+
 QString MenuModel::value(QString id, QString key)
 {
 	foreach(Desktop* item, m_apps)
@@ -302,5 +299,3 @@ MenuModel::~MenuModel()
 {
     qDeleteAll(m_apps);
 }
-
-QML_DECLARE_TYPE(MenuModel);

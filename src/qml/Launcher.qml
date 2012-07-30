@@ -1,7 +1,9 @@
+
 /*
  * Launcher.qml
  *
  * Copyright (c) 2011 - Tom Swindell <t.swindell@rubyx.co.uk>
+ * Copyright (c) 2012 - Timur Kristóf <timur.kristof@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,46 +23,62 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import QtQuick 1.0
-import Pyro 0.1
+
+import QtQuick 1.1
+import org.nemomobile.lipstick 0.1
 
 Item {
-    id:root
+    id: launcherRoot
+    clip: true
 
-    property alias gridWidth: gridview.width
     property alias cellWidth: gridview.cellWidth
 
     GridView {
-        id:gridview
-        width:cellWidth * 5
-        anchors {top:parent.top;bottom:parent.bottom;horizontalCenter:parent.horizontalCenter;topMargin:20}
-        cellWidth:80 + 60;cellHeight:cellWidth
+        id: gridview
+        width: Math.floor(parent.width / cellWidth) * cellWidth
+        cellWidth: 80 + 60
+        cellHeight: cellWidth
+        anchors {
+            top: parent.top;
+            bottom: parent.bottom;
+            horizontalCenter: parent.horizontalCenter;
+            topMargin: 20
+            bottomMargin: 20
+        }
 
-        model: MenuModel {}
+        model: MenuModel { }
 
         delegate: Item {
-            width:gridview.cellWidth;height:gridview.cellHeight
+            width: gridview.cellWidth
+            height: gridview.cellHeight
 
             Image {
                 id:icon
-                anchors {top:parent.top;horizontalCenter:parent.horizontalCenter;margins:8}
-                width:80;height:width
-                source:model.icon
+                anchors {
+                    top: parent.top
+                    horizontalCenter: parent.horizontalCenter
+                    margins: 8
+                }
+                width: 80
+                height: width
+                source: model.icon
             }
-
             Text {
-                width:parent.width - 10
-                anchors {bottom:parent.bottom;horizontalCenter:parent.horizontalCenter;margins:30}
-                horizontalAlignment:Text.AlignHCenter
-                elide:Text.ElideRight
-                font.pixelSize:18
-                color:'white'
-                text:model.name
+                width: parent.width - 10
+                anchors {
+                    bottom: parent.bottom
+                    horizontalCenter: parent.horizontalCenter
+                    margins: 30
+                }
+                horizontalAlignment: Text.AlignHCenter
+                elide: Text.ElideRight
+                font.pixelSize: 18
+                color: 'white'
+                text: model.name
             }
-
             MouseArea {
-                anchors.fill:parent
-                onClicked:model.object.launch();
+                anchors.fill: parent
+                onClicked: model.object.launch();
             }
         }
     }

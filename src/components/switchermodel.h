@@ -13,7 +13,6 @@
 #include <QtDeclarative>
 #include <QAbstractItemModel>
 #include <QHash>
-#include "menuitem.h"
 #include "windowinfo.h"
 #include "desktop.h"
 #include "xeventlistener.h"
@@ -23,10 +22,12 @@ class QFileSystemWatcher;
 class SwitcherModel : public QAbstractItemModel, XEventListener
 {
     Q_OBJECT
+    Q_PROPERTY(int itemCount READ itemCount NOTIFY itemCountChanged)
 
 public:
     explicit SwitcherModel(QObject *parent = 0);
     ~SwitcherModel();
+    int itemCount();
 
     enum Role
     {
@@ -57,6 +58,10 @@ public:
     // stuck onto the model randomly
     Q_INVOKABLE void closeWindow(qulonglong window);
     Q_INVOKABLE void windowToFront(qulonglong window);
+
+signals:
+    void itemCountChanged();
+
 private:
     QList<Window> windowsBeingClosed;
     QList<WindowInfo *> m_windows;
