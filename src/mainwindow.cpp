@@ -35,22 +35,9 @@
 #include <X11/extensions/Xdamage.h>
 
 MainWindow *MainWindow::mainWindowInstance = NULL;
-const QString MainWindow::CONTENT_SEARCH_DBUS_SERVICE = "com.nokia.maemo.meegotouch.ContentSearch";
-const QString MainWindow::CONTENT_SEARCH_DBUS_PATH = "/";
-const QString MainWindow::CONTENT_SEARCH_DBUS_INTERFACE = "com.nokia.maemo.meegotouch.ContentSearchInterface";
-const QString MainWindow::CONTENT_SEARCH_DBUS_METHOD = "launch";
-
-const QString MainWindow::CALL_UI_DBUS_SERVICE = "com.nokia.telephony.callhistory";
-const QString MainWindow::CALL_UI_DBUS_PATH = "/callhistory";
-const QString MainWindow::CALL_UI_DBUS_INTERFACE = "com.nokia.telephony.callhistory";
-const QString MainWindow::CALL_UI_DBUS_METHOD = "dialer";
 
 MainWindow::MainWindow(QWidget *parent) :
-    QDeclarativeView(parent),
-    externalServiceService(NULL),
-    externalServicePath(NULL),
-    externalServiceInterface(NULL),
-    externalServiceMethod(NULL)
+    QDeclarativeView(parent)
 {
     mainWindowInstance = this;
     if (qgetenv("MEEGOHOME_DESKTOP") != "0") {
@@ -131,78 +118,8 @@ void MainWindow::changeNetWmState(bool set, Atom one, Atom two)
     XSendEvent(display, RootWindow(display, x11Info().screen()), FALSE, (SubstructureNotifyMask | SubstructureRedirectMask), &e);
 }
 
-bool MainWindow::isCallUILaunchingKey(int key)
-{
-    // Numbers, *, + and # will launch the call UI
-    return ((key >= Qt::Key_0 && key <= Qt::Key_9) || key == Qt::Key_Asterisk || key == Qt::Key_Plus || key == Qt::Key_NumberSign);
-}
-
-void MainWindow::keyPressEvent(QKeyEvent *event)
-{
-    int key = event->key();
-    if (key < Qt::Key_Escape && !event->modifiers().testFlag(Qt::ControlModifier)) {
-        // Special keys and CTRL-anything should do nothing
-        QString keyPresses = event->text();
-        if (!keyPresses.isEmpty()) {
-            // Append keypresses to the presses to be sent
-            keyPressesToBeSent.append(keyPresses);
-
-            if (keyPressesBeingSent.isEmpty()) {
-                // Select the service to send the keypresses to
-                if (isCallUILaunchingKey(key)) {
-                    setupExternalService(CALL_UI_DBUS_SERVICE, CALL_UI_DBUS_PATH, CALL_UI_DBUS_INTERFACE, CALL_UI_DBUS_METHOD);
-                } else {
-                    setupExternalService(CONTENT_SEARCH_DBUS_SERVICE, CONTENT_SEARCH_DBUS_PATH, CONTENT_SEARCH_DBUS_INTERFACE, CONTENT_SEARCH_DBUS_METHOD);
-                }
-
-                // Call the external service
-                sendKeyPresses();
-            }
-        }
-    }
-}
-
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     // Don't allow closing the main window
     event->ignore();
 }
-
-void MainWindow::setupExternalService(const QString &service, const QString &path, const QString &interface, const QString &method)
-{
-    externalServiceService = &service;
-    externalServicePath = &path;
-    externalServiceInterface = &interface;
-    externalServiceMethod = &method;
-}
-
-void MainWindow::sendKeyPresses()
-{
-    // Only one external service launch may be active at a time
-    if (keyPressesBeingSent.isEmpty() && !keyPressesToBeSent.isEmpty() && externalServiceService != NULL && externalServicePath != NULL && externalServiceInterface != NULL && externalServiceMethod != NULL) {
-        // Make an asynchronous call to the external service and send the keypresses to be sent
-        QDBusInterface interface(*externalServiceService, *externalServicePath, *externalServiceInterface, QDBusConnection::sessionBus());
-        interface.callWithCallback(*externalServiceMethod, (QList<QVariant>() << keyPressesToBeSent), this, SLOT(markKeyPressesSentAndSendRemainingKeyPresses()), SLOT(markKeyPressesNotSent()));
-
-        // Keypresses that need to be sent are now being sent
-        keyPressesBeingSent = keyPressesToBeSent;
-        keyPressesToBeSent.clear();
-    }
-}
-
-void MainWindow::markKeyPressesSentAndSendRemainingKeyPresses()
-{
-    // The keypresses that were being sent have now been sent
-    keyPressesBeingSent.clear();
-
-    // Send the remaining keypresses still to be sent (if any)
-    sendKeyPresses();
-}
-
-void MainWindow::markKeyPressesNotSent()
-{
-    // Since the external service didn't launch prepend the sent keypresses to the keypresses to be sent but don't retry
-    keyPressesToBeSent.prepend(keyPressesBeingSent);
-    keyPressesBeingSent.clear();
-}
-

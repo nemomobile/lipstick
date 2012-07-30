@@ -48,16 +48,8 @@ public:
     static MainWindow *instance(bool create = false);
 
     //! \reimp
-    virtual void keyPressEvent(QKeyEvent *event);
     virtual void closeEvent(QCloseEvent *event);
     //! \reimp_end
-
-private slots:
-    //! Clears keyPressesBeingSent and sends keyPressesToBeSent (if any)
-    void markKeyPressesSentAndSendRemainingKeyPresses();
-
-    //! Moves keyPressesBeingSent to the beginning of keyPressesToBeSent
-    void markKeyPressesNotSent();
 
 private:
     /*!
@@ -66,6 +58,9 @@ private:
      * \param parent Parent for the widget, defaults to NULL
      */
     MainWindow(QWidget *parent = NULL);
+
+    //! The MainWindow instance
+    static MainWindow *mainWindowInstance;
 
     /*!
      * Sets the X window properties for the window so that the window is not
@@ -82,72 +77,6 @@ private:
      */
     void changeNetWmState(bool set, Atom one, Atom two = 0);
 
-    /*!
-     * Returns whether the given key should launch the Call UI dialer.
-     *
-     * \param key a key to check
-     * \return \c true if call UI should be launched, \c false otherwise
-     */
-    static bool isCallUILaunchingKey(int key);
-
-    /*!
-     * Sets up the external service to be called when keys are pressed.
-     * Expects the passed QStrings to be static constants which will not be
-     * destroyed before sendKeyPresses() is called.
-     *
-     * \param service the name of the DBus service to launch
-     * \param path the path of the DBus service to launch
-     * \param interface the interface name of the DBus service to launch
-     * \param method the name of the DBus method to call
-     */
-    void setupExternalService(const QString &service, const QString &path, const QString &interface, const QString &method);
-
-    /*!
-     * Sends the keypresses to be sent to the external service defined with
-     * setupExternalService(). This can only be called after
-     * setupExternalService() has been called.
-     */
-    void sendKeyPresses();
-
-    //! The DBus service of the content search application
-    static const QString CONTENT_SEARCH_DBUS_SERVICE;
-    //! The DBus path of the content search application
-    static const QString CONTENT_SEARCH_DBUS_PATH;
-    //! The DBus interface of the content search application
-    static const QString CONTENT_SEARCH_DBUS_INTERFACE;
-    //! The DBus method of the content search application
-    static const QString CONTENT_SEARCH_DBUS_METHOD;
-
-    //! The DBus service of the call ui dialer
-    static const QString CALL_UI_DBUS_SERVICE;
-    //! The DBus path of the call ui dialer
-    static const QString CALL_UI_DBUS_PATH;
-    //! The DBus interface of the call ui dialer
-    static const QString CALL_UI_DBUS_INTERFACE;
-    //! The DBus method of the call ui dialer
-    static const QString CALL_UI_DBUS_METHOD;
-
-    //! The MainWindow instance
-    static MainWindow *mainWindowInstance;
-
-    //! The service name of the external service being called
-    const QString *externalServiceService;
-    //! The path of the external service being called
-    const QString *externalServicePath;
-    //! The interface of the external service being called
-    const QString *externalServiceInterface;
-    //! The method of the external service being called
-    const QString *externalServiceMethod;
-
-    //! Key presses not sent to the external service yet
-    QString keyPressesToBeSent;
-
-    //! Key presses being sent to an external service
-    QString keyPressesBeingSent;
-
-#ifdef UNIT_TEST
-    friend class Ut_MainWindow;
-#endif
 };
 
 #endif // MAINWINDOW_H
