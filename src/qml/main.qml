@@ -26,6 +26,8 @@ import Pyro 0.1
 import QtMobility.sensors 1.2
 
 Item {
+    property bool isPortrait: false;
+
     id: main
     width: initialSize.width
     height: initialSize.height
@@ -38,8 +40,9 @@ Item {
             var orientationChanged = false;
             var previousIndex = Math.round(dashboard.contentX / dashboard.width);
 
-            if (reading.orientation === OrientationReading.TopUp) {
+            if (reading.orientation === OrientationReading.TopUp && !isPortrait) {
                 // The top of the device is upwards - meaning: portrait
+                isPortrait = true;
                 desktopRotation.angle = -90;
                 desktopRotation.origin.x = main.height / 2;
                 desktopRotation.origin.y = main.height / 2;
@@ -48,8 +51,9 @@ Item {
                 systemStatusBar.isPortrait = true;
                 orientationChanged = true;
             }
-            else if (reading.orientation === OrientationReading.RightUp) {
+            if (reading.orientation === OrientationReading.RightUp && isPortrait) {
                 // The right side of the device is upwards - meaning: landscape
+                isPortrait = false;
                 desktopRotation.angle = 0;
                 desktopRotation.origin.x = 0;
                 desktopRotation.origin.y = 0;
