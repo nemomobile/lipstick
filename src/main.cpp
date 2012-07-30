@@ -35,10 +35,10 @@
 
 int main(int argc, char *argv[])
 {
-    qmlRegisterType<MenuModel>("Pyro", 0, 1, "MenuModel");
-    qmlRegisterType<SwitcherModel>("Pyro", 0, 1, "SwitcherModel");
-    qmlRegisterType<SwitcherPixmapItem>("Pyro", 0, 1, "WindowPixmap");
-    qmlRegisterType<StatusBar>("Pyro", 0, 1, "StatusBar");
+    qmlRegisterType<MenuModel>("org.nemomobile.lipstick", 0, 1, "MenuModel");
+    qmlRegisterType<SwitcherModel>("org.nemomobile.lipstick", 0, 1, "SwitcherModel");
+    qmlRegisterType<SwitcherPixmapItem>("org.nemomobile.lipstick", 0, 1, "WindowPixmap");
+    qmlRegisterType<StatusBar>("org.nemomobile.lipstick", 0, 1, "StatusBar");
 
     HomeApplication app(argc, argv);
 

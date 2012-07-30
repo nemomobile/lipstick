@@ -1,7 +1,9 @@
+
 /*
  * main.qml
  *
  * Copyright (c) 2011 - Tom Swindell <t.swindell@rubyx.co.uk>
+ * Copyright (c) 2012 - Timur Kristóf <timur.kristof@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,9 +23,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 import QtQuick 1.1
-import Pyro 0.1
 import QtMobility.sensors 1.2
+import org.nemomobile.lipstick 0.1
 
 Item {
     property bool isPortrait: false;
