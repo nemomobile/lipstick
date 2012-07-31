@@ -28,20 +28,15 @@
 #include <QX11Info>
 #include <QDebug>
 
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/Xatom.h>
+#include <X11/extensions/Xcomposite.h>
+#include <X11/extensions/Xdamage.h>
+
 #include "homeapplication.h"
-#include "homescreenservice.h"
-#ifdef HAS_ADAPTER
-#include "homescreenadaptor.h"
-#endif
 #include "windowinfo.h"
 #include "xeventlistener.h"
-#include "x11wrapper.h"
-
-/*!
- * D-Bus names for the home screen service
- */
-static const QString MEEGO_CORE_HOME_SCREEN_SERVICE_NAME = "com.meego.core.HomeScreen";
-static const QString MEEGO_CORE_HOME_SCREEN_OBJECT_PATH = "/homescreen";
 
 /*!
  * D-Bus names for the notification that's sent when home is ready
@@ -52,9 +47,6 @@ static const QString HOME_READY_SIGNAL_NAME = "ready";
 
 HomeApplication::HomeApplication(int &argc, char **argv)
     : QApplication(argc, argv)
-    , upstartMode(false)
-    , lockedOrientation_(QVariant::Invalid)
-    , homeScreenService(new HomeScreenService)
     , xEventListeners()
     , iteratorActiveForEventListenerContainer(false)
     , toBeRemovedEventListeners()
@@ -63,24 +55,8 @@ HomeApplication::HomeApplication(int &argc, char **argv)
 {
     XDamageQueryExtension(QX11Info::display(), &xDamageEventBase, &xDamageErrorBase);
 
-    parseArguments(argc, argv);
     // launch a timer for sending a dbus-signal upstart when basic construct is done
-    connect(&startupNotificationTimer, SIGNAL(timeout()),
-            this, SLOT(sendStartupNotifications()));
-    startupNotificationTimer.setSingleShot(true);
-    startupNotificationTimer.setInterval(0);
-    startupNotificationTimer.start();
-
-#ifdef HAS_ADAPTER
-    new HomeScreenAdaptor(homeScreenService);
-#endif
-
-    QDBusConnection connection = QDBusConnection::sessionBus();
-
-    connection.registerService(MEEGO_CORE_HOME_SCREEN_SERVICE_NAME);
-    connection.registerObject(MEEGO_CORE_HOME_SCREEN_OBJECT_PATH, homeScreenService);
-
-    connect(homeScreenService, SIGNAL(focusToLauncherApp(const QString&)), this, SIGNAL(focusToLauncherAppRequested(const QString &)));
+    QTimer::singleShot(0, this, SLOT(sendStartupNotifications()));
 
     // Initialize the X11 atoms used in the UI components
     WindowInfo::initializeAtoms();
@@ -88,7 +64,6 @@ HomeApplication::HomeApplication(int &argc, char **argv)
 
 HomeApplication::~HomeApplication()
 {
-    delete homeScreenService;
 }
 
 void HomeApplication::addXEventListener(XEventListener *listener)
@@ -107,11 +82,6 @@ void HomeApplication::removeXEventListener(XEventListener *listener)
     }
 }
 
-QVariant HomeApplication::lockedOrientation() const
-{
-    return lockedOrientation_;
-}
-
 void HomeApplication::sendStartupNotifications()
 {
     static QDBusConnection systemBus = QDBusConnection::systemBus();
@@ -120,12 +90,6 @@ void HomeApplication::sendStartupNotifications()
                                    HOME_READY_SIGNAL_INTERFACE,
                                    HOME_READY_SIGNAL_NAME);
     systemBus.send(homeReadySignal);
-
-    // Stop the application after the basic construction but only when run by upstart
-    if (upstartMode) {
-        static pid_t selfPid = getpid();
-        kill(selfPid, SIGSTOP);
-    }
 
     // For device boot performance reasons initializing Home scene window must be done
     // only after ready signal is sent (NB#277602)
@@ -148,7 +112,6 @@ bool HomeApplication::x11EventFilter(XEvent *event)
         eventHandled = true;
     }
 
-
     foreach (XEventListener* listener, xEventListeners) {
         if (!toBeRemovedEventListeners.contains(listener)) {
             if (listener->handleXEvent(*event)) {
@@ -169,32 +132,4 @@ bool HomeApplication::x11EventFilter(XEvent *event)
     }
 
     return eventHandled;
-}
-
-void HomeApplication::parseArguments(int argc, char *argv[])
-{
-    if (argc >= 2) {
-        static const char upstartChar = 'u';
-        static const char orientationChar = 'o';
-        static const char *optString = "uo::";
-        static struct option optLong[] = {
-            { "upstart", 0, NULL, upstartChar },
-            { "locked-orientation", 2, NULL, orientationChar },
-            { 0, 0, 0, 0 }
-        };
-        opterr = 0;
-        int c = 0;
-        while ((c = getopt_long_only(argc, argv, optString, optLong, 0)) != -1) {
-            switch (c) {
-            case upstartChar:
-                upstartMode = true;
-                break;
-            case orientationChar:
-                lockedOrientation_ = QVariant(optarg);
-                break;
-            default:
-                break;
-            }
-        }
-    }
 }

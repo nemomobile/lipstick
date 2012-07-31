@@ -19,31 +19,25 @@
 
 #include "mainwindow.h"
 #include "homeapplication.h"
+
 #include <QDBusInterface>
 #include <QX11Info>
 #include <QFile>
 #include <QGLWidget>
+#include <QDeclarativeEngine>
+#include <QDeclarativeContext>
+#include <QDesktopWidget>
 
-#include "x11wrapper.h"
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/Xatom.h>
+#include <X11/extensions/Xcomposite.h>
+#include <X11/extensions/Xdamage.h>
 
 MainWindow *MainWindow::mainWindowInstance = NULL;
-const QString MainWindow::CONTENT_SEARCH_DBUS_SERVICE = "com.nokia.maemo.meegotouch.ContentSearch";
-const QString MainWindow::CONTENT_SEARCH_DBUS_PATH = "/";
-const QString MainWindow::CONTENT_SEARCH_DBUS_INTERFACE = "com.nokia.maemo.meegotouch.ContentSearchInterface";
-const QString MainWindow::CONTENT_SEARCH_DBUS_METHOD = "launch";
-
-const QString MainWindow::CALL_UI_DBUS_SERVICE = "com.nokia.telephony.callhistory";
-const QString MainWindow::CALL_UI_DBUS_PATH = "/callhistory";
-const QString MainWindow::CALL_UI_DBUS_INTERFACE = "com.nokia.telephony.callhistory";
-const QString MainWindow::CALL_UI_DBUS_METHOD = "dialer";
 
 MainWindow::MainWindow(QWidget *parent) :
-    QDeclarativeView(parent),
-    home(NULL),
-    externalServiceService(NULL),
-    externalServicePath(NULL),
-    externalServiceInterface(NULL),
-    externalServiceMethod(NULL)
+    QDeclarativeView(parent)
 {
     mainWindowInstance = this;
     if (qgetenv("MEEGOHOME_DESKTOP") != "0") {
@@ -56,23 +50,25 @@ MainWindow::MainWindow(QWidget *parent) :
     WId window = winId();
     XWindowAttributes attributes;
     Display *display = QX11Info::display();
-    X11Wrapper::XGetWindowAttributes(display, window, &attributes);
-    X11Wrapper::XSelectInput(display, window, attributes.your_event_mask | VisibilityChangeMask);
+    XGetWindowAttributes(display, window, &attributes);
+    XSelectInput(display, window, attributes.your_event_mask | VisibilityChangeMask);
 #endif
 
     excludeFromTaskBar();
+
+    setResizeMode(SizeRootObjectToView);
+    setAttribute(Qt::WA_OpaquePaintEvent);
+    setAttribute(Qt::WA_NoSystemBackground);
+    setViewport(new QGLWidget);
+
+    QObject::connect(this->engine(), SIGNAL(quit()), QApplication::instance(), SLOT(quit()));
+    rootContext()->setContextProperty("initialSize", QApplication::desktop()->screenGeometry(this).size());
 
     // TODO: disable this for non-debug builds
     if (QFile::exists("main.qml"))
         setSource(QUrl::fromLocalFile("./main.qml"));
     else
         setSource(QUrl("qrc:/qml/main.qml"));
-
-    setResizeMode(SizeRootObjectToView);
-
-    setAttribute(Qt::WA_OpaquePaintEvent);
-    setAttribute(Qt::WA_NoSystemBackground);
-    setViewport(new QGLWidget);
 }
 
 MainWindow::~MainWindow()
@@ -93,15 +89,15 @@ MainWindow *MainWindow::instance(bool create)
 void MainWindow::excludeFromTaskBar()
 {
     // Tell the window to not to be shown in the switcher
-    Atom skipTaskbarAtom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_WM_STATE_SKIP_TASKBAR", False);
+    Atom skipTaskbarAtom = XInternAtom(QX11Info::display(), "_NET_WM_STATE_SKIP_TASKBAR", False);
     changeNetWmState(true, skipTaskbarAtom);
 
     // Also set the _NET_WM_STATE window property to ensure Home doesn't try to
     // manage this window in case the window manager fails to set the property in time
-    Atom netWmStateAtom = X11Wrapper::XInternAtom(QX11Info::display(), "_NET_WM_STATE", False);
+    Atom netWmStateAtom = XInternAtom(QX11Info::display(), "_NET_WM_STATE", False);
     QVector<Atom> atoms;
     atoms.append(skipTaskbarAtom);
-    X11Wrapper::XChangeProperty(QX11Info::display(), internalWinId(), netWmStateAtom, XA_ATOM, 32, PropModeReplace, (unsigned char *)atoms.data(), atoms.count());
+    XChangeProperty(QX11Info::display(), internalWinId(), netWmStateAtom, XA_ATOM, 32, PropModeReplace, (unsigned char *)atoms.data(), atoms.count());
 }
 
 void MainWindow::changeNetWmState(bool set, Atom one, Atom two)
@@ -109,7 +105,7 @@ void MainWindow::changeNetWmState(bool set, Atom one, Atom two)
     XEvent e;
     e.xclient.type = ClientMessage;
     Display *display = QX11Info::display();
-    Atom netWmStateAtom = X11Wrapper::XInternAtom(display, "_NET_WM_STATE", FALSE);
+    Atom netWmStateAtom = XInternAtom(display, "_NET_WM_STATE", FALSE);
     e.xclient.message_type = netWmStateAtom;
     e.xclient.display = display;
     e.xclient.window = internalWinId();
@@ -119,38 +115,7 @@ void MainWindow::changeNetWmState(bool set, Atom one, Atom two)
     e.xclient.data.l[2] = two;
     e.xclient.data.l[3] = 0;
     e.xclient.data.l[4] = 0;
-    X11Wrapper::XSendEvent(display, RootWindow(display, x11Info().screen()), FALSE, (SubstructureNotifyMask | SubstructureRedirectMask), &e);
-}
-
-bool MainWindow::isCallUILaunchingKey(int key)
-{
-    // Numbers, *, + and # will launch the call UI
-    return ((key >= Qt::Key_0 && key <= Qt::Key_9) || key == Qt::Key_Asterisk || key == Qt::Key_Plus || key == Qt::Key_NumberSign);
-}
-
-void MainWindow::keyPressEvent(QKeyEvent *event)
-{
-    int key = event->key();
-    if (key < Qt::Key_Escape && !event->modifiers().testFlag(Qt::ControlModifier)) {
-        // Special keys and CTRL-anything should do nothing
-        QString keyPresses = event->text();
-        if (!keyPresses.isEmpty()) {
-            // Append keypresses to the presses to be sent
-            keyPressesToBeSent.append(keyPresses);
-
-            if (keyPressesBeingSent.isEmpty()) {
-                // Select the service to send the keypresses to
-                if (isCallUILaunchingKey(key)) {
-                    setupExternalService(CALL_UI_DBUS_SERVICE, CALL_UI_DBUS_PATH, CALL_UI_DBUS_INTERFACE, CALL_UI_DBUS_METHOD);
-                } else {
-                    setupExternalService(CONTENT_SEARCH_DBUS_SERVICE, CONTENT_SEARCH_DBUS_PATH, CONTENT_SEARCH_DBUS_INTERFACE, CONTENT_SEARCH_DBUS_METHOD);
-                }
-
-                // Call the external service
-                sendKeyPresses();
-            }
-        }
-    }
+    XSendEvent(display, RootWindow(display, x11Info().screen()), FALSE, (SubstructureNotifyMask | SubstructureRedirectMask), &e);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -158,42 +123,3 @@ void MainWindow::closeEvent(QCloseEvent *event)
     // Don't allow closing the main window
     event->ignore();
 }
-
-void MainWindow::setupExternalService(const QString &service, const QString &path, const QString &interface, const QString &method)
-{
-    externalServiceService = &service;
-    externalServicePath = &path;
-    externalServiceInterface = &interface;
-    externalServiceMethod = &method;
-}
-
-void MainWindow::sendKeyPresses()
-{
-    // Only one external service launch may be active at a time
-    if (keyPressesBeingSent.isEmpty() && !keyPressesToBeSent.isEmpty() && externalServiceService != NULL && externalServicePath != NULL && externalServiceInterface != NULL && externalServiceMethod != NULL) {
-        // Make an asynchronous call to the external service and send the keypresses to be sent
-        QDBusInterface interface(*externalServiceService, *externalServicePath, *externalServiceInterface, QDBusConnection::sessionBus());
-        interface.callWithCallback(*externalServiceMethod, (QList<QVariant>() << keyPressesToBeSent), this, SLOT(markKeyPressesSentAndSendRemainingKeyPresses()), SLOT(markKeyPressesNotSent()));
-
-        // Keypresses that need to be sent are now being sent
-        keyPressesBeingSent = keyPressesToBeSent;
-        keyPressesToBeSent.clear();
-    }
-}
-
-void MainWindow::markKeyPressesSentAndSendRemainingKeyPresses()
-{
-    // The keypresses that were being sent have now been sent
-    keyPressesBeingSent.clear();
-
-    // Send the remaining keypresses still to be sent (if any)
-    sendKeyPresses();
-}
-
-void MainWindow::markKeyPressesNotSent()
-{
-    // Since the external service didn't launch prepend the sent keypresses to the keypresses to be sent but don't retry
-    keyPressesToBeSent.prepend(keyPressesBeingSent);
-    keyPressesBeingSent.clear();
-}
-

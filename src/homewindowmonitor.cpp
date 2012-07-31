@@ -21,7 +21,12 @@
 #include <QX11Info>
 
 #include "homewindowmonitor.h"
-#include "x11wrapper.h"
+
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/Xatom.h>
+#include <X11/extensions/Xcomposite.h>
+#include <X11/extensions/Xdamage.h>
 
 
 QSharedPointer<HomeWindowMonitor> HomeWindowMonitor::windowMonitorInstance = QSharedPointer<HomeWindowMonitor>();
@@ -39,7 +44,7 @@ HomeWindowMonitor::HomeWindowMonitor() :
         nonFullscreenApplicationWindowTypes(QSet<Atom>() << WindowInfo::NotificationAtom <<
                                                             WindowInfo::DialogAtom <<
                                                             WindowInfo::MenuAtom),
-        netClientListStacking(X11Wrapper::XInternAtom(QX11Info::display(), "_NET_CLIENT_LIST_STACKING", False))
+        netClientListStacking(XInternAtom(QX11Info::display(), "_NET_CLIENT_LIST_STACKING", False))
 {
 }
 
@@ -119,7 +124,7 @@ QList<Window> HomeWindowMonitor::windowStackingOrder() const
     int actualFormat;
     unsigned long numWindowItems, bytesLeft;
     unsigned char *windowData = NULL;
-    Status result = X11Wrapper::XGetWindowProperty(display, DefaultRootWindow(display), netClientListStacking,
+    Status result = XGetWindowProperty(display, DefaultRootWindow(display), netClientListStacking,
                                                    0, 0x7fffffff, False, XA_WINDOW,
                                                    &actualType, &actualFormat, &numWindowItems, &bytesLeft, &windowData);
 

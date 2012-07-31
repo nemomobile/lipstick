@@ -19,18 +19,26 @@
 
 #include <QX11Info>
 
-#include "menumodel.h"
-#include "switchermodel.h"
-#include "switcherpixmapitem.h"
 #include "mainwindow.h"
 #include "homeapplication.h"
-#include "x11wrapper.h"
+
+#include "components/menumodel.h"
+#include "components/switchermodel.h"
+#include "components/switcherpixmapitem.h"
+#include "components/statusbar.h"
+
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/Xatom.h>
+#include <X11/extensions/Xcomposite.h>
+#include <X11/extensions/Xdamage.h>
 
 int main(int argc, char *argv[])
 {
-    qmlRegisterType<MenuModel>("Pyro", 0, 1, "MenuModel");
-    qmlRegisterType<SwitcherModel>("Pyro", 0, 1, "SwitcherModel");
-    qmlRegisterType<SwitcherPixmapItem>("Pyro", 0, 1, "WindowPixmap");
+    qmlRegisterType<MenuModel>("org.nemomobile.lipstick", 0, 1, "MenuModel");
+    qmlRegisterType<SwitcherModel>("org.nemomobile.lipstick", 0, 1, "SwitcherModel");
+    qmlRegisterType<SwitcherPixmapItem>("org.nemomobile.lipstick", 0, 1, "WindowPixmap");
+    qmlRegisterType<StatusBar>("org.nemomobile.lipstick", 0, 1, "StatusBar");
 
     HomeApplication app(argc, argv);
 
@@ -43,7 +51,7 @@ int main(int argc, char *argv[])
     // for getting window close events. Note that QWidget calls XSelectInput
     // as well so this call cannot be done in the HomeApplication constructor
     // since Qt's own call would then override this.
-    X11Wrapper::XSelectInput(QX11Info::display(), DefaultRootWindow(QX11Info::display()), PropertyChangeMask | SubstructureNotifyMask);
+    XSelectInput(QX11Info::display(), DefaultRootWindow(QX11Info::display()), PropertyChangeMask | SubstructureNotifyMask);
 
     return app.exec();
 }

@@ -29,32 +29,26 @@ CONFIG += qmake_cache target_qt
 HEADERS += homeapplication.h \
     windowinfo.h \
     mainwindow.h \
-    x11wrapper.h \
-    menumodel.h \
-    menuitem.h \
-    desktop.h \
-    homescreenservice.h \
     homewindowmonitor.h \
     windowmonitor.h \
     xeventlistener.h \
-    switchermodel.h \
-    qticonloader.h \
-    switcherpixmapitem.h
+    components/desktop.h \
+    components/menumodel.h \
+    components/switchermodel.h \
+    components/switcherpixmapitem.h \
+    components/statusbar.h
 
 SOURCES += main.cpp \
     homeapplication.cpp \
     windowinfo.cpp \
     mainwindow.cpp \
-    x11wrapper.cpp \
-    menumodel.cpp \
-    menuitem.cpp \
-    desktop.cpp \
-    homescreenservice.cpp \
     homewindowmonitor.cpp \
     xeventlistener.cpp \
-    switchermodel.cpp \
-    qticonloader.cpp \
-    switcherpixmapitem.cpp
+    components/desktop.cpp \
+    components/menumodel.cpp \
+    components/switchermodel.cpp \
+    components/switcherpixmapitem.cpp \
+    components/statusbar.cpp
 
 LIBS += -lX11
 
@@ -65,23 +59,23 @@ OTHER_FILES += \
     qml/main.qml \
     qml/Launcher.qml \
     qml/Switcher.qml \
-    qml/SwitcherItem.qml \
-    qml/SystemStatusBar.qml
+    qml/SwitcherItem.qml
 
 
 # Input
 target.path += /usr/bin
 INSTALLS += target
 
-CONFIG += link_pkgconfig
-PKGCONFIG += xcomposite mlite xdamage
+CONFIG += link_pkgconfig mobility
+MOBILITY += sensors
+PKGCONFIG += xcomposite mlite xdamage x11
 
 packagesExist(contentaction-0.1) {
     message("Using contentaction to launch applications")
     PKGCONFIG += contentaction-0.1
     DEFINES += HAS_CONTENTACTION
-    HEADERS += launcheraction.h
-    SOURCES += launcheraction.cpp
+    HEADERS +=
+    SOURCES +=
 
 } else {
     warning("contentaction doesn't exist; falling back to exec - this may not work so great")
