@@ -1,7 +1,15 @@
 
 #include "statusbar.h"
+
 #include <QPainter>
 #include <QX11Info>
+#include <QTouchEvent>
+#include <QDBusInterface>
+#include <QDBusConnection>
+#include <QGraphicsScene>
+#include <QGraphicsView>
+#include <QTimer>
+
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
@@ -87,10 +95,17 @@ static QPixmap fetchSharedPixmap()
 StatusBar::StatusBar(QDeclarativeItem *parent) :
     QDeclarativeItem(parent)
 {
-    _sharedPixmap = fetchSharedPixmap();
     setFlag(QGraphicsItem::ItemHasNoContents, false);
-    setImplicitWidth(_sharedPixmap.width());
+    setAcceptTouchEvents(true);
+    setImplicitHeight(36);
+    QTimer::singleShot(3000, this, SLOT(initializeStatusBar()));
+}
+
+void StatusBar::initializeStatusBar()
+{
+    _sharedPixmap = fetchSharedPixmap();
     setImplicitHeight(_sharedPixmap.height() / 2);
+    updateXThings();
 }
 
 void StatusBar::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -116,8 +131,65 @@ bool StatusBar::isPortrait() const
     return _isPortrait;
 }
 
+void StatusBar::updateXThings()
+{
+    // If the pixmap is null, don't bother
+    if (_sharedPixmap.isNull())
+        return;
+
+    // Statusbar rect
+    QPointF p = mapToScene(0, 0);
+    unsigned long data[4] = { (int)p.x(), (int)p.y(), width(), height() };
+    qDebug() << "statusbar geo:" << (int)p.x() << (int)p.y() << width() << height();
+
+    // Orientation angle
+    int angle = isPortrait() ? 270 : 0;
+    qDebug() << "orientation angle:" << angle;
+
+    // Stuff for X
+    QWidget *activeWindow = this->scene()->views().at(0);
+    Display *dpy = QX11Info::display();
+
+    // Setting the status bar geometry atom (probably not necessary here)
+    Atom statusBarGeometryAtom = XInternAtom(dpy, "_MEEGOTOUCH_MSTATUSBAR_GEOMETRY", False);
+    XChangeProperty(dpy, activeWindow->effectiveWinId(), statusBarGeometryAtom, XA_CARDINAL, 32, PropModeReplace, (unsigned char*)data, 4);
+
+    // Setting the orientation angle atom (sysuid uses this to determine what orientation it should draw itself)
+    Atom orientationAngleAtom = XInternAtom(dpy, "_MEEGOTOUCH_ORIENTATION_ANGLE", False);
+    XChangeProperty(dpy, activeWindow->effectiveWinId(), orientationAngleAtom, XA_CARDINAL, 32, PropModeReplace, (unsigned char*)&angle, 1);
+}
+
 void StatusBar::setIsPortrait(bool value)
 {
+    // If there is no change, don't bother
+    if (_isPortrait == value)
+        return;
+
     _isPortrait = value;
+    updateXThings();
+
     emit isPortraitChanged();
+}
+
+bool StatusBar::sceneEvent(QEvent *event)
+{
+    if (event->type() == QEvent::TouchBegin)
+    {
+        return true;
+    }
+    if (event->type() == QEvent::TouchEnd)
+    {
+        qDebug() << "opening status menu";
+
+        QDBusInterface interface("com.meego.core.MStatusIndicatorMenu",
+                                 "/statusindicatormenu",
+                                 "com.meego.core.MStatusIndicatorMenu",
+                                 QDBusConnection::sessionBus());
+
+        interface.call(QDBus::NoBlock, "open");
+
+        return true;
+    }
+
+    return false;
 }

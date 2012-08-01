@@ -12,6 +12,8 @@ class StatusBar : public QDeclarativeItem
     QPixmap _sharedPixmap;
     bool _isPortrait;
 
+    void updateXThings();
+
 public:
     explicit StatusBar(QDeclarativeItem *parent = 0);
 
@@ -19,6 +21,10 @@ public:
     void updateSharedPixmap();
     bool isPortrait() const;
     void setIsPortrait(bool value);
+    virtual bool sceneEvent(QEvent *);
+
+private slots:
+    void initializeStatusBar();
 
 signals:
     void isPortraitChanged();

@@ -100,6 +100,8 @@ Item {
         StatusBar {
             id: systemStatusBar
             anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
             z: 100
         }
         ListView {
