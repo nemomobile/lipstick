@@ -116,6 +116,8 @@ void StatusBar::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     if (_sharedPixmap.isNull())
     {
         qDebug() << "StatusBar: the shared pixmap is null, can't draw it!";
+        painter->setPen(QColor(Qt::black));
+        painter->drawRect(0, 0, width(), height());
         return;
     }
 
@@ -157,6 +159,8 @@ void StatusBar::updateXThings()
     // Setting the orientation angle atom (sysuid uses this to determine what orientation it should draw itself)
     Atom orientationAngleAtom = XInternAtom(dpy, "_MEEGOTOUCH_ORIENTATION_ANGLE", False);
     XChangeProperty(dpy, activeWindow->effectiveWinId(), orientationAngleAtom, XA_CARDINAL, 32, PropModeReplace, (unsigned char*)&angle, 1);
+
+    update();
 }
 
 void StatusBar::setIsPortrait(bool value)
