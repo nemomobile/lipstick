@@ -2,7 +2,7 @@
  * Copyright 2011 Intel Corporation.
  *
  * This program is licensed under the terms and conditions of the
- * Apache License, version 2.0.  The full text of the Apache License is at 
+ * Apache License, version 2.0.  The full text of the Apache License is at
  * http://www.apache.org/licenses/LICENSE-2.0
  */
 
@@ -16,6 +16,7 @@
 #include <mdesktopentry.h>
 #include "switchermodel.h"
 #include "desktop.h"
+#include "mainwindow.h"
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -37,6 +38,7 @@ static Atom windowTypeNormalAtom;
 static Atom utf8StringAtom;
 static Atom windowPidAtom;
 static Atom iconGeometryAtom;
+static Atom windowTypeMenuAtom;
 
 SwitcherModel::SwitcherModel(QObject *parent)
     : QAbstractItemModel(parent)
@@ -50,6 +52,7 @@ SwitcherModel::SwitcherModel(QObject *parent)
     windowTypeDesktopAtom = XInternAtom(QX11Info::display(), "_NET_WM_WINDOW_TYPE_DESKTOP", False);
     windowTypeNotificationAtom = XInternAtom(QX11Info::display(), "_NET_WM_WINDOW_TYPE_NOTIFICATION", False);
     windowTypeDockAtom = XInternAtom(QX11Info::display(), "_NET_WM_WINDOW_TYPE_DOCK", False);
+    windowTypeMenuAtom = XInternAtom(QX11Info::display(), "_NET_WM_WINDOW_TYPE_MENU", False);
     windowTypeNormalAtom = XInternAtom(QX11Info::display(), "_NET_WM_WINDOW_TYPE_NORMAL", False);
     utf8StringAtom = XInternAtom(QX11Info::display(), "UTF8_STRING", False);
     windowPidAtom = XInternAtom(QX11Info::display(), "_NET_WM_PID", False);
@@ -103,8 +106,8 @@ static const char *appAtomNames[ATOM_COUNT] = {
 bool SwitcherModel::handleXEvent(const XEvent &event)
 {
     if (event.type == PropertyNotify &&
-        event.xproperty.window == DefaultRootWindow(QX11Info::display()) &&
-        event.xproperty.atom == clientListAtom)
+            event.xproperty.window == DefaultRootWindow(QX11Info::display()) &&
+            event.xproperty.atom == clientListAtom)
     {
         updateWindowList();
         return true;
@@ -217,9 +220,9 @@ void SwitcherModel::updateWindowList()
     for (unsigned int i = 0; i < numWindowItems; i++)
     {
         if (XGetWindowAttributes(dpy, wins[i], &wAttributes) != 0
-            && wAttributes.width > 0 &&
-            wAttributes.height > 0 && wAttributes.c_class == InputOutput &&
-            wAttributes.map_state != IsUnmapped)
+                && wAttributes.width > 0 &&
+                wAttributes.height > 0 && wAttributes.c_class == InputOutput &&
+                wAttributes.map_state != IsUnmapped)
         {
             unsigned char *typeData = NULL;
             unsigned long numTypeItems;
@@ -268,8 +271,9 @@ void SwitcherModel::updateWindowList()
                 for (unsigned int n = 0; n < numTypeItems; n++)
                 {
                     if (type[n] == windowTypeDesktopAtom ||
-                        type[n] == windowTypeNotificationAtom ||
-                        type[n] == windowTypeDockAtom)
+                            type[n] == windowTypeNotificationAtom ||
+                            type[n] == windowTypeDockAtom ||
+                            type[n] == windowTypeMenuAtom)
                     {
                         includeInWindowList = false;
                         break;
@@ -400,16 +404,16 @@ QVariant SwitcherModel::data(const QModelIndex& index, int role) const
     WindowInfo *i = m_windows.at(index.row());
 
     switch (role) {
-        case name:
-            return i->title();
-        case windowId: {
-            qulonglong wid = i->window();
-            return wid;
-        }
-        case object:
-            return QVariant::fromValue<QObject *>(i);
-        default:
-            break;
+    case name:
+        return i->title();
+    case windowId: {
+        qulonglong wid = i->window();
+        return wid;
+    }
+    case object:
+        return QVariant::fromValue<QObject *>(i);
+    default:
+        break;
     }
 
     return QVariant();
