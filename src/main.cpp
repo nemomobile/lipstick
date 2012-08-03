@@ -22,7 +22,7 @@
 #include "mainwindow.h"
 #include "homeapplication.h"
 
-#include "components/menumodel.h"
+#include "components/launchermodel.h"
 #include "components/switchermodel.h"
 #include "components/switcherpixmapitem.h"
 #include "components/statusbar.h"
@@ -35,7 +35,7 @@
 
 Q_DECL_EXPORT int main(int argc, char *argv[])
 {
-    qmlRegisterType<MenuModel>("org.nemomobile.lipstick", 0, 1, "MenuModel");
+    qmlRegisterType<LauncherModel>("org.nemomobile.lipstick", 0, 1, "LauncherModel");
     qmlRegisterType<SwitcherModel>("org.nemomobile.lipstick", 0, 1, "SwitcherModel");
     qmlRegisterType<SwitcherPixmapItem>("org.nemomobile.lipstick", 0, 1, "WindowPixmap");
     qmlRegisterType<StatusBar>("org.nemomobile.lipstick", 0, 1, "StatusBar");

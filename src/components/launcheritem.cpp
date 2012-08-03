@@ -19,7 +19,7 @@
 #include <contentaction.h>
 #endif
 
-#include "desktop.h"
+#include "launcheritem.h"
 
 #define WIDTH_KEY "Desktop Entry/X-MEEGO-APP-HOME-WIDTH"
 #define HEIGHT_KEY "Desktop Entry/X-MEEGO-APP-HOME-HEIGHT"
@@ -105,7 +105,7 @@ static QString getIconPath(const QString &name)
     return QString();
 }
 
-Desktop::Desktop(const QString &fileName, QObject *parent)
+LauncherItem::LauncherItem(const QString &fileName, QObject *parent)
     : QObject(parent)
     , m_filename(fileName)
     , m_entry(QSharedPointer<MDesktopEntry>(new MDesktopEntry(fileName)))
@@ -122,15 +122,15 @@ Desktop::Desktop(const QString &fileName, QObject *parent)
     m_id = hash;
 }
 
-Desktop::~Desktop()
+LauncherItem::~LauncherItem()
 {
 }
 
-QString Desktop::id() const {
+QString LauncherItem::id() const {
     return m_id;
 }
 
-bool Desktop::isValid() const {
+bool LauncherItem::isValid() const {
     QStringList onlyShowIn = m_entry->onlyShowIn();
     if (!onlyShowIn.isEmpty() && !onlyShowIn.contains("X-MEEGO") &&
         !onlyShowIn.contains("X-MEEGO-HS"))
@@ -144,58 +144,58 @@ bool Desktop::isValid() const {
     return m_entry->isValid();
 }
 
-QString Desktop::type() const {
+QString LauncherItem::type() const {
     return m_entry->type();
 }
 
-QString Desktop::title() const {
+QString LauncherItem::title() const {
     return m_entry->name();
 }
 
-QString Desktop::comment() const {
+QString LauncherItem::comment() const {
     return m_entry->comment();
 }
 
-QString Desktop::icon() const {
+QString LauncherItem::icon() const {
     return getIconPath(m_entry->icon());
 }
 
-QString Desktop::exec() const {
+QString LauncherItem::exec() const {
     return m_entry->exec();
 }
 
-QStringList Desktop::categories() const {
+QStringList LauncherItem::categories() const {
     return m_entry->categories();
 }
 
-QString Desktop::filename() const {
-    return Desktop::m_filename;
+QString LauncherItem::filename() const {
+    return LauncherItem::m_filename;
 }
 
-int Desktop::wid() const
+int LauncherItem::wid() const
 {
     return m_wid;
 }
 
-void Desktop::setWid(int wid) {
+void LauncherItem::setWid(int wid) {
     m_wid = wid;
 }
 
-int Desktop::pid()
+int LauncherItem::pid()
 {
     return m_pid;
 }
 
-void Desktop::setPid(int pid)
+void LauncherItem::setPid(int pid)
 {
     m_pid = pid;
 }
 
-bool Desktop::nodisplay() const {
+bool LauncherItem::nodisplay() const {
     return m_entry->noDisplay();
 }
 
-void Desktop::launch() const
+void LauncherItem::launch() const
 {
 #ifndef HAS_CONTENTACTION
     // fallback code: contentaction not available
@@ -215,15 +215,15 @@ void Desktop::launch() const
 #endif
 }
 
-QString Desktop::value(QString key) const {
+QString LauncherItem::value(QString key) const {
     return m_entry->value(key);
 }
 
-bool Desktop::contains(QString val) const {
+bool LauncherItem::contains(QString val) const {
     return m_entry->contains(val);
 }
 
-bool Desktop::uninstall() {
+bool LauncherItem::uninstall() {
     if (m_entry->type() == "Widget")
     {
         return QFile::remove(m_entry->fileName());

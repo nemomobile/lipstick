@@ -46,7 +46,7 @@ Item {
             bottomMargin: 20
         }
 
-        model: MenuModel { }
+        model: LauncherModel { }
 
         delegate: Item {
             width: gridview.cellWidth

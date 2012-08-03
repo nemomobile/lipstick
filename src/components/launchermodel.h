@@ -6,27 +6,27 @@
  * http://www.apache.org/licenses/LICENSE-2.0
  */
 
-#ifndef MENUMODEL_H
-#define MENUMODEL_H
+#ifndef LAUNCHERMODEL_H
+#define LAUNCHERMODEL_H
 
 #include <QObject>
 #include <QAbstractItemModel>
 #include <QDeclarativeListProperty>
-#include "desktop.h"
+#include "launcheritem.h"
 
 class QFileSystemWatcher;
 
-class MenuModel : public QAbstractItemModel
+class LauncherModel : public QAbstractItemModel
 {
     Q_OBJECT
     Q_PROPERTY(QStringList directories READ directories WRITE setDirectories)
-    Q_PROPERTY(QDeclarativeListProperty<Desktop> apps READ apps NOTIFY appsChanged)
+    Q_PROPERTY(QDeclarativeListProperty<LauncherItem> apps READ apps NOTIFY appsChanged)
     Q_PROPERTY(QString customField READ customValue WRITE setCustomValue)
 	Q_PROPERTY(QString type READ type WRITE setType)
 
 public:
-    explicit MenuModel(QObject *parent = 0);
-    ~MenuModel();
+    explicit LauncherModel(QObject *parent = 0);
+    ~LauncherModel();
 
     enum Role
     {
@@ -40,7 +40,7 @@ public:
         object
     };
 
-    QDeclarativeListProperty<Desktop> apps();
+    QDeclarativeListProperty<LauncherItem> apps();
 
     QStringList directories() const;
     void setDirectories(QStringList directory);
@@ -78,12 +78,12 @@ private slots:
     void resetApps();
 
 private:
-    QList<Desktop *> m_apps;
+    QList<LauncherItem *> m_apps;
     QString m_customValue;
     QString m_type;
     QFileSystemWatcher *m_watcher;
 
-    Q_DISABLE_COPY(MenuModel)
+    Q_DISABLE_COPY(LauncherModel)
 };
 
-#endif // MENUMODEL_H
+#endif // LAUNCHERMODEL_H

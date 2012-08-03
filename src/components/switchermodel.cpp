@@ -14,7 +14,6 @@
 #include <QX11Info>
 
 #include "switchermodel.h"
-#include "desktop.h"
 #include "mainwindow.h"
 
 #include <X11/Xlib.h>

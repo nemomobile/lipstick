@@ -14,7 +14,7 @@
 #include <QAbstractItemModel>
 #include <QHash>
 #include "windowinfo.h"
-#include "desktop.h"
+#include "launcheritem.h"
 #include "xeventlistener.h"
 
 class QFileSystemWatcher;

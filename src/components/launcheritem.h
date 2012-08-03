@@ -6,8 +6,8 @@
  * http://www.apache.org/licenses/LICENSE-2.0
  */
 
-#ifndef DESKTOP_H
-#define DESKTOP_H
+#ifndef LAUNCHERITEM_H
+#define LAUNCHERITEM_H
 
 #include <QObject>
 #include <QSharedPointer>
@@ -15,10 +15,10 @@
 
 class MDesktopEntry;
 
-class Desktop : public QObject
+class LauncherItem : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(Desktop)
+    Q_DISABLE_COPY(LauncherItem)
 
     Q_PROPERTY(QString id READ id)
     Q_PROPERTY(QString type READ type NOTIFY typeChanged)
@@ -42,8 +42,8 @@ private:
     bool m_assigned;
 
 public:
-    Desktop(const QString &filename, QObject *parent = 0);
-    ~Desktop();
+    LauncherItem(const QString &filename, QObject *parent = 0);
+    ~LauncherItem();
 
     QString id() const;
     bool isValid() const;
@@ -91,4 +91,4 @@ signals:
     void nodisplayChanged();
 };
 
-#endif // DESKTOP_H
+#endif // LAUNCHERITEM_H

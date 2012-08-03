@@ -32,8 +32,8 @@ HEADERS += homeapplication.h \
     homewindowmonitor.h \
     windowmonitor.h \
     xeventlistener.h \
-    components/desktop.h \
-    components/menumodel.h \
+    components/launcheritem.h \
+    components/launchermodel.h \
     components/switchermodel.h \
     components/switcherpixmapitem.h \
     components/statusbar.h
@@ -44,8 +44,8 @@ SOURCES += main.cpp \
     mainwindow.cpp \
     homewindowmonitor.cpp \
     xeventlistener.cpp \
-    components/desktop.cpp \
-    components/menumodel.cpp \
+    components/launcheritem.cpp \
+    components/launchermodel.cpp \
     components/switchermodel.cpp \
     components/switcherpixmapitem.cpp \
     components/statusbar.cpp

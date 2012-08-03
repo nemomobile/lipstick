@@ -9,9 +9,9 @@
 #include <QDir>
 #include <QFileSystemWatcher>
 #include <QDebug>
-#include "menumodel.h"
+#include "launchermodel.h"
 
-MenuModel::MenuModel(QObject *parent) :
+LauncherModel::LauncherModel(QObject *parent) :
     QAbstractItemModel(parent),
     m_type("Application")
 {
@@ -36,17 +36,17 @@ MenuModel::MenuModel(QObject *parent) :
     appsDirChanged("/usr/share/applications");
 }
 
-void MenuModel::appsDirChanged(QString changedDir)
+void LauncherModel::appsDirChanged(QString changedDir)
 {
-    QList<Desktop *> added;
-    QList<Desktop *> removed;
+    QList<LauncherItem *> added;
+    QList<LauncherItem *> removed;
     QDir dir (changedDir);
     dir.setFilter(QDir::Files | QDir::NoSymLinks);
 
     foreach (QFileInfo info, dir.entryInfoList())
     {
         bool found = false;
-        foreach (Desktop *d, m_apps)
+        foreach (LauncherItem *d, m_apps)
         {
             if (info.absoluteFilePath().endsWith(d->filename().right(d->filename().lastIndexOf('/'))))
             {
@@ -57,7 +57,7 @@ void MenuModel::appsDirChanged(QString changedDir)
         if (!found)
         {
             qDebug() << "Created desktop file " << info.absoluteFilePath();
-            Desktop *desktopEntry = new Desktop(info.absoluteFilePath());
+            LauncherItem *desktopEntry = new LauncherItem(info.absoluteFilePath());
             if (!desktopEntry->isValid() || (desktopEntry->type() != m_type))
             {
                 delete desktopEntry;
@@ -69,7 +69,7 @@ void MenuModel::appsDirChanged(QString changedDir)
         }
     }
 
-    foreach (Desktop *d, m_apps)
+    foreach (LauncherItem *d, m_apps)
     {
         if (!d->filename().contains(changedDir))
             continue;
@@ -91,10 +91,10 @@ void MenuModel::appsDirChanged(QString changedDir)
 
     if (removed.length() > 0)
     {
-        QList<Desktop *> tmp;
+        QList<LauncherItem *> tmp;
         while (!m_apps.isEmpty())
         {
-            Desktop *d = m_apps.takeLast();
+            LauncherItem *d = m_apps.takeLast();
             if (removed.contains(d))
             {
                 delete d;
@@ -110,7 +110,7 @@ void MenuModel::appsDirChanged(QString changedDir)
 
     if (added.length() > 0)
     {
-        foreach (Desktop *d, added)
+        foreach (LauncherItem *d, added)
         {
             m_apps << d;
         }
@@ -120,7 +120,7 @@ void MenuModel::appsDirChanged(QString changedDir)
     emit appsChanged();
 }
 
-void MenuModel::setDirectories(QStringList directories)
+void LauncherModel::setDirectories(QStringList directories)
 {
     m_watcher->removePaths(m_watcher->directories());
 
@@ -146,7 +146,7 @@ void MenuModel::setDirectories(QStringList directories)
     resetApps();
 }
 
-void MenuModel::resetApps()
+void LauncherModel::resetApps()
 {
     beginResetModel();
 
@@ -173,7 +173,7 @@ void MenuModel::resetApps()
 
             addedDirectories<<fileInfo.fileName();
 
-            Desktop *desktopEntry = new Desktop(fileInfo.absoluteFilePath());
+            LauncherItem *desktopEntry = new LauncherItem(fileInfo.absoluteFilePath());
             if (!desktopEntry->isValid() ||
                 desktopEntry->type() != m_type ||
                 desktopEntry->nodisplay())
@@ -190,7 +190,7 @@ void MenuModel::resetApps()
     emit appsReset();
 }
 
-QModelIndex MenuModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex LauncherModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (!hasIndex(row, column, parent))
         return QModelIndex();
@@ -198,30 +198,30 @@ QModelIndex MenuModel::index(int row, int column, const QModelIndex &parent) con
     return createIndex(row, column);
 }
 
-QModelIndex MenuModel::parent(const QModelIndex &child) const
+QModelIndex LauncherModel::parent(const QModelIndex &child) const
 {
     Q_UNUSED(child);
     return QModelIndex();
 }
 
-int MenuModel::rowCount(const QModelIndex &parent) const
+int LauncherModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
     return m_apps.count();
 }
 
-int MenuModel::columnCount(const QModelIndex &parent) const
+int LauncherModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
     return 1;
 }
 
-QVariant MenuModel::data(const QModelIndex& index, int role) const
+QVariant LauncherModel::data(const QModelIndex& index, int role) const
 {
     if (!index.isValid())
         return QVariant();
 
-    Desktop *i = m_apps.at(index.row());
+    LauncherItem *i = m_apps.at(index.row());
 
     switch (role) {
         case name:
@@ -245,24 +245,24 @@ QVariant MenuModel::data(const QModelIndex& index, int role) const
     return QVariant();
 }
 
-bool MenuModel::hasChildren ( const QModelIndex & parent ) const
+bool LauncherModel::hasChildren ( const QModelIndex & parent ) const
 {
     Q_UNUSED(parent);
     return false;
 }
 
-QDeclarativeListProperty<Desktop> MenuModel::apps()
+QDeclarativeListProperty<LauncherItem> LauncherModel::apps()
 {
-    return QDeclarativeListProperty<Desktop>(this, m_apps);
+    return QDeclarativeListProperty<LauncherItem>(this, m_apps);
 }
 
-QStringList MenuModel::directories() const {
+QStringList LauncherModel::directories() const {
     return m_watcher->directories();
 }
 
-QString MenuModel::value(QString id, QString key)
+QString LauncherModel::value(QString id, QString key)
 {
-	foreach(Desktop* item, m_apps)
+    foreach(LauncherItem* item, m_apps)
 	{
 		if(item->id() == id)
 			return item->value(key);
@@ -270,32 +270,32 @@ QString MenuModel::value(QString id, QString key)
 	return "";
 }
 
-QVariant MenuModel::getNameByIndex(int idx)
+QVariant LauncherModel::getNameByIndex(int idx)
 {
     return data(index(idx, 0, QModelIndex()), name);
 }
 
-QVariant MenuModel::getExecByIndex(int idx)
+QVariant LauncherModel::getExecByIndex(int idx)
 {
     return data(index(idx, 0, QModelIndex()), exec);
 }
 
-QVariant MenuModel::getCommentByIndex(int idx)
+QVariant LauncherModel::getCommentByIndex(int idx)
 {
     return data(index(idx, 0, QModelIndex()), comment);
 }
 
-QVariant MenuModel::getIconByIndex(int idx)
+QVariant LauncherModel::getIconByIndex(int idx)
 {
     return data(index(idx, 0, QModelIndex()), icon);
 }
 
-QVariant MenuModel::getFileNameByIndex(int idx)
+QVariant LauncherModel::getFileNameByIndex(int idx)
 {
     return data(index(idx, 0, QModelIndex()), filename);
 }
 
-MenuModel::~MenuModel()
+LauncherModel::~LauncherModel()
 {
     qDeleteAll(m_apps);
 }
