@@ -13,7 +13,6 @@
 #include <QRegExp>
 #include <QX11Info>
 
-#include <mdesktopentry.h>
 #include "switchermodel.h"
 #include "desktop.h"
 #include "mainwindow.h"

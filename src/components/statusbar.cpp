@@ -135,10 +135,6 @@ bool StatusBar::isPortrait() const
 
 void StatusBar::updateXThings()
 {
-    // If the pixmap is null, don't bother
-    if (_sharedPixmap.isNull())
-        return;
-
     // Statusbar rect
     QPointF p = mapToScene(0, 0);
     unsigned long data[4] = { (int)p.x(), (int)p.y(), width(), height() };
