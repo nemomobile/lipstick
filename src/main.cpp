@@ -33,18 +33,16 @@
 #include <X11/extensions/Xcomposite.h>
 #include <X11/extensions/Xdamage.h>
 
-int main(int argc, char *argv[])
+Q_DECL_EXPORT int main(int argc, char *argv[])
 {
     qmlRegisterType<MenuModel>("org.nemomobile.lipstick", 0, 1, "MenuModel");
     qmlRegisterType<SwitcherModel>("org.nemomobile.lipstick", 0, 1, "SwitcherModel");
     qmlRegisterType<SwitcherPixmapItem>("org.nemomobile.lipstick", 0, 1, "WindowPixmap");
     qmlRegisterType<StatusBar>("org.nemomobile.lipstick", 0, 1, "StatusBar");
 
+    // We don't need the meego graphics system here
+    QApplication::setGraphicsSystem("native");
     HomeApplication app(argc, argv);
-
-    MainWindow *mainWindow = MainWindow::instance(true);
-    mainWindow->show();
-    QObject::connect(&app, SIGNAL(aboutToQuit()), mainWindow, SLOT(deleteLater()));
 
     // Tell X that changes in the properties and the substructure of the root
     // window are interesting. These are used to get the list of windows and

@@ -56,10 +56,22 @@ MainWindow::MainWindow(QWidget *parent) :
 
     excludeFromTaskBar();
 
+    setOptimizationFlag(QGraphicsView::DontSavePainterState);
     setResizeMode(SizeRootObjectToView);
-    setAttribute(Qt::WA_OpaquePaintEvent);
-    setAttribute(Qt::WA_NoSystemBackground);
-    setViewport(new QGLWidget);
+
+    QGLFormat fmt;
+    fmt.setSamples(0);
+    fmt.setSampleBuffers(false);
+
+    QGLWidget *glw = new QGLWidget(fmt, this);
+    setViewport(glw);
+
+    this->setAutoFillBackground(false);
+    this->setAttribute(Qt::WA_OpaquePaintEvent);
+    this->setAttribute(Qt::WA_NoSystemBackground);
+    this->viewport()->setAutoFillBackground(false);
+    this->viewport()->setAttribute(Qt::WA_OpaquePaintEvent);
+    this->viewport()->setAttribute(Qt::WA_NoSystemBackground);
 
     QObject::connect(this->engine(), SIGNAL(quit()), QApplication::instance(), SLOT(quit()));
     rootContext()->setContextProperty("initialSize", QApplication::desktop()->screenGeometry(this).size());

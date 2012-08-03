@@ -191,6 +191,7 @@ static QVector<Atom> getNetWmState(Display *display, Window window)
 void SwitcherModel::updateWindowList()
 {
     qDebug() << Q_FUNC_INFO << "Updating window list";
+    beginResetModel();
     Display *dpy = QX11Info::display();
     XWindowAttributes wAttributes;
     Atom actualType;
@@ -362,7 +363,6 @@ void SwitcherModel::updateWindowList()
     windowsStillBeingClosed.clear();
 
     // TODO: don't reset whole model
-    beginResetModel();
     m_windows = windowList;
     endResetModel();
 

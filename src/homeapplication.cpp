@@ -27,6 +27,7 @@
 #include <QIcon>
 #include <QX11Info>
 #include <QDebug>
+#include <QEvent>
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -94,12 +95,20 @@ void HomeApplication::sendStartupNotifications()
     // For device boot performance reasons initializing Home scene window must be done
     // only after ready signal is sent (NB#277602)
     MainWindow::instance(true)->show();
+
+    XDamageCreate(QX11Info::display(), MainWindow::instance()->effectiveWinId(), XDamageReportNonEmpty);
 }
 
 bool HomeApplication::x11EventFilter(XEvent *event)
 {
     bool eventHandled = false;
     iteratorActiveForEventListenerContainer = true;
+
+    if (event->xany.window == MainWindow::instance()->effectiveWinId())
+    {
+        qDebug() << Q_FUNC_INFO << "received event for main window!";
+        MainWindow::instance()->viewport()->repaint();
+    }
 
     if (event->type == xDamageEventBase + XDamageNotify) {
         qDebug() << Q_FUNC_INFO << "Processing damage event";
