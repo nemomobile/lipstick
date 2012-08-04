@@ -37,16 +37,22 @@ public:
     // X11 atoms
     static Atom TypeAtom;
     static Atom StateAtom;
-    static Atom NormalAtom;
-    static Atom DesktopAtom;
-    static Atom NotificationAtom;
-    static Atom DialogAtom;
-    static Atom CallAtom;
-    static Atom DockAtom;
-    static Atom MenuAtom;
     static Atom SkipTaskbarAtom;
-    static Atom InputWindowAtom;
     static Atom NameAtom;
+    static Atom ClientListAtom;
+    static Atom CloseWindowAtom;
+    static Atom ActiveWindowAtom;
+    static Atom Utf8StringAtom;
+    static Atom WindowPidAtom;
+
+    static Atom WindowTypeNormalAtom;
+    static Atom WindowTypeDesktopAtom;
+    static Atom WindowTypeNotificationAtom;
+    static Atom WindowTypeDialogAtom;
+    static Atom WindowTypeCallAtom;
+    static Atom WindowTypeDockAtom;
+    static Atom WindowTypeMenuAtom;
+    static Atom WindowTypeInputAtom;
 
     static WindowInfo *windowFor(Window wid);
 
@@ -135,8 +141,5 @@ private:
 
 //! Comparison operator for WindowInfo objects
 bool operator==(const WindowInfo &, const WindowInfo &);
-
-//! Calculates a hash of a WindowInfo
-uint qHash(WindowInfo wi);
 
 #endif /* WINDOWINFO_H_ */

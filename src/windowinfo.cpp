@@ -75,33 +75,48 @@ static bool atomsInitialized;
 
 Atom WindowInfo::TypeAtom;
 Atom WindowInfo::StateAtom;
-Atom WindowInfo::NormalAtom;
-Atom WindowInfo::DesktopAtom;
-Atom WindowInfo::NotificationAtom;
-Atom WindowInfo::DialogAtom;
-Atom WindowInfo::CallAtom;
-Atom WindowInfo::DockAtom;
-Atom WindowInfo::MenuAtom;
 Atom WindowInfo::SkipTaskbarAtom;
 Atom WindowInfo::NameAtom;
-Atom WindowInfo::InputWindowAtom;
+Atom WindowInfo::ClientListAtom;
+Atom WindowInfo::CloseWindowAtom;
+Atom WindowInfo::ActiveWindowAtom;
+Atom WindowInfo::Utf8StringAtom;
+Atom WindowInfo::WindowPidAtom;
+
+Atom WindowInfo::WindowTypeNormalAtom;
+Atom WindowInfo::WindowTypeDesktopAtom;
+Atom WindowInfo::WindowTypeNotificationAtom;
+Atom WindowInfo::WindowTypeDialogAtom;
+Atom WindowInfo::WindowTypeCallAtom;
+Atom WindowInfo::WindowTypeDockAtom;
+Atom WindowInfo::WindowTypeMenuAtom;
+Atom WindowInfo::WindowTypeInputAtom;
 
 void WindowInfo::initializeAtoms()
 {
-    if (!atomsInitialized) {
+    if (!atomsInitialized)
+    {
         Display *dpy = QX11Info::display();
+
         TypeAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE", False);
         StateAtom = XInternAtom(dpy, "_NET_WM_STATE", False);
-        NormalAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_NORMAL", False);
-        DesktopAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_DESKTOP", False);
-        NotificationAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_NOTIFICATION", False);
-        DialogAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_DIALOG", False);
-        CallAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_CALL", False);
-        DockAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_DOCK", False);
-        MenuAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_MENU", False);
         SkipTaskbarAtom = XInternAtom(dpy, "_NET_WM_STATE_SKIP_TASKBAR", False);
         NameAtom = XInternAtom(dpy, "_NET_WM_NAME", False);
-        InputWindowAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_INPUT", False);
+        ClientListAtom = XInternAtom(dpy, "_NET_CLIENT_LIST", False);
+        CloseWindowAtom = XInternAtom(dpy, "_NET_CLOSE_WINDOW", False);
+        ActiveWindowAtom = XInternAtom(dpy, "_NET_ACTIVE_WINDOW", False);
+        Utf8StringAtom = XInternAtom(dpy, "UTF8_STRING", False);
+        WindowPidAtom = XInternAtom(dpy, "_NET_WM_PID", False);
+
+        WindowTypeNormalAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_NORMAL", False);
+        WindowTypeDesktopAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_DESKTOP", False);
+        WindowTypeNotificationAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_NOTIFICATION", False);
+        WindowTypeDialogAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_DIALOG", False);
+        WindowTypeCallAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_CALL", False);
+        WindowTypeDockAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_DOCK", False);
+        WindowTypeMenuAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_MENU", False);
+        WindowTypeInputAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_INPUT", False);
+
         atomsInitialized = true;
     }
 }
@@ -231,8 +246,4 @@ void WindowInfo::setPixmapSerial(int pixmapSerial)
     d->pixmapSerial = pixmapSerial;
     qDebug() << Q_FUNC_INFO << "Changed pixmap serial on " << d->window << " to " << d->pixmapSerial;
     emit pixmapSerialChanged();
-}
-
-uint qHash(WindowInfo wi) {
-    return static_cast<uint>(wi.window());
 }
