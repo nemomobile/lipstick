@@ -47,6 +47,7 @@ SOURCES += main.cpp \
     mainwindow.cpp \
     homewindowmonitor.cpp \
     xeventlistener.cpp \
+    utilities/qobjectlistmodel.cpp \
     components/launcheritem.cpp \
     components/launchermodel.cpp \
     components/switchermodel.cpp \

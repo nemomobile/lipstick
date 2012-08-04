@@ -3,7 +3,7 @@
  * Launcher.qml
  *
  * Copyright (c) 2011 - Tom Swindell <t.swindell@rubyx.co.uk>
- * Copyright (c) 2012 - Timur Kristóf <timur.kristof@gmail.com>
+ * Copyright (c) 2012 - Timur Kristóf <venemo@fedoraproject.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -61,7 +61,7 @@ Item {
                 }
                 width: 80
                 height: width
-                source: model.icon
+                source: model.object.iconFilePath
             }
             Text {
                 width: parent.width - 10
@@ -74,11 +74,11 @@ Item {
                 elide: Text.ElideRight
                 font.pixelSize: 18
                 color: 'white'
-                text: model.name
+                text: object.title
             }
             MouseArea {
                 anchors.fill: parent
-                onClicked: model.object.launch();
+                onClicked: object.launchApplication();
             }
         }
     }

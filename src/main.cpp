@@ -37,8 +37,9 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
 {
     qmlRegisterType<LauncherModel>("org.nemomobile.lipstick", 0, 1, "LauncherModel");
     qmlRegisterType<SwitcherModel>("org.nemomobile.lipstick", 0, 1, "SwitcherModel");
-    qmlRegisterType<SwitcherPixmapItem>("org.nemomobile.lipstick", 0, 1, "WindowPixmap");
+    qmlRegisterType<SwitcherPixmapItem>("org.nemomobile.lipstick", 0, 1, "SwitcherPixmapItem");
     qmlRegisterType<StatusBar>("org.nemomobile.lipstick", 0, 1, "StatusBar");
+    qmlRegisterUncreatableType<LauncherItem>("org.nemomobile.lipstick", 0, 1, "LauncherItem", "This type is initialized from LauncherModel");
 
     // We don't need the meego graphics system here
     QApplication::setGraphicsSystem("native");
