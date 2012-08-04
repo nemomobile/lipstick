@@ -1,32 +1,32 @@
-/*
- * Copyright 2011 Intel Corporation.
- *
- * This program is licensed under the terms and conditions of the
- * Apache License, version 2.0.  The full text of the Apache License is at 
- * http://www.apache.org/licenses/LICENSE-2.0
- */
 
+// This file is part of lipstick, a QML desktop library
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License version 2.1 as published by the Free Software Foundation
+// and appearing in the file LICENSE.LGPL included in the packaging
+// of this file.
+//
+// This code is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Lesser General Public License for more details.
+//
+// Copyright (c) 2011, Robin Burchell
+// Copyright (c) 2012, Timur Kristóf <venemo@fedoraproject.org>
+
+#include <QDebug>
 #include <QProcess>
-#include <QtDeclarative>
-#include <QCryptographicHash>
 #include <QFile>
 #include <QDir>
 #include <QSettings>
-
-#include <mdesktopentry.h>
+#include <mlite/mdesktopentry.h>
 
 #ifdef HAS_CONTENTACTION
 #include <contentaction.h>
 #endif
 
 #include "launcheritem.h"
-
-#define WIDTH_KEY "Desktop Entry/X-MEEGO-APP-HOME-WIDTH"
-#define HEIGHT_KEY "Desktop Entry/X-MEEGO-APP-HOME-HEIGHT"
-#define PRIORITY_KEY "Desktop Entry/X-MEEGO-APP-HOME-PRIORITY"
-#define ROW_KEY "Desktop Entry/X-MEEGO-APP-HOME-ROW"
-#define COLUMN_KEY "Desktop Entry/X-MEEGO-APP-HOME-COLUMN"
-#define PAGE_KEY "Desktop Entry/X-MEEGO-APP-HOME-PAGE"
 
 static QString findIconHelper(const QString &pathName, const QString &icon)
 {
@@ -105,129 +105,75 @@ static QString getIconPath(const QString &name)
     return QString();
 }
 
-LauncherItem::LauncherItem(const QString &fileName, QObject *parent)
-    : QObject(parent)
-    , m_filename(fileName)
-    , m_entry(QSharedPointer<MDesktopEntry>(new MDesktopEntry(fileName)))
-    , m_pid(0)
-    , m_wid(0)
-    , m_assigned(false)
+LauncherItem::LauncherItem(const QString &path, QObject *parent)
+    : QObject(parent),
+      _desktopEntry(new MDesktopEntry(path))
 {
-    ///Set the id:
-    QFile file(m_filename);
-    file.open(QIODevice::ReadOnly);
-    if(!file.isOpen()) return;
-    QString hash = QCryptographicHash::hash(file.readAll(),QCryptographicHash::Md5);
-    file.close();
-    m_id = hash;
+    emit this->itemChanged();
 }
 
 LauncherItem::~LauncherItem()
 {
+    delete _desktopEntry;
 }
 
-QString LauncherItem::id() const {
-    return m_id;
-}
-
-bool LauncherItem::isValid() const {
-    QStringList onlyShowIn = m_entry->onlyShowIn();
-    if (!onlyShowIn.isEmpty() && !onlyShowIn.contains("X-MEEGO") &&
-        !onlyShowIn.contains("X-MEEGO-HS"))
-        return false;
-
-    QStringList notShowIn = m_entry->notShowIn();
-    if (!notShowIn.isEmpty() && (notShowIn.contains("X-MEEGO") ||
-                                 notShowIn.contains("X-MEEGO-HS")))
-        return false;
-
-    return m_entry->isValid();
-}
-
-QString LauncherItem::type() const {
-    return m_entry->type();
-}
-
-QString LauncherItem::title() const {
-    return m_entry->name();
-}
-
-QString LauncherItem::comment() const {
-    return m_entry->comment();
-}
-
-QString LauncherItem::icon() const {
-    return getIconPath(m_entry->icon());
-}
-
-QString LauncherItem::exec() const {
-    return m_entry->exec();
-}
-
-QStringList LauncherItem::categories() const {
-    return m_entry->categories();
-}
-
-QString LauncherItem::filename() const {
-    return LauncherItem::m_filename;
-}
-
-int LauncherItem::wid() const
+QString LauncherItem::filePath() const
 {
-    return m_wid;
+    return _desktopEntry->fileName();
 }
 
-void LauncherItem::setWid(int wid) {
-    m_wid = wid;
-}
-
-int LauncherItem::pid()
+QString LauncherItem::title() const
 {
-    return m_pid;
+    return _desktopEntry->name();
 }
 
-void LauncherItem::setPid(int pid)
+QString LauncherItem::entryType() const
 {
-    m_pid = pid;
+    return _desktopEntry->type();
 }
 
-bool LauncherItem::nodisplay() const {
-    return m_entry->noDisplay();
-}
-
-void LauncherItem::launch() const
+QString LauncherItem::iconFilePath() const
 {
-#ifndef HAS_CONTENTACTION
-    // fallback code: contentaction not available
-    QString cmd = exec();
+    return getIconPath(_desktopEntry->icon());
+}
 
-    // http://standards.freedesktop.org/desktop-entry-spec/latest/ar01s06.html
-    cmd.replace(QRegExp("%k"), filename());
-    cmd.replace(QRegExp("%i"), QString("--icon ") + icon());
-    cmd.replace(QRegExp("%c"), title());
-    cmd.replace(QRegExp("%[fFuU]"), filename()); // stuff we don't handle
+QStringList LauncherItem::desktopCategories() const
+{
+    return _desktopEntry->categories();
+}
 
-    qDebug("Launching %s", qPrintable(cmd));
-    QProcess::startDetached(cmd);
-#else
+bool LauncherItem::shouldDisplay() const
+{
+    return !_desktopEntry->noDisplay();
+}
+
+bool LauncherItem::isValid() const
+{
+    return _desktopEntry->isValid();
+}
+
+void LauncherItem::launchApplication() const
+{
+#if defined(HAVE_CONTENTACTION)
     ContentAction::Action action = ContentAction::Action::launcherAction(m_entry, QStringList());
     action.trigger();
+#else
+    // Get the command text from the desktop entry
+    QString commandText = _desktopEntry->exec();
+
+    // Take care of the freedesktop standards things
+
+    commandText.replace(QRegExp("%k"), filePath());
+    commandText.replace(QRegExp("%c"), _desktopEntry->name());
+    commandText.remove(QRegExp("%[fFuU]");
+
+    if (!_desktopEntry->icon().isEmpty())
+        commandText.replace(QRegExp("%i"), QString("--icon ") + _desktopEntry->icon());
+
+    // DETAILS: http://standards.freedesktop.org/desktop-entry-spec/latest/index.html
+    // DETAILS: http://standards.freedesktop.org/desktop-entry-spec/latest/ar01s06.html
+
+    // Launch the application
+    QProcess::startDetached(commandText);
 #endif
-}
-
-QString LauncherItem::value(QString key) const {
-    return m_entry->value(key);
-}
-
-bool LauncherItem::contains(QString val) const {
-    return m_entry->contains(val);
-}
-
-bool LauncherItem::uninstall() {
-    if (m_entry->type() == "Widget")
-    {
-        return QFile::remove(m_entry->fileName());
-    }
-
-    return false;
 }

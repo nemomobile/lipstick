@@ -1,89 +1,51 @@
-/*
- * Copyright 2011 Intel Corporation.
- *
- * This program is licensed under the terms and conditions of the
- * Apache License, version 2.0.  The full text of the Apache License is at
- * http://www.apache.org/licenses/LICENSE-2.0
- */
+
+// This file is part of lipstick, a QML desktop library
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License version 2.1 as published by the Free Software Foundation
+// and appearing in the file LICENSE.LGPL included in the packaging
+// of this file.
+//
+// This code is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Lesser General Public License for more details.
+//
+// Copyright (c) 2012, Timur Kristóf <venemo@fedoraproject.org>
 
 #ifndef LAUNCHERMODEL_H
 #define LAUNCHERMODEL_H
 
 #include <QObject>
-#include <QAbstractItemModel>
-#include <QDeclarativeListProperty>
 #include "launcheritem.h"
+#include "utilities/util.h"
+#include "utilities/qobjectlistmodel.h"
 
 class QFileSystemWatcher;
 
-class LauncherModel : public QAbstractItemModel
+class LauncherModel : public QObjectListModel<LauncherItem>
 {
     Q_OBJECT
-    Q_PROPERTY(QStringList directories READ directories WRITE setDirectories)
-    Q_PROPERTY(QDeclarativeListProperty<LauncherItem> apps READ apps NOTIFY appsChanged)
-    Q_PROPERTY(QString customField READ customValue WRITE setCustomValue)
-	Q_PROPERTY(QString type READ type WRITE setType)
+    Q_DISABLE_COPY(LauncherModel)
+
+    Q_PROPERTY(QStringList directories READ directories WRITE setDirectories NOTIFY directoriesChanged)
+
+    QFileSystemWatcher *_fileSystemWatcher;
+
+private slots:
+    void monitoredDirectoryChanged(QString);
 
 public:
     explicit LauncherModel(QObject *parent = 0);
-    ~LauncherModel();
-
-    enum Role
-    {
-        id = Qt::UserRole + 1,
-        name,
-        exec,
-        comment,
-        icon,
-        filename,
-        nodisplay,
-        object
-    };
-
-    QDeclarativeListProperty<LauncherItem> apps();
+    virtual ~LauncherModel();
 
     QStringList directories() const;
-    void setDirectories(QStringList directory);
-
-    void setCustomValue(QString value) { m_customValue = value; }
-    QString customValue() { return m_customValue; }
-
-    void setType(QString value) { m_type = value; }
-    QString type() { return m_type; }
-
-    ///overrides from QAbstractModel:
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
-    QModelIndex parent(const QModelIndex &child) const;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex& index, int role) const;
-    bool hasChildren ( const QModelIndex & parent = QModelIndex() ) const;
+    void setDirectories(QStringList);
 
 signals:
-    void appsReset();
-    void appsChanged();
-    void recentsChanged();
-    void startingApp(QString title, QString icon);
+    void directoriesChanged();
 
-public slots:
-    QString value(QString id, QString key);
-    QVariant getNameByIndex(int idx);
-    QVariant getExecByIndex(int idx);
-    QVariant getCommentByIndex(int idx);
-    QVariant getIconByIndex(int idx);
-    QVariant getFileNameByIndex(int idx);
-
-private slots:
-    void appsDirChanged(QString);
-    void resetApps();
-
-private:
-    QList<LauncherItem *> m_apps;
-    QString m_customValue;
-    QString m_type;
-    QFileSystemWatcher *m_watcher;
-
-    Q_DISABLE_COPY(LauncherModel)
 };
 
 #endif // LAUNCHERMODEL_H

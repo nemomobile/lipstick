@@ -1,16 +1,24 @@
-/*
- * Copyright 2011 Intel Corporation.
- *
- * This program is licensed under the terms and conditions of the
- * Apache License, version 2.0.  The full text of the Apache License is at 
- * http://www.apache.org/licenses/LICENSE-2.0
- */
+
+// This file is part of lipstick, a QML desktop library
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License version 2.1 as published by the Free Software Foundation
+// and appearing in the file LICENSE.LGPL included in the packaging
+// of this file.
+//
+// This code is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Lesser General Public License for more details.
+//
+// Copyright (c) 2011, Robin Burchell
+// Copyright (c) 2012, Timur Kristóf <venemo@fedoraproject.org>
 
 #ifndef LAUNCHERITEM_H
 #define LAUNCHERITEM_H
 
 #include <QObject>
-#include <QSharedPointer>
 #include <QStringList>
 
 class MDesktopEntry;
@@ -20,75 +28,32 @@ class LauncherItem : public QObject
     Q_OBJECT
     Q_DISABLE_COPY(LauncherItem)
 
-    Q_PROPERTY(QString id READ id)
-    Q_PROPERTY(QString type READ type NOTIFY typeChanged)
-    Q_PROPERTY(QString title READ title NOTIFY titleChanged)
-    Q_PROPERTY(QString comment READ comment NOTIFY commentChanged)
-    Q_PROPERTY(QString icon READ icon NOTIFY iconChanged)
-    Q_PROPERTY(QString exec READ exec NOTIFY execChanged)
-    Q_PROPERTY(QStringList categories READ categories NOTIFY categoriesChanged)
-    Q_PROPERTY(bool nodisplay READ nodisplay NOTIFY nodisplayChanged)
-    Q_PROPERTY(QString filename READ filename NOTIFY filenameChanged)
-    Q_PROPERTY(int pid READ pid WRITE setPid)
-    Q_PROPERTY(int wid READ wid WRITE setWid)
+    Q_PROPERTY(QString filePath READ filePath NOTIFY itemChanged)
+    Q_PROPERTY(QString title READ title NOTIFY itemChanged)
+    Q_PROPERTY(QString entryType READ entryType NOTIFY itemChanged)
+    Q_PROPERTY(QString iconFilePath READ iconFilePath NOTIFY itemChanged)
+    Q_PROPERTY(QStringList desktopCategories READ desktopCategories NOTIFY itemChanged)
+    Q_PROPERTY(bool shouldDisplay READ shouldDisplay NOTIFY itemChanged)
+    Q_PROPERTY(bool isValid READ isValid NOTIFY itemChanged)
 
-private:
-    QString m_filename;
-    QSharedPointer<MDesktopEntry> m_entry;
-    QString m_id;
-    int m_pid;
-    int m_wid;
-
-    bool m_assigned;
+    MDesktopEntry *_desktopEntry;
 
 public:
-    LauncherItem(const QString &filename, QObject *parent = 0);
-    ~LauncherItem();
+    explicit LauncherItem(const QString &path, QObject *parent = 0);
+    virtual ~LauncherItem();
 
-    QString id() const;
-    bool isValid() const;
-    QString type() const;
+    QString filePath() const;
     QString title() const;
-    QString comment() const;
-    QString icon() const;
-    QString exec() const;
-    QStringList categories() const;
-    QString filename() const;
-    int wid() const;
-    void setWid(int wid);
-    int pid();
-    void setPid(int pid);
-    bool nodisplay() const;
+    QString entryType() const;
+    QString iconFilePath() const;
+    QStringList desktopCategories() const;
+    bool shouldDisplay() const;
+    bool isValid() const;
 
-    Q_INVOKABLE void launch() const;
-
-    enum Role {
-        Type = Qt::UserRole + 1,
-        Title = Qt::UserRole + 2,
-        Comment = Qt::UserRole + 3,
-        Icon = Qt::UserRole + 4,
-        Exec = Qt::UserRole + 5,
-        Categories = Qt::UserRole + 6,
-        Filename = Qt::UserRole + 7,
-        NoDisplay = Qt::UserRole + 8,
-        Pid = Qt::UserRole + 9,
-        Wid = Qt::UserRole + 10
-    };
-
-public slots:
-    QString value(QString key) const;
-    bool contains(QString val) const;
-    bool uninstall();
+    Q_INVOKABLE void launchApplication() const;
 
 signals:
-    void typeChanged();
-    void titleChanged();
-    void commentChanged();
-    void iconChanged();
-    void execChanged();
-    void categoriesChanged();
-    void filenameChanged();
-    void nodisplayChanged();
+    void itemChanged();
 };
 
 #endif // LAUNCHERITEM_H
