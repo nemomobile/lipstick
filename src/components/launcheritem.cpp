@@ -165,7 +165,7 @@ void LauncherItem::launchApplication() const
 
     commandText.replace(QRegExp("%k"), filePath());
     commandText.replace(QRegExp("%c"), _desktopEntry->name());
-    commandText.remove(QRegExp("%[fFuU]");
+    commandText.remove(QRegExp("%[fFuU]"));
 
     if (!_desktopEntry->icon().isEmpty())
         commandText.replace(QRegExp("%i"), QString("--icon ") + _desktopEntry->icon());

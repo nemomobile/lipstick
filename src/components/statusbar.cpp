@@ -152,8 +152,8 @@ void StatusBar::updateXThings()
 {
     // Statusbar rect
     QPointF p = mapToScene(0, 0);
-    unsigned long data[4] = { (int)p.x(), (int)p.y(), width(), height() };
-    qDebug() << "statusbar geo:" << (int)p.x() << (int)p.y() << width() << height();
+    unsigned long data[4] = { (int)p.x(), (int)p.y(), (int)width(), (int)height() };
+    qDebug() << "statusbar geo:" << (int)p.x() << (int)p.y() << (int)width() << (int)height();
 
     // Orientation angle
     int angle = isPortrait() ? 270 : 0;
