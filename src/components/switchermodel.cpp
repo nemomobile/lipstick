@@ -316,14 +316,16 @@ void SwitcherModel::updateWindowList()
 
 void SwitcherModel::windowToFront(qulonglong window)
 {
-    XEvent ev;
+    XClientMessageEvent ev;
     memset(&ev, 0, sizeof(ev));
-    ev.xclient.type         = ClientMessage;
-    ev.xclient.window       = window;
-    ev.xclient.message_type = WindowInfo::ActiveWindowAtom;
-    ev.xclient.format       = 32;
-    ev.xclient.data.l[0]    = 1;
-    ev.xclient.data.l[1]    = CurrentTime;
+
+    ev.type         = ClientMessage;
+    ev.window       = window;
+    ev.message_type = WindowInfo::ActiveWindowAtom;
+    ev.format       = 32;
+    ev.data.l[0]    = 1;
+    ev.data.l[1]    = CurrentTime;
+
     XSendEvent(QX11Info::display(), QX11Info::appRootWindow(QX11Info::appScreen()), False, StructureNotifyMask, &ev);
     qDebug() << Q_FUNC_INFO << "Foregrounded " << window;
 }
@@ -332,14 +334,16 @@ void SwitcherModel::closeWindow(qulonglong window)
 {
     Window rootWin = QX11Info::appRootWindow(QX11Info::appScreen());
 
-    XEvent ev;
+    XClientMessageEvent ev;
     memset(&ev, 0, sizeof(ev));
-    ev.xclient.type         = ClientMessage;
-    ev.xclient.window       = window;
-    ev.xclient.message_type = WindowInfo::CloseWindowAtom;
-    ev.xclient.format       = 32;
-    ev.xclient.data.l[0]    = CurrentTime;
-    ev.xclient.data.l[1]    = rootWin;
+
+    ev.type         = ClientMessage;
+    ev.window       = window;
+    ev.message_type = WindowInfo::CloseWindowAtom;
+    ev.format       = 32;
+    ev.data.l[0]    = CurrentTime;
+    ev.data.l[1]    = rootWin;
+
     XSendEvent(QX11Info::display(), rootWin, False, SubstructureRedirectMask, &ev);
     qDebug() << Q_FUNC_INFO << "Closed " << window;
 
@@ -348,10 +352,14 @@ void SwitcherModel::closeWindow(qulonglong window)
 
     // Close also the window this one is transient for, if any
     WindowInfo *windowInfo = WindowInfo::windowFor(window);
-    if (windowInfo->transientFor() != 0 && windowInfo->transientFor() != window) {
+
+    if (windowInfo->transientFor() != 0 && windowInfo->transientFor() != window)
+    {
         qDebug() << Q_FUNC_INFO << "Closing transient " << windowInfo->transientFor();
         closeWindow(windowInfo->transientFor());
-    } else {
+    }
+    else
+    {
         qDebug() << Q_FUNC_INFO << "Updating WindowInfo list, deleting " << windowsBeingClosed;
         updateWindowList();
     }
