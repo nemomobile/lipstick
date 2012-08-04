@@ -38,6 +38,7 @@
 #include "homeapplication.h"
 #include "windowinfo.h"
 #include "xeventlistener.h"
+#include "xtools/xatomcache.h"
 
 /*!
  * D-Bus names for the notification that's sent when home is ready
@@ -60,7 +61,7 @@ HomeApplication::HomeApplication(int &argc, char **argv)
     QTimer::singleShot(0, this, SLOT(sendStartupNotifications()));
 
     // Initialize the X11 atoms used in the UI components
-    WindowInfo::initializeAtoms();
+    AtomCache::initializeAtoms();
 }
 
 HomeApplication::~HomeApplication()

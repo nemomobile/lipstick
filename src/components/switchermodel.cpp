@@ -19,6 +19,7 @@
 
 #include "switchermodel.h"
 #include "mainwindow.h"
+#include "xtools/xatomcache.h"
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -35,44 +36,17 @@ SwitcherModel::~SwitcherModel()
 {
 }
 
-/*
-static const char *appAtomNames[ATOM_COUNT] = {
-    "_MEEGO_ORIENTATION",
-    "_MEEGO_INHIBIT_SCREENSAVER",
-    "_MEEGO_TABLET_NOTIFY",
-    "_MEEGO_STACKING_LAYER",
-    "_MEEGOTOUCH_SKIP_ANIMATIONS",
-    "_NET_ACTIVE_WINDOW",
-    "_NET_CLIENT_LIST",
-    "_NET_CLOSE_WINDOW",
-    "_NET_WM_WINDOW_TYPE",
-    "_NET_WM_WINDOW_TYPE_NORMAL",
-    "_NET_WM_WINDOW_TYPE_DESKTOP",
-    "_NET_WM_WINDOW_TYPE_NOTIFICATION",
-    "_NET_WM_WINDOW_TYPE_DOCK",
-    "_NET_WM_STATE_SKIP_TASKBAR",
-    "_NET_WM_STATE",
-    "_NET_WM_PID",
-    "_NET_WM_ICON_GEOMETRY",
-    "_NET_WM_ICON_NAME",
-    "Backlight",
-    "BACKLIGHT",
-    "UTF8_STRING",
-    "WM_CHANGE_STATE",
-    "_MEEGO_SYSTEM_DIALOG"
-*/
-
 bool SwitcherModel::handleXEvent(const XEvent &event)
 {
     if (event.type == PropertyNotify &&
             event.xproperty.window == DefaultRootWindow(QX11Info::display()) &&
-            event.xproperty.atom == WindowInfo::ClientListAtom)
+            event.xproperty.atom == AtomCache::ClientListAtom)
     {
         updateWindowList();
         return true;
     }
     else if (event.type == ClientMessage &&
-             event.xclient.message_type == WindowInfo::CloseWindowAtom)
+             event.xclient.message_type == AtomCache::CloseWindowAtom)
     {
         qDebug() << Q_FUNC_INFO << "Got close WindowInfo event for " << event.xclient.window;
         if (!windowsBeingClosed.contains(event.xclient.window))
@@ -83,14 +57,14 @@ bool SwitcherModel::handleXEvent(const XEvent &event)
         return true;
     }
     else if (event.type == PropertyNotify &&
-             (event.xproperty.atom == WindowInfo::TypeAtom ||
-              event.xproperty.atom == WindowInfo::StateAtom))
+             (event.xproperty.atom == AtomCache::TypeAtom ||
+              event.xproperty.atom == AtomCache::StateAtom))
     {
         updateWindowList();
         return true;
     }
     else if (event.type == PropertyNotify &&
-             event.xproperty.atom == WindowInfo::ActiveWindowAtom)
+             event.xproperty.atom == AtomCache::ActiveWindowAtom)
     {
         updateWindowList();
         return true;
@@ -110,7 +84,7 @@ static QVector<Atom> getNetWmState(Display *display, Window window)
     uchar *propertyData = 0;
 
     // Step 1: Get the size of the list
-    bool result = XGetWindowProperty(display, window, WindowInfo::StateAtom, 0, 0,
+    bool result = XGetWindowProperty(display, window, AtomCache::StateAtom, 0, 0,
                                      false, XA_ATOM, &actualType,
                                      &actualFormat, &propertyLength,
                                      &bytesLeft, &propertyData);
@@ -120,7 +94,7 @@ static QVector<Atom> getNetWmState(Display *display, Window window)
         XFree(propertyData);
 
         // Step 2: Get the actual list
-        if (XGetWindowProperty(display, window, WindowInfo::StateAtom, 0,
+        if (XGetWindowProperty(display, window, AtomCache::StateAtom, 0,
                                atomList.size(), false, XA_ATOM,
                                &actualType, &actualFormat,
                                &propertyLength, &bytesLeft,
@@ -161,7 +135,7 @@ void SwitcherModel::updateWindowList()
 
     int result = XGetWindowProperty(dpy,
                                     DefaultRootWindow(dpy),
-                                    WindowInfo::ClientListAtom,
+                                    AtomCache::ClientListAtom,
                                     0, 0x7fffffff,
                                     false, XA_WINDOW,
                                     &actualType,
@@ -191,7 +165,7 @@ void SwitcherModel::updateWindowList()
             unsigned char *propPid = 0;
             result = XGetWindowProperty(dpy,
                                         wins[i],
-                                        WindowInfo::WindowPidAtom,
+                                        AtomCache::WindowPidAtom,
                                         0L, (long)BUFSIZ, false,
                                         XA_CARDINAL,
                                         &actualType,
@@ -211,7 +185,7 @@ void SwitcherModel::updateWindowList()
 
             result = XGetWindowProperty(dpy,
                                         wins[i],
-                                        WindowInfo::TypeAtom,
+                                        AtomCache::TypeAtom,
                                         0L, 16L, false,
                                         XA_ATOM,
                                         &actualType,
@@ -230,15 +204,15 @@ void SwitcherModel::updateWindowList()
                     includeInWindowList = true;
                 for (unsigned int n = 0; n < numTypeItems; n++)
                 {
-                    if (type[n] == WindowInfo::WindowTypeDesktopAtom ||
-                            type[n] == WindowInfo::WindowTypeNotificationAtom ||
-                            type[n] == WindowInfo::WindowTypeDockAtom ||
-                            type[n] == WindowInfo::WindowTypeMenuAtom)
+                    if (type[n] == AtomCache::WindowTypeDesktopAtom ||
+                            type[n] == AtomCache::WindowTypeNotificationAtom ||
+                            type[n] == AtomCache::WindowTypeDockAtom ||
+                            type[n] == AtomCache::WindowTypeMenuAtom)
                     {
                         includeInWindowList = false;
                         break;
                     }
-                    if (type[n] == WindowInfo::WindowTypeNormalAtom)
+                    if (type[n] == AtomCache::WindowTypeNormalAtom)
                     {
                         includeInWindowList = true;
                     }
@@ -246,7 +220,7 @@ void SwitcherModel::updateWindowList()
 
                 if (includeInWindowList)
                 {
-                    if (getNetWmState(dpy, wins[i]).contains(WindowInfo::SkipTaskbarAtom))
+                    if (getNetWmState(dpy, wins[i]).contains(AtomCache::SkipTaskbarAtom))
                     {
                         includeInWindowList = false;
                     }
@@ -319,7 +293,7 @@ void SwitcherModel::windowToFront(qulonglong window)
 
     ev.xclient.type         = ClientMessage;
     ev.xclient.window       = window;
-    ev.xclient.message_type = WindowInfo::ActiveWindowAtom;
+    ev.xclient.message_type = AtomCache::ActiveWindowAtom;
     ev.xclient.format       = 32;
     ev.xclient.data.l[0]    = 1;
     ev.xclient.data.l[1]    = CurrentTime;
@@ -337,7 +311,7 @@ void SwitcherModel::closeWindow(qulonglong window)
 
     ev.xclient.type         = ClientMessage;
     ev.xclient.window       = window;
-    ev.xclient.message_type = WindowInfo::CloseWindowAtom;
+    ev.xclient.message_type = AtomCache::CloseWindowAtom;
     ev.xclient.format       = 32;
     ev.xclient.data.l[0]    = CurrentTime;
     ev.xclient.data.l[1]    = rootWin;

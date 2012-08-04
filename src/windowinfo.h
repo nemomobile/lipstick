@@ -20,12 +20,13 @@
 #ifndef WINDOWINFO_H_
 #define WINDOWINFO_H_
 
-#include <QString>
 #include <QObject>
+#include <QString>
 #include <QHash>
+#include <QExplicitlySharedDataPointer>
+
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
-#include <QExplicitlySharedDataPointer>
 
 /*!
  * WindowInfo is a helper class for storing information about an open window.
@@ -40,37 +41,12 @@ class WindowInfo : public QObject
 
 
 public:
-    // X11 atoms
-    static Atom TypeAtom;
-    static Atom StateAtom;
-    static Atom SkipTaskbarAtom;
-    static Atom NameAtom;
-    static Atom ClientListAtom;
-    static Atom CloseWindowAtom;
-    static Atom ActiveWindowAtom;
-    static Atom Utf8StringAtom;
-    static Atom WindowPidAtom;
-
-    static Atom WindowTypeNormalAtom;
-    static Atom WindowTypeDesktopAtom;
-    static Atom WindowTypeNotificationAtom;
-    static Atom WindowTypeDialogAtom;
-    static Atom WindowTypeCallAtom;
-    static Atom WindowTypeDockAtom;
-    static Atom WindowTypeMenuAtom;
-    static Atom WindowTypeInputAtom;
-
     static WindowInfo *windowFor(Window wid);
 
     /*!
      * Destroys a WindowInfo object.
      */
     ~WindowInfo();
-
-    /*!
-     * Initializes the X11 atoms
-     */
-    static void initializeAtoms();
 
     /*!
      * Gets the title of the window.

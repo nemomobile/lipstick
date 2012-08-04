@@ -19,9 +19,10 @@
 
 #include <QHash>
 #include <QDebug>
+#include <QX11Info>
 
 #include "windowinfo.h"
-#include <QX11Info>
+#include "xtools/xatomcache.h"
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -69,57 +70,6 @@ public:
 
     int pixmapSerial;
 };
-
-
-static bool atomsInitialized;
-
-Atom WindowInfo::TypeAtom;
-Atom WindowInfo::StateAtom;
-Atom WindowInfo::SkipTaskbarAtom;
-Atom WindowInfo::NameAtom;
-Atom WindowInfo::ClientListAtom;
-Atom WindowInfo::CloseWindowAtom;
-Atom WindowInfo::ActiveWindowAtom;
-Atom WindowInfo::Utf8StringAtom;
-Atom WindowInfo::WindowPidAtom;
-
-Atom WindowInfo::WindowTypeNormalAtom;
-Atom WindowInfo::WindowTypeDesktopAtom;
-Atom WindowInfo::WindowTypeNotificationAtom;
-Atom WindowInfo::WindowTypeDialogAtom;
-Atom WindowInfo::WindowTypeCallAtom;
-Atom WindowInfo::WindowTypeDockAtom;
-Atom WindowInfo::WindowTypeMenuAtom;
-Atom WindowInfo::WindowTypeInputAtom;
-
-void WindowInfo::initializeAtoms()
-{
-    if (!atomsInitialized)
-    {
-        Display *dpy = QX11Info::display();
-
-        TypeAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE", False);
-        StateAtom = XInternAtom(dpy, "_NET_WM_STATE", False);
-        SkipTaskbarAtom = XInternAtom(dpy, "_NET_WM_STATE_SKIP_TASKBAR", False);
-        NameAtom = XInternAtom(dpy, "_NET_WM_NAME", False);
-        ClientListAtom = XInternAtom(dpy, "_NET_CLIENT_LIST", False);
-        CloseWindowAtom = XInternAtom(dpy, "_NET_CLOSE_WINDOW", False);
-        ActiveWindowAtom = XInternAtom(dpy, "_NET_ACTIVE_WINDOW", False);
-        Utf8StringAtom = XInternAtom(dpy, "UTF8_STRING", False);
-        WindowPidAtom = XInternAtom(dpy, "_NET_WM_PID", False);
-
-        WindowTypeNormalAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_NORMAL", False);
-        WindowTypeDesktopAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_DESKTOP", False);
-        WindowTypeNotificationAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_NOTIFICATION", False);
-        WindowTypeDialogAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_DIALOG", False);
-        WindowTypeCallAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_CALL", False);
-        WindowTypeDockAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_DOCK", False);
-        WindowTypeMenuAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_MENU", False);
-        WindowTypeInputAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_INPUT", False);
-
-        atomsInitialized = true;
-    }
-}
 
 //! Storage for the WindowInfo data objects. A central storage enables constructing
 //! new WindowInfo objects with shared data.
@@ -184,7 +134,7 @@ bool WindowInfo::updateWindowTitle()
     Display *dpy = QX11Info::display();
     XTextProperty textProperty;
     bool updated = false;
-    int result = XGetTextProperty(dpy, d->window, &textProperty, WindowInfo::NameAtom);
+    int result = XGetTextProperty(dpy, d->window, &textProperty, AtomCache::NameAtom);
     if (result == 0) {
         result = XGetWMName(dpy, d->window, &textProperty);
     }
@@ -199,8 +149,8 @@ bool WindowInfo::updateWindowTitle()
 
 void WindowInfo::updateWindowProperties()
 {
-    d->types = getWindowProperties(d->window, WindowInfo::TypeAtom);
-    d->states = getWindowProperties(d->window, WindowInfo::StateAtom);
+    d->types = getWindowProperties(d->window, AtomCache::TypeAtom);
+    d->states = getWindowProperties(d->window, AtomCache::StateAtom);
 
     if (!XGetTransientForHint(QX11Info::display(), d->window, &d->transientFor) || d->transientFor == d->window) {
         d->transientFor = 0;
