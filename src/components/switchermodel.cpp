@@ -27,7 +27,7 @@
 #include <X11/extensions/Xdamage.h>
 
 SwitcherModel::SwitcherModel(QObject *parent)
-    : QObjectListModel<WindowInfo>(parent)
+    : QObjectListModel(parent)
 {
 }
 
@@ -278,7 +278,7 @@ void SwitcherModel::updateWindowList()
                     if (!windowsBeingClosed.contains(wins[i]))
                     {
                         WindowInfo *wi = WindowInfo::windowFor(wins[i]);
-                        windowList.append(wi);
+                        windowList->append(wi);
                     }
                     else
                     {
@@ -308,23 +308,21 @@ void SwitcherModel::updateWindowList()
     }
 
     windowsStillBeingClosed.clear();
-
-    QList<WindowInfo*> *oldList = getList();
-    setList(&windowList);
-    delete oldList;
+    setList(windowList);
+    emit itemCountChanged();
 }
 
 void SwitcherModel::windowToFront(qulonglong window)
 {
-    XClientMessageEvent ev;
+    XEvent ev;
     memset(&ev, 0, sizeof(ev));
 
-    ev.type         = ClientMessage;
-    ev.window       = window;
-    ev.message_type = WindowInfo::ActiveWindowAtom;
-    ev.format       = 32;
-    ev.data.l[0]    = 1;
-    ev.data.l[1]    = CurrentTime;
+    ev.xclient.type         = ClientMessage;
+    ev.xclient.window       = window;
+    ev.xclient.message_type = WindowInfo::ActiveWindowAtom;
+    ev.xclient.format       = 32;
+    ev.xclient.data.l[0]    = 1;
+    ev.xclient.data.l[1]    = CurrentTime;
 
     XSendEvent(QX11Info::display(), QX11Info::appRootWindow(QX11Info::appScreen()), False, StructureNotifyMask, &ev);
     qDebug() << Q_FUNC_INFO << "Foregrounded " << window;
@@ -334,15 +332,15 @@ void SwitcherModel::closeWindow(qulonglong window)
 {
     Window rootWin = QX11Info::appRootWindow(QX11Info::appScreen());
 
-    XClientMessageEvent ev;
+    XEvent ev;
     memset(&ev, 0, sizeof(ev));
 
-    ev.type         = ClientMessage;
-    ev.window       = window;
-    ev.message_type = WindowInfo::CloseWindowAtom;
-    ev.format       = 32;
-    ev.data.l[0]    = CurrentTime;
-    ev.data.l[1]    = rootWin;
+    ev.xclient.type         = ClientMessage;
+    ev.xclient.window       = window;
+    ev.xclient.message_type = WindowInfo::CloseWindowAtom;
+    ev.xclient.format       = 32;
+    ev.xclient.data.l[0]    = CurrentTime;
+    ev.xclient.data.l[1]    = rootWin;
 
     XSendEvent(QX11Info::display(), rootWin, False, SubstructureRedirectMask, &ev);
     qDebug() << Q_FUNC_INFO << "Closed " << window;

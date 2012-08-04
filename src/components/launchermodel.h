@@ -24,7 +24,7 @@
 
 class QFileSystemWatcher;
 
-class LauncherModel : public QObjectListModel<LauncherItem>
+class LauncherModel : public QObjectListModel
 {
     Q_OBJECT
     Q_DISABLE_COPY(LauncherModel)

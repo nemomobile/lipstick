@@ -25,7 +25,7 @@
 
 class QFileSystemWatcher;
 
-class SwitcherModel : public QObjectListModel<WindowInfo>, XEventListener
+class SwitcherModel : public QObjectListModel, XEventListener
 {
     Q_OBJECT
     Q_DISABLE_COPY(SwitcherModel)

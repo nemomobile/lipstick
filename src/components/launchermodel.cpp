@@ -20,7 +20,7 @@
 #include "launchermodel.h"
 
 LauncherModel::LauncherModel(QObject *parent) :
-    QObjectListModel<LauncherItem>(parent),
+    QObjectListModel(parent),
     _fileSystemWatcher(new QFileSystemWatcher(this))
 {
     // This is the most common path for .desktop files in most distributions
@@ -43,7 +43,7 @@ void LauncherModel::monitoredDirectoryChanged(QString changedPath)
     QFileInfoList fileInfoList = directory.entryInfoList();
 
     // Finding removed desktop entries
-    foreach (LauncherItem *item, this->getList())
+    foreach (LauncherItem *item, *(this->getList<LauncherItem>()))
     {
         if (!item->filePath().startsWith(changedPath))
             continue;
@@ -58,9 +58,9 @@ void LauncherModel::monitoredDirectoryChanged(QString changedPath)
     // Finding newly added desktop entries
     foreach (const QFileInfo &fileInfo, fileInfoList)
     {
-        if (this->getList().end() == std::find_if(
-            this->getList().begin(),
-            this->getList().end(),
+        if (this->getList<LauncherItem>()->end() == std::find_if(
+            this->getList<LauncherItem>()->begin(),
+            this->getList<LauncherItem>()->end(),
             [fileInfo](LauncherItem* item) -> bool { return item->filePath() == fileInfo.fileName(); }))
         {
             qDebug() << Q_FUNC_INFO << "Creating LauncherItem for desktop entry" << fileInfo.absoluteFilePath();

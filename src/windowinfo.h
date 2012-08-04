@@ -33,6 +33,12 @@
 class WindowInfo : public QObject
 {
     Q_OBJECT
+
+    Q_PROPERTY(int pixmapSerial READ pixmapSerial WRITE setPixmapSerial NOTIFY pixmapSerialChanged)
+    Q_PROPERTY(QString title READ title NOTIFY titleChanged)
+    Q_PROPERTY(int window READ window NOTIFY windowChanged)
+
+
 public:
     // X11 atoms
     static Atom TypeAtom;
@@ -118,12 +124,13 @@ public:
      */
     void setPid(int pid);
 
-    Q_PROPERTY(int pixmapSerial READ pixmapSerial WRITE setPixmapSerial NOTIFY pixmapSerialChanged);
     int pixmapSerial() const;
     void setPixmapSerial(int pixmapSerial);
 
 signals:
     void pixmapSerialChanged();
+    void titleChanged();
+    void windowChanged();
 
 private:
     WindowInfo(Window window);
