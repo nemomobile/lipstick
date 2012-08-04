@@ -32,13 +32,9 @@
 // TODO: disable damage event processing when not on the screen
 // TODO: handle visibility/obscuring invalidating pixmaps
 
-const int ICON_GEOMETRY_UPDATE_INTERVAL = 200;
-Atom iconGeometryAtom = 0;
 #ifdef Q_WS_X11
 unsigned char xErrorCode = Success;
-#endif
 
-#ifdef Q_WS_X11
 static int handleXError(Display *, XErrorEvent *event)
 {
     xErrorCode = event->error_code;
@@ -61,7 +57,6 @@ struct SwitcherPixmapItem::Private
     Damage xWindowPixmapDamage;
     QPixmap qWindowPixmap;
     int windowId;
-    QTimer updateXWindowIconGeometryTimer;
 };
 
 SwitcherPixmapItem::SwitcherPixmapItem(QDeclarativeItem *parent)
@@ -69,14 +64,6 @@ SwitcherPixmapItem::SwitcherPixmapItem(QDeclarativeItem *parent)
     , d(new Private)
 {
     setFlag(QGraphicsItem::ItemHasNoContents, false);
-
-    if (iconGeometryAtom == 0)
-        iconGeometryAtom = XInternAtom(QX11Info::display(), "_NET_WM_ICON_GEOMETRY", false);
-
-    d->updateXWindowIconGeometryTimer.setSingleShot(true);
-    d->updateXWindowIconGeometryTimer.setInterval(ICON_GEOMETRY_UPDATE_INTERVAL);
-    connect(&d->updateXWindowIconGeometryTimer, SIGNAL(timeout()), SLOT(updateXWindowIconGeomery()));
-
     connect(qApp, SIGNAL(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)), this, SLOT(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)));
 }
 
