@@ -32,6 +32,8 @@ HEADERS += homeapplication.h \
     homewindowmonitor.h \
     windowmonitor.h \
     xeventlistener.h \
+    utilities/util.h \
+    utilities/qobjectlistmodel.h \
     components/launcheritem.h \
     components/launchermodel.h \
     components/switchermodel.h \
