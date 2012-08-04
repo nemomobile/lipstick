@@ -19,6 +19,7 @@ QMAKE_STRIP = echo
 OBJECTS_DIR = .obj
 MOC_DIR = .moc
 
+QMAKE_CXXFLAGS += -std=c++0x
 CONFIG += qt warn_on depend_includepath
 CONFIG += qmake_cache target_qt 
 
