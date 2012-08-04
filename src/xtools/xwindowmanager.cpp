@@ -66,9 +66,6 @@ void XWindowManager::closeWindow(qulonglong window)
     XSendEvent(QX11Info::display(), rootWin, False, SubstructureRedirectMask, &ev);
     qDebug() << Q_FUNC_INFO << "Closed " << window;
 
-//    if (!windowsStillBeingClosed.contains(window))
-//        windowsStillBeingClosed.append(window);
-
     // Close also the window this one is transient for, if any
     WindowInfo *windowInfo = WindowInfo::windowFor(window);
 
@@ -76,10 +73,5 @@ void XWindowManager::closeWindow(qulonglong window)
     {
         qDebug() << Q_FUNC_INFO << "Closing transient " << windowInfo->transientFor();
         closeWindow(windowInfo->transientFor());
-    }
-    else
-    {
-        //qDebug() << Q_FUNC_INFO << "Updating WindowInfo list, deleting " << windowsBeingClosed;
-        //updateWindowList();
     }
 }
