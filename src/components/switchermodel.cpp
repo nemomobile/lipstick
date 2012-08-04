@@ -174,7 +174,7 @@ void SwitcherModel::updateWindowList()
         return;
 
     qDebug() << "Read list of " << numWindowItems << " windows";
-    QList<WindowInfo *> windowList;
+    QList<WindowInfo*> *windowList = new QList<WindowInfo*>();
     Window *wins = (Window *)windowData;
 
     for (unsigned int i = 0; i < numWindowItems; i++)
@@ -309,7 +309,9 @@ void SwitcherModel::updateWindowList()
 
     windowsStillBeingClosed.clear();
 
+    QList<WindowInfo*> *oldList = getList();
     setList(&windowList);
+    delete oldList;
 }
 
 void SwitcherModel::windowToFront(qulonglong window)
