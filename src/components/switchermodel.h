@@ -1,7 +1,13 @@
+
 /*
+ * Copyright (c) 2011-2012, Robin Burchell
+ * Copyright (c) 2012, Timur Kristóf <venemo@fedoraproject.org>
+ * Copyright (c) 2011, Intel Corporation.
+ *
  * This program is licensed under the terms and conditions of the
  * Apache License, version 2.0.  The full text of the Apache License is at
  * http://www.apache.org/licenses/LICENSE-2.0
+ *
  */
 
 #ifndef SWITCHERMODEL_H
