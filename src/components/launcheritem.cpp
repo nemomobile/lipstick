@@ -134,7 +134,7 @@ QString LauncherItem::entryType() const
 
 QString LauncherItem::iconFilePath() const
 {
-    return getIconPath(_desktopEntry->icon());
+    return "file://" + getIconPath(_desktopEntry->icon());
 }
 
 QStringList LauncherItem::desktopCategories() const
