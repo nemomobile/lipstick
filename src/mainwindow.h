@@ -62,20 +62,6 @@ private:
     //! The MainWindow instance
     static MainWindow *mainWindowInstance;
 
-    /*!
-     * Sets the X window properties for the window so that the window is not
-     * included in the task bar.
-     */
-    void excludeFromTaskBar();
-
-    /*!
-     * Changes the _NET_WM_STATE property of a the window.
-     *
-     * \param set \c true if the first data value will be 1, \c false if it will be 0
-     * \param one the first Atom to put in the value
-     * \param two the second Atom to put in the value
-     */
-    void changeNetWmState(bool set, Atom one, Atom two = 0);
 
 };
 

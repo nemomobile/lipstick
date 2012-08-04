@@ -34,6 +34,7 @@
 #include <X11/extensions/Xcomposite.h>
 #include <X11/extensions/Xdamage.h>
 
+#include "components/windowmanager.h"
 #include "xtools/xwindowmanager.h"
 
 MainWindow *MainWindow::mainWindowInstance = NULL;
@@ -56,7 +57,7 @@ MainWindow::MainWindow(QWidget *parent) :
     XSelectInput(display, window, attributes.your_event_mask | VisibilityChangeMask);
 #endif
 
-    excludeFromTaskBar();
+    XWindowManager::excludeFromTaskBar(this->effectiveWinId());
 
     setOptimizationFlag(QGraphicsView::DontSavePainterState);
     setResizeMode(SizeRootObjectToView);
@@ -77,7 +78,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QObject::connect(this->engine(), SIGNAL(quit()), QApplication::instance(), SLOT(quit()));
     rootContext()->setContextProperty("initialSize", QApplication::desktop()->screenGeometry(this).size());
-    rootContext()->setContextProperty("windowManager", new XWindowManager(this));
+    rootContext()->setContextProperty("windowManager", new WindowManager(this));
 
     // TODO: disable this for non-debug builds
     if (QFile::exists("main.qml"))
@@ -99,38 +100,6 @@ MainWindow *MainWindow::instance(bool create)
     }
 
     return mainWindowInstance;
-}
-
-void MainWindow::excludeFromTaskBar()
-{
-    // Tell the window to not to be shown in the switcher
-    Atom skipTaskbarAtom = XInternAtom(QX11Info::display(), "_NET_WM_STATE_SKIP_TASKBAR", False);
-    changeNetWmState(true, skipTaskbarAtom);
-
-    // Also set the _NET_WM_STATE window property to ensure Home doesn't try to
-    // manage this window in case the window manager fails to set the property in time
-    Atom netWmStateAtom = XInternAtom(QX11Info::display(), "_NET_WM_STATE", False);
-    QVector<Atom> atoms;
-    atoms.append(skipTaskbarAtom);
-    XChangeProperty(QX11Info::display(), internalWinId(), netWmStateAtom, XA_ATOM, 32, PropModeReplace, (unsigned char *)atoms.data(), atoms.count());
-}
-
-void MainWindow::changeNetWmState(bool set, Atom one, Atom two)
-{
-    XEvent e;
-    e.xclient.type = ClientMessage;
-    Display *display = QX11Info::display();
-    Atom netWmStateAtom = XInternAtom(display, "_NET_WM_STATE", FALSE);
-    e.xclient.message_type = netWmStateAtom;
-    e.xclient.display = display;
-    e.xclient.window = internalWinId();
-    e.xclient.format = 32;
-    e.xclient.data.l[0] = set ? 1 : 0;
-    e.xclient.data.l[1] = one;
-    e.xclient.data.l[2] = two;
-    e.xclient.data.l[3] = 0;
-    e.xclient.data.l[4] = 0;
-    XSendEvent(display, RootWindow(display, x11Info().screen()), FALSE, (SubstructureNotifyMask | SubstructureRedirectMask), &e);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

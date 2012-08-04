@@ -20,17 +20,14 @@
 
 #include <QObject>
 
-class XWindowManager : public QObject
+class XWindowManager
 {
-    Q_OBJECT
-    Q_DISABLE_COPY(XWindowManager)
-
 public:
-    explicit XWindowManager(QObject *parent = 0);
+    static void closeWindow(Qt::HANDLE windowId);
+    static void windowToFront(Qt::HANDLE windowId);
 
-public slots:
-    Q_INVOKABLE void closeWindow(qulonglong window);
-    Q_INVOKABLE void windowToFront(qulonglong window);
+    static void excludeFromTaskBar(Qt::HANDLE windowId);
+    static void changeNetWmState(Qt::HANDLE windowId, bool enable, Qt::HANDLE first, Qt::HANDLE second = 0);
 };
 
 

@@ -28,12 +28,7 @@
 #include <X11/extensions/Xcomposite.h>
 #include <X11/extensions/Xdamage.h>
 
-XWindowManager::XWindowManager(QObject *parent)
-    : QObject(parent)
-{
-}
-
-void XWindowManager::windowToFront(qulonglong window)
+void XWindowManager::windowToFront(Qt::HANDLE window)
 {
     XEvent ev;
     memset(&ev, 0, sizeof(ev));
@@ -49,7 +44,7 @@ void XWindowManager::windowToFront(qulonglong window)
     qDebug() << Q_FUNC_INFO << "Foregrounded " << window;
 }
 
-void XWindowManager::closeWindow(qulonglong window)
+void XWindowManager::closeWindow(Qt::HANDLE window)
 {
     Window rootWin = QX11Info::appRootWindow(QX11Info::appScreen());
 
@@ -74,4 +69,33 @@ void XWindowManager::closeWindow(qulonglong window)
         qDebug() << Q_FUNC_INFO << "Closing transient " << windowInfo->transientFor();
         closeWindow(windowInfo->transientFor());
     }
+}
+
+void XWindowManager::excludeFromTaskBar(Qt::HANDLE windowId)
+{
+    // Tell the window to not to be shown in the switcher
+    changeNetWmState(windowId, true, AtomCache::SkipTaskbarAtom);
+
+    // Also set the _NET_WM_STATE window property to ensure Home doesn't try to
+    // manage this window in case the window manager fails to set the property in time
+    QVector<Atom> atoms;
+    atoms.append(AtomCache::SkipTaskbarAtom);
+    XChangeProperty(QX11Info::display(), windowId, AtomCache::StateAtom, XA_ATOM, 32, PropModeReplace, (unsigned char *)atoms.data(), atoms.count());
+}
+
+void XWindowManager::changeNetWmState(Qt::HANDLE windowId, bool enable, Qt::HANDLE first, Qt::HANDLE second)
+{
+    XEvent event;
+    memset(&event, 0, sizeof(event));
+    event.xclient.type = ClientMessage;
+    event.xclient.message_type = AtomCache::StateAtom;
+    event.xclient.display = QX11Info::display();
+    event.xclient.window = windowId;
+    event.xclient.format = 32;
+    event.xclient.data.l[0] = enable ? 1 : 0;
+    event.xclient.data.l[1] = first;
+    event.xclient.data.l[2] = second;
+    event.xclient.data.l[3] = 0;
+    event.xclient.data.l[4] = 0;
+    XSendEvent(QX11Info::display(), windowId, FALSE, (SubstructureNotifyMask | SubstructureRedirectMask), &event);
 }

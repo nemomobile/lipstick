@@ -41,7 +41,8 @@ HEADERS += homeapplication.h \
     components/launchermodel.h \
     components/switchermodel.h \
     components/switcherpixmapitem.h \
-    components/statusbar.h
+    components/statusbar.h \
+    components/windowmanager.h
 
 SOURCES += main.cpp \
     homeapplication.cpp \
@@ -56,7 +57,8 @@ SOURCES += main.cpp \
     components/launchermodel.cpp \
     components/switchermodel.cpp \
     components/switcherpixmapitem.cpp \
-    components/statusbar.cpp
+    components/statusbar.cpp \
+    components/windowmanager.cpp
 
 RESOURCES += \
     res.qrc
