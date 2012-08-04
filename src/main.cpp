@@ -26,6 +26,7 @@
 #include "components/switchermodel.h"
 #include "components/switcherpixmapitem.h"
 #include "components/statusbar.h"
+#include "xtools/xwindowmanager.h"
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -40,6 +41,7 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
     qmlRegisterType<SwitcherPixmapItem>("org.nemomobile.lipstick", 0, 1, "SwitcherPixmapItem");
     qmlRegisterType<StatusBar>("org.nemomobile.lipstick", 0, 1, "StatusBar");
     qmlRegisterUncreatableType<LauncherItem>("org.nemomobile.lipstick", 0, 1, "LauncherItem", "This type is initialized from LauncherModel");
+    qmlRegisterUncreatableType<XWindowManager>("org.nemomobile.lipstick", 0, 1, "WindowManager", "This type should be accessed through a context property.");
 
     // We don't need the meego graphics system here
     QApplication::setGraphicsSystem("native");

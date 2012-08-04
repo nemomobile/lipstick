@@ -43,11 +43,6 @@ public:
     void updateWindowList();
     void updateApps(const QList<WindowInfo> &windowList);
 
-    // TODO: would be nice to make these some kind of QObject methods instead of
-    // stuck onto the model randomly
-    Q_INVOKABLE void closeWindow(qulonglong window);
-    Q_INVOKABLE void windowToFront(qulonglong window);
-
 signals:
     void itemCountChanged();
 

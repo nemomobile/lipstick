@@ -36,6 +36,7 @@ HEADERS += homeapplication.h \
     utilities/util.h \
     utilities/qobjectlistmodel.h \
     xtools/xatomcache.h \
+    xtools/xwindowmanager.h \
     components/launcheritem.h \
     components/launchermodel.h \
     components/switchermodel.h \
@@ -50,6 +51,7 @@ SOURCES += main.cpp \
     xeventlistener.cpp \
     utilities/qobjectlistmodel.cpp \
     xtools/xatomcache.cpp \
+    xtools/xwindowmanager.cpp \
     components/launcheritem.cpp \
     components/launchermodel.cpp \
     components/switchermodel.cpp \

@@ -34,6 +34,8 @@
 #include <X11/extensions/Xcomposite.h>
 #include <X11/extensions/Xdamage.h>
 
+#include "xtools/xwindowmanager.h"
+
 MainWindow *MainWindow::mainWindowInstance = NULL;
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -75,6 +77,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QObject::connect(this->engine(), SIGNAL(quit()), QApplication::instance(), SLOT(quit()));
     rootContext()->setContextProperty("initialSize", QApplication::desktop()->screenGeometry(this).size());
+    rootContext()->setContextProperty("windowManager", new XWindowManager(this));
 
     // TODO: disable this for non-debug builds
     if (QFile::exists("main.qml"))

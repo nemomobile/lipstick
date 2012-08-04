@@ -68,7 +68,10 @@ Item {
 
     MouseArea {
         anchors.fill: parent
-        onClicked: switcherModel.windowToFront(model.object.window)
+        onClicked:
+        {
+            console.log(windowManager.windowToFront(model.object.window))
+        }
     }
 
     Item {
@@ -105,7 +108,7 @@ Item {
 
         MouseArea {
             anchors.fill: parent
-            onClicked: switcherModel.closeWindow(model.object.window)
+            onClicked: windowManager.closeWindow(model.object.window)
         }
     }
 }
