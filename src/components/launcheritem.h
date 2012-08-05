@@ -20,10 +20,13 @@
 
 #include <QObject>
 #include <QStringList>
+#include <QSharedPointer>
+
+#include "lipstickglobal.h"
 
 class MDesktopEntry;
 
-class LauncherItem : public QObject
+class LIPSTICK_EXPORT LauncherItem : public QObject
 {
     Q_OBJECT
     Q_DISABLE_COPY(LauncherItem)
@@ -36,7 +39,7 @@ class LauncherItem : public QObject
     Q_PROPERTY(bool shouldDisplay READ shouldDisplay NOTIFY itemChanged)
     Q_PROPERTY(bool isValid READ isValid NOTIFY itemChanged)
 
-    MDesktopEntry *_desktopEntry;
+    QSharedPointer<MDesktopEntry> _desktopEntry;
 
 public:
     explicit LauncherItem(const QString &path, QObject *parent = 0);
