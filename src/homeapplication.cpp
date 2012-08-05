@@ -36,12 +36,19 @@
 #include <X11/extensions/Xcomposite.h>
 #include <X11/extensions/Xdamage.h>
 
-#include "windowinfo.h"
 #include "xtools/xeventlistener.h"
 #include "xtools/xatomcache.h"
 #include "xtools/xwindowmanager.h"
 #include "xtools/homewindowmonitor.h"
 #include "components/windowmanager.h"
+#include "components/windowinfo.h"
+
+// Define this if you'd like to see debug messages from the switcher
+#ifdef DEBUG_HOME
+#define HOME_DEBUG(things) qDebug() << Q_FUNC_INFO << things
+#else
+#define HOME_DEBUG(things)
+#endif
 
 /*!
  * D-Bus names for the notification that's sent when home is ready
@@ -120,12 +127,12 @@ bool HomeApplication::x11EventFilter(XEvent *event)
 
     if (event->xany.window == mainWindowInstance()->effectiveWinId())
     {
-        qDebug() << Q_FUNC_INFO << "received event for main window!";
+        HOME_DEBUG("received event for main window!");
         mainWindowInstance()->viewport()->repaint();
     }
 
     if (event->type == xDamageEventBase + XDamageNotify) {
-        qDebug() << Q_FUNC_INFO << "Processing damage event";
+        HOME_DEBUG("Processing damage event");
         XDamageNotifyEvent *xevent = (XDamageNotifyEvent *) event;
 
         // xevent->more would inform us if there is more events for the

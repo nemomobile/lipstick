@@ -18,7 +18,7 @@
 #include <QDebug>
 #include <QX11Info>
 
-#include "windowinfo.h"
+#include "components/windowinfo.h"
 #include "xtools/xwindowmanager.h"
 #include "xtools/xatomcache.h"
 

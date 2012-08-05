@@ -22,7 +22,7 @@
 
 #include <QWidget>
 #include <QObject>
-#include "windowinfo.h"
+#include "components/windowinfo.h"
 
 /*!
  * An interface defining window monitoring functionality.
