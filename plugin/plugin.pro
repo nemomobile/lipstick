@@ -15,21 +15,32 @@
 # Copyright (c) 2011, Robin Burchell
 # Copyright (c) 2012, Timur Kristóf <venemo@fedoraproject.org>
 
-TEMPLATE = subdirs
-CONFIG += ordered
-SUBDIRS += src plugin example
+TEMPLATE = lib
+TARGET = lipstickplugin
+VERSION = 0.1
 
-QMAKE_CLEAN += \
-    Makefile \
-    */Makefile \
-    build-stamp \
-    configure-stamp \
-    artifacts/*.deb \
-    *.log.xml \
-    *.log
+CONFIG += qt plugin
+QT += core gui declarative
 
-QMAKE_DISTCLEAN += \
-    build-stamp \
-    configure-stamp \
-    *.log.xml \
-    *.log
+INSTALLS += target qmldirfile
+qmldirfile.files = qmldir
+qmldirfile.path += /usr/lib/qt4/imports/org/nemomobile/lipstick
+target.path += /usr/lib/qt4/imports/org/nemomobile/lipstick
+
+linux-g++-64 {
+    qmldirfile.path += /usr/lib64/qt4/imports/org/nemomobile/lipstick
+    target.path += /usr/lib64/qt4/imports/org/nemomobile/lipstick
+}
+
+DEPENDPATH += "../src"
+INCLUDEPATH += "../src"
+LIBS += -L"../src" -llipstick
+
+HEADERS += \
+    lipstickplugin.h
+
+SOURCES += \
+    lipstickplugin.cpp
+
+OTHER_FILES += \
+    qmldir

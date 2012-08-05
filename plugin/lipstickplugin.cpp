@@ -12,21 +12,27 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
-// Copyright (c) 2011, Robin Burchell
 // Copyright (c) 2012, Timur Kristóf <venemo@fedoraproject.org>
 
-#include "homeapplication.h"
+#include "lipstickplugin.h"
 
-#include "components/launcheritem.h"
-#include "components/launchermodel.h"
-#include "components/switchermodel.h"
-#include "components/switcherpixmapitem.h"
-#include "components/statusbar.h"
-#include "components/windowmanager.h"
-#include "components/windowinfo.h"
+#include <components/launcheritem.h>
+#include <components/launchermodel.h>
+#include <components/switchermodel.h>
+#include <components/switcherpixmapitem.h>
+#include <components/statusbar.h>
+#include <components/windowmanager.h>
+#include <components/windowinfo.h>
 
-Q_DECL_EXPORT int main(int argc, char *argv[])
+LipstickPlugin::LipstickPlugin(QObject *parent) :
+    QDeclarativeExtensionPlugin(parent)
 {
+}
+
+void LipstickPlugin::registerTypes(const char *uri)
+{
+    Q_UNUSED(uri);
+
     qmlRegisterType<LauncherModel>("org.nemomobile.lipstick", 0, 1, "LauncherModel");
     qmlRegisterType<SwitcherModel>("org.nemomobile.lipstick", 0, 1, "SwitcherModel");
     qmlRegisterType<SwitcherPixmapItem>("org.nemomobile.lipstick", 0, 1, "SwitcherPixmapItem");
@@ -34,10 +40,6 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
     qmlRegisterUncreatableType<WindowInfo>("org.nemomobile.lipstick", 0, 1, "WindowInfo", "This type is initialized by SwitcherModel");
     qmlRegisterUncreatableType<LauncherItem>("org.nemomobile.lipstick", 0, 1, "LauncherItem", "This type is initialized by LauncherModel");
     qmlRegisterUncreatableType<WindowManager>("org.nemomobile.lipstick", 0, 1, "WindowManager", "This type should be accessed through a context property.");
-
-    // We don't need the meego graphics system here
-    QApplication::setGraphicsSystem("native");
-    HomeApplication app(argc, argv, "qrc:/qml/main.qml");
-
-    return app.exec();
 }
+
+Q_EXPORT_PLUGIN2(lipstick, LipstickPlugin)

@@ -25,3 +25,31 @@ building
 
 qmake
 make
+
+contents
+========
+
+src - a shared library
+plugin - a QML plugin which exposes stuff to the QML engine
+example - an example homescreen demonstrating the capabilities of the library
+
+how to run the example
+======================
+
+1. Build the project.
+   This involves a library, a qml plugin, and an example.
+   They should compile without errors/warnings.
+
+2. Place the library .so file under /usr/lib
+   
+   NOTE: 64 bit variants of some distributions use /usr/lib64 instead of /usr/lib
+
+2. Place the plugin .so file and the qmldir file under /usr/lib/qt4/imports/org/nemomobile/lipstick
+   
+   NOTE: The warning about /usr/lib64 applies here too
+   
+3. The example app uses both the plugin an the shared library (this is actually intended),
+   So both of them should be intact before you can run the example
+   
+   NOTE: if you use a properly packaged version of the library, you won't need to go through this trouble
+
