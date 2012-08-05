@@ -1,23 +1,19 @@
-/***************************************************************************
-**
-** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
-** All rights reserved.
-** Contact: Nokia Corporation (directui@nokia.com)
-**
-** This file is part of mhome.
-**
-** If you have questions regarding the use of this file, please contact
-** Nokia at directui@nokia.com.
-**
-** This library is free software; you can redistribute it and/or
-** modify it under the terms of the GNU Lesser General Public
-** License version 2.1 as published by the Free Software Foundation
-** and appearing in the file LICENSE.LGPL included in the packaging
-** of this file.
-**
-****************************************************************************/
 
-#include <QX11Info>
+// This file is part of lipstick, a QML desktop library
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License version 2.1 as published by the Free Software Foundation
+// and appearing in the file LICENSE.LGPL included in the packaging
+// of this file.
+//
+// This code is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Lesser General Public License for more details.
+//
+// Copyright (c) 2011, Robin Burchell
+// Copyright (c) 2012, Timur Kristóf <venemo@fedoraproject.org>
 
 #include "homeapplication.h"
 
@@ -26,12 +22,6 @@
 #include "components/switcherpixmapitem.h"
 #include "components/statusbar.h"
 #include "components/windowmanager.h"
-
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/Xatom.h>
-#include <X11/extensions/Xcomposite.h>
-#include <X11/extensions/Xdamage.h>
 
 Q_DECL_EXPORT int main(int argc, char *argv[])
 {
@@ -45,13 +35,6 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
     // We don't need the meego graphics system here
     QApplication::setGraphicsSystem("native");
     HomeApplication app(argc, argv, "qrc:/qml/main.qml");
-
-    // Tell X that changes in the properties and the substructure of the root
-    // window are interesting. These are used to get the list of windows and
-    // for getting window close events. Note that QWidget calls XSelectInput
-    // as well so this call cannot be done in the HomeApplication constructor
-    // since Qt's own call would then override this.
-    XSelectInput(QX11Info::display(), DefaultRootWindow(QX11Info::display()), PropertyChangeMask | SubstructureNotifyMask);
 
     return app.exec();
 }

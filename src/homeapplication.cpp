@@ -103,9 +103,13 @@ void HomeApplication::sendStartupNotifications()
     systemBus.send(homeReadySignal);
 
     // For device boot performance reasons initializing Home scene window must be done
-    // only after ready signal is sent (NB#277602)
+    // only after ready signal is sent.
     mainWindowInstance()->show();
 
+    // Tell X that changes in the properties and the substructure of the root
+    // window are interesting. These are used to get the list of windows and
+    // for getting window close events.
+    XSelectInput(QX11Info::display(), DefaultRootWindow(QX11Info::display()), PropertyChangeMask | SubstructureNotifyMask);
     XDamageCreate(QX11Info::display(), mainWindowInstance()->effectiveWinId(), XDamageReportNonEmpty);
 }
 
