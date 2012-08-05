@@ -25,6 +25,13 @@
 #include <X11/extensions/Xcomposite.h>
 #include <X11/extensions/Xdamage.h>
 
+// Define this if you'd like to see debug messages from the switcher
+#ifdef DEBUG_SWITCHER
+#define SWITCHER_DEBUG(things) qDebug() << Q_FUNC_INFO << things
+#else
+#define SWITCHER_DEBUG(things)
+#endif
+
 SwitcherModel::SwitcherModel(QObject *parent)
     : QObjectListModel(parent)
 {
@@ -46,7 +53,7 @@ bool SwitcherModel::handleXEvent(const XEvent &event)
     else if (event.type == ClientMessage &&
              event.xclient.message_type == AtomCache::CloseWindowAtom)
     {
-        qDebug() << Q_FUNC_INFO << "Got close WindowInfo event for " << event.xclient.window;
+        SWITCHER_DEBUG("Got close WindowInfo event for " << event.xclient.window);
         if (!windowsBeingClosed.contains(event.xclient.window))
         {
             windowsBeingClosed.append(event.xclient.window);
@@ -122,7 +129,7 @@ static QVector<Atom> getNetWmState(Display *display, Window window)
 
 void SwitcherModel::updateWindowList()
 {
-    qDebug() << Q_FUNC_INFO << "Updating window list";
+    SWITCHER_DEBUG("Updating window list");
 
     Display *dpy = QX11Info::display();
     XWindowAttributes wAttributes;
@@ -145,7 +152,7 @@ void SwitcherModel::updateWindowList()
     if (result != Success || windowData == None)
         return;
 
-    qDebug() << "Read list of " << numWindowItems << " windows";
+    SWITCHER_DEBUG("Read list of " << numWindowItems << " windows");
     QList<WindowInfo*> *windowList = new QList<WindowInfo*>();
     Window *wins = (Window *)windowData;
 
@@ -273,7 +280,7 @@ void SwitcherModel::updateWindowList()
         }
     }
 
-    qDebug() << Q_FUNC_INFO << "Deleting WindowInfos for " << windowsStillBeingClosed;
+    SWITCHER_DEBUG("Deleting WindowInfos for " << windowsStillBeingClosed);
     foreach (Window wid, windowsStillBeingClosed) {
         WindowInfo *wi = WindowInfo::windowFor(wid);
         delete wi;

@@ -31,6 +31,13 @@
 #include <X11/extensions/Xcomposite.h>
 #include <X11/extensions/Xdamage.h>
 
+// Define this if you'd like to see debug messages from the status bar
+#ifdef DEBUG_STATUSBAR
+#define STATUSBAR_DEBUG(things) qDebug() << Q_FUNC_INFO << things
+#else
+#define STATUSBAR_DEBUG(things)
+#endif
+
 // Fetches the shared status bar pixmap
 static QPixmap fetchSharedPixmap()
 {
@@ -130,7 +137,7 @@ void StatusBar::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 
     if (_sharedPixmap.isNull())
     {
-        qDebug() << "StatusBar: the shared pixmap is null, can't draw it!";
+        STATUSBAR_DEBUG("the shared pixmap is null, can't draw it!");
         painter->setPen(QColor(Qt::black));
         painter->drawRect(0, 0, width(), height());
         return;
@@ -153,11 +160,11 @@ void StatusBar::updateXThings()
     // Statusbar rect
     QPointF p = mapToScene(0, 0);
     unsigned long data[4] = { (int)p.x(), (int)p.y(), (int)width(), (int)height() };
-    qDebug() << "statusbar geo:" << (int)p.x() << (int)p.y() << (int)width() << (int)height();
+    STATUSBAR_DEBUG("statusbar geo:" << (int)p.x() << (int)p.y() << (int)width() << (int)height());
 
     // Orientation angle
     int angle = isPortrait() ? 270 : 0;
-    qDebug() << "orientation angle:" << angle;
+    STATUSBAR_DEBUG("orientation angle:" << angle);
 
     // Stuff for X
     QWidget *activeWindow = this->scene()->views().at(0);
@@ -194,7 +201,7 @@ bool StatusBar::sceneEvent(QEvent *event)
     }
     if (event->type() == QEvent::TouchEnd)
     {
-        qDebug() << "opening status menu";
+        STATUSBAR_DEBUG("opening status menu");
 
         QDBusInterface interface("com.meego.core.MStatusIndicatorMenu",
                                  "/statusindicatormenu",
