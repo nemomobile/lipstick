@@ -34,7 +34,7 @@ static QString findIconHelper(const QString &pathName, const QString &icon)
     extensions << "";
     extensions << ".png";
     extensions << ".svg";
-//    qDebug() << "Trying " << pathName << " for " << icon;
+    //    qDebug() << "Trying " << pathName << " for " << icon;
 
     foreach (const QString &extension, extensions) {
         if (QFile::exists(pathName + QDir::separator() + icon + extension))
@@ -62,44 +62,64 @@ static QString getIconPath(const QString &name)
     QSettings settings("MeeGo", "IconCache");
     QString cachedPath = settings.value(name).toString();
 
-    if (!QFile::exists(cachedPath)) {
+    if (!QFile::exists(cachedPath))
+    {
         qDebug() << Q_FUNC_INFO << "Negative cache hit for " << name << " to " << cachedPath;
-    } else {
+    }
+    else
+    {
         return cachedPath;
     }
 
     QStringList themes = QDir("/usr/share/themes").entryList(QStringList(), QDir::AllDirs | QDir::NoDotAndDotDot);
-    if (themes.isEmpty())
-        return QString();
+    if (!themes.isEmpty())
+    {
+        // TODO: look up active theme in gconf and set it to the first search path, don't hardcode it.
+        // TODO: would be nice to investigate if our fallback behaviour is actually correct, too, but meh.
 
-    // TODO: look up active theme in gconf and set it to the first search path, don't hardcode it.
-    // TODO: would be nice to investigate if our fallback behaviour is actually correct, too, but meh.
-    if (themes.contains("n900de") &&
-        themes.at(0) != "n900de") {
-        themes.removeAll("n900de");
-        themes.insert(0, "n900de");
-    }
+        if (themes.contains("n900de") && themes.at(0) != "n900de")
+        {
+            themes.removeAll("n900de");
+            themes.insert(0, "n900de");
+        }
 
-    foreach (const QString &theme, themes) {
-        QString retval = findIconHelper("/usr/share/themes/" + theme, name);
-        if (!retval.isNull()) {
-            settings.setValue(name, retval);
-            return retval;
+        foreach (const QString &theme, themes)
+        {
+            QString retval = findIconHelper("/usr/share/themes/" + theme, name);
+
+            if (!retval.isNull())
+            {
+                if (QFile::exists(retval))
+                {
+                    settings.setValue(name, retval);
+                    return retval;
+                }
+            }
         }
     }
 
     // they also seem to get plonked here
     QString retval = findIconHelper("/usr/share/pixmaps/", name);
-    if (!retval.isNull()) {
-        settings.setValue(name, retval);
-        return retval;
+
+    if (!retval.isNull())
+    {
+        if (QFile::exists(retval))
+        {
+            settings.setValue(name, retval);
+            return retval;
+        }
     }
 
     // I hate all application developers
     retval = findIconHelper("/usr/share/icons/hicolor/64x64/", name);
-    if (!retval.isNull()) {
-        settings.setValue(name, retval);
-        return retval;
+
+    if (!retval.isNull())
+    {
+        if (QFile::exists(retval))
+        {
+            settings.setValue(name, retval);
+            return retval;
+        }
     }
 
     return QString();
