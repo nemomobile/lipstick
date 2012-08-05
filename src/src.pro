@@ -1,30 +1,36 @@
-VERSION = 0.2.1
-MOC_DIR = .moc
-M_MGEN_OUTDIR = .gen
-OBJECTS_DIR = .obj
+
+# This file is part of lipstick, a QML desktop library
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License version 2.1 as published by the Free Software Foundation
+# and appearing in the file LICENSE.LGPL included in the packaging
+# of this file.
+#
+# This code is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Lesser General Public License for more details.
+#
+# Copyright (c) 2011, Robin Burchell
+# Copyright (c) 2012, Timur Kristóf <venemo@fedoraproject.org>
 
 TEMPLATE = app
 TARGET = lipstick
+VERSION = 0.1
 
-# For setting the coverage flag ON
-contains(COV_OPTION, on) {
-    LIBS += -lgcov
-    QMAKE_CXXFLAGS += -ftest-coverage \
-        -fprofile-arcs
-}
+target.path += /usr/bin
+INSTALLS += target
+
+
+QT += network \
+    svg \
+    dbus \
+    xml \
+    declarative \
+    opengl
 
 system(m-servicefwgen -a com.meego.core.HomeScreen)
-
-QMAKE_STRIP = echo
-OBJECTS_DIR = .obj
-MOC_DIR = .moc
-
-QMAKE_CXXFLAGS += -std=c++0x
-CONFIG += qt warn_on depend_includepath
-CONFIG += qmake_cache target_qt 
-
-#contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols
-#unix:contains(QT_CONFIG, reduce_relocations):CONFIG += bsymbolic_functions
 
 # Input
 HEADERS += homeapplication.h \
@@ -66,12 +72,7 @@ OTHER_FILES += \
     qml/Switcher.qml \
     qml/SwitcherItem.qml
 
-
-# Input
-target.path += /usr/bin
-INSTALLS += target
-
-CONFIG += link_pkgconfig mobility
+CONFIG += link_pkgconfig mobility qt warn_on depend_includepath qmake_cache target_qt
 MOBILITY += sensors
 PKGCONFIG += xcomposite mlite xdamage x11
 
@@ -79,35 +80,21 @@ packagesExist(contentaction-0.1) {
     message("Using contentaction to launch applications")
     PKGCONFIG += contentaction-0.1
     DEFINES += HAS_CONTENTACTION
-    HEADERS +=
-    SOURCES +=
-
-} else {
+}
+else {
     warning("contentaction doesn't exist; falling back to exec - this may not work so great")
 }
 
-QT += network \
-    svg \
-    dbus \
-    xml \
-    declarative \
-    opengl
+MOC_DIR = .moc
+M_MGEN_OUTDIR = .gen
+OBJECTS_DIR = .obj
+QMAKE_STRIP = echo
 
-exists($$[QT_INSTALL_LIBS]/libQtOpenGL.so):QT += opengl
-DEFINES += APPLICATIONS_DIRECTORY=\'$$quote(\"/usr/share/applications/\")\'
-DEFINES += M_XDG_DIR=\\\"\"$$M_XDG_DIR\"\\\"
-
-contains(BENCHMARKS, on) {
-    DEFINES += BENCHMARKS_ON
-}
 QMAKE_CXXFLAGS += \
     -Werror \
-    -g
-QMAKE_CLEAN += *.gcov \
+    -g \
+    -std=c++0x
+
+QMAKE_CLEAN += \
+    *.gcov \
     ./.obj/*.gcno
-QMAKE_EXTRA_TARGETS += check
-check.commands = $$system(true)
-QMAKE_EXTRA_TARGETS += check-xml
-check-xml.commands = $$system(true)
-
-
