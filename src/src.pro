@@ -29,7 +29,6 @@ CONFIG += qmake_cache target_qt
 # Input
 HEADERS += homeapplication.h \
     windowinfo.h \
-    mainwindow.h \
     homewindowmonitor.h \
     windowmonitor.h \
     xeventlistener.h \
@@ -47,7 +46,6 @@ HEADERS += homeapplication.h \
 SOURCES += main.cpp \
     homeapplication.cpp \
     windowinfo.cpp \
-    mainwindow.cpp \
     homewindowmonitor.cpp \
     xeventlistener.cpp \
     utilities/qobjectlistmodel.cpp \

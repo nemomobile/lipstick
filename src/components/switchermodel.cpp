@@ -10,7 +10,6 @@
  *
  */
 
-#include <QtDeclarative/qdeclarative.h>
 #include <QDir>
 #include <QFileInfoList>
 #include <QFileSystemWatcher>
@@ -18,7 +17,6 @@
 #include <QX11Info>
 
 #include "switchermodel.h"
-#include "mainwindow.h"
 #include "xtools/xatomcache.h"
 
 #include <X11/Xlib.h>

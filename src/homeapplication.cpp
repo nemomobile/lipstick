@@ -17,17 +17,18 @@
 **
 ****************************************************************************/
 
-#include "mainwindow.h"
-#include <sys/types.h>
-#include <signal.h>
-#include <unistd.h>
-#include <getopt.h>
+#include "homeapplication.h"
+#include <QDeclarativeContext>
+#include <QDeclarativeEngine>
+#include <QTimer>
+#include <QDesktopWidget>
 #include <QDBusMessage>
 #include <QDBusConnection>
 #include <QIcon>
 #include <QX11Info>
 #include <QDebug>
 #include <QEvent>
+#include <QGLWidget>
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -35,10 +36,11 @@
 #include <X11/extensions/Xcomposite.h>
 #include <X11/extensions/Xdamage.h>
 
-#include "homeapplication.h"
 #include "windowinfo.h"
 #include "xeventlistener.h"
 #include "xtools/xatomcache.h"
+#include "xtools/xwindowmanager.h"
+#include "components/windowmanager.h"
 
 /*!
  * D-Bus names for the notification that's sent when home is ready
@@ -47,13 +49,15 @@ static const QString HOME_READY_SIGNAL_PATH = "/com/nokia/duihome";
 static const QString HOME_READY_SIGNAL_INTERFACE = "com.nokia.duihome.readyNotifier";
 static const QString HOME_READY_SIGNAL_NAME = "ready";
 
-HomeApplication::HomeApplication(int &argc, char **argv)
+HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     : QApplication(argc, argv)
     , xEventListeners()
-    , iteratorActiveForEventListenerContainer(false)
     , toBeRemovedEventListeners()
+    , iteratorActiveForEventListenerContainer(false)
     , xDamageEventBase(0)
     , xDamageErrorBase(0)
+    , _mainWindowInstance(0)
+    , _qmlPath(qmlPath)
 {
     XDamageQueryExtension(QX11Info::display(), &xDamageEventBase, &xDamageErrorBase);
 
@@ -66,6 +70,7 @@ HomeApplication::HomeApplication(int &argc, char **argv)
 
 HomeApplication::~HomeApplication()
 {
+    delete _mainWindowInstance;
 }
 
 void HomeApplication::addXEventListener(XEventListener *listener)
@@ -95,9 +100,9 @@ void HomeApplication::sendStartupNotifications()
 
     // For device boot performance reasons initializing Home scene window must be done
     // only after ready signal is sent (NB#277602)
-    MainWindow::instance(true)->show();
+    mainWindowInstance()->show();
 
-    XDamageCreate(QX11Info::display(), MainWindow::instance()->effectiveWinId(), XDamageReportNonEmpty);
+    XDamageCreate(QX11Info::display(), mainWindowInstance()->effectiveWinId(), XDamageReportNonEmpty);
 }
 
 bool HomeApplication::x11EventFilter(XEvent *event)
@@ -105,10 +110,10 @@ bool HomeApplication::x11EventFilter(XEvent *event)
     bool eventHandled = false;
     iteratorActiveForEventListenerContainer = true;
 
-    if (event->xany.window == MainWindow::instance()->effectiveWinId())
+    if (event->xany.window == mainWindowInstance()->effectiveWinId())
     {
         qDebug() << Q_FUNC_INFO << "received event for main window!";
-        MainWindow::instance()->viewport()->repaint();
+        mainWindowInstance()->viewport()->repaint();
     }
 
     if (event->type == xDamageEventBase + XDamageNotify) {
@@ -142,4 +147,63 @@ bool HomeApplication::x11EventFilter(XEvent *event)
     }
 
     return eventHandled;
+}
+
+const QString &HomeApplication::qmlPath() const
+{
+    return _qmlPath;
+}
+
+void HomeApplication::setQmlPath(const QString &path)
+{
+    _qmlPath = path;
+
+    if (_mainWindowInstance)
+        _mainWindowInstance->setSource(path);
+}
+
+QDeclarativeView *HomeApplication::mainWindowInstance()
+{
+    if (_mainWindowInstance)
+        return _mainWindowInstance;
+
+    _mainWindowInstance = new QDeclarativeView();
+    _mainWindowInstance->setAttribute(Qt::WA_X11NetWmWindowTypeDesktop);
+
+    // Visibility change messages are required to make the appVisible() signal work
+    XWindowAttributes attributes;
+    XGetWindowAttributes(QX11Info::display(), _mainWindowInstance->effectiveWinId(), &attributes);
+    XSelectInput(QX11Info::display(), _mainWindowInstance->effectiveWinId(), attributes.your_event_mask | VisibilityChangeMask);
+
+    // Excluding it from the task bar
+    XWindowManager::excludeFromTaskBar(_mainWindowInstance->effectiveWinId());
+
+    // Setting up OpenGL
+    QGLFormat fmt;
+    fmt.setSamples(0);
+    fmt.setSampleBuffers(false);
+
+    QGLWidget *glw = new QGLWidget(fmt, _mainWindowInstance);
+    _mainWindowInstance->setViewport(glw);
+
+    // Setting optimalization flags
+    _mainWindowInstance->setOptimizationFlag(QGraphicsView::DontSavePainterState);
+    _mainWindowInstance->setResizeMode(QDeclarativeView::SizeRootObjectToView);
+    _mainWindowInstance->setAutoFillBackground(false);
+    _mainWindowInstance->setAttribute(Qt::WA_OpaquePaintEvent);
+    _mainWindowInstance->setAttribute(Qt::WA_NoSystemBackground);
+    _mainWindowInstance->viewport()->setAutoFillBackground(false);
+    _mainWindowInstance->viewport()->setAttribute(Qt::WA_OpaquePaintEvent);
+    _mainWindowInstance->viewport()->setAttribute(Qt::WA_NoSystemBackground);
+
+    // Setting up the context and engine things
+    QObject::connect(_mainWindowInstance->engine(), SIGNAL(quit()), QApplication::instance(), SLOT(quit()));
+    _mainWindowInstance->rootContext()->setContextProperty("initialSize", QApplication::desktop()->screenGeometry(_mainWindowInstance).size());
+    _mainWindowInstance->rootContext()->setContextProperty("windowManager", new WindowManager(this));
+
+    // Setting the source, if present
+    if (!_qmlPath.isEmpty())
+        _mainWindowInstance->setSource(_qmlPath);
+
+    return _mainWindowInstance;
 }

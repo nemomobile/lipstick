@@ -19,7 +19,6 @@
 
 #include <QX11Info>
 
-#include "mainwindow.h"
 #include "homeapplication.h"
 
 #include "components/launchermodel.h"
@@ -45,7 +44,7 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
 
     // We don't need the meego graphics system here
     QApplication::setGraphicsSystem("native");
-    HomeApplication app(argc, argv);
+    HomeApplication app(argc, argv, "qrc:/qml/main.qml");
 
     // Tell X that changes in the properties and the substructure of the root
     // window are interesting. These are used to get the list of windows and
