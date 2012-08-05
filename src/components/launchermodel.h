@@ -19,7 +19,6 @@
 
 #include <QObject>
 #include "launcheritem.h"
-#include "utilities/util.h"
 #include "utilities/qobjectlistmodel.h"
 
 class QFileSystemWatcher;

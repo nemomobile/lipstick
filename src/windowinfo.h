@@ -22,11 +22,6 @@
 
 #include <QObject>
 #include <QString>
-#include <QHash>
-#include <QExplicitlySharedDataPointer>
-
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
 
 /*!
  * WindowInfo is a helper class for storing information about an open window.
@@ -35,13 +30,13 @@ class WindowInfo : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(int pixmapSerial READ pixmapSerial WRITE setPixmapSerial NOTIFY pixmapSerialChanged)
+    Q_PROPERTY(qulonglong pixmapSerial READ pixmapSerial WRITE setPixmapSerial NOTIFY pixmapSerialChanged)
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
-    Q_PROPERTY(int window READ window NOTIFY windowChanged)
+    Q_PROPERTY(qulonglong window READ window NOTIFY windowChanged)
 
 
 public:
-    static WindowInfo *windowFor(Window wid);
+    static WindowInfo *windowFor(Qt::HANDLE wid);
 
     /*!
      * Destroys a WindowInfo object.
@@ -59,27 +54,27 @@ public:
      * Gets the types for this window \s WindowType
      * \return the types
      */
-    QList<Atom> types() const;
+    QList<Qt::HANDLE> types() const;
 
     /*!
      * Gets the states for this window \s WindowType
      * \return the states
      */
-    QList<Atom> states() const;
+    QList<Qt::HANDLE> states() const;
 
     /*!
      * Gets the window ID.
      *
      * \return the Window
      */
-    Window window() const;
+    Qt::HANDLE window() const;
 
     /*!
      * Gets the window ID of the window this window is transient for.
      *
      * \return the ID of the window this window is transient for
      */
-    Window transientFor() const;
+    Qt::HANDLE transientFor() const;
 
     /*!
      * Retrieves the window title. First the title is retrieved with atom _NET_WM_NAME,
@@ -100,8 +95,8 @@ public:
      */
     void setPid(int pid);
 
-    int pixmapSerial() const;
-    void setPixmapSerial(int pixmapSerial);
+    Qt::HANDLE pixmapSerial() const;
+    void setPixmapSerial(Qt::HANDLE pixmapSerial);
 
 signals:
     void pixmapSerialChanged();
@@ -109,12 +104,12 @@ signals:
     void windowChanged();
 
 private:
-    WindowInfo(Window window);
+    WindowInfo(Qt::HANDLE window);
 
     /*!
      * Gets the atoms and places them into the list
      */
-    QList<Atom> getWindowProperties(Window winId, Atom propertyAtom, long maxCount = 16L);
+    QList<Qt::HANDLE> getWindowProperties(Qt::HANDLE winId, Qt::HANDLE propertyAtom, long maxCount = 16L);
 
     //! The explicitly shared data object \c WindowData
     class WindowData;

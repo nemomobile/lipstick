@@ -75,7 +75,7 @@ public:
 //! new WindowInfo objects with shared data.
 static QHash<Window, WindowInfo * > windowDatas;
 
-WindowInfo *WindowInfo::windowFor(Window wid)
+WindowInfo *WindowInfo::windowFor(Qt::HANDLE wid)
 {
     if (WindowInfo *wi = windowDatas.value(wid)) {
         return wi;
@@ -84,7 +84,7 @@ WindowInfo *WindowInfo::windowFor(Window wid)
     }
 }
 
-WindowInfo::WindowInfo(Window window)
+WindowInfo::WindowInfo(Qt::HANDLE window)
     : d(new WindowData(window))
 {
     qDebug() << Q_FUNC_INFO << "Created WindowInfo for " << window;
@@ -104,22 +104,22 @@ const QString& WindowInfo::title() const
     return d->title;
 }
 
-Window WindowInfo::window() const
+Qt::HANDLE WindowInfo::window() const
 {
     return d->window;
 }
 
-Window WindowInfo::transientFor() const
+Qt::HANDLE WindowInfo::transientFor() const
 {
     return d->transientFor;
 }
 
-QList<Atom> WindowInfo::types() const
+QList<Qt::HANDLE> WindowInfo::types() const
 {
     return d->types;
 }
 
-QList<Atom> WindowInfo::states() const
+QList<Qt::HANDLE> WindowInfo::states() const
 {
     return d->states;
 }
@@ -167,7 +167,7 @@ void WindowInfo::setPid(int pid)
     d->pid = pid;
 }
 
-QList<Atom> WindowInfo::getWindowProperties(Window winId, Atom propertyAtom, long maxCount)
+QList<Qt::HANDLE> WindowInfo::getWindowProperties(Qt::HANDLE winId, Qt::HANDLE propertyAtom, long maxCount)
 {
     QList<Atom> properties;
     Atom actualType;
@@ -186,12 +186,12 @@ QList<Atom> WindowInfo::getWindowProperties(Window winId, Atom propertyAtom, lon
     return properties;
 }
 
-int WindowInfo::pixmapSerial() const
+Qt::HANDLE WindowInfo::pixmapSerial() const
 {
     return d->pixmapSerial;
 }
 
-void WindowInfo::setPixmapSerial(int pixmapSerial)
+void WindowInfo::setPixmapSerial(Qt::HANDLE pixmapSerial)
 {
     d->pixmapSerial = pixmapSerial;
     qDebug() << Q_FUNC_INFO << "Changed pixmap serial on " << d->window << " to " << d->pixmapSerial;
