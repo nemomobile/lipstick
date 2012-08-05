@@ -37,9 +37,10 @@
 #include <X11/extensions/Xdamage.h>
 
 #include "windowinfo.h"
-#include "xeventlistener.h"
+#include "xtools/xeventlistener.h"
 #include "xtools/xatomcache.h"
 #include "xtools/xwindowmanager.h"
+#include "xtools/homewindowmonitor.h"
 #include "components/windowmanager.h"
 
 /*!
@@ -66,6 +67,9 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
 
     // Initialize the X11 atoms used in the UI components
     AtomCache::initializeAtoms();
+
+    // Initialize the home window monitor
+    HomeWindowMonitor::instance();
 }
 
 HomeApplication::~HomeApplication()

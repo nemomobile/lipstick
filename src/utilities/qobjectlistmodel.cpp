@@ -1,8 +1,21 @@
 
+// This file is part of lipstick, a QML desktop library
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License version 2.1 as published by the Free Software Foundation
+// and appearing in the file LICENSE.LGPL included in the packaging
+// of this file.
+//
+// This code is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Lesser General Public License for more details.
+//
+// Copyright (c) 2012, Timur Kristóf <venemo@fedoraproject.org>
+
 #include "qobjectlistmodel.h"
 #include <QDebug>
-
-
 
 QObjectListModel::QObjectListModel(QObject *parent, QList<QObject*> *list)
     : QAbstractListModel(parent),
@@ -18,26 +31,22 @@ int QObjectListModel::indexOf(QObject *obj) const
     return _list->indexOf((QObject*) obj);
 }
 
-
 int QObjectListModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
     return _list->count();
 }
 
-
 int QObjectListModel::itemCount() const
 {
     return _list->count();
 }
-
 
 int QObjectListModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
     return 1;
 }
-
 
 QVariant QObjectListModel::data(const QModelIndex &index, int role) const
 {
@@ -53,7 +62,6 @@ QVariant QObjectListModel::data(const QModelIndex &index, int role) const
     return QVariant(0);
 }
 
-
 bool QObjectListModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (index.row() < 0 || index.row() >= _list->count())
@@ -68,7 +76,6 @@ bool QObjectListModel::setData(const QModelIndex &index, const QVariant &value, 
     return false;
 }
 
-
 void QObjectListModel::addItem(QObject *item)
 {
     int z = _list->count();
@@ -81,13 +88,11 @@ void QObjectListModel::addItem(QObject *item)
     emit itemCountChanged();
 }
 
-
 void QObjectListModel::removeDestroyedItem()
 {
     QObject *obj = QObject::sender();
     removeItem(obj);
 }
-
 
 void QObjectListModel::removeItem(QObject *item)
 {
@@ -99,7 +104,6 @@ void QObjectListModel::removeItem(QObject *item)
     emit itemCountChanged();
 }
 
-
 void QObjectListModel::removeItem(int index)
 {
     beginRemoveRows(QModelIndex(), index, index);
@@ -108,7 +112,6 @@ void QObjectListModel::removeItem(int index)
     endRemoveRows();
     emit itemCountChanged();
 }
-
 
 QObject* QObjectListModel::getItem(int index)
 {
@@ -138,4 +141,3 @@ void QObjectListModel::reset()
     QAbstractListModel::reset();
     emit itemCountChanged();
 }
-

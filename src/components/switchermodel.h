@@ -21,7 +21,7 @@
 #include "utilities/qobjectlistmodel.h"
 #include "windowinfo.h"
 #include "launcheritem.h"
-#include "xeventlistener.h"
+#include "xtools/xeventlistener.h"
 
 class QFileSystemWatcher;
 
