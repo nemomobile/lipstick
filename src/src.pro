@@ -19,15 +19,12 @@ TEMPLATE = lib
 TARGET = lipstick
 VERSION = 0.1
 
-CONFIG += qt plugin
-INSTALLS += target qmldirfile
-qmldirfile.files = qmldir
-qmldirfile.path += /usr/lib
-target.path += /usr/lib
+CONFIG += qt
+INSTALLS = target
+target.path = /usr/lib
 
 linux-g++-64 {
-    qmldirfile.path += /usr/lib64
-    target.path += /usr/lib64
+    target.path = /usr/lib64
 }
 
 QT += network \
@@ -78,7 +75,7 @@ PKGCONFIG += xcomposite mlite xdamage x11
 packagesExist(contentaction-0.1) {
     message("Using contentaction to launch applications")
     PKGCONFIG += contentaction-0.1
-    DEFINES += HAS_CONTENTACTION
+    DEFINES += HAVE_CONTENTACTION
 }
 else {
     warning("contentaction doesn't exist; falling back to exec - this may not work so great")

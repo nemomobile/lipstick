@@ -4,7 +4,7 @@ TARGET = lipstick
 VERSION = 0.1
 
 target.path += /usr/bin
-INSTALLS += target
+INSTALLS = target
 
 QT += network \
     svg \

@@ -22,14 +22,14 @@ VERSION = 0.1
 CONFIG += qt plugin
 QT += core gui declarative
 
-INSTALLS += target qmldirfile
+INSTALLS = target qmldirfile
 qmldirfile.files = qmldir
-qmldirfile.path += /usr/lib/qt4/imports/org/nemomobile/lipstick
-target.path += /usr/lib/qt4/imports/org/nemomobile/lipstick
+qmldirfile.path = /usr/lib/qt4/imports/org/nemomobile/lipstick
+target.path = /usr/lib/qt4/imports/org/nemomobile/lipstick
 
 linux-g++-64 {
-    qmldirfile.path += /usr/lib64/qt4/imports/org/nemomobile/lipstick
-    target.path += /usr/lib64/qt4/imports/org/nemomobile/lipstick
+    qmldirfile.path = /usr/lib64/qt4/imports/org/nemomobile/lipstick
+    target.path = /usr/lib64/qt4/imports/org/nemomobile/lipstick
 }
 
 DEPENDPATH += "../src"
