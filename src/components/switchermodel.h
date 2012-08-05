@@ -22,10 +22,11 @@
 #include "windowinfo.h"
 #include "launcheritem.h"
 #include "xtools/xeventlistener.h"
+#include "lipstickglobal.h"
 
 class QFileSystemWatcher;
 
-class SwitcherModel : public QObjectListModel, XEventListener
+class LIPSTICK_EXPORT SwitcherModel : public QObjectListModel, XEventListener
 {
     Q_OBJECT
     Q_DISABLE_COPY(SwitcherModel)

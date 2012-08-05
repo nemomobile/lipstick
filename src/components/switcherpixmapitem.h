@@ -20,8 +20,9 @@
 #define SWITCHERPIXMAPITEM_H
 
 #include <QDeclarativeItem>
+#include "lipstickglobal.h"
 
-class SwitcherPixmapItem : public QDeclarativeItem
+class LIPSTICK_EXPORT SwitcherPixmapItem : public QDeclarativeItem
 {
     Q_OBJECT
     Q_DISABLE_COPY(SwitcherPixmapItem)

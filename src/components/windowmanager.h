@@ -18,8 +18,9 @@
 #define WINDOWMANAGER_H
 
 #include <QObject>
+#include "lipstickglobal.h"
 
-class WindowManager : public QObject
+class LIPSTICK_EXPORT WindowManager : public QObject
 {
     Q_OBJECT
     Q_DISABLE_COPY(WindowManager)

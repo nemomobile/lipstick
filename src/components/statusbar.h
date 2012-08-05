@@ -19,8 +19,9 @@
 
 #include <QDeclarativeItem>
 #include <QPixmap>
+#include "lipstickglobal.h"
 
-class StatusBar : public QDeclarativeItem
+class LIPSTICK_EXPORT StatusBar : public QDeclarativeItem
 {
     Q_OBJECT
     Q_PROPERTY(bool isPortrait READ isPortrait WRITE setIsPortrait NOTIFY isPortraitChanged)

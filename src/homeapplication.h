@@ -22,13 +22,14 @@
 
 #include <QApplication>
 #include <QDeclarativeView>
+#include "lipstickglobal.h"
 
 class XEventListener;
 
 /*!
  * Extends QApplication with features necessary to create a desktop.
  */
-class HomeApplication : public QApplication
+class LIPSTICK_EXPORT HomeApplication : public QApplication
 {
     Q_OBJECT
 

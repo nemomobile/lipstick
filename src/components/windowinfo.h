@@ -22,11 +22,12 @@
 
 #include <QObject>
 #include <QString>
+#include "lipstickglobal.h"
 
 /*!
  * WindowInfo is a helper class for storing information about an open window.
  */
-class WindowInfo : public QObject
+class LIPSTICK_EXPORT WindowInfo : public QObject
 {
     Q_OBJECT
 

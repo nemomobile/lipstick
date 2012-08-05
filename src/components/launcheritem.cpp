@@ -22,7 +22,7 @@
 #include <QSettings>
 #include <mlite/mdesktopentry.h>
 
-#ifdef HAS_CONTENTACTION
+#ifdef HAVE_CONTENTACTION
 #include <contentaction.h>
 #endif
 
@@ -142,7 +142,6 @@ LauncherItem::LauncherItem(const QString &path, QObject *parent)
 
 LauncherItem::~LauncherItem()
 {
-    delete _desktopEntry;
 }
 
 QString LauncherItem::filePath() const
@@ -184,7 +183,7 @@ void LauncherItem::launchApplication() const
 {
 #if defined(HAVE_CONTENTACTION)
     LAUNCHER_DEBUG("launching content action for" << _desktopEntry->name());
-    ContentAction::Action action = ContentAction::Action::launcherAction(m_entry, QStringList());
+    ContentAction::Action action = ContentAction::Action::launcherAction(_desktopEntry, QStringList());
     action.trigger();
 #else
     LAUNCHER_DEBUG("launching exec line for" << _desktopEntry->name());

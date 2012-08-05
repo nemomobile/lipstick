@@ -20,10 +20,11 @@
 #include <QObject>
 #include "launcheritem.h"
 #include "utilities/qobjectlistmodel.h"
+#include "lipstickglobal.h"
 
 class QFileSystemWatcher;
 
-class LauncherModel : public QObjectListModel
+class LIPSTICK_EXPORT LauncherModel : public QObjectListModel
 {
     Q_OBJECT
     Q_DISABLE_COPY(LauncherModel)

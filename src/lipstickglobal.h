@@ -14,19 +14,13 @@
 //
 // Copyright (c) 2012, Timur Kristóf <venemo@fedoraproject.org>
 
-#ifndef LIPSTICKPLUGIN_H
-#define LIPSTICKPLUGIN_H
+#ifndef LIPSTICKGLOBAL_H
+#define LIPSTICKGLOBAL_H
 
-#include <QDeclarativeExtensionPlugin>
+#if defined(LIPSTICK_BUILD_LIBRARY)
+#define LIPSTICK_EXPORT Q_DECL_EXPORT
+#else
+#define LIPSTICK_EXPORT Q_DECL_IMPORT
+#endif
 
-class Q_DECL_EXPORT LipstickPlugin : public QDeclarativeExtensionPlugin
-{
-    Q_OBJECT
-
-public:
-    explicit LipstickPlugin(QObject *parent = 0);
-    void registerTypes(const char *uri);
-    
-};
-
-#endif // LIPSTICKPLUGIN_H
+#endif // LIPSTICKGLOBAL_H

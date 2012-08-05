@@ -44,3 +44,15 @@ SOURCES += \
 
 OTHER_FILES += \
     qmldir
+
+QMAKE_CXXFLAGS += \
+    -Werror \
+    -g \
+    -std=c++0x \
+    -fPIC \
+    -fvisibility=hidden \
+    -fvisibility-inlines-hidden
+
+QMAKE_LFLAGS += \
+    -pie \
+    -rdynamic
