@@ -68,10 +68,7 @@ Item {
 
     MouseArea {
         anchors.fill: parent
-        onClicked:
-        {
-            console.log(windowManager.windowToFront(model.object.window))
-        }
+        onClicked: windowManager.windowToFront(model.object.window)
     }
 
     Item {
