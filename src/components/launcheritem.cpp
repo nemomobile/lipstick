@@ -28,6 +28,13 @@
 
 #include "launcheritem.h"
 
+// Define this if you'd like to see debug messages from the launcher
+#ifdef DEBUG_LAUNCHER
+#define LAUNCHER_DEBUG(things) qDebug() << Q_FUNC_INFO << things
+#else
+#define LAUNCHER_DEBUG(things)
+#endif
+
 static QString findIconHelper(const QString &pathName, const QString &icon)
 {
     QStringList extensions;
@@ -64,7 +71,7 @@ static QString getIconPath(const QString &name)
 
     if (!QFile::exists(cachedPath))
     {
-        qDebug() << Q_FUNC_INFO << "Negative cache hit for " << name << " to " << cachedPath;
+        LAUNCHER_DEBUG("Negative cache hit for " << name << " to " << cachedPath);
     }
     else
     {
@@ -72,6 +79,7 @@ static QString getIconPath(const QString &name)
     }
 
     QStringList themes = QDir("/usr/share/themes").entryList(QStringList(), QDir::AllDirs | QDir::NoDotAndDotDot);
+
     if (!themes.isEmpty())
     {
         // TODO: look up active theme in gconf and set it to the first search path, don't hardcode it.
@@ -175,9 +183,12 @@ bool LauncherItem::isValid() const
 void LauncherItem::launchApplication() const
 {
 #if defined(HAVE_CONTENTACTION)
+    LAUNCHER_DEBUG("launching content action for" << _desktopEntry->name());
     ContentAction::Action action = ContentAction::Action::launcherAction(m_entry, QStringList());
     action.trigger();
 #else
+    LAUNCHER_DEBUG("launching exec line for" << _desktopEntry->name());
+
     // Get the command text from the desktop entry
     QString commandText = _desktopEntry->exec();
 

@@ -19,6 +19,13 @@
 #include <QDebug>
 #include "launchermodel.h"
 
+// Define this if you'd like to see debug messages from the launcher
+#ifdef DEBUG_LAUNCHER
+#define LAUNCHER_DEBUG(things) qDebug() << Q_FUNC_INFO << things
+#else
+#define LAUNCHER_DEBUG(things)
+#endif
+
 LauncherModel::LauncherModel(QObject *parent) :
     QObjectListModel(parent),
     _fileSystemWatcher(new QFileSystemWatcher(this))
@@ -63,7 +70,7 @@ void LauncherModel::monitoredDirectoryChanged(QString changedPath)
             this->getList<LauncherItem>()->end(),
             [fileInfo](LauncherItem* item) -> bool { return item->filePath() == fileInfo.fileName(); }))
         {
-            qDebug() << Q_FUNC_INFO << "Creating LauncherItem for desktop entry" << fileInfo.absoluteFilePath();
+            LAUNCHER_DEBUG("Creating LauncherItem for desktop entry" << fileInfo.absoluteFilePath());
             LauncherItem *item = new LauncherItem(fileInfo.absoluteFilePath(), this);
 
             if (item->isValid())
@@ -86,7 +93,7 @@ void LauncherModel::setDirectories(QStringList newDirectories)
     foreach (QString path, newDirectories)
     {
         if (!path.startsWith('/'))
-            qDebug() << Q_FUNC_INFO << "Not an absolute path, not adding" << path;
+            LAUNCHER_DEBUG(Q_FUNC_INFO << "Not an absolute path, not adding" << path);
         else
         {
             _fileSystemWatcher->addPath(path);
