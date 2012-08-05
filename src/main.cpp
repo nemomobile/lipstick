@@ -17,11 +17,13 @@
 
 #include "homeapplication.h"
 
+#include "components/launcheritem.h"
 #include "components/launchermodel.h"
 #include "components/switchermodel.h"
 #include "components/switcherpixmapitem.h"
 #include "components/statusbar.h"
 #include "components/windowmanager.h"
+#include "components/windowinfo.h"
 
 Q_DECL_EXPORT int main(int argc, char *argv[])
 {
@@ -29,7 +31,8 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
     qmlRegisterType<SwitcherModel>("org.nemomobile.lipstick", 0, 1, "SwitcherModel");
     qmlRegisterType<SwitcherPixmapItem>("org.nemomobile.lipstick", 0, 1, "SwitcherPixmapItem");
     qmlRegisterType<StatusBar>("org.nemomobile.lipstick", 0, 1, "StatusBar");
-    qmlRegisterUncreatableType<LauncherItem>("org.nemomobile.lipstick", 0, 1, "LauncherItem", "This type is initialized from LauncherModel");
+    qmlRegisterUncreatableType<WindowInfo>("org.nemomobile.lipstick", 0, 1, "WindowInfo", "This type is initialized by SwitcherModel");
+    qmlRegisterUncreatableType<LauncherItem>("org.nemomobile.lipstick", 0, 1, "LauncherItem", "This type is initialized by LauncherModel");
     qmlRegisterUncreatableType<WindowManager>("org.nemomobile.lipstick", 0, 1, "WindowManager", "This type should be accessed through a context property.");
 
     // We don't need the meego graphics system here

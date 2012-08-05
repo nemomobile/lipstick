@@ -28,13 +28,13 @@ CONFIG += qmake_cache target_qt
 
 # Input
 HEADERS += homeapplication.h \
-    windowinfo.h \
     utilities/qobjectlistmodel.h \
     xtools/homewindowmonitor.h \
     xtools/windowmonitor.h \
     xtools/xeventlistener.h \
     xtools/xatomcache.h \
     xtools/xwindowmanager.h \
+    components/windowinfo.h \
     components/launcheritem.h \
     components/launchermodel.h \
     components/switchermodel.h \
@@ -44,12 +44,12 @@ HEADERS += homeapplication.h \
 
 SOURCES += main.cpp \
     homeapplication.cpp \
-    windowinfo.cpp \
     utilities/qobjectlistmodel.cpp \
     xtools/homewindowmonitor.cpp \
     xtools/xeventlistener.cpp \
     xtools/xatomcache.cpp \
     xtools/xwindowmanager.cpp \
+    components/windowinfo.cpp \
     components/launcheritem.cpp \
     components/launchermodel.cpp \
     components/switchermodel.cpp \
