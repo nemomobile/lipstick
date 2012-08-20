@@ -72,7 +72,8 @@ QT += network \
     svg \
     dbus \
     xml \
-    declarative
+    declarative \
+    opengl
 
 QMAKE_CXXFLAGS += \
     -Werror \
