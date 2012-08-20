@@ -1,6 +1,6 @@
 TEMPLATE = subdirs
 CONFIG += ordered
-SUBDIRS += src plugin example
+SUBDIRS += src plugin
 
 QMAKE_CLEAN += \
     Makefile \

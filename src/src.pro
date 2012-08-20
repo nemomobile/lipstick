@@ -18,6 +18,7 @@ MOC_DIR = .moc
 
 PUBLICHEADERS += \
     homeapplication.h \
+    lipstickglobal.h \
     components/windowinfo.h \
     components/launcheritem.h \
     components/launchermodel.h \
@@ -38,7 +39,6 @@ HEADERS += \
     xtools/xeventlistener.h \
     xtools/xatomcache.h \
     xtools/xwindowmanager.h \
-    lipstickglobal.h
 
 SOURCES += \
     homeapplication.cpp \
@@ -90,3 +90,14 @@ QMAKE_LFLAGS += \
 QMAKE_CLEAN += \
     *.gcov \
     ./.obj/*.gcno
+
+CONFIG += create_pc create_prl
+QMAKE_PKGCONFIG_NAME = lib$$TARGET
+QMAKE_PKGCONFIG_DESCRIPTION = Library for creating QML desktops
+QMAKE_PKGCONFIG_LIBDIR = $$target.path
+QMAKE_PKGCONFIG_INCDIR = $$publicheaderfiles.path
+QMAKE_PKGCONFIG_DESTDIR = pkgconfig
+
+pkgconfig.files = $$TARGET.pc
+pkgconfig.path = $$target.path/pkgconfig
+INSTALLS += pkgconfig

@@ -31,13 +31,12 @@ contents
 
 src - a shared library
 plugin - a QML plugin which exposes stuff to the QML engine
-example - an example homescreen demonstrating the capabilities of the library
 
-how to run the example
-======================
+how to run lipstick
+===================
 
 1. Build the project.
-   This involves a library, a qml plugin, and an example.
+   This involves a library, and a qml plugin.
    They should compile without errors/warnings.
 
 2. Place the library .so file under /usr/lib
@@ -47,9 +46,16 @@ how to run the example
 2. Place the plugin .so file and the qmldir file under /usr/lib/qt4/imports/org/nemomobile/lipstick
    
    NOTE: The warning about /usr/lib64 applies here too
+
+3. Get yourself a desktop
+   If you haven't got anything better to use, grab the example
+   (http://github.com/nemomobile/lipstick-example-home/).
+
+   Build according to instructions, and run it.
+
+   Desktops use both the plugin and shared library generally, so 
+   both of them should be intact before you can run the example
    
-3. The example app uses both the plugin an the shared library (this is actually intended),
-   So both of them should be intact before you can run the example
-   
-   NOTE: if you use a properly packaged version of the library, you won't need to go through this trouble
+   NOTE: if you use a properly packaged version of the library,
+   you won't need to go through this trouble
 
