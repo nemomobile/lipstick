@@ -18,7 +18,7 @@ requirements
 libX
 libXcomposite
 libXdamage
-libmlite (https://github.com/chive/mlite)
+libmlite (https://github.com/nemomobile/mlite)
 
 building
 ========
