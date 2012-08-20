@@ -13,8 +13,6 @@ contains(COV_OPTION, on) {
         -fprofile-arcs
 }
 
-system(m-servicefwgen -a com.meego.core.HomeScreen)
-
 QMAKE_STRIP = echo
 OBJECTS_DIR = .obj
 MOC_DIR = .moc
