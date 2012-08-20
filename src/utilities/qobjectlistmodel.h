@@ -19,7 +19,9 @@
 
 #include <QAbstractListModel>
 
-class QObjectListModel : public QAbstractListModel
+#include "lipstickglobal.h"
+
+class LIPSTICK_EXPORT QObjectListModel : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(int itemCount READ itemCount NOTIFY itemCountChanged)
