@@ -1,9 +1,9 @@
 
 /*
- * Switcher.qml
+ * Launcher.qml
  *
  * Copyright (c) 2011 - Tom Swindell <t.swindell@rubyx.co.uk>
- * Copyright (c) 2012 - Timur Kristóf <timur.kristof@gmail.com>
+ * Copyright (c) 2012 - Timur Kristóf <venemo@fedoraproject.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,45 +28,58 @@ import QtQuick 1.1
 import org.nemomobile.lipstick 0.1
 
 Item {
-    property int columnNumber: 3
-
-    id: switcherRoot
+    id: launcherRoot
     clip: true
+
+    property alias cellWidth: gridview.cellWidth
 
     GridView {
         id: gridview
-        width: cellWidth * columnNumber
-        cellWidth: (parent.width - 60) / columnNumber
-        cellHeight: cellWidth * (desktop.height / desktop.width) + 20
+        width: Math.floor(parent.width / cellWidth) * cellWidth
+        cellWidth: 80 + 60
+        cellHeight: cellWidth
         anchors {
-            top: parent.top
-            bottom: parent.bottom
-            horizontalCenter: parent.horizontalCenter
-            topMargin: 35
-            bottomMargin: 35
+            top: parent.top;
+            bottom: parent.bottom;
+            horizontalCenter: parent.horizontalCenter;
+            topMargin: 20
+            bottomMargin: 20
         }
 
-        model: SwitcherModel {
-            id:switcherModel
-        }
+        model: LauncherModel { }
 
         delegate: Item {
             width: gridview.cellWidth
             height: gridview.cellHeight
 
-            SwitcherItem {
+            Image {
+                id:icon
+                anchors {
+                    top: parent.top
+                    horizontalCenter: parent.horizontalCenter
+                    margins: 8
+                }
+                width: 80
+                height: width
+                source: model.object.iconFilePath
+            }
+            Text {
                 width: parent.width - 10
-                height: parent.height - 10
-                anchors.centerIn: parent
+                anchors {
+                    bottom: parent.bottom
+                    horizontalCenter: parent.horizontalCenter
+                    margins: 30
+                }
+                horizontalAlignment: Text.AlignHCenter
+                elide: Text.ElideRight
+                font.pixelSize: 18
+                color: 'white'
+                text: object.title
+            }
+            MouseArea {
+                anchors.fill: parent
+                onClicked: object.launchApplication();
             }
         }
-    }
-    Text {
-        // Empty switcher indicator
-        anchors.centerIn: parent
-        visible: switcherModel.itemCount === 0
-        text: "No apps open"
-        color: "white"
-        font.pixelSize: 30
     }
 }

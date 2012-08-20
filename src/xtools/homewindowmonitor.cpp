@@ -21,6 +21,7 @@
 #include <QX11Info>
 
 #include "homewindowmonitor.h"
+#include "xtools/xatomcache.h"
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -41,9 +42,9 @@ const HomeWindowMonitor *HomeWindowMonitor::instance()
 }
 
 HomeWindowMonitor::HomeWindowMonitor() :
-        nonFullscreenApplicationWindowTypes(QSet<Atom>() << WindowInfo::NotificationAtom <<
-                                                            WindowInfo::DialogAtom <<
-                                                            WindowInfo::MenuAtom),
+        nonFullscreenApplicationWindowTypes(QSet<Atom>() << AtomCache::WindowTypeNotificationAtom <<
+                                                            AtomCache::WindowTypeDialogAtom <<
+                                                            AtomCache::WindowTypeMenuAtom),
         netClientListStacking(XInternAtom(QX11Info::display(), "_NET_CLIENT_LIST_STACKING", False))
 {
 }

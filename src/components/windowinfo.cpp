@@ -19,9 +19,10 @@
 
 #include <QHash>
 #include <QDebug>
+#include <QX11Info>
 
 #include "windowinfo.h"
-#include <QX11Info>
+#include "xtools/xatomcache.h"
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -70,47 +71,11 @@ public:
     int pixmapSerial;
 };
 
-
-static bool atomsInitialized;
-
-Atom WindowInfo::TypeAtom;
-Atom WindowInfo::StateAtom;
-Atom WindowInfo::NormalAtom;
-Atom WindowInfo::DesktopAtom;
-Atom WindowInfo::NotificationAtom;
-Atom WindowInfo::DialogAtom;
-Atom WindowInfo::CallAtom;
-Atom WindowInfo::DockAtom;
-Atom WindowInfo::MenuAtom;
-Atom WindowInfo::SkipTaskbarAtom;
-Atom WindowInfo::NameAtom;
-Atom WindowInfo::InputWindowAtom;
-
-void WindowInfo::initializeAtoms()
-{
-    if (!atomsInitialized) {
-        Display *dpy = QX11Info::display();
-        TypeAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE", False);
-        StateAtom = XInternAtom(dpy, "_NET_WM_STATE", False);
-        NormalAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_NORMAL", False);
-        DesktopAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_DESKTOP", False);
-        NotificationAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_NOTIFICATION", False);
-        DialogAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_DIALOG", False);
-        CallAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_CALL", False);
-        DockAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_DOCK", False);
-        MenuAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_MENU", False);
-        SkipTaskbarAtom = XInternAtom(dpy, "_NET_WM_STATE_SKIP_TASKBAR", False);
-        NameAtom = XInternAtom(dpy, "_NET_WM_NAME", False);
-        InputWindowAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_INPUT", False);
-        atomsInitialized = true;
-    }
-}
-
 //! Storage for the WindowInfo data objects. A central storage enables constructing
 //! new WindowInfo objects with shared data.
 static QHash<Window, WindowInfo * > windowDatas;
 
-WindowInfo *WindowInfo::windowFor(Window wid)
+WindowInfo *WindowInfo::windowFor(Qt::HANDLE wid)
 {
     if (WindowInfo *wi = windowDatas.value(wid)) {
         return wi;
@@ -119,7 +84,7 @@ WindowInfo *WindowInfo::windowFor(Window wid)
     }
 }
 
-WindowInfo::WindowInfo(Window window)
+WindowInfo::WindowInfo(Qt::HANDLE window)
     : d(new WindowData(window))
 {
     qDebug() << Q_FUNC_INFO << "Created WindowInfo for " << window;
@@ -139,22 +104,22 @@ const QString& WindowInfo::title() const
     return d->title;
 }
 
-Window WindowInfo::window() const
+Qt::HANDLE WindowInfo::window() const
 {
     return d->window;
 }
 
-Window WindowInfo::transientFor() const
+Qt::HANDLE WindowInfo::transientFor() const
 {
     return d->transientFor;
 }
 
-QList<Atom> WindowInfo::types() const
+QList<Qt::HANDLE> WindowInfo::types() const
 {
     return d->types;
 }
 
-QList<Atom> WindowInfo::states() const
+QList<Qt::HANDLE> WindowInfo::states() const
 {
     return d->states;
 }
@@ -169,7 +134,7 @@ bool WindowInfo::updateWindowTitle()
     Display *dpy = QX11Info::display();
     XTextProperty textProperty;
     bool updated = false;
-    int result = XGetTextProperty(dpy, d->window, &textProperty, WindowInfo::NameAtom);
+    int result = XGetTextProperty(dpy, d->window, &textProperty, AtomCache::NameAtom);
     if (result == 0) {
         result = XGetWMName(dpy, d->window, &textProperty);
     }
@@ -184,8 +149,8 @@ bool WindowInfo::updateWindowTitle()
 
 void WindowInfo::updateWindowProperties()
 {
-    d->types = getWindowProperties(d->window, WindowInfo::TypeAtom);
-    d->states = getWindowProperties(d->window, WindowInfo::StateAtom);
+    d->types = getWindowProperties(d->window, AtomCache::TypeAtom);
+    d->states = getWindowProperties(d->window, AtomCache::StateAtom);
 
     if (!XGetTransientForHint(QX11Info::display(), d->window, &d->transientFor) || d->transientFor == d->window) {
         d->transientFor = 0;
@@ -202,7 +167,7 @@ void WindowInfo::setPid(int pid)
     d->pid = pid;
 }
 
-QList<Atom> WindowInfo::getWindowProperties(Window winId, Atom propertyAtom, long maxCount)
+QList<Qt::HANDLE> WindowInfo::getWindowProperties(Qt::HANDLE winId, Qt::HANDLE propertyAtom, long maxCount)
 {
     QList<Atom> properties;
     Atom actualType;
@@ -221,18 +186,14 @@ QList<Atom> WindowInfo::getWindowProperties(Window winId, Atom propertyAtom, lon
     return properties;
 }
 
-int WindowInfo::pixmapSerial() const
+Qt::HANDLE WindowInfo::pixmapSerial() const
 {
     return d->pixmapSerial;
 }
 
-void WindowInfo::setPixmapSerial(int pixmapSerial)
+void WindowInfo::setPixmapSerial(Qt::HANDLE pixmapSerial)
 {
     d->pixmapSerial = pixmapSerial;
     qDebug() << Q_FUNC_INFO << "Changed pixmap serial on " << d->window << " to " << d->pixmapSerial;
     emit pixmapSerialChanged();
-}
-
-uint qHash(WindowInfo wi) {
-    return static_cast<uint>(wi.window());
 }

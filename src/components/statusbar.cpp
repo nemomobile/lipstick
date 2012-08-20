@@ -1,12 +1,42 @@
 
+// This file is part of lipstick, a QML desktop library
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License version 2.1 as published by the Free Software Foundation
+// and appearing in the file LICENSE.LGPL included in the packaging
+// of this file.
+//
+// This code is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Lesser General Public License for more details.
+//
+// Copyright (c) 2012, Timur Kristóf <venemo@fedoraproject.org>
+
 #include "statusbar.h"
+
 #include <QPainter>
 #include <QX11Info>
+#include <QTouchEvent>
+#include <QDBusInterface>
+#include <QDBusConnection>
+#include <QGraphicsScene>
+#include <QGraphicsView>
+#include <QTimer>
+
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
 #include <X11/extensions/Xcomposite.h>
 #include <X11/extensions/Xdamage.h>
+
+// Define this if you'd like to see debug messages from the status bar
+#ifdef DEBUG_STATUSBAR
+#define STATUSBAR_DEBUG(things) qDebug() << Q_FUNC_INFO << things
+#else
+#define STATUSBAR_DEBUG(things)
+#endif
 
 // Fetches the shared status bar pixmap
 static QPixmap fetchSharedPixmap()
@@ -87,10 +117,17 @@ static QPixmap fetchSharedPixmap()
 StatusBar::StatusBar(QDeclarativeItem *parent) :
     QDeclarativeItem(parent)
 {
-    _sharedPixmap = fetchSharedPixmap();
     setFlag(QGraphicsItem::ItemHasNoContents, false);
-    setImplicitWidth(_sharedPixmap.width());
+    setAcceptTouchEvents(true);
+    setImplicitHeight(36);
+    QTimer::singleShot(3000, this, SLOT(initializeStatusBar()));
+}
+
+void StatusBar::initializeStatusBar()
+{
+    _sharedPixmap = fetchSharedPixmap();
     setImplicitHeight(_sharedPixmap.height() / 2);
+    updateXThings();
 }
 
 void StatusBar::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -100,7 +137,9 @@ void StatusBar::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 
     if (_sharedPixmap.isNull())
     {
-        qDebug() << "StatusBar: the shared pixmap is null, can't draw it!";
+        STATUSBAR_DEBUG("the shared pixmap is null, can't draw it!");
+        painter->setPen(QColor(Qt::black));
+        painter->drawRect(0, 0, width(), height());
         return;
     }
 
@@ -116,8 +155,63 @@ bool StatusBar::isPortrait() const
     return _isPortrait;
 }
 
+void StatusBar::updateXThings()
+{
+    // Statusbar rect
+    QPointF p = mapToScene(0, 0);
+    unsigned long data[4] = { (int)p.x(), (int)p.y(), (int)width(), (int)height() };
+    STATUSBAR_DEBUG("statusbar geo:" << (int)p.x() << (int)p.y() << (int)width() << (int)height());
+
+    // Orientation angle
+    int angle = isPortrait() ? 270 : 0;
+    STATUSBAR_DEBUG("orientation angle:" << angle);
+
+    // Stuff for X
+    QWidget *activeWindow = this->scene()->views().at(0);
+    Display *dpy = QX11Info::display();
+
+    // Setting the status bar geometry atom (probably not necessary here)
+    Atom statusBarGeometryAtom = XInternAtom(dpy, "_MEEGOTOUCH_MSTATUSBAR_GEOMETRY", False);
+    XChangeProperty(dpy, activeWindow->effectiveWinId(), statusBarGeometryAtom, XA_CARDINAL, 32, PropModeReplace, (unsigned char*)data, 4);
+
+    // Setting the orientation angle atom (sysuid uses this to determine what orientation it should draw itself)
+    Atom orientationAngleAtom = XInternAtom(dpy, "_MEEGOTOUCH_ORIENTATION_ANGLE", False);
+    XChangeProperty(dpy, activeWindow->effectiveWinId(), orientationAngleAtom, XA_CARDINAL, 32, PropModeReplace, (unsigned char*)&angle, 1);
+
+    update();
+}
+
 void StatusBar::setIsPortrait(bool value)
 {
+    // If there is no change, don't bother
+    if (_isPortrait == value)
+        return;
+
     _isPortrait = value;
+    updateXThings();
+
     emit isPortraitChanged();
+}
+
+bool StatusBar::sceneEvent(QEvent *event)
+{
+    if (event->type() == QEvent::TouchBegin)
+    {
+        return true;
+    }
+    if (event->type() == QEvent::TouchEnd)
+    {
+        STATUSBAR_DEBUG("opening status menu");
+
+        QDBusInterface interface("com.meego.core.MStatusIndicatorMenu",
+                                 "/statusindicatormenu",
+                                 "com.meego.core.MStatusIndicatorMenu",
+                                 QDBusConnection::sessionBus());
+
+        interface.call(QDBus::NoBlock, "open");
+
+        return true;
+    }
+
+    return false;
 }

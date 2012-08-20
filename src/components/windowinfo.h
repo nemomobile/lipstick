@@ -20,45 +20,29 @@
 #ifndef WINDOWINFO_H_
 #define WINDOWINFO_H_
 
-#include <QString>
 #include <QObject>
-#include <QHash>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <QExplicitlySharedDataPointer>
+#include <QString>
+#include "lipstickglobal.h"
 
 /*!
  * WindowInfo is a helper class for storing information about an open window.
  */
-class WindowInfo : public QObject
+class LIPSTICK_EXPORT WindowInfo : public QObject
 {
     Q_OBJECT
-public:
-    // X11 atoms
-    static Atom TypeAtom;
-    static Atom StateAtom;
-    static Atom NormalAtom;
-    static Atom DesktopAtom;
-    static Atom NotificationAtom;
-    static Atom DialogAtom;
-    static Atom CallAtom;
-    static Atom DockAtom;
-    static Atom MenuAtom;
-    static Atom SkipTaskbarAtom;
-    static Atom InputWindowAtom;
-    static Atom NameAtom;
 
-    static WindowInfo *windowFor(Window wid);
+    Q_PROPERTY(qulonglong pixmapSerial READ pixmapSerial WRITE setPixmapSerial NOTIFY pixmapSerialChanged)
+    Q_PROPERTY(QString title READ title NOTIFY titleChanged)
+    Q_PROPERTY(qulonglong window READ window NOTIFY windowChanged)
+
+
+public:
+    static WindowInfo *windowFor(Qt::HANDLE wid);
 
     /*!
      * Destroys a WindowInfo object.
      */
     ~WindowInfo();
-
-    /*!
-     * Initializes the X11 atoms
-     */
-    static void initializeAtoms();
 
     /*!
      * Gets the title of the window.
@@ -71,27 +55,27 @@ public:
      * Gets the types for this window \s WindowType
      * \return the types
      */
-    QList<Atom> types() const;
+    QList<Qt::HANDLE> types() const;
 
     /*!
      * Gets the states for this window \s WindowType
      * \return the states
      */
-    QList<Atom> states() const;
+    QList<Qt::HANDLE> states() const;
 
     /*!
      * Gets the window ID.
      *
      * \return the Window
      */
-    Window window() const;
+    Qt::HANDLE window() const;
 
     /*!
      * Gets the window ID of the window this window is transient for.
      *
      * \return the ID of the window this window is transient for
      */
-    Window transientFor() const;
+    Qt::HANDLE transientFor() const;
 
     /*!
      * Retrieves the window title. First the title is retrieved with atom _NET_WM_NAME,
@@ -112,20 +96,21 @@ public:
      */
     void setPid(int pid);
 
-    Q_PROPERTY(int pixmapSerial READ pixmapSerial WRITE setPixmapSerial NOTIFY pixmapSerialChanged);
-    int pixmapSerial() const;
-    void setPixmapSerial(int pixmapSerial);
+    Qt::HANDLE pixmapSerial() const;
+    void setPixmapSerial(Qt::HANDLE pixmapSerial);
 
 signals:
     void pixmapSerialChanged();
+    void titleChanged();
+    void windowChanged();
 
 private:
-    WindowInfo(Window window);
+    WindowInfo(Qt::HANDLE window);
 
     /*!
      * Gets the atoms and places them into the list
      */
-    QList<Atom> getWindowProperties(Window winId, Atom propertyAtom, long maxCount = 16L);
+    QList<Qt::HANDLE> getWindowProperties(Qt::HANDLE winId, Qt::HANDLE propertyAtom, long maxCount = 16L);
 
     //! The explicitly shared data object \c WindowData
     class WindowData;
@@ -135,8 +120,5 @@ private:
 
 //! Comparison operator for WindowInfo objects
 bool operator==(const WindowInfo &, const WindowInfo &);
-
-//! Calculates a hash of a WindowInfo
-uint qHash(WindowInfo wi);
 
 #endif /* WINDOWINFO_H_ */

@@ -3,7 +3,7 @@
  * SwitcherItem.qml
  *
  * Copyright (c) 2011 - Tom Swindell <t.swindell@rubyx.co.uk>
- * Copyright (c) 2012 - Timur Kristóf <timur.kristof@gmail.com>
+ * Copyright (c) 2012 - Timur Kristóf <venemo@fedoraproject.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,11 +30,11 @@ import org.nemomobile.lipstick 0.1
 Item {
     id: switcherItemRoot
 
-    WindowPixmap {
+    SwitcherPixmapItem {
         id: windowPixmap
         width: desktop.isPortrait ? parent.height : parent.width
         height: desktop.isPortrait ? parent.width : parent.height
-        windowId: model.windowId
+        windowId: model.object.window
         transform: Rotation {
             angle: desktop.isPortrait ? 90 : 0
             origin.x: windowPixmap.height / 2
@@ -44,7 +44,7 @@ Item {
 
     MouseArea {
         anchors.fill: parent
-        onClicked: switcherModel.windowToFront(model.windowId)
+        onClicked: windowManager.windowToFront(model.object.window)
     }
 
     Item {
@@ -81,7 +81,7 @@ Item {
 
         MouseArea {
             anchors.fill: parent
-            onClicked: switcherModel.closeWindow(model.windowId)
+            onClicked: windowManager.closeWindow(model.object.window)
         }
     }
 }

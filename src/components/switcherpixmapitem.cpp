@@ -1,28 +1,27 @@
-/***************************************************************************
-**
-** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
-** All rights reserved.
-** Contact: Nokia Corporation (directui@nokia.com)
-**
-** This file is part of mhome.
-**
-** If you have questions regarding the use of this file, please contact
-** Nokia at directui@nokia.com.
-**
-** This library is free software; you can redistribute it and/or
-** modify it under the terms of the GNU Lesser General Public
-** License version 2.1 as published by the Free Software Foundation
-** and appearing in the file LICENSE.LGPL included in the packaging
-** of this file.
-**
-****************************************************************************/
+
+// This file is part of lipstick, a QML desktop library
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License version 2.1 as published by the Free Software Foundation
+// and appearing in the file LICENSE.LGPL included in the packaging
+// of this file.
+//
+// This code is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Lesser General Public License for more details.
+//
+// Copyright (c) 2011, Robin Burchell
+// Copyright (c) 2012, Timur Kristóf <venemo@fedoraproject.org>
+// Copyright (c) 2010, Nokia Corporation and/or its subsidiary(-ies) <directui@nokia.com>
+
+#include "switcherpixmapitem.h"
 
 #include <QApplication>
 #include <QPainter>
 #include <QTimer>
 #include <QX11Info>
-
-#include "switcherpixmapitem.h"
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -33,13 +32,9 @@
 // TODO: disable damage event processing when not on the screen
 // TODO: handle visibility/obscuring invalidating pixmaps
 
-const int ICON_GEOMETRY_UPDATE_INTERVAL = 200;
-Atom iconGeometryAtom = 0;
 #ifdef Q_WS_X11
 unsigned char xErrorCode = Success;
-#endif
 
-#ifdef Q_WS_X11
 static int handleXError(Display *, XErrorEvent *event)
 {
     xErrorCode = event->error_code;
@@ -62,22 +57,13 @@ struct SwitcherPixmapItem::Private
     Damage xWindowPixmapDamage;
     QPixmap qWindowPixmap;
     int windowId;
-    QTimer updateXWindowIconGeometryTimer;
 };
 
-SwitcherPixmapItem::SwitcherPixmapItem()
-    : QDeclarativeItem()
+SwitcherPixmapItem::SwitcherPixmapItem(QDeclarativeItem *parent)
+    : QDeclarativeItem(parent)
     , d(new Private)
 {
     setFlag(QGraphicsItem::ItemHasNoContents, false);
-
-    if (iconGeometryAtom == 0)
-        iconGeometryAtom = XInternAtom(QX11Info::display(), "_NET_WM_ICON_GEOMETRY", false);
-
-    d->updateXWindowIconGeometryTimer.setSingleShot(true);
-    d->updateXWindowIconGeometryTimer.setInterval(ICON_GEOMETRY_UPDATE_INTERVAL);
-    connect(&d->updateXWindowIconGeometryTimer, SIGNAL(timeout()), SLOT(updateXWindowIconGeomery()));
-
     connect(qApp, SIGNAL(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)), this, SLOT(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)));
 }
 
@@ -103,16 +89,6 @@ void SwitcherPixmapItem::damageEvent(Qt::HANDLE &damage, short &x, short &y, uns
 #else
     Q_UNUSED(damage);
 #endif
-}
-
-void SwitcherPixmapItem::updateXWindowIconGeometry()
-{
-    qDebug() << Q_FUNC_INFO << "Implement me!";
-}
-
-void SwitcherPixmapItem::updateXWindowIconGeometryIfNecessary()
-{
-    qDebug() << Q_FUNC_INFO << "Implement me!";
 }
 
 void SwitcherPixmapItem::destroyDamage()
@@ -188,9 +164,6 @@ void SwitcherPixmapItem::setWindowId(int window)
     // TODO: should we XFreePixmap here?
 
     update();
-
-    // Each window should always have at least some kind of a value for _NET_WM_ICON_GEOMETRY
-    updateXWindowIconGeometry();
 }
 
 int SwitcherPixmapItem::windowId() const
@@ -213,6 +186,4 @@ void SwitcherPixmapItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
     } QT_CATCH (std::bad_alloc e) {
         // XGetImage failed, the window has been already unmapped
     }
-
-    updateXWindowIconGeometryIfNecessary();
 }

@@ -21,18 +21,25 @@
 #define HOMEAPPLICATION_H_
 
 #include <QApplication>
-#include <QTimer>
-#include <QSet>
-#include <QVariant>
+#include <QDeclarativeView>
+#include "lipstickglobal.h"
 
 class XEventListener;
 
 /*!
- * HomeApplication extends MApplication with additional services.
+ * Extends QApplication with features necessary to create a desktop.
  */
-class HomeApplication : public QApplication
+class LIPSTICK_EXPORT HomeApplication : public QApplication
 {
     Q_OBJECT
+
+    QList<XEventListener*> xEventListeners;
+    QList<XEventListener*> toBeRemovedEventListeners;
+    bool iteratorActiveForEventListenerContainer;
+    int xDamageEventBase;
+    int xDamageErrorBase;
+    QDeclarativeView *_mainWindowInstance;
+    QString _qmlPath;
 
 public:
     /*!
@@ -40,12 +47,12 @@ public:
      *
      * \param argc number of arguments passed to the application from the command line
      * \param argv argument strings passed to the application from the command line
-     * \param appIdentifier An optional identifier for the application
+     * \param qmlPath The path of the QML file to load for the main window
      */
-    HomeApplication(int &argc, char **argv);
+    HomeApplication(int &argc, char **argv, const QString &qmlPath);
 
     /*!
-     * Destroys the HomeApplication.
+     * Destroys the application object.
      */
     virtual ~HomeApplication();
 
@@ -66,28 +73,22 @@ public:
     void removeXEventListener(XEventListener *listener);
 
     /*!
-     * Returns the locked orientation as set using the command line
-     * arguments. The orientation is returned as a QVariant. If the
-     * variant is not valid, the orientation locking has not been set
-     * through the command line arguments. Otherwise the variant
-     * contains a string representing the orientation to which the
-     * UI should be locked to: either an empty string (meaning no
-     * locking), portrait or landscape.
-     *
-     * \return a QVariant representing the locked orientation: invalid (use default), an empty string (unlocked), portrait or landscape
-     */
-    QVariant lockedOrientation() const;
+      * Gets the main window instance associated to this application.
+      * If it hasn't been created yet, this will create it.
+      */
+    QDeclarativeView *mainWindowInstance();
+
+    /*!
+      * Gets the path to the QML file to display.
+      */
+    const QString &qmlPath() const;
+
+    /*!
+      * Sets the path to the QML file to display.
+      */
+    void setQmlPath(const QString &path);
 
 signals:
-    /*!
-     * \brief A Signal to request launcher focus on specific launcher application
-     */
-     void focusToLauncherAppRequested(const QString &fileEntryPath);
-
-#ifdef BENCHMARKS_ON
-    void startBenchmarking();
-    void stopBenchmarking();
-#endif
 
     /*!
      * Signal application about a changed X pixmap
@@ -106,22 +107,6 @@ private slots:
      */
     void sendStartupNotifications();
 
-private:
-
-    /*!
-     * The X event listener objects registered for receiving X events.
-     */
-    QList<XEventListener*> xEventListeners;
-
-    //! A flag that tells if there is an active iterator going through the X event listener container
-    bool iteratorActiveForEventListenerContainer;
-
-    //! Listener objects that are to be removed from listening to X events.
-    //! Once a listener is on this list, it won't receive any X events any more.
-    QList<XEventListener*> toBeRemovedEventListeners;
-
-    int xDamageEventBase;
-    int xDamageErrorBase;
 };
 
 #endif /* HOMEAPPLICATION_H_ */

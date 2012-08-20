@@ -3,7 +3,7 @@
  * main.qml
  *
  * Copyright (c) 2011 - Tom Swindell <t.swindell@rubyx.co.uk>
- * Copyright (c) 2012 - Timur Kristóf <timur.kristof@gmail.com>
+ * Copyright (c) 2012 - Timur Kristóf <venemo@fedoraproject.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -100,6 +100,8 @@ Item {
         StatusBar {
             id: systemStatusBar
             anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
             z: 100
         }
         ListView {

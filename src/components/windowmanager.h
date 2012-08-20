@@ -14,38 +14,23 @@
 //
 // Copyright (c) 2012, Timur Kristóf <venemo@fedoraproject.org>
 
-#ifndef STATUSBAR_H
-#define STATUSBAR_H
+#ifndef WINDOWMANAGER_H
+#define WINDOWMANAGER_H
 
-#include <QDeclarativeItem>
-#include <QPixmap>
+#include <QObject>
 #include "lipstickglobal.h"
 
-class LIPSTICK_EXPORT StatusBar : public QDeclarativeItem
+class LIPSTICK_EXPORT WindowManager : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(bool isPortrait READ isPortrait WRITE setIsPortrait NOTIFY isPortraitChanged)
-
-    QPixmap _sharedPixmap;
-    bool _isPortrait;
-
-    void updateXThings();
+    Q_DISABLE_COPY(WindowManager)
 
 public:
-    explicit StatusBar(QDeclarativeItem *parent = 0);
-
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-    void updateSharedPixmap();
-    bool isPortrait() const;
-    void setIsPortrait(bool value);
-    virtual bool sceneEvent(QEvent *);
-
-private slots:
-    void initializeStatusBar();
-
-signals:
-    void isPortraitChanged();
+    explicit WindowManager(QObject *parent = 0);
+    Q_INVOKABLE void closeWindow(qulonglong windowId);
+    Q_INVOKABLE void windowToFront(qulonglong windowId);
+    Q_INVOKABLE bool isHomeWindowOnTop();
 
 };
 
-#endif // STATUSBAR_H
+#endif // WINDOWMANAGER_H

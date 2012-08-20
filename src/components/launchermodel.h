@@ -14,38 +14,38 @@
 //
 // Copyright (c) 2012, Timur Kristóf <venemo@fedoraproject.org>
 
-#ifndef STATUSBAR_H
-#define STATUSBAR_H
+#ifndef LAUNCHERMODEL_H
+#define LAUNCHERMODEL_H
 
-#include <QDeclarativeItem>
-#include <QPixmap>
+#include <QObject>
+#include "launcheritem.h"
+#include "utilities/qobjectlistmodel.h"
 #include "lipstickglobal.h"
 
-class LIPSTICK_EXPORT StatusBar : public QDeclarativeItem
+class QFileSystemWatcher;
+
+class LIPSTICK_EXPORT LauncherModel : public QObjectListModel
 {
     Q_OBJECT
-    Q_PROPERTY(bool isPortrait READ isPortrait WRITE setIsPortrait NOTIFY isPortraitChanged)
+    Q_DISABLE_COPY(LauncherModel)
 
-    QPixmap _sharedPixmap;
-    bool _isPortrait;
+    Q_PROPERTY(QStringList directories READ directories WRITE setDirectories NOTIFY directoriesChanged)
 
-    void updateXThings();
-
-public:
-    explicit StatusBar(QDeclarativeItem *parent = 0);
-
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-    void updateSharedPixmap();
-    bool isPortrait() const;
-    void setIsPortrait(bool value);
-    virtual bool sceneEvent(QEvent *);
+    QFileSystemWatcher *_fileSystemWatcher;
 
 private slots:
-    void initializeStatusBar();
+    void monitoredDirectoryChanged(QString);
+
+public:
+    explicit LauncherModel(QObject *parent = 0);
+    virtual ~LauncherModel();
+
+    QStringList directories() const;
+    void setDirectories(QStringList);
 
 signals:
-    void isPortraitChanged();
+    void directoriesChanged();
 
 };
 
-#endif // STATUSBAR_H
+#endif // LAUNCHERMODEL_H

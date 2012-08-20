@@ -1,21 +1,23 @@
+
 /*
- * Copyright 2011 Intel Corporation.
+ * Copyright (c) 2011-2012, Robin Burchell
+ * Copyright (c) 2012, Timur Kristóf <venemo@fedoraproject.org>
+ * Copyright (c) 2011, Intel Corporation.
  *
  * This program is licensed under the terms and conditions of the
- * Apache License, version 2.0.  The full text of the Apache License is at 
+ * Apache License, version 2.0.  The full text of the Apache License is at
  * http://www.apache.org/licenses/LICENSE-2.0
+ *
  */
 
-#include <QtDeclarative/qdeclarative.h>
 #include <QDir>
 #include <QFileInfoList>
 #include <QFileSystemWatcher>
 #include <QRegExp>
 #include <QX11Info>
 
-#include <mdesktopentry.h>
 #include "switchermodel.h"
-#include "desktop.h"
+#include "xtools/xatomcache.h"
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -23,96 +25,35 @@
 #include <X11/extensions/Xcomposite.h>
 #include <X11/extensions/Xdamage.h>
 
-// TODO: generic atom cache would be nice
-static Atom clientListAtom;
-static Atom closeWindowAtom;
-static Atom windowTypeAtom;
-static Atom windowStateAtom;
-static Atom activeWindowAtom;
-static Atom skipTaskbarAtom;
-static Atom windowTypeDesktopAtom;
-static Atom windowTypeNotificationAtom;
-static Atom windowTypeDockAtom;
-static Atom windowTypeNormalAtom;
-static Atom utf8StringAtom;
-static Atom windowPidAtom;
-static Atom iconGeometryAtom;
+// Define this if you'd like to see debug messages from the switcher
+#ifdef DEBUG_SWITCHER
+#define SWITCHER_DEBUG(things) qDebug() << Q_FUNC_INFO << things
+#else
+#define SWITCHER_DEBUG(things)
+#endif
 
 SwitcherModel::SwitcherModel(QObject *parent)
-    : QAbstractItemModel(parent)
+    : QObjectListModel(parent)
 {
-    clientListAtom = XInternAtom(QX11Info::display(), "_NET_CLIENT_LIST", False);
-    closeWindowAtom = XInternAtom(QX11Info::display(), "_NET_CLOSE_WINDOW", False);
-    windowTypeAtom = XInternAtom(QX11Info::display(), "_NET_WM_WINDOW_TYPE", False);
-    windowStateAtom = XInternAtom(QX11Info::display(), "_NET_WM_STATE", False);
-    activeWindowAtom = XInternAtom(QX11Info::display(), "_NET_ACTIVE_WINDOW", False);
-    skipTaskbarAtom = XInternAtom(QX11Info::display(), "_NET_WM_STATE_SKIP_TASKBAR", False);
-    windowTypeDesktopAtom = XInternAtom(QX11Info::display(), "_NET_WM_WINDOW_TYPE_DESKTOP", False);
-    windowTypeNotificationAtom = XInternAtom(QX11Info::display(), "_NET_WM_WINDOW_TYPE_NOTIFICATION", False);
-    windowTypeDockAtom = XInternAtom(QX11Info::display(), "_NET_WM_WINDOW_TYPE_DOCK", False);
-    windowTypeNormalAtom = XInternAtom(QX11Info::display(), "_NET_WM_WINDOW_TYPE_NORMAL", False);
-    utf8StringAtom = XInternAtom(QX11Info::display(), "UTF8_STRING", False);
-    windowPidAtom = XInternAtom(QX11Info::display(), "_NET_WM_PID", False);
-    iconGeometryAtom = XInternAtom(QX11Info::display(), "_NET_WM_ICON_GEOMETRY", False);
-
-    QHash<int, QByteArray> roles;
-    roles[id]="pid";
-    roles[name]="name";
-    roles[exec]="exec";
-    roles[comment]="comment";
-    roles[icon]="icon";
-    roles[filename]="filename";
-    roles[nodisplay]="nodisplay";
-    roles[object]="object";
-    roles[windowId] = "windowId";
-
-    setRoleNames(roles);
 }
 
 SwitcherModel::~SwitcherModel()
 {
 }
 
-/*
-static const char *appAtomNames[ATOM_COUNT] = {
-    "_MEEGO_ORIENTATION",
-    "_MEEGO_INHIBIT_SCREENSAVER",
-    "_MEEGO_TABLET_NOTIFY",
-    "_MEEGO_STACKING_LAYER",
-    "_MEEGOTOUCH_SKIP_ANIMATIONS",
-    "_NET_ACTIVE_WINDOW",
-    "_NET_CLIENT_LIST",
-    "_NET_CLOSE_WINDOW",
-    "_NET_WM_WINDOW_TYPE",
-    "_NET_WM_WINDOW_TYPE_NORMAL",
-    "_NET_WM_WINDOW_TYPE_DESKTOP",
-    "_NET_WM_WINDOW_TYPE_NOTIFICATION",
-    "_NET_WM_WINDOW_TYPE_DOCK",
-    "_NET_WM_STATE_SKIP_TASKBAR",
-    "_NET_WM_STATE",
-    "_NET_WM_PID",
-    "_NET_WM_ICON_GEOMETRY",
-    "_NET_WM_ICON_NAME",
-    "Backlight",
-    "BACKLIGHT",
-    "UTF8_STRING",
-    "WM_CHANGE_STATE",
-    "_MEEGO_SYSTEM_DIALOG"
-*/
-
 bool SwitcherModel::handleXEvent(const XEvent &event)
 {
     if (event.type == PropertyNotify &&
-        event.xproperty.window == DefaultRootWindow(QX11Info::display()) &&
-        event.xproperty.atom == clientListAtom)
+            event.xproperty.window == DefaultRootWindow(QX11Info::display()) &&
+            event.xproperty.atom == AtomCache::ClientListAtom)
     {
         updateWindowList();
         return true;
     }
     else if (event.type == ClientMessage &&
-             event.xclient.message_type == closeWindowAtom)
+             event.xclient.message_type == AtomCache::CloseWindowAtom)
     {
-        qDebug() << Q_FUNC_INFO << "Got close WindowInfo event for " << event.xclient.window;
+        SWITCHER_DEBUG("Got close WindowInfo event for " << event.xclient.window);
         if (!windowsBeingClosed.contains(event.xclient.window))
         {
             windowsBeingClosed.append(event.xclient.window);
@@ -121,14 +62,14 @@ bool SwitcherModel::handleXEvent(const XEvent &event)
         return true;
     }
     else if (event.type == PropertyNotify &&
-             (event.xproperty.atom == windowTypeAtom ||
-              event.xproperty.atom == windowStateAtom))
+             (event.xproperty.atom == AtomCache::TypeAtom ||
+              event.xproperty.atom == AtomCache::StateAtom))
     {
         updateWindowList();
         return true;
     }
     else if (event.type == PropertyNotify &&
-             event.xproperty.atom == activeWindowAtom)
+             event.xproperty.atom == AtomCache::ActiveWindowAtom)
     {
         updateWindowList();
         return true;
@@ -148,7 +89,7 @@ static QVector<Atom> getNetWmState(Display *display, Window window)
     uchar *propertyData = 0;
 
     // Step 1: Get the size of the list
-    bool result = XGetWindowProperty(display, window, windowStateAtom, 0, 0,
+    bool result = XGetWindowProperty(display, window, AtomCache::StateAtom, 0, 0,
                                      false, XA_ATOM, &actualType,
                                      &actualFormat, &propertyLength,
                                      &bytesLeft, &propertyData);
@@ -158,7 +99,7 @@ static QVector<Atom> getNetWmState(Display *display, Window window)
         XFree(propertyData);
 
         // Step 2: Get the actual list
-        if (XGetWindowProperty(display, window, windowStateAtom, 0,
+        if (XGetWindowProperty(display, window, AtomCache::StateAtom, 0,
                                atomList.size(), false, XA_ATOM,
                                &actualType, &actualFormat,
                                &propertyLength, &bytesLeft,
@@ -188,7 +129,8 @@ static QVector<Atom> getNetWmState(Display *display, Window window)
 
 void SwitcherModel::updateWindowList()
 {
-    qDebug() << Q_FUNC_INFO << "Updating window list";
+    SWITCHER_DEBUG("Updating window list");
+
     Display *dpy = QX11Info::display();
     XWindowAttributes wAttributes;
     Atom actualType;
@@ -198,7 +140,7 @@ void SwitcherModel::updateWindowList()
 
     int result = XGetWindowProperty(dpy,
                                     DefaultRootWindow(dpy),
-                                    clientListAtom,
+                                    AtomCache::ClientListAtom,
                                     0, 0x7fffffff,
                                     false, XA_WINDOW,
                                     &actualType,
@@ -210,16 +152,16 @@ void SwitcherModel::updateWindowList()
     if (result != Success || windowData == None)
         return;
 
-    qDebug() << "Read list of " << numWindowItems << " windows";
-    QList<WindowInfo *> windowList;
+    SWITCHER_DEBUG("Read list of " << numWindowItems << " windows");
+    QList<WindowInfo*> *windowList = new QList<WindowInfo*>();
     Window *wins = (Window *)windowData;
 
     for (unsigned int i = 0; i < numWindowItems; i++)
     {
         if (XGetWindowAttributes(dpy, wins[i], &wAttributes) != 0
-            && wAttributes.width > 0 &&
-            wAttributes.height > 0 && wAttributes.c_class == InputOutput &&
-            wAttributes.map_state != IsUnmapped)
+                && wAttributes.width > 0 &&
+                wAttributes.height > 0 && wAttributes.c_class == InputOutput &&
+                wAttributes.map_state != IsUnmapped)
         {
             unsigned char *typeData = NULL;
             unsigned long numTypeItems;
@@ -228,7 +170,7 @@ void SwitcherModel::updateWindowList()
             unsigned char *propPid = 0;
             result = XGetWindowProperty(dpy,
                                         wins[i],
-                                        windowPidAtom,
+                                        AtomCache::WindowPidAtom,
                                         0L, (long)BUFSIZ, false,
                                         XA_CARDINAL,
                                         &actualType,
@@ -248,7 +190,7 @@ void SwitcherModel::updateWindowList()
 
             result = XGetWindowProperty(dpy,
                                         wins[i],
-                                        windowTypeAtom,
+                                        AtomCache::TypeAtom,
                                         0L, 16L, false,
                                         XA_ATOM,
                                         &actualType,
@@ -267,14 +209,15 @@ void SwitcherModel::updateWindowList()
                     includeInWindowList = true;
                 for (unsigned int n = 0; n < numTypeItems; n++)
                 {
-                    if (type[n] == windowTypeDesktopAtom ||
-                        type[n] == windowTypeNotificationAtom ||
-                        type[n] == windowTypeDockAtom)
+                    if (type[n] == AtomCache::WindowTypeDesktopAtom ||
+                            type[n] == AtomCache::WindowTypeNotificationAtom ||
+                            type[n] == AtomCache::WindowTypeDockAtom ||
+                            type[n] == AtomCache::WindowTypeMenuAtom)
                     {
                         includeInWindowList = false;
                         break;
                     }
-                    if (type[n] == windowTypeNormalAtom)
+                    if (type[n] == AtomCache::WindowTypeNormalAtom)
                     {
                         includeInWindowList = true;
                     }
@@ -282,7 +225,7 @@ void SwitcherModel::updateWindowList()
 
                 if (includeInWindowList)
                 {
-                    if (getNetWmState(dpy, wins[i]).contains(skipTaskbarAtom))
+                    if (getNetWmState(dpy, wins[i]).contains(AtomCache::SkipTaskbarAtom))
                     {
                         includeInWindowList = false;
                     }
@@ -313,21 +256,8 @@ void SwitcherModel::updateWindowList()
 
                     if (!windowsBeingClosed.contains(wins[i]))
                     {
-                        unsigned int geom[4];
-                        geom[0] = 0; // x
-                        geom[1] = 0; // y
-                        geom[2] = 100; // width
-                        geom[3] = 100; // height
-                        XChangeProperty(QX11Info::display(),
-                                        wins[i],
-                                        iconGeometryAtom,
-                                        XA_CARDINAL,
-                                        sizeof(unsigned int) * 8,
-                                        PropModeReplace,
-                                        (unsigned char *)&geom, 4);
-
                         WindowInfo *wi = WindowInfo::windowFor(wins[i]);
-                        windowList.append(wi);
+                        windowList->append(wi);
                     }
                     else
                     {
@@ -350,121 +280,13 @@ void SwitcherModel::updateWindowList()
         }
     }
 
-    qDebug() << Q_FUNC_INFO << "Deleting WindowInfos for " << windowsStillBeingClosed;
+    SWITCHER_DEBUG("Deleting WindowInfos for " << windowsStillBeingClosed);
     foreach (Window wid, windowsStillBeingClosed) {
         WindowInfo *wi = WindowInfo::windowFor(wid);
         delete wi;
     }
 
     windowsStillBeingClosed.clear();
-
-    // TODO: don't reset whole model
-    beginResetModel();
-    m_windows = windowList;
-    endResetModel();
-
+    setList(windowList);
     emit itemCountChanged();
-}
-
-QModelIndex SwitcherModel::index(int row, int column, const QModelIndex &parent) const
-{
-    if (!hasIndex(row, column, parent))
-        return QModelIndex();
-
-    return createIndex(row, column);
-}
-
-QModelIndex SwitcherModel::parent(const QModelIndex &child) const
-{
-    Q_UNUSED(child);
-    return QModelIndex();
-}
-
-int SwitcherModel::rowCount(const QModelIndex &parent) const
-{
-    Q_UNUSED(parent);
-    return m_windows.count();
-}
-
-int SwitcherModel::columnCount(const QModelIndex &parent) const
-{
-    Q_UNUSED(parent);
-    return 1;
-}
-
-QVariant SwitcherModel::data(const QModelIndex& index, int role) const
-{
-    if (!index.isValid())
-        return QVariant();
-
-    WindowInfo *i = m_windows.at(index.row());
-
-    switch (role) {
-        case name:
-            return i->title();
-        case windowId: {
-            qulonglong wid = i->window();
-            return wid;
-        }
-        case object:
-            return QVariant::fromValue<QObject *>(i);
-        default:
-            break;
-    }
-
-    return QVariant();
-}
-
-bool SwitcherModel::hasChildren ( const QModelIndex & parent ) const
-{
-    Q_UNUSED(parent);
-    return false;
-}
-
-void SwitcherModel::windowToFront(qulonglong window)
-{
-    XEvent ev;
-    memset(&ev, 0, sizeof(ev));
-    ev.xclient.type         = ClientMessage;
-    ev.xclient.window       = window;
-    ev.xclient.message_type = activeWindowAtom;
-    ev.xclient.format       = 32;
-    ev.xclient.data.l[0]    = 1;
-    ev.xclient.data.l[1]    = CurrentTime;
-    XSendEvent(QX11Info::display(), QX11Info::appRootWindow(QX11Info::appScreen()), False, StructureNotifyMask, &ev);
-    qDebug() << Q_FUNC_INFO << "Foregrounded " << window;
-}
-
-void SwitcherModel::closeWindow(qulonglong window)
-{
-    Window rootWin = QX11Info::appRootWindow(QX11Info::appScreen());
-
-    XEvent ev;
-    memset(&ev, 0, sizeof(ev));
-    ev.xclient.type         = ClientMessage;
-    ev.xclient.window       = window;
-    ev.xclient.message_type = closeWindowAtom;
-    ev.xclient.format       = 32;
-    ev.xclient.data.l[0]    = CurrentTime;
-    ev.xclient.data.l[1]    = rootWin;
-    XSendEvent(QX11Info::display(), rootWin, False, SubstructureRedirectMask, &ev);
-    qDebug() << Q_FUNC_INFO << "Closed " << window;
-
-    if (!windowsStillBeingClosed.contains(window))
-        windowsStillBeingClosed.append(window);
-
-    // Close also the window this one is transient for, if any
-    WindowInfo *windowInfo = WindowInfo::windowFor(window);
-    if (windowInfo->transientFor() != 0 && windowInfo->transientFor() != window) {
-        qDebug() << Q_FUNC_INFO << "Closing transient " << windowInfo->transientFor();
-        closeWindow(windowInfo->transientFor());
-    } else {
-        qDebug() << Q_FUNC_INFO << "Updating WindowInfo list, deleting " << windowsBeingClosed;
-        updateWindowList();
-    }
-}
-
-int SwitcherModel::itemCount()
-{
-    return rowCount();
 }
