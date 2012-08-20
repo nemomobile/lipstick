@@ -57,9 +57,6 @@ MainWindow::MainWindow(QWidget *parent) :
     excludeFromTaskBar();
 
     setResizeMode(SizeRootObjectToView);
-    setAttribute(Qt::WA_OpaquePaintEvent);
-    setAttribute(Qt::WA_NoSystemBackground);
-    setViewport(new QGLWidget);
 
     QObject::connect(this->engine(), SIGNAL(quit()), QApplication::instance(), SLOT(quit()));
     rootContext()->setContextProperty("initialSize", QApplication::desktop()->screenGeometry(this).size());

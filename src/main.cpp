@@ -43,6 +43,10 @@ int main(int argc, char *argv[])
     HomeApplication app(argc, argv);
 
     MainWindow *mainWindow = MainWindow::instance(true);
+    mainWindow->setAttribute(Qt::WA_OpaquePaintEvent);
+    mainWindow->setAttribute(Qt::WA_NoSystemBackground);
+    mainWindow->viewport()->setAttribute(Qt::WA_OpaquePaintEvent);
+    mainWindow->viewport()->setAttribute(Qt::WA_NoSystemBackground);
     mainWindow->show();
     QObject::connect(&app, SIGNAL(aboutToQuit()), mainWindow, SLOT(deleteLater()));
 
