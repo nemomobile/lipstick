@@ -1,0 +1,8 @@
+what is this?
+=============
+
+this is a simple example QML application using 'lipstick' to create
+a mobile-oriented homescreen.
+
+to build, make sure you've built and installed 'lipstick' correctly,
+then just qmake/make/make install, and run 'lipstick'.
