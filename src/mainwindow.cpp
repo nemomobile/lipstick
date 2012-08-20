@@ -23,7 +23,6 @@
 #include <QDBusInterface>
 #include <QX11Info>
 #include <QFile>
-#include <QGLWidget>
 #include <QDeclarativeEngine>
 #include <QDeclarativeContext>
 #include <QDesktopWidget>
