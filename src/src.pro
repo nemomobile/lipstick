@@ -1,4 +1,4 @@
-VERSION = 0.2.1
+VERSION = 0.3.0
 MOC_DIR = .moc
 M_MGEN_OUTDIR = .gen
 OBJECTS_DIR = .obj
