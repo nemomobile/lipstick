@@ -1,4 +1,3 @@
-
 TEMPLATE = app
 TARGET = lipstick
 VERSION = 0.1
