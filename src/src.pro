@@ -87,9 +87,6 @@ QT += network \
     xml \
     declarative
 
-DEFINES += APPLICATIONS_DIRECTORY=\'$$quote(\"/usr/share/applications/\")\'
-DEFINES += M_XDG_DIR=\\\"\"$$M_XDG_DIR\"\\\"
-
 contains(BENCHMARKS, on) {
     DEFINES += BENCHMARKS_ON
 }
