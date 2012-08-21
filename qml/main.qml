@@ -114,9 +114,8 @@ Item {
             anchors.right: parent.right
             anchors.bottom: parent.bottom
 
-            snapMode:ListView.SnapOneItem
-            orientation:ListView.Vertical
-            boundsBehavior:Flickable.DragOverBounds
+            orientation: ListView.Vertical
+            boundsBehavior: Flickable.StopAtBounds
 
             model:VisualItemModel {
                 Switcher {
