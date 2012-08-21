@@ -29,15 +29,16 @@ import org.nemomobile.lipstick 0.1
 
 Item {
     id: launcherRoot
-    clip: true
-
     property alias cellWidth: gridview.cellWidth
+    height: gridview.contentHeight
 
     GridView {
         id: gridview
         width: Math.floor(parent.width / cellWidth) * cellWidth
         cellWidth: 80 + 60
         cellHeight: cellWidth
+        interactive: false
+
         anchors {
             top: parent.top;
             bottom: parent.bottom;

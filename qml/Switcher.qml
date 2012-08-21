@@ -29,15 +29,16 @@ import org.nemomobile.lipstick 0.1
 
 Item {
     property int columnNumber: 3
-
     id: switcherRoot
-    clip: true
+    height: gridview.contentHeight
 
     GridView {
         id: gridview
         width: cellWidth * columnNumber
         cellWidth: (parent.width - 60) / columnNumber
         cellHeight: cellWidth * (desktop.height / desktop.width) + 20
+        interactive: false
+
         anchors {
             top: parent.top
             bottom: parent.bottom
@@ -60,13 +61,5 @@ Item {
                 anchors.centerIn: parent
             }
         }
-    }
-    Text {
-        // Empty switcher indicator
-        anchors.centerIn: parent
-        visible: switcherModel.itemCount === 0
-        text: "No apps open"
-        color: "white"
-        font.pixelSize: 30
     }
 }

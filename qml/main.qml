@@ -91,12 +91,6 @@ Item {
             anchors.fill: parent
             source: ':/images/background.jpg'
         }
-        Rectangle {
-            id:overlay
-            anchors.fill:parent
-            opacity:0.6
-            color:'black'
-        }
         StatusBar {
             id: systemStatusBar
             anchors.top: parent.top
@@ -113,19 +107,17 @@ Item {
             anchors.bottom: parent.bottom
 
             snapMode:ListView.SnapOneItem
-            orientation:ListView.Horizontal
+            orientation:ListView.Vertical
             boundsBehavior:Flickable.DragOverBounds
 
             model:VisualItemModel {
-                Launcher {
-                    id: launcher
-                    width: desktop.width
-                    height: desktop.height
-                }
                 Switcher {
                     id: switcher
                     width: desktop.width
-                    height: desktop.height
+                }
+                Launcher {
+                    id: launcher
+                    width: desktop.width
                 }
             }
         }
