@@ -90,8 +90,15 @@ Item {
             id: background
             source: ':/images/background.jpg'
             x: 0
-            y: -(dashboard.contentY / 2)
+            y: -(dashboard.contentY / 2) // TODO: don't scroll over image height
         }
+
+        Image {
+            id: gradient
+            source: ":/images/home-gradient-ramp.png"
+            anchors.fill: parent
+        }
+
         StatusBar {
             id: systemStatusBar
             anchors.top: parent.top
