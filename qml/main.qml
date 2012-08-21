@@ -88,8 +88,9 @@ Item {
 
         Image {
             id: background
-            anchors.fill: parent
             source: ':/images/background.jpg'
+            x: 0
+            y: -(dashboard.contentY / 2)
         }
         StatusBar {
             id: systemStatusBar
