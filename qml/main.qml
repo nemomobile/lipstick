@@ -90,7 +90,15 @@ Item {
             id: background
             source: ':/images/background.jpg'
             x: 0
-            y: -(dashboard.contentY / 2) // TODO: don't scroll over image height
+            y: Math.min(0, -(dashboard.contentY / 2))
+            // TODO: this can still scroll past the image length
+            // but this may not matter due to the opacity rect below
+        }
+
+        Rectangle {
+            color: "black"
+            anchors.fill: parent
+            opacity: ((background.y * -1) / background.height * 1.5)
         }
 
         Image {
