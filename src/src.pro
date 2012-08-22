@@ -1,3 +1,6 @@
+
+include (../getlibdir.pri)
+
 TEMPLATE = lib
 TARGET = lipstick
 VERSION = 0.1
@@ -6,11 +9,7 @@ DEFINES += LIPSTICK_BUILD_LIBRARY
 
 CONFIG += qt
 INSTALLS = target
-target.path = /usr/lib
-
-linux-g++-64 {
-    target.path = /usr/lib64
-}
+target.path = $$LIBDIR
 
 QMAKE_STRIP = echo
 OBJECTS_DIR = .obj
