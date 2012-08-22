@@ -1,11 +1,17 @@
 // Copyright (c) 2012, Jolla Mobile
 // <insert closed source header here>
 
-#include <QDebug>
+#include <QFile>
+
 #include <homeapplication.h>
 
 int main(int argc, char *argv[])
 {
-    HomeApplication app(argc, argv, "qrc:/qml/main.qml");
-    return app.exec();
+    if (QFile::exists("main.qml")) {
+        HomeApplication app(argc, argv, "main.qml");
+        return app.exec();
+    } else {
+        HomeApplication app(argc, argv, "qrc:/qml/main.qml");
+        return app.exec();
+    }
 }

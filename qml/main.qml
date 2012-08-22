@@ -88,7 +88,7 @@ Item {
 
         Image {
             id: background
-            source: ':/images/background.jpg'
+            source: 'images/jolla-full-wallpaper.jpeg'
             x: 0
             y: Math.min(0, -(dashboard.contentY / 2))
             // TODO: this can still scroll past the image length
@@ -99,11 +99,12 @@ Item {
             color: "black"
             anchors.fill: parent
             opacity: ((background.y * -1) / background.height * 1.5)
+            // TODO: this probably needs adjustment for landscape mode
         }
 
         Image {
             id: gradient
-            source: ":/images/home-gradient-ramp.png"
+            source: "images/home-gradient-ramp.png"
             anchors.fill: parent
         }
 

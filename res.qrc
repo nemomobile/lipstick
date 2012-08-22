@@ -4,10 +4,7 @@
         <file>qml/Switcher.qml</file>
         <file>qml/SwitcherItem.qml</file>
         <file>qml/Launcher.qml</file>
-    </qresource>
-    <qresource prefix="/js"/>
-    <qresource prefix="/images">
-        <file alias="background.jpg">images/jolla-full-wallpaper.jpeg</file>
-        <file alias="home-gradient-ramp.png">images/home-gradient-ramp.png</file>
+        <file>qml/images/jolla-full-wallpaper.jpeg</file>
+        <file>qml/images/home-gradient-ramp.png</file>
     </qresource>
 </RCC>
