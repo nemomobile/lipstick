@@ -27,8 +27,9 @@
 import QtQuick 1.1
 import org.nemomobile.lipstick 0.1
 
-Item {
+MouseArea {
     id: switcherItemRoot
+    onClicked: windowManager.windowToFront(model.object.window)
 
     SwitcherPixmapItem {
         id: windowPixmap
@@ -43,11 +44,6 @@ Item {
     }
 
     MouseArea {
-        anchors.fill: parent
-        onClicked: windowManager.windowToFront(model.object.window)
-    }
-
-    Item {
         id: closeButton
         width: 30
         height: width
@@ -79,9 +75,6 @@ Item {
             }
         }
 
-        MouseArea {
-            anchors.fill: parent
-            onClicked: windowManager.closeWindow(model.object.window)
-        }
+        onClicked: windowManager.closeWindow(model.object.window)
     }
 }
