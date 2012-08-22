@@ -27,60 +27,40 @@
 import QtQuick 1.1
 import org.nemomobile.lipstick 0.1
 
-Item {
-    id: launcherRoot
-    property alias cellWidth: gridview.cellWidth
-    height: gridview.contentHeight
+GridView {
+    height: contentHeight
+    id: gridview
+    width: parent.width
+    cellWidth: Math.floor(parent.width / (parent.width / 160))
+    cellHeight: cellWidth
+    interactive: false
 
-    GridView {
-        id: gridview
-        width: Math.floor(parent.width / cellWidth) * cellWidth
-        cellWidth: 80 + 60
-        cellHeight: cellWidth
-        interactive: false
+    model: LauncherModel { }
 
-        anchors {
-            top: parent.top;
-            bottom: parent.bottom;
-            horizontalCenter: parent.horizontalCenter;
-            topMargin: 20
-            bottomMargin: 20
+    delegate: MouseArea {
+        width: gridview.cellWidth
+        height: gridview.cellHeight
+
+        onClicked: object.launchApplication();
+
+        Image {
+            id:icon
+            anchors.centerIn: parent
+            width: 80
+            height: width
+            source: model.object.iconFilePath
         }
 
-        model: LauncherModel { }
-
-        delegate: Item {
-            width: gridview.cellWidth
-            height: gridview.cellHeight
-
-            Image {
-                id:icon
-                anchors {
-                    top: parent.top
-                    horizontalCenter: parent.horizontalCenter
-                    margins: 8
-                }
-                width: 80
-                height: width
-                source: model.object.iconFilePath
-            }
-            Text {
-                width: parent.width - 10
-                anchors {
-                    bottom: parent.bottom
-                    horizontalCenter: parent.horizontalCenter
-                    margins: 30
-                }
-                horizontalAlignment: Text.AlignHCenter
-                elide: Text.ElideRight
-                font.pixelSize: 18
-                color: 'white'
-                text: object.title
-            }
-            MouseArea {
-                anchors.fill: parent
-                onClicked: object.launchApplication();
-            }
+        Text {
+            anchors.top: icon.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.margins: 8
+            horizontalAlignment: Text.AlignHCenter
+            elide: Text.ElideRight
+            font.pixelSize: 18
+            color: 'white'
+            text: object.title
         }
     }
 }

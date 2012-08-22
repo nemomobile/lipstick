@@ -178,16 +178,18 @@ Item {
                 id: dashContent
                 anchors.left: parent.left
                 anchors.right: parent.right
+                spacing: 0
 
                 Switcher {
                     id: switcher
                     width: parent.width
-                    height: dashboard.height - launcher.cellWidth
+                    height: dashboard.height - launcher.cellHeight
                 }
 
                 Launcher {
                     id: launcher
                     width: parent.width
+                    anchors.horizontalCenter: parent.horizontalCenter;
                 }
             }
         }
