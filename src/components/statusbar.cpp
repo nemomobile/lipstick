@@ -159,7 +159,7 @@ void StatusBar::updateXThings()
 {
     // Statusbar rect
     QPointF p = mapToScene(0, 0);
-    unsigned long data[4] = { (int)p.x(), (int)p.y(), (int)width(), (int)height() };
+    unsigned long data[4] = { (unsigned long)p.x(), (unsigned long)p.y(), (unsigned long)width(), (unsigned long)height() };
     STATUSBAR_DEBUG("statusbar geo:" << (int)p.x() << (int)p.y() << (int)width() << (int)height());
 
     // Orientation angle
