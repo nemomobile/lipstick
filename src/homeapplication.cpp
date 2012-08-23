@@ -42,6 +42,8 @@
 #include "xtools/homewindowmonitor.h"
 #include "components/windowmanager.h"
 #include "components/windowinfo.h"
+#include "lipsticksettings.h"
+#include "lipstickdbusinterface.h"
 
 // Define this if you'd like to see debug messages from the switcher
 #ifdef DEBUG_HOME
@@ -77,11 +79,24 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
 
     // Initialize the home window monitor
     HomeWindowMonitor::instance();
+
+    new LipstickDBusInterface(this);
+    QDBusConnection::sessionBus().registerService("org.nemomobile.lipstick");
+    if (!QDBusConnection::sessionBus().registerObject("/request", this)) {
+        qWarning("CAN'T REGISTER DBUS");
+    } else {
+        qDebug("DBUS REGISTERED OK");
+    }
 }
 
 HomeApplication::~HomeApplication()
 {
     delete _mainWindowInstance;
+}
+
+HomeApplication *HomeApplication::instance()
+{
+    return qobject_cast<HomeApplication *>(QApplication::instance());
 }
 
 void HomeApplication::addXEventListener(XEventListener *listener)
@@ -215,6 +230,7 @@ QDeclarativeView *HomeApplication::mainWindowInstance()
     QObject::connect(_mainWindowInstance->engine(), SIGNAL(quit()), QApplication::instance(), SLOT(quit()));
     _mainWindowInstance->rootContext()->setContextProperty("initialSize", QApplication::desktop()->screenGeometry(_mainWindowInstance).size());
     _mainWindowInstance->rootContext()->setContextProperty("windowManager", new WindowManager(this));
+    _mainWindowInstance->rootContext()->setContextProperty("LipstickSettings", LipstickSettings::instance());
 
     // Setting the source, if present
     if (!_qmlPath.isEmpty())

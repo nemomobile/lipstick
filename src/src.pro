@@ -38,9 +38,13 @@ HEADERS += \
     xtools/xeventlistener.h \
     xtools/xatomcache.h \
     xtools/xwindowmanager.h \
+    lipstickdbusinterface.h \
+    lipsticksettings.h
 
 SOURCES += \
     homeapplication.cpp \
+    lipstickdbusinterface.cpp \
+    lipsticksettings.cpp \
     utilities/qobjectlistmodel.cpp \
     xtools/homewindowmonitor.cpp \
     xtools/xeventlistener.cpp \

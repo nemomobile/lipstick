@@ -56,6 +56,8 @@ public:
      */
     virtual ~HomeApplication();
 
+    static HomeApplication *instance();
+
     /*!
      * Adds an X event listener object for this application. When X events arrive,
      * they are forwarded to the listener.
