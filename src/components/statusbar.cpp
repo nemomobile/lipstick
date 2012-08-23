@@ -118,7 +118,7 @@ StatusBar::StatusBar(QDeclarativeItem *parent) :
     QDeclarativeItem(parent)
 {
     setFlag(QGraphicsItem::ItemHasNoContents, false);
-    setAcceptTouchEvents(true);
+    setAcceptedMouseButtons(Qt::LeftButton);
     setImplicitHeight(36);
     QTimer::singleShot(3000, this, SLOT(initializeStatusBar()));
 }
@@ -193,25 +193,41 @@ void StatusBar::setIsPortrait(bool value)
     emit isPortraitChanged();
 }
 
-bool StatusBar::sceneEvent(QEvent *event)
+void StatusBar::mousePressEvent(QGraphicsSceneMouseEvent * /*event */)
 {
-    if (event->type() == QEvent::TouchBegin)
-    {
-        return true;
-    }
-    if (event->type() == QEvent::TouchEnd)
-    {
-        STATUSBAR_DEBUG("opening status menu");
-
-        QDBusInterface interface("com.meego.core.MStatusIndicatorMenu",
-                                 "/statusindicatormenu",
-                                 "com.meego.core.MStatusIndicatorMenu",
-                                 QDBusConnection::sessionBus());
-
-        interface.call(QDBus::NoBlock, "open");
-
-        return true;
-    }
-
-    return false;
 }
+
+void StatusBar::mouseReleaseEvent(QGraphicsSceneMouseEvent * /* event */)
+{
+    QDBusInterface interface("com.meego.core.MStatusIndicatorMenu",
+                             "/statusindicatormenu",
+                             "com.meego.core.MStatusIndicatorMenu",
+                             QDBusConnection::sessionBus());
+
+    interface.call(QDBus::NoBlock, "open");
+}
+
+void StatusBar::mouseDoubleClickEvent(QGraphicsSceneMouseEvent * /* event */)
+{
+}
+
+void StatusBar::mouseMoveEvent(QGraphicsSceneMouseEvent * /* event */)
+{
+}
+
+void StatusBar::hoverEnterEvent(QGraphicsSceneHoverEvent * /* event */)
+{
+}
+
+void StatusBar::hoverMoveEvent(QGraphicsSceneHoverEvent * /* event */)
+{
+}
+
+void StatusBar::hoverLeaveEvent(QGraphicsSceneHoverEvent * /* event */)
+{
+}
+
+void StatusBar::contextMenuEvent(QGraphicsSceneContextMenuEvent * /* event */)
+{
+}
+

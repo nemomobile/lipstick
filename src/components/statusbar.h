@@ -38,7 +38,18 @@ public:
     void updateSharedPixmap();
     bool isPortrait() const;
     void setIsPortrait(bool value);
-    virtual bool sceneEvent(QEvent *);
+
+    // we reimplement pretty much all virtuals, to prevent anything
+    // propegating to items (like MouseArea) underneath us.
+    void mousePressEvent(QGraphicsSceneMouseEvent *event);
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+    void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+    void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
+    void hoverMoveEvent(QGraphicsSceneHoverEvent *event);
+    void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
+    void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+
 
 private slots:
     void initializeStatusBar();
