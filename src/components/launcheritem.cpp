@@ -161,6 +161,11 @@ QString LauncherItem::entryType() const
 
 QString LauncherItem::iconFilePath() const
 {
+    LAUNCHER_DEBUG("icon path is:" << _desktopEntry->icon());
+
+    if (_desktopEntry->icon().length() == 0)
+        return QString();
+
     return "file://" + getIconPath(_desktopEntry->icon());
 }
 
