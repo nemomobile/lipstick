@@ -65,10 +65,8 @@ void LipstickSettings::setLockscreenVisible(bool lockscreenVisible)
     // Set the stacking layer
     Display *display = QX11Info::display();
     Atom stackingLayerAtom = XInternAtom(display, "_MEEGO_STACKING_LAYER", False);
-    if (stackingLayerAtom != None) {
-        layer = 2;
+    if (stackingLayerAtom != None)
         XChangeProperty(display, view->winId(), stackingLayerAtom, XA_CARDINAL, 32, PropModeReplace, (unsigned char*)&layer, 1);
-    }
 
     emit lockscreenVisibleChanged();
 }
