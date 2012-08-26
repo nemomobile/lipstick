@@ -189,9 +189,15 @@ Item {
                 Launcher {
                     id: launcher
                     width: parent.width
-                    anchors.horizontalCenter: parent.horizontalCenter;
                 }
             }
+        }
+
+        // TODO: does not match jolla UI
+        Lockscreen {
+            height: desktop.height
+            width: desktop.width
+            z: 200
         }
     }
 }
