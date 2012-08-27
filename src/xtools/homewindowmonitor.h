@@ -53,6 +53,9 @@ public:
     //! Returns true if Home is highest window excluding windows defined by ignoredWindows
     bool isHomeWindowOnTop(QSet<Atom> ignoredWindows) const;
 
+signals:
+    void isHomeWindowOnTopChanged();
+
 protected:
     /*!
      * Constructor.
