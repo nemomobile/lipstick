@@ -166,7 +166,12 @@ QString LauncherItem::iconFilePath() const
     if (_desktopEntry->icon().length() == 0)
         return QString();
 
-    return "file://" + getIconPath(_desktopEntry->icon());
+    QString path = getIconPath(_desktopEntry->icon());
+
+    if (path.length() == 0)
+        return QString();
+
+    return "file://" + path;
 }
 
 QStringList LauncherItem::desktopCategories() const
