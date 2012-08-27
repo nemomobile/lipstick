@@ -29,6 +29,7 @@ class LIPSTICK_EXPORT StatusBar : public QDeclarativeItem
     QPixmap _sharedPixmap;
     bool _isPortrait;
 
+private slots:
     void updateXThings();
 
 public:

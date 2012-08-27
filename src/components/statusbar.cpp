@@ -168,17 +168,28 @@ void StatusBar::updateXThings()
     int angle = isPortrait() ? 270 : 0;
     STATUSBAR_DEBUG("orientation angle:" << angle);
 
+    if (!this->scene() || this->scene()->views().length() == 0)
+    {
+        STATUSBAR_DEBUG("Something's not ok, trying to get back here later");
+        QTimer::singleShot(0, this, SLOT(updateXThings()));
+        return;
+    }
+
     // Stuff for X
     QWidget *activeWindow = this->scene()->views().at(0);
     Display *dpy = QX11Info::display();
 
+    STATUSBAR_DEBUG("starting to set X properties");
+
     // Setting the status bar geometry atom (probably not necessary here)
     Atom statusBarGeometryAtom = XInternAtom(dpy, "_MEEGOTOUCH_MSTATUSBAR_GEOMETRY", False);
     XChangeProperty(dpy, activeWindow->effectiveWinId(), statusBarGeometryAtom, XA_CARDINAL, 32, PropModeReplace, (unsigned char*)data, 4);
+    STATUSBAR_DEBUG("called XChangeProperty for _MEEGOTOUCH_MSTATUSBAR_GEOMETRY");
 
     // Setting the orientation angle atom (sysuid uses this to determine what orientation it should draw itself)
     Atom orientationAngleAtom = XInternAtom(dpy, "_MEEGOTOUCH_ORIENTATION_ANGLE", False);
     XChangeProperty(dpy, activeWindow->effectiveWinId(), orientationAngleAtom, XA_CARDINAL, 32, PropModeReplace, (unsigned char*)&angle, 1);
+    STATUSBAR_DEBUG("called XChangeProperty for _MEEGOTOUCH_ORIENTATION_ANGLE");
 
     update();
 }
@@ -200,7 +211,7 @@ void StatusBar::mousePressEvent(QGraphicsSceneMouseEvent *event)
     event->accept();
 }
 
-void StatusBar::mouseReleaseEvent(QGraphicsSceneMouseEvent * /* event */)
+void StatusBar::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     event->accept();
 
