@@ -122,12 +122,19 @@ StatusBar::StatusBar(QDeclarativeItem *parent) :
     setFlag(QGraphicsItem::ItemHasNoContents, false);
     setAcceptedMouseButtons(Qt::LeftButton);
     setImplicitHeight(36);
-    QTimer::singleShot(3000, this, SLOT(initializeStatusBar()));
+    QTimer::singleShot(0, this, SLOT(initializeStatusBar()));
 }
 
 void StatusBar::initializeStatusBar()
 {
     _sharedPixmap = fetchSharedPixmap();
+
+    if (_sharedPixmap.isNull())
+    {
+        QTimer::singleShot(1000, this, SLOT(initializeStatusBar()));
+        return;
+    }
+
     setImplicitHeight(_sharedPixmap.height() / 2);
     updateXThings();
 }
