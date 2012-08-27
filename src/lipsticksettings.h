@@ -19,6 +19,7 @@
 
 #include <QObject>
 #include <QMetaType>
+#include <QSize>
 
 class LipstickSettings : public QObject
 {
@@ -33,6 +34,8 @@ public:
 
     bool lockscreenVisible() const;
     void setLockscreenVisible(bool lockscreenVisible);
+
+    Q_INVOKABLE QSize getScreenSize();
 
 signals:
     void lockscreenVisibleChanged();

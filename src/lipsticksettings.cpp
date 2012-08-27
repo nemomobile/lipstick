@@ -17,6 +17,8 @@
 
 #include <QX11Info>
 #include <QDeclarativeView>
+#include <QApplication>
+#include <QDesktopWidget>
 
 #include "lipsticksettings.h"
 #include "homeapplication.h"
@@ -67,4 +69,9 @@ void LipstickSettings::setLockscreenVisible(bool lockscreenVisible)
         XChangeProperty(display, view->winId(), stackingLayerAtom, XA_CARDINAL, 32, PropModeReplace, (unsigned char*)&layer, 1);
 
     emit lockscreenVisibleChanged();
+}
+
+QSize LipstickSettings::getScreenSize()
+{
+    return QApplication::desktop()->screenGeometry(HomeApplication::instance()->mainWindowInstance()).size();
 }
