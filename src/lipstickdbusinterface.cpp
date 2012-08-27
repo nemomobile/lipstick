@@ -19,6 +19,13 @@
 #include "lipstickdbusinterface.h"
 #include "lipsticksettings.h"
 
+// Define this if you'd like to see debug messages from the dbus interface class
+#ifdef DEBUG_DBUSINTERFACE
+#define DBUSINTERFACE_DEBUG(things) qDebug() << Q_FUNC_INFO << things
+#else
+#define DBUSINTERFACE_DEBUG(things)
+#endif
+
 LipstickDBusInterface::LipstickDBusInterface(QObject *parent)
     : QDBusAbstractAdaptor(parent)
 {
@@ -28,7 +35,7 @@ LipstickDBusInterface::LipstickDBusInterface(QObject *parent)
 
 void LipstickDBusInterface::showLockScreen()
 {
-    qDebug() << Q_FUNC_INFO << "Show lockscreen";
+    DBUSINTERFACE_DEBUG("Received signal to show lockscreen");
 
     LipstickSettings *settings = LipstickSettings::instance();
     settings->setLockscreenVisible(true);
@@ -36,7 +43,8 @@ void LipstickDBusInterface::showLockScreen()
 
 void LipstickDBusInterface::hideLockScreen()
 {
-    qDebug() << Q_FUNC_INFO << "Hide lockscreen";
+    DBUSINTERFACE_DEBUG("Received signal to hide lockscreen");
+
     LipstickSettings *settings = LipstickSettings::instance();
     settings->setLockscreenVisible(false);
 }
@@ -44,6 +52,11 @@ void LipstickDBusInterface::hideLockScreen()
 void LipstickDBusInterface::lockscreenVisibilityChanged()
 {
     LipstickSettings *settings = LipstickSettings::instance();
+
     if (!settings->lockscreenVisible())
+    {
+        DBUSINTERFACE_DEBUG("Lockscreen unlocked, emitting signal");
+
         emit screenUnlocked();
+    }
 }
