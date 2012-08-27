@@ -45,7 +45,7 @@
 #include "lipsticksettings.h"
 #include "lipstickdbusinterface.h"
 
-// Define this if you'd like to see debug messages from the switcher
+// Define this if you'd like to see debug messages from the home app
 #ifdef DEBUG_HOME
 #define HOME_DEBUG(things) qDebug() << Q_FUNC_INFO << things
 #else
