@@ -22,6 +22,8 @@
 #include <QDBusInterface>
 #include <QDBusConnection>
 #include <QGraphicsScene>
+#include <QGraphicsSceneMouseEvent>
+#include <QGraphicsSceneContextMenuEvent>
 #include <QGraphicsView>
 #include <QTimer>
 
@@ -193,12 +195,15 @@ void StatusBar::setIsPortrait(bool value)
     emit isPortraitChanged();
 }
 
-void StatusBar::mousePressEvent(QGraphicsSceneMouseEvent * /*event */)
+void StatusBar::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
+    event->accept();
 }
 
 void StatusBar::mouseReleaseEvent(QGraphicsSceneMouseEvent * /* event */)
 {
+    event->accept();
+
     QDBusInterface interface("com.meego.core.MStatusIndicatorMenu",
                              "/statusindicatormenu",
                              "com.meego.core.MStatusIndicatorMenu",
@@ -207,27 +212,33 @@ void StatusBar::mouseReleaseEvent(QGraphicsSceneMouseEvent * /* event */)
     interface.call(QDBus::NoBlock, "open");
 }
 
-void StatusBar::mouseDoubleClickEvent(QGraphicsSceneMouseEvent * /* event */)
+void StatusBar::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 {
+    event->accept();
 }
 
-void StatusBar::mouseMoveEvent(QGraphicsSceneMouseEvent * /* event */)
+void StatusBar::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
+    event->accept();
 }
 
-void StatusBar::hoverEnterEvent(QGraphicsSceneHoverEvent * /* event */)
+void StatusBar::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
+    event->accept();
 }
 
-void StatusBar::hoverMoveEvent(QGraphicsSceneHoverEvent * /* event */)
+void StatusBar::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 {
+    event->accept();
 }
 
-void StatusBar::hoverLeaveEvent(QGraphicsSceneHoverEvent * /* event */)
+void StatusBar::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
+    event->accept();
 }
 
-void StatusBar::contextMenuEvent(QGraphicsSceneContextMenuEvent * /* event */)
+void StatusBar::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
+    event->accept();
 }
 
