@@ -19,7 +19,9 @@
 #include <QDeclarativeView>
 #include <QApplication>
 #include <QDesktopWidget>
+#include <QDebug>
 #include <QtSensors/QOrientationSensor>
+#include <QtSensors/QOrientationReading>
 
 #include "lipsticksettings.h"
 #include "homeapplication.h"
@@ -75,4 +77,14 @@ void LipstickSettings::setLockscreenVisible(bool lockscreenVisible)
 QSize LipstickSettings::getScreenSize()
 {
     return QApplication::desktop()->screenGeometry(HomeApplication::instance()->mainWindowInstance()).size();
+}
+
+bool LipstickSettings::getIsInPortrait()
+{
+    QtMobility::QOrientationSensor sensor;
+    sensor.start();
+    QtMobility::QOrientationReading::Orientation orientation = sensor.reading()->orientation();
+    qDebug() << Q_FUNC_INFO << "current orientation is" << orientation;
+    sensor.stop();
+    return orientation == QtMobility::QOrientationReading::TopUp;
 }
