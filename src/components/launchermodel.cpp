@@ -70,6 +70,10 @@ void LauncherModel::monitoredDirectoryChanged(QString changedPath)
             this->getList<LauncherItem>()->end(),
             [fileInfo](LauncherItem* item) -> bool { return item->filePath() == fileInfo.fileName(); }))
         {
+            // Skip files which are not desktop entries
+            if (!fileInfo.fileName().endsWith(".desktop"))
+                continue;
+
             LAUNCHER_DEBUG("Creating LauncherItem for desktop entry" << fileInfo.absoluteFilePath());
             LauncherItem *item = new LauncherItem(fileInfo.absoluteFilePath(), this);
 
