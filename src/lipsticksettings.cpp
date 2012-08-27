@@ -28,11 +28,9 @@ Q_GLOBAL_STATIC(LipstickSettings, settingsInstance)
 
 LipstickSettings::LipstickSettings()
     : QObject()
-    , mLockscreenVisible(false)
+    , _lockscreenVisible(false)
 {
 }
-
-
 
 LipstickSettings *LipstickSettings::instance()
 {
@@ -41,15 +39,15 @@ LipstickSettings *LipstickSettings::instance()
 
 bool LipstickSettings::lockscreenVisible() const
 {
-    return mLockscreenVisible;
+    return _lockscreenVisible;
 }
 
 void LipstickSettings::setLockscreenVisible(bool lockscreenVisible)
 {
-    if (lockscreenVisible == mLockscreenVisible)
+    if (lockscreenVisible == _lockscreenVisible)
         return;
 
-    mLockscreenVisible = lockscreenVisible;
+    _lockscreenVisible = lockscreenVisible;
     QDeclarativeView *view = HomeApplication::instance()->mainWindowInstance();
 
     long layer = 0;
@@ -70,4 +68,3 @@ void LipstickSettings::setLockscreenVisible(bool lockscreenVisible)
 
     emit lockscreenVisibleChanged();
 }
-

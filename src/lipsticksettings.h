@@ -23,23 +23,23 @@
 class LipstickSettings : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(bool lockscreenVisible READ lockscreenVisible WRITE setLockscreenVisible NOTIFY lockscreenVisibleChanged)
+
+    bool _lockscreenVisible;
 
 public:
-    LipstickSettings();
+    explicit LipstickSettings();
     static LipstickSettings *instance();
 
-    Q_PROPERTY(bool lockscreenVisible READ lockscreenVisible WRITE setLockscreenVisible NOTIFY lockscreenVisibleChanged)
     bool lockscreenVisible() const;
     void setLockscreenVisible(bool lockscreenVisible);
 
 signals:
     void lockscreenVisibleChanged();
 
-private:
-    bool mLockscreenVisible;
 };
 
-Q_DECLARE_METATYPE(LipstickSettings *);
+Q_DECLARE_METATYPE(LipstickSettings *)
 
 #endif // LIPSTICKSETTINGS_H
 
