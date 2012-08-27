@@ -35,6 +35,28 @@
 #define LAUNCHER_DEBUG(things)
 #endif
 
+static bool iconNameSizeSortHelper(const QString &s1, const QString &s2)
+{
+    int x1 = s1.indexOf(QChar('x'));
+    int x2 = s2.indexOf(QChar('x'));
+
+    if (x1 == -1)
+        return true;
+    if (x2 == -1)
+        return false;
+
+    int ss1 = s1.left(x1).toInt();
+    int ss2 = s2.left(x2).toInt();
+
+    if (!ss1)
+        return true;
+    if (!ss2)
+        return false;
+
+    // The > is NOT a mistake, we need the higher res things before the lower res things
+    return ss1 > ss2;
+}
+
 static QString findIconHelper(const QString &pathName, const QString &icon)
 {
     QStringList extensions;
@@ -78,6 +100,7 @@ static QString getIconPath(const QString &name)
         return cachedPath;
     }
 
+    QString retval;
     QStringList themes = QDir("/usr/share/themes").entryList(QStringList(), QDir::AllDirs | QDir::NoDotAndDotDot);
 
     if (!themes.isEmpty())
@@ -93,7 +116,7 @@ static QString getIconPath(const QString &name)
 
         foreach (const QString &theme, themes)
         {
-            QString retval = findIconHelper("/usr/share/themes/" + theme, name);
+            retval = findIconHelper("/usr/share/themes/" + theme, name);
 
             if (!retval.isNull())
             {
@@ -107,7 +130,7 @@ static QString getIconPath(const QString &name)
     }
 
     // they also seem to get plonked here
-    QString retval = findIconHelper("/usr/share/pixmaps/", name);
+    retval = findIconHelper("/usr/share/pixmaps/", name);
 
     if (!retval.isNull())
     {
@@ -117,19 +140,33 @@ static QString getIconPath(const QString &name)
             return retval;
         }
     }
+
 
     // I hate all application developers
-    retval = findIconHelper("/usr/share/icons/hicolor/64x64/", name);
 
-    if (!retval.isNull())
+    // Going through all folders in here too
+    QStringList hiColorSizes = QDir("/usr/share/icons/hicolor").entryList(QStringList(), QDir::AllDirs | QDir::NoDotAndDotDot);
+    // Ordering them in a way that scalable comes first and then resolutions in descending order
+    qSort(hiColorSizes.begin(), hiColorSizes.end(), iconNameSizeSortHelper);
+
+    if (!hiColorSizes.isEmpty())
     {
-        if (QFile::exists(retval))
+        foreach (const QString &hiColorSize, hiColorSizes)
         {
-            settings.setValue(name, retval);
-            return retval;
+            retval = findIconHelper("/usr/share/icons/hicolor/" + hiColorSize, name);
+
+            if (!retval.isNull())
+            {
+                if (QFile::exists(retval))
+                {
+                    settings.setValue(name, retval);
+                    return retval;
+                }
+            }
         }
     }
 
+    // If everything fails, return an empty string
     return QString();
 }
 
@@ -164,13 +201,20 @@ QString LauncherItem::iconFilePath() const
     LAUNCHER_DEBUG("icon path is:" << _desktopEntry->icon());
 
     if (_desktopEntry->icon().length() == 0)
+    {
+        LAUNCHER_DEBUG("desktop entry has empty icon setting:" << _desktopEntry->path());
         return QString();
+    }
 
     QString path = getIconPath(_desktopEntry->icon());
 
     if (path.length() == 0)
+    {
+        LAUNCHER_DEBUG("could not find icon for iconname:" << _desktopEntry->icon());
         return QString();
+    }
 
+    LAUNCHER_DEBUG("icon file found for iconname:" << _desktopEntry->icon() << path);
     return "file://" + path;
 }
 
