@@ -25,6 +25,7 @@ class LipstickSettings : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool lockscreenVisible READ lockscreenVisible WRITE setLockscreenVisible NOTIFY lockscreenVisibleChanged)
+    Q_PROPERTY(QSize screenSize READ getScreenSize NOTIFY screenSizeChanged)
 
     bool _lockscreenVisible;
 
@@ -35,10 +36,11 @@ public:
     bool lockscreenVisible() const;
     void setLockscreenVisible(bool lockscreenVisible);
 
-    Q_INVOKABLE QSize getScreenSize();
+    QSize getScreenSize();
 
 signals:
     void lockscreenVisibleChanged();
+    void screenSizeChanged();
 
 };
 

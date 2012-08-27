@@ -19,6 +19,7 @@
 #include <QDeclarativeView>
 #include <QApplication>
 #include <QDesktopWidget>
+#include <QtSensors/QOrientationSensor>
 
 #include "lipsticksettings.h"
 #include "homeapplication.h"
