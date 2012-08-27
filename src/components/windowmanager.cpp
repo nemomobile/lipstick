@@ -21,6 +21,7 @@
 WindowManager::WindowManager(QObject *parent) :
     QObject(parent)
 {
+    connect(HomeWindowMonitor::instance(), SIGNAL(isHomeWindowOnTopChanged()), this, SIGNAL(isHomeWindowOnTopChanged()));
 }
 
 void WindowManager::windowToFront(qulonglong windowId)

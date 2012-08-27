@@ -25,11 +25,16 @@ class LIPSTICK_EXPORT WindowManager : public QObject
     Q_OBJECT
     Q_DISABLE_COPY(WindowManager)
 
+    Q_PROPERTY(bool isHomeWindowOnTop READ isHomeWindowOnTop NOTIFY isHomeWindowOnTopChanged)
+
 public:
     explicit WindowManager(QObject *parent = 0);
     Q_INVOKABLE void closeWindow(qulonglong windowId);
     Q_INVOKABLE void windowToFront(qulonglong windowId);
-    Q_INVOKABLE bool isHomeWindowOnTop();
+    bool isHomeWindowOnTop();
+
+signals:
+    void isHomeWindowOnTopChanged();
 
 };
 
