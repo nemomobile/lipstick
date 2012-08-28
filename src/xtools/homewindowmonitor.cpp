@@ -113,9 +113,7 @@ bool HomeWindowMonitor::handleXEvent(const XEvent& event)
             }
         }
         eventHandled = true;
-
-        if (isOwnWindow(windowStackingOrder().last()))
-            emit this->isHomeWindowOnTopChanged();
+        emit this->isHomeWindowOnTopChanged();
     }
 
     return eventHandled;
