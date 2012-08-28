@@ -38,8 +38,13 @@ class LIPSTICK_EXPORT LauncherItem : public QObject
     Q_PROPERTY(QStringList desktopCategories READ desktopCategories NOTIFY itemChanged)
     Q_PROPERTY(bool shouldDisplay READ shouldDisplay NOTIFY itemChanged)
     Q_PROPERTY(bool isValid READ isValid NOTIFY itemChanged)
+    Q_PROPERTY(bool isLaunching READ isLaunching NOTIFY isLaunchingChanged)
 
     QSharedPointer<MDesktopEntry> _desktopEntry;
+    bool _isLaunching;
+
+private slots:
+    void disableIsLaunching();
 
 public:
     explicit LauncherItem(const QString &path, QObject *parent = 0);
@@ -52,11 +57,13 @@ public:
     QStringList desktopCategories() const;
     bool shouldDisplay() const;
     bool isValid() const;
+    bool isLaunching() const;
 
-    Q_INVOKABLE void launchApplication() const;
+    Q_INVOKABLE void launchApplication();
 
 signals:
     void itemChanged();
+    void isLaunchingChanged();
 };
 
 #endif // LAUNCHERITEM_H

@@ -20,6 +20,7 @@
 #include <QFile>
 #include <QDir>
 #include <QSettings>
+#include <QTimer>
 #include <mlite/mdesktopentry.h>
 
 #ifdef HAVE_CONTENTACTION
@@ -27,6 +28,7 @@
 #endif
 
 #include "launcheritem.h"
+#include "xtools/homewindowmonitor.h"
 
 // Define this if you'd like to see debug messages from the launcher
 #ifdef DEBUG_LAUNCHER
@@ -171,10 +173,15 @@ static QString getIconPath(const QString &name)
 }
 
 LauncherItem::LauncherItem(const QString &path, QObject *parent)
-    : QObject(parent),
-      _desktopEntry(new MDesktopEntry(path))
+    : QObject(parent)
+    , _desktopEntry(new MDesktopEntry(path))
+    , _isLaunching(false)
 {
     emit this->itemChanged();
+
+    // TODO: instead of this, match the PID of the window thumbnails with the launcher processes
+    // Launching animation will be disabled if the window of the launched app shows up
+    connect(HomeWindowMonitor::instance(), SIGNAL(isHomeWindowOnTopChanged()), this, SLOT(disableIsLaunching()));
 }
 
 LauncherItem::~LauncherItem()
@@ -233,7 +240,18 @@ bool LauncherItem::isValid() const
     return _desktopEntry->isValid();
 }
 
-void LauncherItem::launchApplication() const
+bool LauncherItem::isLaunching() const
+{
+    return _isLaunching;
+}
+
+void LauncherItem::disableIsLaunching()
+{
+    _isLaunching = false;
+    emit this->isLaunchingChanged();
+}
+
+void LauncherItem::launchApplication()
 {
 #if defined(HAVE_CONTENTACTION)
     LAUNCHER_DEBUG("launching content action for" << _desktopEntry->name());
@@ -260,4 +278,11 @@ void LauncherItem::launchApplication() const
     // Launch the application
     QProcess::startDetached(commandText);
 #endif
+
+    _isLaunching = true;
+    emit this->isLaunchingChanged();
+
+    // TODO: instead of this, match the PID of the window thumbnails with the launcher processes
+    // Launching animation will stop after 5 seconds
+    QTimer::singleShot(5000, this, SLOT(disableIsLaunching()));
 }
