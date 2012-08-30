@@ -74,7 +74,7 @@ void LipstickSettings::setLockscreenVisible(bool lockscreenVisible)
     emit lockscreenVisibleChanged();
 }
 
-QSize LipstickSettings::getScreenSize()
+QSize LipstickSettings::screenSize()
 {
     return QApplication::desktop()->screenGeometry(HomeApplication::instance()->mainWindowInstance()).size();
 }
