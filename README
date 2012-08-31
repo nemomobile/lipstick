@@ -5,3 +5,4 @@ this is Jolla's homescreen. it is not open source.
 
 to build, make sure you've built and installed 'lipstick' correctly,
 then just qmake/make/make install, and run 'lipstick'.
+
