@@ -29,7 +29,7 @@ A homescreen for Jolla Mobile
 
 
 %prep
-%setup -q -n %{name}
+%setup -q -n %{name}-%{version}
 
 # >> setup
 # << setup
