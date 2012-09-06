@@ -5,7 +5,7 @@
         <file>qml/SwitcherItem.qml</file>
         <file>qml/Launcher.qml</file>
         <file>qml/Lockscreen.qml</file>
-        <file>qml/images/jolla-full-wallpaper.jpeg</file>
+        <file>qml/images/graphics-wallpaper-home.jpg</file>
         <file>qml/images/home-gradient-ramp.png</file>
     </qresource>
 </RCC>

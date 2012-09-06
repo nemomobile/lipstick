@@ -49,7 +49,7 @@ Item {
 
         Image {
             id: background
-            source: 'images/jolla-full-wallpaper.jpeg'
+            source: 'images/graphics-wallpaper-home.jpg'
             x: 0
             y: -(dashboard.contentY / 3)
         }
