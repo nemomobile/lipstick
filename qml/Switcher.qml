@@ -27,39 +27,52 @@
 import QtQuick 1.1
 import org.nemomobile.lipstick 0.1
 
-Item {
-    property int columnNumber: 3
+GridView {
     id: switcherRoot
-    height: gridview.contentHeight
+    property int columns: 1
+    height: contentHeight
+    interactive: false
 
-    GridView {
-        id: gridview
-        width: cellWidth * columnNumber
-        cellWidth: (parent.width - 60) / columnNumber
-        cellHeight: cellWidth * (desktop.height / desktop.width) + 20
-        interactive: false
+    cellWidth: width / columns
+    cellHeight: Math.floor(height / Math.ceil(count / columns))
+    property int displayWidth: 1
+    property int displayHeight: 1
 
-        anchors {
-            top: parent.top
-            bottom: parent.bottom
-            horizontalCenter: parent.horizontalCenter
-            topMargin: 35
-            bottomMargin: 35
+	onCellWidthChanged: updateRatio(cellWidth - 16, cellHeight - 16)
+	onCellHeightChanged: updateRatio(cellWidth - 16, cellHeight - 16)
+
+    function updateRatio(cw, ch) {
+        var nw = ch * (desktop.width / desktop.height)
+        var nh = cw * (desktop.height / desktop.width)
+        if (nw < cw) {
+            displayWidth = nw
+            displayHeight = ch
+        } else {
+            displayWidth = cw
+            displayHeight = nh
         }
+    }
 
-        model: SwitcherModel {
-            id:switcherModel
+    model: SwitcherModel {
+        id:switcherModel
+        onItemCountChanged: {
+            if (itemCount == 1)
+                switcherRoot.columns = 1
+            else if (itemCount <= 4)
+                switcherRoot.columns = 2
+            else if (itemCount > 4)
+                switcherRoot.columns = 3
         }
+    }
 
-        delegate: Item {
-            width: gridview.cellWidth
-            height: gridview.cellHeight
+    delegate: Item {
+        width: switcherRoot.cellWidth
+        height: switcherRoot.cellHeight
 
-            SwitcherItem {
-                width: parent.width - 10
-                height: parent.height - 10
-                anchors.centerIn: parent
-            }
+        SwitcherItem {
+			width: displayWidth
+			height: displayHeight
+            anchors.centerIn: parent
         }
     }
 }
