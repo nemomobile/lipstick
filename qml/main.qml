@@ -50,7 +50,6 @@ Item {
                 desktopRotation.origin.y = main.height / 2;
                 desktop.width = main.height;
                 desktop.height = main.width;
-                systemStatusBar.isPortrait = true;
                 orientationChanged = true;
             }
             if (reading.orientation === OrientationReading.RightUp && isPortrait) {
@@ -61,7 +60,6 @@ Item {
                 desktopRotation.origin.y = 0;
                 desktop.width = main.width;
                 desktop.height = main.height;
-                systemStatusBar.isPortrait = false;
                 orientationChanged = true;
             }
 
@@ -106,20 +104,9 @@ Item {
             anchors.fill: parent
         }
 
-        StatusBar {
-            id: systemStatusBar
-            anchors.top: parent.top
-            anchors.left: parent.left
-            anchors.right: parent.right
-            z: 100
-        }
-
         Flickable {
             id: dashboard
-            anchors.top: systemStatusBar.bottom
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
+            anchors.fill: parent
 
             property int currentPage: 0
             property int maxPages: 0
