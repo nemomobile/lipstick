@@ -33,31 +33,6 @@ Item {
     width: initialSize.width
     height: initialSize.height
 
-    OrientationSensor {
-        id: orientation
-        active: true
-
-        onReadingChanged: {
-            var orientationChanged = false;
-
-            if (reading.orientation === OrientationReading.TopUp && !desktop.isPortrait) {
-                // The top of the device is upwards - meaning: portrait
-                desktop.isPortrait = true
-                orientationChanged = true;
-            }
-            if (reading.orientation === OrientationReading.RightUp && desktop.isPortrait) {
-                // The right side of the device is upwards - meaning: landscape
-                desktop.isPortrait = false;
-                orientationChanged = true;
-            }
-
-            if (orientationChanged) {
-                // TODO: don't set when mouse down
-                dashboard.contentY = dashboard.height * dashboard.currentPage
-            }
-        }
-    }
-
     Item {
         property bool isPortrait: true
         id: desktop
