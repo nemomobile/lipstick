@@ -29,8 +29,6 @@ import QtMobility.sensors 1.2
 import org.nemomobile.lipstick 0.1
 
 Item {
-    property bool isPortrait: false;
-
     id: main
     width: initialSize.width
     height: initialSize.height
@@ -42,24 +40,14 @@ Item {
         onReadingChanged: {
             var orientationChanged = false;
 
-            if (reading.orientation === OrientationReading.TopUp && !isPortrait) {
+            if (reading.orientation === OrientationReading.TopUp && !desktop.isPortrait) {
                 // The top of the device is upwards - meaning: portrait
-                isPortrait = true;
-                desktopRotation.angle = -90;
-                desktopRotation.origin.x = main.height / 2;
-                desktopRotation.origin.y = main.height / 2;
-                desktop.width = main.height;
-                desktop.height = main.width;
+                desktop.isPortrait = true
                 orientationChanged = true;
             }
-            if (reading.orientation === OrientationReading.RightUp && isPortrait) {
+            if (reading.orientation === OrientationReading.RightUp && desktop.isPortrait) {
                 // The right side of the device is upwards - meaning: landscape
-                isPortrait = false;
-                desktopRotation.angle = 0;
-                desktopRotation.origin.x = 0;
-                desktopRotation.origin.y = 0;
-                desktop.width = main.width;
-                desktop.height = main.height;
+                desktop.isPortrait = false;
                 orientationChanged = true;
             }
 
@@ -71,18 +59,17 @@ Item {
     }
 
     Item {
-        property bool isPortrait : height > width
-
+        property bool isPortrait: true
         id: desktop
         anchors.top: parent.top
         anchors.left: parent.left
-        width: parent.width
-        height: parent.height
+        width: isPortrait ? main.height : main.width
+        height: isPortrait ? main.width : main.height
         transform: Rotation {
             id: desktopRotation;
-            origin.x: 0;
-            origin.y: 0;
-            angle: 0
+            origin.x: desktop.isPortrait ? main.height / 2 : 0;
+            origin.y: desktop.isPortrait ? main.height / 2 : 0;
+            angle: desktop.isPortrait ? -90 : 0
         }
 
         Image {
