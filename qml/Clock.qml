@@ -6,6 +6,7 @@ Text {
     height: paintedHeight + time.anchors.topMargin
     text: Qt.formatDateTime(new Date(), "hh:mm");
     font.pixelSize: 60
+    font.family: headerFont.name
     color: "#ffffff"
     horizontalAlignment: Text.AlignHCenter
     property alias running: timer.running
