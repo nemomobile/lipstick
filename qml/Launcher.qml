@@ -31,31 +31,31 @@ GridView {
     height: contentHeight
     id: gridview
     width: parent.width
-    cellWidth: Math.floor(parent.width / (parent.width / 160))
+    cellWidth: Math.floor(parent.width / (parent.width / 120))
     cellHeight: cellWidth
     interactive: false
 
     model: LauncherModel { }
 
     delegate: MouseArea {
-        width: gridview.cellWidth
-        height: gridview.cellHeight
-
+        width: cellWidth
+        height: cellHeight
         onClicked: object.launchApplication();
 
         Image {
             id:icon
-            anchors.centerIn: parent
+            anchors.horizontalCenter: parent.horizontalCenter
+            y: (parent.height / 2) - ((height + launcherText.paintedHeight) / 2)
             width: 80
             height: width
             source: model.object.iconFilePath
         }
 
         Text {
+            id: launcherText
             anchors.top: icon.bottom
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.margins: 8
             horizontalAlignment: Text.AlignHCenter
             elide: Text.ElideRight
             font.pixelSize: 18
