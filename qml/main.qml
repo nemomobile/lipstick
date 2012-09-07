@@ -111,13 +111,19 @@ Item {
                 } else if (delta < -0.10) {
                     // snap up
                     dashboard.currentPage = dashboard.currentPage - 1 
-                }   
+                }
+            }
 
+            onMovementEnded: {
+                snapToCurrentPage()
+            }
+
+            function snapToCurrentPage() {
                 // bounce back
                 if (dashboard.currentPage < 0)
                     dashboard.currentPage = 0 
-                else if (dashboard.currentPage > dashboard.maxPages)
-                    dashboard.currentPage = dashboard.maxPages
+                else if (dashboard.currentPage > dashboard.maxPages - 1)
+                    dashboard.currentPage = dashboard.maxPages - 1
                  
                 var newY = dashboard.currentPage * dashboard.height
                 
