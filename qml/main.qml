@@ -73,12 +73,15 @@ Item {
             property int currentPage: 0
             property int maxPages: 0
             property int savedContentY: 0
-            contentHeight: dashContent.height
 
-            onContentHeightChanged: {
-                dashboard.maxPages = (contentHeight / dashboard.height) - 1
+            Connections {
+                target: dashContent
+                onHeightChanged: {
+                    dashboard.maxPages = Math.ceil(dashContent.height / dashboard.height)
+                    dashboard.contentHeight = (dashboard.maxPages) * dashboard.height
 
-                // TODO: we should recheck our page position and reset contentY if need be
+                    // TODO: we should recheck our page position and reset contentY if need be
+                }
             }
 
             SpringAnimation on contentY {
