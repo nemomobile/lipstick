@@ -49,9 +49,9 @@ Item {
 
         Image {
             id: background
-            source: 'images/jolla-full-wallpaper.jpeg'
+            source: 'images/graphics-wallpaper-home.jpg'
             x: 0
-            y: -(dashboard.contentY / 3)
+            y: -(dashboard.contentY / 3) - clock.height
         }
 
         Rectangle {
@@ -69,6 +69,7 @@ Item {
         Flickable {
             id: dashboard
             anchors.fill: parent
+            anchors.topMargin: - clock.height
 
             property int currentPage: 0
             property int maxPages: 0
@@ -88,6 +89,13 @@ Item {
                 id: yBehavior
                 spring: 2
                 damping: 0.2
+            }
+
+            onContentYChanged: {
+                if (contentY < -10 && !clock.running)
+                    clock.start();
+                else if (contentY > -10 && clock.running)
+                    clock.stop();
             }
 
             onMovementStarted: {
@@ -125,7 +133,7 @@ Item {
                 else if (dashboard.currentPage > dashboard.maxPages - 1)
                     dashboard.currentPage = dashboard.maxPages - 1
                  
-                var newY = dashboard.currentPage * dashboard.height
+                var newY = dashboard.currentPage * (dashboard.height - clock.height)
                 
                 yBehavior.from = dashboard.contentY
                 yBehavior.to = newY
@@ -134,14 +142,20 @@ Item {
 
             Column {
                 id: dashContent
+                anchors.top: parent.top
                 anchors.left: parent.left
                 anchors.right: parent.right
                 spacing: 0
 
+                Clock {
+                    id: clock
+                    width: parent.width
+                }
+
                 Switcher {
                     id: switcher
                     width: parent.width
-                    height: dashboard.height - launcher.cellHeight
+                    height: dashboard.height - launcher.cellHeight - clock.height
                 }
 
                 Launcher {
