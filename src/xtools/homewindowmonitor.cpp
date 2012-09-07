@@ -42,9 +42,9 @@ const HomeWindowMonitor *HomeWindowMonitor::instance()
 }
 
 HomeWindowMonitor::HomeWindowMonitor() :
-        nonFullscreenApplicationWindowTypes(QSet<Atom>() << AtomCache::WindowTypeNotificationAtom <<
-                                                            AtomCache::WindowTypeDialogAtom <<
-                                                            AtomCache::WindowTypeMenuAtom),
+        nonFullscreenApplicationWindowTypes(QSet<Atom>() << AtomCache::atom("_NET_WM_WINDOW_TYPE_NOTIFICATION") <<
+                                                            AtomCache::atom("_NET_WM_WINDOW_TYPE_DIALOG") <<
+                                                            AtomCache::atom("_NET_WM_WINDOW_TYPE_MENU")),
         netClientListStacking(XInternAtom(QX11Info::display(), "_NET_CLIENT_LIST_STACKING", False))
 {
 }

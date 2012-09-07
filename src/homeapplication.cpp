@@ -74,9 +74,6 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     // launch a timer for sending a dbus-signal upstart when basic construct is done
     QTimer::singleShot(0, this, SLOT(sendStartupNotifications()));
 
-    // Initialize the X11 atoms used in the UI components
-    AtomCache::initializeAtoms();
-
     // Initialize the home window monitor
     HomeWindowMonitor::instance();
 

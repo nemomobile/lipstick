@@ -16,81 +16,24 @@
 // Copyright (c) 2012, Timur Kristóf <venemo@fedoraproject.org>
 
 #include <QX11Info>
+#include <QHash>
+
 #include "xatomcache.h"
 
-/* TODO: Should we care about these too?
+typedef QHash<QByteArray, Atom> AtomHash;
 
-    "_MEEGO_ORIENTATION",
-    "_MEEGO_INHIBIT_SCREENSAVER",
-    "_MEEGO_TABLET_NOTIFY",
-    "_MEEGO_STACKING_LAYER",
-    "_MEEGOTOUCH_SKIP_ANIMATIONS",
-    "_NET_ACTIVE_WINDOW",
-    "_NET_CLIENT_LIST",
-    "_NET_CLOSE_WINDOW",
-    "_NET_WM_WINDOW_TYPE",
-    "_NET_WM_WINDOW_TYPE_NORMAL",
-    "_NET_WM_WINDOW_TYPE_DESKTOP",
-    "_NET_WM_WINDOW_TYPE_NOTIFICATION",
-    "_NET_WM_WINDOW_TYPE_DOCK",
-    "_NET_WM_STATE_SKIP_TASKBAR",
-    "_NET_WM_STATE",
-    "_NET_WM_PID",
-    "_NET_WM_ICON_GEOMETRY",
-    "_NET_WM_ICON_NAME",
-    "Backlight",
-    "BACKLIGHT",
-    "UTF8_STRING",
-    "WM_CHANGE_STATE",
-    "_MEEGO_SYSTEM_DIALOG"
-*/
+Q_GLOBAL_STATIC(AtomHash, atomHashInstance);
 
-static bool atomsInitialized;
-
-Atom AtomCache::TypeAtom;
-Atom AtomCache::StateAtom;
-Atom AtomCache::SkipTaskbarAtom;
-Atom AtomCache::NameAtom;
-Atom AtomCache::ClientListAtom;
-Atom AtomCache::CloseWindowAtom;
-Atom AtomCache::ActiveWindowAtom;
-Atom AtomCache::Utf8StringAtom;
-Atom AtomCache::WindowPidAtom;
-
-Atom AtomCache::WindowTypeNormalAtom;
-Atom AtomCache::WindowTypeDesktopAtom;
-Atom AtomCache::WindowTypeNotificationAtom;
-Atom AtomCache::WindowTypeDialogAtom;
-Atom AtomCache::WindowTypeCallAtom;
-Atom AtomCache::WindowTypeDockAtom;
-Atom AtomCache::WindowTypeMenuAtom;
-Atom AtomCache::WindowTypeInputAtom;
-
-void AtomCache::initializeAtoms()
+Atom AtomCache::atom(const QByteArray &atomName)
 {
-    if (!atomsInitialized)
-    {
-        Display *dpy = QX11Info::display();
+    AtomHash *hash = atomHashInstance();
 
-        TypeAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE", False);
-        StateAtom = XInternAtom(dpy, "_NET_WM_STATE", False);
-        SkipTaskbarAtom = XInternAtom(dpy, "_NET_WM_STATE_SKIP_TASKBAR", False);
-        NameAtom = XInternAtom(dpy, "_NET_WM_NAME", False);
-        ClientListAtom = XInternAtom(dpy, "_NET_CLIENT_LIST", False);
-        CloseWindowAtom = XInternAtom(dpy, "_NET_CLOSE_WINDOW", False);
-        ActiveWindowAtom = XInternAtom(dpy, "_NET_ACTIVE_WINDOW", False);
-        Utf8StringAtom = XInternAtom(dpy, "UTF8_STRING", False);
-        WindowPidAtom = XInternAtom(dpy, "_NET_WM_PID", False);
+    AtomHash::ConstIterator it = hash->constFind(atomName);
+    if (it != hash->constEnd())
+        return *it;
 
-        WindowTypeNormalAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_NORMAL", False);
-        WindowTypeDesktopAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_DESKTOP", False);
-        WindowTypeNotificationAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_NOTIFICATION", False);
-        WindowTypeDialogAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_DIALOG", False);
-        WindowTypeCallAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_CALL", False);
-        WindowTypeDockAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_DOCK", False);
-        WindowTypeMenuAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_MENU", False);
-        WindowTypeInputAtom = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_INPUT", False);
-
-        atomsInitialized = true;
-    }
+    Display *dpy = QX11Info::display();
+    Atom tmp = XInternAtom(dpy, atomName.constData(), False);
+    hash->insert(atomName, tmp);
+    return tmp;
 }

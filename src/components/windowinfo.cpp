@@ -134,7 +134,7 @@ bool WindowInfo::updateWindowTitle()
     Display *dpy = QX11Info::display();
     XTextProperty textProperty;
     bool updated = false;
-    int result = XGetTextProperty(dpy, d->window, &textProperty, AtomCache::NameAtom);
+    int result = XGetTextProperty(dpy, d->window, &textProperty, AtomCache::atom("_NET_WM_NAME"));
     if (result == 0) {
         result = XGetWMName(dpy, d->window, &textProperty);
     }
@@ -149,8 +149,8 @@ bool WindowInfo::updateWindowTitle()
 
 void WindowInfo::updateWindowProperties()
 {
-    d->types = getWindowProperties(d->window, AtomCache::TypeAtom);
-    d->states = getWindowProperties(d->window, AtomCache::StateAtom);
+    d->types = getWindowProperties(d->window, AtomCache::atom("_NET_WM_WINDOW_TYPE"));
+    d->states = getWindowProperties(d->window, AtomCache::atom("_NET_WM_STATE"));
 
     if (!XGetTransientForHint(QX11Info::display(), d->window, &d->transientFor) || d->transientFor == d->window) {
         d->transientFor = 0;

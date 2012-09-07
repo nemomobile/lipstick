@@ -35,7 +35,7 @@ void XWindowManager::windowToFront(Qt::HANDLE window)
 
     ev.xclient.type         = ClientMessage;
     ev.xclient.window       = window;
-    ev.xclient.message_type = AtomCache::ActiveWindowAtom;
+    ev.xclient.message_type = AtomCache::atom("_NET_ACTIVE_WINDOW");
     ev.xclient.format       = 32;
     ev.xclient.data.l[0]    = 1;
     ev.xclient.data.l[1]    = CurrentTime;
@@ -53,7 +53,7 @@ void XWindowManager::closeWindow(Qt::HANDLE window)
 
     ev.xclient.type         = ClientMessage;
     ev.xclient.window       = window;
-    ev.xclient.message_type = AtomCache::CloseWindowAtom;
+    ev.xclient.message_type = AtomCache::atom("_NET_CLOSE_WINDOW");
     ev.xclient.format       = 32;
     ev.xclient.data.l[0]    = CurrentTime;
     ev.xclient.data.l[1]    = rootWin;
@@ -74,13 +74,13 @@ void XWindowManager::closeWindow(Qt::HANDLE window)
 void XWindowManager::excludeFromTaskBar(Qt::HANDLE windowId)
 {
     // Tell the window to not to be shown in the switcher
-    changeNetWmState(windowId, true, AtomCache::SkipTaskbarAtom);
+    changeNetWmState(windowId, true, AtomCache::atom("_NET_WM_STATE_SKIP_TASKBAR"));
 
     // Also set the _NET_WM_STATE window property to ensure Home doesn't try to
     // manage this window in case the window manager fails to set the property in time
     QVector<Atom> atoms;
-    atoms.append(AtomCache::SkipTaskbarAtom);
-    XChangeProperty(QX11Info::display(), windowId, AtomCache::StateAtom, XA_ATOM, 32, PropModeReplace, (unsigned char *)atoms.data(), atoms.count());
+    atoms.append(AtomCache::atom("_NET_WM_STATE_SKIP_TASKBAR"));
+    XChangeProperty(QX11Info::display(), windowId, AtomCache::atom("_NET_WM_STATE"), XA_ATOM, 32, PropModeReplace, (unsigned char *)atoms.data(), atoms.count());
 }
 
 void XWindowManager::changeNetWmState(Qt::HANDLE windowId, bool enable, Qt::HANDLE first, Qt::HANDLE second)
@@ -88,7 +88,7 @@ void XWindowManager::changeNetWmState(Qt::HANDLE windowId, bool enable, Qt::HAND
     XEvent event;
     memset(&event, 0, sizeof(event));
     event.xclient.type = ClientMessage;
-    event.xclient.message_type = AtomCache::StateAtom;
+    event.xclient.message_type = AtomCache::atom("_NET_WM_STATE");
     event.xclient.display = QX11Info::display();
     event.xclient.window = windowId;
     event.xclient.format = 32;

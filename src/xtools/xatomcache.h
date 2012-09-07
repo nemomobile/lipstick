@@ -24,26 +24,7 @@
 class AtomCache
 {
 public:
-    static Atom TypeAtom;
-    static Atom StateAtom;
-    static Atom SkipTaskbarAtom;
-    static Atom NameAtom;
-    static Atom ClientListAtom;
-    static Atom CloseWindowAtom;
-    static Atom ActiveWindowAtom;
-    static Atom Utf8StringAtom;
-    static Atom WindowPidAtom;
-
-    static Atom WindowTypeNormalAtom;
-    static Atom WindowTypeDesktopAtom;
-    static Atom WindowTypeNotificationAtom;
-    static Atom WindowTypeDialogAtom;
-    static Atom WindowTypeCallAtom;
-    static Atom WindowTypeDockAtom;
-    static Atom WindowTypeMenuAtom;
-    static Atom WindowTypeInputAtom;
-
-    static void initializeAtoms();
+    static Atom atom(const QByteArray &atom);
 };
 
 #endif
