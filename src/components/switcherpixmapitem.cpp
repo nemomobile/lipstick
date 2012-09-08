@@ -22,6 +22,7 @@
 #include <QX11Info>
 
 #include "switcherpixmapitem.h"
+#include "xtools/homewindowmonitor.h"
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -35,8 +36,6 @@
 #else
 #define SWITCHER_DEBUG(things)
 #endif
-
-// TODO: disable damage event processing when not on the screen
 
 #ifdef Q_WS_X11
 unsigned char xErrorCode = Success;
@@ -71,6 +70,7 @@ SwitcherPixmapItem::SwitcherPixmapItem(QDeclarativeItem *parent)
 {
     setFlag(QGraphicsItem::ItemHasNoContents, false);
     connect(qApp, SIGNAL(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)), this, SLOT(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)));
+    connect(HomeWindowMonitor::instance(), SIGNAL(isHomeWindowOnTopChanged()), this, SLOT(toggleDamage()));
 }
 
 SwitcherPixmapItem::~SwitcherPixmapItem()
@@ -79,6 +79,16 @@ SwitcherPixmapItem::~SwitcherPixmapItem()
     if (d->xWindowPixmap)
         XFreePixmap(QX11Info::display(), d->xWindowPixmap);
     delete d;
+}
+
+void SwitcherPixmapItem::toggleDamage()
+{
+    if (HomeWindowMonitor::instance()->isHomeWindowOnTop()) {
+        createDamage();
+        update();
+    } else {
+        destroyDamage();
+    }
 }
 
 void SwitcherPixmapItem::damageEvent(Qt::HANDLE &damage, short &x, short &y, unsigned short &width, unsigned short &height)
@@ -147,7 +157,8 @@ void SwitcherPixmapItem::updateXWindowPixmap()
         d->xWindowPixmap = newWindowPixmap;
 
         // Register the pixmap for XDamage events
-        createDamage();
+        if (HomeWindowMonitor::instance()->isHomeWindowOnTop())
+            createDamage();
 
         d->qWindowPixmap = QPixmap::fromX11Pixmap(d->xWindowPixmap, QPixmap::ExplicitlyShared);
     } else {

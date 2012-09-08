@@ -47,6 +47,7 @@ public:
 
 private slots:
     void damageEvent(Qt::HANDLE &damage, short &x, short &y, unsigned short &width, unsigned short &height);
+    void toggleDamage();
 
 private:
     virtual bool handleXEvent(const XEvent &event);
