@@ -166,28 +166,6 @@ void SwitcherModel::updateWindowList()
             unsigned char *typeData = NULL;
             unsigned long numTypeItems;
 
-            // _NET_WM_PID
-            unsigned char *propPid = 0;
-            result = XGetWindowProperty(dpy,
-                                        wins[i],
-                                        AtomCache::atom("_NET_WM_PID"),
-                                        0L, (long)BUFSIZ, false,
-                                        XA_CARDINAL,
-                                        &actualType,
-                                        &actualFormat,
-                                        &numTypeItems,
-                                        &bytesLeft,
-                                        &propPid);
-            if (result == Success && propPid != 0)
-            {
-                unsigned long pid = 0;
-                pid = *((unsigned long *)propPid);
-                XFree(propPid);
-
-                // TODO: use this to tie to .desktop entries in launcher
-                Q_UNUSED(pid);
-            }
-
             result = XGetWindowProperty(dpy,
                                         wins[i],
                                         AtomCache::atom("_NET_WM_WINDOW_TYPE"),
@@ -233,27 +211,6 @@ void SwitcherModel::updateWindowList()
 
                 if (includeInWindowList)
                 {
-                    XTextProperty textProperty;
-                    QString title;
-
-                    if (XGetWMName(dpy, wins[i], &textProperty) != 0)
-                    {
-                        title = QString((const char *)(textProperty.value));
-                        XFree(textProperty.value);
-                    }
-
-                    // Get window icon
-                    XWMHints *wmhints = XGetWMHints(dpy, wins[i]);
-                    if (wmhints != NULL)
-                    {
-                        Pixmap pixmap;
-                        pixmap = wmhints->icon_pixmap;
-                        XFree(wmhints);
-
-                        // TODO: set pixmap
-                        Q_UNUSED(pixmap);
-                    }
-
                     if (!windowsBeingClosed.contains(wins[i]))
                     {
                         WindowInfo *wi = WindowInfo::windowFor(wins[i]);
