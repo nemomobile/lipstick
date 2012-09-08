@@ -32,9 +32,9 @@
 
 // Define this if you'd like to see debug messages from the switcher
 #ifdef DEBUG_SWITCHER
-#define SWITCHER_DEBUG(things) qDebug() << Q_FUNC_INFO << things
+#define SWITCHER_DEBUG qDebug
 #else
-#define SWITCHER_DEBUG(things)
+#define SWITCHER_DEBUG if (false) qDebug
 #endif
 
 #ifdef Q_WS_X11
