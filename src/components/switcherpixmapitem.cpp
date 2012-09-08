@@ -16,12 +16,12 @@
 // Copyright (c) 2012, Timur Kristóf <venemo@fedoraproject.org>
 // Copyright (c) 2010, Nokia Corporation and/or its subsidiary(-ies) <directui@nokia.com>
 
-#include "switcherpixmapitem.h"
-
 #include <QApplication>
 #include <QPainter>
 #include <QTimer>
 #include <QX11Info>
+
+#include "switcherpixmapitem.h"
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -30,7 +30,6 @@
 #include <X11/extensions/Xdamage.h>
 
 // TODO: disable damage event processing when not on the screen
-// TODO: handle visibility/obscuring invalidating pixmaps
 
 #ifdef Q_WS_X11
 unsigned char xErrorCode = Success;
@@ -56,7 +55,7 @@ struct SwitcherPixmapItem::Private
     Pixmap xWindowPixmap;
     Damage xWindowPixmapDamage;
     QPixmap qWindowPixmap;
-    int windowId;
+    WId windowId;
 };
 
 SwitcherPixmapItem::SwitcherPixmapItem(QDeclarativeItem *parent)
@@ -112,6 +111,8 @@ void SwitcherPixmapItem::createDamage()
 void SwitcherPixmapItem::updateXWindowPixmap()
 {
 #ifdef Q_WS_X11
+    qDebug() << Q_FUNC_INFO << "Resetting X pixmap for " << d->windowId;
+
     // It is possible that the window is not redirected so check for errors.
     // XSync() needs to be called so that previous errors go to the original
     // handler.
@@ -187,3 +188,33 @@ void SwitcherPixmapItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
         // XGetImage failed, the window has been already unmapped
     }
 }
+
+bool SwitcherPixmapItem::handleXEvent(const XEvent &event)
+{
+    WId windowId;
+
+    if (event.type == VisibilityNotify) {
+        if (event.xvisibility.state != VisibilityFullyObscured ||
+            event.xvisibility.send_event != True) {
+            qDebug() << Q_FUNC_INFO << "Ignoring VisibilityNotify that isn't a send_event VisibilityFullyObscured for " << event.xvisibility.window;
+            return false;
+        }
+
+        windowId = event.xvisibility.window;
+        qDebug() << Q_FUNC_INFO << "Got obscured for " << windowId << "; want " << d->windowId;
+    } else if (event.type == ConfigureNotify) {
+        windowId = event.xconfigure.window;
+        qDebug() << Q_FUNC_INFO << "ConfigureNotify for " << windowId << "; want " << d->windowId;
+    } else {
+        return false;
+    }
+
+    if (windowId != d->windowId)
+        return false;
+
+    qDebug() << Q_FUNC_INFO << "Invalidated, resetting pixmap for " << d->windowId;
+    d->xWindowPixmapIsValid = false;
+    update();
+    return true;
+}
+

@@ -20,9 +20,11 @@
 #define SWITCHERPIXMAPITEM_H
 
 #include <QDeclarativeItem>
-#include "lipstickglobal.h"
 
-class LIPSTICK_EXPORT SwitcherPixmapItem : public QDeclarativeItem
+#include "lipstickglobal.h"
+#include "xtools/xeventlistener.h"
+
+class LIPSTICK_EXPORT SwitcherPixmapItem : public QDeclarativeItem, XEventListener
 {
     Q_OBJECT
     Q_DISABLE_COPY(SwitcherPixmapItem)
@@ -46,6 +48,8 @@ public:
 private slots:
     void damageEvent(Qt::HANDLE &damage, short &x, short &y, unsigned short &width, unsigned short &height);
 
+private:
+    virtual bool handleXEvent(const XEvent &event);
 };
 
 #endif // SWITCHERPIXMAPITEM_H
