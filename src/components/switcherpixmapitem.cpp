@@ -29,6 +29,13 @@
 #include <X11/extensions/Xcomposite.h>
 #include <X11/extensions/Xdamage.h>
 
+// Define this if you'd like to see debug messages from the switcher
+#ifdef DEBUG_SWITCHER
+#define SWITCHER_DEBUG(things) qDebug() << Q_FUNC_INFO << things
+#else
+#define SWITCHER_DEBUG(things)
+#endif
+
 // TODO: disable damage event processing when not on the screen
 
 #ifdef Q_WS_X11
@@ -111,7 +118,7 @@ void SwitcherPixmapItem::createDamage()
 void SwitcherPixmapItem::updateXWindowPixmap()
 {
 #ifdef Q_WS_X11
-    qDebug() << Q_FUNC_INFO << "Resetting X pixmap for " << d->windowId;
+    SWITCHER_DEBUG() << Q_FUNC_INFO << "Resetting X pixmap for " << d->windowId;
 
     // It is possible that the window is not redirected so check for errors.
     // XSync() needs to be called so that previous errors go to the original
@@ -196,15 +203,15 @@ bool SwitcherPixmapItem::handleXEvent(const XEvent &event)
     if (event.type == VisibilityNotify) {
         if (event.xvisibility.state != VisibilityFullyObscured ||
             event.xvisibility.send_event != True) {
-            qDebug() << Q_FUNC_INFO << "Ignoring VisibilityNotify that isn't a send_event VisibilityFullyObscured for " << event.xvisibility.window;
+            SWITCHER_DEBUG() << Q_FUNC_INFO << "Ignoring VisibilityNotify that isn't a send_event VisibilityFullyObscured for " << event.xvisibility.window;
             return false;
         }
 
         windowId = event.xvisibility.window;
-        qDebug() << Q_FUNC_INFO << "Got obscured for " << windowId << "; want " << d->windowId;
+        SWITCHER_DEBUG() << Q_FUNC_INFO << "Got obscured for " << windowId << "; want " << d->windowId;
     } else if (event.type == ConfigureNotify) {
         windowId = event.xconfigure.window;
-        qDebug() << Q_FUNC_INFO << "ConfigureNotify for " << windowId << "; want " << d->windowId;
+        SWITCHER_DEBUG() << Q_FUNC_INFO << "ConfigureNotify for " << windowId << "; want " << d->windowId;
     } else {
         return false;
     }
@@ -212,7 +219,7 @@ bool SwitcherPixmapItem::handleXEvent(const XEvent &event)
     if (windowId != d->windowId)
         return false;
 
-    qDebug() << Q_FUNC_INFO << "Invalidated, resetting pixmap for " << d->windowId;
+    SWITCHER_DEBUG() << Q_FUNC_INFO << "Invalidated, resetting pixmap for " << d->windowId;
     d->xWindowPixmapIsValid = false;
     update();
     return true;
