@@ -22,12 +22,14 @@
 
 #include <QObject>
 #include <QString>
+
 #include "lipstickglobal.h"
+#include "xtools/xeventlistener.h"
 
 /*!
  * WindowInfo is a helper class for storing information about an open window.
  */
-class LIPSTICK_EXPORT WindowInfo : public QObject
+class LIPSTICK_EXPORT WindowInfo : public QObject, XEventListener
 {
     Q_OBJECT
 
@@ -99,12 +101,17 @@ public:
     Qt::HANDLE pixmapSerial() const;
     void setPixmapSerial(Qt::HANDLE pixmapSerial);
 
+    bool visibleInSwitcher();
+
 signals:
     void pixmapSerialChanged();
     void titleChanged();
     void windowChanged();
+    void visibleInSwitcherChanged();
 
 private:
+    virtual bool handleXEvent(const XEvent &event);
+
     WindowInfo(Qt::HANDLE window);
 
     /*!

@@ -197,3 +197,114 @@ void WindowInfo::setPixmapSerial(Qt::HANDLE pixmapSerial)
     qDebug() << Q_FUNC_INFO << "Changed pixmap serial on " << d->window << " to " << d->pixmapSerial;
     emit pixmapSerialChanged();
 }
+
+bool WindowInfo::handleXEvent(const XEvent &event)
+{
+    if (event.type == PropertyNotify &&
+             (event.xproperty.atom == AtomCache::atom("_NET_WM_WINDOW_TYPE") ||
+              event.xproperty.atom == AtomCache::atom("_NET_WM_STATE")))
+    {
+        emit visibleInSwitcherChanged();
+        return true;
+    }
+
+    return false;
+}
+
+static QVector<Atom> getNetWmState(Display *display, Window window)
+{
+    QVector<Atom> atomList;
+
+    Atom actualType;
+    int actualFormat;
+    ulong propertyLength;
+    ulong bytesLeft;
+    uchar *propertyData = 0;
+
+    // Step 1: Get the size of the list
+    bool result = XGetWindowProperty(display, window, AtomCache::atom("_NET_WM_STATE"), 0, 0,
+                                     false, XA_ATOM, &actualType,
+                                     &actualFormat, &propertyLength,
+                                     &bytesLeft, &propertyData);
+    if (result != Success || actualType != XA_ATOM || actualFormat != 32)
+        return atomList;
+
+    XFree(propertyData);
+
+    // Step 2: Get the actual list
+    if (!XGetWindowProperty(display, window, AtomCache::atom("_NET_WM_STATE"), 0,
+                            atomList.size(), false, XA_ATOM,
+                            &actualType, &actualFormat,
+                            &propertyLength, &bytesLeft,
+                            &propertyData) == Success) {
+        qWarning("Unable to retrieve window properties: %i", (int) window);
+        return atomList;
+    }
+
+    atomList.resize(propertyLength);
+
+    if (!atomList.isEmpty())
+        memcpy(atomList.data(), propertyData,
+               atomList.size() * sizeof(Atom));
+
+    XFree(propertyData);
+    return atomList;
+}
+
+// TODO: ideally we can cache this and make it a simple getter
+// updated when properties change.
+bool WindowInfo::visibleInSwitcher()
+{
+    Atom actualType;
+    int actualFormat;
+    unsigned char *typeData = NULL;
+    unsigned long numTypeItems;
+    unsigned long bytesLeft;
+
+    bool result = XGetWindowProperty(QX11Info::display(),
+                                     d->window,
+                                     AtomCache::atom("_NET_WM_WINDOW_TYPE"),
+                                     0L, 16L, false,
+                                     XA_ATOM,
+                                     &actualType,
+                                     &actualFormat,
+                                     &numTypeItems,
+                                     &bytesLeft,
+                                     &typeData);
+
+    if (result != Success)
+        return false;
+
+    Atom *type = (Atom *)typeData;
+    bool includeInWindowList = false;
+
+    // plain Xlib windows do not have a type
+    if (numTypeItems == 0)
+        includeInWindowList = true;
+    for (unsigned int n = 0; n < numTypeItems; n++) {
+        if (type[n] == AtomCache::atom("_NET_WM_WINDOW_TYPE_DESKTOP") ||
+            type[n] == AtomCache::atom("_NET_WM_WINDOW_TYPE_NOTIFICATION") ||
+            type[n] == AtomCache::atom("_NET_WM_WINDOW_TYPE_DOCK") ||
+            type[n] == AtomCache::atom("_NET_WM_WINDOW_TYPE_MENU"))
+        {
+            includeInWindowList = false;
+            break;
+        }
+        if (type[n] == AtomCache::atom("_NET_WM_WINDOW_TYPE_NORMAL"))
+        {
+            includeInWindowList = true;
+        }
+    }
+
+    XFree(typeData);
+
+    if (includeInWindowList)
+    {
+        if (getNetWmState(QX11Info::display(), d->window).contains(AtomCache::atom("_NET_WM_STATE_SKIP_TASKBAR")))
+        {
+            includeInWindowList = false;
+        }
+    }
+
+    return includeInWindowList;
+}

@@ -33,9 +33,6 @@ class LIPSTICK_EXPORT SwitcherModel : public QObjectListModel, XEventListener
 
     Q_PROPERTY(int itemCount READ itemCount NOTIFY itemCountChanged)
 
-    QList<Window> windowsBeingClosed;
-    QList<Window> windowsStillBeingClosed;
-
 public:
     explicit SwitcherModel(QObject *parent = 0);
     virtual ~SwitcherModel();
