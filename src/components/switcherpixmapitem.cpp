@@ -84,9 +84,11 @@ SwitcherPixmapItem::~SwitcherPixmapItem()
 void SwitcherPixmapItem::toggleDamage()
 {
     if (HomeWindowMonitor::instance()->isHomeWindowOnTop()) {
+        SWITCHER_DEBUG() << Q_FUNC_INFO << "Creating damage for " << d->windowId;
         createDamage();
         update();
     } else {
+        SWITCHER_DEBUG() << Q_FUNC_INFO << "Destroying damage for " << d->windowId;
         destroyDamage();
     }
 }
