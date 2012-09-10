@@ -38,9 +38,23 @@ GridView {
     model: LauncherModel { }
 
     delegate: MouseArea {
+        property bool ignoreClicked: false
         width: cellWidth
         height: cellHeight
-        onClicked: object.launchApplication();
+
+        onPressed: {
+            if (desktop.closeApplicationEnabled) {
+                desktop.closeApplicationEnabled = false;
+                ignoreClicked = true;
+            }
+        }
+
+        onClicked: {
+            if (!desktop.closeApplicationEnabled && !ignoreClicked)
+                object.launchApplication();
+            if (ignoreClicked)
+                ignoreClicked = false;
+        }
 
         Image {
             id:icon

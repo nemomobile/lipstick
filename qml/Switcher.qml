@@ -75,4 +75,18 @@ GridView {
             anchors.centerIn: parent
         }
     }
+
+    MouseArea {
+        anchors.fill: parent
+        z: -1
+
+        onPressAndHold: {
+            desktop.closeApplicationEnabled = !desktop.closeApplicationEnabled;
+        }
+
+        onPressed: {
+            if (desktop.closeApplicationEnabled)
+                desktop.closeApplicationEnabled = false;
+        }
+    }
 }

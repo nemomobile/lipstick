@@ -29,8 +29,23 @@ import org.nemomobile.lipstick 0.1
 
 MouseArea {
     id: switcherItemRoot
-    onClicked: windowManager.windowToFront(model.object.window)
-    onPressAndHold: closeButton.enabled = !closeButton.enabled
+    property bool ignoreClicked: false
+
+    onPressed: {
+         if (desktop.closeApplicationEnabled) {
+             desktop.closeApplicationEnabled = false;
+             ignoreClicked = true;
+         }
+    }
+
+    onClicked: {
+        if (!desktop.closeApplicationEnabled && !ignoreClicked)
+            windowManager.windowToFront(model.object.window);
+        if (ignoreClicked)
+            ignoreClicked = false;
+    }
+
+    onPressAndHold: desktop.closeApplicationEnabled = !desktop.closeApplicationEnabled
 
     SwitcherPixmapItem {
         id: windowPixmap
@@ -47,8 +62,8 @@ MouseArea {
 
     MouseArea {
         id: closeButton
-        enabled: false
-        width: 30
+        enabled: desktop.closeApplicationEnabled
+        width: 80
         height: width
         anchors {
             top: parent.top
@@ -57,7 +72,11 @@ MouseArea {
 
         Rectangle {
             visible: closeButton.enabled
-            anchors.centerIn: parent
+            anchors {
+                top: parent.top
+                topMargin: 15
+                right: parent.right
+            }
             color: 'red'
             width: 40
             height: 8
@@ -69,7 +88,11 @@ MouseArea {
         }
         Rectangle {
             visible: closeButton.enabled
-            anchors.centerIn: parent
+            anchors {
+                top: parent.top
+                topMargin: 15
+                right: parent.right
+            }
             color: 'red'
             width: 40
             height: 8
