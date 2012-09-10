@@ -33,6 +33,9 @@ Item {
     width: initialSize.width
     height: initialSize.height
 
+    FontLoader { id: textFont; source: "fonts/HelveticaNeueLight.ttf" }
+    FontLoader { id: headerFont; source: "fonts/HelveticaNeueUltraLight.ttf" }
+
     Item {
         property bool isPortrait: true
         id: desktop

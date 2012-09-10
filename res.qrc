@@ -6,6 +6,8 @@
         <file>qml/Launcher.qml</file>
         <file>qml/Lockscreen.qml</file>
 	<file>qml/Clock.qml</file>
+	<file>qml/fonts/HelveticaNeueLight.ttf</file>
+	<file>qml/fonts/HelveticaNeueUltraLight.ttf</file>
         <file>qml/images/graphics-wallpaper-home.jpg</file>
         <file>qml/images/home-gradient-ramp.png</file>
     </qresource>

@@ -59,6 +59,7 @@ GridView {
             horizontalAlignment: Text.AlignHCenter
             elide: Text.ElideRight
             font.pixelSize: 18
+            font.family: textFont.name
             color: 'white'
             text: object.title
         }
