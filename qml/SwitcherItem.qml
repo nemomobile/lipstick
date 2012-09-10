@@ -34,7 +34,7 @@ MouseArea {
 
     SwitcherPixmapItem {
         id: windowPixmap
-        opacity: 0.5
+        opacity: 0.7
         width: desktop.isPortrait ? parent.height : parent.width
         height: desktop.isPortrait ? parent.width : parent.height
         windowId: model.object.window
