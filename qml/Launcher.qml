@@ -34,11 +34,13 @@ GridView {
     cellWidth: Math.floor(parent.width / (parent.width / 120))
     cellHeight: cellWidth
     interactive: false
+    signal appLaunchingStarted
 
     model: LauncherModel { }
 
     delegate: MouseArea {
         property bool ignoreClicked: false
+        property bool isLaunching: model.object.isLaunching
         width: cellWidth
         height: cellHeight
 
@@ -54,6 +56,11 @@ GridView {
                 object.launchApplication();
             if (ignoreClicked)
                 ignoreClicked = false;
+        }
+
+        onIsLaunchingChanged: {
+            if (isLaunching)
+                gridview.appLaunchingStarted();
         }
 
         Image {

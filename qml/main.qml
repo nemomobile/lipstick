@@ -166,6 +166,12 @@ Item {
                 Launcher {
                     id: launcher
                     width: parent.width
+
+                    onAppLaunchingStarted: {
+                        dashboard.currentPage = 0
+                        yBehavior.stop()
+                        dashboard.currentY = 0
+                    }
                 }
             }
         }
