@@ -190,12 +190,12 @@ void StatusBar::updateXThings()
 
     // Setting the status bar geometry atom (probably not necessary here)
     Atom statusBarGeometryAtom = XInternAtom(dpy, "_MEEGOTOUCH_MSTATUSBAR_GEOMETRY", False);
-    XChangeProperty(dpy, activeWindow->effectiveWinId(), statusBarGeometryAtom, XA_CARDINAL, 32, PropModeReplace, (unsigned char*)data, 4);
+    XChangeProperty(dpy, activeWindow->winId(), statusBarGeometryAtom, XA_CARDINAL, 32, PropModeReplace, (unsigned char*)data, 4);
     STATUSBAR_DEBUG("called XChangeProperty for _MEEGOTOUCH_MSTATUSBAR_GEOMETRY");
 
     // Setting the orientation angle atom (sysuid uses this to determine what orientation it should draw itself)
     Atom orientationAngleAtom = XInternAtom(dpy, "_MEEGOTOUCH_ORIENTATION_ANGLE", False);
-    XChangeProperty(dpy, activeWindow->effectiveWinId(), orientationAngleAtom, XA_CARDINAL, 32, PropModeReplace, (unsigned char*)&angle, 1);
+    XChangeProperty(dpy, activeWindow->winId(), orientationAngleAtom, XA_CARDINAL, 32, PropModeReplace, (unsigned char*)&angle, 1);
     STATUSBAR_DEBUG("called XChangeProperty for _MEEGOTOUCH_ORIENTATION_ANGLE");
 
     update();
