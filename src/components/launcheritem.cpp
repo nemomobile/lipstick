@@ -247,6 +247,8 @@ bool LauncherItem::isLaunching() const
 
 void LauncherItem::disableIsLaunching()
 {
+    if (!_isLaunching)
+        return; // prevent spurious signals from all delegates
     _isLaunching = false;
     emit this->isLaunchingChanged();
 }
