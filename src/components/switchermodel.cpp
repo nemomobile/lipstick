@@ -87,35 +87,17 @@ void SwitcherModel::updateWindowList()
         return;
 
     SWITCHER_DEBUG("Read list of " << numWindowItems << " windows");
-    QSet<WindowInfo *> oldWindowSet;
-    QSet<WindowInfo *> newWindowSet;
-
-    // XXX: we can only get a QList<QObject*>, we want a QList<T>
-    QList<QObject *> *temporaryList = getList();
-    oldWindowSet.reserve(temporaryList->size());
-    for (int i = 0; i < temporaryList->count(); ++i)
-        oldWindowSet.insert(static_cast<WindowInfo *>(temporaryList->at(i)));
-
-    newWindowSet.reserve(numWindowItems);
-
+    QList<WindowInfo*> *windowList = new QList<WindowInfo*>();
     Window *wins = (Window *)windowData;
 
     for (unsigned int i = 0; i < numWindowItems; i++) {
         WindowInfo *wi = WindowInfo::windowFor(wins[i]);
         if (wi->visibleInSwitcher())
-            newWindowSet.insert(wi);
+            windowList->append(wi);
     }
 
     XFree(windowData);
 
-    QSet<WindowInfo *> closedWindows = oldWindowSet - newWindowSet;
-    QSet<WindowInfo *> openedWindows = newWindowSet - oldWindowSet;
-
-    foreach (WindowInfo *wi, closedWindows)
-        delete wi;
-
-    foreach (WindowInfo *wi, openedWindows)
-        addItem(wi);
-
+    setList(windowList);
     emit itemCountChanged();
 }
