@@ -38,6 +38,7 @@ Item {
 
     Item {
         property bool isPortrait: true
+        property bool closeApplicationEnabled: false
         id: desktop
         anchors.top: parent.top
         anchors.left: parent.left
