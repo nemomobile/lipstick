@@ -91,8 +91,9 @@ Item {
 
             SpringAnimation on contentY {
                 id: yBehavior
-                spring: 2
+                spring: 3
                 damping: 0.2
+                mass: 0.3
             }
 
             onContentYChanged: {

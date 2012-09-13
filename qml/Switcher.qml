@@ -37,9 +37,10 @@ GridView {
     cellHeight: Math.floor(height / Math.ceil(count / columns))
     property int displayWidth: 1
     property int displayHeight: 1
+    property int padding: 16
 
-	onCellWidthChanged: updateRatio(cellWidth - 16, cellHeight - 16)
-	onCellHeightChanged: updateRatio(cellWidth - 16, cellHeight - 16)
+    onCellWidthChanged: updateRatio(cellWidth - padding, cellHeight - padding)
+    onCellHeightChanged: updateRatio(cellWidth - padding, cellHeight - padding)
 
     function updateRatio(cw, ch) {
         var nw = ch * (desktop.width / desktop.height)
@@ -72,7 +73,9 @@ GridView {
         SwitcherItem {
 			width: displayWidth
 			height: displayHeight
-            anchors.centerIn: parent
+            anchors.top: parent.top
+            anchors.topMargin: switcherRoot.padding
+            anchors.horizontalCenter: parent.horizontalCenter
         }
     }
 
