@@ -123,7 +123,7 @@ void HomeApplication::sendStartupNotifications()
 
     // For device boot performance reasons initializing Home scene window must be done
     // only after ready signal is sent.
-    mainWindowInstance()->show();
+    mainWindowInstance()->showFullScreen();
 
     // Tell X that changes in the properties and the substructure of the root
     // window are interesting. These are used to get the list of windows and
