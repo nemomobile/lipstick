@@ -60,49 +60,17 @@ MouseArea {
         }
     }
 
-    MouseArea {
-        id: closeButton
-        enabled: desktop.closeApplicationEnabled
-        width: 80
-        height: width
-        anchors {
-            top: parent.top
-            right: parent.right
-        }
+    Image {
+        source: "images/icon-close-app.png"
+        anchors.top: parent.top
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.topMargin: -(height / 2)
+        visible: desktop.closeApplicationEnabled
 
-        Rectangle {
-            visible: closeButton.enabled
-            anchors {
-                top: parent.top
-                topMargin: 15
-                right: parent.right
-            }
-            color: 'red'
-            width: 40
-            height: 8
-            transform: Rotation {
-                angle: 45
-                origin.x: 20
-                origin.y: 4
-            }
+        MouseArea {
+            anchors.fill: parent
+            enabled: desktop.closeApplicationEnabled
+            onClicked: windowManager.closeWindow(model.object.window)
         }
-        Rectangle {
-            visible: closeButton.enabled
-            anchors {
-                top: parent.top
-                topMargin: 15
-                right: parent.right
-            }
-            color: 'red'
-            width: 40
-            height: 8
-            transform: Rotation {
-                angle: -45
-                origin.x: 20
-                origin.y: 4
-            }
-        }
-
-        onClicked: windowManager.closeWindow(model.object.window)
     }
 }

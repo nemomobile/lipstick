@@ -37,7 +37,7 @@ GridView {
     cellHeight: Math.floor(height / Math.ceil(count / columns))
     property int displayWidth: 1
     property int displayHeight: 1
-    property int padding: 16
+    property int padding: 40
 
     onCellWidthChanged: updateRatio(cellWidth - padding, cellHeight - padding)
     onCellHeightChanged: updateRatio(cellWidth - padding, cellHeight - padding)
