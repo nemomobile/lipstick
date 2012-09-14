@@ -56,6 +56,8 @@ Item {
             source: 'images/graphics-wallpaper-home.jpg'
             x: 0
             y: -(dashboard.contentY / 3) - clock.height
+            width: parent.width
+            fillMode: Image.PreserveAspectCrop
         }
 
         Rectangle {
