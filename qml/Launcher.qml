@@ -32,7 +32,7 @@ GridView {
     id: gridview
     width: parent.width
     cellWidth: Math.floor(parent.width / (parent.width / 120))
-    cellHeight: cellWidth
+    cellHeight: cellWidth + 40
     interactive: false
     signal appLaunchingStarted
 
