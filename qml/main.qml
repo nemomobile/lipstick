@@ -170,7 +170,7 @@ Item {
                     onAppLaunchingStarted: {
                         dashboard.currentPage = 0
                         yBehavior.stop()
-                        dashboard.currentY = 0
+                        dashboard.contentY = 0
                     }
                 }
             }
