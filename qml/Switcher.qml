@@ -57,9 +57,9 @@ GridView {
     model: SwitcherModel {
         id:switcherModel
         onItemCountChanged: {
-            if (itemCount == 1)
+            /*if (itemCount == 1)
                 switcherRoot.columns = 1
-            else if (itemCount <= 4)
+            else*/ if (itemCount <= 4)
                 switcherRoot.columns = 2
             else if (itemCount > 4)
                 switcherRoot.columns = 3
