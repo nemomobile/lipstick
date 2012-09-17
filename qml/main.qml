@@ -149,18 +149,11 @@ Item {
 
             Column {
                 id: dashContent
-                anchors.top: parent.top
-                anchors.left: parent.left
-                anchors.right: parent.right
-                spacing: 0
+                width: parent.width
 
-                Clock {
-                    id: clock
-                    width: parent.width
-                }
+                Clock { id: clock }
 
                 Switcher {
-                    id: switcher
                     width: parent.width
                     height: dashboard.height - launcher.cellHeight - clock.height
                 }

@@ -2,14 +2,12 @@ import QtQuick 1.1
 
 Text {
     id: time
-
-    height: paintedHeight + time.anchors.topMargin
-    text: Qt.formatDateTime(new Date(), "hh:mm");
-    font.pixelSize: 60
-    font.family: headerFont.name
-    color: "#ffffff"
-    horizontalAlignment: Text.AlignHCenter
     property alias running: timer.running
+
+    color: "white"
+    text: Qt.formatDateTime(new Date(), "hh:mm");
+    font { pixelSize: 60; family: headerFont.name }
+    anchors.horizontalCenter: parent.horizontalCenter
 
     function start() {
         if (!timer.running)
@@ -17,27 +15,24 @@ Text {
     }
 
     function stop() {
-        if (timer.running)
-            timer.stop();
+        timer.stop();
     }
 
     Timer {
         id: timer
-        running: false
         repeat: true
 
         function update() {
             var date = new Date();
             var millis = 60000 - date.getSeconds() * 1000;
             timer.interval = millis;
-            if (!timer.running)
-                timer.start();
+            if (!running)
+                start();
             time.text = Qt.formatDateTime(new Date(), "hh:mm");
         }
 
         onTriggered: {
-            if (timer.interval < 60000)
-                timer.interval = 60000;
+            timer.interval = Math.max(60000, timer.interval)
             time.text = Qt.formatDateTime(new Date(), "hh:mm");
         }
     }
