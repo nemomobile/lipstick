@@ -40,6 +40,7 @@
 #include "xtools/xatomcache.h"
 #include "xtools/xwindowmanager.h"
 #include "xtools/homewindowmonitor.h"
+#include "components/notificationmanager.h"
 #include "components/windowmanager.h"
 #include "components/windowinfo.h"
 #include "lipsticksettings.h"
@@ -68,6 +69,7 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     , xDamageErrorBase(0)
     , _mainWindowInstance(0)
     , _qmlPath(qmlPath)
+    , notificationManager(new NotificationManager(this))
 {
     XDamageQueryExtension(QX11Info::display(), &xDamageEventBase, &xDamageErrorBase);
 
