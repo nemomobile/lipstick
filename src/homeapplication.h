@@ -25,6 +25,7 @@
 #include "lipstickglobal.h"
 
 class XEventListener;
+class NotificationManager;
 
 /*!
  * Extends QApplication with features necessary to create a desktop.
@@ -40,6 +41,7 @@ class LIPSTICK_EXPORT HomeApplication : public QApplication
     int xDamageErrorBase;
     QDeclarativeView *_mainWindowInstance;
     QString _qmlPath;
+    NotificationManager *notificationManager;
 
 public:
     /*!
