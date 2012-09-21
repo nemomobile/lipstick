@@ -36,16 +36,6 @@ QStringList NotificationHints::hints() const
     return hintValues.keys();
 }
 
-QDataStream &operator<<(QDataStream &datastream, const NotificationHints &hints)
-{
-    return datastream << hints.hintValues;
-}
-
-QDataStream &operator>>(QDataStream &datastream, NotificationHints &hints)
-{
-    return datastream >> hints.hintValues;
-}
-
 QDBusArgument &operator<<(QDBusArgument &argument, const NotificationHints &hints)
 {
     QHashIterator<QString, QVariant> i(hints.hintValues);

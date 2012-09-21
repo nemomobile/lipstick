@@ -59,31 +59,12 @@ public:
      */
     QStringList hints() const;
 
-    friend QDataStream &operator<<(QDataStream &, const NotificationHints &);
-    friend QDataStream &operator>>(QDataStream &, NotificationHints &);
-
     friend LIPSTICK_EXPORT QDBusArgument &operator<<(QDBusArgument &, const NotificationHints &);
     friend const LIPSTICK_EXPORT QDBusArgument &operator>>(const QDBusArgument &, NotificationHints &);
 
 private:
     QHash<QString, QVariant> hintValues;
 };
-
-/*!
- * Serializes the given NotificationHints to a QDataStream
- *
- * \param datastream QDataStream to write to
- * \param parameters NotificationHints object to serialize
- */
-QDataStream &operator<<(QDataStream &datastream, const NotificationHints &hints);
-
-/*!
- * Deserializes NotificationHints from a QDataStream
- *
- * \param datastream QDataStream to read from
- * \param parameters the target NotificationHints object, its previous state will be overwritten
- */
-QDataStream &operator>>(QDataStream &datastream, NotificationHints &hints);
 
 QDebug operator<<(QDebug debug, const NotificationHints &hints);
 
