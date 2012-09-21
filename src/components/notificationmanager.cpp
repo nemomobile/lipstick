@@ -31,13 +31,13 @@ QStringList NotificationManager::GetCapabilities()
     return QStringList() << "body";
 }
 
-uint NotificationManager::Notify(const QString &app_name, uint replaces_id, const QString &app_icon, const QString &summary, const QString &body, const QStringList &actions, NotificationHints hints, int expire_timeout)
+uint NotificationManager::Notify(const QString &appName, uint replacesId, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, NotificationHints hints, int expireTimeout)
 {
-    uint id = replaces_id != 0 ? replaces_id : nextAvailableNotificationID();
+    uint id = replacesId != 0 ? replacesId : nextAvailableNotificationID();
 
-    if (replaces_id == 0 || notifications.contains(id)) {
+    if (replacesId == 0 || notifications.contains(id)) {
         // Create a new notification if not replacing an existing one. Only replace an existing one if it really exists.
-        Notification notification(app_name, app_icon, summary, body, actions, hints, expire_timeout);
+        Notification notification(appName, appIcon, summary, body, actions, hints, expireTimeout);
         notifications.insert(id, notification);
     }
 
