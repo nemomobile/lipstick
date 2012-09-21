@@ -33,7 +33,7 @@
 #include "xtools/xatomcache.h"
 #include "xtools/xwindowmanager.h"
 #include "xtools/homewindowmonitor.h"
-#include "components/notificationmanager.h"
+#include "notifications/notificationmanager.h"
 #include "components/windowmanager.h"
 #include "components/windowinfo.h"
 #include "lipsticksettings.h"

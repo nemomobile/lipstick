@@ -1,4 +1,4 @@
-system(qdbusxml2cpp ../../src/components/notificationmanager.xml -p notificationmanagerproxy -c NotificationManagerProxy -i notificationhints.h)
+system(qdbusxml2cpp ../../src/notifications/notificationmanager.xml -p notificationmanagerproxy -c NotificationManagerProxy -i notificationhints.h)
 
 TEMPLATE = app
 TARGET = notificationtool
@@ -9,7 +9,7 @@ INSTALLS = target
 target.path = /usr/bin
 
 DEPENDPATH += "../../src"
-INCLUDEPATH += "../../src" "../../src/components"
+INCLUDEPATH += "../../src" "../../src/notifications"
 LIBS += -L"../../src" -llipstick
 
 HEADERS += \
