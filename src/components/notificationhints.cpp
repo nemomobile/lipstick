@@ -14,10 +14,26 @@
 ****************************************************************************/
 
 #include <QDBusArgument>
+#include <QDebug>
 #include "notificationhints.h"
 
 NotificationHints::NotificationHints()
 {
+}
+
+void NotificationHints::setHint(const QString &hint, const QVariant &value)
+{
+    hintValues.insert(hint, value);
+}
+
+QVariant NotificationHints::hintValue(const QString &hint) const
+{
+    return hintValues.value(hint);
+}
+
+QStringList NotificationHints::hints() const
+{
+    return hintValues.keys();
 }
 
 QDataStream &operator<<(QDataStream &datastream, const NotificationHints &hints)
@@ -63,4 +79,17 @@ const QDBusArgument &operator>>(const QDBusArgument &argument, NotificationHints
     }
     argument.endMap();
     return argument;
+}
+
+QDebug operator<<(QDebug debug, const NotificationHints &hints)
+{
+    debug.space() << "(";
+
+    foreach (const QString &hint, hints.hints()) {
+        debug << "(" << hint << "," << hints.hintValue(hint) << ")";
+    }
+
+    debug << ")";
+
+    return debug;
 }

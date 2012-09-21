@@ -16,13 +16,14 @@
 #ifndef NOTIFICATIONMANAGER_H
 #define NOTIFICATIONMANAGER_H
 
+#include "lipstickglobal.h"
 #include "notification.h"
 #include <QObject>
 
 /*!
  * The notification manager allows applications to display notifications to the user.
  */
-class NotificationManager : public QObject
+class LIPSTICK_EXPORT NotificationManager : public QObject
 {
     Q_OBJECT
 

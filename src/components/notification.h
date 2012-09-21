@@ -16,13 +16,14 @@
 #ifndef NOTIFICATION_H
 #define NOTIFICATION_H
 
+#include "lipstickglobal.h"
 #include "notificationhints.h"
 #include <QStringList>
 
 /*!
  * An object for storing information about a single notification.
  */
-class Notification
+class LIPSTICK_EXPORT Notification
 {
 public:
     /*!

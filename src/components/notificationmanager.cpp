@@ -14,13 +14,15 @@
 ****************************************************************************/
 
 #include <QCoreApplication>
+#include <QDebug>
 #include "notificationmanageradaptor.h"
 #include "notificationmanager.h"
 
 NotificationManager::NotificationManager(QObject *parent) :
     QObject(parent),
-    previousNotificationID(0)
+    previousNotificationID(1)
 {
+    qDBusRegisterMetaType<NotificationHints>();
     new NotificationManagerAdaptor(this);
     QDBusConnection::sessionBus().registerService("org.freedesktop.Notifications");
     QDBusConnection::sessionBus().registerObject("/org/freedesktop/Notifications", this);
@@ -39,6 +41,8 @@ uint NotificationManager::Notify(const QString &appName, uint replacesId, const 
         // Create a new notification if not replacing an existing one. Only replace an existing one if it really exists.
         Notification notification(appName, appIcon, summary, body, actions, hints, expireTimeout);
         notifications.insert(id, notification);
+
+        qDebug() << "NOTIFY:" << appName << replacesId << appIcon << summary << body << actions << hints << expireTimeout << "->" << id;
     }
 
     return id;
@@ -49,6 +53,7 @@ void NotificationManager::CloseNotification(uint id)
     if (notifications.contains(id)) {
         notifications.remove(id);
         emit NotificationClosed(id, CloseNotificationCalled);
+        qDebug() << "REMOVE:" << id;
     }
 }
 
