@@ -31,6 +31,54 @@ class QDBusArgument;
 class LIPSTICK_EXPORT NotificationHints
 {
 public:
+    //! Standard hint: The urgency level.
+    static const char *HINT_URGENCY;
+
+    //! Standard hint: The type of notification this is.
+    static const char *HINT_CATEGORY;
+
+    //! Standard hint: This specifies the name of the desktop filename representing the calling program. This should be the same as the prefix used for the application's .desktop file. An example would be "rhythmbox" from "rhythmbox.desktop". This can be used by the daemon to retrieve the correct icon for the application, for logging purposes, etc.
+    static const char *HINT_DESKTOP_ENTRY;
+
+    //! Standard hint: This is a raw data image format which describes the width, height, rowstride, has alpha, bits per sample, channels and image data respectively. We use this value if the icon field is left blank.
+    static const char *HINT_IMAGE_DATA;
+
+    //! Standard hint: The path to a sound file to play when the notification pops up.
+    static const char *HINT_SOUND_FILE;
+
+    //! Standard hint: Causes the server to suppress playing any sounds, if it has that ability. This is usually set when the client itself is going to play its own sound.
+    static const char *HINT_SUPPRESS_SOUND;
+
+    //! Standard hint: Specifies the X location on the screen that the notification should point to. The "y" hint must also be specified.
+    static const char *HINT_X;
+
+    //! Standard hint: Specifies the Y location on the screen that the notification should point to. The "x" hint must also be specified.
+    static const char *HINT_Y;
+
+    //! Nemo hint: Item count represented by the notification.
+    static const char *HINT_ITEM_COUNT;
+
+    //! Nemo hint: Timestamp of the notification.
+    static const char *HINT_TIMESTAMP;
+
+    //! Nemo hint: Icon of the preview of the notification.
+    static const char *HINT_PREVIEW_ICON;
+
+    //! Nemo hint: Body text of the preview of the notification.
+    static const char *HINT_PREVIEW_BODY;
+
+    //! Nemo hint: Summary text of the preview of the notification.
+    static const char *HINT_PREVIEW_SUMMARY;
+
+    //! Nemo hint: User removability of the notification.
+    static const char *HINT_USER_REMOVABLE;
+
+    //! Nemo hint: Translation ID for the generic text of the notification.
+    static const char *HINT_GENERIC_TEXT_TRANSLATION_ID;
+
+    //! Nemo hint: Translation catalogue name for the generic text of the notification.
+    static const char *HINT_GENERIC_TEXT_TRANSLATION_CATALOGUE;
+
     /*!
      * Creates a notification hints object.
      */

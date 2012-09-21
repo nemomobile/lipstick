@@ -4,7 +4,7 @@ TEMPLATE = lib
 TARGET = lipstick
 VERSION = 0.1
 
-DEFINES += LIPSTICK_BUILD_LIBRARY
+DEFINES += LIPSTICK_BUILD_LIBRARY DEBUG_NOTIFICATIONS
 
 CONFIG += qt
 INSTALLS = target
@@ -45,7 +45,8 @@ HEADERS += \
     notifications/notificationmanager.h \
     notifications/notificationmanageradaptor.h \
     notifications/notificationhints.h \
-    notifications/notification.h
+    notifications/notification.h \
+    notifications/categorydefinitionstore.h
 
 SOURCES += \
     homeapplication.cpp \
@@ -66,7 +67,8 @@ SOURCES += \
     notifications/notificationmanager.cpp \
     notifications/notificationmanageradaptor.cpp \
     notifications/notificationhints.cpp \
-    notifications/notification.cpp
+    notifications/notification.cpp \
+    notifications/categorydefinitionstore.cpp
 
 CONFIG += link_pkgconfig mobility qt warn_on depend_includepath qmake_cache target_qt
 MOBILITY += sensors

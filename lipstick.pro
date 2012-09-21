@@ -2,6 +2,8 @@ TEMPLATE = subdirs
 CONFIG += ordered
 SUBDIRS += src plugin tools
 
+tools.depends = src
+
 QMAKE_CLEAN += \
     Makefile \
     */Makefile \

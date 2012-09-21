@@ -26,6 +26,9 @@
 class LIPSTICK_EXPORT Notification
 {
 public:
+    //! Creates an empty notification object.
+    Notification();
+
     /*!
      * Creates an object for storing information about a single notification.
      *
@@ -56,6 +59,9 @@ public:
 
     //! Returns the hints for the notification
     NotificationHints hints() const;
+
+    //! Sets the hints for the notification
+    void setHints(const NotificationHints &hints);
 
     //! Returns the expiration timeout for the notification
     int expireTimeout() const;

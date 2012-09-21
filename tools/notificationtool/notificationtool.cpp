@@ -42,7 +42,7 @@ QString timestamp;
 // Prints usage information
 int usage(const char *program)
 {
-    std::cerr << std::setw(7) << "Usage: " << program << " [OPTION]... EVENTTYPE [SUMMARY BODY IMAGE ACTION...]" << std::endl;
+    std::cerr << std::setw(7) << "Usage: " << program << " [OPTION]... CATEGORY [SUMMARY BODY IMAGE ACTION...]" << std::endl;
     std::cerr << std::setw(7) << "Manage notifications." << std::endl;
     std::cerr << std::setw(7) << std::endl;
     std::cerr << std::setw(7) << "Mandatory arguments to long options are mandatory for short options too." << std::endl;
@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
     case Add:
     case Update: {
         // Get the parameters for adding and updating notifications
-        QString eventType = QString(argv[optind]);
+        QString category = QString(argv[optind]);
         QString summary, body, image;
         QStringList actions;
         if (argc >= optind + 1) {
@@ -152,9 +152,9 @@ int main(int argc, char *argv[])
 
         // Add/update a notification
         NotificationHints hints;
-        hints.setHint("category", eventType);
-        hints.setHint("count", count);
-        hints.setHint("timestamp", timestamp);
+        hints.setHint(NotificationHints::HINT_CATEGORY, category);
+        hints.setHint(NotificationHints::HINT_ITEM_COUNT, count);
+        hints.setHint(NotificationHints::HINT_TIMESTAMP, timestamp);
         result = proxy.Notify(argv[0], id, image, summary, body, actions, hints, -1);
         break;
     }

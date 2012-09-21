@@ -20,6 +20,8 @@
 #include "notification.h"
 #include <QObject>
 
+class CategoryDefinitionStore;
+
 /*!
  * The notification manager allows applications to display notifications to the user.
  */
@@ -122,6 +124,10 @@ signals:
      */
     void notificationRemoved(uint id);
 
+private slots:
+    void removeNotificationsWithEventType(const QString &eventType);
+    void updateNotificationsWithEventType(const QString &eventType);
+
 private:
     /*!
      * Creates a new NotificationManager.
@@ -137,6 +143,16 @@ private:
      */
     uint nextAvailableNotificationID();
 
+    /*!
+     * Applies a category definition to a notification by inserting
+     * all key-value pairs in the category definition as hints in
+     * the notification.
+     *
+     * \param notification the notification to apply the category definition to
+     * \param category the name of the category
+     */
+    void applyCategoryDefinition(Notification &notification, const QString &category);
+
     //! The singleton notification manager instance
     static NotificationManager *instance_;
 
@@ -145,6 +161,9 @@ private:
 
     //! Previous notification ID used
     uint previousNotificationID;
+
+    //! The category definition store
+    CategoryDefinitionStore *categoryDefinitionStore;
 };
 
 #endif // NOTIFICATIONMANAGER_H

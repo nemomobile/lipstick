@@ -17,6 +17,23 @@
 #include <QDebug>
 #include "notificationhints.h"
 
+const char *NotificationHints::HINT_URGENCY = "urgency";
+const char *NotificationHints::HINT_CATEGORY = "category";
+const char *NotificationHints::HINT_DESKTOP_ENTRY = "desktop-entry";
+const char *NotificationHints::HINT_IMAGE_DATA = "image_data";
+const char *NotificationHints::HINT_SOUND_FILE = "sound-file";
+const char *NotificationHints::HINT_SUPPRESS_SOUND = "suppress-sound";
+const char *NotificationHints::HINT_X = "x";
+const char *NotificationHints::HINT_Y = "y";
+const char *NotificationHints::HINT_ITEM_COUNT = "x-nemo-item-count";
+const char *NotificationHints::HINT_TIMESTAMP = "x-nemo-timestamp";
+const char *NotificationHints::HINT_PREVIEW_ICON = "x-nemo-preview-icon";
+const char *NotificationHints::HINT_PREVIEW_BODY = "x-nemo-preview-body";
+const char *NotificationHints::HINT_PREVIEW_SUMMARY = "x-nemo-preview-summary";
+const char *NotificationHints::HINT_USER_REMOVABLE = "x-nemo-user-removable";
+const char *NotificationHints::HINT_GENERIC_TEXT_TRANSLATION_ID = "x-nemo-generic-text-translation-id";
+const char *NotificationHints::HINT_GENERIC_TEXT_TRANSLATION_CATALOGUE = "x-nemo-generic-text-translation-catalogue";
+
 NotificationHints::NotificationHints()
 {
 }
