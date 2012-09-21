@@ -13,11 +13,13 @@
 **
 ****************************************************************************/
 
+#include <QCoreApplication>
 #include "notificationmanageradaptor.h"
 #include "notificationmanager.h"
 
 NotificationManager::NotificationManager(QObject *parent) :
-    QObject(parent)
+    QObject(parent),
+    previousNotificationID(0)
 {
     new NotificationManagerAdaptor(this);
     QDBusConnection::sessionBus().registerService("org.freedesktop.Notifications");
@@ -31,26 +33,44 @@ QStringList NotificationManager::GetCapabilities()
 
 uint NotificationManager::Notify(const QString &app_name, uint replaces_id, const QString &app_icon, const QString &summary, const QString &body, const QStringList &actions, NotificationHints hints, int expire_timeout)
 {
-    Q_UNUSED(app_name)
-    Q_UNUSED(replaces_id)
-    Q_UNUSED(app_icon)
-    Q_UNUSED(summary)
-    Q_UNUSED(body)
-    Q_UNUSED(actions)
-    Q_UNUSED(hints)
-    Q_UNUSED(expire_timeout)
-    return 0;
+    uint id = replaces_id != 0 ? replaces_id : nextAvailableNotificationID();
+
+    if (replaces_id == 0 || notifications.contains(id)) {
+        // Create a new notification if not replacing an existing one. Only replace an existing one if it really exists.
+        Notification notification(app_name, app_icon, summary, body, actions, hints, expire_timeout);
+        notifications.insert(id, notification);
+    }
+
+    return id;
 }
 
 void NotificationManager::CloseNotification(uint id)
 {
-    Q_UNUSED(id)
+    if (notifications.contains(id)) {
+        notifications.remove(id);
+        emit NotificationClosed(id, CloseNotificationCalled);
+    }
 }
 
 QString NotificationManager::GetServerInformation(QString &name, QString &vendor, QString &version)
 {
-    Q_UNUSED(name)
-    Q_UNUSED(vendor)
-    Q_UNUSED(version)
+    name = qApp->applicationName();
+    vendor = "Nemo Mobile";
+    version = qApp->applicationVersion();
     return QString();
+}
+
+uint NotificationManager::nextAvailableNotificationID()
+{
+    // Try to find an unused ID but only do it up to 2^32-1 times
+    for (uint i = 0; i < UINT32_MAX && notifications.contains(previousNotificationID); i++) {
+        previousNotificationID++;
+
+        if (previousNotificationID == 0) {
+            // 0 is not a valid ID so skip it
+            previousNotificationID = 1;
+        }
+    }
+
+    return previousNotificationID;
 }
