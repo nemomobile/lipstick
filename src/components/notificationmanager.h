@@ -16,7 +16,7 @@
 #ifndef NOTIFICATIONMANAGER_H
 #define NOTIFICATIONMANAGER_H
 
-#include "notificationhints.h"
+#include "notification.h"
 #include <QObject>
 
 /*!
@@ -27,6 +27,16 @@ class NotificationManager : public QObject
     Q_OBJECT
 
 public:
+    //! Notifation closing reasons used in the NotificationClosed signal
+    enum NotificationClosedReason {
+        //! The notification expired.
+        NotificationExpired = 1,
+        //! The notification was dismissed by the user.
+        NotificationDismissedByUser,
+        //! The notification was closed by a call to CloseNotification.
+        CloseNotificationCalled
+    };
+
     /*!
      * Creates a new NotificationManager.
      *
@@ -96,6 +106,20 @@ signals:
      * \param action_key The key of the action invoked. These match the keys sent over in the list of actions.
      */
     void ActionInvoked(uint id, const QString &action_key);
+
+private:
+    /*!
+     * Returns the next available notification ID
+     *
+     * \return The next available notification ID
+     */
+    uint nextAvailableNotificationID();
+
+    //! Hash of all notifications keyed by notification IDs
+    QHash<uint, Notification> notifications;
+
+    //! Previous notification ID used
+    uint previousNotificationID;
 };
 
 #endif // NOTIFICATIONMANAGER_H

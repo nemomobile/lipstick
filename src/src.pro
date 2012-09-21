@@ -44,7 +44,8 @@ HEADERS += \
     lipsticksettings.h \
     components/notificationmanager.h \
     components/notificationmanageradaptor.h \
-    components/notificationhints.h
+    components/notificationhints.h \
+    components/notification.h
 
 SOURCES += \
     homeapplication.cpp \
@@ -64,7 +65,8 @@ SOURCES += \
     components/windowmanager.cpp \
     components/notificationmanager.cpp \
     components/notificationmanageradaptor.cpp \
-    components/notificationhints.cpp
+    components/notificationhints.cpp \
+    components/notification.cpp
 
 CONFIG += link_pkgconfig mobility qt warn_on depend_includepath qmake_cache target_qt
 MOBILITY += sensors

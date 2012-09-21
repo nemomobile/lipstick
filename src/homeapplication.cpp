@@ -71,6 +71,10 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     , _qmlPath(qmlPath)
     , notificationManager(new NotificationManager(this))
 {
+    setApplicationName("Lipstick");
+    // TODO: autogenerate this from tags
+    setApplicationVersion("0.3.4");
+
     XDamageQueryExtension(QX11Info::display(), &xDamageEventBase, &xDamageErrorBase);
 
     // launch a timer for sending a dbus-signal upstart when basic construct is done
