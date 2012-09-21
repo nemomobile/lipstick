@@ -23,7 +23,10 @@ PUBLICHEADERS += \
     components/switchermodel.h \
     components/switcherpixmapitem.h \
     components/statusbar.h \
-    components/windowmanager.h
+    components/windowmanager.h \
+    components/notificationmanager.h \
+    components/notificationhints.h \
+    components/notification.h
 
 INSTALLS += publicheaderfiles
 publicheaderfiles.files = $$PUBLICHEADERS

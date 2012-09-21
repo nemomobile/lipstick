@@ -18,6 +18,16 @@
 #include "notificationmanageradaptor.h"
 #include "notificationmanager.h"
 
+NotificationManager *NotificationManager::instance_ = 0;
+
+NotificationManager *NotificationManager::instance()
+{
+    if (instance_ == 0) {
+        instance_ = new NotificationManager(qApp);
+    }
+    return instance_;
+}
+
 NotificationManager::NotificationManager(QObject *parent) :
     QObject(parent),
     previousNotificationID(1)
@@ -43,6 +53,7 @@ uint NotificationManager::Notify(const QString &appName, uint replacesId, const 
         notifications.insert(id, notification);
 
         qDebug() << "NOTIFY:" << appName << replacesId << appIcon << summary << body << actions << hints << expireTimeout << "->" << id;
+        emit notificationModified(id);
     }
 
     return id;
@@ -53,7 +64,9 @@ void NotificationManager::CloseNotification(uint id)
     if (notifications.contains(id)) {
         notifications.remove(id);
         emit NotificationClosed(id, CloseNotificationCalled);
+
         qDebug() << "REMOVE:" << id;
+        emit notificationRemoved(id);
     }
 }
 
