@@ -46,13 +46,6 @@
 #define HOME_DEBUG(things)
 #endif
 
-/*!
- * D-Bus names for the notification that's sent when home is ready
- */
-static const QString HOME_READY_SIGNAL_PATH = "/com/nokia/duihome";
-static const QString HOME_READY_SIGNAL_INTERFACE = "com.nokia.duihome.readyNotifier";
-static const QString HOME_READY_SIGNAL_NAME = "ready";
-
 HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     : QApplication(argc, argv)
     , xEventListeners()
@@ -115,9 +108,9 @@ void HomeApplication::sendStartupNotifications()
 {
     static QDBusConnection systemBus = QDBusConnection::systemBus();
     QDBusMessage homeReadySignal =
-        QDBusMessage::createSignal(HOME_READY_SIGNAL_PATH,
-                                   HOME_READY_SIGNAL_INTERFACE,
-                                   HOME_READY_SIGNAL_NAME);
+        QDBusMessage::createSignal("/com/nokia/duihome",
+                                   "com.nokia.duihome.readyNotifier",
+                                   "ready");
     systemBus.send(homeReadySignal);
 
     // For device boot performance reasons initializing Home scene window must be done
