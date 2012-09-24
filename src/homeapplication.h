@@ -13,6 +13,7 @@
 #ifndef HOMEAPPLICATION_H_
 #define HOMEAPPLICATION_H_
 
+#include <signal.h>
 #include <QApplication>
 #include <QDeclarativeView>
 #include "lipstickglobal.h"
@@ -102,6 +103,15 @@ private slots:
      */
     void sendStartupNotifications();
 
+private:
+    //! A signal handler that quits the QApplication
+    static void quitSignalHandler(int);
+
+    //! The original SIGINT handler
+    sighandler_t originalSigIntHandler;
+
+    //! The original SIGTERM handler
+    sighandler_t originalSigTermHandler;
 };
 
 #endif /* HOMEAPPLICATION_H_ */
