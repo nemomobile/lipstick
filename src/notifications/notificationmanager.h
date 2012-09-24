@@ -16,13 +16,16 @@
 #ifndef NOTIFICATIONMANAGER_H
 #define NOTIFICATIONMANAGER_H
 
+#include "lipstickglobal.h"
 #include "notification.h"
 #include <QObject>
+
+class CategoryDefinitionStore;
 
 /*!
  * The notification manager allows applications to display notifications to the user.
  */
-class NotificationManager : public QObject
+class LIPSTICK_EXPORT NotificationManager : public QObject
 {
     Q_OBJECT
 
@@ -38,12 +41,12 @@ public:
     };
 
     /*!
-     * Creates a new NotificationManager.
+     * Returns a singleton instance of the notification manager.
      *
-     * \param parent the parent object
+     * \return an instance of the notification manager
      */
-    explicit NotificationManager(QObject *parent = 0);
-    
+    static NotificationManager *instance();
+
     /*!
      * Returns an array of strings. Each string describes an optional capability
      * implemented by the server. Refer to the Desktop Notification Specifications for
@@ -107,7 +110,32 @@ signals:
      */
     void ActionInvoked(uint id, const QString &actionKey);
 
+    /*!
+     * Emitted when a notification is modified (added or updated).
+     *
+     * \param id the ID of the modified notification
+     */
+    void notificationModified(uint id);
+
+    /*!
+     * Emitted when a notification is removed.
+     *
+     * \param id the ID of the removed notification
+     */
+    void notificationRemoved(uint id);
+
+private slots:
+    void removeNotificationsWithEventType(const QString &eventType);
+    void updateNotificationsWithEventType(const QString &eventType);
+
 private:
+    /*!
+     * Creates a new NotificationManager.
+     *
+     * \param parent the parent object
+     */
+    explicit NotificationManager(QObject *parent = 0);
+
     /*!
      * Returns the next available notification ID
      *
@@ -115,11 +143,27 @@ private:
      */
     uint nextAvailableNotificationID();
 
+    /*!
+     * Applies a category definition to a notification by inserting
+     * all key-value pairs in the category definition as hints in
+     * the notification.
+     *
+     * \param notification the notification to apply the category definition to
+     * \param category the name of the category
+     */
+    void applyCategoryDefinition(Notification &notification, const QString &category);
+
+    //! The singleton notification manager instance
+    static NotificationManager *instance_;
+
     //! Hash of all notifications keyed by notification IDs
     QHash<uint, Notification> notifications;
 
     //! Previous notification ID used
     uint previousNotificationID;
+
+    //! The category definition store
+    CategoryDefinitionStore *categoryDefinitionStore;
 };
 
 #endif // NOTIFICATIONMANAGER_H

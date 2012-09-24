@@ -15,6 +15,11 @@
 
 #include "notification.h"
 
+Notification::Notification() :
+    expireTimeout_(-1)
+{
+}
+
 Notification::Notification(const QString &appName, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const NotificationHints &hints, int expireTimeout) :
     appName_(appName),
     appIcon_(appIcon),
@@ -54,6 +59,11 @@ QStringList Notification::actions() const
 NotificationHints Notification::hints() const
 {
     return hints_;
+}
+
+void Notification::setHints(const NotificationHints &hints)
+{
+    hints_ = hints;
 }
 
 int Notification::expireTimeout() const

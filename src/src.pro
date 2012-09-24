@@ -1,10 +1,10 @@
-system(qdbusxml2cpp components/notificationmanager.xml -a components/notificationmanageradaptor -c NotificationManagerAdaptor -l NotificationManager -i notificationmanager.h)
+system(qdbusxml2cpp notifications/notificationmanager.xml -a notifications/notificationmanageradaptor -c NotificationManagerAdaptor -l NotificationManager -i notificationmanager.h)
 
 TEMPLATE = lib
 TARGET = lipstick
 VERSION = 0.1
 
-DEFINES += LIPSTICK_BUILD_LIBRARY
+DEFINES += LIPSTICK_BUILD_LIBRARY DEBUG_NOTIFICATIONS
 
 CONFIG += qt
 INSTALLS = target
@@ -23,7 +23,10 @@ PUBLICHEADERS += \
     components/switchermodel.h \
     components/switcherpixmapitem.h \
     components/statusbar.h \
-    components/windowmanager.h
+    components/windowmanager.h \
+    notifications/notificationmanager.h \
+    notifications/notificationhints.h \
+    notifications/notification.h
 
 INSTALLS += publicheaderfiles
 publicheaderfiles.files = $$PUBLICHEADERS
@@ -39,10 +42,11 @@ HEADERS += \
     xtools/xwindowmanager.h \
     lipstickdbusinterface.h \
     lipsticksettings.h \
-    components/notificationmanager.h \
-    components/notificationmanageradaptor.h \
-    components/notificationhints.h \
-    components/notification.h
+    notifications/notificationmanager.h \
+    notifications/notificationmanageradaptor.h \
+    notifications/notificationhints.h \
+    notifications/notification.h \
+    notifications/categorydefinitionstore.h
 
 SOURCES += \
     homeapplication.cpp \
@@ -60,10 +64,11 @@ SOURCES += \
     components/switcherpixmapitem.cpp \
     components/statusbar.cpp \
     components/windowmanager.cpp \
-    components/notificationmanager.cpp \
-    components/notificationmanageradaptor.cpp \
-    components/notificationhints.cpp \
-    components/notification.cpp
+    notifications/notificationmanager.cpp \
+    notifications/notificationmanageradaptor.cpp \
+    notifications/notificationhints.cpp \
+    notifications/notification.cpp \
+    notifications/categorydefinitionstore.cpp
 
 CONFIG += link_pkgconfig mobility qt warn_on depend_includepath qmake_cache target_qt
 MOBILITY += sensors
