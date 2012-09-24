@@ -46,6 +46,11 @@
 #define HOME_DEBUG(things)
 #endif
 
+void HomeApplication::quitSignalHandler(int)
+{
+    qApp->quit();
+}
+
 HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     : QApplication(argc, argv)
     , xEventListeners()
@@ -55,6 +60,8 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     , xDamageErrorBase(0)
     , _mainWindowInstance(0)
     , _qmlPath(qmlPath)
+    , originalSigIntHandler(signal(SIGINT, quitSignalHandler))
+    , originalSigTermHandler(signal(SIGTERM, quitSignalHandler))
 {
     setApplicationName("Lipstick");
     // TODO: autogenerate this from tags
@@ -80,6 +87,9 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
 HomeApplication::~HomeApplication()
 {
     delete _mainWindowInstance;
+
+    signal(SIGINT, originalSigIntHandler);
+    signal(SIGTERM, originalSigTermHandler);
 }
 
 HomeApplication *HomeApplication::instance()
