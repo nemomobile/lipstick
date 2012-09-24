@@ -1,6 +1,3 @@
-
-include (../getlibdir.pri)
-
 TEMPLATE = lib
 TARGET = lipstickplugin
 VERSION = 0.1
@@ -10,8 +7,8 @@ QT += core gui declarative
 
 INSTALLS = target qmldirfile
 qmldirfile.files = qmldir
-qmldirfile.path = $$LIBDIR/qt4/imports/org/nemomobile/lipstick
-target.path = $$LIBDIR/qt4/imports/org/nemomobile/lipstick
+qmldirfile.path = $$[QT_INSTALL_IMPORTS]/org/nemomobile/lipstick
+target.path = $$[QT_INSTALL_IMPORTS]/org/nemomobile/lipstick
 
 DEPENDPATH += "../src"
 INCLUDEPATH += "../src"

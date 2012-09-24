@@ -1,6 +1,3 @@
-
-include (../getlibdir.pri)
-
 system(qdbusxml2cpp components/notificationmanager.xml -a components/notificationmanageradaptor -c NotificationManagerAdaptor -l NotificationManager -i notificationmanager.h)
 
 TEMPLATE = lib
@@ -11,7 +8,7 @@ DEFINES += LIPSTICK_BUILD_LIBRARY
 
 CONFIG += qt
 INSTALLS = target
-target.path = $$LIBDIR
+target.path = $$[QT_INSTALL_LIBS]
 
 QMAKE_STRIP = echo
 OBJECTS_DIR = .obj
