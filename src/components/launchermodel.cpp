@@ -50,8 +50,7 @@ void LauncherModel::monitoredDirectoryChanged(QString changedPath)
     QFileInfoList fileInfoList = directory.entryInfoList();
 
     // Finding removed desktop entries
-    foreach (LauncherItem *item, *(this->getList<LauncherItem>()))
-    {
+    foreach (LauncherItem *item, *(this->getList<LauncherItem>())) {
         if (!item->filePath().startsWith(changedPath))
             continue;
 
@@ -63,13 +62,11 @@ void LauncherModel::monitoredDirectoryChanged(QString changedPath)
     }
 
     // Finding newly added desktop entries
-    foreach (const QFileInfo &fileInfo, fileInfoList)
-    {
+    foreach (const QFileInfo &fileInfo, fileInfoList) {
         if (this->getList<LauncherItem>()->end() == std::find_if(
             this->getList<LauncherItem>()->begin(),
             this->getList<LauncherItem>()->end(),
-            [fileInfo](LauncherItem* item) -> bool { return item->filePath() == fileInfo.fileName(); }))
-        {
+            [fileInfo](LauncherItem* item) -> bool { return item->filePath() == fileInfo.fileName(); })) {
             // Skip files which are not desktop entries
             if (!fileInfo.fileName().endsWith(".desktop"))
                 continue;
@@ -94,15 +91,14 @@ void LauncherModel::setDirectories(QStringList newDirectories)
 {
     _fileSystemWatcher->removePaths(_fileSystemWatcher->directories());
 
-    foreach (QString path, newDirectories)
-    {
-        if (!path.startsWith('/'))
+    foreach (const QString &path, newDirectories) {
+        if (!path.startsWith('/')) {
             LAUNCHER_DEBUG(Q_FUNC_INFO << "Not an absolute path, not adding" << path);
-        else
-        {
-            _fileSystemWatcher->addPath(path);
-            monitoredDirectoryChanged(path);
+            continue;
         }
+
+        _fileSystemWatcher->addPath(path);
+        monitoredDirectoryChanged(path);
     }
 
     emit this->directoriesChanged();

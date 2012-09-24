@@ -71,11 +71,8 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
 
     new LipstickDBusInterface(this);
     QDBusConnection::sessionBus().registerService("org.nemomobile.lipstick");
-    if (!QDBusConnection::sessionBus().registerObject("/request", this)) {
-        qWarning("CAN'T REGISTER DBUS");
-    } else {
-        qDebug("DBUS REGISTERED OK");
-    }
+    if (!QDBusConnection::sessionBus().registerObject("/request", this))
+        qWarning("lipstick: CAN'T REGISTER DBUS");
 }
 
 HomeApplication::~HomeApplication()
