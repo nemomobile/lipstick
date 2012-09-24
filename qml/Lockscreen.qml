@@ -1,77 +1,52 @@
 import QtQuick 1.1
 
-Rectangle {
-    id: lockScreen
-    color: "red"
+Item {
+    property alias clockRunning: clock.running
 
-    states: [
-        State {
-            name: "locked"
-            when: LipstickSettings.lockscreenVisible
-            PropertyChanges {
-                target: lockScreen
-                y: 0
-            }
-        },
-        State {
-            name: "unlocked"
-            when: !LipstickSettings.lockscreenVisible
-            PropertyChanges {
-                target: lockScreen
-                y: -lockScreen.height
-            }
-        }
-    ]
-    transitions: Transition {
-        PropertyAnimation {
-            properties: "y"
-            easing.type: Easing.OutBounce
-            duration: 400
-        }
-    }
+    Connections {
+        target: LipstickSettings
 
-    MouseArea {
-        property int pressY: 0
-        anchors.fill: parent
-
-        onPressed: pressY = mouseY
-        onPositionChanged: {
-            var delta = pressY - mouseY
-            pressY = mouseY + delta
-            if (parent.y - delta > 0)
+        // TODO: turn clock off when screen turns off to save power
+        onLockscreenVisibleChanged: {
+            if (!LipstickSettings.lockscreenVisible) {
+                if (dashboard.currentPage == 0) {
+                    // lockscreen visible, but we don't want to see it.
+                    // reset view to switcher/launcher
+                    dashboard.currentPage = 1
+                    dashboard.snapToCurrentPage();
+                    stopClock()
+                }
                 return
-            parent.y = parent.y - delta
-        }
-        onReleased: {
-            if (Math.abs(parent.y) > parent.height / 3) {
-                console.log("Going away")
-    
-                LipstickSettings.lockscreenVisible = false
-            } else if (LipstickSettings.lockscreenVisible) {
-                console.log("No dice")
-                parent.state = "unlocked"
-                parent.state = "locked"
+            } else {
+                // lockscreen enabled. make sure we're already there.
+                startClock()
+                dashboard.currentPage = 0
+                dashboard.snapToCurrentPage();
             }
         }
     }
 
-    Text {
-        id: time
-        text: Qt.formatDateTime(new Date(), "hh:mm")
-        font.pixelSize: 130
-        color: "white"
-        horizontalAlignment: Text.AlignHCenter
-        anchors.top: parent.top
-        width: parent.width
+    Clock {
+        id: clock
+        y: LipstickSettings.lockscreenVisible ? (parent.height / 2 - height / 2) : parent.height - height
+
+        Behavior on y {
+            SpringAnimation {
+                spring: 3
+                damping: 0.2
+                mass: 0.3
+            }
+        }
     }
 
-    Text {
-        horizontalAlignment: Text.AlignHCenter
-        anchors.top: time.bottom
-        text: Qt.formatDateTime(new Date(), "dd/MM/yyyy")
-        color: "white"
-        font.pixelSize: 50
-        width: parent.width
+    function startClock() {
+        console.log("Starting clock")
+        clock.start()
+    }
+
+    function stopClock() {
+        console.log("Stopping clock")
+        clock.stop()
     }
 }
 

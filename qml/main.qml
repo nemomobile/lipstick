@@ -55,7 +55,7 @@ Item {
             id: background
             source: 'images/graphics-wallpaper-home.jpg'
             x: 0
-            y: -(dashboard.contentY / 3) - clock.height
+            y: -dashboard.contentY / 4
             width: parent.width
             fillMode: Image.PreserveAspectCrop
         }
@@ -75,11 +75,17 @@ Item {
         Flickable {
             id: dashboard
             anchors.fill: parent
-            anchors.topMargin: - clock.height
 
             property int currentPage: 0
             property int maxPages: 0
             property int savedContentY: 0
+
+            Component.onCompleted: {
+                if (!LipstickSettings.lockscreenVisible) {
+                    currentPage = 1
+                    snapToCurrentPage(true)
+                }
+            }
 
             Connections {
                 target: dashContent
@@ -99,10 +105,10 @@ Item {
             }
 
             onContentYChanged: {
-                if (contentY < -10 && !clock.running)
-                    clock.start();
-                else if (contentY > -10 && clock.running)
-                    clock.stop();
+                if (contentY >= lockscreen.height && lockscreen.clockRunning)
+                    lockscreen.stopClock();
+                else if (contentY < lockscreen.height && !lockscreen.clockRunning)
+                    lockscreen.startClock();
             }
 
             onMovementStarted: {
@@ -123,9 +129,16 @@ Item {
                 if (delta > 0.10) {
                     // snap down
                     dashboard.currentPage = dashboard.currentPage + 1 
+
+                    if (LipstickSettings.lockscreenVisible)
+                        LipstickSettings.lockscreenVisible = false
                 } else if (delta < -0.10) {
                     // snap up
                     dashboard.currentPage = dashboard.currentPage - 1 
+
+                    // don't let user pan back up to lockscreen
+                    if (dashboard.currentPage == 0)
+                        dashboard.currentPage = 1
                 }
             }
 
@@ -133,15 +146,22 @@ Item {
                 snapToCurrentPage()
             }
 
-            function snapToCurrentPage() {
+            function snapToCurrentPage(immediate) {
                 // bounce back
                 if (dashboard.currentPage < 0)
                     dashboard.currentPage = 0 
                 else if (dashboard.currentPage > dashboard.maxPages - 1)
                     dashboard.currentPage = dashboard.maxPages - 1
                  
-                var newY = dashboard.currentPage * (dashboard.height - clock.height)
-                
+                var newY = dashboard.currentPage * dashboard.height
+
+                yBehavior.stop()
+
+                if (immediate) {
+                    dashboard.contentY = newY
+                    return
+                }
+
                 yBehavior.from = dashboard.contentY
                 yBehavior.to = newY
                 yBehavior.start()
@@ -151,11 +171,15 @@ Item {
                 id: dashContent
                 width: parent.width
 
-                Clock { id: clock }
+                Lockscreen {
+                    id: lockscreen
+                    height: dashboard.height
+                    width: dashboard.width
+                }
 
                 Switcher {
                     width: parent.width
-                    height: dashboard.height - launcher.cellHeight - clock.height
+                    height: dashboard.height - launcher.cellHeight
                 }
 
                 Launcher {
@@ -163,19 +187,14 @@ Item {
                     width: parent.width
 
                     onAppLaunchingStarted: {
-                        dashboard.currentPage = 0
-                        yBehavior.stop()
-                        dashboard.contentY = 0
+                        if (LipstickSettings.lockscreenVisible)
+                            return
+
+                        dashboard.currentPage = 1
+                        dashboard.snapToCurrentPage(true)
                     }
                 }
             }
-        }
-
-        // TODO: does not match jolla UI
-        Lockscreen {
-            height: desktop.height
-            width: desktop.width
-            z: 200
         }
     }
 }
