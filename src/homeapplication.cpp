@@ -33,7 +33,7 @@
 #include "xtools/xatomcache.h"
 #include "xtools/xwindowmanager.h"
 #include "xtools/homewindowmonitor.h"
-#include "components/notificationmanager.h"
+#include "notifications/notificationmanager.h"
 #include "components/windowmanager.h"
 #include "components/windowinfo.h"
 #include "lipsticksettings.h"
@@ -55,7 +55,6 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     , xDamageErrorBase(0)
     , _mainWindowInstance(0)
     , _qmlPath(qmlPath)
-    , notificationManager(new NotificationManager(this))
 {
     setApplicationName("Lipstick");
     // TODO: autogenerate this from tags
@@ -65,6 +64,9 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
 
     // launch a timer for sending a dbus-signal upstart when basic construct is done
     QTimer::singleShot(0, this, SLOT(sendStartupNotifications()));
+
+    // Initialize the notification manager;
+    NotificationManager::instance();
 
     // Initialize the home window monitor
     HomeWindowMonitor::instance();
