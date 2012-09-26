@@ -19,8 +19,11 @@
 #include "lipstickglobal.h"
 #include "notification.h"
 #include <QObject>
+#include <QSqlDatabase>
+#include <QTimer>
 
 class CategoryDefinitionStore;
+class QSqlTableModel;
 
 /*!
  * The notification manager allows applications to display notifications to the user.
@@ -125,16 +128,22 @@ signals:
     void notificationRemoved(uint id);
 
 private slots:
-    void removeNotificationsWithEventType(const QString &eventType);
-    void updateNotificationsWithEventType(const QString &eventType);
+    void removeNotificationsWithCategory(const QString &category);
+    void updateNotificationsWithCategory(const QString &category);
+
+    //! Commits the current database transaction, if any
+    void commit();
 
 private:
     /*!
-     * Creates a new NotificationManager.
+     * Creates a new notification manager.
      *
      * \param parent the parent object
      */
     explicit NotificationManager(QObject *parent = 0);
+
+    //! Destroys the notification manager.
+    virtual ~NotificationManager();
 
     /*!
      * Returns the next available notification ID
@@ -153,6 +162,60 @@ private:
      */
     void applyCategoryDefinition(Notification &notification, const QString &category);
 
+    //! Restores the notifications from a database on the disk
+    void restoreNotifications();
+
+    /*!
+     * Creates a connection to the Sqlite database.
+     *
+     * \return \c true if the connection was successfully established, \c false otherwise
+     */
+    bool connectToDatabase();
+
+    /*!
+     * Checks whether there is enough free disk space available.
+     *
+     * \param path any path to the file system from which the space should be checked
+     * \param freeSpaceNeeded free space needed in kilobytes
+     * \return \c true if there is enough free space in given file system, \c false otherwise
+     */
+    static bool checkForDiskSpace(const QString &path, unsigned long freeSpaceNeeded);
+
+    /*!
+     * Removes a database file from the filesystem. Removes related -wal and -shm files as well.
+     *
+     * \param path the path of the database file to be removed
+     */
+    static void removeDatabaseFile(const QString &path);
+
+    /*!
+     * Ensures that all database tables have the requires fields.
+     * Recreates the tables if needed.
+     *
+     * \return \c true if the database can be used, \c false otherwise
+     */
+    bool checkTableValidity();
+
+    /*!
+     * Recreates a table in the database.
+     *
+     * \param tableName the name of the table to be created
+     * \param definition SQL definition for the table
+     * \return \c true if the table was created, \c false otherwise
+     */
+    bool recreateTable(const QString &tableName, const QString &definition);
+
+    //! Fills the notifications hash table with data from the database
+    void fetchData();
+
+    /*!
+     * Executes a SQL command in the database. Starts a new transaction if none is active currently, otherwise
+     * the command goes to the active transaction. Restarts the transaction commit timer.
+     * \param command the SQL command
+     * \param args list of values to be bound to the positional placeholders ('?' -character) in the command.
+     */
+    void execSQL(const QString &command, const QVariantList &args = QVariantList());
+
     //! The singleton notification manager instance
     static NotificationManager *instance_;
 
@@ -164,6 +227,15 @@ private:
 
     //! The category definition store
     CategoryDefinitionStore *categoryDefinitionStore;
+
+    //! Database for the notifications
+    QSqlDatabase database;
+
+    //! Whether the current database transaction has been committed to the database
+    bool committed;
+
+    //! Timer for triggering the commit of the current database transaction
+    QTimer databaseCommitTimer;
 };
 
 #endif // NOTIFICATIONMANAGER_H
