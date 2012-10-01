@@ -51,6 +51,21 @@ public:
     static NotificationManager *instance();
 
     /*!
+     * Returns a notification with the given ID.
+     *
+     * \param id the ID of the notification to return
+     * \return the notification with the given ID
+     */
+    Notification *notification(uint id) const;
+
+    /*!
+     * Returns a list of notification IDs.
+     *
+     * \return a list of notification IDs.
+     */
+    QList<uint> notificationIds() const;
+
+    /*!
      * Returns an array of strings. Each string describes an optional capability
      * implemented by the server. Refer to the Desktop Notification Specifications for
      * the defined capabilities.
@@ -128,11 +143,31 @@ signals:
     void notificationRemoved(uint id);
 
 private slots:
+    /*!
+     * Removes all notifications with the specified category.
+     *
+     * \param category the category of the notifications to remove
+     */
     void removeNotificationsWithCategory(const QString &category);
+
+    /*!
+     * Update category data of all notifications with the
+     * specified category.
+     *
+     * \param category the category of the notifications to update
+     */
     void updateNotificationsWithCategory(const QString &category);
 
     //! Commits the current database transaction, if any
     void commit();
+
+    /*!
+     * Invokes the given action if it is has been defined. The
+     * sender is expected to be a Notification.
+     *
+     * \param action the action to be invoked
+     */
+    void invokeAction(const QString &action);
 
 private:
     /*!
@@ -153,14 +188,20 @@ private:
     uint nextAvailableNotificationID();
 
     /*!
-     * Applies a category definition to a notification by inserting
-     * all key-value pairs in the category definition as hints in
-     * the notification.
+     * Applies a category definition to a notification's hints by inserting
+     * all key-value pairs in the category definition to the hints.
      *
-     * \param notification the notification to apply the category definition to
-     * \param category the name of the category
+     * \param hints the notification hints to apply the category definition to
      */
-    void applyCategoryDefinition(Notification &notification, const QString &category);
+    void applyCategoryDefinition(NotificationHints &hints);
+
+    /*!
+     * Adds a timestamp to a notification's hints if there is no timestamp
+     * defined.
+     *
+     * \param hints the notification hints to add the timestamp to
+     */
+    void addTimestamp(NotificationHints &hints);
 
     //! Restores the notifications from a database on the disk
     void restoreNotifications();
@@ -220,7 +261,7 @@ private:
     static NotificationManager *instance_;
 
     //! Hash of all notifications keyed by notification IDs
-    QHash<uint, Notification> notifications;
+    QHash<uint, Notification*> notifications;
 
     //! Previous notification ID used
     uint previousNotificationID;
