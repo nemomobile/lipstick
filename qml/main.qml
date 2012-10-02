@@ -104,8 +104,13 @@ Item {
                     dashboard.currentPage = 1
                     dashboard.snapToCurrentPage(desktop.peeking)
                     if (desktop.peeking) {
-                        dashboard.contentY = lockscreen.height - 70
-                        spacerItem.height = launcher.cellHeight - 70
+                        var indicatorAreaRevealHeight = lockscreen.indicatorAreaHeight + 10
+
+                        // reveal clock by slightly moving the home screen
+                        dashboard.contentY = dashboard.contentY - indicatorAreaRevealHeight
+
+                        // grow spacerItem below switcher to hide launcher icons from view
+                        spacerItem.height = Math.max(0, launcher.cellHeight - indicatorAreaRevealHeight)
                     } else {
                         spacerItem.height = 0
                     }

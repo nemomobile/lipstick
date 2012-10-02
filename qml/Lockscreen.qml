@@ -2,6 +2,7 @@ import QtQuick 1.1
 
 Item {
     property alias clockRunning: clock.running
+    property alias indicatorAreaHeight: clock.height
 
     Connections {
         target: LipstickSettings
