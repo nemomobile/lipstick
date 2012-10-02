@@ -80,6 +80,16 @@ NotificationManager::~NotificationManager()
     database.commit();
 }
 
+Notification *NotificationManager::notification(uint id) const
+{
+    return notifications.value(id);
+}
+
+QList<uint> NotificationManager::notificationIds() const
+{
+    return notifications.keys();
+}
+
 QStringList NotificationManager::GetCapabilities()
 {
     return QStringList() << "body";
@@ -90,10 +100,33 @@ uint NotificationManager::Notify(const QString &appName, uint replacesId, const 
     uint id = replacesId != 0 ? replacesId : nextAvailableNotificationID();
 
     if (replacesId == 0 || notifications.contains(id)) {
-        // Create a new notification if not replacing an existing one. Only replace an existing one if it really exists.
-        Notification notification(appName, appIcon, summary, body, actions, hints, expireTimeout);
-        applyCategoryDefinition(notification, hints.hintValue(NotificationHints::HINT_CATEGORY).toString());
-        notifications.insert(id, notification);
+        // Apply a category definition, if any, to the hints
+        applyCategoryDefinition(hints);
+
+        // Ensure the hints contain a timestamp
+        addTimestamp(hints);
+
+        if (replacesId == 0) {
+            // Create a new notification
+            Notification *notification = new Notification(appName, appIcon, summary, body, actions, hints, expireTimeout, this);
+            connect(notification, SIGNAL(actionInvoked(QString)), this, SLOT(invokeAction(QString)));
+            notifications.insert(id, notification);
+        } else {
+            // Only replace an existing notification if it really exists
+            Notification *notification = notifications.value(id);
+            notification->setAppName(appName);
+            notification->setAppIcon(appIcon);
+            notification->setSummary(summary);
+            notification->setBody(body);
+            notification->setActions(actions);
+            notification->setHints(hints);
+            notification->setExpireTimeout(expireTimeout);
+
+            // Delete the existing notification from the database
+            execSQL(QString("DELETE FROM notifications WHERE id=?"), QVariantList() << id);
+            execSQL(QString("DELETE FROM actions WHERE id=?"), QVariantList() << id);
+            execSQL(QString("DELETE FROM hints WHERE id=?"), QVariantList() << id);
+        }
 
         // Add the notification, its actions and its hints to the database
         execSQL("INSERT INTO notifications VALUES (?, ?, ?, ?, ?, ?)", QVariantList() << id << appName << appIcon << summary << body << expireTimeout);
@@ -104,7 +137,7 @@ uint NotificationManager::Notify(const QString &appName, uint replacesId, const 
             execSQL("INSERT INTO hints VALUES (?, ?, ?)", QVariantList() << id << hint << hints.hintValue(hint));
         }
 
-        NOTIFICATIONS_DEBUG("NOTIFY:" << notification.appName() << notification.appIcon() << notification.summary() << notification.body() << notification.actions() << notification.hints() << notification.expireTimeout() << "->" << id);
+        NOTIFICATIONS_DEBUG("NOTIFY:" << appName << appIcon << summary << body << actions << hints << expireTimeout << "->" << id);
         emit notificationModified(id);
     }
 
@@ -114,7 +147,6 @@ uint NotificationManager::Notify(const QString &appName, uint replacesId, const 
 void NotificationManager::CloseNotification(uint id)
 {
     if (notifications.contains(id)) {
-        notifications.remove(id);
         emit NotificationClosed(id, CloseNotificationCalled);
 
         // Remove the notification, its actions and its hints from database
@@ -124,6 +156,8 @@ void NotificationManager::CloseNotification(uint id)
 
         NOTIFICATIONS_DEBUG("REMOVE:" << id);
         emit notificationRemoved(id);
+
+        delete notifications.take(id);
     }
 }
 
@@ -155,7 +189,7 @@ uint NotificationManager::nextAvailableNotificationID()
 void NotificationManager::removeNotificationsWithCategory(const QString &category)
 {
     foreach(uint id, notifications.keys()) {
-        if (notifications[id].hints().hintValue("category").toString() == category) {
+        if (notifications[id]->hints().hintValue("category").toString() == category) {
             CloseNotification(id);
         }
     }
@@ -164,22 +198,26 @@ void NotificationManager::removeNotificationsWithCategory(const QString &categor
 void NotificationManager::updateNotificationsWithCategory(const QString &category)
 {
     foreach(uint id, notifications.keys()) {
-        if (notifications[id].hints().hintValue("category").toString() == category) {
-            Notify(notifications[id].appName(), id, notifications[id].appIcon(), notifications[id].summary(), notifications[id].body(), notifications[id].actions(), notifications[id].hints(), notifications[id].expireTimeout());
+        if (notifications[id]->hints().hintValue("category").toString() == category) {
+            Notify(notifications[id]->appName(), id, notifications[id]->appIcon(), notifications[id]->summary(), notifications[id]->body(), notifications[id]->actions(), notifications[id]->hints(), notifications[id]->expireTimeout());
         }
     }
 }
 
-void NotificationManager::applyCategoryDefinition(Notification &notification, const QString &category)
+void NotificationManager::applyCategoryDefinition(NotificationHints &hints)
 {
+    QString category = hints.hintValue(NotificationHints::HINT_CATEGORY).toString();
     if (!category.isEmpty()) {
-        NotificationHints hints = notification.hints();
         foreach (const QString &key, categoryDefinitionStore->allKeys(category)) {
-            if (!hints.hintValue(key).isValid()) {
-                hints.setHint(key, categoryDefinitionStore->value(category, key));
-            }
+            hints.setHint(key, categoryDefinitionStore->value(category, key));
         }
-        notification.setHints(hints);
+    }
+}
+
+void NotificationManager::addTimestamp(NotificationHints &hints)
+{
+    if (hints.hintValue(NotificationHints::HINT_TIMESTAMP).toString().isEmpty()) {
+        hints.setHint(NotificationHints::HINT_TIMESTAMP, QDateTime::currentDateTimeUtc());
     }
 }
 
@@ -348,7 +386,9 @@ void NotificationManager::fetchData()
         QString summary = notificationsQuery.value(notificationsTableSummaryFieldIndex).toString();
         QString body = notificationsQuery.value(notificationsTableBodyFieldIndex).toString();
         int expireTimeout = notificationsQuery.value(notificationsTableExpireTimeoutFieldIndex).toInt();
-        notifications.insert(id, Notification(appName, appIcon, summary, body, actions[id], hints[id], expireTimeout));
+        Notification *notification = new Notification(appName, appIcon, summary, body, actions[id], hints[id], expireTimeout, this);
+        connect(notification, SIGNAL(actionInvoked(QString)), this, SLOT(invokeAction(QString)));
+        notifications.insert(id, notification);
 
         NOTIFICATIONS_DEBUG("RESTORED:" << appName << appIcon << summary << body << actions[id] << hints[id] << expireTimeout << "->" << id);
         emit notificationModified(id);
@@ -394,4 +434,22 @@ void NotificationManager::execSQL(const QString &command, const QVariantList &ar
     }
 
     databaseCommitTimer.start();
+}
+
+void NotificationManager::invokeAction(const QString &action)
+{
+    Notification *notification = qobject_cast<Notification *>(sender());
+    if (notification != 0 && notification->actions().contains(action)) {
+        uint id = notifications.key(notification, 0);
+        if (id > 0) {
+            NOTIFICATIONS_DEBUG("INVOKE: " << action << id);
+            emit ActionInvoked(id, action);
+
+            QVariant userRemovable = notification->hints().hintValue(NotificationHints::HINT_USER_REMOVABLE);
+            if (!userRemovable.isValid() || userRemovable.toBool()) {
+                // The notification should be closed if user removability is not defined (defaults to true) or is set to true
+                CloseNotification(id);
+            }
+        }
+    }
 }

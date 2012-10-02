@@ -27,7 +27,8 @@ PUBLICHEADERS += \
     components/windowmanager.h \
     notifications/notificationmanager.h \
     notifications/notificationhints.h \
-    notifications/notification.h
+    notifications/notification.h \
+    notifications/notificationlistmodel.h
 
 INSTALLS += publicheaderfiles
 publicheaderfiles.files = $$PUBLICHEADERS
@@ -47,7 +48,8 @@ HEADERS += \
     notifications/notificationmanageradaptor.h \
     notifications/notificationhints.h \
     notifications/notification.h \
-    notifications/categorydefinitionstore.h
+    notifications/categorydefinitionstore.h \
+    notifications/notificationlistmodel.h
 
 SOURCES += \
     homeapplication.cpp \
@@ -69,7 +71,8 @@ SOURCES += \
     notifications/notificationmanageradaptor.cpp \
     notifications/notificationhints.cpp \
     notifications/notification.cpp \
-    notifications/categorydefinitionstore.cpp
+    notifications/categorydefinitionstore.cpp \
+    notifications/notificationlistmodel.cpp
 
 CONFIG += link_pkgconfig mobility qt warn_on depend_includepath qmake_cache target_qt
 MOBILITY += sensors

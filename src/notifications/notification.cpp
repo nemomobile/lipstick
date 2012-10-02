@@ -15,12 +15,8 @@
 
 #include "notification.h"
 
-Notification::Notification() :
-    expireTimeout_(-1)
-{
-}
-
-Notification::Notification(const QString &appName, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const NotificationHints &hints, int expireTimeout) :
+Notification::Notification(const QString &appName, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const NotificationHints &hints, int expireTimeout, QObject *parent) :
+    QObject(parent),
     appName_(appName),
     appIcon_(appIcon),
     summary_(summary),
@@ -36,9 +32,19 @@ QString Notification::appName() const
     return appName_;
 }
 
+void Notification::setAppName(const QString &appName)
+{
+    appName_ = appName;
+}
+
 QString Notification::appIcon() const
 {
     return appIcon_;
+}
+
+void Notification::setAppIcon(const QString &appIcon)
+{
+    appIcon_ = appIcon;
 }
 
 QString Notification::summary() const
@@ -46,14 +52,35 @@ QString Notification::summary() const
     return summary_;
 }
 
+void Notification::setSummary(const QString &summary)
+{
+    if (summary_ != summary) {
+        summary_ = summary;
+        emit summaryChanged();
+    }
+}
+
 QString Notification::body() const
 {
     return body_;
 }
 
+void Notification::setBody(const QString &body)
+{
+    if (body_ != body) {
+        body_ = body;
+        emit bodyChanged();
+    }
+}
+
 QStringList Notification::actions() const
 {
     return actions_;
+}
+
+void Notification::setActions(const QStringList &actions)
+{
+    actions_ = actions;
 }
 
 NotificationHints Notification::hints() const
@@ -63,7 +90,18 @@ NotificationHints Notification::hints() const
 
 void Notification::setHints(const NotificationHints &hints)
 {
+    QString oldIcon = icon();
+    QDateTime oldTimestamp = timestamp();
+
     hints_ = hints;
+
+    if (oldIcon != icon()) {
+        emit iconChanged();
+    }
+
+    if (oldTimestamp != timestamp()) {
+        emit localizedTimestampChanged();
+    }
 }
 
 int Notification::expireTimeout() const
@@ -71,3 +109,22 @@ int Notification::expireTimeout() const
     return expireTimeout_;
 }
 
+void Notification::setExpireTimeout(int expireTimeout)
+{
+    expireTimeout_ = expireTimeout;
+}
+
+QString Notification::icon() const
+{
+    return hints_.hintValue(NotificationHints::HINT_ICON).toString();
+}
+
+QDateTime Notification::timestamp() const
+{
+    return hints_.hintValue(NotificationHints::HINT_TIMESTAMP).toDateTime();
+}
+
+QString Notification::localizedTimestamp() const
+{
+    return timestamp().toString("hh:mm:ss");
+}
