@@ -28,7 +28,7 @@ QObjectListModel::QObjectListModel(QObject *parent, QList<QObject*> *list)
 
 int QObjectListModel::indexOf(QObject *obj) const
 {
-    return _list->indexOf((QObject*) obj);
+    return _list->indexOf(obj);
 }
 
 int QObjectListModel::rowCount(const QModelIndex &parent) const
@@ -96,12 +96,14 @@ void QObjectListModel::removeDestroyedItem()
 
 void QObjectListModel::removeItem(QObject *item)
 {
-    int z = _list->indexOf(item);
-    beginRemoveRows(QModelIndex(), z, z);
-    _list->removeAt(z);
-    disconnect(item, SIGNAL(destroyed()), this, SLOT(removeDestroyedItem()));
-    endRemoveRows();
-    emit itemCountChanged();
+    int index = _list->indexOf(item);
+    if (index >= 0) {
+        beginRemoveRows(QModelIndex(), index, index);
+        _list->removeAt(index);
+        disconnect(item, SIGNAL(destroyed()), this, SLOT(removeDestroyedItem()));
+        endRemoveRows();
+        emit itemCountChanged();
+    }
 }
 
 void QObjectListModel::removeItem(int index)
