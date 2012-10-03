@@ -277,6 +277,10 @@ private:
 
     //! Timer for triggering the commit of the current database transaction
     QTimer databaseCommitTimer;
+
+#ifdef UNIT_TEST
+    friend class Ut_NotificationManager;
+#endif
 };
 
 #endif // NOTIFICATIONMANAGER_H

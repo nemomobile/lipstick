@@ -139,6 +139,9 @@ uint NotificationManager::Notify(const QString &appName, uint replacesId, const 
 
         NOTIFICATIONS_DEBUG("NOTIFY:" << appName << appIcon << summary << body << actions << hints << expireTimeout << "->" << id);
         emit notificationModified(id);
+    } else {
+        // Return the ID 0 when trying to update a notification which doesn't exist
+        id = 0;
     }
 
     return id;

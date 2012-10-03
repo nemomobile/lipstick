@@ -12,31 +12,23 @@
 ** of this file.
 **
 ****************************************************************************/
+#ifndef UT_NOTIFICATIONLISTMODEL_H
+#define UT_NOTIFICATIONLISTMODEL_H
 
-#ifndef NOTIFICATIONLISTMODEL_H
-#define NOTIFICATIONLISTMODEL_H
+#include <QObject>
 
-#include "utilities/qobjectlistmodel.h"
-#include "lipstickglobal.h"
-
-class LIPSTICK_EXPORT NotificationListModel : public QObjectListModel
+class Ut_NotificationListModel : public QObject
 {
     Q_OBJECT
 
-public:
-    explicit NotificationListModel(QObject *parent = 0);
-    virtual ~NotificationListModel();
-
 private slots:
-    void updateNotification(uint id);
-    void removeNotification(uint id);
-
-private:
-    Q_DISABLE_COPY(NotificationListModel)
-
-#ifdef UNIT_TEST
-    friend class Ut_NotificationListModel;
-#endif
+    void init();
+    void cleanup();
+    void testModelPopulatesOnConstruction();
+    void testNotificationIsOnlyAddedIfNotAlreadyAdded();
+    void testNotificationIsOnlyAddedIfClassIsNotSystem();
+    void testAlreadyAddedNotificationIsRemovedIfClassChangesToSystem();
+    void testNotificationRemoval();
 };
 
-#endif // NOTIFICATIONLISTMODEL_H
+#endif
