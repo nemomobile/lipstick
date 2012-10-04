@@ -1,6 +1,6 @@
 TEMPLATE = subdirs
 CONFIG += ordered
-SUBDIRS += src plugin tools
+SUBDIRS += src plugin tools tests
 
 tools.depends = src
 

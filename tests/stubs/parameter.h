@@ -12,31 +12,27 @@
 ** of this file.
 **
 ****************************************************************************/
+#ifndef PARAMETER_H
+#define PARAMETER_H
 
-#ifndef NOTIFICATIONLISTMODEL_H
-#define NOTIFICATIONLISTMODEL_H
-
-#include "utilities/qobjectlistmodel.h"
-#include "lipstickglobal.h"
-
-class LIPSTICK_EXPORT NotificationListModel : public QObjectListModel
+class ParameterBase
 {
-    Q_OBJECT
-
 public:
-    explicit NotificationListModel(QObject *parent = 0);
-    virtual ~NotificationListModel();
-
-private slots:
-    void updateNotification(uint id);
-    void removeNotification(uint id);
-
-private:
-    Q_DISABLE_COPY(NotificationListModel)
-
-#ifdef UNIT_TEST
-    friend class Ut_NotificationListModel;
-#endif
+    virtual ~ParameterBase() {
+        // Class needs to have at least one virtual function to be polymorphic
+        // (and thus enable dynamic_cast)
+    }
+protected:
+    ParameterBase() {
+    }
 };
 
-#endif // NOTIFICATIONLISTMODEL_H
+template <typename T>
+class Parameter : public ParameterBase
+{
+public:
+    Parameter(T value) : ParameterBase(), data(value) {
+    }
+    T data;
+};
+#endif
