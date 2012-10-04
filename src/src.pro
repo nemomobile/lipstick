@@ -7,7 +7,6 @@ VERSION = 0.1
 DEFINES += LIPSTICK_BUILD_LIBRARY DEBUG_NOTIFICATIONS
 
 CONFIG += qt
-QT += sql
 INSTALLS = target
 target.path = $$[QT_INSTALL_LIBS]
 
@@ -92,7 +91,8 @@ QT += network \
     dbus \
     xml \
     declarative \
-    opengl
+    opengl \
+    sql
 
 QMAKE_CXXFLAGS += \
     -Werror \

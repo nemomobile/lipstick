@@ -1,5 +1,6 @@
 /***************************************************************************
 **
+** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 ** Copyright (C) 2012 Jolla Ltd.
 ** Contact: Robin Burchell <robin.burchell@jollamobile.com>
 **
@@ -12,31 +13,33 @@
 ** of this file.
 **
 ****************************************************************************/
+#ifndef UT_CATEGORYDEFINITIONSTORE_H
+#define UT_CATEGORYDEFINITIONSTORE_H
 
-#ifndef NOTIFICATIONLISTMODEL_H
-#define NOTIFICATIONLISTMODEL_H
+#include <QObject>
+#include <QMetaType>
 
-#include "utilities/qobjectlistmodel.h"
-#include "lipstickglobal.h"
+class CategoryDefinitionStore;
 
-class LIPSTICK_EXPORT NotificationListModel : public QObjectListModel
+Q_DECLARE_METATYPE(CategoryDefinitionStore *);
+
+class Ut_CategoryDefinitionStore : public QObject
 {
     Q_OBJECT
 
-public:
-    explicit NotificationListModel(QObject *parent = 0);
-    virtual ~NotificationListModel();
-
 private slots:
-    void updateNotification(uint id);
-    void removeNotification(uint id);
+    void init();
+    void cleanup();
+
+    void testCategoryDefinitionSettingsValues();
+    void testCategoryDefinitionStoreMaxFileSizeHandling();
+    void testCategoryDefinitionUninstalling();
 
 private:
-    Q_DISABLE_COPY(NotificationListModel)
+    CategoryDefinitionStore *store;
 
-#ifdef UNIT_TEST
-    friend class Ut_NotificationListModel;
-#endif
+signals:
+    void directoryChanged(const QString &path);
 };
 
-#endif // NOTIFICATIONLISTMODEL_H
+#endif
