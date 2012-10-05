@@ -28,7 +28,7 @@ class NotificationManagerStub : public StubBase {
   virtual Notification * notification(uint id) const;
   virtual QList<uint> notificationIds() const;
   virtual QStringList GetCapabilities();
-  virtual uint Notify(const QString &appName, uint replacesId, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, NotificationHints hints, int expireTimeout);
+  virtual uint Notify(const QString &appName, uint replacesId, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expireTimeout);
   virtual void CloseNotification(uint id);
   virtual QString GetServerInformation(QString &name, QString &vendor, QString &version);
   virtual void removeNotificationsWithCategory(const QString &category);
@@ -62,7 +62,7 @@ QStringList NotificationManagerStub::GetCapabilities() {
   return stubReturnValue<QStringList>("GetCapabilities");
 }
 
-uint NotificationManagerStub::Notify(const QString &appName, uint replacesId, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, NotificationHints hints, int expireTimeout) {
+uint NotificationManagerStub::Notify(const QString &appName, uint replacesId, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expireTimeout) {
   QList<ParameterBase*> params;
   params.append( new Parameter<const QString & >(appName));
   params.append( new Parameter<uint >(replacesId));
@@ -70,7 +70,7 @@ uint NotificationManagerStub::Notify(const QString &appName, uint replacesId, co
   params.append( new Parameter<const QString & >(summary));
   params.append( new Parameter<const QString & >(body));
   params.append( new Parameter<const QStringList & >(actions));
-  params.append( new Parameter<NotificationHints >(hints));
+  params.append( new Parameter<const QVariantHash & >(hints));
   params.append( new Parameter<int >(expireTimeout));
   stubMethodEntered("Notify",params);
   return stubReturnValue<uint>("Notify");
@@ -129,6 +129,10 @@ NotificationManagerStub* gNotificationManagerStub = &gDefaultNotificationManager
 
 
 // 4. CREATE A PROXY WHICH CALLS THE STUB
+const char *NotificationManager::HINT_CLASS = "x-nemo-class";
+const char *NotificationManager::HINT_ICON = "x-nemo-icon";
+const char *NotificationManager::HINT_TIMESTAMP = "x-nemo-timestamp";
+
 NotificationManager *NotificationManager::instance_ = 0;
 NotificationManager * NotificationManager::instance() {
   if (instance_ == 0) {
@@ -149,7 +153,7 @@ QStringList NotificationManager::GetCapabilities() {
   return gNotificationManagerStub->GetCapabilities();
 }
 
-uint NotificationManager::Notify(const QString &appName, uint replacesId, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, NotificationHints hints, int expireTimeout) {
+uint NotificationManager::Notify(const QString &appName, uint replacesId, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expireTimeout) {
   return gNotificationManagerStub->Notify(appName, replacesId, appIcon, summary, body, actions, hints, expireTimeout);
 }
 
