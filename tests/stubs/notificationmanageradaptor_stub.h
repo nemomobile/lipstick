@@ -28,7 +28,7 @@ class NotificationManagerAdaptorStub : public StubBase {
   virtual void CloseNotification(uint id);
   virtual QStringList GetCapabilities();
   virtual QString GetServerInformation(QString &name, QString &vendor, QString &version);
-  virtual uint Notify(const QString &app_name, uint replaces_id, const QString &app_icon, const QString &summary, const QString &body, const QStringList &actions, NotificationHints hints, int expire_timeout);
+  virtual uint Notify(const QString &app_name, uint replaces_id, const QString &app_icon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expire_timeout);
 }; 
 
 // 2. IMPLEMENT STUB
@@ -59,7 +59,7 @@ QString NotificationManagerAdaptorStub::GetServerInformation(QString &name, QStr
   return stubReturnValue<QString>("GetServerInformation");
 }
 
-uint NotificationManagerAdaptorStub::Notify(const QString &app_name, uint replaces_id, const QString &app_icon, const QString &summary, const QString &body, const QStringList &actions, NotificationHints hints, int expire_timeout) {
+uint NotificationManagerAdaptorStub::Notify(const QString &app_name, uint replaces_id, const QString &app_icon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expire_timeout) {
   QList<ParameterBase*> params;
   params.append( new Parameter<const QString & >(app_name));
   params.append( new Parameter<uint >(replaces_id));
@@ -67,7 +67,7 @@ uint NotificationManagerAdaptorStub::Notify(const QString &app_name, uint replac
   params.append( new Parameter<const QString & >(summary));
   params.append( new Parameter<const QString & >(body));
   params.append( new Parameter<const QStringList & >(actions));
-  params.append( new Parameter<NotificationHints >(hints));
+  params.append( new Parameter<const QVariantHash & >(hints));
   params.append( new Parameter<int >(expire_timeout));
   stubMethodEntered("Notify",params);
   return stubReturnValue<uint>("Notify");
@@ -101,7 +101,7 @@ QString NotificationManagerAdaptor::GetServerInformation(QString &name, QString 
   return gNotificationManagerAdaptorStub->GetServerInformation(name, vendor, version);
 }
 
-uint NotificationManagerAdaptor::Notify(const QString &app_name, uint replaces_id, const QString &app_icon, const QString &summary, const QString &body, const QStringList &actions, NotificationHints hints, int expire_timeout) {
+uint NotificationManagerAdaptor::Notify(const QString &app_name, uint replaces_id, const QString &app_icon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expire_timeout) {
   return gNotificationManagerAdaptorStub->Notify(app_name, replaces_id, app_icon, summary, body, actions, hints, expire_timeout);
 }
 

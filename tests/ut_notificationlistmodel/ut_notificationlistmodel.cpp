@@ -31,7 +31,7 @@ void Ut_NotificationListModel::cleanup()
 
 void Ut_NotificationListModel::testModelPopulatesOnConstruction()
 {
-    Notification notification("appName", "appIcon", "summary", "body", QStringList() << "action", NotificationHints(), 1);
+    Notification notification("appName", "appIcon", "summary", "body", QStringList() << "action", QVariantHash(), 1);
     gNotificationManagerStub->stubSetReturnValue("notificationIds", QList<uint>() << 1 << 2);
     gNotificationManagerStub->stubSetReturnValue("notification", &notification);
     gQObjectListModelStub->stubSetReturnValue("indexOf", -1);
@@ -43,7 +43,7 @@ void Ut_NotificationListModel::testModelPopulatesOnConstruction()
 
 void Ut_NotificationListModel::testNotificationIsOnlyAddedIfNotAlreadyAdded()
 {
-    Notification notification("appName", "appIcon", "summary", "body", QStringList() << "action", NotificationHints(), 1);
+    Notification notification("appName", "appIcon", "summary", "body", QStringList() << "action", QVariantHash(), 1);
     gNotificationManagerStub->stubSetReturnValue("notificationIds", QList<uint>() << 1);
     gNotificationManagerStub->stubSetReturnValue("notification", &notification);
     gQObjectListModelStub->stubSetReturnValue("indexOf", 0);
@@ -53,8 +53,8 @@ void Ut_NotificationListModel::testNotificationIsOnlyAddedIfNotAlreadyAdded()
 
 void Ut_NotificationListModel::testNotificationIsOnlyAddedIfClassIsNotSystem()
 {
-    NotificationHints hints;
-    hints.setHint(NotificationHints::HINT_CLASS, "system");
+    QVariantHash hints;
+    hints.insert(NotificationManager::HINT_CLASS, "system");
     Notification notification("appName", "appIcon", "summary", "body", QStringList() << "action", hints, 1);
     gNotificationManagerStub->stubSetReturnValue("notificationIds", QList<uint>() << 1);
     gNotificationManagerStub->stubSetReturnValue("notification", &notification);
@@ -65,8 +65,8 @@ void Ut_NotificationListModel::testNotificationIsOnlyAddedIfClassIsNotSystem()
 
 void Ut_NotificationListModel::testAlreadyAddedNotificationIsRemovedIfClassChangesToSystem()
 {
-    NotificationHints hints;
-    hints.setHint(NotificationHints::HINT_CLASS, "system");
+    QVariantHash hints;
+    hints.insert(NotificationManager::HINT_CLASS, "system");
     Notification notification("appName", "appIcon", "summary", "body", QStringList() << "action", hints, 1);
     gNotificationManagerStub->stubSetReturnValue("notificationIds", QList<uint>() << 1);
     gNotificationManagerStub->stubSetReturnValue("notification", &notification);
@@ -79,7 +79,7 @@ void Ut_NotificationListModel::testAlreadyAddedNotificationIsRemovedIfClassChang
 void Ut_NotificationListModel::testNotificationRemoval()
 {
     NotificationListModel model;
-    Notification notification("appName", "appIcon", "summary", "body", QStringList() << "action", NotificationHints(), 1);
+    Notification notification("appName", "appIcon", "summary", "body", QStringList() << "action", QVariantHash(), 1);
     gNotificationManagerStub->stubSetReturnValue("notification", &notification);
     model.removeNotification(1);
     QCOMPARE(gQObjectListModelStub->stubCallCount("removeItem"), 1);

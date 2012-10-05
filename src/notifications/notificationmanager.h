@@ -19,11 +19,10 @@
 #include "lipstickglobal.h"
 #include "notification.h"
 #include <QObject>
-#include <QSqlDatabase>
 #include <QTimer>
 
 class CategoryDefinitionStore;
-class QSqlTableModel;
+class QSqlDatabase;
 
 /*!
  * The notification manager allows applications to display notifications to the user.
@@ -33,6 +32,60 @@ class LIPSTICK_EXPORT NotificationManager : public QObject
     Q_OBJECT
 
 public:
+    //! Standard hint: The urgency level.
+    static const char *HINT_URGENCY;
+
+    //! Standard hint: The type of notification this is.
+    static const char *HINT_CATEGORY;
+
+    //! Standard hint: This specifies the name of the desktop filename representing the calling program. This should be the same as the prefix used for the application's .desktop file. An example would be "rhythmbox" from "rhythmbox.desktop". This can be used by the daemon to retrieve the correct icon for the application, for logging purposes, etc.
+    static const char *HINT_DESKTOP_ENTRY;
+
+    //! Standard hint: This is a raw data image format which describes the width, height, rowstride, has alpha, bits per sample, channels and image data respectively. We use this value if the icon field is left blank.
+    static const char *HINT_IMAGE_DATA;
+
+    //! Standard hint: The path to a sound file to play when the notification pops up.
+    static const char *HINT_SOUND_FILE;
+
+    //! Standard hint: Causes the server to suppress playing any sounds, if it has that ability. This is usually set when the client itself is going to play its own sound.
+    static const char *HINT_SUPPRESS_SOUND;
+
+    //! Standard hint: Specifies the X location on the screen that the notification should point to. The "y" hint must also be specified.
+    static const char *HINT_X;
+
+    //! Standard hint: Specifies the Y location on the screen that the notification should point to. The "x" hint must also be specified.
+    static const char *HINT_Y;
+
+    //! Nemo hint: Class of the notification (application/system).
+    static const char *HINT_CLASS;
+
+    //! Nemo hint: Icon of the notification.
+    static const char *HINT_ICON;
+
+    //! Nemo hint: Item count represented by the notification.
+    static const char *HINT_ITEM_COUNT;
+
+    //! Nemo hint: Timestamp of the notification.
+    static const char *HINT_TIMESTAMP;
+
+    //! Nemo hint: Icon of the preview of the notification.
+    static const char *HINT_PREVIEW_ICON;
+
+    //! Nemo hint: Body text of the preview of the notification.
+    static const char *HINT_PREVIEW_BODY;
+
+    //! Nemo hint: Summary text of the preview of the notification.
+    static const char *HINT_PREVIEW_SUMMARY;
+
+    //! Nemo hint: User removability of the notification.
+    static const char *HINT_USER_REMOVABLE;
+
+    //! Nemo hint: Translation ID for the generic text of the notification.
+    static const char *HINT_GENERIC_TEXT_TRANSLATION_ID;
+
+    //! Nemo hint: Translation catalogue name for the generic text of the notification.
+    static const char *HINT_GENERIC_TEXT_TRANSLATION_CATALOGUE;
+
     //! Notifation closing reasons used in the NotificationClosed signal
     enum NotificationClosedReason {
         //! The notification expired.
@@ -86,7 +139,7 @@ public:
      * \param hints Optional hints that can be passed to the server from the client program. Although clients and servers should never assume each other supports any specific hints, they can be used to pass along information, such as the process PID or window ID, that the server may be able to make use of. Can be empty.
      * \param expireTimeout he timeout time in milliseconds since the display of the notification at which the notification should automatically close.  If -1, the notification's expiration time is dependent on the notification server's settings, and may vary for the type of notification. If 0, never expire.
      */
-    uint Notify(const QString &appName, uint replacesId, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, NotificationHints hints, int expireTimeout);
+    uint Notify(const QString &appName, uint replacesId, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expireTimeout);
 
     /*!
      * Causes a notification to be forcefully closed and removed from the user's view.
@@ -193,7 +246,7 @@ private:
      *
      * \param hints the notification hints to apply the category definition to
      */
-    void applyCategoryDefinition(NotificationHints &hints);
+    void applyCategoryDefinition(QVariantHash &hints);
 
     /*!
      * Adds a timestamp to a notification's hints if there is no timestamp
@@ -201,7 +254,7 @@ private:
      *
      * \param hints the notification hints to add the timestamp to
      */
-    void addTimestamp(NotificationHints &hints);
+    void addTimestamp(QVariantHash &hints);
 
     //! Restores the notifications from a database on the disk
     void restoreNotifications();
@@ -270,7 +323,7 @@ private:
     CategoryDefinitionStore *categoryDefinitionStore;
 
     //! Database for the notifications
-    QSqlDatabase database;
+    QSqlDatabase *database;
 
     //! Whether the current database transaction has been committed to the database
     bool committed;
