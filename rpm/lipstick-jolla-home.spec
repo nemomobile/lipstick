@@ -20,8 +20,9 @@ BuildRequires:  pkgconfig(QtCore)
 BuildRequires:  pkgconfig(QtDeclarative)
 BuildRequires:  pkgconfig(QtOpenGL)
 BuildRequires:  pkgconfig(lipstick)
-Conflicts:   meegotouch-home
-Conflicts:   lipstick-example-home
+Requires:   jollacomponents
+Conflicts:  meegotouch-home
+Conflicts:  lipstick-example-home
 
 %description
 A homescreen for Jolla Mobile
