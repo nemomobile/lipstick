@@ -25,7 +25,6 @@ PUBLICHEADERS += \
     components/statusbar.h \
     components/windowmanager.h \
     notifications/notificationmanager.h \
-    notifications/notificationhints.h \
     notifications/notification.h \
     notifications/notificationlistmodel.h
 
@@ -45,7 +44,6 @@ HEADERS += \
     lipsticksettings.h \
     notifications/notificationmanager.h \
     notifications/notificationmanageradaptor.h \
-    notifications/notificationhints.h \
     notifications/notification.h \
     notifications/categorydefinitionstore.h \
     notifications/notificationlistmodel.h
@@ -68,7 +66,6 @@ SOURCES += \
     components/windowmanager.cpp \
     notifications/notificationmanager.cpp \
     notifications/notificationmanageradaptor.cpp \
-    notifications/notificationhints.cpp \
     notifications/notification.cpp \
     notifications/categorydefinitionstore.cpp \
     notifications/notificationlistmodel.cpp

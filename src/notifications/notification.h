@@ -17,9 +17,9 @@
 #define NOTIFICATION_H
 
 #include "lipstickglobal.h"
-#include "notificationhints.h"
 #include <QStringList>
 #include <QDateTime>
+#include <QVariantHash>
 
 /*!
  * An object for storing information about a single notification.
@@ -50,7 +50,7 @@ public:
      * \param expireTimeout expiration timeout for the notification
      * \param parent the parent QObject
      */
-    Notification(const QString &appName, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const NotificationHints &hints, int expireTimeout, QObject *parent = 0);
+    Notification(const QString &appName, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expireTimeout, QObject *parent = 0);
 
     //! Returns the name of the application sending the notification
     QString appName() const;
@@ -83,10 +83,10 @@ public:
     void setActions(const QStringList &actions);
 
     //! Returns the hints for the notification
-    NotificationHints hints() const;
+    QVariantHash hints() const;
 
     //! Sets the hints for the notification
-    void setHints(const NotificationHints &hints);
+    void setHints(const QVariantHash &hints);
 
     //! Returns the expiration timeout for the notification
     int expireTimeout() const;
@@ -140,7 +140,7 @@ private:
     QStringList actions_;
 
     //! Hints for the notification
-    NotificationHints hints_;
+    QVariantHash hints_;
 
     //! Expiration timeout for the notification
     int expireTimeout_;

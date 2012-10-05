@@ -13,9 +13,10 @@
 **
 ****************************************************************************/
 
+#include "notificationmanager.h"
 #include "notification.h"
 
-Notification::Notification(const QString &appName, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const NotificationHints &hints, int expireTimeout, QObject *parent) :
+Notification::Notification(const QString &appName, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expireTimeout, QObject *parent) :
     QObject(parent),
     appName_(appName),
     appIcon_(appIcon),
@@ -83,12 +84,12 @@ void Notification::setActions(const QStringList &actions)
     actions_ = actions;
 }
 
-NotificationHints Notification::hints() const
+QVariantHash Notification::hints() const
 {
     return hints_;
 }
 
-void Notification::setHints(const NotificationHints &hints)
+void Notification::setHints(const QVariantHash &hints)
 {
     QString oldIcon = icon();
     QDateTime oldTimestamp = timestamp();
@@ -116,12 +117,12 @@ void Notification::setExpireTimeout(int expireTimeout)
 
 QString Notification::icon() const
 {
-    return hints_.hintValue(NotificationHints::HINT_ICON).toString();
+    return hints_.value(NotificationManager::HINT_ICON).toString();
 }
 
 QDateTime Notification::timestamp() const
 {
-    return hints_.hintValue(NotificationHints::HINT_TIMESTAMP).toDateTime();
+    return hints_.value(NotificationManager::HINT_TIMESTAMP).toDateTime();
 }
 
 QString Notification::localizedTimestamp() const

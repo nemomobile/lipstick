@@ -15,6 +15,7 @@
 
 #include <QCoreApplication>
 #include <QDebug>
+#include <QSqlDatabase>
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QSqlRecord>
@@ -43,6 +44,25 @@ static const char *CONFIG_PATH = "/.config/lipstick";
 //! Minimum amount of disk space needed for the notification database in kilobytes
 static const uint MINIMUM_FREE_SPACE_NEEDED_IN_KB = 1024;
 
+const char *NotificationManager::HINT_URGENCY = "urgency";
+const char *NotificationManager::HINT_CATEGORY = "category";
+const char *NotificationManager::HINT_DESKTOP_ENTRY = "desktop-entry";
+const char *NotificationManager::HINT_IMAGE_DATA = "image_data";
+const char *NotificationManager::HINT_SOUND_FILE = "sound-file";
+const char *NotificationManager::HINT_SUPPRESS_SOUND = "suppress-sound";
+const char *NotificationManager::HINT_X = "x";
+const char *NotificationManager::HINT_Y = "y";
+const char *NotificationManager::HINT_CLASS = "x-nemo-class";
+const char *NotificationManager::HINT_ICON = "x-nemo-icon";
+const char *NotificationManager::HINT_ITEM_COUNT = "x-nemo-item-count";
+const char *NotificationManager::HINT_TIMESTAMP = "x-nemo-timestamp";
+const char *NotificationManager::HINT_PREVIEW_ICON = "x-nemo-preview-icon";
+const char *NotificationManager::HINT_PREVIEW_BODY = "x-nemo-preview-body";
+const char *NotificationManager::HINT_PREVIEW_SUMMARY = "x-nemo-preview-summary";
+const char *NotificationManager::HINT_USER_REMOVABLE = "x-nemo-user-removable";
+const char *NotificationManager::HINT_GENERIC_TEXT_TRANSLATION_ID = "x-nemo-generic-text-translation-id";
+const char *NotificationManager::HINT_GENERIC_TEXT_TRANSLATION_CATALOGUE = "x-nemo-generic-text-translation-catalogue";
+
 NotificationManager *NotificationManager::instance_ = 0;
 
 NotificationManager *NotificationManager::instance()
@@ -57,9 +77,10 @@ NotificationManager::NotificationManager(QObject *parent) :
     QObject(parent),
     previousNotificationID(0),
     categoryDefinitionStore(new CategoryDefinitionStore(CATEGORY_DEFINITION_FILE_DIRECTORY, MAX_CATEGORY_DEFINITION_FILES, this)),
+    database(new QSqlDatabase),
     committed(true)
 {
-    qDBusRegisterMetaType<NotificationHints>();
+    qDBusRegisterMetaType<QVariantHash>();
     new NotificationManagerAdaptor(this);
     QDBusConnection::sessionBus().registerService("org.freedesktop.Notifications");
     QDBusConnection::sessionBus().registerObject("/org/freedesktop/Notifications", this);
@@ -77,7 +98,8 @@ NotificationManager::NotificationManager(QObject *parent) :
 
 NotificationManager::~NotificationManager()
 {
-    database.commit();
+    database->commit();
+    delete database;
 }
 
 Notification *NotificationManager::notification(uint id) const
@@ -95,12 +117,13 @@ QStringList NotificationManager::GetCapabilities()
     return QStringList() << "body";
 }
 
-uint NotificationManager::Notify(const QString &appName, uint replacesId, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, NotificationHints hints, int expireTimeout)
+uint NotificationManager::Notify(const QString &appName, uint replacesId, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &originalHints, int expireTimeout)
 {
     uint id = replacesId != 0 ? replacesId : nextAvailableNotificationID();
 
     if (replacesId == 0 || notifications.contains(id)) {
         // Apply a category definition, if any, to the hints
+        QVariantHash hints(originalHints);
         applyCategoryDefinition(hints);
 
         // Ensure the hints contain a timestamp
@@ -133,8 +156,8 @@ uint NotificationManager::Notify(const QString &appName, uint replacesId, const 
         foreach (const QString &action, actions) {
             execSQL("INSERT INTO actions VALUES (?, ?)", QVariantList() << id << action);
         }
-        foreach (const QString &hint, hints.hints()) {
-            execSQL("INSERT INTO hints VALUES (?, ?, ?)", QVariantList() << id << hint << hints.hintValue(hint));
+        foreach (const QString &hint, hints.keys()) {
+            execSQL("INSERT INTO hints VALUES (?, ?, ?)", QVariantList() << id << hint << hints.value(hint));
         }
 
         NOTIFICATIONS_DEBUG("NOTIFY:" << appName << appIcon << summary << body << actions << hints << expireTimeout << "->" << id);
@@ -192,7 +215,7 @@ uint NotificationManager::nextAvailableNotificationID()
 void NotificationManager::removeNotificationsWithCategory(const QString &category)
 {
     foreach(uint id, notifications.keys()) {
-        if (notifications[id]->hints().hintValue("category").toString() == category) {
+        if (notifications[id]->hints().value("category").toString() == category) {
             CloseNotification(id);
         }
     }
@@ -201,26 +224,26 @@ void NotificationManager::removeNotificationsWithCategory(const QString &categor
 void NotificationManager::updateNotificationsWithCategory(const QString &category)
 {
     foreach(uint id, notifications.keys()) {
-        if (notifications[id]->hints().hintValue("category").toString() == category) {
+        if (notifications[id]->hints().value("category").toString() == category) {
             Notify(notifications[id]->appName(), id, notifications[id]->appIcon(), notifications[id]->summary(), notifications[id]->body(), notifications[id]->actions(), notifications[id]->hints(), notifications[id]->expireTimeout());
         }
     }
 }
 
-void NotificationManager::applyCategoryDefinition(NotificationHints &hints)
+void NotificationManager::applyCategoryDefinition(QVariantHash &hints)
 {
-    QString category = hints.hintValue(NotificationHints::HINT_CATEGORY).toString();
+    QString category = hints.value(HINT_CATEGORY).toString();
     if (!category.isEmpty()) {
         foreach (const QString &key, categoryDefinitionStore->allKeys(category)) {
-            hints.setHint(key, categoryDefinitionStore->value(category, key));
+            hints.insert(key, categoryDefinitionStore->value(category, key));
         }
     }
 }
 
-void NotificationManager::addTimestamp(NotificationHints &hints)
+void NotificationManager::addTimestamp(QVariantHash &hints)
 {
-    if (hints.hintValue(NotificationHints::HINT_TIMESTAMP).toString().isEmpty()) {
-        hints.setHint(NotificationHints::HINT_TIMESTAMP, QDateTime::currentDateTimeUtc());
+    if (hints.value(HINT_TIMESTAMP).toString().isEmpty()) {
+        hints.insert(HINT_TIMESTAMP, QDateTime::currentDateTimeUtc());
     }
 }
 
@@ -230,7 +253,7 @@ void NotificationManager::restoreNotifications()
         if (checkTableValidity()) {
             fetchData();
         } else {
-            database.close();
+            database->close();
         }
     }
 }
@@ -243,17 +266,17 @@ bool NotificationManager::connectToDatabase()
     }
 
     QString databaseName = configPath + "/notifications.db";
-    database = QSqlDatabase::addDatabase("QSQLITE");
-    database.setDatabaseName(databaseName);
+    *database = QSqlDatabase::addDatabase("QSQLITE");
+    database->setDatabaseName(databaseName);
     bool success = checkForDiskSpace(configPath, MINIMUM_FREE_SPACE_NEEDED_IN_KB);
     if (success) {
-        success = database.open();
+        success = database->open();
         if (!success) {
-            NOTIFICATIONS_DEBUG(database.lastError().driverText() << databaseName << database.lastError().databaseText());
+            NOTIFICATIONS_DEBUG(database->lastError().driverText() << databaseName << database->lastError().databaseText());
 
             // If opening the database fails, try to recreate the database
             removeDatabaseFile(databaseName);
-            success = database.open();
+            success = database->open();
             NOTIFICATIONS_DEBUG("Unable to open database file. Recreating. Success: " << success);
         }
     } else {
@@ -298,7 +321,7 @@ bool NotificationManager::checkTableValidity()
 
     {
         // Check that the notifications table schema is as expected
-        QSqlTableModel notificationsTableModel(0, database);
+        QSqlTableModel notificationsTableModel(0, *database);
         notificationsTableModel.setTable("notifications");
         recreateNotificationsTable = (notificationsTableModel.fieldIndex("id") == -1 ||
                                       notificationsTableModel.fieldIndex("app_name") == -1 ||
@@ -308,13 +331,13 @@ bool NotificationManager::checkTableValidity()
                                       notificationsTableModel.fieldIndex("expire_timeout") == -1);
 
         // Check that the actions table schema is as expected
-        QSqlTableModel actionsTableModel(0, database);
+        QSqlTableModel actionsTableModel(0, *database);
         actionsTableModel.setTable("actions");
         recreateActionsTable = (actionsTableModel.fieldIndex("id") == -1 ||
                                 actionsTableModel.fieldIndex("action") == -1);
 
         // Check that the hints table schema is as expected
-        QSqlTableModel hintsTableModel(0, database);
+        QSqlTableModel hintsTableModel(0, *database);
         hintsTableModel.setTable("hints");
         recreateHintsTable = (hintsTableModel.fieldIndex("id") == -1 ||
                               hintsTableModel.fieldIndex("hint") == -1 ||
@@ -340,7 +363,7 @@ bool NotificationManager::recreateTable(const QString &tableName, const QString 
 {
     bool result = false;
 
-    if (database.isOpen()) {
+    if (database->isOpen()) {
         QSqlQuery().exec("DROP TABLE " + tableName);
         result = QSqlQuery().exec("CREATE TABLE " + tableName + " (" + definition + ")");
     }
@@ -367,10 +390,10 @@ void NotificationManager::fetchData()
     int hintsTableIdFieldIndex = hintsRecord.indexOf("id");
     int hintsTableHintFieldIndex = hintsRecord.indexOf("hint");
     int hintsTableValueFieldIndex = hintsRecord.indexOf("value");
-    QHash<uint, NotificationHints> hints;
+    QHash<uint, QVariantHash> hints;
     while (hintsQuery.next()) {
         uint id = hintsQuery.value(hintsTableIdFieldIndex).toUInt();
-        hints[id].setHint(hintsQuery.value(hintsTableHintFieldIndex).toString(), hintsQuery.value(hintsTableValueFieldIndex));
+        hints[id].insert(hintsQuery.value(hintsTableHintFieldIndex).toString(), hintsQuery.value(hintsTableValueFieldIndex));
     }
 
     // Create the notifications
@@ -407,20 +430,20 @@ void NotificationManager::commit()
 {
     // Any aditional rules about when database commits are allowed can be added here
     if (!committed) {
-        database.commit();
+        database->commit();
         committed = true;
     }
 }
 
 void NotificationManager::execSQL(const QString &command, const QVariantList &args)
 {
-    if (!database.isOpen()) {
+    if (!database->isOpen()) {
         return;
     }
 
     if (committed) {
         committed = false;
-        database.transaction();
+        database->transaction();
     }
 
     QSqlQuery query;
@@ -448,7 +471,7 @@ void NotificationManager::invokeAction(const QString &action)
             NOTIFICATIONS_DEBUG("INVOKE: " << action << id);
             emit ActionInvoked(id, action);
 
-            QVariant userRemovable = notification->hints().hintValue(NotificationHints::HINT_USER_REMOVABLE);
+            QVariant userRemovable = notification->hints().value(HINT_USER_REMOVABLE);
             if (!userRemovable.isValid() || userRemovable.toBool()) {
                 // The notification should be closed if user removability is not defined (defaults to true) or is set to true
                 CloseNotification(id);
