@@ -23,7 +23,7 @@
 // FIXME - stubgen is not yet finished
 class NotificationStub : public StubBase {
   public:
-  virtual void NotificationConstructor(const QString &appName, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const NotificationHints &hints, int expireTimeout, QObject *parent);
+  virtual void NotificationConstructor(const QString &appName, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expireTimeout, QObject *parent);
   virtual QString appName() const;
   virtual void setAppName(const QString &appName);
   virtual QString appIcon() const;
@@ -34,8 +34,8 @@ class NotificationStub : public StubBase {
   virtual void setBody(const QString &body);
   virtual QStringList actions() const;
   virtual void setActions(const QStringList &actions);
-  virtual NotificationHints hints() const;
-  virtual void setHints(const NotificationHints &hints);
+  virtual QVariantHash hints() const;
+  virtual void setHints(const QVariantHash &hints);
   virtual int expireTimeout() const;
   virtual void setExpireTimeout(int expireTimeout);
   virtual QString icon() const;
@@ -44,7 +44,7 @@ class NotificationStub : public StubBase {
 }; 
 
 // 2. IMPLEMENT STUB
-void NotificationStub::NotificationConstructor(const QString &appName, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const NotificationHints &hints, int expireTimeout, QObject *parent) {
+void NotificationStub::NotificationConstructor(const QString &appName, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expireTimeout, QObject *parent) {
   Q_UNUSED(appName);
   Q_UNUSED(appIcon);
   Q_UNUSED(summary);
@@ -110,14 +110,14 @@ void NotificationStub::setActions(const QStringList &actions) {
   stubMethodEntered("setActions",params);
 }
 
-NotificationHints NotificationStub::hints() const {
+QVariantHash NotificationStub::hints() const {
   stubMethodEntered("hints");
-  return stubReturnValue<NotificationHints>("hints");
+  return stubReturnValue<QVariantHash>("hints");
 }
 
-void NotificationStub::setHints(const NotificationHints &hints) {
+void NotificationStub::setHints(const QVariantHash &hints) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const NotificationHints & >(hints));
+  params.append( new Parameter<const QVariantHash & >(hints));
   stubMethodEntered("setHints",params);
 }
 
@@ -155,7 +155,7 @@ NotificationStub* gNotificationStub = &gDefaultNotificationStub;
 
 
 // 4. CREATE A PROXY WHICH CALLS THE STUB
-Notification::Notification(const QString &appName, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const NotificationHints &hints, int expireTimeout, QObject *parent) {
+Notification::Notification(const QString &appName, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expireTimeout, QObject *parent) {
   gNotificationStub->NotificationConstructor(appName, appIcon, summary, body, actions, hints, expireTimeout, parent);
 }
 
@@ -199,11 +199,11 @@ void Notification::setActions(const QStringList &actions) {
   gNotificationStub->setActions(actions);
 }
 
-NotificationHints Notification::hints() const {
+QVariantHash Notification::hints() const {
   return gNotificationStub->hints();
 }
 
-void Notification::setHints(const NotificationHints &hints) {
+void Notification::setHints(const QVariantHash &hints) {
   gNotificationStub->setHints(hints);
 }
 
