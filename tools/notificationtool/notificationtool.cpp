@@ -16,7 +16,7 @@
 #include <iostream>
 #include <iomanip>
 #include <getopt.h>
-#include "notificationhints.h"
+#include "notificationmanager.h"
 #include "notificationmanagerproxy.h"
 
 // The operations for this tool
@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
     }
 
     QCoreApplication application(argc, argv);
-    qDBusRegisterMetaType<NotificationHints>();
+    qDBusRegisterMetaType<QVariantHash>();
     NotificationManagerProxy proxy("org.freedesktop.Notifications", "/org/freedesktop/Notifications", QDBusConnection::sessionBus());
 
     // Execute the desired operation
@@ -151,10 +151,10 @@ int main(int argc, char *argv[])
         }
 
         // Add/update a notification
-        NotificationHints hints;
-        hints.setHint(NotificationHints::HINT_CATEGORY, category);
-        hints.setHint(NotificationHints::HINT_ITEM_COUNT, count);
-        hints.setHint(NotificationHints::HINT_TIMESTAMP, timestamp);
+        QVariantHash hints;
+        hints.insert(NotificationManager::HINT_CATEGORY, category);
+        hints.insert(NotificationManager::HINT_ITEM_COUNT, count);
+        hints.insert(NotificationManager::HINT_TIMESTAMP, timestamp);
         result = proxy.Notify(argv[0], id, image, summary, body, actions, hints, -1);
         break;
     }

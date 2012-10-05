@@ -16,6 +16,7 @@
 #include <QtTest/QtTest>
 #include "ut_notification.h"
 #include "notification.h"
+#include "notificationmanager_stub.h"
 
 void Ut_Notification::testGettersAndSetters()
 {
@@ -26,9 +27,9 @@ void Ut_Notification::testGettersAndSetters()
     QStringList actions = QStringList() << "action1a" << "action1b";
     QString icon = "icon1";
     QDateTime timestamp = QDateTime::currentDateTime();
-    NotificationHints hints;
-    hints.setHint(NotificationHints::HINT_ICON, icon);
-    hints.setHint(NotificationHints::HINT_TIMESTAMP, timestamp);
+    QVariantHash hints;
+    hints.insert(NotificationManager::HINT_ICON, icon);
+    hints.insert(NotificationManager::HINT_TIMESTAMP, timestamp);
     int expireTimeout = 1;
 
     // Ensure that the constructor puts things in place
@@ -50,8 +51,8 @@ void Ut_Notification::testGettersAndSetters()
     actions = QStringList() << "action2a" << "action2b" << "action2c";
     icon = "icon2";
     timestamp = QDateTime::currentDateTime();
-    hints.setHint(NotificationHints::HINT_ICON, icon);
-    hints.setHint(NotificationHints::HINT_TIMESTAMP, timestamp);
+    hints.insert(NotificationManager::HINT_ICON, icon);
+    hints.insert(NotificationManager::HINT_TIMESTAMP, timestamp);
     expireTimeout = 2;
     notification.setAppName(appName);
     notification.setAppIcon(appIcon);
@@ -73,7 +74,7 @@ void Ut_Notification::testGettersAndSetters()
 
 void Ut_Notification::testSignals()
 {
-    NotificationHints hints;
+    QVariantHash hints;
     Notification notification(QString(), QString(), QString(), QString(), QStringList(), hints, 0);
     QSignalSpy summarySpy(&notification, SIGNAL(summaryChanged()));
     QSignalSpy bodySpy(&notification, SIGNAL(bodyChanged()));
@@ -90,8 +91,8 @@ void Ut_Notification::testSignals()
     notification.setBody("body");
     QCOMPARE(bodySpy.count(), 1);
 
-    hints.setHint(NotificationHints::HINT_ICON, "icon");
-    hints.setHint(NotificationHints::HINT_TIMESTAMP, "2012-10-01 18:04:19");
+    hints.insert(NotificationManager::HINT_ICON, "icon");
+    hints.insert(NotificationManager::HINT_TIMESTAMP, "2012-10-01 18:04:19");
     notification.setHints(hints);
     QCOMPARE(iconSpy.count(), 1);
     QCOMPARE(timestampSpy.count(), 1);
