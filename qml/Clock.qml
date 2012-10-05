@@ -6,7 +6,7 @@ Text {
 
     color: "white"
     text: Qt.formatDateTime(new Date(), "hh:mm");
-    font { pixelSize: 60; family: headerFont.name }
+    font { pixelSize: 120; family: headerFont.name }
     anchors.horizontalCenter: parent.horizontalCenter
 
     function start() {
