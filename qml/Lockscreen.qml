@@ -4,6 +4,7 @@ import com.jolla.components 1.0
 
 Item {
     property alias clockRunning: clock.running
+    property alias indicatorAreaHeight: clock.height
 
     Connections {
         target: LipstickSettings

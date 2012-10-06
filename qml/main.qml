@@ -39,6 +39,7 @@ Item {
     Item {
         property bool isPortrait: true
         property bool closeApplicationEnabled: false
+        property bool peeking: !LipstickSettings.lockscreenVisible && !Qt.application.active
         id: desktop
         anchors.top: parent.top
         anchors.left: parent.left
@@ -94,6 +95,25 @@ Item {
                     dashboard.contentHeight = (dashboard.maxPages) * dashboard.height
 
                     // TODO: we should recheck our page position and reset contentY if need be
+                }
+            }
+
+            Connections {
+                target: desktop
+                onPeekingChanged: {
+                    dashboard.currentPage = 1
+                    dashboard.snapToCurrentPage(desktop.peeking)
+                    if (desktop.peeking) {
+                        var indicatorAreaRevealHeight = lockscreen.indicatorAreaHeight + 10
+
+                        // reveal clock by slightly moving the home screen
+                        dashboard.contentY = dashboard.contentY - indicatorAreaRevealHeight
+
+                        // grow spacerItem below switcher to hide launcher icons from view
+                        spacerItem.height = Math.max(0, launcher.cellHeight - indicatorAreaRevealHeight)
+                    } else {
+                        spacerItem.height = 0
+                    }
                 }
             }
 
@@ -180,6 +200,19 @@ Item {
                 Switcher {
                     width: parent.width
                     height: dashboard.height - launcher.cellHeight
+                }
+
+                Item {
+                    id: spacerItem
+                    height: 0
+                    width: parent.width
+                    Behavior on height {
+                        SpringAnimation {
+                            spring: 3
+                            damping: 0.2
+                            mass: 0.3
+                        }
+                    }
                 }
 
                 Launcher {
