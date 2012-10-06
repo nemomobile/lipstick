@@ -10,7 +10,8 @@ target.path = /usr/bin
 
 DEPENDPATH += "../../src"
 INCLUDEPATH += "../../src" "../../src/notifications"
-LIBS = -L"../../src" -llipstick
+QMAKE_LIBDIR = ../../src
+LIBS = -llipstick
 
 HEADERS += \
      notificationmanagerproxy.h
