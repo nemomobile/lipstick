@@ -109,10 +109,10 @@ Item {
                         // reveal clock by slightly moving the home screen
                         dashboard.contentY = dashboard.contentY - indicatorAreaRevealHeight
 
-                        // grow switcher to hide launcher icons from view
-                        switcher.height = Math.max(0, launcher.cellHeight - indicatorAreaRevealHeight)
+                        // grow lockscreen to hide launcher icons from view
+                        lockscreen.height = dashboard.height
                     } else {
-                        switcher.height = switcher.originalHeight
+                        lockscreen.height = lockscreen.originalHeight
                     }
                 }
             }
@@ -195,12 +195,7 @@ Item {
                     id: lockscreen
                     height: dashboard.height
                     width: dashboard.width
-                }
-
-                Switcher {
-                    width: parent.width
-                    height: dashboard.height - launcher.cellHeight
-                    property int originalHeight: dashboard.height - launcher.cellHeight
+                    property int originalHeight: dashboard.height
 
                     Behavior on height {
                         SpringAnimation {
@@ -209,6 +204,11 @@ Item {
                             mass: 0.3
                         }
                     }
+                }
+
+                Switcher {
+                    width: parent.width
+                    height: dashboard.height - launcher.cellHeight
                 }
 
                 Launcher {
