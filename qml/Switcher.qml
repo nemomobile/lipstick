@@ -27,64 +27,78 @@
 import QtQuick 1.1
 import org.nemomobile.lipstick 0.1
 
-GridView {
-    id: switcherRoot
-    property int columns: 1
-    height: contentHeight
-    interactive: false
-
-    cellWidth: width / columns
-    cellHeight: Math.floor(height / Math.ceil(count / columns))
-    property int displayWidth: 1
-    property int displayHeight: 1
-    property int padding: 40
-
-    onCellWidthChanged: updateRatio(cellWidth - padding, cellHeight - padding)
-    onCellHeightChanged: updateRatio(cellWidth - padding, cellHeight - padding)
-
-    function updateRatio(cw, ch) {
-        var nw = ch * (desktop.width / desktop.height)
-        var nh = cw * (desktop.height / desktop.width)
-        if (nw < cw) {
-            displayWidth = nw
-            displayHeight = ch
-        } else {
-            displayWidth = cw
-            displayHeight = nh
+// wrapper Item needed because housekeeping graphic and switcher need to both be displayed
+// possibly with different opacity.
+Item {
+    Image {
+        source: "images/graphic-housekeeping-mode.png"
+        opacity: desktop.closeApplicationEnabled ? 1.0 : 0.0
+        Behavior on opacity {
+            NumberAnimation {
+            }
         }
     }
 
-    model: SwitcherModel {
-        id:switcherModel
-        onItemCountChanged: {
-            /*if (itemCount == 1)
-                switcherRoot.columns = 1
-            else*/ if (itemCount <= 4)
-                switcherRoot.columns = 2
-            else if (itemCount > 4)
-                switcherRoot.columns = 3
+    GridView {
+        id: switcherRoot
+        property int columns: 1
+        interactive: false
+        width: parent.width
+        height: parent.height
+
+        cellWidth: width / columns
+        cellHeight: Math.floor(height / Math.ceil(count / columns))
+        property int displayWidth: 1
+        property int displayHeight: 1
+        property int padding: 40
+
+        onCellWidthChanged: updateRatio(cellWidth - padding, cellHeight - padding)
+        onCellHeightChanged: updateRatio(cellWidth - padding, cellHeight - padding)
+
+        function updateRatio(cw, ch) {
+            var nw = ch * (desktop.width / desktop.height)
+            var nh = cw * (desktop.height / desktop.width)
+            if (nw < cw) {
+                displayWidth = nw
+                displayHeight = ch
+            } else {
+                displayWidth = cw
+                displayHeight = nh
+            }
         }
-    }
 
-    delegate: Item {
-        width: switcherRoot.cellWidth
-        height: switcherRoot.cellHeight
-
-        SwitcherItem {
-			width: displayWidth
-			height: displayHeight
-            anchors.top: parent.top
-            anchors.topMargin: switcherRoot.padding
-            anchors.horizontalCenter: parent.horizontalCenter
+        model: SwitcherModel {
+            id:switcherModel
+            onItemCountChanged: {
+                /*if (itemCount == 1)
+                    switcherRoot.columns = 1
+                else*/ if (itemCount <= 4)
+                    switcherRoot.columns = 2
+                else if (itemCount > 4)
+                    switcherRoot.columns = 3
+            }
         }
-    }
 
-    MouseArea {
-        anchors.fill: parent
-        z: -1
+        delegate: Item {
+            width: switcherRoot.cellWidth
+            height: switcherRoot.cellHeight
 
-        onPressAndHold: {
-            desktop.closeApplicationEnabled = !desktop.closeApplicationEnabled;
+            SwitcherItem {
+                width: switcherRoot.displayWidth
+                height: switcherRoot.displayHeight
+                anchors.top: parent.top
+                anchors.topMargin: switcherRoot.padding
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            z: -1
+
+            onPressAndHold: {
+                desktop.closeApplicationEnabled = !desktop.closeApplicationEnabled;
+            }
         }
     }
 }
