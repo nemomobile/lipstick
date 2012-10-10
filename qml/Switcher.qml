@@ -69,15 +69,6 @@ Item {
 
         model: SwitcherModel {
             id:switcherModel
-            onItemCountChanged: {
-                if (itemCount == 0 && desktop.closeApplicationEnabled)
-                    desktop.closeApplicationEnabled = false
-
-                if (itemCount <= 4)
-                    switcherRoot.columns = 2
-                else if (itemCount > 4)
-                    switcherRoot.columns = 3
-            }
         }
 
         delegate: Item {
@@ -91,6 +82,16 @@ Item {
                 anchors.topMargin: switcherRoot.padding
                 anchors.horizontalCenter: parent.horizontalCenter
             }
+        }
+
+        onCountChanged: {
+            if (count == 0 && desktop.closeApplicationEnabled)
+                desktop.closeApplicationEnabled = false
+
+            if (count <= 4)
+                switcherRoot.columns = 2
+            else if (count > 4)
+                switcherRoot.columns = 3
         }
 
         MouseArea {
