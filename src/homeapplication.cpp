@@ -21,7 +21,6 @@
 #include <QX11Info>
 #include <QDebug>
 #include <QEvent>
-#include <QGLWidget>
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -207,14 +206,6 @@ QDeclarativeView *HomeApplication::mainWindowInstance()
 
     // Excluding it from the task bar
     XWindowManager::excludeFromTaskBar(_mainWindowInstance->winId());
-
-    // Setting up OpenGL
-    QGLFormat fmt;
-    fmt.setSamples(0);
-    fmt.setSampleBuffers(false);
-
-    QGLWidget *glw = new QGLWidget(fmt, _mainWindowInstance);
-    _mainWindowInstance->setViewport(glw);
 
     // Setting optimalization flags
     _mainWindowInstance->setOptimizationFlag(QGraphicsView::DontSavePainterState);

@@ -88,7 +88,6 @@ QT += network \
     dbus \
     xml \
     declarative \
-    opengl \
     sql
 
 QMAKE_CXXFLAGS += \
