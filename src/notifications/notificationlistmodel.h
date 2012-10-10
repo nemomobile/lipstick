@@ -19,6 +19,8 @@
 #include "utilities/qobjectlistmodel.h"
 #include "lipstickglobal.h"
 
+class Notification;
+
 class LIPSTICK_EXPORT NotificationListModel : public QObjectListModel
 {
     Q_OBJECT
@@ -32,6 +34,16 @@ private slots:
     void removeNotification(uint id);
 
 private:
+    /*!
+     * Checks whether the given notification should be shown. A notification
+     * should be shown when it's class is not system and it has a body and a
+     * summary.
+     *
+     * \param notification the notification to check
+     * \return \c true if the notification should be shown, \c false otherwise
+     */
+    static bool notificationShouldBeShown(Notification *notification);
+
     Q_DISABLE_COPY(NotificationListModel)
 
 #ifdef UNIT_TEST
