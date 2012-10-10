@@ -34,9 +34,9 @@ NotificationListModel::~NotificationListModel()
 void NotificationListModel::updateNotification(uint id)
 {
     Notification *notification = NotificationManager::instance()->notification(id);
-    if (indexOf(notification) < 0 && notification->hints().value(NotificationManager::HINT_CLASS).toString() != "system") {
+    if (indexOf(notification) < 0 && notificationShouldBeShown(notification)) {
         addItem(notification);
-    } else if (indexOf(notification) >= 0 && notification->hints().value(NotificationManager::HINT_CLASS).toString() == "system") {
+    } else if (indexOf(notification) >= 0 && !notificationShouldBeShown(notification)) {
         removeItem(notification);
     }
 }
@@ -44,4 +44,9 @@ void NotificationListModel::updateNotification(uint id)
 void NotificationListModel::removeNotification(uint id)
 {
     removeItem(NotificationManager::instance()->notification(id));
+}
+
+bool NotificationListModel::notificationShouldBeShown(Notification *notification)
+{
+    return notification->hints().value(NotificationManager::HINT_CLASS).toString() != "system" && !notification->body().isEmpty() && !notification->summary().isEmpty();
 }
