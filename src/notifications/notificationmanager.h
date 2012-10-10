@@ -77,6 +77,9 @@ public:
     //! Nemo hint: Summary text of the preview of the notification.
     static const char *HINT_PREVIEW_SUMMARY;
 
+    //! Nemo hint: Remote action of the notification. Prefix only: the action identifier is to be appended.
+    static const char *HINT_REMOTE_ACTION_PREFIX;
+
     //! Nemo hint: User removability of the notification.
     static const char *HINT_USER_REMOVABLE;
 
