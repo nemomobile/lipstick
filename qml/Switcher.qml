@@ -98,7 +98,11 @@ Item {
             z: -1
 
             onPressAndHold: {
-                desktop.closeApplicationEnabled = !desktop.closeApplicationEnabled;
+                // don't enter housekeeping mode with no windows open
+                if (switcherRoot.count == 0)
+                    return
+
+                desktop.closeApplicationEnabled = !desktop.closeApplicationEnabled
             }
 
             onPressed: {
