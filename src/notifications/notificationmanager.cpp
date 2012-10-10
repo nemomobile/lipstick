@@ -20,6 +20,7 @@
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include <QSqlTableModel>
+#include <mremoteaction.h>
 #include <sys/statfs.h>
 #include "categorydefinitionstore.h"
 #include "notificationmanageradaptor.h"
@@ -58,6 +59,7 @@ const char *NotificationManager::HINT_TIMESTAMP = "x-nemo-timestamp";
 const char *NotificationManager::HINT_PREVIEW_ICON = "x-nemo-preview-icon";
 const char *NotificationManager::HINT_PREVIEW_BODY = "x-nemo-preview-body";
 const char *NotificationManager::HINT_PREVIEW_SUMMARY = "x-nemo-preview-summary";
+const char *NotificationManager::HINT_REMOTE_ACTION_PREFIX = "x-nemo-remote-action-";
 const char *NotificationManager::HINT_USER_REMOVABLE = "x-nemo-user-removable";
 
 NotificationManager *NotificationManager::instance_ = 0;
@@ -114,7 +116,7 @@ QList<uint> NotificationManager::notificationIds() const
 
 QStringList NotificationManager::GetCapabilities()
 {
-    return QStringList() << "body" << "x-nemo-get-notifications";
+    return QStringList() << "body" << HINT_ICON << HINT_ITEM_COUNT << HINT_TIMESTAMP << HINT_PREVIEW_ICON << HINT_PREVIEW_BODY << HINT_PREVIEW_SUMMARY << "x-nemo-remote-action" << HINT_USER_REMOVABLE << "x-nemo-get-notifications";
 }
 
 uint NotificationManager::Notify(const QString &appName, uint replacesId, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &originalHints, int expireTimeout)
@@ -477,11 +479,23 @@ void NotificationManager::execSQL(const QString &command, const QVariantList &ar
 void NotificationManager::invokeAction(const QString &action)
 {
     Notification *notification = qobject_cast<Notification *>(sender());
-    if (notification != 0 && notification->actions().contains(action)) {
+    if (notification != 0) {
         uint id = notifications.key(notification, 0);
         if (id > 0) {
-            NOTIFICATIONS_DEBUG("INVOKE: " << action << id);
-            emit ActionInvoked(id, action);
+            QString remoteAction = notification->hints().value(QString(HINT_REMOTE_ACTION_PREFIX) + action).toString();
+            if (!remoteAction.isEmpty()) {
+                // If a remote action has been defined for the given action, trigger it
+                MRemoteAction(remoteAction).trigger();
+            }
+
+            for (int actionIndex = 0; actionIndex < notification->actions().count() / 2; actionIndex++) {
+                // Actions are sent over as a list of pairs. Each even element in the list (starting at index 0) represents the identifier for the action. Each odd element in the list is the localized string that will be displayed to the user.
+                if (notification->actions().at(actionIndex * 2) == action) {
+                    NOTIFICATIONS_DEBUG("INVOKE:" << action << id);
+
+                    emit ActionInvoked(id, action);
+                }
+            }
 
             QVariant userRemovable = notification->hints().value(HINT_USER_REMOVABLE);
             if (!userRemovable.isValid() || userRemovable.toBool()) {

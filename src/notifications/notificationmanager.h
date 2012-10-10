@@ -53,6 +53,7 @@ class QSqlDatabase;
  *       - x-nemo-preview-body: body text to be shown in the preview banner for the notification, if any.
  *       - x-nemo-preview-summary: summary text to be shown in the preview banner for the notification, if any.
  *       - x-nemo-user-removable: a boolean value for defining whether the user should be able to remove the notification by tapping on it or should it be only programmatically removable. Defaults to true.
+ *       - x-nemo-remote-action-actionname: details of the D-Bus call to be made when the action "actionname" is executed. Should be in MRemoteAction's "serviceName objectPath interface methodName" format.
  */
 class LIPSTICK_EXPORT NotificationManager : public QObject
 {
@@ -100,6 +101,9 @@ public:
 
     //! Nemo hint: Summary text of the preview of the notification.
     static const char *HINT_PREVIEW_SUMMARY;
+
+    //! Nemo hint: Remote action of the notification. Prefix only: the action identifier is to be appended.
+    static const char *HINT_REMOTE_ACTION_PREFIX;
 
     //! Nemo hint: User removability of the notification.
     static const char *HINT_USER_REMOVABLE;

@@ -22,6 +22,7 @@
 #include <QSqlTableModel>
 #include <QSqlRecord>
 #include <QSqlError>
+#include <mremoteaction.h>
 #include <sys/statfs.h>
 
 const static uint DISK_SPACE_NEEDED = 1024;
@@ -250,6 +251,13 @@ void QTimer::setInterval(int msec)
     timerInterval = interval();
 }
 
+// MRemoteAction stubs
+QStringList mRemoteActionTrigger;
+void MRemoteAction::trigger()
+{
+    mRemoteActionTrigger.append(toString());
+}
+
 void Ut_NotificationManager::init()
 {
     qSqlQueryExecQuery.clear();
@@ -267,6 +275,7 @@ void Ut_NotificationManager::init()
     qSqlDatabaseCommitCalled = false;
     diskSpaceAvailableKb = DISK_SPACE_NEEDED + 100;
     diskSpaceChecked = true;
+    mRemoteActionTrigger.clear();
 }
 
 void Ut_NotificationManager::cleanup()
@@ -369,24 +378,24 @@ void Ut_NotificationManager::testNotificationsAreRestoredOnConstruction()
     notificationValues << notification1Values << notification2Values;
     qSqlQueryValues["SELECT * FROM notifications"].append(notificationValues);
 
-    QHash<int, QVariant> notification1Action1;
-    QHash<int, QVariant> notification1Action2;
-    QHash<int, QVariant> notification2Action1;
-    QHash<int, QVariant> notification2Action2;
-    notification1Action1.insert(0, 1);
-    notification1Action1.insert(1, "action1-1");
-    notification1Action2.insert(0, 1);
-    notification1Action2.insert(1, "action1-2");
-    notification2Action1.insert(0, 2);
-    notification2Action1.insert(1, "action2-1");
-    notification2Action2.insert(0, 2);
-    notification2Action2.insert(1, "action2-2");
+    QHash<int, QVariant> notification1ActionIdentifier;
+    QHash<int, QVariant> notification1ActionName;
+    QHash<int, QVariant> notification2ActionIdentifier;
+    QHash<int, QVariant> notification2ActionName;
+    notification1ActionIdentifier.insert(0, 1);
+    notification1ActionIdentifier.insert(1, "action1");
+    notification1ActionName.insert(0, 1);
+    notification1ActionName.insert(1, "Action 1");
+    notification2ActionIdentifier.insert(0, 2);
+    notification2ActionIdentifier.insert(1, "action2");
+    notification2ActionName.insert(0, 2);
+    notification2ActionName.insert(1, "Action 2");
     QList<QHash<int, QVariant> > notificationActions;
-    notificationActions << notification1Action1 << notification1Action2 << notification2Action1 << notification2Action2;
+    notificationActions << notification1ActionIdentifier << notification1ActionName << notification2ActionIdentifier << notification2ActionName;
     qSqlQueryValues["SELECT * FROM actions"].append(notificationActions);
     QHash<uint, QStringList> notificationActionsById;
-    notificationActionsById.insert(1, QStringList() << "action1-1" << "action1-2");
-    notificationActionsById.insert(2, QStringList() << "action2-1" << "action2-2");
+    notificationActionsById.insert(1, QStringList() << "action1" << "Action 1");
+    notificationActionsById.insert(2, QStringList() << "action2" << "Action 2");
 
     QHash<int, QVariant> notification1Hint1;
     QHash<int, QVariant> notification1Hint2;
@@ -443,9 +452,18 @@ void Ut_NotificationManager::testDatabaseCommitIsDoneOnDestruction()
 
 void Ut_NotificationManager::testCapabilities()
 {
+    // Check the supported capabilities includes all the Nemo hints
     QStringList capabilities = NotificationManager::instance()->GetCapabilities();
-    QCOMPARE(capabilities.count(), 2);
+    QCOMPARE(capabilities.count(), 10);
     QCOMPARE((bool)capabilities.contains("body"), true);
+    QCOMPARE((bool)capabilities.contains(NotificationManager::HINT_ICON), true);
+    QCOMPARE((bool)capabilities.contains(NotificationManager::HINT_ITEM_COUNT), true);
+    QCOMPARE((bool)capabilities.contains(NotificationManager::HINT_TIMESTAMP), true);
+    QCOMPARE((bool)capabilities.contains(NotificationManager::HINT_PREVIEW_ICON), true);
+    QCOMPARE((bool)capabilities.contains(NotificationManager::HINT_PREVIEW_BODY), true);
+    QCOMPARE((bool)capabilities.contains(NotificationManager::HINT_PREVIEW_SUMMARY), true);
+    QCOMPARE((bool)capabilities.contains("x-nemo-remote-action"), true);
+    QCOMPARE((bool)capabilities.contains(NotificationManager::HINT_USER_REMOVABLE), true);
     QCOMPARE((bool)capabilities.contains("x-nemo-get-notifications"), true);
 }
 
@@ -457,7 +475,7 @@ void Ut_NotificationManager::testAddingNotification()
     QSignalSpy spy(manager, SIGNAL(notificationModified(uint)));
     QVariantHash hints;
     hints.insert("hint", "value");
-    uint id = manager->Notify("appName", 0, "appIcon", "summary", "body", QStringList() << "action1" << "action2", hints, 1);
+    uint id = manager->Notify("appName", 0, "appIcon", "summary", "body", QStringList() << "action" << "Action", hints, 1);
     Notification *notification = manager->notification(id);
     QCOMPARE(disconnect(notification, SIGNAL(actionInvoked(QString)), manager, SLOT(invokeAction(QString))), true);
     QCOMPARE(spy.count(), 1);
@@ -476,9 +494,9 @@ void Ut_NotificationManager::testAddingNotification()
     QCOMPARE(qSqlQueryAddBindValue.at(4), QVariant("body"));
     QCOMPARE(qSqlQueryAddBindValue.at(5).toInt(), 1);
     QCOMPARE(qSqlQueryAddBindValue.at(6).toUInt(), id);
-    QCOMPARE(qSqlQueryAddBindValue.at(7), QVariant("action1"));
+    QCOMPARE(qSqlQueryAddBindValue.at(7), QVariant("action"));
     QCOMPARE(qSqlQueryAddBindValue.at(8).toUInt(), id);
-    QCOMPARE(qSqlQueryAddBindValue.at(9), QVariant("action2"));
+    QCOMPARE(qSqlQueryAddBindValue.at(9), QVariant("Action"));
     QCOMPARE(qSqlQueryAddBindValue.at(10).toUInt(), id);
     QCOMPARE(qSqlQueryAddBindValue.at(11), QVariant("hint"));
     QCOMPARE(qSqlQueryAddBindValue.at(12), QVariant("value"));
@@ -490,8 +508,8 @@ void Ut_NotificationManager::testAddingNotification()
     QCOMPARE(notification->summary(), QString("summary"));
     QCOMPARE(notification->body(), QString("body"));
     QCOMPARE(notification->actions().count(), 2);
-    QCOMPARE(notification->actions().at(0), QString("action1"));
-    QCOMPARE(notification->actions().at(1), QString("action2"));
+    QCOMPARE(notification->actions().at(0), QString("action"));
+    QCOMPARE(notification->actions().at(1), QString("Action"));
     QCOMPARE(notification->hints().value("hint"), QVariant("value"));
     QCOMPARE(notification->hints().value(NotificationManager::HINT_TIMESTAMP).type(), QVariant::DateTime);
 }
@@ -646,12 +664,12 @@ void Ut_NotificationManager::testUninstallingCategoryDefinitionRemovesNotificati
     QCOMPARE(manager->notification(id2), (Notification *)0);
 }
 
-void Ut_NotificationManager::testActionIsInvokedIfActionIsDefined()
+void Ut_NotificationManager::testActionIsInvokedIfDefined()
 {
     // Add two notifications, only the first one with an action named "action1"
     NotificationManager *manager = NotificationManager::instance();
-    uint id1 = manager->Notify("app1", 0, QString(), QString(), QString(), QStringList() << "action1", QVariantHash(), 0);
-    uint id2 = manager->Notify("app2", 0, QString(), QString(), QString(), QStringList() << "action2", QVariantHash(), 0);
+    uint id1 = manager->Notify("app1", 0, QString(), QString(), QString(), QStringList() << "action1" << "Action 1", QVariantHash(), 0);
+    uint id2 = manager->Notify("app2", 0, QString(), QString(), QString(), QStringList() << "action2" << "Action 2", QVariantHash(), 0);
     Notification *notification1 = manager->notification(id1);
     Notification *notification2 = manager->notification(id2);
     connect(this, SIGNAL(actionInvoked(QString)), notification1, SIGNAL(actionInvoked(QString)));
@@ -665,6 +683,39 @@ void Ut_NotificationManager::testActionIsInvokedIfActionIsDefined()
     QCOMPARE(spy.last().at(1).toString(), QString("action1"));
 }
 
+void Ut_NotificationManager::testActionIsNotInvokedIfIncomplete()
+{
+    // Add two notifications, the first one with an incomplete action named "action1"
+    NotificationManager *manager = NotificationManager::instance();
+    uint id1 = manager->Notify("app1", 0, QString(), QString(), QString(), QStringList() << "action1", QVariantHash(), 0);
+    uint id2 = manager->Notify("app2", 0, QString(), QString(), QString(), QStringList() << "action2" << "Action 2", QVariantHash(), 0);
+    Notification *notification1 = manager->notification(id1);
+    Notification *notification2 = manager->notification(id2);
+    connect(this, SIGNAL(actionInvoked(QString)), notification1, SIGNAL(actionInvoked(QString)));
+    connect(this, SIGNAL(actionInvoked(QString)), notification2, SIGNAL(actionInvoked(QString)));
+
+    // Make both notifications emit the actionInvoked() signal for action "action1"; no action should be invoked
+    QSignalSpy spy(manager, SIGNAL(ActionInvoked(uint, QString)));
+    emit actionInvoked("action1");
+    QCOMPARE(spy.count(), 0);
+}
+
+void Ut_NotificationManager::testRemoteActionIsInvokedIfDefined()
+{
+    // Add a notifications with an action named "action"
+    NotificationManager *manager = NotificationManager::instance();
+    QVariantHash hints;
+    hints.insert(QString(NotificationManager::HINT_REMOTE_ACTION_PREFIX) + "action", "a b c d");
+    uint id = manager->Notify("app", 0, QString(), QString(), QString(), QStringList(), hints, 0);
+    Notification *notification = manager->notification(id);
+    connect(this, SIGNAL(actionInvoked(QString)), notification, SIGNAL(actionInvoked(QString)));
+
+    // Invoking the notification should trigger the remote action
+    emit actionInvoked("action");
+    QCOMPARE(mRemoteActionTrigger.count(), 1);
+    QCOMPARE(mRemoteActionTrigger.last(), hints.value(QString(NotificationManager::HINT_REMOTE_ACTION_PREFIX) + "action").toString());
+}
+
 void Ut_NotificationManager::testInvokingActionRemovesNotificationIfUserRemovable()
 {
     // Add three notifications with user removability not set, set to true and set to false
@@ -674,9 +725,9 @@ void Ut_NotificationManager::testInvokingActionRemovesNotificationIfUserRemovabl
     QVariantHash hints3;
     hints2.insert(NotificationManager::HINT_USER_REMOVABLE, true);
     hints3.insert(NotificationManager::HINT_USER_REMOVABLE, false);
-    uint id1 = manager->Notify("app1", 0, QString(), QString(), QString(), QStringList() << "action", hints1, 0);
-    uint id2 = manager->Notify("app2", 0, QString(), QString(), QString(), QStringList() << "action", hints2, 0);
-    uint id3 = manager->Notify("app3", 0, QString(), QString(), QString(), QStringList() << "action", hints3, 0);
+    uint id1 = manager->Notify("app1", 0, QString(), QString(), QString(), QStringList(), hints1, 0);
+    uint id2 = manager->Notify("app2", 0, QString(), QString(), QString(), QStringList(), hints2, 0);
+    uint id3 = manager->Notify("app3", 0, QString(), QString(), QString(), QStringList(), hints3, 0);
     Notification *notification1 = manager->notification(id1);
     Notification *notification2 = manager->notification(id2);
     Notification *notification3 = manager->notification(id3);
