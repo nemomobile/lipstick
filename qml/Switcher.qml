@@ -99,6 +99,11 @@ Item {
             onPressAndHold: {
                 desktop.closeApplicationEnabled = !desktop.closeApplicationEnabled;
             }
+
+            onPressed: {
+                if (desktop.closeApplicationEnabled)
+                    desktop.closeApplicationEnabled = false;
+            }
         }
     }
 }
