@@ -125,25 +125,24 @@ void HomeApplication::sendStartupNotifications()
     // only after ready signal is sent.
     mainWindowInstance()->showFullScreen();
 
+    // Visibility change messages are required to make the appVisible() signal work
+    XWindowAttributes attributes;
+    XGetWindowAttributes(QX11Info::display(), _mainWindowInstance->winId(), &attributes);
+    XSelectInput(QX11Info::display(), _mainWindowInstance->winId(), attributes.your_event_mask | VisibilityChangeMask);
+
+    // Excluding it from the task bar
+    XWindowManager::excludeFromTaskBar(_mainWindowInstance->winId());
+
     // Tell X that changes in the properties and the substructure of the root
     // window are interesting. These are used to get the list of windows and
     // for getting window close events.
     XSelectInput(QX11Info::display(), DefaultRootWindow(QX11Info::display()), PropertyChangeMask | SubstructureNotifyMask);
-
-    // TODO: why do we need damage on the desktop window? and is this ever destroyed?
-    XDamageCreate(QX11Info::display(), mainWindowInstance()->winId(), XDamageReportNonEmpty);
 }
 
 bool HomeApplication::x11EventFilter(XEvent *event)
 {
     bool eventHandled = false;
     iteratorActiveForEventListenerContainer = true;
-
-    if (event->xany.window == mainWindowInstance()->winId())
-    {
-        HOME_DEBUG("received event for main window!");
-        mainWindowInstance()->viewport()->repaint();
-    }
 
     if (event->type == xDamageEventBase + XDamageNotify) {
         HOME_DEBUG("Processing damage event");
@@ -198,14 +197,6 @@ QDeclarativeView *HomeApplication::mainWindowInstance()
 
     _mainWindowInstance = new QDeclarativeView();
     _mainWindowInstance->setAttribute(Qt::WA_X11NetWmWindowTypeDesktop);
-
-    // Visibility change messages are required to make the appVisible() signal work
-    XWindowAttributes attributes;
-    XGetWindowAttributes(QX11Info::display(), _mainWindowInstance->winId(), &attributes);
-    XSelectInput(QX11Info::display(), _mainWindowInstance->winId(), attributes.your_event_mask | VisibilityChangeMask);
-
-    // Excluding it from the task bar
-    XWindowManager::excludeFromTaskBar(_mainWindowInstance->winId());
 
     // Setting optimalization flags
     _mainWindowInstance->setOptimizationFlag(QGraphicsView::DontSavePainterState);
