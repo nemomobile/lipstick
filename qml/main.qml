@@ -37,10 +37,10 @@ Item {
     FontLoader { id: headerFont; source: "fonts/HelveticaNeueUltraLight.ttf" }
 
     Item {
+        id: desktop
         property bool isPortrait: true
         property bool closeApplicationEnabled: false
         property bool peeking: !LipstickSettings.lockscreenVisible && !Qt.application.active
-        id: desktop
         anchors.top: parent.top
         anchors.left: parent.left
         width: isPortrait ? main.height : main.width
@@ -113,6 +113,15 @@ Item {
                         lockscreen.height = dashboard.height
                     } else {
                         lockscreen.height = lockscreen.originalHeight
+                    }
+                }
+
+                onCloseApplicationEnabledChanged: {
+                    if (desktop.closeApplicationEnabled) {
+                        // obscure the launcher icons by increasing the switcher height
+                        switcher.height = dashboard.height
+                    } else {
+                        switcher.height = switcher.originalHeight
                     }
                 }
             }
@@ -210,8 +219,18 @@ Item {
                 }
 
                 Switcher {
+                    id: switcher
                     width: parent.width
                     height: dashboard.height - launcher.cellHeight
+                    property int originalHeight: dashboard.height - launcher.cellHeight
+
+                    Behavior on height {
+                        SpringAnimation {
+                            spring: 3
+                            damping: 0.2
+                            mass: 0.3
+                        }
+                    }
                 }
 
                 Launcher {
