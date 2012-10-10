@@ -125,6 +125,9 @@ Item {
             }
 
             onContentYChanged: {
+                if (desktop.closeApplicationEnabled)
+                    desktop.closeApplicationEnabled = false
+
                 if (contentY >= lockscreen.height && lockscreen.clockRunning)
                     lockscreen.stopClock();
                 else if (contentY < lockscreen.height && !lockscreen.clockRunning)
