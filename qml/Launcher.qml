@@ -28,11 +28,10 @@ import QtQuick 1.1
 import org.nemomobile.lipstick 0.1
 
 GridView {
-    height: contentHeight
     id: gridview
-    width: parent.width
-    cellWidth: Math.floor(parent.width / (parent.width / 120))
-    cellHeight: cellWidth + 40
+    height: contentHeight
+    cellWidth: dashboard.width / 4
+    cellHeight: dashboard.height / 7
     interactive: false
     signal appLaunchingStarted
 
