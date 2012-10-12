@@ -28,7 +28,6 @@ class LIPSTICK_EXPORT SwitcherPixmapItem : public QDeclarativeItem, XEventListen
 {
     Q_OBJECT
     Q_DISABLE_COPY(SwitcherPixmapItem)
-    Q_PROPERTY(int windowId READ windowId WRITE setWindowId)
 
     struct Private;
     Private * const d;
@@ -41,9 +40,23 @@ public:
     explicit SwitcherPixmapItem(QDeclarativeItem *parent = 0);
     virtual ~SwitcherPixmapItem();
 
+    /*! The window ID to draw pixmaps for.
+     */
+    Q_PROPERTY(int windowId READ windowId WRITE setWindowId)
     int windowId() const;
     void setWindowId(int windowId);
+
+    /*! Setting a radius draws the pixmap item with a rounded corner.
+     * Essentially, this has the same effect as Rectangle::radius.
+     */
+    Q_PROPERTY(int radius READ radius WRITE setRadius NOTIFY radiusChanged)
+    int radius() const;
+    void setRadius(int radius);
+
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+
+signals:
+    void radiusChanged();
 
 private slots:
     void damageEvent(Qt::HANDLE &damage, short &x, short &y, unsigned short &width, unsigned short &height);

@@ -55,6 +55,7 @@ struct SwitcherPixmapItem::Private
         , xWindowPixmap(0)
         , xWindowPixmapDamage(0)
         , windowId(0)
+        , radius(0)
     {}
 
     bool xWindowPixmapIsValid;
@@ -62,6 +63,7 @@ struct SwitcherPixmapItem::Private
     Damage xWindowPixmapDamage;
     QPixmap qWindowPixmap;
     WId windowId;
+    int radius;
 };
 
 SwitcherPixmapItem::SwitcherPixmapItem(QDeclarativeItem *parent)
@@ -192,6 +194,19 @@ int SwitcherPixmapItem::windowId() const
     return d->windowId;
 }
 
+void SwitcherPixmapItem::setRadius(int radius)
+{
+    d->radius = radius;
+    emit radiusChanged();
+
+    update();
+}
+
+int SwitcherPixmapItem::radius() const
+{
+    return d->radius;
+}
+
 void SwitcherPixmapItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                                QWidget *widget)
 {
@@ -202,18 +217,31 @@ void SwitcherPixmapItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
         updateXWindowPixmap();
     }
 
+    QPen oldPen = painter->pen();
+    QBrush oldBrush = painter->brush();
     QPainter::RenderHints oldHints = painter->renderHints();
     if (smooth())
         painter->setRenderHint(QPainter::SmoothPixmapTransform);
 
     QT_TRY {
-        painter->drawPixmap(QRect(0, 0, width(), height()), d->qWindowPixmap);
+        QBrush brush(d->qWindowPixmap);
+
+        // TODO: take clipping of statusbar (if any) into account here
+        qreal xScale = width() / d->qWindowPixmap.width();
+        qreal yScale = height() / d->qWindowPixmap.height();
+        brush.setTransform(QTransform().scale(xScale, yScale));
+
+        painter->setPen(Qt::NoPen);
+        painter->setBrush(brush);
+        painter->drawRoundedRect(QRect(0, 0, width(), height()), d->radius, d->radius);
     } QT_CATCH (std::bad_alloc e) {
         // XGetImage failed, the window has been already unmapped
     }
 
     if (smooth())
         painter->setRenderHints(oldHints);
+    painter->setPen(oldPen);
+    painter->setBrush(oldBrush);
 }
 
 bool SwitcherPixmapItem::handleXEvent(const XEvent &event)
