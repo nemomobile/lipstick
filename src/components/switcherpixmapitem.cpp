@@ -202,11 +202,18 @@ void SwitcherPixmapItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
         updateXWindowPixmap();
     }
 
+    QPainter::RenderHints oldHints = painter->renderHints();
+    if (smooth())
+        painter->setRenderHint(QPainter::SmoothPixmapTransform);
+
     QT_TRY {
         painter->drawPixmap(QRect(0, 0, width(), height()), d->qWindowPixmap);
     } QT_CATCH (std::bad_alloc e) {
         // XGetImage failed, the window has been already unmapped
     }
+
+    if (smooth())
+        painter->setRenderHints(oldHints);
 }
 
 bool SwitcherPixmapItem::handleXEvent(const XEvent &event)
