@@ -48,9 +48,10 @@ void LauncherModel::monitoredDirectoryChanged(QString changedPath)
     QDir directory(changedPath);
     directory.setFilter(QDir::Files);
     QFileInfoList fileInfoList = directory.entryInfoList();
+    QList<LauncherItem *> *currentLauncherList = getList<LauncherItem>();
 
     // Finding removed desktop entries
-    foreach (LauncherItem *item, *(this->getList<LauncherItem>())) {
+    foreach (LauncherItem *item, *currentLauncherList) {
         if (!item->filePath().startsWith(changedPath))
             continue;
 
@@ -63,13 +64,14 @@ void LauncherModel::monitoredDirectoryChanged(QString changedPath)
 
     // Finding newly added desktop entries
     foreach (const QFileInfo &fileInfo, fileInfoList) {
-        if (this->getList<LauncherItem>()->end() == std::find_if(
-            this->getList<LauncherItem>()->begin(),
-            this->getList<LauncherItem>()->end(),
+        // Skip files which are not desktop entries
+        if (!fileInfo.fileName().endsWith(".desktop"))
+            continue;
+
+        if (currentLauncherList->end() == std::find_if(
+            currentLauncherList->begin(),
+            currentLauncherList->end(),
             [fileInfo](LauncherItem* item) -> bool { return item->filePath() == fileInfo.fileName(); })) {
-            // Skip files which are not desktop entries
-            if (!fileInfo.fileName().endsWith(".desktop"))
-                continue;
 
             LAUNCHER_DEBUG("Creating LauncherItem for desktop entry" << fileInfo.absoluteFilePath());
             LauncherItem *item = new LauncherItem(fileInfo.absoluteFilePath(), this);
