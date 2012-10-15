@@ -6,11 +6,32 @@
         <file>qml/Launcher.qml</file>
         <file>qml/Lockscreen.qml</file>
 	<file>qml/Clock.qml</file>
+        <file>qml/BatteryStatusIndicator.qml</file>
 	<file>qml/fonts/HelveticaNeueLight.ttf</file>
 	<file>qml/fonts/HelveticaNeueUltraLight.ttf</file>
         <file>qml/images/graphics-wallpaper-home.jpg</file>
         <file>qml/images/home-gradient-ramp.png</file>
         <file>qml/images/icon-close-app.png</file>
         <file>qml/images/graphic-housekeeping-mode.png</file>
+        <file>qml/images/icon-s-status-battery-low.png</file>
+        <file>qml/images/icon-s-status-battery-verylow.png</file>
+        <file>qml/images/icon-s-status-battery1.png</file>
+        <file>qml/images/icon-s-status-battery2.png</file>
+        <file>qml/images/icon-s-status-battery3.png</file>
+        <file>qml/images/icon-s-status-battery4.png</file>
+        <file>qml/images/icon-s-status-battery5.png</file>
+        <file>qml/images/icon-s-status-battery6.png</file>
+        <file>qml/images/icon-s-status-battery7.png</file>
+        <file>qml/images/icon-s-status-battery8.png</file>
+        <file>qml/images/icon-s-status-powersave-low.png</file>
+        <file>qml/images/icon-s-status-powersave-verylow.png</file>
+        <file>qml/images/icon-s-status-powersave1.png</file>
+        <file>qml/images/icon-s-status-powersave2.png</file>
+        <file>qml/images/icon-s-status-powersave3.png</file>
+        <file>qml/images/icon-s-status-powersave4.png</file>
+        <file>qml/images/icon-s-status-powersave5.png</file>
+        <file>qml/images/icon-s-status-powersave6.png</file>
+        <file>qml/images/icon-s-status-powersave7.png</file>
+        <file>qml/images/icon-s-status-powersave8.png</file>
     </qresource>
 </RCC>

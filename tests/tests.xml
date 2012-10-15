@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testdefinition version="1.0">
+   <suite name="lipstick-jolla-home-tests" domain="ui">
+       <description>Jolla Lipstick automatic tests</description>
+       <set name="unit-tests" feature="Jolla Lipstick">
+           <description>QML component unit tests</description>
+           <case manual="false" name="unittests">
+               <step>cd /opt/tests/lipstick-jolla-home-tests &amp;&amp;DISPLAY=:0 QML_IMPORT_PATH=stubs qmltestrunner</step>
+           </case>
+       </set>
+   </suite>
+</testdefinition>
