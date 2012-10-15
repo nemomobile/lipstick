@@ -21,6 +21,8 @@
 #include <components/switchermodel.h>
 #include <components/switcherpixmapitem.h>
 #include <components/statusbar.h>
+#include <components/statusindicator.h>
+#include <components/batterystatusindicator.h>
 #include <components/windowmanager.h>
 #include <components/windowinfo.h>
 #include <notifications/notificationlistmodel.h>
@@ -38,6 +40,8 @@ void LipstickPlugin::registerTypes(const char *uri)
     qmlRegisterType<SwitcherModel>("org.nemomobile.lipstick", 0, 1, "SwitcherModel");
     qmlRegisterType<SwitcherPixmapItem>("org.nemomobile.lipstick", 0, 1, "SwitcherPixmapItem");
     qmlRegisterType<StatusBar>("org.nemomobile.lipstick", 0, 1, "StatusBar");
+    qmlRegisterType<StatusIndicator>("org.nemomobile.lipstick", 0, 1, "StatusIndicator");
+    qmlRegisterType<BatteryStatusIndicator>("org.nemomobile.lipstick", 0, 1, "BatteryStatusIndicator");
     qmlRegisterType<NotificationListModel>("org.nemomobile.lipstick", 0, 1, "NotificationListModel");
     qmlRegisterUncreatableType<WindowInfo>("org.nemomobile.lipstick", 0, 1, "WindowInfo", "This type is initialized by SwitcherModel");
     qmlRegisterUncreatableType<LauncherItem>("org.nemomobile.lipstick", 0, 1, "LauncherItem", "This type is initialized by LauncherModel");

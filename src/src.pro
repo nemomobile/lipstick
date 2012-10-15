@@ -6,7 +6,8 @@ VERSION = 0.1
 
 DEFINES += LIPSTICK_BUILD_LIBRARY DEBUG_NOTIFICATIONS
 
-CONFIG += qt
+CONFIG += qt link_pkgconfig
+PKGCONFIG += contextsubscriber-1.0
 INSTALLS = target
 target.path = $$[QT_INSTALL_LIBS]
 
@@ -46,7 +47,9 @@ HEADERS += \
     notifications/notificationmanageradaptor.h \
     notifications/notification.h \
     notifications/categorydefinitionstore.h \
-    notifications/notificationlistmodel.h
+    notifications/notificationlistmodel.h \
+    components/statusindicator.h \
+    components/batterystatusindicator.h
 
 SOURCES += \
     homeapplication.cpp \
@@ -68,7 +71,9 @@ SOURCES += \
     notifications/notificationmanageradaptor.cpp \
     notifications/notification.cpp \
     notifications/categorydefinitionstore.cpp \
-    notifications/notificationlistmodel.cpp
+    notifications/notificationlistmodel.cpp \
+    components/statusindicator.cpp \
+    components/batterystatusindicator.cpp
 
 CONFIG += link_pkgconfig mobility qt warn_on depend_includepath qmake_cache target_qt
 MOBILITY += sensors
