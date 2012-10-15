@@ -2,7 +2,8 @@ TEMPLATE = lib
 TARGET = lipstickplugin
 VERSION = 0.1
 
-CONFIG += qt plugin
+CONFIG += qt plugin link_pkgconfig
+PKGCONFIG += contextsubscriber-1.0
 QT += core gui declarative
 
 INSTALLS = target qmldirfile
@@ -12,7 +13,8 @@ target.path = $$[QT_INSTALL_IMPORTS]/org/nemomobile/lipstick
 
 DEPENDPATH += "../src"
 INCLUDEPATH += "../src"
-LIBS += -L"../src" -llipstick
+QMAKE_LIBDIR = ../../src
+LIBS = -llipstick
 
 HEADERS += \
     lipstickplugin.h

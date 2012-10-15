@@ -1,5 +1,6 @@
 SRCDIR = ../../src
 NOTIFICATIONSRCDIR = $$SRCDIR/notifications
+COMPONENTSRCDIR = $$SRCDIR/components
 STUBSDIR = ../stubs
 COMMONDIR = ../common
 INCLUDEPATH += $$SRCDIR $$STUBSDIR
