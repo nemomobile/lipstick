@@ -51,6 +51,8 @@ rm -rf %{buildroot}
 # >> install pre
 # << install pre
 %qmake_install
+mkdir -p %{buildroot}%{_libdir}/systemd/user/
+cp -a %{SOURCE2} %{buildroot}%{_libdir}/systemd/user/
 
 # >> install post
 install -D -m 644 %{SOURCE1} %{buildroot}/etc/xdg/autostart/lipstick.desktop
