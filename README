@@ -14,4 +14,4 @@ directory containing a "main.qml", it will pick that up, and use it
 as the source of the qml.
 
 this means you can have fast turnaround just by scping the qml to device,
-running from the directory  you scp'd to, and hacking it repeatedly.
+running from the directory you scp'd to, and hacking it repeatedly.
