@@ -46,6 +46,7 @@ Image {
         }
         batteryStatusIndicator.animate = batteryIsChargingContextProperty.value
         batteryStatusIndicator.setFirstIconIndex();
+        batteryStatusIndicator.currentIconIndex = batteryStatusIndicator.firstIconIndex
     }
 
     function setFirstIconIndex() {
