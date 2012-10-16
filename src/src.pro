@@ -27,7 +27,8 @@ OTHER_FILES += \
     qml/Switcher.qml \
     qml/SwitcherItem.qml \
     qml/Lockscreen.qml \
-    qml/Clock.qml
+    qml/Clock.qml \
+    qml/BatteryStatusIndicator.qml
 
 CONFIG += link_pkgconfig
 PKGCONFIG += lipstick

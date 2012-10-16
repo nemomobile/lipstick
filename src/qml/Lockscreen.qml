@@ -58,6 +58,13 @@ Item {
         clock.stop()
     }
 
+    BatteryStatusIndicator {
+        anchors.top: clock.top
+        anchors.right: clock.left
+        anchors.rightMargin: 20
+        anchors.topMargin: 30
+    }
+
     Flickable {
         property int notificationHeight: 100
         property int notificationMargin: 24
