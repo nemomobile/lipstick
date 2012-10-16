@@ -1,0 +1,8 @@
+[Unit]
+Description=The lipstick UI
+After=xorg.target
+Requires=dbus.socket xorg.target mcompositor.service mthemedaemon.service meegotouch-systemui.service
+
+[Service]
+ExecStart=/usr/bin/lipstick
+

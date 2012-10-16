@@ -16,6 +16,7 @@ License:    BSD
 URL:        https://bitbucket.org/jolla/lipstick-jolla-home
 Source0:    %{name}-%{version}.tar.bz2
 Source1:    lipstick.desktop
+Source2:    lipstick.service
 BuildRequires:  pkgconfig(QtCore)
 BuildRequires:  pkgconfig(QtDeclarative)
 BuildRequires:  pkgconfig(QtOpenGL)
@@ -59,6 +60,5 @@ install -D -m 644 %{SOURCE1} %{buildroot}/etc/xdg/autostart/lipstick.desktop
 %files
 %defattr(-,root,root,-)
 %{_bindir}/lipstick
-# >> files
+%{_libdir}/systemd/user/lipstick.service
 %config /etc/xdg/autostart/*.desktop
-# << files
