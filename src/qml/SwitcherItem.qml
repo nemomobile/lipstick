@@ -53,6 +53,8 @@ MouseArea {
         width: desktop.isPortrait ? parent.height : parent.width
         height: desktop.isPortrait ? parent.width : parent.height
         windowId: model.object.window
+        radius: 8
+        smooth: true
         transform: Rotation {
             angle: desktop.isPortrait ? 90 : 0
             origin.x: windowPixmap.height / 2
