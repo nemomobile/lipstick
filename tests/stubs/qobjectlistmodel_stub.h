@@ -33,7 +33,7 @@ class QObjectListModelStub : public StubBase {
   virtual void addItem(QObject *item);
   virtual void removeItem(QObject *item);
   virtual void removeItem(int index);
-  virtual QObject * getItem(int index);
+  virtual QObject * get(int index);
   virtual int indexOf(QObject *obj) const;
   virtual QList<QObject *> * getList();
   virtual void setList(QList<QObject *> *list);
@@ -104,11 +104,11 @@ void QObjectListModelStub::removeItem(int index) {
   stubMethodEntered("removeItem",params);
 }
 
-QObject * QObjectListModelStub::getItem(int index) {
+QObject * QObjectListModelStub::get(int index) {
   QList<ParameterBase*> params;
   params.append( new Parameter<int >(index));
-  stubMethodEntered("getItem",params);
-  return stubReturnValue<QObject *>("getItem");
+  stubMethodEntered("get",params);
+  return stubReturnValue<QObject *>("get");
 }
 
 int QObjectListModelStub::indexOf(QObject *obj) const {
@@ -181,8 +181,8 @@ void QObjectListModel::removeItem(int index) {
   gQObjectListModelStub->removeItem(index);
 }
 
-QObject * QObjectListModel::getItem(int index) {
-  return gQObjectListModelStub->getItem(index);
+QObject * QObjectListModel::get(int index) {
+  return gQObjectListModelStub->get(index);
 }
 
 int QObjectListModel::indexOf(QObject *obj) const {
