@@ -22,11 +22,21 @@ BuildRequires:  pkgconfig(QtDeclarative)
 BuildRequires:  pkgconfig(QtOpenGL)
 BuildRequires:  pkgconfig(lipstick)
 Requires:   jollacomponents
+Requires:   nemo-qml-plugin-contextkit
 Conflicts:  meegotouch-home
 Conflicts:  lipstick-example-home
 
 %description
 A homescreen for Jolla Mobile
+
+%package tests
+Summary:    Tests for Jolla homescreen for lipstick
+License:    BSD
+Group:      System/GUI/Other
+Requires:   %{name} = %{version}-%{release}
+
+%description tests
+Unit tests for the lipstick-jolla-home package.
 
 
 %prep
@@ -64,3 +74,7 @@ install -D -m 644 %{SOURCE1} %{buildroot}/etc/xdg/autostart/lipstick.desktop
 %{_bindir}/lipstick
 %{_libdir}/systemd/user/lipstick.service
 %config /etc/xdg/autostart/*.desktop
+
+%files tests
+%defattr(-,root,root,-)
+/opt/tests/lipstick-jolla-home-tests/*
