@@ -32,11 +32,13 @@ Item {
 
         function test_setMode(data)
         {
+            ContextPropertyStub.setBatteryChargePercentage(0)
             ContextPropertyStub.setBatteryIsCharging(data.batteryIsCharging)
             ContextPropertyStub.setSystemPowerSaveMode(data.systemPowerSaveMode)
             batteryStatusIndicator.setMode()
             compare(batteryStatusIndicator.icons, data.icons)
             compare(batteryStatusIndicator.animate, data.animate)
+            compare(batteryStatusIndicator.source, Qt.resolvedUrl("images/" + data.icons[0] + ".png"))
         }
 
         function test_setFirstIconIndex_data()
