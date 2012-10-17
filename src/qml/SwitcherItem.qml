@@ -30,6 +30,7 @@ import org.nemomobile.lipstick 0.1
 MouseArea {
     id: switcherItemRoot
     property bool ignoreClicked: false
+    signal closeWindow
 
     onPressed: {
          if (desktop.closeApplicationEnabled) {
@@ -72,7 +73,7 @@ MouseArea {
         MouseArea {
             anchors.fill: parent
             enabled: desktop.closeApplicationEnabled
-            onClicked: windowManager.closeWindow(model.object.window)
+            onClicked: switcherItemRoot.closeWindow()
         }
     }
 }

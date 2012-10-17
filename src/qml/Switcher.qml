@@ -54,8 +54,74 @@ Item {
             }
 
             delegate: SwitcherItem {
+                id: switcherDelegate
                 width: switcherRoot.windowWidth
                 height: switcherRoot.windowHeight
+
+                // simple appearance animation
+                opacity: 0.5
+                scale: 0.5
+
+                Component.onCompleted: {
+                    opacity = 1.0
+                    scale = 1.0
+                }
+
+                Behavior on opacity {
+                    NumberAnimation {
+                    }
+                }
+
+                Behavior on scale {
+                    NumberAnimation {
+                    }
+                }
+
+                // simple move animation
+                Behavior on width {
+                    NumberAnimation {
+                    }
+                }
+
+                Behavior on height {
+                    NumberAnimation {
+                    }
+                }
+
+                Behavior on x {
+                    NumberAnimation {
+                    }
+                }
+
+                Behavior on y {
+                    NumberAnimation {
+                    }
+                }
+
+                onCloseWindow: {
+                    closeAnimation.start()
+                }
+
+                SequentialAnimation {
+                    id: closeAnimation
+                    ParallelAnimation {
+                        NumberAnimation {
+                            target: switcherDelegate
+                            property: "scale"
+                            duration: 200
+                            to: 0.0
+                        }
+                        NumberAnimation {
+                            target: switcherDelegate
+                            property: "opacity"
+                            duration: 150
+                            to: 0.0
+                        }
+                    }
+                    ScriptAction {
+                        script: windowManager.closeWindow(model.object.window)
+                    }
+                }
             }
 
             onCountChanged: {
