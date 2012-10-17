@@ -39,77 +39,52 @@ Item {
         }
     }
 
-    GridView {
+    Grid {
         id: switcherRoot
-        property int columns: 1
-        interactive: false
-        width: parent.width
-        height: parent.height
+        anchors.fill: parent
+        anchors.margins: 32
 
-        cellWidth: width / columns
-        cellHeight: Math.floor(height / Math.ceil(count / columns))
-        property int displayWidth: 1
-        property int displayHeight: 1
-        property int padding: 40
+        spacing: 22
+        property int windowWidth: columns == 2 ? 197 : 124
+        property int windowHeight: columns == 2 ? 296 : 190
 
-        onCellWidthChanged: updateRatio(cellWidth - padding, cellHeight - padding)
-        onCellHeightChanged: updateRatio(cellWidth - padding, cellHeight - padding)
-
-        function updateRatio(cw, ch) {
-            var nw = ch * (desktop.width / desktop.height)
-            var nh = cw * (desktop.height / desktop.width)
-            if (nw < cw) {
-                displayWidth = nw
-                displayHeight = ch
-            } else {
-                displayWidth = cw
-                displayHeight = nh
-            }
-        }
-
-        model: SwitcherModel {
-            id:switcherModel
-        }
-
-        delegate: Item {
-            width: switcherRoot.cellWidth
-            height: switcherRoot.cellHeight
-
-            SwitcherItem {
-                width: switcherRoot.displayWidth
-                height: switcherRoot.displayHeight
-                anchors.top: parent.top
-                anchors.topMargin: switcherRoot.padding
-                anchors.horizontalCenter: parent.horizontalCenter
-            }
-        }
-
-        onCountChanged: {
-            if (count == 0 && desktop.closeApplicationEnabled)
-                desktop.closeApplicationEnabled = false
-
-            if (count <= 4)
-                switcherRoot.columns = 2
-            else if (count > 4)
-                switcherRoot.columns = 3
-        }
-
-        MouseArea {
-            anchors.fill: parent
-            z: -1
-
-            onPressAndHold: {
-                // don't enter housekeeping mode with no windows open
-                if (switcherRoot.count == 0)
-                    return
-
-                desktop.closeApplicationEnabled = !desktop.closeApplicationEnabled
+        Repeater {
+            model: SwitcherModel {
+                id:switcherModel
             }
 
-            onPressed: {
-                if (desktop.closeApplicationEnabled)
-                    desktop.closeApplicationEnabled = false;
+            delegate: SwitcherItem {
+                width: switcherRoot.windowWidth
+                height: switcherRoot.windowHeight
             }
+
+            onCountChanged: {
+                if (count == 0 && desktop.closeApplicationEnabled)
+                    desktop.closeApplicationEnabled = false
+
+                if (count <= 4)
+                    switcherRoot.columns = 2
+                else if (count > 4)
+                    switcherRoot.columns = 3
+            }
+        }
+    }
+
+    MouseArea {
+        anchors.fill: parent
+        z: -1
+
+        onPressAndHold: {
+            // don't enter housekeeping mode with no windows open
+            if (switcherRoot.count == 0)
+                return
+
+            desktop.closeApplicationEnabled = !desktop.closeApplicationEnabled
+        }
+
+        onPressed: {
+            if (desktop.closeApplicationEnabled)
+                desktop.closeApplicationEnabled = false;
         }
     }
 }
