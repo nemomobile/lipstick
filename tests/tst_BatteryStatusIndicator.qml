@@ -23,44 +23,25 @@ Item {
         function test_setMode_data()
         {
             return [
-                { tag: "Battery is not charging, power save mode disabled", batteryIsCharging: false, systemPowerSaveMode: false, icons: [ "icon-s-status-battery-verylow", "icon-s-status-battery1", "icon-s-status-battery2", "icon-s-status-battery3", "icon-s-status-battery4", "icon-s-status-battery5", "icon-s-status-battery6", "icon-s-status-battery7", "icon-s-status-battery8" ], animate: false },
-                { tag: "Battery is not charging, power save mode enabled", batteryIsCharging: false, systemPowerSaveMode: true, icons: [ "icon-s-status-powersave-verylow", "icon-s-status-powersave1", "icon-s-status-powersave2", "icon-s-status-powersave3", "icon-s-status-powersave4", "icon-s-status-powersave5", "icon-s-status-powersave6", "icon-s-status-powersave7", "icon-s-status-powersave8" ], animate: false },
-                { tag: "Battery is charging, power save mode disabled", batteryIsCharging: true, systemPowerSaveMode: false, icons: [ "icon-s-status-battery-low", "icon-s-status-battery1", "icon-s-status-battery2", "icon-s-status-battery3", "icon-s-status-battery4", "icon-s-status-battery5", "icon-s-status-battery6", "icon-s-status-battery7", "icon-s-status-battery8" ], animate: true },
-                { tag: "Battery is charging, power save mode enabled", batteryIsCharging: true, systemPowerSaveMode: true, icons: [ "icon-s-status-powersave-low", "icon-s-status-powersave1", "icon-s-status-powersave2", "icon-s-status-powersave3", "icon-s-status-powersave4", "icon-s-status-powersave5", "icon-s-status-powersave6", "icon-s-status-powersave7", "icon-s-status-powersave8" ], animate: true },
+                { tag: "Battery is not empty, battery is not charging, power save mode disabled", batteryChargePercentage: 5, batteryIsCharging: false, systemPowerSaveMode: false, icon: "images/icon-status-battery.png" },
+                { tag: "Battery is not empty, battery is not charging, power save mode enabled", batteryChargePercentage: 5, batteryIsCharging: false, systemPowerSaveMode: true, icon: "images/icon-status-battery-powersave.png" },
+                { tag: "Battery is not empty, battery is charging, power save mode disabled", batteryChargePercentage: 5, batteryIsCharging: true, systemPowerSaveMode: false, icon: "images/icon-status-charge.png" },
+                { tag: "Battery is not empty, battery is charging, power save mode enabled", batteryChargePercentage: 5, batteryIsCharging: true, systemPowerSaveMode: true, icon: "images/icon-status-charge.png" },
+                { tag: "Battery is almost empty, battery is not charging, power save mode disabled", batteryChargePercentage: 4, batteryIsCharging: false, systemPowerSaveMode: false, icon: "images/icon-status-battery-empty.png" },
+                { tag: "Battery is almost empty, battery is not charging, power save mode enabled", batteryChargePercentage: 4, batteryIsCharging: false, systemPowerSaveMode: true, icon: "images/icon-status-battery-empty.png" },
+                { tag: "Battery is almost empty, battery is charging, power save mode disabled", batteryChargePercentage: 4, batteryIsCharging: true, systemPowerSaveMode: false, icon: "images/icon-status-charge.png" },
+                { tag: "Battery is almost empty, battery is charging, power save mode enabled", batteryChargePercentage: 4, batteryIsCharging: true, systemPowerSaveMode: true, icon: "images/icon-status-charge.png" },
             ]
         }
 
         function test_setMode(data)
         {
-            ContextPropertyStub.setBatteryChargePercentage(0)
-            ContextPropertyStub.setBatteryIsCharging(data.batteryIsCharging)
-            ContextPropertyStub.setSystemPowerSaveMode(data.systemPowerSaveMode)
-            batteryStatusIndicator.setMode()
-            compare(batteryStatusIndicator.icons, data.icons)
-            compare(batteryStatusIndicator.animate, data.animate)
-            compare(batteryStatusIndicator.source, Qt.resolvedUrl("images/" + data.icons[0] + ".png"))
-        }
-
-        function test_setFirstIconIndex_data()
-        {
-            return [
-                { tag: "Battery not charging, remaining equal to maximum", batteryChargePercentage: 100, batteryIsCharging: false, icons: [ "empty", "value1", "value2", "value3" ], icon: "value3" },
-                { tag: "Battery not charging, remaining less than maximum", batteryChargePercentage: 50, batteryIsCharging: false, icons: [ "empty", "value1", "value2", "value3" ], icon: "value2" },
-                { tag: "Battery not charging, remaining 0", batteryChargePercentage: 0, batteryIsCharging: false, icons: [ "empty", "value1", "value2", "value3" ], icon: "empty" },
-                { tag: "Battery charging, remaining equal to maximum", batteryChargePercentage: 100, batteryIsCharging: true, icons: [ "value0", "value1", "value2", "value3" ], icon: "value2" },
-                { tag: "Battery charging, remaining less than maximum", batteryChargePercentage: 50, batteryIsCharging: true, icons: [ "value0", "value1", "value2", "value3" ], icon: "value2" },
-                { tag: "Battery charging, remaining 0", batteryChargePercentage: 0, batteryIsCharging: true, icons: [ "value0", "value1", "value2", "value3" ], icon: "value0" },
-            ]
-        }
-
-        function test_setFirstIconIndex(data)
-        {
             ContextPropertyStub.setBatteryChargePercentage(data.batteryChargePercentage)
             ContextPropertyStub.setBatteryIsCharging(data.batteryIsCharging)
-            batteryStatusIndicator.icons = data.icons
-            batteryStatusIndicator.setFirstIconIndex()
-            batteryStatusIndicator.currentIconIndex = batteryStatusIndicator.firstIconIndex
-            compare(batteryStatusIndicator.source, Qt.resolvedUrl("images/" + data.icon + ".png"))
+            ContextPropertyStub.setSystemPowerSaveMode(data.systemPowerSaveMode)
+            batteryStatusIndicator.setIcon()
+            compare(batteryStatusIndicator.icon, Qt.resolvedUrl(data.icon))
+            compare(batteryStatusIndicator.text, "" + data.batteryChargePercentage)
         }
     }
 }
