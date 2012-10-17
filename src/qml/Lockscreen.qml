@@ -3,8 +3,9 @@ import org.nemomobile.lipstick 0.1
 import com.jolla.components 1.0
 
 Item {
+    id: lockScreen
     property alias clockRunning: clock.running
-    property alias indicatorAreaHeight: clock.height
+    property int indicatorAreaHeight: clock.height + batteryStatusIndicator.height + batteryStatusIndicator.anchors.topMargin
 
     Connections {
         target: LipstickSettings
@@ -31,7 +32,7 @@ Item {
 
     Clock {
         id: clock
-        y: LipstickSettings.lockscreenVisible ? (parent.height / 2 - height / 2) : parent.height - height
+        y: LipstickSettings.lockscreenVisible ? (parent.height / 2 - height / 2) : parent.height - lockScreen.indicatorAreaHeight
 
         /* Hide the clock when the notification text area is visible */
         opacity: notificationArea.contentX <= 0 ? 1 : 0
@@ -59,10 +60,11 @@ Item {
     }
 
     BatteryStatusIndicator {
-        anchors.top: clock.top
-        anchors.right: clock.left
-        anchors.rightMargin: 20
-        anchors.topMargin: 30
+        id: batteryStatusIndicator
+        anchors.top: clock.bottom
+        anchors.left: parent.left
+        anchors.leftMargin: 23
+        anchors.topMargin: 60
     }
 
     Flickable {
