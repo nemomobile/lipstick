@@ -23,6 +23,7 @@ BuildRequires:  pkgconfig(QtOpenGL)
 BuildRequires:  pkgconfig(lipstick)
 Requires:   jollacomponents
 Requires:   nemo-qml-plugin-contextkit
+Requires:   nemo-qml-plugins-configuration
 Conflicts:  meegotouch-home
 Conflicts:  lipstick-example-home
 

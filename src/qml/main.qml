@@ -27,6 +27,7 @@
 import QtQuick 1.1
 import QtMobility.sensors 1.2
 import org.nemomobile.lipstick 0.1
+import org.nemomobile.configuration 1.0
 
 Item {
     id: main
@@ -52,9 +53,14 @@ Item {
             angle: desktop.isPortrait ? -90 : 0
         }
 
+        ConfigurationValue {
+            id: wallpaperSource
+            key: "/desktop/meego/background/portrait/picture_filename"
+        }
+
         Image {
             id: background
-            source: 'images/graphics-wallpaper-home.jpg'
+            source: "file://" + wallpaperSource.value
             x: 0
             y: -dashboard.contentY / 4
             width: parent.width
