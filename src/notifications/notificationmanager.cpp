@@ -81,6 +81,9 @@ NotificationManager::NotificationManager(QObject *parent) :
     committed(true)
 {
     qDBusRegisterMetaType<QVariantHash>();
+    qDBusRegisterMetaType<Notification>();
+    qDBusRegisterMetaType<QList<Notification> >();
+
     new NotificationManagerAdaptor(this);
     QDBusConnection::sessionBus().registerService("org.freedesktop.Notifications");
     QDBusConnection::sessionBus().registerObject("/org/freedesktop/Notifications", this);
@@ -114,7 +117,7 @@ QList<uint> NotificationManager::notificationIds() const
 
 QStringList NotificationManager::GetCapabilities()
 {
-    return QStringList() << "body";
+    return QStringList() << "body" << "x-nemo-get-notifications";
 }
 
 uint NotificationManager::Notify(const QString &appName, uint replacesId, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &originalHints, int expireTimeout)
@@ -131,7 +134,7 @@ uint NotificationManager::Notify(const QString &appName, uint replacesId, const 
 
         if (replacesId == 0) {
             // Create a new notification
-            Notification *notification = new Notification(appName, appIcon, summary, body, actions, hints, expireTimeout, this);
+            Notification *notification = new Notification(appName, id, appIcon, summary, body, actions, hints, expireTimeout, this);
             connect(notification, SIGNAL(actionInvoked(QString)), this, SLOT(invokeAction(QString)));
             notifications.insert(id, notification);
         } else {
@@ -193,6 +196,18 @@ QString NotificationManager::GetServerInformation(QString &name, QString &vendor
     vendor = "Nemo Mobile";
     version = qApp->applicationVersion();
     return QString();
+}
+
+QList<Notification> NotificationManager::GetNotifications(const QString &appName)
+{
+    QList<Notification> notificationList;
+    foreach (uint id, notifications.keys()) {
+        Notification *notification = notifications.value(id);
+        if (notification->appName() == appName) {
+            notificationList.append(*notification);
+        }
+    }
+    return notificationList;
 }
 
 uint NotificationManager::nextAvailableNotificationID()
@@ -412,7 +427,7 @@ void NotificationManager::fetchData()
         QString summary = notificationsQuery.value(notificationsTableSummaryFieldIndex).toString();
         QString body = notificationsQuery.value(notificationsTableBodyFieldIndex).toString();
         int expireTimeout = notificationsQuery.value(notificationsTableExpireTimeoutFieldIndex).toInt();
-        Notification *notification = new Notification(appName, appIcon, summary, body, actions[id], hints[id], expireTimeout, this);
+        Notification *notification = new Notification(appName, id, appIcon, summary, body, actions[id], hints[id], expireTimeout, this);
         connect(notification, SIGNAL(actionInvoked(QString)), this, SLOT(invokeAction(QString)));
         notifications.insert(id, notification);
 

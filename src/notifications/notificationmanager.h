@@ -162,6 +162,14 @@ public:
      */
     QString GetServerInformation(QString &name, QString &vendor, QString &version);
 
+    /*!
+     * Returns the notifications sent by a specified application.
+     *
+     * \param appName the name of the application to get notifications for
+     * \return a list of notifications for the application
+     */
+    QList<Notification> GetNotifications(const QString &appName);
+
 signals:
     /*!
      * A completed notification is one that has timed out, or has been dismissed by the user.

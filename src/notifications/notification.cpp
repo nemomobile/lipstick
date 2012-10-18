@@ -13,18 +13,39 @@
 **
 ****************************************************************************/
 
+#include <QDBusArgument>
 #include "notificationmanager.h"
 #include "notification.h"
 
-Notification::Notification(const QString &appName, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expireTimeout, QObject *parent) :
+Notification::Notification(const QString &appName, uint replacesId, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expireTimeout, QObject *parent) :
     QObject(parent),
     appName_(appName),
+    replacesId_(replacesId),
     appIcon_(appIcon),
     summary_(summary),
     body_(body),
     actions_(actions),
     hints_(hints),
     expireTimeout_(expireTimeout)
+{
+}
+
+Notification::Notification() :
+    replacesId_(0),
+    expireTimeout_(-1)
+{
+}
+
+Notification::Notification(const Notification &notification) :
+    QObject(notification.parent()),
+    appName_(notification.appName_),
+    replacesId_(notification.replacesId_),
+    appIcon_(notification.appIcon_),
+    summary_(notification.summary_),
+    body_(notification.body_),
+    actions_(notification.actions_),
+    hints_(notification.hints_),
+    expireTimeout_(notification.expireTimeout_)
 {
 }
 
@@ -36,6 +57,11 @@ QString Notification::appName() const
 void Notification::setAppName(const QString &appName)
 {
     appName_ = appName;
+}
+
+uint Notification::replacesId() const
+{
+    return replacesId_;
 }
 
 QString Notification::appIcon() const
@@ -128,4 +154,34 @@ QDateTime Notification::timestamp() const
 QString Notification::localizedTimestamp() const
 {
     return timestamp().toString("hh:mm:ss");
+}
+
+QDBusArgument &operator<<(QDBusArgument &argument, const Notification &notification)
+{
+    argument.beginStructure();
+    argument << notification.appName_;
+    argument << notification.replacesId_;
+    argument << notification.appIcon_;
+    argument << notification.summary_;
+    argument << notification.body_;
+    argument << notification.actions_;
+    argument << notification.hints_;
+    argument << notification.expireTimeout_;
+    argument.endStructure();
+    return argument;
+}
+
+const QDBusArgument &operator>>(const QDBusArgument &argument, Notification &notification)
+{
+    argument.beginStructure();
+    argument >> notification.appName_;
+    argument >> notification.replacesId_;
+    argument >> notification.appIcon_;
+    argument >> notification.summary_;
+    argument >> notification.body_;
+    argument >> notification.actions_;
+    argument >> notification.hints_;
+    argument >> notification.expireTimeout_;
+    argument.endStructure();
+    return argument;
 }

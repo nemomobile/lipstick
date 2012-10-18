@@ -318,9 +318,9 @@ void Ut_NotificationManager::testDatabaseConnectionSucceedsAndTablesAreNotOk()
     QCOMPARE(qSqlQueryExecQuery.at(4), QString("CREATE TABLE actions (id INTEGER, action TEXT, PRIMARY KEY(id, action))"));
     QCOMPARE(qSqlQueryExecQuery.at(5), QString("DROP TABLE hints"));
     QCOMPARE(qSqlQueryExecQuery.at(6), QString("CREATE TABLE hints (id INTEGER, hint TEXT, value TEXT, PRIMARY KEY(id, hint))"));
-    QCOMPARE(modelToTableName.values().contains("notifications"), QBool(true));
-    QCOMPARE(modelToTableName.values().contains("actions"), QBool(true));
-    QCOMPARE(modelToTableName.values().contains("hints"), QBool(true));
+    QCOMPARE((bool)modelToTableName.values().contains("notifications"), true);
+    QCOMPARE((bool)modelToTableName.values().contains("actions"), true);
+    QCOMPARE((bool)modelToTableName.values().contains("hints"), true);
     notificationsTableFieldIndices.clear();
     actionsTableFieldIndices.clear();
     hintsTableFieldIndices.clear();
@@ -443,10 +443,10 @@ void Ut_NotificationManager::testDatabaseCommitIsDoneOnDestruction()
 
 void Ut_NotificationManager::testCapabilities()
 {
-    // Check that "body" is the only supported capability
     QStringList capabilities = NotificationManager::instance()->GetCapabilities();
-    QCOMPARE(capabilities.count(), 1);
-    QCOMPARE(capabilities.contains("body"), QBool(true));
+    QCOMPARE(capabilities.count(), 2);
+    QCOMPARE((bool)capabilities.contains("body"), true);
+    QCOMPARE((bool)capabilities.contains("x-nemo-get-notifications"), true);
 }
 
 void Ut_NotificationManager::testAddingNotification()
@@ -690,6 +690,53 @@ void Ut_NotificationManager::testInvokingActionRemovesNotificationIfUserRemovabl
     QCOMPARE(spy.count(), 2);
     QCOMPARE(spy.at(0).at(0).toUInt(), id1);
     QCOMPARE(spy.at(1).at(0).toUInt(), id2);
+}
+
+void Ut_NotificationManager::testListingNotifications()
+{
+    NotificationManager *manager = NotificationManager::instance();
+
+    // Add three notifications, two for application appName1 and one for appName2
+    QVariantHash hints1;
+    QVariantHash hints2;
+    QVariantHash hints3;
+    hints1.insert(NotificationManager::HINT_CATEGORY, "category1");
+    hints2.insert(NotificationManager::HINT_CATEGORY, "category2");
+    hints3.insert(NotificationManager::HINT_CATEGORY, "category3");
+    uint id1 = manager->Notify("appName1", 0, "appIcon1", "summary1", "body1", QStringList() << "action1", hints1, 1);
+    uint id2 = manager->Notify("appName1", 0, "appIcon2", "summary2", "body2", QStringList() << "action2", hints2, 2);
+    uint id3 = manager->Notify("appName2", 0, "appIcon3", "summary3", "body3", QStringList() << "action3", hints3, 3);
+
+    // Check that only notifications for the given application are returned and that they contain all the information
+    QList<Notification> notifications = manager->GetNotifications("appName1");
+    QCOMPARE(notifications.count(), 2);
+    QCOMPARE(notifications.at(0).appName(), QString("appName1"));
+    QCOMPARE(notifications.at(1).appName(), QString("appName1"));
+    QCOMPARE(notifications.at(0).replacesId(), id1);
+    QCOMPARE(notifications.at(1).replacesId(), id2);
+    QCOMPARE(notifications.at(0).appIcon(), QString("appIcon1"));
+    QCOMPARE(notifications.at(1).appIcon(), QString("appIcon2"));
+    QCOMPARE(notifications.at(0).summary(), QString("summary1"));
+    QCOMPARE(notifications.at(1).summary(), QString("summary2"));
+    QCOMPARE(notifications.at(0).body(), QString("body1"));
+    QCOMPARE(notifications.at(1).body(), QString("body2"));
+    QCOMPARE(notifications.at(0).actions(), QStringList() << "action1");
+    QCOMPARE(notifications.at(1).actions(), QStringList() << "action2");
+    QCOMPARE(notifications.at(0).hints().value(NotificationManager::HINT_CATEGORY), QVariant("category1"));
+    QCOMPARE(notifications.at(1).hints().value(NotificationManager::HINT_CATEGORY), QVariant("category2"));
+    QCOMPARE(notifications.at(0).expireTimeout(), 1);
+    QCOMPARE(notifications.at(1).expireTimeout(), 2);
+
+    notifications = manager->GetNotifications("appName2");
+    QCOMPARE(notifications.count(), 1);
+    QCOMPARE(notifications.at(0).appName(), QString("appName2"));
+    QCOMPARE(notifications.at(0).replacesId(), id3);
+    QCOMPARE(notifications.at(0).appIcon(), QString("appIcon3"));
+    QCOMPARE(notifications.at(0).summary(), QString("summary3"));
+    QCOMPARE(notifications.at(0).body(), QString("body3"));
+    QCOMPARE(notifications.at(0).actions(), QStringList() << "action3");
+    QCOMPARE(notifications.at(0).hints().value(NotificationManager::HINT_CATEGORY), QVariant("category3"));
+    QCOMPARE(notifications.at(0).expireTimeout(), 3);
 }
 
 QTEST_MAIN(Ut_NotificationManager)

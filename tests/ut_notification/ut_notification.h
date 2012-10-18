@@ -24,6 +24,7 @@ class Ut_Notification : public QObject
 private slots:
     void testGettersAndSetters();
     void testSignals();
+    void testSerialization();
 };
 
 #endif

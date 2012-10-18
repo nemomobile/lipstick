@@ -42,6 +42,7 @@ private slots:
     void testUninstallingCategoryDefinitionRemovesNotifications();
     void testActionIsInvokedIfActionIsDefined();
     void testInvokingActionRemovesNotificationIfUserRemovable();
+    void testListingNotifications();
 
 signals:
     void actionInvoked(QString action);
