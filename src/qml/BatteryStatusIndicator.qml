@@ -63,9 +63,9 @@ Item {
             batteryStatusIndicatorImage.source = "images/icon-status-charge.png"
         } else {
             if (batteryChargePercentageContextProperty.value < 5) {
-                batteryStatusIndicatorImage.source = "images/icon-status-battery-empty.png"
+                batteryStatusIndicatorImage.source = "images/icon-status-battery-warning.png"
             } else {
-                batteryStatusIndicatorImage.source = systemPowerSaveModeContextProperty.value ? "images/icon-status-battery-powersave.png" : "images/icon-status-battery.png"
+                batteryStatusIndicatorImage.source = systemPowerSaveModeContextProperty.value ? "images/icon-status-powersave.png" : "images/icon-status-battery.png"
             }
         }
     }

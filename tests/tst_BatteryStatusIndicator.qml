@@ -24,11 +24,11 @@ Item {
         {
             return [
                 { tag: "Battery is not empty, battery is not charging, power save mode disabled", batteryChargePercentage: 5, batteryIsCharging: false, systemPowerSaveMode: false, icon: "images/icon-status-battery.png" },
-                { tag: "Battery is not empty, battery is not charging, power save mode enabled", batteryChargePercentage: 5, batteryIsCharging: false, systemPowerSaveMode: true, icon: "images/icon-status-battery-powersave.png" },
+                { tag: "Battery is not empty, battery is not charging, power save mode enabled", batteryChargePercentage: 5, batteryIsCharging: false, systemPowerSaveMode: true, icon: "images/icon-status-powersave.png" },
                 { tag: "Battery is not empty, battery is charging, power save mode disabled", batteryChargePercentage: 5, batteryIsCharging: true, systemPowerSaveMode: false, icon: "images/icon-status-charge.png" },
                 { tag: "Battery is not empty, battery is charging, power save mode enabled", batteryChargePercentage: 5, batteryIsCharging: true, systemPowerSaveMode: true, icon: "images/icon-status-charge.png" },
-                { tag: "Battery is almost empty, battery is not charging, power save mode disabled", batteryChargePercentage: 4, batteryIsCharging: false, systemPowerSaveMode: false, icon: "images/icon-status-battery-empty.png" },
-                { tag: "Battery is almost empty, battery is not charging, power save mode enabled", batteryChargePercentage: 4, batteryIsCharging: false, systemPowerSaveMode: true, icon: "images/icon-status-battery-empty.png" },
+                { tag: "Battery is almost empty, battery is not charging, power save mode disabled", batteryChargePercentage: 4, batteryIsCharging: false, systemPowerSaveMode: false, icon: "images/icon-status-battery-warning.png" },
+                { tag: "Battery is almost empty, battery is not charging, power save mode enabled", batteryChargePercentage: 4, batteryIsCharging: false, systemPowerSaveMode: true, icon: "images/icon-status-battery-warning.png" },
                 { tag: "Battery is almost empty, battery is charging, power save mode disabled", batteryChargePercentage: 4, batteryIsCharging: true, systemPowerSaveMode: false, icon: "images/icon-status-charge.png" },
                 { tag: "Battery is almost empty, battery is charging, power save mode enabled", batteryChargePercentage: 4, batteryIsCharging: true, systemPowerSaveMode: true, icon: "images/icon-status-charge.png" },
             ]
