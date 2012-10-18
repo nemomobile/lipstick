@@ -143,3 +143,16 @@ void QObjectListModel::reset()
     QAbstractListModel::reset();
     emit itemCountChanged();
 }
+
+void QObjectListModel::move(int oldRow, int newRow)
+{
+    if (oldRow < 0 || oldRow >= _list->count())
+        return;
+
+    if (newRow < 0 || newRow >= _list->count())
+        return;
+
+    beginMoveRows(QModelIndex(), oldRow, oldRow, QModelIndex(), (newRow > oldRow) ? (newRow + 1) : newRow);
+    _list->move(oldRow, newRow);
+    endMoveRows();
+}
