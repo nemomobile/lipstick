@@ -24,6 +24,7 @@ BuildRequires:  pkgconfig(lipstick)
 Requires:   jollacomponents
 Requires:   nemo-qml-plugin-contextkit
 Requires:   nemo-qml-plugins-configuration
+Requires:   jolla-theme
 Conflicts:  meegotouch-home
 Conflicts:  lipstick-example-home
 
