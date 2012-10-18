@@ -9,7 +9,6 @@
         <file>qml/BatteryStatusIndicator.qml</file>
 	<file>qml/fonts/HelveticaNeueLight.ttf</file>
 	<file>qml/fonts/HelveticaNeueUltraLight.ttf</file>
-        <file>qml/images/graphics-wallpaper-home.jpg</file>
         <file>qml/images/home-gradient-ramp.png</file>
         <file>qml/images/icon-close-app.png</file>
         <file>qml/images/graphic-housekeeping-mode.png</file>
