@@ -172,10 +172,10 @@ uint NotificationManager::Notify(const QString &appName, uint replacesId, const 
     return id;
 }
 
-void NotificationManager::CloseNotification(uint id)
+void NotificationManager::CloseNotification(uint id, NotificationClosedReason closeReason)
 {
     if (notifications.contains(id)) {
-        emit NotificationClosed(id, CloseNotificationCalled);
+        emit NotificationClosed(id, closeReason);
 
         // Remove the notification, its actions and its hints from database
         execSQL(QString("DELETE FROM notifications WHERE id=?"), QVariantList() << id);
@@ -488,7 +488,7 @@ void NotificationManager::invokeAction(const QString &action)
             QVariant userRemovable = notification->hints().value(HINT_USER_REMOVABLE);
             if (!userRemovable.isValid() || userRemovable.toBool()) {
                 // The notification should be closed if user removability is not defined (defaults to true) or is set to true
-                CloseNotification(id);
+                CloseNotification(id, NotificationDismissedByUser);
             }
         }
     }

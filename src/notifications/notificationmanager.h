@@ -146,7 +146,7 @@ public:
      *
      * \param id the ID of the notification to be closed
      */
-    void CloseNotification(uint id);
+    void CloseNotification(uint id, NotificationClosedReason closeReason = CloseNotificationCalled);
 
     /*!
      * This message returns the information on the server. Specifically, the server name, vendor,

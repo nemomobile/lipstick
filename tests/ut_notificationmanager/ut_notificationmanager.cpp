@@ -685,11 +685,17 @@ void Ut_NotificationManager::testInvokingActionRemovesNotificationIfUserRemovabl
     connect(this, SIGNAL(actionInvoked(QString)), notification3, SIGNAL(actionInvoked(QString)));
 
     // Make all notifications emit the actionInvoked() signal for action "action"; removable notifications should get removed
-    QSignalSpy spy(manager, SIGNAL(notificationRemoved(uint)));
+    QSignalSpy removedSpy(manager, SIGNAL(notificationRemoved(uint)));
+    QSignalSpy closedSpy(manager, SIGNAL(NotificationClosed(uint,uint)));
     emit actionInvoked("action");
-    QCOMPARE(spy.count(), 2);
-    QCOMPARE(spy.at(0).at(0).toUInt(), id1);
-    QCOMPARE(spy.at(1).at(0).toUInt(), id2);
+    QCOMPARE(removedSpy.count(), 2);
+    QCOMPARE(removedSpy.at(0).at(0).toUInt(), id1);
+    QCOMPARE(removedSpy.at(1).at(0).toUInt(), id2);
+    QCOMPARE(closedSpy.count(), 2);
+    QCOMPARE(closedSpy.at(0).at(0).toUInt(), id1);
+    QCOMPARE(closedSpy.at(0).at(1).toInt(), (int)NotificationManager::NotificationDismissedByUser);
+    QCOMPARE(closedSpy.at(1).at(0).toUInt(), id2);
+    QCOMPARE(closedSpy.at(1).at(1).toInt(), (int)NotificationManager::NotificationDismissedByUser);
 }
 
 void Ut_NotificationManager::testListingNotifications()
