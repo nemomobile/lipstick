@@ -59,8 +59,6 @@ const char *NotificationManager::HINT_PREVIEW_ICON = "x-nemo-preview-icon";
 const char *NotificationManager::HINT_PREVIEW_BODY = "x-nemo-preview-body";
 const char *NotificationManager::HINT_PREVIEW_SUMMARY = "x-nemo-preview-summary";
 const char *NotificationManager::HINT_USER_REMOVABLE = "x-nemo-user-removable";
-const char *NotificationManager::HINT_GENERIC_TEXT_TRANSLATION_ID = "x-nemo-generic-text-translation-id";
-const char *NotificationManager::HINT_GENERIC_TEXT_TRANSLATION_CATALOGUE = "x-nemo-generic-text-translation-catalogue";
 
 NotificationManager *NotificationManager::instance_ = 0;
 
