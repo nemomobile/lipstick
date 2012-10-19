@@ -51,18 +51,6 @@ void Ut_NotificationListModel::testNotificationIsOnlyAddedIfNotAlreadyAdded()
     QCOMPARE(gQObjectListModelStub->stubCallCount("addItem"), 0);
 }
 
-void Ut_NotificationListModel::testNotificationIsNotAddedIfClassIsSystem()
-{
-    QVariantHash hints;
-    hints.insert(NotificationManager::HINT_CLASS, "system");
-    Notification notification("appName", 1, "appIcon", "summary", "body", QStringList() << "action", hints, 1);
-    gNotificationManagerStub->stubSetReturnValue("notificationIds", QList<uint>() << 1);
-    gNotificationManagerStub->stubSetReturnValue("notification", &notification);
-    gQObjectListModelStub->stubSetReturnValue("indexOf", -1);
-    NotificationListModel model;
-    QCOMPARE(gQObjectListModelStub->stubCallCount("addItem"), 0);
-}
-
 void Ut_NotificationListModel::testNotificationIsNotAddedIfSummaryIsEmpty()
 {
     Notification notification("appName", 1, "appIcon", "", "body", QStringList() << "action", QVariantHash(), 1);
@@ -81,19 +69,6 @@ void Ut_NotificationListModel::testNotificationIsNotAddedIfBodyIsEmpty()
     gQObjectListModelStub->stubSetReturnValue("indexOf", -1);
     NotificationListModel model;
     QCOMPARE(gQObjectListModelStub->stubCallCount("addItem"), 0);
-}
-
-void Ut_NotificationListModel::testAlreadyAddedNotificationIsRemovedIfClassChangesToSystem()
-{
-    QVariantHash hints;
-    hints.insert(NotificationManager::HINT_CLASS, "system");
-    Notification notification("appName", 1, "appIcon", "summary", "body", QStringList() << "action", hints, 1);
-    gNotificationManagerStub->stubSetReturnValue("notificationIds", QList<uint>() << 1);
-    gNotificationManagerStub->stubSetReturnValue("notification", &notification);
-    gQObjectListModelStub->stubSetReturnValue("indexOf", 0);
-    NotificationListModel model;
-    QCOMPARE(gQObjectListModelStub->stubCallCount("removeItem"), 1);
-    QCOMPARE(gQObjectListModelStub->stubCallsTo("removeItem").at(0)->parameter<QObject *>(0), &notification);
 }
 
 void Ut_NotificationListModel::testAlreadyAddedNotificationIsRemovedIfSummaryChangesToEmpty()

@@ -56,9 +56,6 @@ public:
     //! Standard hint: Specifies the Y location on the screen that the notification should point to. The "x" hint must also be specified.
     static const char *HINT_Y;
 
-    //! Nemo hint: Class of the notification (application/system).
-    static const char *HINT_CLASS;
-
     //! Nemo hint: Icon of the notification.
     static const char *HINT_ICON;
 

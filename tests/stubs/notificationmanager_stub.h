@@ -129,7 +129,6 @@ NotificationManagerStub* gNotificationManagerStub = &gDefaultNotificationManager
 
 
 // 4. CREATE A PROXY WHICH CALLS THE STUB
-const char *NotificationManager::HINT_CLASS = "x-nemo-class";
 const char *NotificationManager::HINT_ICON = "x-nemo-icon";
 const char *NotificationManager::HINT_TIMESTAMP = "x-nemo-timestamp";
 

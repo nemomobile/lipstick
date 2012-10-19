@@ -52,7 +52,6 @@ const char *NotificationManager::HINT_SOUND_FILE = "sound-file";
 const char *NotificationManager::HINT_SUPPRESS_SOUND = "suppress-sound";
 const char *NotificationManager::HINT_X = "x";
 const char *NotificationManager::HINT_Y = "y";
-const char *NotificationManager::HINT_CLASS = "x-nemo-class";
 const char *NotificationManager::HINT_ICON = "x-nemo-icon";
 const char *NotificationManager::HINT_ITEM_COUNT = "x-nemo-item-count";
 const char *NotificationManager::HINT_TIMESTAMP = "x-nemo-timestamp";
