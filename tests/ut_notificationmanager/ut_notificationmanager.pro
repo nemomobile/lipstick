@@ -1,7 +1,9 @@
 include(../common.pri)
 TARGET = ut_notificationmanager
 INCLUDEPATH += $$NOTIFICATIONSRCDIR
+CONFIG += link_pkgconfig
 QT += sql dbus
+PKGCONFIG += mlite
 
 # unit test and unit
 SOURCES += \

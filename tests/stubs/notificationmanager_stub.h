@@ -29,7 +29,7 @@ class NotificationManagerStub : public StubBase {
   virtual QList<uint> notificationIds() const;
   virtual QStringList GetCapabilities();
   virtual uint Notify(const QString &appName, uint replacesId, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expireTimeout);
-  virtual void CloseNotification(uint id);
+  virtual void CloseNotification(uint id, NotificationManager::NotificationClosedReason closeReason);
   virtual QString GetServerInformation(QString &name, QString &vendor, QString &version);
   virtual void removeNotificationsWithCategory(const QString &category);
   virtual void updateNotificationsWithCategory(const QString &category);
@@ -76,9 +76,10 @@ uint NotificationManagerStub::Notify(const QString &appName, uint replacesId, co
   return stubReturnValue<uint>("Notify");
 }
 
-void NotificationManagerStub::CloseNotification(uint id) {
+void NotificationManagerStub::CloseNotification(uint id, NotificationManager::NotificationClosedReason closeReason) {
   QList<ParameterBase*> params;
   params.append( new Parameter<uint >(id));
+  params.append( new Parameter<NotificationManager::NotificationClosedReason >(closeReason));
   stubMethodEntered("CloseNotification",params);
 }
 
@@ -129,7 +130,6 @@ NotificationManagerStub* gNotificationManagerStub = &gDefaultNotificationManager
 
 
 // 4. CREATE A PROXY WHICH CALLS THE STUB
-const char *NotificationManager::HINT_CLASS = "x-nemo-class";
 const char *NotificationManager::HINT_ICON = "x-nemo-icon";
 const char *NotificationManager::HINT_TIMESTAMP = "x-nemo-timestamp";
 
@@ -157,8 +157,8 @@ uint NotificationManager::Notify(const QString &appName, uint replacesId, const 
   return gNotificationManagerStub->Notify(appName, replacesId, appIcon, summary, body, actions, hints, expireTimeout);
 }
 
-void NotificationManager::CloseNotification(uint id) {
-  gNotificationManagerStub->CloseNotification(id);
+void NotificationManager::CloseNotification(uint id, NotificationClosedReason closeReason) {
+  gNotificationManagerStub->CloseNotification(id, closeReason);
 }
 
 QString NotificationManager::GetServerInformation(QString &name, QString &vendor, QString &version) {

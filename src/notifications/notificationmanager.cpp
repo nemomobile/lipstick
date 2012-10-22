@@ -20,6 +20,7 @@
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include <QSqlTableModel>
+#include <mremoteaction.h>
 #include <sys/statfs.h>
 #include "categorydefinitionstore.h"
 #include "notificationmanageradaptor.h"
@@ -52,16 +53,14 @@ const char *NotificationManager::HINT_SOUND_FILE = "sound-file";
 const char *NotificationManager::HINT_SUPPRESS_SOUND = "suppress-sound";
 const char *NotificationManager::HINT_X = "x";
 const char *NotificationManager::HINT_Y = "y";
-const char *NotificationManager::HINT_CLASS = "x-nemo-class";
 const char *NotificationManager::HINT_ICON = "x-nemo-icon";
 const char *NotificationManager::HINT_ITEM_COUNT = "x-nemo-item-count";
 const char *NotificationManager::HINT_TIMESTAMP = "x-nemo-timestamp";
 const char *NotificationManager::HINT_PREVIEW_ICON = "x-nemo-preview-icon";
 const char *NotificationManager::HINT_PREVIEW_BODY = "x-nemo-preview-body";
 const char *NotificationManager::HINT_PREVIEW_SUMMARY = "x-nemo-preview-summary";
+const char *NotificationManager::HINT_REMOTE_ACTION_PREFIX = "x-nemo-remote-action-";
 const char *NotificationManager::HINT_USER_REMOVABLE = "x-nemo-user-removable";
-const char *NotificationManager::HINT_GENERIC_TEXT_TRANSLATION_ID = "x-nemo-generic-text-translation-id";
-const char *NotificationManager::HINT_GENERIC_TEXT_TRANSLATION_CATALOGUE = "x-nemo-generic-text-translation-catalogue";
 
 NotificationManager *NotificationManager::instance_ = 0;
 
@@ -81,6 +80,9 @@ NotificationManager::NotificationManager(QObject *parent) :
     committed(true)
 {
     qDBusRegisterMetaType<QVariantHash>();
+    qDBusRegisterMetaType<Notification>();
+    qDBusRegisterMetaType<QList<Notification> >();
+
     new NotificationManagerAdaptor(this);
     QDBusConnection::sessionBus().registerService("org.freedesktop.Notifications");
     QDBusConnection::sessionBus().registerObject("/org/freedesktop/Notifications", this);
@@ -114,7 +116,7 @@ QList<uint> NotificationManager::notificationIds() const
 
 QStringList NotificationManager::GetCapabilities()
 {
-    return QStringList() << "body";
+    return QStringList() << "body" << HINT_ICON << HINT_ITEM_COUNT << HINT_TIMESTAMP << HINT_PREVIEW_ICON << HINT_PREVIEW_BODY << HINT_PREVIEW_SUMMARY << "x-nemo-remote-action" << HINT_USER_REMOVABLE << "x-nemo-get-notifications";
 }
 
 uint NotificationManager::Notify(const QString &appName, uint replacesId, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &originalHints, int expireTimeout)
@@ -131,7 +133,7 @@ uint NotificationManager::Notify(const QString &appName, uint replacesId, const 
 
         if (replacesId == 0) {
             // Create a new notification
-            Notification *notification = new Notification(appName, appIcon, summary, body, actions, hints, expireTimeout, this);
+            Notification *notification = new Notification(appName, id, appIcon, summary, body, actions, hints, expireTimeout, this);
             connect(notification, SIGNAL(actionInvoked(QString)), this, SLOT(invokeAction(QString)));
             notifications.insert(id, notification);
         } else {
@@ -170,10 +172,10 @@ uint NotificationManager::Notify(const QString &appName, uint replacesId, const 
     return id;
 }
 
-void NotificationManager::CloseNotification(uint id)
+void NotificationManager::CloseNotification(uint id, NotificationClosedReason closeReason)
 {
     if (notifications.contains(id)) {
-        emit NotificationClosed(id, CloseNotificationCalled);
+        emit NotificationClosed(id, closeReason);
 
         // Remove the notification, its actions and its hints from database
         execSQL(QString("DELETE FROM notifications WHERE id=?"), QVariantList() << id);
@@ -193,6 +195,18 @@ QString NotificationManager::GetServerInformation(QString &name, QString &vendor
     vendor = "Nemo Mobile";
     version = qApp->applicationVersion();
     return QString();
+}
+
+QList<Notification> NotificationManager::GetNotifications(const QString &appName)
+{
+    QList<Notification> notificationList;
+    foreach (uint id, notifications.keys()) {
+        Notification *notification = notifications.value(id);
+        if (notification->appName() == appName) {
+            notificationList.append(*notification);
+        }
+    }
+    return notificationList;
 }
 
 uint NotificationManager::nextAvailableNotificationID()
@@ -412,7 +426,7 @@ void NotificationManager::fetchData()
         QString summary = notificationsQuery.value(notificationsTableSummaryFieldIndex).toString();
         QString body = notificationsQuery.value(notificationsTableBodyFieldIndex).toString();
         int expireTimeout = notificationsQuery.value(notificationsTableExpireTimeoutFieldIndex).toInt();
-        Notification *notification = new Notification(appName, appIcon, summary, body, actions[id], hints[id], expireTimeout, this);
+        Notification *notification = new Notification(appName, id, appIcon, summary, body, actions[id], hints[id], expireTimeout, this);
         connect(notification, SIGNAL(actionInvoked(QString)), this, SLOT(invokeAction(QString)));
         notifications.insert(id, notification);
 
@@ -465,16 +479,28 @@ void NotificationManager::execSQL(const QString &command, const QVariantList &ar
 void NotificationManager::invokeAction(const QString &action)
 {
     Notification *notification = qobject_cast<Notification *>(sender());
-    if (notification != 0 && notification->actions().contains(action)) {
+    if (notification != 0) {
         uint id = notifications.key(notification, 0);
         if (id > 0) {
-            NOTIFICATIONS_DEBUG("INVOKE: " << action << id);
-            emit ActionInvoked(id, action);
+            QString remoteAction = notification->hints().value(QString(HINT_REMOTE_ACTION_PREFIX) + action).toString();
+            if (!remoteAction.isEmpty()) {
+                // If a remote action has been defined for the given action, trigger it
+                MRemoteAction(remoteAction).trigger();
+            }
+
+            for (int actionIndex = 0; actionIndex < notification->actions().count() / 2; actionIndex++) {
+                // Actions are sent over as a list of pairs. Each even element in the list (starting at index 0) represents the identifier for the action. Each odd element in the list is the localized string that will be displayed to the user.
+                if (notification->actions().at(actionIndex * 2) == action) {
+                    NOTIFICATIONS_DEBUG("INVOKE:" << action << id);
+
+                    emit ActionInvoked(id, action);
+                }
+            }
 
             QVariant userRemovable = notification->hints().value(HINT_USER_REMOVABLE);
             if (!userRemovable.isValid() || userRemovable.toBool()) {
                 // The notification should be closed if user removability is not defined (defaults to true) or is set to true
-                CloseNotification(id);
+                CloseNotification(id, NotificationDismissedByUser);
             }
         }
     }

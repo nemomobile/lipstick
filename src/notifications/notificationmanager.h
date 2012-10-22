@@ -25,7 +25,35 @@ class CategoryDefinitionStore;
 class QSqlDatabase;
 
 /*!
- * The notification manager allows applications to display notifications to the user.
+ * \class NotificationManager
+ *
+ * \brief The notification manager allows applications to display notifications to the user.
+ *
+ * The notification manager implements a desktop notifications service based
+ * on the <a href="http://www.galago-project.org/specs/notification/0.9/">Desktop Notifications Specification</a>.
+ * The service is registered as org.freedesktop.Notifications on the D-Bus
+ * session bus in the path /org/freedesktop/Notifications.
+ *
+ * Notes specific to the behavior of this particular implementation:
+ *   - The service implements the "body" capability which allows notifications
+ *     to contain body text.
+ *   - The "category" hint is used to load a definition for notifications in
+ *     that category from
+ *     /usr/share/nemo/notifications/categories/categoryname.conf. This allows
+ *     defining common properties for all notifications in each category.
+ *        - Each category definition file contains a list of hint=value pairs,
+ *          one per line.
+ *        - Each hint=value pair in the category definition file is added to
+ *          the hints of the notification.
+ *   - The service supports the following Nemo specific hints:
+ *       - x-nemo-icon: icon ID for the notification.
+ *       - x-nemo-item-count: the number of items represented by this notification. For example, a single notification can represent 4 missed calls.
+ *       - x-nemo-timestamp: the timestamp for the notification. Should be set to the time when the event the notification is related to has occurred, not when the notification itself was sent.
+ *       - x-nemo-preview-icon: icon ID to use in the preview banner for the notification, if any.
+ *       - x-nemo-preview-body: body text to be shown in the preview banner for the notification, if any.
+ *       - x-nemo-preview-summary: summary text to be shown in the preview banner for the notification, if any.
+ *       - x-nemo-user-removable: a boolean value for defining whether the user should be able to remove the notification by tapping on it or should it be only programmatically removable. Defaults to true.
+ *       - x-nemo-remote-action-actionname: details of the D-Bus call to be made when the action "actionname" is executed. Should be in MRemoteAction's "serviceName objectPath interface methodName" format.
  */
 class LIPSTICK_EXPORT NotificationManager : public QObject
 {
@@ -56,9 +84,6 @@ public:
     //! Standard hint: Specifies the Y location on the screen that the notification should point to. The "x" hint must also be specified.
     static const char *HINT_Y;
 
-    //! Nemo hint: Class of the notification (application/system).
-    static const char *HINT_CLASS;
-
     //! Nemo hint: Icon of the notification.
     static const char *HINT_ICON;
 
@@ -77,14 +102,11 @@ public:
     //! Nemo hint: Summary text of the preview of the notification.
     static const char *HINT_PREVIEW_SUMMARY;
 
+    //! Nemo hint: Remote action of the notification. Prefix only: the action identifier is to be appended.
+    static const char *HINT_REMOTE_ACTION_PREFIX;
+
     //! Nemo hint: User removability of the notification.
     static const char *HINT_USER_REMOVABLE;
-
-    //! Nemo hint: Translation ID for the generic text of the notification.
-    static const char *HINT_GENERIC_TEXT_TRANSLATION_ID;
-
-    //! Nemo hint: Translation catalogue name for the generic text of the notification.
-    static const char *HINT_GENERIC_TEXT_TRANSLATION_CATALOGUE;
 
     //! Notifation closing reasons used in the NotificationClosed signal
     enum NotificationClosedReason {
@@ -149,7 +171,7 @@ public:
      *
      * \param id the ID of the notification to be closed
      */
-    void CloseNotification(uint id);
+    void CloseNotification(uint id, NotificationClosedReason closeReason = CloseNotificationCalled);
 
     /*!
      * This message returns the information on the server. Specifically, the server name, vendor,
@@ -161,6 +183,14 @@ public:
      * \return an empty string
      */
     QString GetServerInformation(QString &name, QString &vendor, QString &version);
+
+    /*!
+     * Returns the notifications sent by a specified application.
+     *
+     * \param appName the name of the application to get notifications for
+     * \return a list of notifications for the application
+     */
+    QList<Notification> GetNotifications(const QString &appName);
 
 signals:
     /*!

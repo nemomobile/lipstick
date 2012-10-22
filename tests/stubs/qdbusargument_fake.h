@@ -548,3 +548,10 @@ const QDBusArgument &QDBusArgument::operator>>(QByteArray &arg) const
     return *this;
 }
 
+const QDBusArgument &operator>>(const QDBusArgument &a, QVariant &v)
+{
+    QDBusVariant dbv;
+    a >> dbv;
+    v = dbv.variant();
+    return a;
+}

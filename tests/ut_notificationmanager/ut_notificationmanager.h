@@ -40,8 +40,11 @@ private slots:
     void testServerInformation();
     void testModifyingCategoryDefinitionUpdatesNotifications();
     void testUninstallingCategoryDefinitionRemovesNotifications();
-    void testActionIsInvokedIfActionIsDefined();
+    void testActionIsInvokedIfDefined();
+    void testActionIsNotInvokedIfIncomplete();
+    void testRemoteActionIsInvokedIfDefined();
     void testInvokingActionRemovesNotificationIfUserRemovable();
+    void testListingNotifications();
 
 signals:
     void actionInvoked(QString action);
