@@ -20,6 +20,7 @@
 #include <QObject>
 #include <QMetaType>
 #include <QSize>
+#include <QTimer>
 
 class LipstickSettings : public QObject
 {
@@ -28,13 +29,14 @@ class LipstickSettings : public QObject
     Q_PROPERTY(QSize screenSize READ screenSize NOTIFY screenSizeChanged)
 
     bool _lockscreenVisible;
+    QTimer requestScreenToBeLockedTimer;
 
 public:
     explicit LipstickSettings();
     static LipstickSettings *instance();
 
     bool lockscreenVisible() const;
-    void setLockscreenVisible(bool lockscreenVisible);
+    void setLockscreenVisible(bool lockscreenVisible, bool externallyChanged = false);
 
     QSize screenSize();
     Q_INVOKABLE bool getIsInPortrait();
@@ -43,6 +45,8 @@ signals:
     void lockscreenVisibleChanged();
     void screenSizeChanged();
 
+private slots:
+    void requestScreenToBeLocked();
 };
 
 Q_DECLARE_METATYPE(LipstickSettings *)
