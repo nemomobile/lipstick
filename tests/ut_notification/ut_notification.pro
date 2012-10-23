@@ -13,4 +13,6 @@ SOURCES += \
 HEADERS += \
     ut_notification.h \
     $$NOTIFICATIONSRCDIR/notification.h \
-    $$NOTIFICATIONSRCDIR/notificationmanager.h
+    $$NOTIFICATIONSRCDIR/notificationmanager.h \
+    qdbusargument_fake.h
+

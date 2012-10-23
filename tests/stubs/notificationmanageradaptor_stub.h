@@ -29,7 +29,8 @@ class NotificationManagerAdaptorStub : public StubBase {
   virtual QStringList GetCapabilities();
   virtual QString GetServerInformation(QString &name, QString &vendor, QString &version);
   virtual uint Notify(const QString &app_name, uint replaces_id, const QString &app_icon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expire_timeout);
-}; 
+  virtual QList<Notification> GetNotifications(const QString &app_name);
+};
 
 // 2. IMPLEMENT STUB
 void NotificationManagerAdaptorStub::NotificationManagerAdaptorConstructor(NotificationManager *parent) {
@@ -73,6 +74,13 @@ uint NotificationManagerAdaptorStub::Notify(const QString &app_name, uint replac
   return stubReturnValue<uint>("Notify");
 }
 
+QList<Notification> NotificationManagerAdaptorStub::GetNotifications(const QString &app_name) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<QString >(app_name));
+  stubMethodEntered("GetNotifications",params);
+  return stubReturnValue<QList<Notification> >("GetNotifications");
+}
+
 
 
 // 3. CREATE A STUB INSTANCE
@@ -103,6 +111,10 @@ QString NotificationManagerAdaptor::GetServerInformation(QString &name, QString 
 
 uint NotificationManagerAdaptor::Notify(const QString &app_name, uint replaces_id, const QString &app_icon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expire_timeout) {
   return gNotificationManagerAdaptorStub->Notify(app_name, replaces_id, app_icon, summary, body, actions, hints, expire_timeout);
+}
+
+QList<Notification> NotificationManagerAdaptor::GetNotifications(const QString &app_name) {
+  return gNotificationManagerAdaptorStub->GetNotifications(app_name);
 }
 
 

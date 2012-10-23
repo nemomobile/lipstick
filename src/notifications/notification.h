@@ -21,6 +21,8 @@
 #include <QDateTime>
 #include <QVariantHash>
 
+class QDBusArgument;
+
 /*!
  * An object for storing information about a single notification.
  */
@@ -28,6 +30,7 @@ class LIPSTICK_EXPORT Notification : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString appName READ appName)
+    Q_PROPERTY(uint replacesId READ replacesId)
     Q_PROPERTY(QString appIcon READ appIcon)
     Q_PROPERTY(QString summary READ summary NOTIFY summaryChanged)
     Q_PROPERTY(QString body READ body NOTIFY bodyChanged)
@@ -42,6 +45,7 @@ public:
      * Creates an object for storing information about a single notification.
      *
      * \param appName name of the application sending the notification
+     * \param replacesID the ID of the notification
      * \param appIcon icon ID of the application sending the notification
      * \param summary summary text for the notification
      * \param body body text for the notification
@@ -50,13 +54,16 @@ public:
      * \param expireTimeout expiration timeout for the notification
      * \param parent the parent QObject
      */
-    Notification(const QString &appName, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expireTimeout, QObject *parent = 0);
+    Notification(const QString &appName, uint replacesId, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expireTimeout, QObject *parent = 0);
 
     //! Returns the name of the application sending the notification
     QString appName() const;
 
     //! Sets the name of the application sending the notification
     void setAppName(const QString &appName);
+
+    //! Returns the ID of the notification
+    uint replacesId() const;
 
     //! Returns the icon ID of the application sending the notification
     QString appIcon() const;
@@ -103,6 +110,27 @@ public:
     //! Returns the timestamp for the notification in localized text format
     QString localizedTimestamp() const;
 
+    //! \internal
+    /*!
+     * Creates a new uninitialized representation of a notification. This
+     * constructor should only be used for populating the notification list
+     * from D-Bus structures.
+     */
+    Notification();
+
+    /*!
+     * Creates a copy of an existing representation of a notification.
+     * This constructor should only be used for populating the notification
+     * list from D-Bus structures.
+     *
+     * \param notification the notification representation to a create copy of
+     */
+    explicit Notification(const Notification &notification);
+
+    friend QDBusArgument &operator<<(QDBusArgument &, const Notification &);
+    friend const QDBusArgument &operator>>(const QDBusArgument &, Notification &);
+    //! \internal_end
+
 signals:
     /*!
      * Sent when an action defined for the notification is invoked.
@@ -127,6 +155,9 @@ private:
     //! Name of the application sending the notification
     QString appName_;
 
+    //! The ID of the notification
+    uint replacesId_;
+
     //! Icon ID of the application sending the notification
     QString appIcon_;
 
@@ -145,5 +176,8 @@ private:
     //! Expiration timeout for the notification
     int expireTimeout_;
 };
+
+Q_DECLARE_METATYPE(Notification)
+Q_DECLARE_METATYPE(QList<Notification>)
 
 #endif // NOTIFICATION_H

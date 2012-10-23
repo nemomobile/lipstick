@@ -1,6 +1,7 @@
 <!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
 <node>
   <interface name="org.freedesktop.Notifications">
+    <!-- Desktop Notification Specification interface -->
     <method name="GetCapabilities">
       <arg name="capabilities" type="as" direction="out"/>
     </method>
@@ -33,5 +34,12 @@
       <arg name="id" type="u"/>
       <arg name="action_key" type="s"/>
     </signal>
+
+    <!-- Nemo extensions -->
+    <method name="GetNotifications">
+      <arg name="app_name" type="s" direction="in"/>
+      <arg name="notifications" type="a(sussasa{sv}i)" direction="out"/>
+      <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="QList &lt; Notification &gt; "/>
+    </method>
   </interface>
 </node>

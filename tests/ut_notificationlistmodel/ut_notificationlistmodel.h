@@ -26,10 +26,8 @@ private slots:
     void cleanup();
     void testModelPopulatesOnConstruction();
     void testNotificationIsOnlyAddedIfNotAlreadyAdded();
-    void testNotificationIsNotAddedIfClassIsSystem();
     void testNotificationIsNotAddedIfSummaryIsEmpty();
     void testNotificationIsNotAddedIfBodyIsEmpty();
-    void testAlreadyAddedNotificationIsRemovedIfClassChangesToSystem();
     void testAlreadyAddedNotificationIsRemovedIfSummaryChangesToEmpty();
     void testAlreadyAddedNotificationIsRemovedIfBodyChangesToEmpty();
     void testNotificationRemoval();
