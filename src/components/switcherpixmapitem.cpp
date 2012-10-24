@@ -227,9 +227,14 @@ void SwitcherPixmapItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
         QBrush brush(d->qWindowPixmap);
 
         // TODO: take clipping of statusbar (if any) into account here
-        qreal xScale = width() / d->qWindowPixmap.width();
-        qreal yScale = height() / d->qWindowPixmap.height();
-        brush.setTransform(QTransform().scale(xScale, yScale));
+        qreal scale;
+
+        if (width() > height())
+            scale = height() / d->qWindowPixmap.height();
+        else
+            scale = width() / d->qWindowPixmap.width();
+
+        brush.setTransform(QTransform().scale(scale, scale));
 
         painter->setPen(Qt::NoPen);
         painter->setBrush(brush);
