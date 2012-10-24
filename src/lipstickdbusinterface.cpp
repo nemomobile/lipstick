@@ -38,7 +38,7 @@ void LipstickDBusInterface::showLockScreen()
     DBUSINTERFACE_DEBUG("Received signal to show lockscreen");
 
     LipstickSettings *settings = LipstickSettings::instance();
-    settings->setLockscreenVisible(true);
+    settings->setLockscreenVisible(true, true);
 }
 
 void LipstickDBusInterface::hideLockScreen()
@@ -46,7 +46,7 @@ void LipstickDBusInterface::hideLockScreen()
     DBUSINTERFACE_DEBUG("Received signal to hide lockscreen");
 
     LipstickSettings *settings = LipstickSettings::instance();
-    settings->setLockscreenVisible(false);
+    settings->setLockscreenVisible(false, true);
 }
 
 void LipstickDBusInterface::lockscreenVisibilityChanged()
