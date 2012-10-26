@@ -24,6 +24,7 @@
 #include <components/windowmanager.h>
 #include <components/windowinfo.h>
 #include <notifications/notificationlistmodel.h>
+#include <notifications/notification.h>
 
 LipstickPlugin::LipstickPlugin(QObject *parent) :
     QDeclarativeExtensionPlugin(parent)
@@ -39,6 +40,7 @@ void LipstickPlugin::registerTypes(const char *uri)
     qmlRegisterType<SwitcherPixmapItem>("org.nemomobile.lipstick", 0, 1, "SwitcherPixmapItem");
     qmlRegisterType<StatusBar>("org.nemomobile.lipstick", 0, 1, "StatusBar");
     qmlRegisterType<NotificationListModel>("org.nemomobile.lipstick", 0, 1, "NotificationListModel");
+    qmlRegisterType<Notification>("org.nemomobile.lipstick", 0, 1, "Notification");
     qmlRegisterUncreatableType<WindowInfo>("org.nemomobile.lipstick", 0, 1, "WindowInfo", "This type is initialized by SwitcherModel");
     qmlRegisterUncreatableType<LauncherItem>("org.nemomobile.lipstick", 0, 1, "LauncherItem", "This type is initialized by LauncherModel");
     qmlRegisterUncreatableType<WindowManager>("org.nemomobile.lipstick", 0, 1, "WindowManager", "This type should be accessed through a context property.");

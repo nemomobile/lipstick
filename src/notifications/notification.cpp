@@ -30,7 +30,8 @@ Notification::Notification(const QString &appName, uint replacesId, const QStrin
 {
 }
 
-Notification::Notification() :
+Notification::Notification(QObject *parent) :
+    QObject(parent),
     replacesId_(0),
     expireTimeout_(-1)
 {
@@ -143,7 +144,7 @@ void Notification::setExpireTimeout(int expireTimeout)
 
 QString Notification::icon() const
 {
-    return hints_.value(NotificationManager::HINT_ICON).toString();
+    return appIcon_.isEmpty() ? hints_.value(NotificationManager::HINT_ICON).toString() : appIcon_;
 }
 
 QDateTime Notification::timestamp() const

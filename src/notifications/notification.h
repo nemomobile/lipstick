@@ -56,6 +56,13 @@ public:
      */
     Notification(const QString &appName, uint replacesId, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expireTimeout, QObject *parent = 0);
 
+    /*!
+     * Creates a new uninitialized representation of a notification.
+     *
+     * \param parent the parent QObject
+     */
+    Notification(QObject *parent = 0);
+
     //! Returns the name of the application sending the notification
     QString appName() const;
 
@@ -111,13 +118,6 @@ public:
     QString localizedTimestamp() const;
 
     //! \internal
-    /*!
-     * Creates a new uninitialized representation of a notification. This
-     * constructor should only be used for populating the notification list
-     * from D-Bus structures.
-     */
-    Notification();
-
     /*!
      * Creates a copy of an existing representation of a notification.
      * This constructor should only be used for populating the notification

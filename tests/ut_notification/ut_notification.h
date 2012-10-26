@@ -23,6 +23,8 @@ class Ut_Notification : public QObject
 
 private slots:
     void testGettersAndSetters();
+    void testIcon_data();
+    void testIcon();
     void testSignals();
     void testSerialization();
 };
