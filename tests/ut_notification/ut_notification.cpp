@@ -27,10 +27,8 @@ void Ut_Notification::testGettersAndSetters()
     QString summary = "summary1";
     QString body = "body1";
     QStringList actions = QStringList() << "action1a" << "action1b";
-    QString icon = "icon1";
     QDateTime timestamp = QDateTime::currentDateTime();
     QVariantHash hints;
-    hints.insert(NotificationManager::HINT_ICON, icon);
     hints.insert(NotificationManager::HINT_TIMESTAMP, timestamp);
     int expireTimeout = 1;
 
@@ -43,7 +41,6 @@ void Ut_Notification::testGettersAndSetters()
     QCOMPARE(notification.body(), body);
     QCOMPARE(notification.actions(), actions);
     QCOMPARE(notification.expireTimeout(), expireTimeout);
-    QCOMPARE(notification.icon(), icon);
     QCOMPARE(notification.timestamp(), timestamp);
     QCOMPARE(notification.localizedTimestamp(), timestamp.toString("hh:mm:ss"));
 
@@ -52,9 +49,7 @@ void Ut_Notification::testGettersAndSetters()
     summary = "summary2";
     body = "body2";
     actions = QStringList() << "action2a" << "action2b" << "action2c";
-    icon = "icon2";
     timestamp = QDateTime::currentDateTime();
-    hints.insert(NotificationManager::HINT_ICON, icon);
     hints.insert(NotificationManager::HINT_TIMESTAMP, timestamp);
     expireTimeout = 2;
     notification.setAppName(appName);
@@ -70,9 +65,37 @@ void Ut_Notification::testGettersAndSetters()
     QCOMPARE(notification.body(), body);
     QCOMPARE(notification.actions(), actions);
     QCOMPARE(notification.expireTimeout(), expireTimeout);
-    QCOMPARE(notification.icon(), icon);
     QCOMPARE(notification.timestamp(), timestamp);
     QCOMPARE(notification.localizedTimestamp(), timestamp.toString("hh:mm:ss"));
+}
+
+void Ut_Notification::testIcon_data()
+{
+    QTest::addColumn<QString>("appIcon");
+    QTest::addColumn<QString>("hintIcon");
+    QTest::addColumn<QString>("icon");
+
+    QTest::newRow("No app_icon, no hint") << QString() << QString() << QString();
+    QTest::newRow("No app_icon, hint") << QString() << QString("hintIcon") << QString("hintIcon");
+    QTest::newRow("app_icon, no hint") << QString("appIcon") << QString() << QString("appIcon");
+    QTest::newRow("app_icon, hint") << QString("appIcon") << QString("hintIcon") << QString("appIcon");
+}
+
+void Ut_Notification::testIcon()
+{
+    QFETCH(QString, appIcon);
+    QFETCH(QString, hintIcon);
+    QFETCH(QString, icon);
+
+    QVariantHash hints;
+    hints.insert(NotificationManager::HINT_ICON, hintIcon);
+
+    Notification notification1(QString(), 0, appIcon, QString(), QString(), QStringList(), hints, 0);
+    QCOMPARE(notification1.icon(), icon);
+    Notification notification2(QString(), 0, QString(), QString(), QString(), QStringList(), QVariantHash(), 0);
+    notification2.setAppIcon(appIcon);
+    notification2.setHints(hints);
+    QCOMPARE(notification2.icon(), icon);
 }
 
 void Ut_Notification::testSignals()

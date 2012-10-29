@@ -185,7 +185,8 @@ void NotificationManager::CloseNotification(uint id, NotificationClosedReason cl
         NOTIFICATIONS_DEBUG("REMOVE:" << id);
         emit notificationRemoved(id);
 
-        delete notifications.take(id);
+        // Mark the notification to be destroyed
+        removedNotifications.insert(notifications.take(id));
     }
 }
 
@@ -447,6 +448,9 @@ void NotificationManager::commit()
         database->commit();
         committed = true;
     }
+
+    qDeleteAll(removedNotifications);
+    removedNotifications.clear();
 }
 
 void NotificationManager::execSQL(const QString &command, const QVariantList &args)

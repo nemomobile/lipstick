@@ -39,6 +39,8 @@ class LIPSTICK_EXPORT Notification : public QObject
     Q_PROPERTY(QString icon READ icon NOTIFY iconChanged)
     Q_PROPERTY(QDateTime timestamp READ timestamp)
     Q_PROPERTY(QString localizedTimestamp READ localizedTimestamp NOTIFY localizedTimestampChanged)
+    Q_PROPERTY(QString previewSummary READ previewSummary NOTIFY previewSummaryChanged)
+    Q_PROPERTY(QString previewBody READ previewBody NOTIFY previewBodyChanged)
 
 public:
     /*!
@@ -55,6 +57,13 @@ public:
      * \param parent the parent QObject
      */
     Notification(const QString &appName, uint replacesId, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expireTimeout, QObject *parent = 0);
+
+    /*!
+     * Creates a new uninitialized representation of a notification.
+     *
+     * \param parent the parent QObject
+     */
+    Notification(QObject *parent = 0);
 
     //! Returns the name of the application sending the notification
     QString appName() const;
@@ -110,14 +119,13 @@ public:
     //! Returns the timestamp for the notification in localized text format
     QString localizedTimestamp() const;
 
-    //! \internal
-    /*!
-     * Creates a new uninitialized representation of a notification. This
-     * constructor should only be used for populating the notification list
-     * from D-Bus structures.
-     */
-    Notification();
+    //! Returns the summary text for the preview of the notification
+    QString previewSummary() const;
 
+    //! Returns the body text for the preview of the notification
+    QString previewBody() const;
+
+    //! \internal
     /*!
      * Creates a copy of an existing representation of a notification.
      * This constructor should only be used for populating the notification
@@ -150,6 +158,12 @@ signals:
 
     //! Sent when the localized timestamp has changed
     void localizedTimestampChanged();
+
+    //! Sent when the preview summary has been modified
+    void previewSummaryChanged();
+
+    //! Sent when the preview body has been modified
+    void previewBodyChanged();
 
 private:
     //! Name of the application sending the notification
