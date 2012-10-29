@@ -34,7 +34,7 @@ class LIPSTICK_EXPORT LauncherItem : public QObject
     Q_PROPERTY(QString filePath READ filePath NOTIFY itemChanged)
     Q_PROPERTY(QString title READ title NOTIFY itemChanged)
     Q_PROPERTY(QString entryType READ entryType NOTIFY itemChanged)
-    Q_PROPERTY(QString iconFilePath READ iconFilePath NOTIFY itemChanged)
+    Q_PROPERTY(QString iconId READ iconId NOTIFY itemChanged)
     Q_PROPERTY(QStringList desktopCategories READ desktopCategories NOTIFY itemChanged)
     Q_PROPERTY(bool shouldDisplay READ shouldDisplay NOTIFY itemChanged)
     Q_PROPERTY(bool isValid READ isValid NOTIFY itemChanged)
@@ -53,7 +53,7 @@ public:
     QString filePath() const;
     QString title() const;
     QString entryType() const;
-    QString iconFilePath() const;
+    QString iconId() const;
     QStringList desktopCategories() const;
     bool shouldDisplay() const;
     bool isValid() const;
