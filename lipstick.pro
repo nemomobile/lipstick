@@ -5,8 +5,6 @@ SUBDIRS += src plugin tools tests
 tools.depends = src
 
 QMAKE_CLEAN += \
-    Makefile \
-    */Makefile \
     build-stamp \
     configure-stamp \
     artifacts/*.deb \
