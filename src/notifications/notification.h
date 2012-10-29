@@ -39,6 +39,8 @@ class LIPSTICK_EXPORT Notification : public QObject
     Q_PROPERTY(QString icon READ icon NOTIFY iconChanged)
     Q_PROPERTY(QDateTime timestamp READ timestamp)
     Q_PROPERTY(QString localizedTimestamp READ localizedTimestamp NOTIFY localizedTimestampChanged)
+    Q_PROPERTY(QString previewSummary READ previewSummary NOTIFY previewSummaryChanged)
+    Q_PROPERTY(QString previewBody READ previewBody NOTIFY previewBodyChanged)
 
 public:
     /*!
@@ -117,6 +119,12 @@ public:
     //! Returns the timestamp for the notification in localized text format
     QString localizedTimestamp() const;
 
+    //! Returns the summary text for the preview of the notification
+    QString previewSummary() const;
+
+    //! Returns the body text for the preview of the notification
+    QString previewBody() const;
+
     //! \internal
     /*!
      * Creates a copy of an existing representation of a notification.
@@ -150,6 +158,12 @@ signals:
 
     //! Sent when the localized timestamp has changed
     void localizedTimestampChanged();
+
+    //! Sent when the preview summary has been modified
+    void previewSummaryChanged();
+
+    //! Sent when the preview body has been modified
+    void previewBodyChanged();
 
 private:
     //! Name of the application sending the notification

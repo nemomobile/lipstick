@@ -120,6 +120,8 @@ void Notification::setHints(const QVariantHash &hints)
 {
     QString oldIcon = icon();
     QDateTime oldTimestamp = timestamp();
+    QString oldPreviewSummary = previewSummary();
+    QString oldPreviewBody = previewBody();
 
     hints_ = hints;
 
@@ -129,6 +131,14 @@ void Notification::setHints(const QVariantHash &hints)
 
     if (oldTimestamp != timestamp()) {
         emit localizedTimestampChanged();
+    }
+
+    if (oldPreviewSummary != previewSummary()) {
+        emit previewSummaryChanged();
+    }
+
+    if (oldPreviewBody != previewBody()) {
+        emit previewBodyChanged();
     }
 }
 
@@ -155,6 +165,16 @@ QDateTime Notification::timestamp() const
 QString Notification::localizedTimestamp() const
 {
     return timestamp().toString("hh:mm:ss");
+}
+
+QString Notification::previewSummary() const
+{
+    return hints_.value(NotificationManager::HINT_PREVIEW_SUMMARY).toString();
+}
+
+QString Notification::previewBody() const
+{
+    return hints_.value(NotificationManager::HINT_PREVIEW_BODY).toString();
 }
 
 QDBusArgument &operator<<(QDBusArgument &argument, const Notification &notification)
