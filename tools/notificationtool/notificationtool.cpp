@@ -33,16 +33,28 @@ ToolOperation toolOperation = Undefined;
 // The notification ID to use
 uint id = 0;
 
+// The icon of the notification
+QString icon;
+
+// The category of the notification
+QString category;
+
 // The count of items represented by the notification
-uint count = 1;
+int count = -1;
+
+// Expire timeout for the notifcation
+int expireTimeout = -1;
 
 // Timestamp for notification
 QString timestamp;
 
+// Actions for the notification
+QHash<QString, QStringList> actions;
+
 // Prints usage information
 int usage(const char *program)
 {
-    std::cerr << std::setw(7) << "Usage: " << program << " [OPTION]... CATEGORY [SUMMARY BODY IMAGE ACTION...]" << std::endl;
+    std::cerr << std::setw(7) << "Usage: " << program << " [OPTION]... [SUMMARY BODY PREVIEWSUMMARY PREVIEWBODY]" << std::endl;
     std::cerr << std::setw(7) << "Manage notifications." << std::endl;
     std::cerr << std::setw(7) << std::endl;
     std::cerr << std::setw(7) << "Mandatory arguments to long options are mandatory for short options too." << std::endl;
@@ -50,9 +62,13 @@ int usage(const char *program)
     std::cerr << std::setw(7) << "                             add - Adds a new notification." << std::endl;
     std::cerr << std::setw(7) << "                             update - Updates an existing notification." << std::endl;
     std::cerr << std::setw(7) << "                             remove - Removes an existing notification." << std::endl;
-    std::cerr << std::setw(7) << "  -i, --id=ID                The notification ID to use." << std::endl;
-    std::cerr << std::setw(7) << "  -c, --count=NUMBER         The number of items represented by thenotification." << std::endl;
-    std::cerr << std::setw(7) << "  -t, --timestamp            Timestamp to use on a notification. Use ISO 8601 extended date format."<< std::endl;
+    std::cerr << std::setw(7) << "  -i, --id=ID                The notification ID to use when updating or removing a notification." << std::endl;
+    std::cerr << std::setw(7) << "  -I, --icon=ICON            Icon for the notification."<< std::endl;
+    std::cerr << std::setw(7) << "  -c, --category=CATEGORY    The category of the notification." << std::endl;
+    std::cerr << std::setw(7) << "  -C, --count=NUMBER         The number of items represented by the notification." << std::endl;
+    std::cerr << std::setw(7) << "  -t, --timestamp=TIMESTAMP  Timestamp to use on a notification. Use ISO 8601 extended date format."<< std::endl;
+    std::cerr << std::setw(7) << "  -T, --timeout=MILLISECONDS Expire timeout for the notification in milliseconds or -1 to use server defaults."<< std::endl;
+    std::cerr << std::setw(7) << "  -a, --action               An action for the notification in \"ACTIONNAME DBUSSERVICE DBUSPATH DBUSINTERFACE METHOD ARGUMENTS\" format."<< std::endl;
     std::cerr << std::setw(7) << "      --help                 display this help and exit" << std::endl;
     std::cerr << std::setw(7) << std::endl;
     std::cerr << std::setw(7) << "A notification ID is mandatory when the operation is 'update' or 'remove'." << std::endl;
@@ -68,15 +84,20 @@ int parseArguments(int argc, char *argv[])
         static struct option long_options[] = {
             { "operation", required_argument, NULL, 'o' },
             { "id", required_argument, NULL, 'i' },
-            { "count", required_argument, NULL, 'c' },
-            { "help", no_argument, NULL, 'h' },
+            { "icon", required_argument, NULL, 'I' },
+            { "category", required_argument, NULL, 'c' },
+            { "count", required_argument, NULL, 'C' },
             { "timestamp", required_argument, NULL, 't'},
+            { "timeout", required_argument, NULL, 'T' },
+            { "action", required_argument, NULL, 'a'},
+            { "help", no_argument, NULL, 'h' },
             { 0, 0, 0, 0 }
         };
 
-        int c = getopt_long(argc, argv, "o:i:c:t:", long_options, &option_index);
-        if (c == -1)
+        int c = getopt_long(argc, argv, "o:i:I:c:C:t:T:a:h", long_options, &option_index);
+        if (c == -1) {
             break;
+        }
 
         switch (c) {
         case 'o':
@@ -91,7 +112,13 @@ int parseArguments(int argc, char *argv[])
         case 'i':
             id = atoi(optarg);
             break;
+        case 'I':
+            icon = QString(optarg);
+            break;
         case 'c':
+            category = QString(optarg);
+            break;
+        case 'C':
             count = atoi(optarg);
             break;
         case 'h':
@@ -100,15 +127,24 @@ int parseArguments(int argc, char *argv[])
         case 't':
             timestamp = QString(optarg);
             break;
+        case 'T':
+            expireTimeout = atoi(optarg);
+            break;
+        case 'a': {
+            QStringList action = QString(optarg).split(' ');
+            QString name = action.takeFirst();
+            actions.insert(name, action);
+            break;
+            }
         default:
             break;
         }
     }
 
     if (toolOperation == Undefined ||
-            (toolOperation == Add && argc < optind + 1) ||
+            (toolOperation == Add && argc < optind) ||
             (toolOperation == Add && id != 0) ||
-            (toolOperation == Update && argc < optind + 1) ||
+            (toolOperation == Update && argc < optind) ||
             (toolOperation == Update && id == 0)) {
         return usage(argv[0]);
     }
@@ -132,30 +168,43 @@ int main(int argc, char *argv[])
     case Add:
     case Update: {
         // Get the parameters for adding and updating notifications
-        QString category = QString(argv[optind]);
-        QString summary, body, image;
-        QStringList actions;
+        QString summary, body, previewSummary, previewBody;
+        if (argc >= optind) {
+            summary = QString(argv[optind]);
+        }
         if (argc >= optind + 1) {
-            summary = QString(argv[optind + 1]);
+            body = QString(argv[optind + 1]);
         }
         if (argc >= optind + 2) {
-            body = QString(argv[optind + 2]);
+            previewSummary = QString(argv[optind + 2]);
         }
         if (argc >= optind + 3) {
-            image = QString(argv[optind + 3]);
-        }
-        if (argc >= optind + 4) {
-            for (int action = optind + 4; action < argc; action++) {
-                actions.append(QString(argv[action]));
-            }
+            previewBody = QString(argv[optind + 3]);
         }
 
         // Add/update a notification
         QVariantHash hints;
-        hints.insert(NotificationManager::HINT_CATEGORY, category);
-        hints.insert(NotificationManager::HINT_ITEM_COUNT, count);
-        hints.insert(NotificationManager::HINT_TIMESTAMP, timestamp);
-        result = proxy.Notify(argv[0], id, image, summary, body, actions, hints, -1);
+        if (!category.isEmpty()) {
+            hints.insert(NotificationManager::HINT_CATEGORY, category);
+        }
+        if (count >= 0) {
+            hints.insert(NotificationManager::HINT_ITEM_COUNT, count);
+        }
+        if (!timestamp.isEmpty()) {
+            hints.insert(NotificationManager::HINT_TIMESTAMP, timestamp);
+        }
+        if (!actions.isEmpty()) {
+            foreach (const QString &name, actions.keys()) {
+                hints.insert(QString(NotificationManager::HINT_REMOTE_ACTION_PREFIX) + name, actions.value(name));
+            }
+        }
+        if (!previewSummary.isEmpty()) {
+            hints.insert(NotificationManager::HINT_PREVIEW_SUMMARY, previewSummary);
+        }
+        if (!previewBody.isEmpty()) {
+            hints.insert(NotificationManager::HINT_PREVIEW_BODY, previewBody);
+        }
+        result = proxy.Notify(argv[0], id, icon, summary, body, QStringList(), hints, expireTimeout);
         break;
     }
     case Remove:
