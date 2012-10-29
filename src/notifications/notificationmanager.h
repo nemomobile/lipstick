@@ -20,6 +20,7 @@
 #include "notification.h"
 #include <QObject>
 #include <QTimer>
+#include <QSet>
 
 class CategoryDefinitionStore;
 class QSqlDatabase;
@@ -241,7 +242,10 @@ private slots:
      */
     void updateNotificationsWithCategory(const QString &category);
 
-    //! Commits the current database transaction, if any
+    /*!
+     * Commits the current database transaction, if any.
+     * Also destroys any removed notifications.
+     */
     void commit();
 
     /*!
@@ -345,6 +349,9 @@ private:
 
     //! Hash of all notifications keyed by notification IDs
     QHash<uint, Notification*> notifications;
+
+    //! Notifications waiting to be destroyed
+    QSet<Notification *> removedNotifications;
 
     //! Previous notification ID used
     uint previousNotificationID;
