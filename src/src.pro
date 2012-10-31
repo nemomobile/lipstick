@@ -76,7 +76,7 @@ SOURCES += \
 
 CONFIG += link_pkgconfig mobility qt warn_on depend_includepath qmake_cache target_qt
 MOBILITY += sensors
-PKGCONFIG += xcomposite mlite xdamage x11
+PKGCONFIG += xcomposite mlite xdamage x11 xfixes xext
 
 packagesExist(contentaction-0.1) {
     message("Using contentaction to launch applications")
