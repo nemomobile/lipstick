@@ -26,7 +26,8 @@ PUBLICHEADERS += \
     components/windowmanager.h \
     notifications/notificationmanager.h \
     notifications/notification.h \
-    notifications/notificationlistmodel.h
+    notifications/notificationlistmodel.h \
+    notifications/notificationpreviewpresenter.h
 
 INSTALLS += publicheaderfiles
 publicheaderfiles.files = $$PUBLICHEADERS
@@ -40,6 +41,7 @@ HEADERS += \
     xtools/xeventlistener.h \
     xtools/xatomcache.h \
     xtools/xwindowmanager.h \
+    xtools/x11wrapper.h \
     lipstickdbusinterface.h \
     lipsticksettings.h \
     notifications/notificationmanager.h \
@@ -57,6 +59,7 @@ SOURCES += \
     xtools/xeventlistener.cpp \
     xtools/xatomcache.cpp \
     xtools/xwindowmanager.cpp \
+    xtools/x11wrapper.cpp \
     components/windowinfo.cpp \
     components/launcheritem.cpp \
     components/launchermodel.cpp \
@@ -68,7 +71,8 @@ SOURCES += \
     notifications/notificationmanageradaptor.cpp \
     notifications/notification.cpp \
     notifications/categorydefinitionstore.cpp \
-    notifications/notificationlistmodel.cpp
+    notifications/notificationlistmodel.cpp \
+    notifications/notificationpreviewpresenter.cpp
 
 CONFIG += link_pkgconfig mobility qt warn_on depend_includepath qmake_cache target_qt
 MOBILITY += sensors
