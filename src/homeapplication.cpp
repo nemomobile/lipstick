@@ -33,6 +33,7 @@
 #include "xtools/xwindowmanager.h"
 #include "xtools/homewindowmonitor.h"
 #include "notifications/notificationmanager.h"
+#include "notifications/notificationpreviewpresenter.h"
 #include "components/windowmanager.h"
 #include "components/windowinfo.h"
 #include "lipsticksettings.h"
@@ -73,6 +74,7 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
 
     // Initialize the notification manager;
     NotificationManager::instance();
+    new NotificationPreviewPresenter(this);
 
     // Initialize the home window monitor
     HomeWindowMonitor::instance();
