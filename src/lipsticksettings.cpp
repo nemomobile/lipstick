@@ -25,6 +25,7 @@
 #include <QDebug>
 #include <QtSensors/QOrientationSensor>
 #include <QtSensors/QOrientationReading>
+#include <mce/mode-names.h>
 
 #include "lipsticksettings.h"
 #include "homeapplication.h"
@@ -32,16 +33,12 @@
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
 
-static int LOCK_SCREEN_TIMEOUT = 5000;
-
 Q_GLOBAL_STATIC(LipstickSettings, settingsInstance)
 
 LipstickSettings::LipstickSettings()
     : QObject()
     , _lockscreenVisible(false)
 {
-    requestScreenToBeLockedTimer.setSingleShot(true);
-    connect(&requestScreenToBeLockedTimer, SIGNAL(timeout()), this, SLOT(requestScreenToBeLocked()));
 }
 
 LipstickSettings *LipstickSettings::instance()
@@ -69,17 +66,14 @@ void LipstickSettings::setLockscreenVisible(bool lockscreenVisible, bool externa
         view->setWindowTitle("Screen Lock");
         layer = 2;
 
-        if (!externallyChanged && !requestScreenToBeLockedTimer.isActive()) {
-            // Lock screen entered from inside the home screen: request screen to be locked in 5 seconds
-            requestScreenToBeLockedTimer.start(LOCK_SCREEN_TIMEOUT);
+        if (!externallyChanged) {
+            // Lock screen entered from inside the home screen: request screen to be locked
+            QDBusMessage message = QDBusMessage::createMethodCall("com.nokia.mce", "/com/nokia/mce/request", "com.nokia.mce.request", "req_tklock_mode_change");
+            message.setArguments(QVariantList() << MCE_TK_LOCKED_DELAY);
+            QDBusConnection::systemBus().asyncCall(message);
         }
     } else {
         view->setWindowTitle("Lipstick");
-
-        if (requestScreenToBeLockedTimer.isActive()) {
-            // Cancel any pending screen locking requests
-            requestScreenToBeLockedTimer.stop();
-        }
     }
 
     // Set the stacking layer
@@ -104,11 +98,4 @@ bool LipstickSettings::getIsInPortrait()
     qDebug() << Q_FUNC_INFO << "current orientation is" << orientation;
     sensor.stop();
     return orientation == QtMobility::QOrientationReading::TopUp;
-}
-
-void LipstickSettings::requestScreenToBeLocked()
-{
-    QDBusMessage message = QDBusMessage::createMethodCall("com.nokia.mce", "/com/nokia/mce/request", "com.nokia.mce.request", "req_tklock_mode_change");
-    message.setArguments(QVariantList() << "locked");
-    QDBusConnection::systemBus().asyncCall(message);
 }

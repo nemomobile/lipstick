@@ -28,7 +28,6 @@ private slots:
     void initTestCase();
     void cleanupTestCase();
     void testSetLockScreenVisible();
-    void testRequestScreenToBeLocked();
 };
 
 #endif
