@@ -66,6 +66,7 @@ void LauncherModel::monitoredDirectoryChanged(QString changedPath)
 
     QMap<int, LauncherItem *> itemsWithPositions;
     QSettings launcherSettings("nemomobile", "lipstick");
+    QSettings globalSettings("/etc/lipstick.conf", QSettings::IniFormat);
 
     // Finding newly added desktop entries
     foreach (const QFileInfo &fileInfo, fileInfoList) {
@@ -89,12 +90,17 @@ void LauncherModel::monitoredDirectoryChanged(QString changedPath)
             this->addItem(item);
 
             QVariant pos = launcherSettings.value("LauncherOrder/" + item->filePath());
+
+            // fall back to vendor configuration if the user hasn't specified a location
+            if (!pos.isValid())
+                pos = globalSettings.value("LauncherOrder/" + item->filePath());
+
             if (!pos.isValid())
                 continue;
 
             int gridPos = pos.toInt();
             itemsWithPositions.insert(gridPos, item);
-            LAUNCHER_DEBUG() << Q_FUNC_INFO << "Planned move of " << item->filePath() << " to " << gridPos;
+            LAUNCHER_DEBUG("Planned move of " << item->filePath() << " to " << gridPos);
         }
     }
 
@@ -104,7 +110,7 @@ void LauncherModel::monitoredDirectoryChanged(QString changedPath)
          it != itemsWithPositions.constEnd(); ++it) {
         LauncherItem *item = it.value();
         int gridPos = it.key();
-        LAUNCHER_DEBUG() << "Moving " << item->filePath() << " to " << gridPos;
+        LAUNCHER_DEBUG("Moving " << item->filePath() << " to " << gridPos);
 
         if (gridPos < 0 || gridPos >= itemCount()) {
             qWarning() << Q_FUNC_INFO << "Invalid planned position for " << item->filePath();
