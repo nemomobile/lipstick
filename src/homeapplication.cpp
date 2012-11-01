@@ -65,7 +65,7 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
 {
     setApplicationName("Lipstick");
     // TODO: autogenerate this from tags
-    setApplicationVersion("0.4.0");
+    setApplicationVersion(VERSION);
 
     XDamageQueryExtension(QX11Info::display(), &xDamageEventBase, &xDamageErrorBase);
 
