@@ -2,7 +2,7 @@ include(../common.pri)
 TARGET = ut_lipsticksettings
 QT += dbus declarative
 CONFIG += link_pkgconfig mobility
-PKGCONFIG += x11
+PKGCONFIG += x11 mce
 MOBILITY += sensors
 
 # unit test and unit

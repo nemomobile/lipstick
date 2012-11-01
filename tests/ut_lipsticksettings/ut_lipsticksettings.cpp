@@ -14,25 +14,12 @@
 ****************************************************************************/
 
 #include <QtTest/QtTest>
-#include <QTimer>
 #include <QDBusInterface>
 #include <QDBusPendingCall>
+#include <mce/mode-names.h>
 #include "ut_lipsticksettings.h"
 #include "lipsticksettings.h"
 #include "homeapplication.h"
-
-int qTimerStartMsec = -1;
-void QTimer::start(int msec)
-{
-    qTimerStartMsec = msec;
-    id = 1;
-}
-
-void QTimer::stop()
-{
-    qTimerStartMsec = -1;
-    id = -1;
-}
 
 HomeApplication *HomeApplication::instance()
 {
@@ -74,44 +61,34 @@ void Ut_LipstickSettings::testSetLockScreenVisible()
 {
     LipstickSettings settings;
 
-    // Externally making lock screen visible should not start the timer
+    // Externally making lock screen visible should not lock the screen
     settings.setLockscreenVisible(true, true);
-    QCOMPARE(qTimerStartMsec, -1);
+    QCOMPARE(qDBusConnectionAsyncCallService.isEmpty(), true);
     settings.setLockscreenVisible(false, true);
 
     // Internally making lock screen visible should start the timer
     settings.setLockscreenVisible(true, false);
-    QCOMPARE(qTimerStartMsec, 5000);
-
-    // Externally making lock screen invisible should stop the timer
-    settings.setLockscreenVisible(false, true);
-    QCOMPARE(qTimerStartMsec, -1);
-
-    // Internally making lock screen invisible should stop the timer
-    settings.setLockscreenVisible(true, false);
-    settings.setLockscreenVisible(false, false);
-    QCOMPARE(qTimerStartMsec, -1);
-
-    // Making the lock screen visible twice should not start the timer twice
-    settings.setLockscreenVisible(true, false);
-    qTimerStartMsec = -1;
-    settings.setLockscreenVisible(true, false);
-    QCOMPARE(qTimerStartMsec, -1);
-}
-
-void Ut_LipstickSettings::testRequestScreenToBeLocked()
-{
-    LipstickSettings settings;
-    connect(this, SIGNAL(timeout()), &settings, SLOT(requestScreenToBeLocked()));
-
-    emit timeout();
-
     QCOMPARE(qDBusConnectionAsyncCallService, QString("com.nokia.mce"));
     QCOMPARE(qDBusConnectionAsyncCallPath, QString("/com/nokia/mce/request"));
     QCOMPARE(qDBusConnectionAsyncCallInterface, QString("com.nokia.mce.request"));
     QCOMPARE(qDBusConnectionAsyncCallMember, QString("req_tklock_mode_change"));
     QCOMPARE(qDBusConnectionAsyncCallArguments.count(), 1);
-    QCOMPARE(qDBusConnectionAsyncCallArguments.last(), QVariant("locked"));
+    QCOMPARE(qDBusConnectionAsyncCallArguments.last(), QVariant(MCE_TK_LOCKED_DELAY));
+
+    // Reset the state
+    qDBusConnectionAsyncCallService.clear();
+
+    // Externally making lock screen invisible should not lock the screen
+    settings.setLockscreenVisible(false, true);
+    QCOMPARE(qDBusConnectionAsyncCallService.isEmpty(), true);
+
+    // Reset the state
+    settings.setLockscreenVisible(true, false);
+    qDBusConnectionAsyncCallService.clear();
+
+    // Internally making lock screen invisible should not lock the screen
+    settings.setLockscreenVisible(false, false);
+    QCOMPARE(qDBusConnectionAsyncCallService.isEmpty(), true);
 }
 
 QTEST_MAIN(Ut_LipstickSettings)
