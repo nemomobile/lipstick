@@ -17,6 +17,8 @@
 #include <QDir>
 #include <QFileSystemWatcher>
 #include <QDebug>
+#include <QSettings>
+
 #include "launchermodel.h"
 
 // Define this if you'd like to see debug messages from the launcher
@@ -62,6 +64,9 @@ void LauncherModel::monitoredDirectoryChanged(QString changedPath)
             removeItem(item);
     }
 
+    QMap<int, LauncherItem *> itemsWithPositions;
+    QSettings launcherSettings("nemomobile", "lipstick");
+
     // Finding newly added desktop entries
     foreach (const QFileInfo &fileInfo, fileInfoList) {
         // Skip files which are not desktop entries
@@ -76,11 +81,45 @@ void LauncherModel::monitoredDirectoryChanged(QString changedPath)
             LAUNCHER_DEBUG("Creating LauncherItem for desktop entry" << fileInfo.absoluteFilePath());
             LauncherItem *item = new LauncherItem(fileInfo.absoluteFilePath(), this);
 
-            if (item->isValid())
-                this->addItem(item);
-            else
+            if (!item->isValid()) {
                 delete item;
+                continue;
+            }
+
+            this->addItem(item);
+
+            QVariant pos = launcherSettings.value("LauncherOrder/" + item->filePath());
+            if (!pos.isValid())
+                continue;
+
+            int gridPos = pos.toInt();
+            itemsWithPositions.insert(gridPos, item);
+            LAUNCHER_DEBUG() << Q_FUNC_INFO << "Planned move of " << item->filePath() << " to " << gridPos;
         }
+    }
+
+    // QMap is key-ordered, the int here is the desired position in the launcher we want the item to appear
+    // so, we'll iterate from the lowest desired position to the highest, and move the items there.
+    for (QMap<int, LauncherItem *>::ConstIterator it = itemsWithPositions.constBegin();
+         it != itemsWithPositions.constEnd(); ++it) {
+        LauncherItem *item = it.value();
+        int gridPos = it.key();
+        LAUNCHER_DEBUG() << "Moving " << item->filePath() << " to " << gridPos;
+
+        if (gridPos < 0 || gridPos >= itemCount()) {
+            qWarning() << Q_FUNC_INFO << "Invalid planned position for " << item->filePath();
+            continue;
+        }
+
+        int currentPos = indexOf(item);
+        Q_ASSERT(currentPos >= 0);
+        if (currentPos == -1)
+            continue;
+
+        if (gridPos == currentPos)
+            continue;
+
+        move(currentPos, gridPos);
     }
 }
 
