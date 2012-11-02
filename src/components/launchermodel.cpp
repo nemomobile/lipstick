@@ -66,7 +66,7 @@ void LauncherModel::monitoredDirectoryChanged(QString changedPath)
 
     QMap<int, LauncherItem *> itemsWithPositions;
     QSettings launcherSettings("nemomobile", "lipstick");
-    QSettings globalSettings("/etc/lipstick.conf", QSettings::IniFormat);
+    QSettings globalSettings("/usr/share/lipstick/lipstick.conf", QSettings::IniFormat);
 
     // Finding newly added desktop entries
     foreach (const QFileInfo &fileInfo, fileInfoList) {
