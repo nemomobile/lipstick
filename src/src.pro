@@ -2,7 +2,7 @@ system(qdbusxml2cpp notifications/notificationmanager.xml -a notifications/notif
 
 TEMPLATE = lib
 TARGET = lipstick
-VERSION = 0.4.7
+VERSION = 0.4.8
 
 DEFINES += LIPSTICK_BUILD_LIBRARY DEBUG_NOTIFICATIONS VERSION=\\\"$$VERSION\\\"
 
