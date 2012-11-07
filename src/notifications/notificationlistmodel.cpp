@@ -48,5 +48,5 @@ void NotificationListModel::removeNotification(uint id)
 
 bool NotificationListModel::notificationShouldBeShown(Notification *notification)
 {
-    return !notification->body().isEmpty() && !notification->summary().isEmpty();
+    return !(notification->body().isEmpty() && notification->summary().isEmpty());
 }

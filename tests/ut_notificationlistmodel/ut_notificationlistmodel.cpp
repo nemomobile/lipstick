@@ -51,40 +51,34 @@ void Ut_NotificationListModel::testNotificationIsOnlyAddedIfNotAlreadyAdded()
     QCOMPARE(gQObjectListModelStub->stubCallCount("addItem"), 0);
 }
 
-void Ut_NotificationListModel::testNotificationIsNotAddedIfSummaryIsEmpty()
+void Ut_NotificationListModel::testNotificationIsNotAddedIfNoSummaryOrBody_data()
 {
-    Notification notification("appName", 1, "appIcon", "", "body", QStringList() << "action", QVariantHash(), 1);
+    QTest::addColumn<QString>("summary");
+    QTest::addColumn<QString>("body");
+    QTest::addColumn<int>("addItemCount");
+    QTest::newRow("No summary, no body") << "" << "" << 0;
+    QTest::newRow("Summary, no body") << "summary" << "" << 1;
+    QTest::newRow("No summary, body") << "" << "body" << 1;
+    QTest::newRow("Summary, body") << "summary" << "body" << 1;
+}
+
+void Ut_NotificationListModel::testNotificationIsNotAddedIfNoSummaryOrBody()
+{
+    QFETCH(QString, summary);
+    QFETCH(QString, body);
+    QFETCH(int, addItemCount);
+
+    Notification notification("appName", 1, "appIcon", summary, body, QStringList() << "action", QVariantHash(), 1);
     gNotificationManagerStub->stubSetReturnValue("notificationIds", QList<uint>() << 1);
     gNotificationManagerStub->stubSetReturnValue("notification", &notification);
     gQObjectListModelStub->stubSetReturnValue("indexOf", -1);
     NotificationListModel model;
-    QCOMPARE(gQObjectListModelStub->stubCallCount("addItem"), 0);
+    QCOMPARE(gQObjectListModelStub->stubCallCount("addItem"), addItemCount);
 }
 
-void Ut_NotificationListModel::testNotificationIsNotAddedIfBodyIsEmpty()
+void Ut_NotificationListModel::testAlreadyAddedNotificationIsRemovedIfNoSummaryOrBody()
 {
-    Notification notification("appName", 1, "appIcon", "summary", "", QStringList() << "action", QVariantHash(), 1);
-    gNotificationManagerStub->stubSetReturnValue("notificationIds", QList<uint>() << 1);
-    gNotificationManagerStub->stubSetReturnValue("notification", &notification);
-    gQObjectListModelStub->stubSetReturnValue("indexOf", -1);
-    NotificationListModel model;
-    QCOMPARE(gQObjectListModelStub->stubCallCount("addItem"), 0);
-}
-
-void Ut_NotificationListModel::testAlreadyAddedNotificationIsRemovedIfSummaryChangesToEmpty()
-{
-    Notification notification("appName", 1, "appIcon", "", "body", QStringList() << "action", QVariantHash(), 1);
-    gNotificationManagerStub->stubSetReturnValue("notificationIds", QList<uint>() << 1);
-    gNotificationManagerStub->stubSetReturnValue("notification", &notification);
-    gQObjectListModelStub->stubSetReturnValue("indexOf", 0);
-    NotificationListModel model;
-    QCOMPARE(gQObjectListModelStub->stubCallCount("removeItem"), 1);
-    QCOMPARE(gQObjectListModelStub->stubCallsTo("removeItem").at(0)->parameter<QObject *>(0), &notification);
-}
-
-void Ut_NotificationListModel::testAlreadyAddedNotificationIsRemovedIfBodyChangesToEmpty()
-{
-    Notification notification("appName", 1, "appIcon", "summary", "", QStringList() << "action", QVariantHash(), 1);
+    Notification notification("appName", 1, "appIcon", "", "", QStringList() << "action", QVariantHash(), 1);
     gNotificationManagerStub->stubSetReturnValue("notificationIds", QList<uint>() << 1);
     gNotificationManagerStub->stubSetReturnValue("notification", &notification);
     gQObjectListModelStub->stubSetReturnValue("indexOf", 0);

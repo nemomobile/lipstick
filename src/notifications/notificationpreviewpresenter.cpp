@@ -113,7 +113,7 @@ void NotificationPreviewPresenter::createWindowIfNecessary()
 
 bool NotificationPreviewPresenter::notificationShouldBeShown(Notification *notification)
 {
-    return !notification->previewBody().isEmpty() && !notification->previewSummary().isEmpty();
+    return !(notification->previewBody().isEmpty() && notification->previewSummary().isEmpty());
 }
 
 void NotificationPreviewPresenter::setNotificationPreviewRect(qreal x1, qreal y1, qreal x2, qreal y2)
