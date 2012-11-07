@@ -40,7 +40,7 @@ class QSqlDatabase;
  *     to contain body text.
  *   - The "category" hint is used to load a definition for notifications in
  *     that category from
- *     /usr/share/nemo/notifications/categories/categoryname.conf. This allows
+ *     /usr/share/lipstick/notificationcategories/categoryname.conf. This allows
  *     defining common properties for all notifications in each category.
  *        - Each category definition file contains a list of hint=value pairs,
  *          one per line.
