@@ -323,8 +323,8 @@ void Ut_NotificationPreviewPresenter::testNotificationNotShownIfNoSummaryOrBody_
     QTest::addColumn<int>("signalCount");
     QTest::addColumn<bool>("windowVisible");
     QTest::newRow("No summary, no body") << "" << "" << 0 << false;
-    QTest::newRow("Summary, no body") << "summary" << "" << 0 << false;
-    QTest::newRow("No summary, body") << "" << "body" << 0 << false;
+    QTest::newRow("Summary, no body") << "summary" << "" << 1 << true;
+    QTest::newRow("No summary, body") << "" << "body" << 1 << true;
     QTest::newRow("Summary, body") << "summary" << "body" << 1 << true;
 }
 
