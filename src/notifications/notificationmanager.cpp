@@ -34,7 +34,7 @@
 #endif
 
 //! The category definitions directory
-static const char *CATEGORY_DEFINITION_FILE_DIRECTORY = "/usr/share/nemo/notifications/categories";
+static const char *CATEGORY_DEFINITION_FILE_DIRECTORY = "/usr/share/lipstick/notificationcategories";
 
 //! The number configuration files to load into the event type store.
 static const uint MAX_CATEGORY_DEFINITION_FILES = 100;
