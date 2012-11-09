@@ -716,7 +716,7 @@ void Ut_NotificationManager::testRemoteActionIsInvokedIfDefined()
     QCOMPARE(mRemoteActionTrigger.last(), hints.value(QString(NotificationManager::HINT_REMOTE_ACTION_PREFIX) + "action").toString());
 }
 
-void Ut_NotificationManager::testInvokingActionRemovesNotificationIfUserRemovable()
+void Ut_NotificationManager::testInvokingActionClearsNotificationIfUserRemovable()
 {
     // Add three notifications with user removability not set, set to true and set to false
     NotificationManager *manager = NotificationManager::instance();
@@ -747,6 +747,26 @@ void Ut_NotificationManager::testInvokingActionRemovesNotificationIfUserRemovabl
     QCOMPARE(closedSpy.at(0).at(1).toInt(), (int)NotificationManager::NotificationDismissedByUser);
     QCOMPARE(closedSpy.at(1).at(0).toUInt(), id2);
     QCOMPARE(closedSpy.at(1).at(1).toInt(), (int)NotificationManager::NotificationDismissedByUser);
+}
+
+void Ut_NotificationManager::testInvokingActionRemovesNotificationIfUserRemovableAndLegacyGroup()
+{
+    // Add three notifications with user removability not set, set to true and set to false
+    NotificationManager *manager = NotificationManager::instance();
+    QVariantHash hints;
+    hints.insert(NotificationManager::HINT_USER_REMOVABLE, true);
+    hints.insert(NotificationManager::HINT_LEGACY_TYPE, "MNotificationGroup");
+    uint id = manager->Notify("app2", 0, QString(), QString(), QString(), QStringList(), hints, 0);
+    Notification *notification = manager->notification(id);
+    connect(this, SIGNAL(actionInvoked(QString)), notification, SIGNAL(actionInvoked(QString)));
+
+    // Make all notifications emit the actionInvoked() signal for action "action"; removable notifications should get removed
+    QSignalSpy removedSpy(manager, SIGNAL(notificationRemoved(uint)));
+    QSignalSpy closedSpy(manager, SIGNAL(NotificationClosed(uint,uint)));
+    emit actionInvoked("action");
+    QCOMPARE(removedSpy.count(), 1);
+    QCOMPARE(removedSpy.at(0).at(0).toUInt(), id);
+    QCOMPARE(closedSpy.count(), 0);
 }
 
 void Ut_NotificationManager::testListingNotifications()
