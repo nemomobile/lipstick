@@ -37,12 +37,13 @@
 #define LAUNCHER_DEBUG(things)
 #endif
 
-LauncherItem::LauncherItem(const QString &path, QObject *parent)
+LauncherItem::LauncherItem(const QString &filePath, QObject *parent)
     : QObject(parent)
-    , _desktopEntry(new MDesktopEntry(path))
     , _isLaunching(false)
 {
-    emit this->itemChanged();
+    if (!filePath.isEmpty()) {
+        setFilePath(filePath);
+    }
 
     // TODO: instead of this, match the PID of the window thumbnails with the launcher processes
     // Launching animation will be disabled if the window of the launched app shows up
@@ -53,39 +54,50 @@ LauncherItem::~LauncherItem()
 {
 }
 
+void LauncherItem::setFilePath(const QString &filePath)
+{
+    if (!filePath.isEmpty()) {
+        _desktopEntry = QSharedPointer<MDesktopEntry>(new MDesktopEntry(filePath));
+    } else {
+        _desktopEntry.clear();
+    }
+
+    emit this->itemChanged();
+}
+
 QString LauncherItem::filePath() const
 {
-    return _desktopEntry->fileName();
+    return !_desktopEntry.isNull() ? _desktopEntry->fileName() : QString();
 }
 
 QString LauncherItem::title() const
 {
-    return _desktopEntry->name();
+    return !_desktopEntry.isNull() ? _desktopEntry->name() : QString();
 }
 
 QString LauncherItem::entryType() const
 {
-    return _desktopEntry->type();
+    return !_desktopEntry.isNull() ? _desktopEntry->type() : QString();
 }
 
 QString LauncherItem::iconId() const
 {
-    return _desktopEntry->icon();
+    return !_desktopEntry.isNull() ? _desktopEntry->icon() : QString();
 }
 
 QStringList LauncherItem::desktopCategories() const
 {
-    return _desktopEntry->categories();
+    return !_desktopEntry.isNull() ? _desktopEntry->categories() : QStringList();
 }
 
 bool LauncherItem::shouldDisplay() const
 {
-    return !_desktopEntry->noDisplay();
+    return !_desktopEntry.isNull() ? !_desktopEntry->noDisplay() : false;
 }
 
 bool LauncherItem::isValid() const
 {
-    return _desktopEntry->isValid();
+    return !_desktopEntry.isNull() ? _desktopEntry->isValid() : false;
 }
 
 bool LauncherItem::isLaunching() const
@@ -103,6 +115,9 @@ void LauncherItem::disableIsLaunching()
 
 void LauncherItem::launchApplication()
 {
+    if (_desktopEntry.isNull())
+        return;
+
 #if defined(HAVE_CONTENTACTION)
     LAUNCHER_DEBUG("launching content action for" << _desktopEntry->name());
     ContentAction::Action action = ContentAction::Action::launcherAction(_desktopEntry, QStringList());
