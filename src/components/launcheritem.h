@@ -31,7 +31,7 @@ class LIPSTICK_EXPORT LauncherItem : public QObject
     Q_OBJECT
     Q_DISABLE_COPY(LauncherItem)
 
-    Q_PROPERTY(QString filePath READ filePath NOTIFY itemChanged)
+    Q_PROPERTY(QString filePath READ filePath WRITE setFilePath NOTIFY itemChanged)
     Q_PROPERTY(QString title READ title NOTIFY itemChanged)
     Q_PROPERTY(QString entryType READ entryType NOTIFY itemChanged)
     Q_PROPERTY(QString iconId READ iconId NOTIFY itemChanged)
@@ -47,9 +47,10 @@ private slots:
     void disableIsLaunching();
 
 public:
-    explicit LauncherItem(const QString &path, QObject *parent = 0);
+    explicit LauncherItem(const QString &filePath = QString(), QObject *parent = 0);
     virtual ~LauncherItem();
 
+    void setFilePath(const QString &filePath);
     QString filePath() const;
     QString title() const;
     QString entryType() const;
