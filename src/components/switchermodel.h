@@ -43,6 +43,7 @@ public:
 
 signals:
     void itemCountChanged();
+    void pushProgress(float progress);
 
 };
 

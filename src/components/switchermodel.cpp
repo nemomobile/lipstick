@@ -15,6 +15,7 @@
 #include <QFileSystemWatcher>
 #include <QRegExp>
 #include <QX11Info>
+#include <QDebug>
 
 #include "switchermodel.h"
 #include "xtools/xatomcache.h"
@@ -43,6 +44,8 @@ SwitcherModel::~SwitcherModel()
 
 bool SwitcherModel::handleXEvent(const XEvent &event)
 {
+
+    SWITCHER_DEBUG("Hande X11 event");
     if (event.type == PropertyNotify &&
         event.xproperty.window == DefaultRootWindow(QX11Info::display()) &&
         event.xproperty.atom == AtomCache::atom("_NET_CLIENT_LIST"))
@@ -56,6 +59,33 @@ bool SwitcherModel::handleXEvent(const XEvent &event)
         SWITCHER_DEBUG("Got close WindowInfo event for " << event.xclient.window);
         WindowInfo *wi = WindowInfo::windowFor(event.xclient.window);
         delete wi;
+        return true;
+    } else if (event.type == PropertyNotify &&
+               event.xproperty.atom == AtomCache::atom("_LIPSTICK_PUSH_PROGRESS")) {
+
+        Atom actualType;
+        int actualFormat;
+        unsigned long numWindowItems, bytesLeft;
+        unsigned char *windowData = NULL;
+
+        int result = XGetWindowProperty(event.xproperty.display,
+                                        event.xproperty.window,
+                                        AtomCache::atom("_LIPSTICK_PUSH_PROGRESS"),
+                                        0, 1,
+                                        false, XA_CARDINAL,
+                                        &actualType,
+                                        &actualFormat,
+                                        &numWindowItems,
+                                        &bytesLeft,
+                                        &windowData);
+
+        if (result != Success || windowData == None) {
+            qWarning() << "Unable to read data";
+            return false;
+        }
+        float progress = *(float*)windowData;
+        emit pushProgress(progress);
+
         return true;
     }
 
