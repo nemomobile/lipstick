@@ -27,7 +27,9 @@ PUBLICHEADERS += \
     notifications/notificationmanager.h \
     notifications/notification.h \
     notifications/notificationlistmodel.h \
-    notifications/notificationpreviewpresenter.h
+    notifications/notificationpreviewpresenter.h \
+    xtools/xeventlistener.h \
+    xtools/xatomcache.h
 
 INSTALLS += publicheaderfiles
 publicheaderfiles.files = $$PUBLICHEADERS
@@ -38,8 +40,6 @@ HEADERS += \
     utilities/qobjectlistmodel.h \
     xtools/homewindowmonitor.h \
     xtools/windowmonitor.h \
-    xtools/xeventlistener.h \
-    xtools/xatomcache.h \
     xtools/xwindowmanager.h \
     xtools/x11wrapper.h \
     lipstickdbusinterface.h \
