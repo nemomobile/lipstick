@@ -18,10 +18,13 @@
 #ifndef ATOMCACHE_H
 #define ATOMCACHE_H
 
+#include <QByteArray>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 
-class AtomCache
+#include "lipstickglobal.h"
+
+class LIPSTICK_EXPORT AtomCache
 {
 public:
     static Atom atom(const QByteArray &atom);

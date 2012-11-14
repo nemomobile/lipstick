@@ -14,13 +14,14 @@
 #define XEVENTLISTENER_H_
 
 #include <X11/Xlib.h>
+#include "lipstickglobal.h"
 
 /*!
  * An interface for listening to X events.
  * Objects of this class receive X events throughout their lifecycle as the events
  * arrive.
  */
-class XEventListener
+class LIPSTICK_EXPORT XEventListener
 {
 public:
     /*!
