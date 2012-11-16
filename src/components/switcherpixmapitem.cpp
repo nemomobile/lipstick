@@ -62,6 +62,7 @@ struct SwitcherPixmapItem::Private
     Pixmap xWindowPixmap;
     Damage xWindowPixmapDamage;
     QPixmap qWindowPixmap;
+    QPixmap staticWindowSnapshot;
     WId windowId;
     int radius;
 };
@@ -73,6 +74,7 @@ SwitcherPixmapItem::SwitcherPixmapItem(QDeclarativeItem *parent)
     setFlag(QGraphicsItem::ItemHasNoContents, false);
     connect(qApp, SIGNAL(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)), this, SLOT(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)));
     connect(HomeWindowMonitor::instance(), SIGNAL(isHomeWindowOnTopChanged()), this, SLOT(toggleDamage()));
+    connect(this, SIGNAL(enabledChanged()), this, SLOT(onEnabledChanged()));
 }
 
 SwitcherPixmapItem::~SwitcherPixmapItem()
@@ -127,6 +129,26 @@ void SwitcherPixmapItem::createDamage()
 
     // Register the pixmap for XDamage events
     d->xWindowPixmapDamage = XDamageCreate(QX11Info::display(), d->windowId, XDamageReportNonEmpty);
+}
+
+void SwitcherPixmapItem::onEnabledChanged()
+{
+    if (!d->xWindowPixmapIsValid) {
+        qWarning() << Q_FUNC_INFO << "Pixmap for window " << d->windowId << " is not valid, and enabled changed to " << isEnabled();
+        return;
+    }
+
+    if (!isEnabled()) {
+        // deep copy the window pixmap
+        SWITCHER_DEBUG() << Q_FUNC_INFO << "Detaching window pixmap for " << d->windowId;
+        d->staticWindowSnapshot = QPixmap::fromImage(d->qWindowPixmap.toImage());
+    } else {
+        // restore the original shallow copy
+        SWITCHER_DEBUG() << Q_FUNC_INFO << "Attaching window pixmap for " << d->windowId;
+        d->staticWindowSnapshot = QPixmap();
+    }
+
+    update();
 }
 
 void SwitcherPixmapItem::updateXWindowPixmap()
@@ -224,7 +246,11 @@ void SwitcherPixmapItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
         painter->setRenderHint(QPainter::SmoothPixmapTransform);
 
     QT_TRY {
-        QBrush brush(d->qWindowPixmap);
+        QBrush brush;
+        if (!d->staticWindowSnapshot.isNull())
+            brush.setTexture(d->staticWindowSnapshot);
+        else
+            brush.setTexture(d->qWindowPixmap);
 
         // TODO: take clipping of statusbar (if any) into account here
         qreal scale;
