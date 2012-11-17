@@ -53,10 +53,14 @@ public:
     int radius() const;
     void setRadius(int radius);
 
+    Q_PROPERTY(bool damageReceived READ damageReceived NOTIFY damageReceivedChanged)
+    bool damageReceived() const;
+
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
 signals:
     void radiusChanged();
+    void damageReceivedChanged();
 
 private slots:
     void damageEvent(Qt::HANDLE &damage, short &x, short &y, unsigned short &width, unsigned short &height);

@@ -52,6 +52,7 @@ struct SwitcherPixmapItem::Private
 {
     Private()
         : xWindowPixmapIsValid(false)
+        , damageReceived(false)
         , xWindowPixmap(0)
         , xWindowPixmapDamage(0)
         , windowId(0)
@@ -59,6 +60,7 @@ struct SwitcherPixmapItem::Private
     {}
 
     bool xWindowPixmapIsValid;
+    bool damageReceived;
     Pixmap xWindowPixmap;
     Damage xWindowPixmapDamage;
     QPixmap qWindowPixmap;
@@ -106,6 +108,12 @@ void SwitcherPixmapItem::damageEvent(Qt::HANDLE &damage, short &x, short &y, uns
 #ifdef Q_WS_X11
     if (d->xWindowPixmapDamage == damage) {
         XDamageSubtract(QX11Info::display(), d->xWindowPixmapDamage, None, None);
+
+        if (!d->damageReceived) {
+            d->damageReceived = true;
+            emit damageReceivedChanged();
+        }
+
         update();
     }
 #else
@@ -227,6 +235,11 @@ void SwitcherPixmapItem::setRadius(int radius)
 int SwitcherPixmapItem::radius() const
 {
     return d->radius;
+}
+
+bool SwitcherPixmapItem::damageReceived() const
+{
+    return d->damageReceived;
 }
 
 void SwitcherPixmapItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
