@@ -87,14 +87,7 @@ SwitcherPixmapItem::~SwitcherPixmapItem()
 
 void SwitcherPixmapItem::toggleDamage()
 {
-    if (HomeWindowMonitor::instance()->isHomeWindowOnTop()) {
-        SWITCHER_DEBUG() << Q_FUNC_INFO << "Creating damage for " << d->windowId;
-        createDamage();
-        update();
-    } else {
-        SWITCHER_DEBUG() << Q_FUNC_INFO << "Destroying damage for " << d->windowId;
-        destroyDamage();
-    }
+    updateXWindowPixmap();
 }
 
 void SwitcherPixmapItem::damageEvent(Qt::HANDLE &damage, short &x, short &y, unsigned short &width, unsigned short &height)
@@ -121,24 +114,14 @@ void SwitcherPixmapItem::destroyDamage()
     }
 }
 
-void SwitcherPixmapItem::createDamage()
-{
-    // TODO: check on display status, don't create damage if off
-    if (d->windowId == 0)
-        return;
-
-    // Register the pixmap for XDamage events
-    d->xWindowPixmapDamage = XDamageCreate(QX11Info::display(), d->windowId, XDamageReportNonEmpty);
-}
-
 void SwitcherPixmapItem::onEnabledChanged()
 {
-    if (!d->xWindowPixmapIsValid) {
-        qWarning() << Q_FUNC_INFO << "Pixmap for window " << d->windowId << " is not valid, and enabled changed to " << isEnabled();
-        return;
-    }
-
     if (!isEnabled()) {
+        if (!d->xWindowPixmapIsValid) {
+            qWarning() << Q_FUNC_INFO << "Pixmap for window " << d->windowId << " is not valid, and enabled changed to " << isEnabled();
+            return;
+        }
+
         // deep copy the window pixmap
         SWITCHER_DEBUG() << Q_FUNC_INFO << "Detaching window pixmap for " << d->windowId;
         d->staticWindowSnapshot = QPixmap::fromImage(d->qWindowPixmap.toImage());
@@ -146,6 +129,7 @@ void SwitcherPixmapItem::onEnabledChanged()
         // restore the original shallow copy
         SWITCHER_DEBUG() << Q_FUNC_INFO << "Attaching window pixmap for " << d->windowId;
         d->staticWindowSnapshot = QPixmap();
+        updateXWindowPixmap();
     }
 
     update();
@@ -183,8 +167,7 @@ void SwitcherPixmapItem::updateXWindowPixmap()
         d->xWindowPixmap = newWindowPixmap;
 
         // Register the pixmap for XDamage events
-        if (HomeWindowMonitor::instance()->isHomeWindowOnTop())
-            createDamage();
+        d->xWindowPixmapDamage = XDamageCreate(QX11Info::display(), d->windowId, XDamageReportNonEmpty);
 
         d->qWindowPixmap = QPixmap::fromX11Pixmap(d->xWindowPixmap, QPixmap::ExplicitlyShared);
     } else {
@@ -273,34 +256,5 @@ void SwitcherPixmapItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
         painter->setRenderHints(oldHints);
     painter->setPen(oldPen);
     painter->setBrush(oldBrush);
-}
-
-bool SwitcherPixmapItem::handleXEvent(const XEvent &event)
-{
-    WId windowId;
-
-    if (event.type == VisibilityNotify) {
-        if (event.xvisibility.state != VisibilityFullyObscured ||
-            event.xvisibility.send_event != True) {
-            SWITCHER_DEBUG() << Q_FUNC_INFO << "Ignoring VisibilityNotify that isn't a send_event VisibilityFullyObscured for " << event.xvisibility.window;
-            return false;
-        }
-
-        windowId = event.xvisibility.window;
-        SWITCHER_DEBUG() << Q_FUNC_INFO << "Got obscured for " << windowId << "; want " << d->windowId;
-    } else if (event.type == ConfigureNotify) {
-        windowId = event.xconfigure.window;
-        SWITCHER_DEBUG() << Q_FUNC_INFO << "ConfigureNotify for " << windowId << "; want " << d->windowId;
-    } else {
-        return false;
-    }
-
-    if (windowId != d->windowId)
-        return false;
-
-    SWITCHER_DEBUG() << Q_FUNC_INFO << "Invalidated, resetting pixmap for " << d->windowId;
-    d->xWindowPixmapIsValid = false;
-    update();
-    return true;
 }
 
