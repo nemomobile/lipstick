@@ -109,8 +109,8 @@ public:
     //! Nemo hint: User removability of the notification.
     static const char *HINT_USER_REMOVABLE;
 
-    //! Nemo hint: Legacy type of the notification.
-    static const char *HINT_LEGACY_TYPE;
+    //! Nemo hint: User closeability of the notification.
+    static const char *HINT_USER_CLOSEABLE;
 
     //! Notifation closing reasons used in the NotificationClosed signal
     enum NotificationClosedReason {

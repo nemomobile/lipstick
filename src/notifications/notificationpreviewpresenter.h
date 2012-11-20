@@ -90,7 +90,7 @@ private slots:
      *
      * \param id the ID of the notification to be removed
      */
-    void removeNotification(uint id);
+    void removeNotification(uint id, bool onlyFromQueue = false);
 
 private:
     //! Creates the notification window if it has not been created yet.

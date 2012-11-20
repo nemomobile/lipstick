@@ -34,7 +34,7 @@ private slots:
     void testWindowMasking();
     void testNotificationNotShownIfNoSummaryOrBody_data();
     void testNotificationNotShownIfNoSummaryOrBody();
-    void testUpdateNotificationRemovesNotificationIfNoSummaryOrBody();
+    void testUpdateNotificationRemovesNotificationFromQueueIfNoSummaryOrBody();
 };
 
 #endif

@@ -73,11 +73,12 @@ void NotificationPreviewPresenter::updateNotification(uint id)
             }
         }
     } else {
-        removeNotification(id);
+        // Remove updated notification only from the queue so that a currently visible notification won't suddenly disappear
+        removeNotification(id, true);
     }
 }
 
-void NotificationPreviewPresenter::removeNotification(uint id)
+void NotificationPreviewPresenter::removeNotification(uint id, bool onlyFromQueue)
 {
     // Remove the notification from the queue
     Notification *notification = NotificationManager::instance()->notification(id);
@@ -86,7 +87,7 @@ void NotificationPreviewPresenter::removeNotification(uint id)
         notificationQueue.removeAll(notification);
 
         // If the notification is currently being shown hide it - the next notification will be shown after the current one has been hidden
-        if (currentNotification == notification) {
+        if (!onlyFromQueue && currentNotification == notification) {
             currentNotification = 0;
             emit notificationChanged();
         }

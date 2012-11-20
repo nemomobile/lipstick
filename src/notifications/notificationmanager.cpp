@@ -61,7 +61,7 @@ const char *NotificationManager::HINT_PREVIEW_BODY = "x-nemo-preview-body";
 const char *NotificationManager::HINT_PREVIEW_SUMMARY = "x-nemo-preview-summary";
 const char *NotificationManager::HINT_REMOTE_ACTION_PREFIX = "x-nemo-remote-action-";
 const char *NotificationManager::HINT_USER_REMOVABLE = "x-nemo-user-removable";
-const char *NotificationManager::HINT_LEGACY_TYPE = "x-nemo-legacy-type";
+const char *NotificationManager::HINT_USER_CLOSEABLE = "x-nemo-user-closeable";
 
 NotificationManager *NotificationManager::instance_ = 0;
 
@@ -506,13 +506,14 @@ void NotificationManager::invokeAction(const QString &action)
 
             QVariant userRemovable = notification->hints().value(HINT_USER_REMOVABLE);
             if (!userRemovable.isValid() || userRemovable.toBool()) {
-                // The notification should be closed if user removability is not defined (defaults to true) or is set to true
-                if (notification->hints().value(HINT_LEGACY_TYPE).toString() == "MNotificationGroup") {
-                    // libmeegotouch notification groups should only be removed from display when tapped
-                    emit notificationRemoved(id);
-                } else {
-                    // Normal notifications should be removed when tapped
+                // The notification should be removed if user removability is not defined (defaults to true) or is set to true
+                QVariant userCloseable = notification->hints().value(HINT_USER_CLOSEABLE);
+                if (!userCloseable.isValid() || userCloseable.toBool()) {
+                    // The notification should be closed if user closeability is not defined (defaults to true) or is set to true
                     CloseNotification(id, NotificationDismissedByUser);
+                } else {
+                    // Uncloseable notifications should be only removed
+                    emit notificationRemoved(id);
                 }
             }
         }

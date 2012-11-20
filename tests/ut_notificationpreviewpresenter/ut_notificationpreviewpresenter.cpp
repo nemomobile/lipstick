@@ -354,20 +354,28 @@ void Ut_NotificationPreviewPresenter::testNotificationNotShownIfNoSummaryOrBody(
     QCOMPARE(qWidgetVisible[static_cast<QWidget *>(qDeclarativeViews.first())], windowVisible);
 }
 
-void Ut_NotificationPreviewPresenter::testUpdateNotificationRemovesNotificationIfNoSummaryOrBody()
+void Ut_NotificationPreviewPresenter::testUpdateNotificationRemovesNotificationFromQueueIfNoSummaryOrBody()
 {
     NotificationPreviewPresenter presenter;
 
-    // Create a notification
-    Notification *notification = createNotification(1);
+    // Create two notifications
+    Notification *notification1 = createNotification(1);
+    Notification *notification2 = createNotification(2);
     presenter.updateNotification(1);
+    presenter.updateNotification(2);
 
-    // Update the notification to have no summary or body
+    // Update the notifications to have no summary or body
     QSignalSpy spy(&presenter, SIGNAL(notificationChanged()));
-    notification->setHints(QVariantHash());
+    notification1->setHints(QVariantHash());
+    notification2->setHints(QVariantHash());
     presenter.updateNotification(1);
+    presenter.updateNotification(2);
 
-    // Check that an empty notification is signaled onwards
+    // Check that the current notification is not removed
+    QCOMPARE(spy.count(), 0);
+
+    // Check that the other notification is removed from the queue
+    presenter.showNextNotification();
     QCOMPARE(spy.count(), 1);
     QCOMPARE(presenter.notification(), (Notification *)0);
 }
