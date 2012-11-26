@@ -75,6 +75,7 @@ void QWidget::setVisible(bool visible)
     qWidgetVisible[this] = visible;
 }
 
+const char *NotificationManager::HINT_URGENCY = "urgency";
 const char *NotificationManager::HINT_ICON = "x-nemo-icon";
 const char *NotificationManager::HINT_TIMESTAMP = "x-nemo-timestamp";
 const char *NotificationManager::HINT_PREVIEW_ICON = "x-nemo-preview-icon";
@@ -354,7 +355,35 @@ void Ut_NotificationPreviewPresenter::testNotificationNotShownIfNoSummaryOrBody(
     QCOMPARE(qWidgetVisible[static_cast<QWidget *>(qDeclarativeViews.first())], windowVisible);
 }
 
-void Ut_NotificationPreviewPresenter::testUpdateNotificationRemovesNotificationFromQueueIfNoSummaryOrBody()
+void Ut_NotificationPreviewPresenter::testShowingOnlyUrgentNotifications()
+{
+    NotificationPreviewPresenter presenter;
+    QSignalSpy spy(&presenter, SIGNAL(notificationChanged()));
+
+    // Create notification
+    Notification *notification = new Notification;
+    QVariantHash hints;
+    hints.insert(NotificationManager::HINT_PREVIEW_SUMMARY, "previewSummary");
+    hints.insert(NotificationManager::HINT_PREVIEW_BODY, "previewBody");
+    hints.insert(NotificationManager::HINT_URGENCY, 2);
+    notification->setHints(hints);
+    notificationManagerNotification.insert(1, notification);
+
+    // Urgency is not high enough, so the notification shouldn't be shown
+    presenter.setPresentOnlyHighestUrgencyNotifications(true);
+    presenter.updateNotification(1);
+    QCOMPARE(spy.count(), 0);
+    QCOMPARE(qWidgetVisible[static_cast<QWidget *>(qDeclarativeViews.first())], false);
+
+    // Urgency set to highest level, so the notification should be shown
+    hints.insert(NotificationManager::HINT_URGENCY, 3);
+    notification->setHints(hints);
+    presenter.updateNotification(1);
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(qWidgetVisible[static_cast<QWidget *>(qDeclarativeViews.first())], true);
+}
+
+void Ut_NotificationPreviewPresenter::testUpdateNotificationRemovesNotificationFromQueueIfNotShowable()
 {
     NotificationPreviewPresenter presenter;
 

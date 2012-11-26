@@ -14,12 +14,10 @@
 ****************************************************************************/
 
 #include <QtTest/QtTest>
-#include <QDBusInterface>
-#include <QDBusPendingCall>
-#include <mce/mode-names.h>
-#include "ut_lipsticksettings.h"
-#include "lipsticksettings.h"
+#include "screenlock_stub.h"
 #include "homeapplication.h"
+#include "lipsticksettings.h"
+#include "ut_lipsticksettings.h"
 
 HomeApplication *HomeApplication::instance()
 {
@@ -30,21 +28,6 @@ QDeclarativeView *homeApplicationMainWindowInstance = 0;
 QDeclarativeView *HomeApplication::mainWindowInstance()
 {
     return homeApplicationMainWindowInstance;
-}
-
-QString qDBusConnectionAsyncCallService;
-QString qDBusConnectionAsyncCallPath;
-QString qDBusConnectionAsyncCallInterface;
-QString qDBusConnectionAsyncCallMember;
-QVariantList qDBusConnectionAsyncCallArguments;
-QDBusPendingCall QDBusConnection::asyncCall(const QDBusMessage &message, int) const
-{
-    qDBusConnectionAsyncCallService = message.service();
-    qDBusConnectionAsyncCallPath = message.path();
-    qDBusConnectionAsyncCallInterface = message.interface();
-    qDBusConnectionAsyncCallMember = message.member();
-    qDBusConnectionAsyncCallArguments = message.arguments();
-    return QDBusPendingCall::fromCompletedCall(QDBusMessage());
 }
 
 void Ut_LipstickSettings::initTestCase()
@@ -61,34 +44,30 @@ void Ut_LipstickSettings::testSetLockScreenVisible()
 {
     LipstickSettings settings;
 
-    // Externally making lock screen visible should not lock the screen
-    settings.setLockscreenVisible(true, true);
-    QCOMPARE(qDBusConnectionAsyncCallService.isEmpty(), true);
-    settings.setLockscreenVisible(false, true);
+    // No screen lock set: calling setLockscreenVisible() does nothing
+    settings.setLockscreenVisible(false);
+    QCOMPARE(gScreenLockStub->stubCallCount("unlockScreen"), 0);
+    settings.setLockscreenVisible(true);
+    QCOMPARE(gScreenLockStub->stubCallCount("lockScreen"), 0);
 
-    // Internally making lock screen visible should start the timer
-    settings.setLockscreenVisible(true, false);
-    QCOMPARE(qDBusConnectionAsyncCallService, QString("com.nokia.mce"));
-    QCOMPARE(qDBusConnectionAsyncCallPath, QString("/com/nokia/mce/request"));
-    QCOMPARE(qDBusConnectionAsyncCallInterface, QString("com.nokia.mce.request"));
-    QCOMPARE(qDBusConnectionAsyncCallMember, QString("req_tklock_mode_change"));
-    QCOMPARE(qDBusConnectionAsyncCallArguments.count(), 1);
-    QCOMPARE(qDBusConnectionAsyncCallArguments.last(), QVariant(MCE_TK_LOCKED_DELAY));
+    // Screen lock set: calling setLockscreenVisible() with a changed lock state calls the appropriate function
+    ScreenLock screenLock;
+    settings.setScreenLock(&screenLock);
+    gScreenLockStub->stubSetReturnValue("isScreenLocked", false);
+    settings.setLockscreenVisible(true);
+    QCOMPARE(gScreenLockStub->stubCallCount("lockScreen"), 1);
 
-    // Reset the state
-    qDBusConnectionAsyncCallService.clear();
+    gScreenLockStub->stubSetReturnValue("isScreenLocked", true);
+    settings.setLockscreenVisible(false);
+    QCOMPARE(gScreenLockStub->stubCallCount("unlockScreen"), 1);
 
-    // Externally making lock screen invisible should not lock the screen
-    settings.setLockscreenVisible(false, true);
-    QCOMPARE(qDBusConnectionAsyncCallService.isEmpty(), true);
+    // Screen lock set: calling setLockscreenVisible() with the same lock state does nothing
+    settings.setLockscreenVisible(true);
+    QCOMPARE(gScreenLockStub->stubCallCount("lockScreen"), 1);
 
-    // Reset the state
-    settings.setLockscreenVisible(true, false);
-    qDBusConnectionAsyncCallService.clear();
-
-    // Internally making lock screen invisible should not lock the screen
-    settings.setLockscreenVisible(false, false);
-    QCOMPARE(qDBusConnectionAsyncCallService.isEmpty(), true);
+    gScreenLockStub->stubSetReturnValue("isScreenLocked", false);
+    settings.setLockscreenVisible(false);
+    QCOMPARE(gScreenLockStub->stubCallCount("unlockScreen"), 1);
 }
 
 QTEST_MAIN(Ut_LipstickSettings)

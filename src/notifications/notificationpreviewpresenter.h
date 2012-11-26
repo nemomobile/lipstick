@@ -77,6 +77,13 @@ public slots:
      */
     void showNextNotification();
 
+    /*!
+     * Sets whether only the most urgent (level 3) notifications are shown.
+     *
+     * \param onlyUrgent if \c true, only notifications with urgency level 3 are shown, otherwise all notifications are shown
+     */
+    void setPresentOnlyHighestUrgencyNotifications(bool onlyUrgent);
+
 private slots:
     /*!
      * Updates the notification with the given ID.
@@ -97,7 +104,7 @@ private:
     void createWindowIfNecessary();
 
     //! Checks whether the given notification has a preview body and a preview summary.
-    static bool notificationShouldBeShown(Notification *notification);
+    bool notificationShouldBeShown(Notification *notification);
 
     //! The notification window
     QDeclarativeView *window;
@@ -107,6 +114,9 @@ private:
 
     //! Notification currently being shown
     Notification *currentNotification;
+
+    //! Whether only notifications of highest urgency should be shown
+    bool presentOnlyHighestUrgencyNotifications;
 
 #ifdef UNIT_TEST
     friend class Ut_NotificationPreviewPresenter;

@@ -19,6 +19,7 @@
 #include "lipstickglobal.h"
 
 class XEventListener;
+class ScreenLock;
 
 /*!
  * Extends QApplication with features necessary to create a desktop.
@@ -112,6 +113,9 @@ private:
 
     //! The original SIGTERM handler
     sighandler_t originalSigTermHandler;
+
+    //! Logic for locking and unlocking the screen
+    ScreenLock *screenLock;
 };
 
 #endif /* HOMEAPPLICATION_H_ */

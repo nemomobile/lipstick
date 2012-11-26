@@ -1,5 +1,7 @@
 SRCDIR = ../../src
 NOTIFICATIONSRCDIR = $$SRCDIR/notifications
+SCREENLOCKSRCDIR = $$SRCDIR/screenlock
+UTILITYSRCDIR = $$SRCDIR/utilities
 STUBSDIR = ../stubs
 COMMONDIR = ../common
 INCLUDEPATH += $$SRCDIR $$STUBSDIR

@@ -1,5 +1,5 @@
 TEMPLATE = subdirs
-SUBDIRS = ut_categorydefinitionstore ut_notification ut_notificationmanager ut_notificationlistmodel ut_lipstickdbusinterface ut_lipsticksettings ut_notificationpreviewpresenter
+SUBDIRS = ut_categorydefinitionstore ut_notification ut_notificationmanager ut_notificationlistmodel ut_lipsticksettings ut_notificationpreviewpresenter ut_closeeventeater ut_eventeater ut_screenlock
 
 support_files.commands += $$PWD/gen-tests-xml.sh > $$OUT_PWD/tests.xml
 support_files.target = support_files
