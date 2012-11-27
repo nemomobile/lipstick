@@ -12,7 +12,6 @@
 ** of this file.
 **
 ****************************************************************************/
-
 #ifndef CATEGORYDEFINITIONSTORE_STUB
 #define CATEGORYDEFINITIONSTORE_STUB
 
