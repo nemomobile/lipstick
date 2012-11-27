@@ -1,4 +1,5 @@
 system(qdbusxml2cpp notifications/notificationmanager.xml -a notifications/notificationmanageradaptor -c NotificationManagerAdaptor -l NotificationManager -i notificationmanager.h)
+system(qdbusxml2cpp screenlock/screenlock.xml -a screenlock/screenlockadaptor -c ScreenLockAdaptor -l ScreenLock -i screenlock.h)
 
 TEMPLATE = lib
 TARGET = lipstick
@@ -31,30 +32,35 @@ PUBLICHEADERS += \
     xtools/xeventlistener.h \
     xtools/xatomcache.h
 
-INSTALLS += publicheaderfiles
+INSTALLS += publicheaderfiles dbus_policy
 publicheaderfiles.files = $$PUBLICHEADERS
 publicheaderfiles.path = /usr/include/lipstick
+dbus_policy.files += lipstick.conf
+dbus_policy.path = /etc/dbus-1/system.d
 
 HEADERS += \
     $$PUBLICHEADERS \
     utilities/qobjectlistmodel.h \
+    utilities/closeeventeater.h \
     xtools/homewindowmonitor.h \
     xtools/windowmonitor.h \
     xtools/xwindowmanager.h \
     xtools/x11wrapper.h \
-    lipstickdbusinterface.h \
     lipsticksettings.h \
     notifications/notificationmanager.h \
     notifications/notificationmanageradaptor.h \
     notifications/notification.h \
     notifications/categorydefinitionstore.h \
-    notifications/notificationlistmodel.h
+    notifications/notificationlistmodel.h \
+    screenlock/eventeater.h \
+    screenlock/screenlock.h \
+    screenlock/screenlockadaptor.h
 
 SOURCES += \
     homeapplication.cpp \
-    lipstickdbusinterface.cpp \
     lipsticksettings.cpp \
     utilities/qobjectlistmodel.cpp \
+    utilities/closeeventeater.cpp \
     xtools/homewindowmonitor.cpp \
     xtools/xeventlistener.cpp \
     xtools/xatomcache.cpp \
@@ -72,7 +78,10 @@ SOURCES += \
     notifications/notification.cpp \
     notifications/categorydefinitionstore.cpp \
     notifications/notificationlistmodel.cpp \
-    notifications/notificationpreviewpresenter.cpp
+    notifications/notificationpreviewpresenter.cpp \
+    screenlock/eventeater.cpp \
+    screenlock/screenlock.cpp \
+    screenlock/screenlockadaptor.cpp
 
 CONFIG += link_pkgconfig mobility qt warn_on depend_includepath qmake_cache target_qt
 MOBILITY += sensors

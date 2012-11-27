@@ -15,29 +15,20 @@
 // Copyright (c) 2012, Robin Burchell <robin+nemo@viroteck.net>
 //
 
-#include <QX11Info>
-#include <QDeclarativeView>
-#include <QApplication>
-#include <QDesktopWidget>
-#include <QDBusMessage>
-#include <QDBusPendingCall>
-#include <QDBusConnection>
 #include <QDebug>
+#include <QDesktopWidget>
 #include <QtSensors/QOrientationSensor>
 #include <QtSensors/QOrientationReading>
-#include <mce/mode-names.h>
 
-#include "lipsticksettings.h"
+#include "screenlock/screenlock.h"
 #include "homeapplication.h"
-
-#include <X11/Xatom.h>
-#include <X11/Xlib.h>
+#include "lipsticksettings.h"
 
 Q_GLOBAL_STATIC(LipstickSettings, settingsInstance)
 
 LipstickSettings::LipstickSettings()
     : QObject()
-    , _lockscreenVisible(false)
+    , screenLock(0)
 {
 }
 
@@ -46,43 +37,26 @@ LipstickSettings *LipstickSettings::instance()
     return settingsInstance();
 }
 
-bool LipstickSettings::lockscreenVisible() const
+void LipstickSettings::setScreenLock(ScreenLock *screenLock)
 {
-    return _lockscreenVisible;
+    this->screenLock = screenLock;
+    connect(screenLock, SIGNAL(screenIsLocked(bool)), this, SIGNAL(lockscreenVisibleChanged()));
 }
 
-void LipstickSettings::setLockscreenVisible(bool lockscreenVisible, bool externallyChanged)
+bool LipstickSettings::lockscreenVisible() const
 {
-    if (lockscreenVisible == _lockscreenVisible)
-        return;
+    return screenLock != 0 ? screenLock->isScreenLocked() : false;
+}
 
-    _lockscreenVisible = lockscreenVisible;
-    QDeclarativeView *view = HomeApplication::instance()->mainWindowInstance();
-
-    long layer = 0;
-    if (lockscreenVisible) {
-        // mcompositor searches for exactly this title when marking a window as
-        // a lockscreen, so make it happy
-        view->setWindowTitle("Screen Lock");
-        layer = 2;
-
-        if (!externallyChanged) {
-            // Lock screen entered from inside the home screen: request screen to be locked
-            QDBusMessage message = QDBusMessage::createMethodCall("com.nokia.mce", "/com/nokia/mce/request", "com.nokia.mce.request", "req_tklock_mode_change");
-            message.setArguments(QVariantList() << MCE_TK_LOCKED_DELAY);
-            QDBusConnection::systemBus().asyncCall(message);
+void LipstickSettings::setLockscreenVisible(bool lockscreenVisible)
+{
+    if (screenLock != 0 && lockscreenVisible != screenLock->isScreenLocked()) {
+        if (lockscreenVisible) {
+            screenLock->lockScreen();
+        } else {
+            screenLock->unlockScreen();
         }
-    } else {
-        view->setWindowTitle("Lipstick");
     }
-
-    // Set the stacking layer
-    Display *display = QX11Info::display();
-    Atom stackingLayerAtom = XInternAtom(display, "_MEEGO_STACKING_LAYER", False);
-    if (stackingLayerAtom != None)
-        XChangeProperty(display, view->winId(), stackingLayerAtom, XA_CARDINAL, 32, PropModeReplace, (unsigned char*)&layer, 1);
-
-    emit lockscreenVisibleChanged();
 }
 
 QSize LipstickSettings::screenSize()
