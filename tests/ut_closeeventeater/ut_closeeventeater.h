@@ -1,5 +1,6 @@
 /***************************************************************************
 **
+** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 ** Copyright (C) 2012 Jolla Ltd.
 ** Contact: Robin Burchell <robin.burchell@jollamobile.com>
 **
@@ -12,17 +13,32 @@
 ** of this file.
 **
 ****************************************************************************/
-#ifndef UT_LIPSTICKDBUSINTERFACE_H
-#define UT_LIPSTICKDBUSINTERFACE_H
+
+#ifndef UT_CLOSEEVENTEATER_H
+#define UT_CLOSEEVENTEATER_H
 
 #include <QObject>
 
-class Ut_LipstickDBusInterface : public QObject
+class CloseEventEater;
+
+class Ut_CloseEventEater : public QObject
 {
     Q_OBJECT
 
 private slots:
-    void testShowAndHideLockScreen();
+    // Called before each testfunction is executed
+    void init();
+    // Called after every testfunction
+    void cleanup();
+
+    // Test cases
+    void testCloseEventIsIgnored();
+    void testOtherEventsArePassedOn_data();
+    void testOtherEventsArePassedOn();
+
+private:
+    // The object being tested
+    CloseEventEater *closeEventEater;
 };
 
 #endif

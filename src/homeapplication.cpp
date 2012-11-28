@@ -10,7 +10,6 @@
 **
 ****************************************************************************/
 
-#include "homeapplication.h"
 #include <QDeclarativeContext>
 #include <QDeclarativeEngine>
 #include <QTimer>
@@ -22,22 +21,24 @@
 #include <QDebug>
 #include <QEvent>
 
+#include "notifications/notificationmanager.h"
+#include "notifications/notificationpreviewpresenter.h"
+#include "screenlock/screenlock.h"
+#include "screenlock/screenlockadaptor.h"
+#include "lipsticksettings.h"
+#include "homeapplication.h"
+
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
 #include <X11/extensions/Xcomposite.h>
 #include <X11/extensions/Xdamage.h>
-
 #include "xtools/xeventlistener.h"
 #include "xtools/xatomcache.h"
 #include "xtools/xwindowmanager.h"
 #include "xtools/homewindowmonitor.h"
-#include "notifications/notificationmanager.h"
-#include "notifications/notificationpreviewpresenter.h"
 #include "components/windowmanager.h"
 #include "components/windowinfo.h"
-#include "lipsticksettings.h"
-#include "lipstickdbusinterface.h"
 
 // Define this if you'd like to see debug messages from the home app
 #ifdef DEBUG_HOME
@@ -72,21 +73,34 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     // launch a timer for sending a dbus-signal upstart when basic construct is done
     QTimer::singleShot(0, this, SLOT(sendStartupNotifications()));
 
-    // Initialize the notification manager;
+    // Initialize the notification manager
     NotificationManager::instance();
-    new NotificationPreviewPresenter(this);
+    NotificationPreviewPresenter *notificationPreviewPresenter = new NotificationPreviewPresenter(this);
 
     // Initialize the home window monitor
     HomeWindowMonitor::instance();
 
-    new LipstickDBusInterface(this);
-    QDBusConnection::sessionBus().registerService("org.nemomobile.lipstick");
-    if (!QDBusConnection::sessionBus().registerObject("/request", this))
-        qWarning("lipstick: CAN'T REGISTER DBUS");
+    // Create screen lock logic - not parented to "this" since destruction happens too late in that case
+    screenLock = new ScreenLock;
+    LipstickSettings::instance()->setScreenLock(screenLock);
+    new ScreenLockAdaptor(screenLock);
+    connect(screenLock, SIGNAL(screenIsLocked(bool)), notificationPreviewPresenter, SLOT(setPresentOnlyHighestUrgencyNotifications(bool)));
+
+    // MCE expects the service to be registered on the system bus
+    static const char *SCREENLOCK_DBUS_SERVICE = "org.nemomobile.lipstick";
+    static const char *SCREENLOCK_DBUS_PATH = "/screenlock";
+    QDBusConnection systemBus = QDBusConnection::systemBus();
+    if (!systemBus.registerService(SCREENLOCK_DBUS_SERVICE)) {
+        qWarning("Unable to register screen lock D-Bus service %s: %s", SCREENLOCK_DBUS_SERVICE, systemBus.lastError().message().toUtf8().constData());
+    }
+    if (!systemBus.registerObject(SCREENLOCK_DBUS_PATH, screenLock)) {
+        qWarning("Unable to register screen lock object at path %s: %s", SCREENLOCK_DBUS_PATH, systemBus.lastError().message().toUtf8().constData());
+    }
 }
 
 HomeApplication::~HomeApplication()
 {
+    delete screenLock;
     delete _mainWindowInstance;
 
     signal(SIGINT, originalSigIntHandler);

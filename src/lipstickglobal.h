@@ -17,6 +17,8 @@
 #ifndef LIPSTICKGLOBAL_H
 #define LIPSTICKGLOBAL_H
 
+#include <QtGlobal>
+
 #if defined(LIPSTICK_BUILD_LIBRARY)
 #define LIPSTICK_EXPORT Q_DECL_EXPORT
 #else

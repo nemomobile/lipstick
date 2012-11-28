@@ -21,20 +21,21 @@
 #include <QMetaType>
 #include <QSize>
 
+class ScreenLock;
+
 class LipstickSettings : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool lockscreenVisible READ lockscreenVisible WRITE setLockscreenVisible NOTIFY lockscreenVisibleChanged)
     Q_PROPERTY(QSize screenSize READ screenSize NOTIFY screenSizeChanged)
 
-    bool _lockscreenVisible;
-
 public:
     explicit LipstickSettings();
     static LipstickSettings *instance();
 
+    void setScreenLock(ScreenLock *screenLock);
     bool lockscreenVisible() const;
-    void setLockscreenVisible(bool lockscreenVisible, bool externallyChanged = false);
+    void setLockscreenVisible(bool lockscreenVisible);
 
     QSize screenSize();
     Q_INVOKABLE bool getIsInPortrait();
@@ -42,6 +43,10 @@ public:
 signals:
     void lockscreenVisibleChanged();
     void screenSizeChanged();
+
+private:
+    //! Logic for locking and unlocking the screen
+    ScreenLock *screenLock;
 };
 
 Q_DECLARE_METATYPE(LipstickSettings *)
