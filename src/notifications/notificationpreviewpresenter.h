@@ -23,7 +23,7 @@ class QDeclarativeView;
 class Notification;
 
 /*!
- * \class NotificationManager
+ * \class NotificationPreviewPresenter
  *
  * \brief Presents notification previews one at a time.
  *
