@@ -39,6 +39,7 @@
 #include "xtools/homewindowmonitor.h"
 #include "components/windowmanager.h"
 #include "components/windowinfo.h"
+#include "volume/volumecontrol.h"
 
 // Define this if you'd like to see debug messages from the home app
 #ifdef DEBUG_HOME
@@ -86,6 +87,8 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     new ScreenLockAdaptor(screenLock);
     connect(screenLock, SIGNAL(screenIsLocked(bool)), notificationPreviewPresenter, SLOT(setPresentOnlyHighestUrgencyNotifications(bool)));
 
+    volumeControl = new VolumeControl;
+
     // MCE expects the service to be registered on the system bus
     static const char *SCREENLOCK_DBUS_SERVICE = "org.nemomobile.lipstick";
     static const char *SCREENLOCK_DBUS_PATH = "/screenlock";
@@ -100,6 +103,7 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
 
 HomeApplication::~HomeApplication()
 {
+    delete volumeControl;
     delete screenLock;
     delete _mainWindowInstance;
 

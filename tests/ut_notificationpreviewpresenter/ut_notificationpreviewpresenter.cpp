@@ -22,6 +22,7 @@
 #include "notificationpreviewpresenter.h"
 #include "xtools/x11wrapper.h"
 #include <X11/extensions/shape.h>
+#include "closeeventeater_stub.h"
 
 Q_DECLARE_METATYPE(NotificationPreviewPresenter*)
 Q_DECLARE_METATYPE(Notification*)
