@@ -26,6 +26,7 @@
 #include <notifications/notificationpreviewpresenter.h>
 #include <notifications/notificationlistmodel.h>
 #include <notifications/notification.h>
+#include <volume/volumecontrol.h>
 
 LipstickPlugin::LipstickPlugin(QObject *parent) :
     QDeclarativeExtensionPlugin(parent)
@@ -44,6 +45,7 @@ void LipstickPlugin::registerTypes(const char *uri)
     qmlRegisterType<Notification>("org.nemomobile.lipstick", 0, 1, "Notification");
     qmlRegisterType<LauncherItem>("org.nemomobile.lipstick", 0, 1, "LauncherItem");
     qmlRegisterUncreatableType<NotificationPreviewPresenter>("org.nemomobile.lipstick", 0, 1, "NotificationPreviewPresenter", "This type is initialized by HomeApplication");
+    qmlRegisterUncreatableType<VolumeControl>("org.nemomobile.lipstick", 0, 1, "VolumeControl", "This type is initialized by HomeApplication");
     qmlRegisterUncreatableType<WindowInfo>("org.nemomobile.lipstick", 0, 1, "WindowInfo", "This type is initialized by SwitcherModel");
     qmlRegisterUncreatableType<WindowManager>("org.nemomobile.lipstick", 0, 1, "WindowManager", "This type should be accessed through a context property.");
 }

@@ -44,6 +44,11 @@ public:
     explicit NotificationPreviewPresenter(QObject *parent = 0);
 
     /*!
+     * Destroys the notification preview presenter.
+     */
+    virtual ~NotificationPreviewPresenter();
+
+    /*!
      * Sets the notification window's shape region according to the given
      * coordinates. The coordinates should be set to match the coordinates of
      * the notification preview in the window. This allows input events to be

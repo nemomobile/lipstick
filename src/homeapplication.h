@@ -20,6 +20,7 @@
 
 class XEventListener;
 class ScreenLock;
+class VolumeControl;
 
 /*!
  * Extends QApplication with features necessary to create a desktop.
@@ -116,6 +117,9 @@ private:
 
     //! Logic for locking and unlocking the screen
     ScreenLock *screenLock;
+
+    //! Logic for setting the device volume
+    VolumeControl *volumeControl;
 };
 
 #endif /* HOMEAPPLICATION_H_ */
