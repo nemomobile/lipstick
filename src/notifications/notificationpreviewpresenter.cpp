@@ -19,6 +19,7 @@
 #include <QDeclarativeContext>
 #include <QX11Info>
 #include <X11/extensions/shape.h>
+#include "utilities/closeeventeater.h"
 #include "xtools/x11wrapper.h"
 #include "notifications/notificationmanager.h"
 #include "notificationpreviewpresenter.h"
@@ -31,6 +32,11 @@ NotificationPreviewPresenter::NotificationPreviewPresenter(QObject *parent) :
 {
     connect(NotificationManager::instance(), SIGNAL(notificationModified(uint)), this, SLOT(updateNotification(uint)));
     connect(NotificationManager::instance(), SIGNAL(notificationRemoved(uint)), this, SLOT(removeNotification(uint)));
+}
+
+NotificationPreviewPresenter::~NotificationPreviewPresenter()
+{
+    delete window;
 }
 
 void NotificationPreviewPresenter::showNextNotification()
@@ -111,6 +117,7 @@ void NotificationPreviewPresenter::createWindowIfNecessary()
     window->rootContext()->setContextProperty("initialSize", QApplication::desktop()->screenGeometry(window).size());
     window->rootContext()->setContextProperty("notificationPreviewPresenter", this);
     window->setSource(QUrl("qrc:/qml/NotificationPreview.qml"));
+    window->installEventFilter(new CloseEventEater(this));
 }
 
 bool NotificationPreviewPresenter::notificationShouldBeShown(Notification *notification)

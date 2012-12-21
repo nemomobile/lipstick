@@ -49,6 +49,9 @@ public:
     virtual int XGrabPointer(Display *display, Window grab_window, Bool owner_events, unsigned int event_mask,
                               int pointer_mode, int keyboard_mode, Window confine_to, Cursor cursor, Time time);
     virtual int XDeleteProperty(Display *display, Window w, Atom property);
+    virtual XserverRegion XFixesCreateRegion(Display *dpy, XRectangle *rectangles, int nrectangles);
+    virtual void XFixesSetWindowShapeRegion(Display *dpy, Window win, int shape_kind, int x_off, int y_off, XserverRegion region);
+    virtual void XFixesDestroyRegion(Display *dpy, XserverRegion region);
 
     virtual void stubSetXGetWindowPropertyDataReturnValues(Window window, XGetWindowPropertyDataReturnValueData data);
     virtual void stubReset() const;
@@ -328,6 +331,36 @@ int X11WrapperStub::XDeleteProperty(Display *display, Window w, Atom property)
     return stubReturnValue<int>("XDeleteProperty");
 }
 
+XserverRegion X11WrapperStub::XFixesCreateRegion(Display *dpy, XRectangle *rectangles, int nrectangles)
+{
+    QList<ParameterBase *> params;
+    params.append(new Parameter<Display *>(dpy));
+    params.append(new Parameter<XRectangle *>(rectangles));
+    params.append(new Parameter<int>(nrectangles));
+    stubMethodEntered("XFixesCreateRegion", params);
+    return stubReturnValue<XserverRegion>("XFixesCreateRegion");
+}
+
+void X11WrapperStub::XFixesSetWindowShapeRegion(Display *dpy, Window win, int shape_kind, int x_off, int y_off, XserverRegion region)
+{
+    QList<ParameterBase *> params;
+    params.append(new Parameter<Display *>(dpy));
+    params.append(new Parameter<Window>(win));
+    params.append(new Parameter<int>(shape_kind));
+    params.append(new Parameter<int>(x_off));
+    params.append(new Parameter<int>(y_off));
+    params.append(new Parameter<XserverRegion>(region));
+    stubMethodEntered("XFixesSetWindowShapeRegion", params);
+}
+
+void X11WrapperStub::XFixesDestroyRegion(Display *dpy, XserverRegion region)
+{
+    QList<ParameterBase *> params;
+    params.append(new Parameter<Display *>(dpy));
+    params.append(new Parameter<XserverRegion>(region));
+    stubMethodEntered("XFixesDestroyRegion", params);
+}
+
 void X11WrapperStub::stubReset() const
 {
     StubBase::stubReset();
@@ -449,6 +482,21 @@ int X11Wrapper::XGrabPointer(Display *display, Window grab_window, Bool owner_ev
 
 int X11Wrapper::XDeleteProperty(Display *display, Window w, Atom property) {
     return gX11WrapperStub->XDeleteProperty(display, w, property);
+}
+
+XserverRegion X11Wrapper::XFixesCreateRegion(Display *dpy, XRectangle *rectangles, int nrectangles)
+{
+    return gX11WrapperStub->XFixesCreateRegion(dpy, rectangles, nrectangles);
+}
+
+void X11Wrapper::XFixesSetWindowShapeRegion(Display *dpy, Window win, int shape_kind, int x_off, int y_off, XserverRegion region)
+{
+    gX11WrapperStub->XFixesSetWindowShapeRegion(dpy, win, shape_kind, x_off, y_off, region);
+}
+
+void X11Wrapper::XFixesDestroyRegion(Display *dpy, XserverRegion region)
+{
+    gX11WrapperStub->XFixesDestroyRegion(dpy, region);
 }
 
 #endif
