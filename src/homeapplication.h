@@ -32,8 +32,6 @@ class LIPSTICK_EXPORT HomeApplication : public QApplication
     QList<XEventListener*> xEventListeners;
     QList<XEventListener*> toBeRemovedEventListeners;
     bool iteratorActiveForEventListenerContainer;
-    int xDamageEventBase;
-    int xDamageErrorBase;
     QDeclarativeView *_mainWindowInstance;
     QString _qmlPath;
 
@@ -85,13 +83,6 @@ public:
       * Sets the path to the QML file to display.
       */
     void setQmlPath(const QString &path);
-
-signals:
-
-    /*!
-     * Signal application about a changed X pixmap
-     */
-    void damageEvent(Qt::HANDLE &damage, short &x, short &y, unsigned short &width, unsigned short &height);
 
 protected:
     //! \reimp

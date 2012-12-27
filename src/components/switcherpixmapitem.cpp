@@ -72,7 +72,6 @@ SwitcherPixmapItem::SwitcherPixmapItem(QDeclarativeItem *parent)
     , d(new Private)
 {
     setFlag(QGraphicsItem::ItemHasNoContents, false);
-    connect(qApp, SIGNAL(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)), this, SLOT(damageEvent(Qt::HANDLE &, short &, short &, unsigned short &, unsigned short &)));
     connect(HomeWindowMonitor::instance(), SIGNAL(isHomeWindowOnTopChanged()), this, SLOT(toggleDamage()));
     connect(this, SIGNAL(enabledChanged()), this, SLOT(onEnabledChanged()));
 }
@@ -88,22 +87,6 @@ SwitcherPixmapItem::~SwitcherPixmapItem()
 void SwitcherPixmapItem::toggleDamage()
 {
     updateXWindowPixmap();
-}
-
-void SwitcherPixmapItem::damageEvent(Qt::HANDLE &damage, short &x, short &y, unsigned short &width, unsigned short &height)
-{
-    Q_UNUSED(x);
-    Q_UNUSED(y);
-    Q_UNUSED(width);
-    Q_UNUSED(height);
-#ifdef Q_WS_X11
-    if (d->xWindowPixmapDamage == damage) {
-        XDamageSubtract(QX11Info::display(), d->xWindowPixmapDamage, None, None);
-        update();
-    }
-#else
-    Q_UNUSED(damage);
-#endif
 }
 
 void SwitcherPixmapItem::destroyDamage()
@@ -258,3 +241,29 @@ void SwitcherPixmapItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
     painter->setBrush(oldBrush);
 }
 
+bool SwitcherPixmapItem::handleXEvent(const XEvent &event)
+{
+    static int xDamageEventBase;
+    static int xDamageErrorBase;
+    static bool initialized = false;
+
+    if (!initialized) {
+        XDamageQueryExtension(QX11Info::display(), &xDamageEventBase, &xDamageErrorBase);
+        initialized = true;
+    }
+
+    if (event.type != xDamageEventBase + XDamageNotify)
+        return false;
+
+    SWITCHER_DEBUG() << Q_FUNC_INFO << "Processing damage event";
+    const XDamageNotifyEvent *xevent = reinterpret_cast<const XDamageNotifyEvent *>(&event);
+
+    // xevent->more would inform us if there is more events for the
+    // rendering operation.
+    if (d->xWindowPixmapDamage != xevent->damage)
+        return false;
+
+    XDamageSubtract(QX11Info::display(), d->xWindowPixmapDamage, None, None);
+    update();
+    return true;
+}

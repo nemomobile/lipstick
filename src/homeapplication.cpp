@@ -58,8 +58,6 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     , xEventListeners()
     , toBeRemovedEventListeners()
     , iteratorActiveForEventListenerContainer(false)
-    , xDamageEventBase(0)
-    , xDamageErrorBase(0)
     , _mainWindowInstance(0)
     , _qmlPath(qmlPath)
     , originalSigIntHandler(signal(SIGINT, quitSignalHandler))
@@ -68,8 +66,6 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     setApplicationName("Lipstick");
     // TODO: autogenerate this from tags
     setApplicationVersion(VERSION);
-
-    XDamageQueryExtension(QX11Info::display(), &xDamageEventBase, &xDamageErrorBase);
 
     // launch a timer for sending a dbus-signal upstart when basic construct is done
     QTimer::singleShot(0, this, SLOT(sendStartupNotifications()));
@@ -163,17 +159,6 @@ bool HomeApplication::x11EventFilter(XEvent *event)
 {
     bool eventHandled = false;
     iteratorActiveForEventListenerContainer = true;
-
-    if (event->type == xDamageEventBase + XDamageNotify) {
-        HOME_DEBUG("Processing damage event");
-        XDamageNotifyEvent *xevent = (XDamageNotifyEvent *) event;
-
-        // xevent->more would inform us if there is more events for the
-        // rendering operation. but there isn't interface to pass the
-        // information to damageEvent.
-        emit damageEvent(xevent->damage, xevent->area.x, xevent->area.y, xevent->area.width, xevent->area.height);
-        eventHandled = true;
-    }
 
     foreach (XEventListener* listener, xEventListeners) {
         if (!toBeRemovedEventListeners.contains(listener)) {

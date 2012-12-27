@@ -24,7 +24,7 @@
 #include "lipstickglobal.h"
 #include "xtools/xeventlistener.h"
 
-class LIPSTICK_EXPORT SwitcherPixmapItem : public QDeclarativeItem
+class LIPSTICK_EXPORT SwitcherPixmapItem : public QDeclarativeItem, XEventListener
 {
     Q_OBJECT
     Q_DISABLE_COPY(SwitcherPixmapItem)
@@ -54,11 +54,13 @@ public:
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
+    // XEventListener
+    virtual bool handleXEvent(const XEvent &event);
+
 signals:
     void radiusChanged();
 
 private slots:
-    void damageEvent(Qt::HANDLE &damage, short &x, short &y, unsigned short &width, unsigned short &height);
     void toggleDamage();
     void onEnabledChanged();
 };
