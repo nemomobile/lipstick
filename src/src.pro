@@ -111,6 +111,7 @@ QT += network \
 
 QMAKE_CXXFLAGS += \
     -Werror \
+    -Wno-error=format-security \
     -g \
     -std=c++0x \
     -fPIC \
