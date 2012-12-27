@@ -62,6 +62,7 @@ const char *NotificationManager::HINT_PREVIEW_SUMMARY = "x-nemo-preview-summary"
 const char *NotificationManager::HINT_REMOTE_ACTION_PREFIX = "x-nemo-remote-action-";
 const char *NotificationManager::HINT_USER_REMOVABLE = "x-nemo-user-removable";
 const char *NotificationManager::HINT_USER_CLOSEABLE = "x-nemo-user-closeable";
+const char *NotificationManager::HINT_FEEDBACK = "x-nemo-feedback";
 
 NotificationManager *NotificationManager::instance_ = 0;
 
