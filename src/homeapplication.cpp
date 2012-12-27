@@ -55,9 +55,6 @@ void HomeApplication::quitSignalHandler(int)
 
 HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     : QApplication(argc, argv)
-    , xEventListeners()
-    , toBeRemovedEventListeners()
-    , iteratorActiveForEventListenerContainer(false)
     , _mainWindowInstance(0)
     , _qmlPath(qmlPath)
     , originalSigIntHandler(signal(SIGINT, quitSignalHandler))
@@ -112,22 +109,6 @@ HomeApplication *HomeApplication::instance()
     return qobject_cast<HomeApplication *>(QApplication::instance());
 }
 
-void HomeApplication::addXEventListener(XEventListener *listener)
-{
-    if (listener != NULL && !xEventListeners.contains(listener)) {
-        xEventListeners.append(listener);
-    }
-}
-
-void HomeApplication::removeXEventListener(XEventListener *listener)
-{
-    if (iteratorActiveForEventListenerContainer) {
-        toBeRemovedEventListeners.append(listener);
-    } else {
-        xEventListeners.removeOne(listener);
-    }
-}
-
 void HomeApplication::sendStartupNotifications()
 {
     static QDBusConnection systemBus = QDBusConnection::systemBus();
@@ -153,33 +134,6 @@ void HomeApplication::sendStartupNotifications()
     // window are interesting. These are used to get the list of windows and
     // for getting window close events.
     XSelectInput(QX11Info::display(), DefaultRootWindow(QX11Info::display()), PropertyChangeMask | SubstructureNotifyMask);
-}
-
-bool HomeApplication::x11EventFilter(XEvent *event)
-{
-    bool eventHandled = false;
-    iteratorActiveForEventListenerContainer = true;
-
-    foreach (XEventListener* listener, xEventListeners) {
-        if (!toBeRemovedEventListeners.contains(listener)) {
-            if (listener->handleXEvent(*event)) {
-                eventHandled = true;
-            }
-        }
-    }
-    iteratorActiveForEventListenerContainer = false;
-
-    // Remove now any event listeners that got removed while going through the event listeners
-    foreach (XEventListener* listener, toBeRemovedEventListeners) {
-        xEventListeners.removeOne(listener);
-    }
-    toBeRemovedEventListeners.clear();
-
-    if (!eventHandled) {
-        eventHandled = QApplication::x11EventFilter(event);
-    }
-
-    return eventHandled;
 }
 
 const QString &HomeApplication::qmlPath() const

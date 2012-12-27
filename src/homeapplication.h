@@ -29,9 +29,6 @@ class LIPSTICK_EXPORT HomeApplication : public QApplication
 {
     Q_OBJECT
 
-    QList<XEventListener*> xEventListeners;
-    QList<XEventListener*> toBeRemovedEventListeners;
-    bool iteratorActiveForEventListenerContainer;
     QDeclarativeView *_mainWindowInstance;
     QString _qmlPath;
 
@@ -53,22 +50,6 @@ public:
     static HomeApplication *instance();
 
     /*!
-     * Adds an X event listener object for this application. When X events arrive,
-     * they are forwarded to the listener.
-     * Before destroying the event listener object, remove the listener from the application
-     * by calling \c removeXEventListener.
-     * \param listener the X event listener
-     */
-    void addXEventListener(XEventListener *listener);
-
-    /*!
-     * Removes the X11 event listener object. The listener won't receive anymore events
-     * from this application.
-     * \param listener the listener object to remove.
-     */
-    void removeXEventListener(XEventListener *listener);
-
-    /*!
       * Gets the main window instance associated to this application.
       * If it hasn't been created yet, this will create it.
       */
@@ -83,11 +64,6 @@ public:
       * Sets the path to the QML file to display.
       */
     void setQmlPath(const QString &path);
-
-protected:
-    //! \reimp
-    virtual bool x11EventFilter(XEvent *event);
-    //! \reimp_end
 
 private slots:
     /*!

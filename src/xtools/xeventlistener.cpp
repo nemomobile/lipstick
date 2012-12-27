@@ -13,18 +13,33 @@
 #include "homeapplication.h"
 #include "xeventlistener.h"
 
+QList<XEventListener *> xEventListeners;
+
+static bool processXEventListeners(XEvent *event)
+{
+    foreach (XEventListener* listener, xEventListeners)
+        if (listener->handleXEvent(*event))
+            return true;
+
+    return false;
+}
+
+// technically private API, but this is the easiest way to get to it, and we can deal with it changing
+typedef bool(*QX11FilterFunction)(XEvent *event);
+extern void qt_installX11EventFilter(QX11FilterFunction func);
+
 XEventListener::XEventListener()
 {
-    HomeApplication *app = dynamic_cast<HomeApplication*>(qApp);
-    if (app) {
-        app->addXEventListener(this);
+    static bool initialized = false;
+    if (!initialized) {
+        qt_installX11EventFilter(processXEventListeners);
+        initialized = true;
     }
+
+    xEventListeners.append(this);
 }
 
 XEventListener::~XEventListener()
 {
-    HomeApplication *app = dynamic_cast<HomeApplication*>(qApp);
-    if (app) {
-        app->removeXEventListener(this);
-    }
+    xEventListeners.removeOne(this);
 }
