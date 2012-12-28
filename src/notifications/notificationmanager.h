@@ -112,6 +112,9 @@ public:
     //! Nemo hint: User closeability of the notification.
     static const char *HINT_USER_CLOSEABLE;
 
+    //! Nemo hint: Feedback of the notification.
+    static const char *HINT_FEEDBACK;
+
     //! Notifation closing reasons used in the NotificationClosed signal
     enum NotificationClosedReason {
         //! The notification expired.
