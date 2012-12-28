@@ -57,7 +57,8 @@ HEADERS += \
     screenlock/screenlockadaptor.h \
     volume/volumecontrol.h \
     volume/pulseaudiocontrol.h \
-    volume/volumekeylistener.h
+    volume/volumekeylistener.h \
+    notifications/notificationfeedbackplayer.h
 
 SOURCES += \
     homeapplication.cpp \
@@ -87,11 +88,12 @@ SOURCES += \
     screenlock/screenlockadaptor.cpp \
     volume/volumecontrol.cpp \
     volume/pulseaudiocontrol.cpp \
-    volume/volumekeylistener.cpp
+    volume/volumekeylistener.cpp \
+    notifications/notificationfeedbackplayer.cpp
 
 CONFIG += link_pkgconfig mobility qt warn_on depend_includepath qmake_cache target_qt
 MOBILITY += sensors
-PKGCONFIG += xcomposite mlite xdamage x11 xfixes xext mce dbus-1 dbus-glib-1 libresourceqt1
+PKGCONFIG += xcomposite mlite xdamage x11 xfixes xext mce dbus-1 dbus-glib-1 libresourceqt1 ngf-qt
 
 packagesExist(contentaction-0.1) {
     message("Using contentaction to launch applications")
