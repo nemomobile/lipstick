@@ -35,26 +35,161 @@ class QSqlDatabase;
  * The service is registered as org.freedesktop.Notifications on the D-Bus
  * session bus in the path /org/freedesktop/Notifications.
  *
- * Notes specific to the behavior of this particular implementation:
- *   - The service implements the "body" capability which allows notifications
- *     to contain body text.
- *   - The "category" hint is used to load a definition for notifications in
+ * \section specifics Notes specific to the behavior of this particular implementation
+ *
+ * \subsection differences Differences from the specification
+ *
+ *   - urgency level 2 (critical) will not cause the notification not to expire
+ *     as described in the specification, but will cause the notification to be
+ *     handled as a system notification
+ *
+ * \subsection capabilities Capabilities
+ *
+ *   - The service implements the \c "body" capability which allows notifications
+ *     to contain body text. See the body parameter for Notify().
+ *   - The service implements the \c "actions" capability which allows actions to
+ *     be associated with notifications. When an action is executed, the
+ *     \c ActionInvoked() signal is sent. However, this requires the application
+ *     related to the notification to be running in order to receive the signal.
+ *     For this reason the service also implements a \c "x-nemo-remote-actions"
+ *     capability, which allows remote actions to be associated with
+ *     notifications. When such an action is executed, the notification manager
+ *     makes the D-Bus call defined for the action. See the
+ *     \c x-nemo-remote-action-actionname hint.
+ *
+ * \subsection hints Hints
+ *
+ *   - The \c "category" hint is used to load a definition for notifications in
  *     that category from
- *     /usr/share/lipstick/notificationcategories/categoryname.conf. This allows
+ *     \c /usr/share/lipstick/notificationcategories/categoryname.conf. This allows
  *     defining common properties for all notifications in each category.
- *        - Each category definition file contains a list of hint=value pairs,
+ *        - Each category definition file contains a list of \c hint=value pairs,
  *          one per line.
- *        - Each hint=value pair in the category definition file is added to
+ *        - Each \c hint=value pair in the category definition file is added to
  *          the hints of the notification.
  *   - The service supports the following Nemo specific hints:
- *       - x-nemo-icon: icon ID for the notification.
- *       - x-nemo-item-count: the number of items represented by this notification. For example, a single notification can represent 4 missed calls.
- *       - x-nemo-timestamp: the timestamp for the notification. Should be set to the time when the event the notification is related to has occurred, not when the notification itself was sent.
- *       - x-nemo-preview-icon: icon ID to use in the preview banner for the notification, if any.
- *       - x-nemo-preview-body: body text to be shown in the preview banner for the notification, if any.
- *       - x-nemo-preview-summary: summary text to be shown in the preview banner for the notification, if any.
- *       - x-nemo-user-removable: a boolean value for defining whether the user should be able to remove the notification by tapping on it or should it be only programmatically removable. Defaults to true.
- *       - x-nemo-remote-action-actionname: details of the D-Bus call to be made when the action "actionname" is executed. Should be in MRemoteAction's "serviceName objectPath interface methodName" format.
+ *       - \c x-nemo-icon: icon ID or path for the notification. If the string begins with a / it's interpreted to be an absolute path. Otherwise it's interpreted to be an icon ID, in which case the icon with the given ID is fetched from the theme.
+ *       - \c x-nemo-item-count: the number of items represented by this notification. For example, a single notification can represent four missed calls by setting the count to 4.
+ *       - \c x-nemo-timestamp: the timestamp for the notification. Should be set to the time when the event the notification is related to has occurred, not when the notification itself was sent.
+ *       - \c x-nemo-preview-icon: icon ID to use in the preview banner for the notification, if any.
+ *       - \c x-nemo-preview-body: body text to be shown in the preview banner for the notification, if any.
+ *       - \c x-nemo-preview-summary: summary text to be shown in the preview banner for the notification, if any.
+ *       - \c x-nemo-user-removable: a boolean value for defining whether the user should be able to remove the notification by tapping on it or should it be only programmatically removable. Defaults to true.
+ *       - \c x-nemo-remote-action-actionname: details of the D-Bus call to be made when the action "actionname" is executed. Should be in MRemoteAction's "serviceName objectPath interface methodName" format.
+ *
+ * \section howto How to use notifications in various use cases
+ *
+ * \subsection chat Incoming chat messages
+ *
+ * A typical scenario for using notifications would be to let the user know
+ * when an incoming chat message has been received. Since the user probably
+ * does not want a separate notification about each received message to
+ * clutter up the notification area but still does want some kind of a
+ * notification about each message, notification grouping is required.
+ *
+ * \subsubsection first_chat_message Sending the notification for the first incoming chat message
+ *
+ * When calling Notify() to a display a notification related to the first chat message, the parameters should be set as follows:
+ *   - \c app_name should be a string identifying the sender application, such as the name of its binary, for example. "chat"
+ *   - \c replaces_id should be 0 since the notification is a new one and not related to any existing notification
+ *   - \c app_icon should be "icon-lock chat" to use the icon with that ID on the notification area. Can be left empty; icons can be handled completely with notification hints (see below)
+ *   - \c summary should contain a brief description about the notification to be shown on the notification area, like "John Doe"
+ *   - \c body should contain informative text related to the notification to be shown on the notification area, like "Hi!"
+ *   - \c actions can be empty since separate remote actions allow the chat application to respond to the notification even if it's not already running
+ *   - \c hints should contain the following:
+ *       - \c category should be "im.received" to categorize the notification to be related to an instant message
+ *       - \c urgency should be 1 (normal) since chat messages are not specifically low or high priority
+ *       - \c x-nemo-icon should be "icon-lock-chat" to define that the icon with that ID is to be shown on the notification area
+ *       - \c x-nemo-preview-icon should be "icon-preview-chat" to define that the icon with that ID is to be shown on the preview banner
+ *       - \c x-nemo-preview-summary should match the summary text ("John Doe") in order to show it also on the preview banner
+ *       - \c x-nemo-preview-body should match the body text ("Hi!") in order to show it also on the preview banner
+ *       - \c x-nemo-timestamp should be set to the time when the chat message was sent (or received, depending on the intended application logic)
+ *       - \c x-nemo-remote-action-default should be set to "org.example.chat / org.example.chat showMessage" which will cause a D-Bus call with the given details to be made when the notification is tapped
+ *   - \c expire_timeout should be -1 to let the notification manager choose an appropriate expiration time
+ *
+ * The Notify() call will return a notification ID which should be stored by
+ * the application in order to be able to update the notification when more
+ * related chat messages come in.
+ *
+ * \subsubsection second_chat_message Updating the notification for the second incoming chat message
+ *
+ * When calling Notify() to a display a notification related to the second chat message, the parameters should be set as follows:
+ *   - \c app_name should be a string identifying the sender application, such as the name of its binary, for example. "chat"
+ *   - \c replaces_id should be the notification ID returned by the first Notify() call in order to update the existing notification
+ *   - \c app_icon should be "icon-lock chat" to use the icon with that ID on the notification area. Can be left empty; icons can be handled completely with notification hints (see below)
+ *   - \c summary should contain a brief description about the notification to be shown on the notification area, like "John Doe"
+ *   - \c body should contain informative text related to the notification to be shown on the notification area, like "2 messages"
+ *   - \c actions can be empty since separate remote actions allow the chat application to respond to the notification even if it's not already running
+ *   - \c hints should contain the following:
+ *       - \c category should be "im.received" to categorize the notification to be related to an instant message
+ *       - \c urgency should be 1 (normal) since chat messages are not specifically low or high priority
+ *       - \c x-nemo-icon should be "icon-lock-chat" to define that the icon with that ID is to be shown on the notification area
+ *       - \c x-nemo-item-count should be 2 to make the notification represent two chat messages
+ *       - \c x-nemo-preview-icon should be "icon-preview-chat" to define that the icon with that ID is to be shown on the preview banner
+ *       - \c x-nemo-preview-summary should contain a brief description about the notification to be shown on the preview banner, like "John Doe"
+ *       - \c x-nemo-preview-body should contain informative text about the notification to be shown on the preview banner, like "Are you there?"
+ *       - \c x-nemo-timestamp should be set to the time when the latest chat message was sent (or received, depending on the intended application logic)
+ *       - \c x-nemo-remote-action-default should be set to "org.example.chat / org.example.chat showMessage" which will cause a D-Bus call with the given details to be made when the notification is tapped
+ *   - \c expire_timeout should be -1 to let the notification manager choose an appropriate expiration time
+ *
+ * Notice that the summary/body and the preview summary/body now differ in
+ * order to show different information on the notification area and in the
+ * preview banner. Also the item count should be set when the notification
+ * represents multiple content items.
+ *
+ * \subsection system System notifications
+ *
+ * System notifications are similar to other kinds of notifications but since
+ * they convey information relevant only when the notification is sent they
+ * should not appear on the notification area. To achieve this only
+ * \c x-nemo-preview-summary should be set; the body and the summary should be
+ * left empty. On the other hand the preview banner should appear on top of
+ * all applications even in situations where application related notifications
+ * are disabled (while recording video, for instance). This is achieved with
+ * the critical urgency level, 2.
+ *
+ * When calling Notify() to a display a system notification, the parameters should be set as follows:
+ *   - \c app_name should be a string identifying the sender application, such as the name of its binary, for example. "batterynotifier"
+ *   - \c replaces_id should be 0 since the notification is a new one and not related to any existing notification
+ *   - \c app_icon should be left empty; icons are handled with notification hints (see below)
+ *   - \c summary should be left empty for nothing to be shown on the notification area
+ *   - \c body should be left empty for nothing to be shown on the notification area
+ *   - \c actions should be left empty
+ *   - \c hints should contain the following:
+ *       - \c category should be "device" to categorize the notification to be related to the device
+ *       - \c urgency should be 2 (critical) to mark the notification as a system notification
+ *       - \c x-nemo-preview-icon should be "icon-m-energy-management-charging8" to define that the icon with that ID is to be shown on the preview banner
+ *       - \c x-nemo-preview-summary should be ("Charging") in order to show it on the preview banner
+ *   - \c expire_timeout should be -1 to let the notification manager choose an appropriate expiration time
+ *
+ * \subsection categorydefinitions Using category definition files
+ *
+ * When notifications in a certain category always share the same hints it's
+ * possible to write a category definition file in
+ * \c /usr/share/lipstick/notificationcategories/categoryname.conf and then just
+ * set the category hint to categoryname when calling Notify(). The category
+ * definition file contains a list of hint=value pairs, one per line. Each
+ * \c hint=value pair in the category definition file is added to the hints of
+ * the notification.
+ *
+ * For example, if /usr/share/lipstick/notificationcategories/device.conf
+ * contains
+ *
+ * \code
+ * urgency=2
+ * x-nemo-preview-icon=icon-m-energy-management-charging8
+ * \endcode
+ *
+ * and Notify() is called with the hints dictionary containing the value \c "device"
+ * for the \c "category" hint and the value \c "Charging" for the \c "x-nemo-preview-summary"
+ * hint, the hints will be combined so that the effective hints used are
+ *
+ * \code
+ * category=device
+ * urgency=2
+ * x-nemo-preview-summary=Charging
+ * x-nemo-preview-icon=icon-m-energy-management-charging8
+ * \endcode
  */
 class LIPSTICK_EXPORT NotificationManager : public QObject
 {
@@ -67,25 +202,25 @@ public:
     //! Standard hint: The type of notification this is.
     static const char *HINT_CATEGORY;
 
-    //! Standard hint: This specifies the name of the desktop filename representing the calling program. This should be the same as the prefix used for the application's .desktop file. An example would be "rhythmbox" from "rhythmbox.desktop". This can be used by the daemon to retrieve the correct icon for the application, for logging purposes, etc.
+    //! Standard hint: This specifies the name of the desktop filename representing the calling program. This should be the same as the prefix used for the application's .desktop file. An example would be "rhythmbox" from "rhythmbox.desktop". This can be used by the daemon to retrieve the correct icon for the application, for logging purposes, etc. Not supported by this implementation.
     static const char *HINT_DESKTOP_ENTRY;
 
-    //! Standard hint: This is a raw data image format which describes the width, height, rowstride, has alpha, bits per sample, channels and image data respectively. We use this value if the icon field is left blank.
+    //! Standard hint: This is a raw data image format which describes the width, height, rowstride, has alpha, bits per sample, channels and image data respectively. We use this value if the icon field is left blank. Not supported by this implementation.
     static const char *HINT_IMAGE_DATA;
 
-    //! Standard hint: The path to a sound file to play when the notification pops up.
+    //! Standard hint: The path to a sound file to play when the notification pops up. Not supported by this implementation.
     static const char *HINT_SOUND_FILE;
 
-    //! Standard hint: Causes the server to suppress playing any sounds, if it has that ability. This is usually set when the client itself is going to play its own sound.
+    //! Standard hint: Causes the server to suppress playing any sounds, if it has that ability. This is usually set when the client itself is going to play its own sound. Not supported by this implementation.
     static const char *HINT_SUPPRESS_SOUND;
 
-    //! Standard hint: Specifies the X location on the screen that the notification should point to. The "y" hint must also be specified.
+    //! Standard hint: Specifies the X location on the screen that the notification should point to. The "y" hint must also be specified. Not supported by this implementation.
     static const char *HINT_X;
 
-    //! Standard hint: Specifies the Y location on the screen that the notification should point to. The "x" hint must also be specified.
+    //! Standard hint: Specifies the Y location on the screen that the notification should point to. The "x" hint must also be specified. Not supported by this implementation.
     static const char *HINT_Y;
 
-    //! Nemo hint: Icon of the notification.
+    //! Nemo hint: Icon of the notification. Allows the icon to be set using a category definition file without specifying it in the Notify() call.
     static const char *HINT_ICON;
 
     //! Nemo hint: Item count represented by the notification.

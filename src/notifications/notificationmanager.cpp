@@ -118,7 +118,7 @@ QList<uint> NotificationManager::notificationIds() const
 
 QStringList NotificationManager::GetCapabilities()
 {
-    return QStringList() << "body" << HINT_ICON << HINT_ITEM_COUNT << HINT_TIMESTAMP << HINT_PREVIEW_ICON << HINT_PREVIEW_BODY << HINT_PREVIEW_SUMMARY << "x-nemo-remote-action" << HINT_USER_REMOVABLE << "x-nemo-get-notifications";
+    return QStringList() << "body" << "actions" << HINT_ICON << HINT_ITEM_COUNT << HINT_TIMESTAMP << HINT_PREVIEW_ICON << HINT_PREVIEW_BODY << HINT_PREVIEW_SUMMARY << "x-nemo-remote-actions" << HINT_USER_REMOVABLE << "x-nemo-get-notifications";
 }
 
 uint NotificationManager::Notify(const QString &appName, uint replacesId, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &originalHints, int expireTimeout)

@@ -83,11 +83,11 @@ public slots:
     void showNextNotification();
 
     /*!
-     * Sets whether only the most urgent (level 3) notifications are shown.
+     * Sets whether only the critical urgency (level 2) notifications are shown.
      *
-     * \param onlyUrgent if \c true, only notifications with urgency level 3 are shown, otherwise all notifications are shown
+     * \param onlyUrgent if \c true, only notifications with critical urgency are shown, otherwise all notifications are shown
      */
-    void setPresentOnlyHighestUrgencyNotifications(bool onlyUrgent);
+    void setPresentOnlyCriticalNotifications(bool onlyCritical);
 
 private slots:
     /*!
@@ -120,8 +120,8 @@ private:
     //! Notification currently being shown
     Notification *currentNotification;
 
-    //! Whether only notifications of highest urgency should be shown
-    bool presentOnlyHighestUrgencyNotifications;
+    //! Whether only notifications of critical urgency should be shown
+    bool presentOnlyCriticalNotifications;
 
 #ifdef UNIT_TEST
     friend class Ut_NotificationPreviewPresenter;

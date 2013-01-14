@@ -356,28 +356,28 @@ void Ut_NotificationPreviewPresenter::testNotificationNotShownIfNoSummaryOrBody(
     QCOMPARE(qWidgetVisible[static_cast<QWidget *>(qDeclarativeViews.first())], windowVisible);
 }
 
-void Ut_NotificationPreviewPresenter::testShowingOnlyUrgentNotifications()
+void Ut_NotificationPreviewPresenter::testShowingOnlyCriticalNotifications()
 {
     NotificationPreviewPresenter presenter;
     QSignalSpy spy(&presenter, SIGNAL(notificationChanged()));
 
-    // Create notification
+    // Create normal urgency notification
     Notification *notification = new Notification;
     QVariantHash hints;
     hints.insert(NotificationManager::HINT_PREVIEW_SUMMARY, "previewSummary");
     hints.insert(NotificationManager::HINT_PREVIEW_BODY, "previewBody");
-    hints.insert(NotificationManager::HINT_URGENCY, 2);
+    hints.insert(NotificationManager::HINT_URGENCY, 1);
     notification->setHints(hints);
     notificationManagerNotification.insert(1, notification);
 
     // Urgency is not high enough, so the notification shouldn't be shown
-    presenter.setPresentOnlyHighestUrgencyNotifications(true);
+    presenter.setPresentOnlyCriticalNotifications(true);
     presenter.updateNotification(1);
     QCOMPARE(spy.count(), 0);
     QCOMPARE(qWidgetVisible[static_cast<QWidget *>(qDeclarativeViews.first())], false);
 
-    // Urgency set to highest level, so the notification should be shown
-    hints.insert(NotificationManager::HINT_URGENCY, 3);
+    // Urgency set to critical, so the notification should be shown
+    hints.insert(NotificationManager::HINT_URGENCY, 2);
     notification->setHints(hints);
     presenter.updateNotification(1);
     QCOMPARE(spy.count(), 1);

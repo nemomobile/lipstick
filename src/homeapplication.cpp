@@ -80,7 +80,7 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     screenLock = new ScreenLock;
     LipstickSettings::instance()->setScreenLock(screenLock);
     new ScreenLockAdaptor(screenLock);
-    connect(screenLock, SIGNAL(screenIsLocked(bool)), notificationPreviewPresenter, SLOT(setPresentOnlyHighestUrgencyNotifications(bool)));
+    connect(screenLock, SIGNAL(screenIsLocked(bool)), notificationPreviewPresenter, SLOT(setPresentOnlyCriticalNotifications(bool)));
 
     volumeControl = new VolumeControl;
 

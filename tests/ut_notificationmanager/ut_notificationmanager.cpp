@@ -454,15 +454,16 @@ void Ut_NotificationManager::testCapabilities()
 {
     // Check the supported capabilities includes all the Nemo hints
     QStringList capabilities = NotificationManager::instance()->GetCapabilities();
-    QCOMPARE(capabilities.count(), 10);
+    QCOMPARE(capabilities.count(), 11);
     QCOMPARE((bool)capabilities.contains("body"), true);
+    QCOMPARE((bool)capabilities.contains("actions"), true);
     QCOMPARE((bool)capabilities.contains(NotificationManager::HINT_ICON), true);
     QCOMPARE((bool)capabilities.contains(NotificationManager::HINT_ITEM_COUNT), true);
     QCOMPARE((bool)capabilities.contains(NotificationManager::HINT_TIMESTAMP), true);
     QCOMPARE((bool)capabilities.contains(NotificationManager::HINT_PREVIEW_ICON), true);
     QCOMPARE((bool)capabilities.contains(NotificationManager::HINT_PREVIEW_BODY), true);
     QCOMPARE((bool)capabilities.contains(NotificationManager::HINT_PREVIEW_SUMMARY), true);
-    QCOMPARE((bool)capabilities.contains("x-nemo-remote-action"), true);
+    QCOMPARE((bool)capabilities.contains("x-nemo-remote-actions"), true);
     QCOMPARE((bool)capabilities.contains(NotificationManager::HINT_USER_REMOVABLE), true);
     QCOMPARE((bool)capabilities.contains("x-nemo-get-notifications"), true);
 }

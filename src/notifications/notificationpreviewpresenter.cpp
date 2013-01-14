@@ -28,7 +28,7 @@ NotificationPreviewPresenter::NotificationPreviewPresenter(QObject *parent) :
     QObject(parent),
     window(0),
     currentNotification(0),
-    presentOnlyHighestUrgencyNotifications(false)
+    presentOnlyCriticalNotifications(false)
 {
     connect(NotificationManager::instance(), SIGNAL(notificationModified(uint)), this, SLOT(updateNotification(uint)));
     connect(NotificationManager::instance(), SIGNAL(notificationRemoved(uint)), this, SLOT(removeNotification(uint)));
@@ -122,7 +122,7 @@ void NotificationPreviewPresenter::createWindowIfNecessary()
 
 bool NotificationPreviewPresenter::notificationShouldBeShown(Notification *notification)
 {
-    return !(notification->previewBody().isEmpty() && notification->previewSummary().isEmpty()) && (!presentOnlyHighestUrgencyNotifications || notification->hints().value(NotificationManager::HINT_URGENCY).toInt() == 3);
+    return !(notification->previewBody().isEmpty() && notification->previewSummary().isEmpty()) && (!presentOnlyCriticalNotifications || notification->hints().value(NotificationManager::HINT_URGENCY).toInt() >= 2);
 }
 
 void NotificationPreviewPresenter::setNotificationPreviewRect(qreal x1, qreal y1, qreal x2, qreal y2)
@@ -139,7 +139,7 @@ void NotificationPreviewPresenter::setNotificationPreviewRect(qreal x1, qreal y1
     X11Wrapper::XSync(dpy, False);
 }
 
-void NotificationPreviewPresenter::setPresentOnlyHighestUrgencyNotifications(bool onlyUrgent)
+void NotificationPreviewPresenter::setPresentOnlyCriticalNotifications(bool onlyCritical)
 {
-    presentOnlyHighestUrgencyNotifications = onlyUrgent;
+    presentOnlyCriticalNotifications = onlyCritical;
 }

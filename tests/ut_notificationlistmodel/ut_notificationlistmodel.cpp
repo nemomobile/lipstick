@@ -76,10 +76,10 @@ void Ut_NotificationListModel::testNotificationIsNotAddedIfNoSummaryOrBody()
     QCOMPARE(gQObjectListModelStub->stubCallCount("addItem"), addItemCount);
 }
 
-void Ut_NotificationListModel::testNotificationIsNotAddedIfUrgencyIsSystem()
+void Ut_NotificationListModel::testNotificationIsNotAddedIfUrgencyIsCritical()
 {
     QVariantHash hints;
-    hints.insert(NotificationManager::HINT_URGENCY, 3);
+    hints.insert(NotificationManager::HINT_URGENCY, 2);
     Notification notification("appName", 1, "appIcon", "summary", "body", QStringList() << "action", hints, 1);
     gNotificationManagerStub->stubSetReturnValue("notificationIds", QList<uint>() << 1);
     gNotificationManagerStub->stubSetReturnValue("notification", &notification);

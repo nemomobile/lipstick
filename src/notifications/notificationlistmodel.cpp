@@ -48,5 +48,5 @@ void NotificationListModel::removeNotification(uint id)
 
 bool NotificationListModel::notificationShouldBeShown(Notification *notification)
 {
-    return !(notification->body().isEmpty() && notification->summary().isEmpty()) && notification->hints().value(NotificationManager::HINT_URGENCY).toInt() < 3;
+    return !(notification->body().isEmpty() && notification->summary().isEmpty()) && notification->hints().value(NotificationManager::HINT_URGENCY).toInt() < 2;
 }
