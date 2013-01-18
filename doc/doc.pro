@@ -14,7 +14,7 @@ doc.output        = $${doc.target}
 PRE_TARGETDEPS += $${doc.output}
 
 # Install rules
-htmldocs.files = ./html/*
+htmldocs.files = html/*
 htmldocs.path = /usr/share/doc/lipstick
-
+htmldocs.CONFIG += no_check_exist
 INSTALLS += htmldocs    
