@@ -1,0 +1,12 @@
+/*! \mainpage Lipstick Reference Documentation
+
+\section features Features
+
+  - \link notifications Notifications \endlink
+
+\section apireference API Reference
+
+  - <a href="classes.html">All Classes</a>
+  - <a href="annotated.html">Annotated Classes</a>
+  - <a href="hierarchy.html">Class Hierarchy</a>
+*/
