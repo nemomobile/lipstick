@@ -57,11 +57,16 @@ void LauncherModel::monitoredDirectoryChanged(QString changedPath)
         if (!item->filePath().startsWith(changedPath))
             continue;
 
-        if (fileInfoList.end() == std::find_if(
-                fileInfoList.begin(),
-                fileInfoList.end(),
-                [item](QFileInfo fileInfo) -> bool { return item->filePath() == fileInfo.fileName(); }))
+        bool foundOnDisk = false;
+        foreach (const QFileInfo &fileInfo, fileInfoList) {
+            if (fileInfo.absoluteFilePath() == item->filePath())
+                foundOnDisk = true;
+        }
+
+        if (!foundOnDisk) {
+            LAUNCHER_DEBUG(item->filePath() << " removed from disk");
             removeItem(item);
+        }
     }
 
     QMap<int, LauncherItem *> itemsWithPositions;
@@ -74,15 +79,20 @@ void LauncherModel::monitoredDirectoryChanged(QString changedPath)
         if (!fileInfo.fileName().endsWith(".desktop"))
             continue;
 
-        if (currentLauncherList->end() == std::find_if(
-            currentLauncherList->begin(),
-            currentLauncherList->end(),
-            [fileInfo](LauncherItem* item) -> bool { return item->filePath() == fileInfo.fileName(); })) {
+        bool foundInModel = false;
+        foreach (LauncherItem *item, *currentLauncherList) {
+            if (fileInfo.absoluteFilePath() == item->filePath()) {
+                foundInModel = true;
+                break;
+            }
+        }
 
+        if (!foundInModel) {
             LAUNCHER_DEBUG("Creating LauncherItem for desktop entry" << fileInfo.absoluteFilePath());
             LauncherItem *item = new LauncherItem(fileInfo.absoluteFilePath(), this);
 
             if (!item->isValid()) {
+                LAUNCHER_DEBUG("Item " << fileInfo.absoluteFilePath() << " is not valid");
                 delete item;
                 continue;
             }
