@@ -123,6 +123,7 @@ void Notification::setHints(const QVariantHash &hints)
     QString oldPreviewIcon = previewIcon();
     QString oldPreviewSummary = previewSummary();
     QString oldPreviewBody = previewBody();
+    int oldUrgency = urgency();
 
     hints_ = hints;
 
@@ -144,6 +145,10 @@ void Notification::setHints(const QVariantHash &hints)
 
     if (oldPreviewBody != previewBody()) {
         emit previewBodyChanged();
+    }
+
+    if (oldUrgency != urgency()) {
+        emit urgencyChanged();
     }
 }
 
@@ -185,6 +190,11 @@ QString Notification::previewSummary() const
 QString Notification::previewBody() const
 {
     return hints_.value(NotificationManager::HINT_PREVIEW_BODY).toString();
+}
+
+int Notification::urgency() const
+{
+    return hints_.value(NotificationManager::HINT_URGENCY).toInt();
 }
 
 QDBusArgument &operator<<(QDBusArgument &argument, const Notification &notification)

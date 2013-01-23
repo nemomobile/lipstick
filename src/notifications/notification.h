@@ -42,6 +42,7 @@ class LIPSTICK_EXPORT Notification : public QObject
     Q_PROPERTY(QString previewIcon READ previewIcon NOTIFY previewIconChanged)
     Q_PROPERTY(QString previewSummary READ previewSummary NOTIFY previewSummaryChanged)
     Q_PROPERTY(QString previewBody READ previewBody NOTIFY previewBodyChanged)
+    Q_PROPERTY(int urgency READ urgency NOTIFY urgencyChanged)
 
 public:
     /*!
@@ -129,6 +130,9 @@ public:
     //! Returns the body text for the preview of the notification
     QString previewBody() const;
 
+    //! Returns the urgency of the notification
+    int urgency() const;
+
     //! \internal
     /*!
      * Creates a copy of an existing representation of a notification.
@@ -171,6 +175,9 @@ signals:
 
     //! Sent when the preview body has been modified
     void previewBodyChanged();
+
+    //! Sent when the urgency has been modified
+    void urgencyChanged();
 
 private:
     //! Name of the application sending the notification
