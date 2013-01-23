@@ -47,7 +47,7 @@ VolumeControl::VolumeControl(QObject *parent) :
     keyReleaseTimer.setInterval(100);
     keyRepeatDelayTimer.setSingleShot(true);
     keyRepeatDelayTimer.setInterval(600);
-    keyRepeatTimer.setInterval(150);
+    keyRepeatTimer.setInterval(75);
     connect(&keyReleaseTimer, SIGNAL(timeout()), this, SLOT(stopKeyRepeat()));
     connect(&keyRepeatDelayTimer, SIGNAL(timeout()), &keyRepeatTimer, SLOT(start()));
     connect(&keyRepeatTimer, SIGNAL(timeout()), this, SLOT(changeVolume()));

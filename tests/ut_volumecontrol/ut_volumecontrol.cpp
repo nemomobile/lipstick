@@ -143,7 +143,7 @@ void Ut_VolumeControl::testKeyRepeatSetup()
     QCOMPARE(volumeControl->keyReleaseTimer.isSingleShot(), true);
     QCOMPARE(volumeControl->keyRepeatDelayTimer.interval(), 600);
     QCOMPARE(volumeControl->keyRepeatDelayTimer.isSingleShot(), true);
-    QCOMPARE(volumeControl->keyRepeatTimer.interval(), 150);
+    QCOMPARE(volumeControl->keyRepeatTimer.interval(), 75);
     QCOMPARE(disconnect(&volumeControl->keyReleaseTimer, SIGNAL(timeout()), volumeControl, SLOT(stopKeyRepeat())), true);
     QCOMPARE(disconnect(&volumeControl->keyRepeatDelayTimer, SIGNAL(timeout()), &volumeControl->keyRepeatTimer, SLOT(start())), true);
     QCOMPARE(disconnect(&volumeControl->keyRepeatTimer, SIGNAL(timeout()), volumeControl, SLOT(changeVolume())), true);
