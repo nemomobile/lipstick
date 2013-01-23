@@ -3,7 +3,7 @@ system(qdbusxml2cpp screenlock/screenlock.xml -a screenlock/screenlockadaptor -c
 
 TEMPLATE = lib
 TARGET = lipstick
-VERSION = 0.6.3
+VERSION = 0.6.5
 
 DEFINES += LIPSTICK_BUILD_LIBRARY VERSION=\\\"$$VERSION\\\"
 
