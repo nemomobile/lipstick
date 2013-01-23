@@ -132,7 +132,7 @@ void Notification::setHints(const QVariantHash &hints)
     }
 
     if (oldTimestamp != timestamp()) {
-        emit localizedTimestampChanged();
+        emit timestampChanged();
     }
 
     if (oldPreviewIcon != previewIcon()) {
@@ -170,11 +170,6 @@ QString Notification::icon() const
 QDateTime Notification::timestamp() const
 {
     return hints_.value(NotificationManager::HINT_TIMESTAMP).toDateTime();
-}
-
-QString Notification::localizedTimestamp() const
-{
-    return timestamp().toString("hh:mm:ss");
 }
 
 QString Notification::previewIcon() const

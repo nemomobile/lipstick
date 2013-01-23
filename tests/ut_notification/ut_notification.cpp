@@ -50,7 +50,6 @@ void Ut_Notification::testGettersAndSetters()
     QCOMPARE(notification.actions(), actions);
     QCOMPARE(notification.expireTimeout(), expireTimeout);
     QCOMPARE(notification.timestamp(), timestamp);
-    QCOMPARE(notification.localizedTimestamp(), timestamp.toString("hh:mm:ss"));
     QCOMPARE(notification.previewIcon(), previewIcon);
     QCOMPARE(notification.previewSummary(), previewSummary);
     QCOMPARE(notification.previewBody(), previewBody);
@@ -86,7 +85,6 @@ void Ut_Notification::testGettersAndSetters()
     QCOMPARE(notification.actions(), actions);
     QCOMPARE(notification.expireTimeout(), expireTimeout);
     QCOMPARE(notification.timestamp(), timestamp);
-    QCOMPARE(notification.localizedTimestamp(), timestamp.toString("hh:mm:ss"));
     QCOMPARE(notification.previewIcon(), previewIcon);
     QCOMPARE(notification.previewSummary(), previewSummary);
     QCOMPARE(notification.previewBody(), previewBody);
@@ -129,7 +127,7 @@ void Ut_Notification::testSignals()
     QSignalSpy summarySpy(&notification, SIGNAL(summaryChanged()));
     QSignalSpy bodySpy(&notification, SIGNAL(bodyChanged()));
     QSignalSpy iconSpy(&notification, SIGNAL(iconChanged()));
-    QSignalSpy timestampSpy(&notification, SIGNAL(localizedTimestampChanged()));
+    QSignalSpy timestampSpy(&notification, SIGNAL(timestampChanged()));
 
     notification.setSummary("summary");
     QCOMPARE(summarySpy.count(), 1);

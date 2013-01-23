@@ -37,8 +37,7 @@ class LIPSTICK_EXPORT Notification : public QObject
     Q_PROPERTY(QStringList actions READ actions)
     Q_PROPERTY(int expireTimeout READ expireTimeout)
     Q_PROPERTY(QString icon READ icon NOTIFY iconChanged)
-    Q_PROPERTY(QDateTime timestamp READ timestamp)
-    Q_PROPERTY(QString localizedTimestamp READ localizedTimestamp NOTIFY localizedTimestampChanged)
+    Q_PROPERTY(QDateTime timestamp READ timestamp NOTIFY timestampChanged)
     Q_PROPERTY(QString previewIcon READ previewIcon NOTIFY previewIconChanged)
     Q_PROPERTY(QString previewSummary READ previewSummary NOTIFY previewSummaryChanged)
     Q_PROPERTY(QString previewBody READ previewBody NOTIFY previewBodyChanged)
@@ -118,9 +117,6 @@ public:
     //! Returns the timestamp for the notification
     QDateTime timestamp() const;
 
-    //! Returns the timestamp for the notification in localized text format
-    QString localizedTimestamp() const;
-
     //! Returns the icon ID for the preview of the notification
     QString previewIcon() const;
 
@@ -164,8 +160,8 @@ signals:
     //! Sent when the icon has been modified
     void iconChanged();
 
-    //! Sent when the localized timestamp has changed
-    void localizedTimestampChanged();
+    //! Sent when the timestamp has changed
+    void timestampChanged();
 
     //! Sent when the preview icon has been modified
     void previewIconChanged();
