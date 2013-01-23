@@ -35,9 +35,7 @@ void NotificationFeedbackPlayer::addNotification(uint id)
     if (!idToEventId.contains(notification)) {
         QString feedback = notification->hints().value(NotificationManager::HINT_FEEDBACK).toString();
         if (!feedback.isEmpty()) {
-            QMap<QString, QVariant> properties;
-            properties.insert("media.audio", true);
-            idToEventId.insert(notification, ngfClient->play(feedback, properties));
+            idToEventId.insert(notification, ngfClient->play(feedback, QMap<QString, QVariant>()));
         }
     }
 }
