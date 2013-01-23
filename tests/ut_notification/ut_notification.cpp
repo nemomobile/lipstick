@@ -128,6 +128,10 @@ void Ut_Notification::testSignals()
     QSignalSpy bodySpy(&notification, SIGNAL(bodyChanged()));
     QSignalSpy iconSpy(&notification, SIGNAL(iconChanged()));
     QSignalSpy timestampSpy(&notification, SIGNAL(timestampChanged()));
+    QSignalSpy previewIconSpy(&notification, SIGNAL(previewIconChanged()));
+    QSignalSpy previewSummarySpy(&notification, SIGNAL(previewSummaryChanged()));
+    QSignalSpy previewBodySpy(&notification, SIGNAL(previewBodyChanged()));
+    QSignalSpy urgencySpy(&notification, SIGNAL(urgencyChanged()));
 
     notification.setSummary("summary");
     QCOMPARE(summarySpy.count(), 1);
@@ -140,13 +144,33 @@ void Ut_Notification::testSignals()
     QCOMPARE(bodySpy.count(), 1);
 
     hints.insert(NotificationManager::HINT_ICON, "icon");
+    notification.setHints(hints);
+    QCOMPARE(iconSpy.count(), 1);
+
     hints.insert(NotificationManager::HINT_TIMESTAMP, "2012-10-01 18:04:19");
     notification.setHints(hints);
     QCOMPARE(iconSpy.count(), 1);
     QCOMPARE(timestampSpy.count(), 1);
+
+    hints.insert(NotificationManager::HINT_PREVIEW_ICON, "previewIcon");
     notification.setHints(hints);
-    QCOMPARE(iconSpy.count(), 1);
     QCOMPARE(timestampSpy.count(), 1);
+    QCOMPARE(previewIconSpy.count(), 1);
+
+    hints.insert(NotificationManager::HINT_PREVIEW_SUMMARY, "previewSummary");
+    notification.setHints(hints);
+    QCOMPARE(previewIconSpy.count(), 1);
+    QCOMPARE(previewSummarySpy.count(), 1);
+
+    hints.insert(NotificationManager::HINT_PREVIEW_BODY, "previewBody");
+    notification.setHints(hints);
+    QCOMPARE(previewSummarySpy.count(), 1);
+    QCOMPARE(previewBodySpy.count(), 1);
+
+    hints.insert(NotificationManager::HINT_URGENCY, 2);
+    notification.setHints(hints);
+    QCOMPARE(previewBodySpy.count(), 1);
+    QCOMPARE(urgencySpy.count(), 1);
 }
 
 void Ut_Notification::testSerialization()
