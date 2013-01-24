@@ -771,7 +771,7 @@ void Ut_NotificationManager::testInvokingActionRemovesNotificationIfUserRemovabl
     QCOMPARE(removedSpy.at(0).at(0).toUInt(), id);
     QCOMPARE(closedSpy.count(), 0);
 
-    // Pim
+    // Check that the notification was marked hidden
     QCOMPARE(qSqlQueryPrepare.count(), 1);
     QCOMPARE(qSqlQueryPrepare.at(0), QString("INSERT INTO hints VALUES (?, ?, ?)"));
     QCOMPARE(qSqlQueryAddBindValue.count(), 3);
