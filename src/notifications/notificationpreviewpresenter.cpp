@@ -122,7 +122,7 @@ void NotificationPreviewPresenter::createWindowIfNecessary()
 
 bool NotificationPreviewPresenter::notificationShouldBeShown(Notification *notification)
 {
-    return !(notification->previewBody().isEmpty() && notification->previewSummary().isEmpty()) && (!presentOnlyCriticalNotifications || notification->hints().value(NotificationManager::HINT_URGENCY).toInt() >= 2);
+    return !notification->hints().value(NotificationManager::HINT_HIDDEN).toBool() && !(notification->previewBody().isEmpty() && notification->previewSummary().isEmpty()) && (!presentOnlyCriticalNotifications || notification->hints().value(NotificationManager::HINT_URGENCY).toInt() >= 2);
 }
 
 void NotificationPreviewPresenter::setNotificationPreviewRect(qreal x1, qreal y1, qreal x2, qreal y2)

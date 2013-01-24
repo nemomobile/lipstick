@@ -94,6 +94,9 @@ public:
     //! Nemo hint: Feedback of the notification.
     static const char *HINT_FEEDBACK;
 
+    //! Nemo hint: Whether the notification is hidden.
+    static const char *HINT_HIDDEN;
+
     //! Notifation closing reasons used in the NotificationClosed signal
     enum NotificationClosedReason {
         //! The notification expired.

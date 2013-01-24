@@ -63,6 +63,7 @@ const char *NotificationManager::HINT_REMOTE_ACTION_PREFIX = "x-nemo-remote-acti
 const char *NotificationManager::HINT_USER_REMOVABLE = "x-nemo-user-removable";
 const char *NotificationManager::HINT_USER_CLOSEABLE = "x-nemo-user-closeable";
 const char *NotificationManager::HINT_FEEDBACK = "x-nemo-feedback";
+const char *NotificationManager::HINT_HIDDEN = "x-nemo-hidden";
 
 NotificationManager *NotificationManager::instance_ = 0;
 
@@ -515,6 +516,9 @@ void NotificationManager::invokeAction(const QString &action)
                 } else {
                     // Uncloseable notifications should be only removed
                     emit notificationRemoved(id);
+
+                    // Mark the notification as hidden
+                    execSQL("INSERT INTO hints VALUES (?, ?, ?)", QVariantList() << id << HINT_HIDDEN << true);
                 }
             }
         }

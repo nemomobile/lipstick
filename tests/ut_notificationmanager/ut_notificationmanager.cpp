@@ -760,6 +760,8 @@ void Ut_NotificationManager::testInvokingActionRemovesNotificationIfUserRemovabl
     uint id = manager->Notify("app2", 0, QString(), QString(), QString(), QStringList(), hints, 0);
     Notification *notification = manager->notification(id);
     connect(this, SIGNAL(actionInvoked(QString)), notification, SIGNAL(actionInvoked(QString)));
+    qSqlQueryPrepare.clear();
+    qSqlQueryAddBindValue.clear();
 
     // Make the notifications emit the actionInvoked() signal for action "action"; removable notifications should get removed but non-closeable should not be closed
     QSignalSpy removedSpy(manager, SIGNAL(notificationRemoved(uint)));
@@ -768,6 +770,14 @@ void Ut_NotificationManager::testInvokingActionRemovesNotificationIfUserRemovabl
     QCOMPARE(removedSpy.count(), 1);
     QCOMPARE(removedSpy.at(0).at(0).toUInt(), id);
     QCOMPARE(closedSpy.count(), 0);
+
+    // Pim
+    QCOMPARE(qSqlQueryPrepare.count(), 1);
+    QCOMPARE(qSqlQueryPrepare.at(0), QString("INSERT INTO hints VALUES (?, ?, ?)"));
+    QCOMPARE(qSqlQueryAddBindValue.count(), 3);
+    QCOMPARE(qSqlQueryAddBindValue.at(0).toUInt(), id);
+    QCOMPARE(qSqlQueryAddBindValue.at(1), QVariant(NotificationManager::HINT_HIDDEN));
+    QCOMPARE(qSqlQueryAddBindValue.at(2), QVariant(true));
 }
 
 void Ut_NotificationManager::testListingNotifications()

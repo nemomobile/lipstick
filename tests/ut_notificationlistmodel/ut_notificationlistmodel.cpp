@@ -88,6 +88,18 @@ void Ut_NotificationListModel::testNotificationIsNotAddedIfUrgencyIsCritical()
     QCOMPARE(gQObjectListModelStub->stubCallCount("addItem"), 0);
 }
 
+void Ut_NotificationListModel::testNotificationIsNotAddedIfHidden()
+{
+    QVariantHash hints;
+    hints.insert(NotificationManager::HINT_HIDDEN, true);
+    Notification notification("appName", 1, "appIcon", "summary", "body", QStringList() << "action", hints, 1);
+    gNotificationManagerStub->stubSetReturnValue("notificationIds", QList<uint>() << 1);
+    gNotificationManagerStub->stubSetReturnValue("notification", &notification);
+    gQObjectListModelStub->stubSetReturnValue("indexOf", -1);
+    NotificationListModel model;
+    QCOMPARE(gQObjectListModelStub->stubCallCount("addItem"), 0);
+}
+
 void Ut_NotificationListModel::testAlreadyAddedNotificationIsRemovedIfNoLongerAddable()
 {
     Notification notification("appName", 1, "appIcon", "", "", QStringList() << "action", QVariantHash(), 1);

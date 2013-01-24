@@ -34,6 +34,7 @@ private slots:
     void testWindowMasking();
     void testNotificationNotShownIfNoSummaryOrBody_data();
     void testNotificationNotShownIfNoSummaryOrBody();
+    void testNotificationNotShownIfHidden();
     void testShowingOnlyCriticalNotifications();
     void testUpdateNotificationRemovesNotificationFromQueueIfNotShowable();
 };

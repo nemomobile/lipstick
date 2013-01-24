@@ -136,6 +136,7 @@ const char *NotificationManager::HINT_TIMESTAMP = "x-nemo-timestamp";
 const char *NotificationManager::HINT_PREVIEW_ICON = "x-nemo-preview-icon";
 const char *NotificationManager::HINT_PREVIEW_BODY = "x-nemo-preview-body";
 const char *NotificationManager::HINT_PREVIEW_SUMMARY = "x-nemo-preview-summary";
+const char *NotificationManager::HINT_HIDDEN = "x-nemo-hidden";
 
 NotificationManager *NotificationManager::instance_ = 0;
 NotificationManager * NotificationManager::instance() {

@@ -82,6 +82,7 @@ const char *NotificationManager::HINT_TIMESTAMP = "x-nemo-timestamp";
 const char *NotificationManager::HINT_PREVIEW_ICON = "x-nemo-preview-icon";
 const char *NotificationManager::HINT_PREVIEW_BODY = "x-nemo-preview-body";
 const char *NotificationManager::HINT_PREVIEW_SUMMARY = "x-nemo-preview-summary";
+const char *NotificationManager::HINT_HIDDEN = "x-nemo-hidden";
 
 NotificationManager::NotificationManager(QObject *parent) : QObject(parent)
 {
@@ -354,6 +355,25 @@ void Ut_NotificationPreviewPresenter::testNotificationNotShownIfNoSummaryOrBody(
 
     // Check whether the window was shown
     QCOMPARE(qWidgetVisible[static_cast<QWidget *>(qDeclarativeViews.first())], windowVisible);
+}
+
+void Ut_NotificationPreviewPresenter::testNotificationNotShownIfHidden()
+{
+    NotificationPreviewPresenter presenter;
+    QSignalSpy spy(&presenter, SIGNAL(notificationChanged()));
+
+    // Create notification
+    Notification *notification = new Notification;
+    QVariantHash hints;
+    hints.insert(NotificationManager::HINT_PREVIEW_SUMMARY, "previewSummary");
+    hints.insert(NotificationManager::HINT_PREVIEW_BODY, "previewBody");
+    hints.insert(NotificationManager::HINT_HIDDEN, true);
+    notification->setHints(hints);
+    notificationManagerNotification.insert(1, notification);
+    presenter.updateNotification(1);
+
+    QCOMPARE(spy.count(), 0);
+    QCOMPARE(qWidgetVisible[static_cast<QWidget *>(qDeclarativeViews.first())], false);
 }
 
 void Ut_NotificationPreviewPresenter::testShowingOnlyCriticalNotifications()
