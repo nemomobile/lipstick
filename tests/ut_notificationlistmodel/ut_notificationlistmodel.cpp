@@ -141,6 +141,9 @@ void Ut_NotificationListModel::testNotificationOrdering()
     QCOMPARE(model.get(0), &notification1);
     QCOMPARE(model.get(1), &notification3);
     QCOMPARE(model.get(2), &notification2);
+
+    model.updateNotification(1);
+    QCOMPARE(model.get(0), &notification1);
 }
 
 QTEST_MAIN(Ut_NotificationListModel)

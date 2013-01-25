@@ -52,7 +52,7 @@ int NotificationListModel::indexFor(Notification *notification)
 {
     for (int index = 0; index < itemCount(); index++) {
         Notification *notificationAtIndex = static_cast<Notification *>(get(index));
-        if (notificationAtIndex->timestamp() < notification->timestamp()) {
+        if (notificationAtIndex->timestamp() <= notification->timestamp()) {
             return index;
         }
     }
