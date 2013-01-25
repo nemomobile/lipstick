@@ -32,6 +32,7 @@ private slots:
     void testNotificationIsNotAddedIfHidden();
     void testAlreadyAddedNotificationIsRemovedIfNoLongerAddable();
     void testNotificationRemoval();
+    void testNotificationOrdering();
 };
 
 #endif

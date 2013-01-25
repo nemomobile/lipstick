@@ -38,6 +38,7 @@ public:
     Q_INVOKABLE void reset();
     Q_INVOKABLE void move(int oldRow, int newRow);
 
+    void insertItem(int index, QObject *item);
     void addItem(QObject *item);
     void removeItem(QObject *item);
     void removeItem(int index);

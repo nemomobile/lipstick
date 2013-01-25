@@ -34,11 +34,29 @@ NotificationListModel::~NotificationListModel()
 void NotificationListModel::updateNotification(uint id)
 {
     Notification *notification = NotificationManager::instance()->notification(id);
-    if (indexOf(notification) < 0 && notificationShouldBeShown(notification)) {
-        addItem(notification);
-    } else if (indexOf(notification) >= 0 && !notificationShouldBeShown(notification)) {
+    int index = indexOf(notification);
+    if (notificationShouldBeShown(notification)) {
+        // Place the notifications in the model latest first, moving existing notifications if necessary
+        int expectedIndex = indexFor(notification);
+        if (index < 0) {
+            insertItem(expectedIndex, notification);
+        } else if (index != expectedIndex) {
+            move(index, expectedIndex);
+        }
+    } else if (index >= 0) {
         removeItem(notification);
     }
+}
+
+int NotificationListModel::indexFor(Notification *notification)
+{
+    for (int index = 0; index < itemCount(); index++) {
+        Notification *notificationAtIndex = static_cast<Notification *>(get(index));
+        if (notificationAtIndex->timestamp() < notification->timestamp()) {
+            return index;
+        }
+    }
+    return itemCount();
 }
 
 void NotificationListModel::removeNotification(uint id)

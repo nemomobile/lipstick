@@ -76,16 +76,20 @@ bool QObjectListModel::setData(const QModelIndex &index, const QVariant &value, 
     return false;
 }
 
-void QObjectListModel::addItem(QObject *item)
+void QObjectListModel::insertItem(int index, QObject *item)
 {
-    int z = _list->count();
-    beginInsertRows(QModelIndex(), z, z);
-    _list->append(item);
+    beginInsertRows(QModelIndex(), index, index);
+    _list->insert(index, item);
     connect(item, SIGNAL(destroyed()), this, SLOT(removeDestroyedItem()));
     endInsertRows();
 
     emit itemAdded(item);
     emit itemCountChanged();
+}
+
+void QObjectListModel::addItem(QObject *item)
+{
+    insertItem(_list->count(), item);
 }
 
 void QObjectListModel::removeDestroyedItem()

@@ -31,6 +31,7 @@ class QObjectListModelStub : public StubBase {
   virtual bool setData(const QModelIndex &index, const QVariant &value, int role);
   virtual void reset();
   virtual void move(int oldRow, int newRow);
+  virtual void insertItem(int index, QObject *item);
   virtual void addItem(QObject *item);
   virtual void removeItem(QObject *item);
   virtual void removeItem(int index);
@@ -92,6 +93,13 @@ void QObjectListModelStub::move(int oldRow, int newRow) {
   params.append( new Parameter<int >(oldRow));
   params.append( new Parameter<int >(newRow));
   stubMethodEntered("move",params);
+}
+
+void QObjectListModelStub::insertItem(int index, QObject *item) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<int >(index));
+  params.append( new Parameter<QObject * >(item));
+  stubMethodEntered("insertItem",params);
 }
 
 void QObjectListModelStub::addItem(QObject *item) {
@@ -175,6 +183,10 @@ bool QObjectListModel::setData(const QModelIndex &index, const QVariant &value, 
 
 void QObjectListModel::reset() {
   gQObjectListModelStub->reset();
+}
+
+void QObjectListModel::insertItem(int index, QObject *item) {
+  gQObjectListModelStub->insertItem(index, item);
 }
 
 void QObjectListModel::addItem(QObject *item) {

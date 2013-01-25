@@ -44,6 +44,15 @@ private:
      */
     static bool notificationShouldBeShown(Notification *notification);
 
+    /*!
+     * Checks where the notification should be placed so that the
+     * notifications in the model are ordered by timestamp.
+     *
+     * \param notification the notification for which to get the position
+     * \return index in which the notification shoud be placed
+     */
+    int indexFor(Notification *notification);
+
     Q_DISABLE_COPY(NotificationListModel)
 
 #ifdef UNIT_TEST

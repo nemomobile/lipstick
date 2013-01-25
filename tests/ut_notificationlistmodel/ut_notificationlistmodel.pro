@@ -8,6 +8,7 @@ SOURCES += \
     ut_notificationlistmodel.cpp \
     $$NOTIFICATIONSRCDIR/notificationlistmodel.cpp \
     $$NOTIFICATIONSRCDIR/notification.cpp \
+    $$SRCDIR/utilities/qobjectlistmodel.cpp \
     $$STUBSDIR/stubbase.cpp \
 
 # unit test and unit
