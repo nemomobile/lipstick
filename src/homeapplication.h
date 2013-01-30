@@ -21,6 +21,7 @@
 class XEventListener;
 class ScreenLock;
 class VolumeControl;
+class BatteryNotifier;
 
 /*!
  * Extends QApplication with features necessary to create a desktop.
@@ -87,6 +88,8 @@ private:
 
     //! Logic for setting the device volume
     VolumeControl *volumeControl;
+
+    BatteryNotifier *batteryNotifier;
 };
 
 #endif /* HOMEAPPLICATION_H_ */

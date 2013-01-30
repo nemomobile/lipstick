@@ -1,2 +1,4 @@
 liblipstick.*
 pkgconfig
+*.ts
+*.qm

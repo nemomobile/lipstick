@@ -17,6 +17,7 @@
 #include <QDBusMessage>
 #include <QDBusConnection>
 #include <QIcon>
+#include <QTranslator>
 #include <QX11Info>
 #include <QDebug>
 #include <QEvent>
@@ -24,6 +25,7 @@
 #include "notifications/notificationmanager.h"
 #include "notifications/notificationpreviewpresenter.h"
 #include "notifications/notificationfeedbackplayer.h"
+#include "notifications/batterynotifier.h"
 #include "screenlock/screenlock.h"
 #include "screenlock/screenlockadaptor.h"
 #include "lipsticksettings.h"
@@ -66,6 +68,13 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     // TODO: autogenerate this from tags
     setApplicationVersion(VERSION);
 
+    QTranslator *engineeringEnglish = new QTranslator(this);
+    engineeringEnglish->load("lipstick_eng_en", "/usr/share/translations");
+    installTranslator(engineeringEnglish);
+    QTranslator *translator = new QTranslator(this);
+    translator->load(QLocale(), "lipstick", "-", "/usr/share/translations");
+    installTranslator(translator);
+
     // launch a timer for sending a dbus-signal upstart when basic construct is done
     QTimer::singleShot(0, this, SLOT(sendStartupNotifications()));
 
@@ -84,6 +93,7 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     connect(screenLock, SIGNAL(screenIsLocked(bool)), notificationPreviewPresenter, SLOT(setPresentOnlyCriticalNotifications(bool)));
 
     volumeControl = new VolumeControl;
+    batteryNotifier = new BatteryNotifier(this);
 
     // MCE expects the service to be registered on the system bus
     static const char *SCREENLOCK_DBUS_SERVICE = "org.nemomobile.lipstick";

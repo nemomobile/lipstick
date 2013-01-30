@@ -64,13 +64,13 @@ QStringList NotificationManagerStub::GetCapabilities() {
 
 uint NotificationManagerStub::Notify(const QString &appName, uint replacesId, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expireTimeout) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const QString & >(appName));
+  params.append( new Parameter<QString >(appName));
   params.append( new Parameter<uint >(replacesId));
-  params.append( new Parameter<const QString & >(appIcon));
-  params.append( new Parameter<const QString & >(summary));
-  params.append( new Parameter<const QString & >(body));
-  params.append( new Parameter<const QStringList & >(actions));
-  params.append( new Parameter<const QVariantHash & >(hints));
+  params.append( new Parameter<QString >(appIcon));
+  params.append( new Parameter<QString >(summary));
+  params.append( new Parameter<QString >(body));
+  params.append( new Parameter<QStringList >(actions));
+  params.append( new Parameter<QVariantHash >(hints));
   params.append( new Parameter<int >(expireTimeout));
   stubMethodEntered("Notify",params);
   return stubReturnValue<uint>("Notify");
@@ -94,13 +94,13 @@ QString NotificationManagerStub::GetServerInformation(QString &name, QString &ve
 
 void NotificationManagerStub::removeNotificationsWithCategory(const QString &category) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const QString & >(category));
+  params.append( new Parameter<QString >(category));
   stubMethodEntered("removeNotificationsWithCategory",params);
 }
 
 void NotificationManagerStub::updateNotificationsWithCategory(const QString &category) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const QString & >(category));
+  params.append( new Parameter<QString >(category));
   stubMethodEntered("updateNotificationsWithCategory",params);
 }
 
@@ -110,7 +110,7 @@ void NotificationManagerStub::commit() {
 
 void NotificationManagerStub::invokeAction(const QString &action) {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const QString & >(action));
+  params.append( new Parameter<QString >(action));
   stubMethodEntered("invokeAction",params);
 }
 
@@ -130,6 +130,7 @@ NotificationManagerStub* gNotificationManagerStub = &gDefaultNotificationManager
 
 
 // 4. CREATE A PROXY WHICH CALLS THE STUB
+const char *NotificationManager::HINT_CATEGORY = "category";
 const char *NotificationManager::HINT_URGENCY = "urgency";
 const char *NotificationManager::HINT_ICON = "x-nemo-icon";
 const char *NotificationManager::HINT_TIMESTAMP = "x-nemo-timestamp";
