@@ -40,7 +40,6 @@
 #include "xtools/xatomcache.h"
 #include "xtools/xwindowmanager.h"
 #include "xtools/homewindowmonitor.h"
-#include "xtools/x11wrapper.h"
 #include "components/windowmanager.h"
 #include "components/windowinfo.h"
 #include "volume/volumecontrol.h"
@@ -189,12 +188,6 @@ QDeclarativeView *HomeApplication::mainWindowInstance()
     // Setting the source, if present
     if (!_qmlPath.isEmpty())
         _mainWindowInstance->setSource(_qmlPath);
-
-    // Make the orientation angle known
-    int angle = 270;
-    Display *display = QX11Info::display();
-    Atom orientationAngleAtom = X11Wrapper::XInternAtom(display, "_MEEGOTOUCH_ORIENTATION_ANGLE", False);
-    X11Wrapper::XChangeProperty(display, _mainWindowInstance->winId(), orientationAngleAtom, XA_CARDINAL, 32, PropModeReplace, (unsigned char*)&angle, 1);
 
     return _mainWindowInstance;
 }
