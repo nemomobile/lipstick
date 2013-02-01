@@ -43,6 +43,7 @@
 #include "components/windowmanager.h"
 #include "components/windowinfo.h"
 #include "volume/volumecontrol.h"
+#include "usbmodeselector.h"
 
 // Define this if you'd like to see debug messages from the home app
 #ifdef DEBUG_HOME
@@ -93,6 +94,8 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
 
     volumeControl = new VolumeControl;
     batteryNotifier = new BatteryNotifier(this);
+    usbModeSelector = new USBModeSelector(this);
+    connect(usbModeSelector, SIGNAL(dialogShown()), screenLock, SLOT(unlockScreen()));
 
     // MCE expects the service to be registered on the system bus
     static const char *SCREENLOCK_DBUS_SERVICE = "org.nemomobile.lipstick";

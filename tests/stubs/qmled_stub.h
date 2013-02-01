@@ -1,13 +1,10 @@
-/****************************************************************************
+/***************************************************************************
 **
 ** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
-** All rights reserved.
-** Contact: Nokia Corporation (directui@nokia.com)
+** Copyright (C) 2012 Jolla Ltd.
+** Contact: Robin Burchell <robin.burchell@jollamobile.com>
 **
-** This file is part of systemui.
-**
-** If you have questions regarding the use of this file, please contact
-** Nokia at directui@nokia.com.
+** This file is part of lipstick.
 **
 ** This library is free software; you can redistribute it and/or
 ** modify it under the terms of the GNU Lesser General Public

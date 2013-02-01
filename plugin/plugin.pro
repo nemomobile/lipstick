@@ -2,8 +2,9 @@ TEMPLATE = lib
 TARGET = lipstickplugin
 VERSION = 0.1
 
-CONFIG += qt plugin
+CONFIG += qt plugin link_pkgconfig
 QT += core gui declarative
+PKGCONFIG += qmsystem2
 
 INSTALLS = target qmldirfile
 qmldirfile.files = qmldir

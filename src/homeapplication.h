@@ -22,6 +22,7 @@ class XEventListener;
 class ScreenLock;
 class VolumeControl;
 class BatteryNotifier;
+class USBModeSelector;
 
 /*!
  * Extends QApplication with features necessary to create a desktop.
@@ -89,7 +90,11 @@ private:
     //! Logic for setting the device volume
     VolumeControl *volumeControl;
 
+    //! Logic for notifying about battery state
     BatteryNotifier *batteryNotifier;
+
+    //! Logic for showing the USB mode selection dialog
+    USBModeSelector *usbModeSelector;
 };
 
 #endif /* HOMEAPPLICATION_H_ */

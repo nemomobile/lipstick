@@ -60,7 +60,8 @@ HEADERS += \
     volume/pulseaudiocontrol.h \
     volume/volumekeylistener.h \
     notifications/notificationfeedbackplayer.h \
-    notifications/batterynotifier.h
+    notifications/batterynotifier.h \
+    usbmodeselector.h
 
 SOURCES += \
     homeapplication.cpp \
@@ -93,7 +94,8 @@ SOURCES += \
     volume/pulseaudiocontrol.cpp \
     volume/volumekeylistener.cpp \
     notifications/notificationfeedbackplayer.cpp \
-    notifications/batterynotifier.cpp
+    notifications/batterynotifier.cpp \
+    usbmodeselector.cpp
 
 CONFIG += link_pkgconfig mobility qt warn_on depend_includepath qmake_cache target_qt
 MOBILITY += sensors
