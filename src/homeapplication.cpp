@@ -44,6 +44,7 @@
 #include "components/windowinfo.h"
 #include "volume/volumecontrol.h"
 #include "usbmodeselector.h"
+#include "shutdownscreen.h"
 
 // Define this if you'd like to see debug messages from the home app
 #ifdef DEBUG_HOME
@@ -96,6 +97,7 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     batteryNotifier = new BatteryNotifier(this);
     usbModeSelector = new USBModeSelector(this);
     connect(usbModeSelector, SIGNAL(dialogShown()), screenLock, SLOT(unlockScreen()));
+    shutdownScreen = new ShutdownScreen(this);
 
     // MCE expects the service to be registered on the system bus
     static const char *SCREENLOCK_DBUS_SERVICE = "org.nemomobile.lipstick";
@@ -114,14 +116,17 @@ HomeApplication::~HomeApplication()
     delete volumeControl;
     delete screenLock;
     delete _mainWindowInstance;
-
-    signal(SIGINT, originalSigIntHandler);
-    signal(SIGTERM, originalSigTermHandler);
 }
 
 HomeApplication *HomeApplication::instance()
 {
     return qobject_cast<HomeApplication *>(QApplication::instance());
+}
+
+void HomeApplication::restoreSignalHandlers()
+{
+    signal(SIGINT, originalSigIntHandler);
+    signal(SIGTERM, originalSigTermHandler);
 }
 
 void HomeApplication::sendStartupNotifications()

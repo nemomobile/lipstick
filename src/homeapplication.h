@@ -23,6 +23,7 @@ class ScreenLock;
 class VolumeControl;
 class BatteryNotifier;
 class USBModeSelector;
+class ShutdownScreen;
 
 /*!
  * Extends QApplication with features necessary to create a desktop.
@@ -67,6 +68,11 @@ public:
       */
     void setQmlPath(const QString &path);
 
+    /*!
+     * Restores any installed signal handlers.
+     */
+    void restoreSignalHandlers();
+
 private slots:
     /*!
      * Sends a dbus-signal after UI is visible, stops the process if it has
@@ -95,6 +101,9 @@ private:
 
     //! Logic for showing the USB mode selection dialog
     USBModeSelector *usbModeSelector;
+
+    //! Logic for showing the shutdown screen and related notifications
+    ShutdownScreen *shutdownScreen;
 };
 
 #endif /* HOMEAPPLICATION_H_ */

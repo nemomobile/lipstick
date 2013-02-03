@@ -61,7 +61,8 @@ HEADERS += \
     volume/volumekeylistener.h \
     notifications/notificationfeedbackplayer.h \
     notifications/batterynotifier.h \
-    usbmodeselector.h
+    usbmodeselector.h \
+    shutdownscreen.h
 
 SOURCES += \
     homeapplication.cpp \
@@ -95,7 +96,8 @@ SOURCES += \
     volume/volumekeylistener.cpp \
     notifications/notificationfeedbackplayer.cpp \
     notifications/batterynotifier.cpp \
-    usbmodeselector.cpp
+    usbmodeselector.cpp \
+    shutdownscreen.cpp
 
 CONFIG += link_pkgconfig mobility qt warn_on depend_includepath qmake_cache target_qt
 MOBILITY += sensors
