@@ -3,7 +3,7 @@ system(qdbusxml2cpp screenlock/screenlock.xml -a screenlock/screenlockadaptor -c
 
 TEMPLATE = lib
 TARGET = lipstick
-VERSION = 0.8.0
+VERSION = 0.9.0
 
 DEFINES += LIPSTICK_BUILD_LIBRARY VERSION=\\\"$$VERSION\\\"
 
@@ -30,7 +30,9 @@ PUBLICHEADERS += \
     notifications/notificationlistmodel.h \
     notifications/notificationpreviewpresenter.h \
     xtools/xeventlistener.h \
-    xtools/xatomcache.h
+    xtools/xatomcache.h \
+    usbmodeselector.h \
+    shutdownscreen.h
 
 INSTALLS += publicheaderfiles dbus_policy
 publicheaderfiles.files = $$PUBLICHEADERS
