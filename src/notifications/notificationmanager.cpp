@@ -284,7 +284,7 @@ bool NotificationManager::connectToDatabase()
     }
 
     QString databaseName = configPath + "/notifications.db";
-    *database = QSqlDatabase::addDatabase("QSQLITE");
+    *database = QSqlDatabase::addDatabase("QSQLITE", metaObject()->className());
     database->setDatabaseName(databaseName);
     bool success = checkForDiskSpace(configPath, MINIMUM_FREE_SPACE_NEEDED_IN_KB);
     if (success) {
@@ -303,7 +303,7 @@ bool NotificationManager::connectToDatabase()
 
     if (success) {
         // Set up the database mode to write-ahead locking to improve performance
-        QSqlQuery().exec("PRAGMA journal_mode=WAL");
+        QSqlQuery(*database).exec("PRAGMA journal_mode=WAL");
     }
 
     return success;
@@ -382,8 +382,8 @@ bool NotificationManager::recreateTable(const QString &tableName, const QString 
     bool result = false;
 
     if (database->isOpen()) {
-        QSqlQuery().exec("DROP TABLE " + tableName);
-        result = QSqlQuery().exec("CREATE TABLE " + tableName + " (" + definition + ")");
+        QSqlQuery(*database).exec("DROP TABLE " + tableName);
+        result = QSqlQuery(*database).exec("CREATE TABLE " + tableName + " (" + definition + ")");
     }
 
     return result;
@@ -392,7 +392,7 @@ bool NotificationManager::recreateTable(const QString &tableName, const QString 
 void NotificationManager::fetchData()
 {
     // Gather actions for each notification
-    QSqlQuery actionsQuery("SELECT * FROM actions");
+    QSqlQuery actionsQuery("SELECT * FROM actions", *database);
     QSqlRecord actionsRecord = actionsQuery.record();
     int actionsTableIdFieldIndex = actionsRecord.indexOf("id");
     int actionsTableActionFieldIndex = actionsRecord.indexOf("action");
@@ -403,7 +403,7 @@ void NotificationManager::fetchData()
     }
 
     // Gather hints for each notification
-    QSqlQuery hintsQuery("SELECT * FROM hints");
+    QSqlQuery hintsQuery("SELECT * FROM hints", *database);
     QSqlRecord hintsRecord = hintsQuery.record();
     int hintsTableIdFieldIndex = hintsRecord.indexOf("id");
     int hintsTableHintFieldIndex = hintsRecord.indexOf("hint");
@@ -415,7 +415,7 @@ void NotificationManager::fetchData()
     }
 
     // Create the notifications
-    QSqlQuery notificationsQuery("SELECT * FROM notifications");
+    QSqlQuery notificationsQuery("SELECT * FROM notifications", *database);
     QSqlRecord notificationsRecord = notificationsQuery.record();
     int notificationsTableIdFieldIndex = notificationsRecord.indexOf("id");
     int notificationsTableAppNameFieldIndex = notificationsRecord.indexOf("app_name");
@@ -467,7 +467,7 @@ void NotificationManager::execSQL(const QString &command, const QVariantList &ar
         database->transaction();
     }
 
-    QSqlQuery query;
+    QSqlQuery query(*database);
     query.prepare(command);
 
     foreach(const QVariant &arg, args) {
