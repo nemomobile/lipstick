@@ -16,6 +16,8 @@ OBJECTS_DIR = .obj
 MOC_DIR = .moc
 
 PUBLICHEADERS += \
+    utilities/qobjectlistmodel.h \
+    utilities/closeeventeater.h \
     homeapplication.h \
     lipstickglobal.h \
     components/windowinfo.h \
@@ -42,29 +44,22 @@ dbus_policy.path = /etc/dbus-1/system.d
 
 HEADERS += \
     $$PUBLICHEADERS \
-    utilities/qobjectlistmodel.h \
-    utilities/closeeventeater.h \
     xtools/homewindowmonitor.h \
     xtools/windowmonitor.h \
     xtools/xwindowmanager.h \
     xtools/x11wrapper.h \
     lipsticksettings.h \
-    notifications/notificationmanager.h \
     notifications/notificationmanageradaptor.h \
-    notifications/notification.h \
     notifications/categorydefinitionstore.h \
-    notifications/notificationlistmodel.h \
     notifications/lowbatterynotifier.h \
+    notifications/notificationfeedbackplayer.h \
+    notifications/batterynotifier.h \
     screenlock/eventeater.h \
     screenlock/screenlock.h \
     screenlock/screenlockadaptor.h \
     volume/volumecontrol.h \
     volume/pulseaudiocontrol.h \
-    volume/volumekeylistener.h \
-    notifications/notificationfeedbackplayer.h \
-    notifications/batterynotifier.h \
-    usbmodeselector.h \
-    shutdownscreen.h
+    volume/volumekeylistener.h
 
 SOURCES += \
     homeapplication.cpp \
