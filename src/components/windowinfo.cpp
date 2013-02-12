@@ -215,7 +215,7 @@ static QVector<Atom> getNetWmState(Display *display, Window window)
     uchar *propertyData = 0;
 
     // Step 1: Get the size of the list
-    bool result = XGetWindowProperty(display, window, AtomCache::atom("_NET_WM_STATE"), 0, 0,
+    bool result = XGetWindowProperty(display, window, AtomCache::atom("_NET_WM_STATE"), 0, 0x7fffffff,
                                      false, XA_ATOM, &actualType,
                                      &actualFormat, &propertyLength,
                                      &bytesLeft, &propertyData);
@@ -223,6 +223,7 @@ static QVector<Atom> getNetWmState(Display *display, Window window)
         return atomList;
 
     XFree(propertyData);
+    atomList.resize(propertyLength);
 
     // Step 2: Get the actual list
     if (!XGetWindowProperty(display, window, AtomCache::atom("_NET_WM_STATE"), 0,
@@ -234,7 +235,6 @@ static QVector<Atom> getNetWmState(Display *display, Window window)
         return atomList;
     }
 
-    atomList.resize(propertyLength);
 
     if (!atomList.isEmpty())
         memcpy(atomList.data(), propertyData,
