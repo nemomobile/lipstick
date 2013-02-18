@@ -27,6 +27,14 @@ void Ut_NotificationListModel::cleanup()
     gNotificationManagerStub->stubReset();
 }
 
+void Ut_NotificationListModel::testSignalConnections()
+{
+    NotificationListModel model;
+    QCOMPARE(disconnect(NotificationManager::instance(), SIGNAL(notificationModified(uint)), &model, SLOT(updateNotification(uint))), true);
+    QCOMPARE(disconnect(NotificationManager::instance(), SIGNAL(notificationRemoved(uint)), &model, SLOT(removeNotification(uint))), true);
+    QCOMPARE(disconnect(&model, SIGNAL(clearRequested()), NotificationManager::instance(), SLOT(removeUserRemovableNotifications())), true);
+}
+
 void Ut_NotificationListModel::testModelPopulatesOnConstruction()
 {
     Notification notification("appName", 1, "appIcon", "summary", "body", QStringList() << "action", QVariantHash(), 1);

@@ -29,6 +29,9 @@ public:
     explicit NotificationListModel(QObject *parent = 0);
     virtual ~NotificationListModel();
 
+signals:
+    void clearRequested();
+
 private slots:
     void updateNotification(uint id);
     void removeNotification(uint id);

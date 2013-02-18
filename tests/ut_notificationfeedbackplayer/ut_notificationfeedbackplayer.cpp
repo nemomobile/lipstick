@@ -51,6 +51,10 @@ void NotificationManager::commit()
 {
 }
 
+void NotificationManager::removeUserRemovableNotifications()
+{
+}
+
 NotificationManager *notificationManagerInstance = 0;
 NotificationManager *NotificationManager::instance()
 {

@@ -123,6 +123,10 @@ Notification *NotificationManager::notification(uint id) const
     return notificationManagerNotification.value(id);
 }
 
+void NotificationManager::removeUserRemovableNotifications()
+{
+}
+
 Notification *createNotification(uint id)
 {
     Notification *notification = new Notification;

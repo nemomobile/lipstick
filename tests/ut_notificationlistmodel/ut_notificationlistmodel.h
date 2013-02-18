@@ -24,6 +24,7 @@ class Ut_NotificationListModel : public QObject
 private slots:
     void init();
     void cleanup();
+    void testSignalConnections();
     void testModelPopulatesOnConstruction();
     void testNotificationIsOnlyAddedIfNotAlreadyAdded();
     void testNotificationIsNotAddedIfNoSummaryOrBody_data();

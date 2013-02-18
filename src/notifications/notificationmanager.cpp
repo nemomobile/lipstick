@@ -506,21 +506,34 @@ void NotificationManager::invokeAction(const QString &action)
                 }
             }
 
-            QVariant userRemovable = notification->hints().value(HINT_USER_REMOVABLE);
-            if (!userRemovable.isValid() || userRemovable.toBool()) {
-                // The notification should be removed if user removability is not defined (defaults to true) or is set to true
-                QVariant userCloseable = notification->hints().value(HINT_USER_CLOSEABLE);
-                if (!userCloseable.isValid() || userCloseable.toBool()) {
-                    // The notification should be closed if user closeability is not defined (defaults to true) or is set to true
-                    CloseNotification(id, NotificationDismissedByUser);
-                } else {
-                    // Uncloseable notifications should be only removed
-                    emit notificationRemoved(id);
-
-                    // Mark the notification as hidden
-                    execSQL("INSERT INTO hints VALUES (?, ?, ?)", QVariantList() << id << HINT_HIDDEN << true);
-                }
-            }
+            removeNotificationIfUserRemovable(id);
         }
+    }
+}
+
+void NotificationManager::removeNotificationIfUserRemovable(uint id)
+{
+    Notification *notification = notifications[id];
+    QVariant userRemovable = notification->hints().value(HINT_USER_REMOVABLE);
+    if (!userRemovable.isValid() || userRemovable.toBool()) {
+        // The notification should be removed if user removability is not defined (defaults to true) or is set to true
+        QVariant userCloseable = notification->hints().value(HINT_USER_CLOSEABLE);
+        if (!userCloseable.isValid() || userCloseable.toBool()) {
+            // The notification should be closed if user closeability is not defined (defaults to true) or is set to true
+            CloseNotification(id, NotificationDismissedByUser);
+        } else {
+            // Uncloseable notifications should be only removed
+            emit notificationRemoved(id);
+
+            // Mark the notification as hidden
+            execSQL("INSERT INTO hints VALUES (?, ?, ?)", QVariantList() << id << HINT_HIDDEN << true);
+        }
+    }
+}
+
+void NotificationManager::removeUserRemovableNotifications()
+{
+    foreach(uint id, notifications.keys()) {
+        removeNotificationIfUserRemovable(id);
     }
 }
