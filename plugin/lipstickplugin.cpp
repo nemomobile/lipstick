@@ -20,7 +20,6 @@
 #include <components/launchermodel.h>
 #include <components/switchermodel.h>
 #include <components/switcherpixmapitem.h>
-#include <components/statusbar.h>
 #include <components/windowmanager.h>
 #include <components/windowinfo.h>
 #include <notifications/notificationpreviewpresenter.h>
@@ -42,7 +41,6 @@ void LipstickPlugin::registerTypes(const char *uri)
     qmlRegisterType<LauncherModel>("org.nemomobile.lipstick", 0, 1, "LauncherModel");
     qmlRegisterType<SwitcherModel>("org.nemomobile.lipstick", 0, 1, "SwitcherModel");
     qmlRegisterType<SwitcherPixmapItem>("org.nemomobile.lipstick", 0, 1, "SwitcherPixmapItem");
-    qmlRegisterType<StatusBar>("org.nemomobile.lipstick", 0, 1, "StatusBar");
     qmlRegisterType<NotificationListModel>("org.nemomobile.lipstick", 0, 1, "NotificationListModel");
     qmlRegisterType<Notification>("org.nemomobile.lipstick", 0, 1, "Notification");
     qmlRegisterType<LauncherItem>("org.nemomobile.lipstick", 0, 1, "LauncherItem");

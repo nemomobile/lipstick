@@ -25,7 +25,6 @@ PUBLICHEADERS += \
     components/launchermodel.h \
     components/switchermodel.h \
     components/switcherpixmapitem.h \
-    components/statusbar.h \
     components/windowmanager.h \
     notifications/notificationmanager.h \
     notifications/notification.h \
@@ -76,7 +75,6 @@ SOURCES += \
     components/launchermodel.cpp \
     components/switchermodel.cpp \
     components/switcherpixmapitem.cpp \
-    components/statusbar.cpp \
     components/windowmanager.cpp \
     notifications/notificationmanager.cpp \
     notifications/notificationmanageradaptor.cpp \
