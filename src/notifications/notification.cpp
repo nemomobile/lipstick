@@ -125,6 +125,7 @@ void Notification::setHints(const QVariantHash &hints)
     QString oldPreviewBody = previewBody();
     int oldUrgency = urgency();
     int oldItemCount = itemCount();
+    int oldPriority = priority();
 
     hints_ = hints;
 
@@ -154,6 +155,10 @@ void Notification::setHints(const QVariantHash &hints)
 
     if (oldItemCount != itemCount()) {
         emit itemCountChanged();
+    }
+
+    if (oldPriority != priority()) {
+        emit priorityChanged();
     }
 }
 
@@ -200,6 +205,11 @@ int Notification::urgency() const
 int Notification::itemCount() const
 {
     return hints_.value(NotificationManager::HINT_ITEM_COUNT).toInt();
+}
+
+int Notification::priority() const
+{
+    return hints_.value(NotificationManager::HINT_PRIORITY).toInt();
 }
 
 QDBusArgument &operator<<(QDBusArgument &argument, const Notification &notification)

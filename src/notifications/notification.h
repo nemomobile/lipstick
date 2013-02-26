@@ -43,6 +43,7 @@ class LIPSTICK_EXPORT Notification : public QObject
     Q_PROPERTY(QString previewBody READ previewBody NOTIFY previewBodyChanged)
     Q_PROPERTY(int urgency READ urgency NOTIFY urgencyChanged)
     Q_PROPERTY(int itemCount READ itemCount NOTIFY itemCountChanged)
+    Q_PROPERTY(int priority READ priority NOTIFY priorityChanged)
 
 public:
     /*!
@@ -133,6 +134,9 @@ public:
     //! Returns the item count of the notification
     int itemCount() const;
 
+    //! Returns the priority of the notification
+    int priority() const;
+
     //! \internal
     /*!
      * Creates a copy of an existing representation of a notification.
@@ -181,6 +185,9 @@ signals:
 
     //! Sent when the item count has been modified
     void itemCountChanged();
+
+    //! Sent when the priority has been modified
+    void priorityChanged();
 
 private:
     //! Name of the application sending the notification

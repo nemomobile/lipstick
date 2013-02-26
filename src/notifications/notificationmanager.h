@@ -70,6 +70,9 @@ public:
     //! Nemo hint: Item count represented by the notification.
     static const char *HINT_ITEM_COUNT;
 
+    //! Nemo hint: Priority level of the notification.
+    static const char *HINT_PRIORITY;
+
     //! Nemo hint: Timestamp of the notification.
     static const char *HINT_TIMESTAMP;
 
