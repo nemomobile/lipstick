@@ -30,10 +30,12 @@ void Ut_Notification::testGettersAndSetters()
     QString previewSummary = "previewSummary1";
     QString previewBody = "previewBody1";
     int urgency = 1;
+    int itemCount = 5;
     QStringList actions = QStringList() << "action1a" << "action1b";
     QDateTime timestamp = QDateTime::currentDateTime();
     QVariantHash hints;
     hints.insert(NotificationManager::HINT_TIMESTAMP, timestamp);
+    hints.insert(NotificationManager::HINT_ITEM_COUNT, itemCount);
     hints.insert(NotificationManager::HINT_PREVIEW_ICON, previewIcon);
     hints.insert(NotificationManager::HINT_PREVIEW_SUMMARY, previewSummary);
     hints.insert(NotificationManager::HINT_PREVIEW_BODY, previewBody);
@@ -54,6 +56,7 @@ void Ut_Notification::testGettersAndSetters()
     QCOMPARE(notification.previewSummary(), previewSummary);
     QCOMPARE(notification.previewBody(), previewBody);
     QCOMPARE(notification.urgency(), urgency);
+    QCOMPARE(notification.itemCount(), itemCount);
 
     appName = "appName2";
     appIcon = "appIcon2";
@@ -63,9 +66,11 @@ void Ut_Notification::testGettersAndSetters()
     previewSummary = "previewSummary2";
     previewBody = "previewBody2";
     urgency = 2;
+    itemCount = 6;
     actions = QStringList() << "action2a" << "action2b" << "action2c";
     timestamp = QDateTime::currentDateTime();
     hints.insert(NotificationManager::HINT_TIMESTAMP, timestamp);
+    hints.insert(NotificationManager::HINT_ITEM_COUNT, itemCount);
     hints.insert(NotificationManager::HINT_PREVIEW_ICON, previewIcon);
     hints.insert(NotificationManager::HINT_PREVIEW_SUMMARY, previewSummary);
     hints.insert(NotificationManager::HINT_PREVIEW_BODY, previewBody);
@@ -89,6 +94,7 @@ void Ut_Notification::testGettersAndSetters()
     QCOMPARE(notification.previewSummary(), previewSummary);
     QCOMPARE(notification.previewBody(), previewBody);
     QCOMPARE(notification.urgency(), urgency);
+    QCOMPARE(notification.itemCount(), itemCount);
 }
 
 void Ut_Notification::testIcon_data()

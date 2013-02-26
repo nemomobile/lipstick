@@ -138,6 +138,7 @@ NotificationManagerStub* gNotificationManagerStub = &gDefaultNotificationManager
 const char *NotificationManager::HINT_CATEGORY = "category";
 const char *NotificationManager::HINT_URGENCY = "urgency";
 const char *NotificationManager::HINT_ICON = "x-nemo-icon";
+const char *NotificationManager::HINT_ITEM_COUNT = "x-nemo-item-count";
 const char *NotificationManager::HINT_TIMESTAMP = "x-nemo-timestamp";
 const char *NotificationManager::HINT_PREVIEW_ICON = "x-nemo-preview-icon";
 const char *NotificationManager::HINT_PREVIEW_BODY = "x-nemo-preview-body";
