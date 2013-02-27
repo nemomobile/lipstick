@@ -16,7 +16,7 @@
 #ifndef NOTIFICATIONLISTMODEL_H
 #define NOTIFICATIONLISTMODEL_H
 
-#include "utilities/qobjectlistmodel.h"
+#include "qobjectlistmodel.h"
 #include "lipstickglobal.h"
 
 class Notification;
@@ -33,10 +33,11 @@ signals:
     void clearRequested();
 
 private slots:
+    void init();
     void updateNotification(uint id);
     void removeNotification(uint id);
 
-private:
+protected:
     /*!
      * Checks whether the given notification should be shown. A notification
      * should be shown when it's class is not system and it has a body and a
@@ -45,7 +46,7 @@ private:
      * \param notification the notification to check
      * \return \c true if the notification should be shown, \c false otherwise
      */
-    static bool notificationShouldBeShown(Notification *notification);
+    virtual bool notificationShouldBeShown(Notification *notification);
 
     /*!
      * Checks where the notification should be placed so that the
@@ -54,8 +55,9 @@ private:
      * \param notification the notification for which to get the position
      * \return index in which the notification shoud be placed
      */
-    int indexFor(Notification *notification);
+    virtual int indexFor(Notification *notification);
 
+private:
     Q_DISABLE_COPY(NotificationListModel)
 
 #ifdef UNIT_TEST

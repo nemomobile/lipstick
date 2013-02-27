@@ -15,6 +15,8 @@ QMAKE_STRIP = echo
 OBJECTS_DIR = .obj
 MOC_DIR = .moc
 
+INCLUDEPATH += utilities
+
 PUBLICHEADERS += \
     utilities/qobjectlistmodel.h \
     utilities/closeeventeater.h \
