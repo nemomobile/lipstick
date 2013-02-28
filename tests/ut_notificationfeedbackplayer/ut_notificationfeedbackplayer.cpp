@@ -19,6 +19,7 @@
 #include "ngfclient_stub.h"
 #include "ut_notificationfeedbackplayer.h"
 
+const char *NotificationManager::HINT_CATEGORY = "category";
 const char *NotificationManager::HINT_URGENCY = "urgency";
 const char *NotificationManager::HINT_ICON = "x-nemo-icon";
 const char *NotificationManager::HINT_ITEM_COUNT = "x-nemo-item-count";

@@ -32,6 +32,7 @@ void Ut_Notification::testGettersAndSetters()
     int urgency = 1;
     int itemCount = 1;
     int priority = 1;
+    QString category = "category1";
     QStringList actions = QStringList() << "action1a" << "action1b";
     QDateTime timestamp = QDateTime::currentDateTime();
     QVariantHash hints;
@@ -42,6 +43,7 @@ void Ut_Notification::testGettersAndSetters()
     hints.insert(NotificationManager::HINT_PREVIEW_SUMMARY, previewSummary);
     hints.insert(NotificationManager::HINT_PREVIEW_BODY, previewBody);
     hints.insert(NotificationManager::HINT_URGENCY, urgency);
+    hints.insert(NotificationManager::HINT_CATEGORY, category);
     int expireTimeout = 1;
 
     // Ensure that the constructor puts things in place
@@ -60,6 +62,7 @@ void Ut_Notification::testGettersAndSetters()
     QCOMPARE(notification.urgency(), urgency);
     QCOMPARE(notification.itemCount(), itemCount);
     QCOMPARE(notification.priority(), priority);
+    QCOMPARE(notification.category(), category);
 
     appName = "appName2";
     appIcon = "appIcon2";
@@ -71,6 +74,7 @@ void Ut_Notification::testGettersAndSetters()
     urgency = 2;
     itemCount = 2;
     priority = 2;
+    category = "category2";
     actions = QStringList() << "action2a" << "action2b" << "action2c";
     timestamp = QDateTime::currentDateTime();
     hints.insert(NotificationManager::HINT_TIMESTAMP, timestamp);
@@ -80,6 +84,7 @@ void Ut_Notification::testGettersAndSetters()
     hints.insert(NotificationManager::HINT_PREVIEW_SUMMARY, previewSummary);
     hints.insert(NotificationManager::HINT_PREVIEW_BODY, previewBody);
     hints.insert(NotificationManager::HINT_URGENCY, urgency);
+    hints.insert(NotificationManager::HINT_CATEGORY, category);
     expireTimeout = 2;
     notification.setAppName(appName);
     notification.setAppIcon(appIcon);
@@ -101,6 +106,7 @@ void Ut_Notification::testGettersAndSetters()
     QCOMPARE(notification.urgency(), urgency);
     QCOMPARE(notification.itemCount(), itemCount);
     QCOMPARE(notification.priority(), priority);
+    QCOMPARE(notification.category(), category);
 }
 
 void Ut_Notification::testIcon_data()
