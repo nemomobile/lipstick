@@ -62,9 +62,9 @@ bool HomeWindowMonitor::handleXEvent(const XEvent& event)
     bool eventHandled = false;
 
     if (event.type == PropertyNotify && event.xproperty.atom == netClientListStacking && event.xproperty.window == DefaultRootWindow(QX11Info::display())) {
-        int numWindowStackingOrderReceivers = receivers(SIGNAL(windowStackingOrderChanged(QList<WindowInfo>)));
+        int numWindowStackingOrderReceivers = receivers(SIGNAL(windowStackingOrderChanged(QList<WindowInfo*>)));
         int numFullscreenWindowReceivers = receivers(SIGNAL(fullscreenWindowOnTopOfOwnWindow()));
-        int numAnyWindowReceivers = receivers(SIGNAL(anyWindowOnTopOfOwnWindow(WindowInfo)));
+        int numAnyWindowReceivers = receivers(SIGNAL(anyWindowOnTopOfOwnWindow(WindowInfo*)));
 
         if (numWindowStackingOrderReceivers + numFullscreenWindowReceivers + numAnyWindowReceivers > 0) {
             QList<Window> windowOrder = windowStackingOrder();

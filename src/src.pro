@@ -15,7 +15,7 @@ QMAKE_STRIP = echo
 OBJECTS_DIR = .obj
 MOC_DIR = .moc
 
-INCLUDEPATH += utilities
+INCLUDEPATH += utilities components xtools
 
 PUBLICHEADERS += \
     utilities/qobjectlistmodel.h \
@@ -32,6 +32,8 @@ PUBLICHEADERS += \
     notifications/notification.h \
     notifications/notificationlistmodel.h \
     notifications/notificationpreviewpresenter.h \
+    xtools/homewindowmonitor.h \
+    xtools/windowmonitor.h \
     xtools/xeventlistener.h \
     xtools/xatomcache.h \
     usbmodeselector.h \
@@ -45,8 +47,6 @@ dbus_policy.path = /etc/dbus-1/system.d
 
 HEADERS += \
     $$PUBLICHEADERS \
-    xtools/homewindowmonitor.h \
-    xtools/windowmonitor.h \
     xtools/xwindowmanager.h \
     xtools/x11wrapper.h \
     lipsticksettings.h \

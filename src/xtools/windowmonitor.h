@@ -15,7 +15,7 @@
 
 #include <QWidget>
 #include <QObject>
-#include "components/windowinfo.h"
+#include "windowinfo.h"
 
 /*!
  * An interface defining window monitoring functionality.
@@ -23,7 +23,7 @@
  * various things when something happens to the windows. It is only a
  * monitor: it doesn't change anything on the windows.
  */
-class WindowMonitor : public QObject {
+class LIPSTICK_EXPORT WindowMonitor : public QObject {
 
     Q_OBJECT
 

@@ -17,7 +17,7 @@
 #include <QString>
 
 #include "lipstickglobal.h"
-#include "xtools/xeventlistener.h"
+#include "xeventlistener.h"
 
 /*!
  * WindowInfo is a helper class for storing information about an open window.

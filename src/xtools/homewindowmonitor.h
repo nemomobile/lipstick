@@ -21,7 +21,7 @@
 /*!
  * A window monitor implementation to be used with the home screen application.
  */
-class HomeWindowMonitor : public WindowMonitor, public XEventListener
+class LIPSTICK_EXPORT HomeWindowMonitor : public WindowMonitor, public XEventListener
 {
     Q_OBJECT
 
