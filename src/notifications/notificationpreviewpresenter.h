@@ -22,6 +22,11 @@
 class QDeclarativeView;
 class Notification;
 
+namespace MeeGo {
+class QmLocks;
+class QmDisplayState;
+}
+
 /*!
  * \class NotificationPreviewPresenter
  *
@@ -122,6 +127,12 @@ private:
 
     //! Whether only notifications of critical urgency should be shown
     bool presentOnlyCriticalNotifications;
+
+    //! For getting information about the touch screen lock state
+    MeeGo::QmLocks *locks;
+
+    //! For getting information about the display state
+    MeeGo::QmDisplayState *displayState;
 
 #ifdef UNIT_TEST
     friend class Ut_NotificationPreviewPresenter;

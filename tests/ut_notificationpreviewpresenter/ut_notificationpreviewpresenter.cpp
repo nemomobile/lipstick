@@ -23,6 +23,8 @@
 #include "xtools/x11wrapper.h"
 #include <X11/extensions/shape.h>
 #include "closeeventeater_stub.h"
+#include "qmlocks_stub.h"
+#include "qmdisplaystate_stub.h"
 
 Q_DECLARE_METATYPE(NotificationPreviewPresenter*)
 Q_DECLARE_METATYPE(Notification*)
@@ -435,6 +437,38 @@ void Ut_NotificationPreviewPresenter::testUpdateNotificationRemovesNotificationF
     presenter.showNextNotification();
     QCOMPARE(spy.count(), 1);
     QCOMPARE(presenter.notification(), (Notification *)0);
+}
+
+Q_DECLARE_METATYPE(MeeGo::QmDisplayState::DisplayState)
+Q_DECLARE_METATYPE(MeeGo::QmLocks::State)
+
+void Ut_NotificationPreviewPresenter::testNotificationNotShownIfTouchScreenIsLockedAndDisplayIsOff_data()
+{
+    QTest::addColumn<MeeGo::QmDisplayState::DisplayState>("displayState");
+    QTest::addColumn<MeeGo::QmLocks::State>("lockState");
+    QTest::addColumn<int>("notifications");
+    QTest::newRow("Display on, touch screen not locked") << MeeGo::QmDisplayState::On << MeeGo::QmLocks::Unlocked << 1;
+    QTest::newRow("Display on, touch screen locked") << MeeGo::QmDisplayState::On << MeeGo::QmLocks::Locked << 1;
+    QTest::newRow("Display off, touch screen not locked") << MeeGo::QmDisplayState::Off << MeeGo::QmLocks::Unlocked << 1;
+    QTest::newRow("Display off, touch screen locked") << MeeGo::QmDisplayState::Off << MeeGo::QmLocks::Locked << 0;
+}
+
+void Ut_NotificationPreviewPresenter::testNotificationNotShownIfTouchScreenIsLockedAndDisplayIsOff()
+{
+    QFETCH(MeeGo::QmDisplayState::DisplayState, displayState);
+    QFETCH(MeeGo::QmLocks::State, lockState);
+    QFETCH(int, notifications);
+
+    gQmDisplayStateStub->stubSetReturnValue("get", displayState);
+    gQmLocksStub->stubSetReturnValue("getState", lockState);
+
+    NotificationPreviewPresenter presenter;
+    QSignalSpy spy(&presenter, SIGNAL(notificationChanged()));
+
+    createNotification(1);
+    presenter.updateNotification(1);
+    QCOMPARE(qDeclarativeViews.count(), notifications);
+    QCOMPARE(spy.count(), notifications);
 }
 
 QTEST_MAIN(Ut_NotificationPreviewPresenter)

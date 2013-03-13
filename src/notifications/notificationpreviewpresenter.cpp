@@ -19,6 +19,8 @@
 #include <QDeclarativeContext>
 #include <QX11Info>
 #include <X11/extensions/shape.h>
+#include <qmdisplaystate.h>
+#include <qmlocks.h>
 #include "utilities/closeeventeater.h"
 #include "xtools/x11wrapper.h"
 #include "notifications/notificationmanager.h"
@@ -28,7 +30,9 @@ NotificationPreviewPresenter::NotificationPreviewPresenter(QObject *parent) :
     QObject(parent),
     window(0),
     currentNotification(0),
-    presentOnlyCriticalNotifications(false)
+    presentOnlyCriticalNotifications(false),
+    locks(new MeeGo::QmLocks(this)),
+    displayState(new MeeGo::QmDisplayState(this))
 {
     connect(NotificationManager::instance(), SIGNAL(notificationModified(uint)), this, SLOT(updateNotification(uint)));
     connect(NotificationManager::instance(), SIGNAL(notificationRemoved(uint)), this, SLOT(removeNotification(uint)));
@@ -47,17 +51,31 @@ void NotificationPreviewPresenter::showNextNotification()
             window->hide();
         }
 
-        currentNotification = 0;
-        emit notificationChanged();
-    } else {
-        // A notification to show: show the notification window and the first queued notification in it
-        createWindowIfNecessary();
-        if (!window->isVisible()) {
-            window->show();
+        if (currentNotification != 0) {
+            currentNotification = 0;
+            emit notificationChanged();
         }
+    } else {
+        if (locks->getState(MeeGo::QmLocks::TouchAndKeyboard) == MeeGo::QmLocks::Locked && displayState->get() == MeeGo::QmDisplayState::Off) {
+            // Screen locked and off: don't show the notification but just remove it from the queue
+            notificationQueue.removeFirst();
 
-        currentNotification = notificationQueue.takeFirst();
-        emit notificationChanged();
+            if (currentNotification != 0) {
+                currentNotification = 0;
+                emit notificationChanged();
+            }
+
+            showNextNotification();
+        } else {
+            // Show the notification window and the first queued notification in it
+            createWindowIfNecessary();
+            if (!window->isVisible()) {
+                window->show();
+            }
+
+            currentNotification = notificationQueue.takeFirst();
+            emit notificationChanged();
+        }
     }
 }
 
