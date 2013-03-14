@@ -50,19 +50,13 @@ void NotificationPreviewPresenter::showNextNotification()
             window->hide();
         }
 
-        if (currentNotification != 0) {
-            currentNotification = 0;
-            emit notificationChanged();
-        }
+        setCurrentNotification(0);
     } else {
         if (locks->getState(MeeGo::QmLocks::TouchAndKeyboard) == MeeGo::QmLocks::Locked && displayState->get() == MeeGo::QmDisplayState::Off) {
             // Screen locked and off: don't show the notification but just remove it from the queue
             notificationQueue.removeFirst();
 
-            if (currentNotification != 0) {
-                currentNotification = 0;
-                emit notificationChanged();
-            }
+            setCurrentNotification(0);
 
             showNextNotification();
         } else {
@@ -72,8 +66,7 @@ void NotificationPreviewPresenter::showNextNotification()
                 window->show();
             }
 
-            currentNotification = notificationQueue.takeFirst();
-            emit notificationChanged();
+            setCurrentNotification(notificationQueue.takeFirst());
         }
     }
 }
@@ -158,4 +151,12 @@ void NotificationPreviewPresenter::setNotificationPreviewRect(qreal x1, qreal y1
     X11Wrapper::XFixesSetWindowShapeRegion(dpy, window->winId(), ShapeInput, 0, 0, shapeRegion);
     X11Wrapper::XFixesDestroyRegion(dpy, shapeRegion);
     X11Wrapper::XSync(dpy, False);
+}
+
+void NotificationPreviewPresenter::setCurrentNotification(Notification *notification)
+{
+    if (currentNotification != notification) {
+        currentNotification = notification;
+        emit notificationChanged();
+    }
 }
