@@ -112,9 +112,6 @@ private:
     //! Sets the given notification as the current notification
     void setCurrentNotification(Notification *notification);
 
-    //! Sets the given notification as the current notification
-    void setCurrentNotification(Notification *notification);
-
     //! The notification window
     QDeclarativeView *window;
 
