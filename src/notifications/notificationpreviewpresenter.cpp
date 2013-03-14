@@ -30,7 +30,6 @@ NotificationPreviewPresenter::NotificationPreviewPresenter(QObject *parent) :
     QObject(parent),
     window(0),
     currentNotification(0),
-    presentOnlyCriticalNotifications(false),
     locks(new MeeGo::QmLocks(this)),
     displayState(new MeeGo::QmDisplayState(this))
 {
@@ -140,7 +139,11 @@ void NotificationPreviewPresenter::createWindowIfNecessary()
 
 bool NotificationPreviewPresenter::notificationShouldBeShown(Notification *notification)
 {
-    return !notification->hints().value(NotificationManager::HINT_HIDDEN).toBool() && !(notification->previewBody().isEmpty() && notification->previewSummary().isEmpty()) && (!presentOnlyCriticalNotifications || notification->hints().value(NotificationManager::HINT_URGENCY).toInt() >= 2);
+    bool screenOrDeviceLocked = locks->getState(MeeGo::QmLocks::TouchAndKeyboard) == MeeGo::QmLocks::Locked || locks->getState(MeeGo::QmLocks::Device) == MeeGo::QmLocks::Locked;
+    bool notificationHidden = notification->hints().value(NotificationManager::HINT_HIDDEN).toBool();
+    bool notificationHasPreviewText = !(notification->previewBody().isEmpty() && notification->previewSummary().isEmpty());
+    int notificationIsCritical = notification->hints().value(NotificationManager::HINT_URGENCY).toInt() >= 2;
+    return !notificationHidden && notificationHasPreviewText && (!screenOrDeviceLocked || notificationIsCritical);
 }
 
 void NotificationPreviewPresenter::setNotificationPreviewRect(qreal x1, qreal y1, qreal x2, qreal y2)
@@ -155,9 +158,4 @@ void NotificationPreviewPresenter::setNotificationPreviewRect(qreal x1, qreal y1
     X11Wrapper::XFixesSetWindowShapeRegion(dpy, window->winId(), ShapeInput, 0, 0, shapeRegion);
     X11Wrapper::XFixesDestroyRegion(dpy, shapeRegion);
     X11Wrapper::XSync(dpy, False);
-}
-
-void NotificationPreviewPresenter::setPresentOnlyCriticalNotifications(bool onlyCritical)
-{
-    presentOnlyCriticalNotifications = onlyCritical;
 }

@@ -138,6 +138,7 @@ Notification *createNotification(uint id)
     QVariantHash hints;
     hints.insert(NotificationManager::HINT_PREVIEW_SUMMARY, "summary");
     hints.insert(NotificationManager::HINT_PREVIEW_BODY, "body");
+    hints.insert(NotificationManager::HINT_URGENCY, 2);
     notification->setHints(hints);
     notificationManagerNotification.insert(id, notification);
     return notification;
@@ -155,6 +156,8 @@ void Ut_NotificationPreviewPresenter::cleanup()
     qWidgetVisible.clear();
     qDeleteAll(notificationManagerNotification);
     notificationManagerNotification.clear();
+    gQmLocksStub->stubReset();
+    gQmDisplayStateStub->stubReset();
 }
 
 void Ut_NotificationPreviewPresenter::testSignalConnections()
@@ -399,8 +402,8 @@ void Ut_NotificationPreviewPresenter::testShowingOnlyCriticalNotifications()
     notification->setHints(hints);
     notificationManagerNotification.insert(1, notification);
 
-    // Urgency is not high enough, so the notification shouldn't be shown
-    presenter.setPresentOnlyCriticalNotifications(true);
+    // When the screen or device is locked and the urgency is not high enough, so the notification shouldn't be shown
+    gQmLocksStub->stubSetReturnValue("getState", MeeGo::QmLocks::Locked);
     presenter.updateNotification(1);
     QCOMPARE(spy.count(), 0);
     QCOMPARE(qWidgetVisible[static_cast<QWidget *>(qDeclarativeViews.first())], false);

@@ -81,7 +81,7 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
 
     // Initialize the notification manager
     NotificationManager::instance();
-    NotificationPreviewPresenter *notificationPreviewPresenter = new NotificationPreviewPresenter(this);
+    new NotificationPreviewPresenter(this);
     new NotificationFeedbackPlayer(this);
 
     // Initialize the home window monitor
@@ -91,7 +91,6 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     screenLock = new ScreenLock;
     LipstickSettings::instance()->setScreenLock(screenLock);
     new ScreenLockAdaptor(screenLock);
-    connect(screenLock, SIGNAL(screenIsLocked(bool)), notificationPreviewPresenter, SLOT(setPresentOnlyCriticalNotifications(bool)));
 
     volumeControl = new VolumeControl;
     batteryNotifier = new BatteryNotifier(this);

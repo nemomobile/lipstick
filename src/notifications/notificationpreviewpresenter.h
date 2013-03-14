@@ -87,13 +87,6 @@ public slots:
      */
     void showNextNotification();
 
-    /*!
-     * Sets whether only the critical urgency (level 2) notifications are shown.
-     *
-     * \param onlyUrgent if \c true, only notifications with critical urgency are shown, otherwise all notifications are shown
-     */
-    void setPresentOnlyCriticalNotifications(bool onlyCritical);
-
 private slots:
     /*!
      * Updates the notification with the given ID.
@@ -124,9 +117,6 @@ private:
 
     //! Notification currently being shown
     Notification *currentNotification;
-
-    //! Whether only notifications of critical urgency should be shown
-    bool presentOnlyCriticalNotifications;
 
     //! For getting information about the touch screen lock state
     MeeGo::QmLocks *locks;
