@@ -113,6 +113,12 @@ void NotificationManager::commit()
 {
 }
 
+QList<uint> notificationManagerCloseNotificationIds;
+void NotificationManager::CloseNotification(uint id, NotificationClosedReason)
+{
+    notificationManagerCloseNotificationIds.append(id);
+}
+
 NotificationManager *notificationManagerInstance = 0;
 NotificationManager *NotificationManager::instance()
 {
@@ -132,13 +138,13 @@ void NotificationManager::removeUserRemovableNotifications()
 {
 }
 
-Notification *createNotification(uint id)
+Notification *createNotification(uint id, int urgency = 0)
 {
     Notification *notification = new Notification;
     QVariantHash hints;
     hints.insert(NotificationManager::HINT_PREVIEW_SUMMARY, "summary");
     hints.insert(NotificationManager::HINT_PREVIEW_BODY, "body");
-    hints.insert(NotificationManager::HINT_URGENCY, 2);
+    hints.insert(NotificationManager::HINT_URGENCY, urgency);
     notification->setHints(hints);
     notificationManagerNotification.insert(id, notification);
     return notification;
@@ -156,6 +162,7 @@ void Ut_NotificationPreviewPresenter::cleanup()
     qWidgetVisible.clear();
     qDeleteAll(notificationManagerNotification);
     notificationManagerNotification.clear();
+    notificationManagerCloseNotificationIds.clear();
     gQmLocksStub->stubReset();
     gQmDisplayStateStub->stubReset();
 }
@@ -468,10 +475,29 @@ void Ut_NotificationPreviewPresenter::testNotificationNotShownIfTouchScreenIsLoc
     NotificationPreviewPresenter presenter;
     QSignalSpy spy(&presenter, SIGNAL(notificationChanged()));
 
-    createNotification(1);
+    createNotification(1, 2);
     presenter.updateNotification(1);
     QCOMPARE(qDeclarativeViews.count(), notifications);
     QCOMPARE(spy.count(), notifications);
+}
+
+void Ut_NotificationPreviewPresenter::testCriticalNotificationIsClosedAfterShowing()
+{
+    NotificationPreviewPresenter presenter;
+    createNotification(1, 2);
+    createNotification(2);
+    createNotification(3);
+    presenter.updateNotification(1);
+    presenter.updateNotification(2);
+    presenter.updateNotification(3);
+    QCOMPARE(notificationManagerCloseNotificationIds.count(), 0);
+
+    presenter.showNextNotification();
+    QCOMPARE(notificationManagerCloseNotificationIds.count(), 1);
+    QCOMPARE(notificationManagerCloseNotificationIds.at(0), (uint)1);
+
+    presenter.showNextNotification();
+    QCOMPARE(notificationManagerCloseNotificationIds.count(), 1);
 }
 
 QTEST_MAIN(Ut_NotificationPreviewPresenter)

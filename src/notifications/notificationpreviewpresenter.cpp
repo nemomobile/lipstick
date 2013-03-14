@@ -79,6 +79,7 @@ Notification *NotificationPreviewPresenter::notification() const
 void NotificationPreviewPresenter::updateNotification(uint id)
 {
     Notification *notification = NotificationManager::instance()->notification(id);
+    notification->setProperty("id", id);
     if (notificationShouldBeShown(notification)) {
         // Add the notification to the queue if not already there or the current notification
         if (currentNotification != notification && !notificationQueue.contains(notification)) {
@@ -156,6 +157,10 @@ void NotificationPreviewPresenter::setNotificationPreviewRect(qreal x1, qreal y1
 void NotificationPreviewPresenter::setCurrentNotification(Notification *notification)
 {
     if (currentNotification != notification) {
+        if (currentNotification != 0 && currentNotification->hints().value(NotificationManager::HINT_URGENCY).toInt() >= 2) {
+            NotificationManager::instance()->CloseNotification(currentNotification->property("id").toUInt());
+        }
+
         currentNotification = notification;
         emit notificationChanged();
     }
