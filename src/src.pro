@@ -22,6 +22,7 @@ PUBLICHEADERS += \
     utilities/closeeventeater.h \
     homeapplication.h \
     lipstickglobal.h \
+    lipsticksettings.h \
     components/windowinfo.h \
     components/launcheritem.h \
     components/launchermodel.h \
@@ -49,7 +50,6 @@ HEADERS += \
     $$PUBLICHEADERS \
     xtools/xwindowmanager.h \
     xtools/x11wrapper.h \
-    lipsticksettings.h \
     notifications/notificationmanageradaptor.h \
     notifications/categorydefinitionstore.h \
     notifications/lowbatterynotifier.h \
