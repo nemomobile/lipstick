@@ -43,6 +43,9 @@ public:
     QStringList directories() const;
     void setDirectories(QStringList);
 
+public slots:
+    void savePositions();
+
 signals:
     void directoriesChanged();
 
