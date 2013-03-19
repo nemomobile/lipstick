@@ -39,6 +39,7 @@ LauncherModel::LauncherModel(QObject *parent) :
     _fileSystemWatcher->addPath(defaultAppsPath);
     monitoredDirectoryChanged(defaultAppsPath);
     connect(_fileSystemWatcher, SIGNAL(directoryChanged(QString)), this, SLOT(monitoredDirectoryChanged(QString)));
+    connect(this, SIGNAL(rowsMoved(const QModelIndex&,int,int,const QModelIndex&,int)), this, SLOT(savePositions()));
 }
 
 LauncherModel::~LauncherModel()
@@ -137,6 +138,8 @@ void LauncherModel::monitoredDirectoryChanged(QString changedPath)
 
         move(currentPos, gridPos);
     }
+
+    savePositions();
 }
 
 QStringList LauncherModel::directories() const
@@ -160,3 +163,18 @@ void LauncherModel::setDirectories(QStringList newDirectories)
 
     emit this->directoriesChanged();
 }
+
+void LauncherModel::savePositions()
+{
+    QSettings launcherSettings("nemomobile", "lipstick");
+    QList<LauncherItem *> *currentLauncherList = getList<LauncherItem>();
+
+    int pos = 0;
+    foreach (LauncherItem *item, *currentLauncherList) {
+        launcherSettings.setValue("LauncherOrder/" + item->filePath(), pos);
+        ++pos;
+    }
+
+    launcherSettings.sync();
+}
+
