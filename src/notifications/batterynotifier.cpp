@@ -21,17 +21,19 @@
 #include "batterynotifier.h"
 
 BatteryNotifier::BatteryNotifier(QObject *parent) :
-    QObject(parent), lowBatteryNotifier(0), notificationId(0), touchScreenLockActive(false)
-    ,qmBattery(new MeeGo::QmBattery),
-    qmDeviceMode(new MeeGo::QmDeviceMode),
-    qmLed(new MeeGo::QmLED),
-    chargerType(MeeGo::QmBattery::Unknown)
+    QObject(parent),
+    lowBatteryNotifier(0),
+    notificationId(0),
+    touchScreenLockActive(false),
+    batteryInfo(new QtMobility::QSystemBatteryInfo(this)),
+    qmDeviceMode(new MeeGo::QmDeviceMode(this)),
+    qmLed(new MeeGo::QmLED(this)),
+    chargerType(QtMobility::QSystemBatteryInfo::UnknownCharger)
 {
-    connect(qmBattery, SIGNAL(batteryStateChanged(MeeGo::QmBattery::BatteryState)), this, SLOT(batteryStateChanged(MeeGo::QmBattery::BatteryState)));
-    connect(qmBattery, SIGNAL(chargingStateChanged(MeeGo::QmBattery::ChargingState)), this, SLOT(chargingStateChanged(MeeGo::QmBattery::ChargingState)));
-    connect(qmBattery, SIGNAL(chargerEvent(MeeGo::QmBattery::ChargerType)), this, SLOT(batteryChargerEvent(MeeGo::QmBattery::ChargerType)));
-
-    connect(qmDeviceMode, SIGNAL(devicePSMStateChanged(MeeGo::QmDeviceMode::PSMState)), this, SLOT(devicePSMStateChanged(MeeGo::QmDeviceMode::PSMState)));
+    connect(batteryInfo, SIGNAL(batteryStatusChanged(QSystemBatteryInfo::BatteryStatus)), this, SLOT(applyBatteryStatus(QSystemBatteryInfo::BatteryStatus)));
+    connect(batteryInfo, SIGNAL(chargingStateChanged(QSystemBatteryInfo::ChargingState)), this, SLOT(applyChargingState(QSystemBatteryInfo::ChargingState)));
+    connect(batteryInfo, SIGNAL(chargerTypeChanged(QSystemBatteryInfo::ChargerType)), this, SLOT(applyChargerType(QSystemBatteryInfo::ChargerType)));
+    connect(qmDeviceMode, SIGNAL(devicePSMStateChanged(MeeGo::QmDeviceMode::PSMState)), this, SLOT(applyPSMState(MeeGo::QmDeviceMode::PSMState)));
 
     // Init battery values delayed...
     initBattery();
@@ -42,15 +44,12 @@ BatteryNotifier::BatteryNotifier(QObject *parent) :
 
 BatteryNotifier::~BatteryNotifier()
 {
-    delete qmBattery;
-    delete qmDeviceMode;
-    delete qmLed;
 }
 
 void BatteryNotifier::initBattery()
 {
-    chargingStateChanged(qmBattery->getChargingState());
-    batteryStateChanged(qmBattery->getBatteryState());
+    applyChargingState(batteryInfo->chargingState());
+    applyBatteryStatus(batteryInfo->batteryStatus());
 }
 
 void BatteryNotifier::lowBatteryAlert()
@@ -58,11 +57,11 @@ void BatteryNotifier::lowBatteryAlert()
     sendNotification(NotificationLowBattery);
 }
 
-void BatteryNotifier::chargingStateChanged(MeeGo::QmBattery::ChargingState state)
+void BatteryNotifier::applyChargingState(QtMobility::QSystemBatteryInfo::ChargingState state)
 {
     switch(state) {
-    case MeeGo::QmBattery::StateCharging:
-        if (qmBattery->getChargerType() == MeeGo::QmBattery::USB_100mA) {
+    case QtMobility::QSystemBatteryInfo::Charging:
+        if (batteryInfo->chargerType() == QtMobility::QSystemBatteryInfo::USB_100mACharger) {
             sendNotification(NotificationNoEnoughPower);
         } else {
             // The low battery notifications should not be sent when the battery is charging
@@ -73,50 +72,50 @@ void BatteryNotifier::chargingStateChanged(MeeGo::QmBattery::ChargingState state
         }
         break;
 
-    case MeeGo::QmBattery::StateNotCharging:
+    case QtMobility::QSystemBatteryInfo::NotCharging:
         removeNotification(QStringList() << "x-nemo.battery");
         utiliseLED(false, QString("PatternBatteryCharging"));
         break;
 
-    case MeeGo::QmBattery::StateChargingFailed:
+    case QtMobility::QSystemBatteryInfo::ChargingError:
         sendNotification(NotificationChargingNotStarted);
         break;
     }
 }
 
-void BatteryNotifier::batteryStateChanged(MeeGo::QmBattery::BatteryState state)
+void BatteryNotifier::applyBatteryStatus(QtMobility::QSystemBatteryInfo::BatteryStatus status)
 {
-    switch(state) {
-    case MeeGo::QmBattery::StateFull:
+    switch(status) {
+    case QtMobility::QSystemBatteryInfo::BatteryFull:
         stopLowBatteryNotifier();
         removeNotification(QStringList() << "x-nemo.battery");
         sendNotification(NotificationChargingComplete);
         break;
 
-    case MeeGo::QmBattery::StateOK:
+    case QtMobility::QSystemBatteryInfo::BatteryOk:
         stopLowBatteryNotifier();
         break;
 
-    case MeeGo::QmBattery::StateLow:
-        if (qmBattery->getChargingState() != MeeGo::QmBattery::StateCharging) {
+    case QtMobility::QSystemBatteryInfo::BatteryLow:
+        if (batteryInfo->chargingState() != QtMobility::QSystemBatteryInfo::Charging) {
             // The low battery notifications should be sent only if the battery is not charging
             startLowBatteryNotifier();
         }
         break;
 
-    case MeeGo::QmBattery::StateEmpty:
+    case QtMobility::QSystemBatteryInfo::BatteryEmpty:
         sendNotification(NotificationRechargeBattery);
         break;
 
-    case MeeGo::QmBattery::StateError:
+    default:
         break;
     }
 }
 
-void BatteryNotifier::batteryChargerEvent(MeeGo::QmBattery::ChargerType type)
+void BatteryNotifier::applyChargerType(QtMobility::QSystemBatteryInfo::ChargerType type)
 {
     switch(type) {
-    case MeeGo::QmBattery::None:
+    case QtMobility::QSystemBatteryInfo::NoCharger:
         /*
          * After the user plugs out the charger from the device, this system
          * banner is displayed to remind the users to unplug charger from
@@ -124,26 +123,26 @@ void BatteryNotifier::batteryChargerEvent(MeeGo::QmBattery::ChargerType type)
          * notification should not be shown in case if USB cable is used for
          * charging the device.
          */
-        if (chargerType == MeeGo::QmBattery::Wall) {
+        if (chargerType == QtMobility::QSystemBatteryInfo::WallCharger) {
             removeNotification(QStringList() << "x-nemo.battery" << "x-nemo.battery.chargingcomplete");
             sendNotification(NotificationRemoveCharger);
         }
 
-        if (chargerType != MeeGo::QmBattery::None && chargerType != MeeGo::QmBattery::USB_100mA && qmBattery->getBatteryState() == MeeGo::QmBattery::StateLow && qmBattery->getChargingState() != MeeGo::QmBattery::StateCharging) {
+        if (chargerType != QtMobility::QSystemBatteryInfo::NoCharger && chargerType != QtMobility::QSystemBatteryInfo::USB_100mACharger && batteryInfo->batteryStatus() == QtMobility::QSystemBatteryInfo::BatteryLow && batteryInfo->chargingState() != QtMobility::QSystemBatteryInfo::Charging) {
             // A charger was connected but is no longer connected and the battery is low, so start low battery notifier
             startLowBatteryNotifier();
         }
         break;
 
-    case MeeGo::QmBattery::Wall:
+    case QtMobility::QSystemBatteryInfo::WallCharger:
         // Wall charger
         break;
 
-    case MeeGo::QmBattery::USB_500mA:
+    case QtMobility::QSystemBatteryInfo::USB_500mACharger:
         // USB with 500mA output
         break;
 
-    case MeeGo::QmBattery::USB_100mA:
+    case QtMobility::QSystemBatteryInfo::USB_100mACharger:
         // USB with 100mA output
         break;
 
@@ -154,11 +153,11 @@ void BatteryNotifier::batteryChargerEvent(MeeGo::QmBattery::ChargerType type)
     chargerType = type;
 }
 
-void BatteryNotifier::devicePSMStateChanged(MeeGo::QmDeviceMode::PSMState PSMState)
+void BatteryNotifier::applyPSMState(MeeGo::QmDeviceMode::PSMState psmState)
 {
-    if (PSMState == MeeGo::QmDeviceMode::PSMStateOff) {
+    if (psmState == MeeGo::QmDeviceMode::PSMStateOff) {
         sendNotification(NotificationExitingPSM);
-    } else if (PSMState == MeeGo::QmDeviceMode::PSMStateOn) {
+    } else if (psmState == MeeGo::QmDeviceMode::PSMStateOn) {
         sendNotification(NotificationEnteringPSM);
     }
 }
@@ -258,7 +257,7 @@ void BatteryNotifier::removeNotification(const QStringList &categories)
 
 QString BatteryNotifier::chargingImageId()
 {
-    int percentage = qmBattery->getRemainingCapacityPct();
+    int percentage = batteryInfo->remainingCapacityPercent();
 
     if (percentage >= 84) {
         return QString("icon-m-energy-management-charging8");

@@ -1,8 +1,9 @@
 include(../common.pri)
 TARGET = ut_batterynotifier
-CONFIG += link_pkgconfig
+CONFIG += link_pkgconfig mobility
+MOBILITY += systeminfo
 PKGCONFIG += contextsubscriber-1.0
-INCLUDEPATH += $$NOTIFICATIONSRCDIR /usr/include/qmsystem2
+INCLUDEPATH += $$NOTIFICATIONSRCDIR /usr/include/QtSystemInfo /usr/include/qmsystem2
 QT += dbus
 
 HEADERS += \
@@ -11,7 +12,6 @@ HEADERS += \
     $$NOTIFICATIONSRCDIR/notificationmanager.h \
     $$NOTIFICATIONSRCDIR/notification.h \
     /usr/include/qmsystem2/qmled.h \
-    /usr/include/qmsystem2/qmbattery.h \
     /usr/include/qmsystem2/qmdevicemode.h \
     /usr/include/qmsystem2/qmdisplaystate.h \
     $$STUBSDIR/stubbase.h \

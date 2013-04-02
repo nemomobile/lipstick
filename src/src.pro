@@ -97,7 +97,7 @@ SOURCES += \
     shutdownscreen.cpp
 
 CONFIG += link_pkgconfig mobility qt warn_on depend_includepath qmake_cache target_qt
-MOBILITY += sensors
+MOBILITY += sensors systeminfo
 PKGCONFIG += xcomposite mlite xdamage x11 xfixes xext mce dbus-1 dbus-glib-1 libresourceqt1 ngf-qt qmsystem2 contextsubscriber-1.0
 
 packagesExist(contentaction-0.1) {
