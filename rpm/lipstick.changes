@@ -1,0 +1,160 @@
+* Fri Mar 15 2013 Vesa Halttunen <vesa.halttunen@jollamobile.com> - 0.10.5
+- Export LipstickSettings so that it can be used in UX implementations (from Vesa)
+
+* Thu Mar 14 2013 Vesa Halttunen <vesa.halttunen@jollamobile.com> - 0.10.4
+- Don't show notification previews for non-critical notifications if the touch screen or device is locked (from Vesa)
+- Remove system notifications after they've been shown (from Vesa)
+
+* Wed Mar 13 2013 Vesa Halttunen <vesa.halttunen@jollamobile.com> - 0.10.3
+- Disable notification previews when the touch screen is locked and the display is off (from Vesa)
+
+* Tue Mar 12 2013 Vesa Halttunen <vesa.halttunen@jollamobile.com> - 0.10.2
+- Export HomeWindowMonitor to UX implementations (from Vesa)
+
+* Thu Feb 28 2013 Vesa Halttunen <vesa.halttunen@jollamobile.com> - 0.10.1
+- Expose notification category in the Notification class (from Vesa)
+
+* Wed Feb 27 2013 Vesa Halttunen <vesa.halttunen@jollamobile.com> - 0.10.0
+- Allow customization of NotificationListModel behavior in derived classes (from Vesa)
+
+* Tue Feb 26 2013 Vesa Halttunen <vesa.halttunen@jollamobile.com> - 0.9.6
+- Expose notification priority in the Notification class (from Vesa)
+
+* Tue Feb 26 2013 Vesa Halttunen <vesa.halttunen@jollamobile.com> - 0.9.5
+- Expose notification item count in the Notification class (from Vesa)
+
+* Thu Feb 21 2013 Robin Burchell <robin+mer@viroteck.net> - 0.9.4
+- Remove StatusBar component. Fixes NEMO#340. (from Robin)
+
+* Mon Feb 18 2013 Vesa Halttunen <vesa.halttunen@jollamobile.com> - 0.9.3
+- Add functionality to remove all user removable notifications (from Vesa)
+
+* Thu Feb 14 2013 Mikko Harju <mikko.harju@jollamobile.com> - 0.9.2
+- Fix check for _NET_WM_STATE_SKIP_TASKBAR (from Mikko)
+
+* Mon Feb 11 2013 Vesa Halttunen <vesa.halttunen@jollamobile.com> - 0.9.1
+- Install some headers useful in homescreen implementations (from Vesa)
+
+* Sun Feb 03 2013 Vesa Halttunen <vesa.halttunen@jollamobile.com> - 0.9.0
+- Move shutdown screen from System UI (from Vesa)
+
+* Fri Feb 01 2013 Vesa Halttunen <vesa.halttunen@jollamobile.com> - 0.8.0
+- Move USB mode selection dialog from System UI (from Vesa)
+
+* Wed Jan 30 2013 Vesa Halttunen <vesa.halttunen@jollamobile.com> - 0.7.0
+- Move battery notifications from System UI (from Vesa)
+
+* Fri Jan 25 2013 Vesa Halttunen <vesa.halttunen@jollamobile.com> - 0.6.9
+- Show notifications in descending time order (from Vesa)
+
+* Thu Jan 24 2013 Vesa Halttunen <vesa.halttunen@jollamobile.com> - 0.6.8
+- Don't show notifications that have been removed but not closed on startup (from Vesa)
+
+* Wed Jan 23 2013 Vesa Halttunen <vesa.halttunen@jollamobile.com> - 0.6.7
+- Notification improvements (from Vesa)
+
+* Wed Jan 23 2013 Vesa Halttunen <vesa.halttunen@jollamobile.com> - 0.6.6
+- Don't explicitly specify which NGF sinks to play feedbacks with (from Vesa)
+
+* Wed Jan 23 2013 Vesa Halttunen <vesa.halttunen@jollamobile.com> - 0.6.5
+- Notification and volume improvements (from Vesa)
+
+* Tue Jan 22 2013 Robin Burchell <robin+mer@viroteck.net> - 0.6.4
+- Make the orientation of the lipstick window known (from Vesa)
+- Fix a bug with LauncherModel doing funky things on changes (from Robin)
+
+* Fri Jan 18 2013 Vesa Halttunen <vesa.halttunen@jollamobile.com> - 0.6.3
+- Build Lipstick documentation (from Vesa)
+
+* Fri Jan 4 2013 Robin Burchell <robin+mer@viroteck.net> - 0.6.2
+- Support for playing notification related non-graphical feedbacks through ngf (from Vesa)
+- Support for setting the call/media volume using the volume keys (from Vesa)
+- Minor tidying of damage event processing (from Robin)
+- Make XEventListener self-contained (and not rely on HomeApplication) to allow QML plugin reuse (from Robin)
+
+* Thu Nov 29 2012 Vesa Halttunen <vesa.halttunen@jollamobile.com> - 0.6.0
+- Move the screen locking logic completely from System UI (from Vesa)
+
+* Tue Nov 20 2012 Vesa Halttunen <vesa.halttunen@jollamobile.com> - 0.5.1
+- Notification system improvements (from Vesa)
+
+* Thu Nov 15 2012 Robin Burchell <robin+mer@viroteck.net> - 0.5.0
+- Allow for suspending SwitcherPixmapItem updates (SwitcherPixmapItem::enabled property) (from Robin)
+- Simplify (and fix) X pixmap refresh, fixes stale pixmaps under some strange conditions (from Robin)
+
+* Thu Nov 15 2012 Vesa-Matti Hartikainen <vesa-matti.hartikainen@jollamobile.com> - 0.4.12
+- Do not enable debug for notifications by default
+- expose xeventlistner and xatomcache
+
+* Tue Nov 13 2012 Vesa Halttunen <vesa.halttunen@jollamobile.com> - 0.4.11
+- Allow LauncherItems to be instantiated from the QML side (from Vesa)
+
+* Fri Nov 09 2012 Vesa Halttunen <vesa.halttunen@jollamobile.com> - 0.4.10
+- Notification system improvements (from Vesa)
+
+* Wed Nov 07 2012 Vesa Halttunen <vesa.halttunen@jollamobile.com> - 0.4.9
+- Notification system improvements (from Vesa)
+
+* Fri Nov 02 2012 Robin Burchell <robin+mer@viroteck.net> - 0.4.8
+- Alter global launcher position configuration path to allow for easy distro installation (from Robin)
+
+* Thu Nov 01 2012 Robin Burchell <robin+mer@viroteck.net> - 0.4.7
+- Provide a way to load launcher positions (from Robin)
+- Allow for system-wide fallback of launcher positions in /etc/lipstick.conf(from Robin)
+- Set application version based on .pro version (from Robin)
+
+* Thu Nov 01 2012 Vesa Halttunen <vesa.halttunen@jollamobile.com> - 0.4.6
+- Request the screen to be locked so that MCE handles timeouts and blanking (from Vesa)
+
+* Wed Oct 31 2012 Vesa Halttunen <vesa.halttunen@jollamobile.com> - 0.4.5
+- Support for notifications on top of all applications (from Vesa)
+
+* Wed Oct 31 2012 Robin Burchell <robin+mer@viroteck.net> - 0.4.4
+- Improvements to the notification system & tool (from Vesa)
+- Add properties or notification previews (from Vesa)
+- make clean should not remove makefiles (from Vesa)
+- Fix .pro file versioning (from Vesa)
+- Fixes NEMO#338: Icon resolution is really slow - desktops should now do their own icon resolution
+
+* Wed Oct 24 2012 Vesa Halttunen <vesa.halttunen@jollamobile.com> - 0.4.3
+- Request MCE to lock the screen after entering the lock screen from the home screen (from Vesa)
+- Calculate the scale in a uniform way so as to not stretch the switcher pixmaps (from Robin)
+
+* Tue Oct 23 2012 Vesa Halttunen <vesa.halttunen@jollamobile.com> - 0.4.2
+- Notification manager extension for getting an application's notifications (from Vesa)
+- Support for remote actions in notifications (from Vesa)
+
+* Sat Oct 13 2012 Robin Burchell <robin+mer@viroteck.net> - 0.4.1
+- Slight performance improvement to scanning desktop files on change (from Robin)
+- Allow smoothing of SwitcherPixmapItem (from Robin)
+- Allow setting a radius to round borders of SwitcherPixmapItem (from Robin)
+
+* Fri Oct 12 2012 Robin Burchell <robin+mer@viroteck.net> - 0.4.0
+- Link notification tool against the correct liblipstick (from Vesa)
+- Don't show a notification if there is no summary or body (from Vesa)
+- Handle differencing of switcher content instead of doing full model resets (from Robin)
+- Remove unnecessary QGLWidget viewport (from Robin)
+- Remove unnecessary repaint requests for homescreen window (from Robin)
+
+* Fri Oct 05 2012 Vesa Halttunen <vesa.halttunen@jollamobile.com> - 0.3.6
+- Remove unneeded class in notification manager (from Vesa)
+
+* Thu Oct 04 2012 Vesa Halttunen <vesa.halttunen@jollamobile.com> - 0.3.5
+- Implement notification manager support (from Vesa)
+- Fix bugs on various hardware (cubox, some N950s, etc) (from Robin)
+
+* Tue Aug 28 2012 Marko Saukko <marko.saukko@jollamobile.com> - 0.3.3
+- Fixes NEMO#406: Home reads also other files than .desktop files (from Timur)
+- Implement lockscreen support (from Robin)
+
+* Thu Aug 23 2012 Robin Burchell <robin+mer@viroteck.net> - 0.3.1
+- Fix build on newer compilers (from Timur)
+- Fix build on 64bit (from Timur)
+- Return an empty icon path for launcher items without an icon (from Timur)
+- Fixes NEMO#348 - System menu doesn't reliably launch when tapped (from Robin)
+- Partially fixes NEMO#350 - Status bar doesn't block presses on items underneath it (from Robin)
+
+* Fri Mar 02 2012 Robin Burchell <robin+mer@viroteck.net> - 0.3.0
+- Initial release for Nemo
+- Example UI thanks to Timur Kristof
+- Fixes NEMO#108: Remove titles from application thumbnails

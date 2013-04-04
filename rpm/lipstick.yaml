@@ -1,0 +1,87 @@
+Name: lipstick
+Summary: QML toolkit for homescreen creation
+Version: 0.10.5
+Release: 1
+Group: System/Libraries
+License: LGPLv2.1
+URL: http://github.com/nemomobile/lipstick
+Sources:
+    - "%{name}-%{version}.tar.bz2"
+Description: A QML toolkit for homescreen creation
+Builder: qmake
+PkgConfigBR:
+    - QtCore
+    - QtDeclarative
+    - QtSensors
+    - contentaction-0.1
+    - mlite >= 0.0.6
+    - xcomposite
+    - xdamage
+    - xfixes
+    - xext
+    - mce >= 1.12.2
+    - dbus-1
+    - dbus-glib-1
+    - libresourceqt1
+    - ngf-qt
+    - qmsystem2 >= 1.1.6
+    - contextsubscriber-1.0
+PkgBR:
+    - doxygen
+Files:
+    - "%config %{_sysconfdir}/dbus-1/system.d/lipstick.conf"
+    - "%{_libdir}/liblipstick.so.*"
+    - "%{_libdir}/qt4/imports/org/nemomobile/lipstick/liblipstickplugin.so"
+    - "%{_libdir}/qt4/imports/org/nemomobile/lipstick/qmldir"
+    - "%{_datadir}/translations/lipstick_eng_en.qm"
+    - "%{_datadir}/lipstick/notificationcategories/*.conf"
+Obsoletes:
+    - libnotificationsystem0
+Requires:
+    - mce >= 1.12.4
+Conflicts:
+    - meegotouch-systemui < 1.5.7
+
+SubPackages:
+    - Name: devel
+      Summary: Development files for lipstick
+      Description: Files useful for building homescreens.
+      Group: System/Libraries
+      License: LGPLv2.1
+      Files:
+          - "%{_includedir}/lipstick/*.h"
+          - "%{_libdir}/liblipstick.so"
+          - "%{_libdir}/liblipstick.prl"
+          - "%{_libdir}/pkgconfig/lipstick.pc"
+    - Name: tests
+      Summary: Tests for lipstick
+      Description: Unit tests for the lipstick package.
+      Group: System/Libraries
+      License: LGPLv2.1
+      Files:
+          - "/opt/tests/lipstick-tests/*"
+    - Name: tools
+      Summary: Tools for lipstick
+      Description: Tools for the lipstick package.
+      Group: System/Libraries
+      License: LGPLv2.1
+      Files:
+          - "%{_bindir}/notificationtool"
+    - Name: doc
+      Summary: Documentation for lipstick
+      Description: Documentation for the lipstick package.
+      Group: Documentation
+      License: LGPLv2.1
+      AutoDepend: false
+      BuildArch: noarch
+      Files:
+          - "%{_datadir}/doc/lipstick/*"
+    - Name: ts-devel
+      Summary: Translation files for lipstick
+      Description: Translation files for the lipstick package.
+      Group: Documentation
+      License: LGPLv2.1
+      AutoDepend: false
+      BuildArch: noarch
+      Files:
+          - "%{_datadir}/translations/source/lipstick.ts"
