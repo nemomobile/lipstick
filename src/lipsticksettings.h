@@ -39,7 +39,6 @@ public:
     void setLockscreenVisible(bool lockscreenVisible);
 
     QSize screenSize();
-    Q_INVOKABLE bool getIsInPortrait();
 
 signals:
     void lockscreenVisibleChanged();

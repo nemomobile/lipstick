@@ -12,7 +12,6 @@ Builder: qmake
 PkgConfigBR:
     - QtCore
     - QtDeclarative
-    - QtSensors
     - contentaction-0.1
     - mlite >= 0.0.6
     - xcomposite

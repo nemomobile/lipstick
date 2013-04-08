@@ -17,8 +17,6 @@
 
 #include <QDebug>
 #include <QDesktopWidget>
-#include <QtSensors/QOrientationSensor>
-#include <QtSensors/QOrientationReading>
 
 #include "screenlock/screenlock.h"
 #include "homeapplication.h"
@@ -64,12 +62,3 @@ QSize LipstickSettings::screenSize()
     return QApplication::desktop()->screenGeometry(HomeApplication::instance()->mainWindowInstance()).size();
 }
 
-bool LipstickSettings::getIsInPortrait()
-{
-    QtMobility::QOrientationSensor sensor;
-    sensor.start();
-    QtMobility::QOrientationReading::Orientation orientation = sensor.reading()->orientation();
-    qDebug() << Q_FUNC_INFO << "current orientation is" << orientation;
-    sensor.stop();
-    return orientation == QtMobility::QOrientationReading::TopUp;
-}
