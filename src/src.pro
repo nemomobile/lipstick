@@ -35,7 +35,8 @@ PUBLICHEADERS += \
     xtools/xeventlistener.h \
     xtools/xatomcache.h \
     usbmodeselector.h \
-    shutdownscreen.h
+    shutdownscreen.h \
+    connectionselector.h
 
 INSTALLS += publicheaderfiles dbus_policy
 publicheaderfiles.files = $$PUBLICHEADERS
@@ -94,7 +95,8 @@ SOURCES += \
     notifications/notificationfeedbackplayer.cpp \
     notifications/batterynotifier.cpp \
     usbmodeselector.cpp \
-    shutdownscreen.cpp
+    shutdownscreen.cpp \
+    connectionselector.cpp
 
 CONFIG += link_pkgconfig mobility qt warn_on depend_includepath qmake_cache target_qt
 MOBILITY += sensors
