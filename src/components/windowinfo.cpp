@@ -34,7 +34,7 @@ public:
             title(),
             types(),
             states(),
-            pid(0),
+            pid(-1),
             pixmapSerial(0)
     {
     }
@@ -152,6 +152,32 @@ void WindowInfo::updateWindowProperties()
 
 int WindowInfo::pid() const
 {
+    if (d->pid == -1) {
+        Atom actualType;
+        int actualFormat;
+        unsigned char *prop = 0;
+        unsigned long numItems;
+        unsigned long bytesLeft;
+
+        bool result = XGetWindowProperty(QX11Info::display(),
+                                         d->window,
+                                         AtomCache::atom("_NET_WM_PID"),
+                                         0L, 16L, false,
+                                         AnyPropertyType,
+                                         &actualType,
+                                         &actualFormat,
+                                         &numItems,
+                                         &bytesLeft,
+                                         &prop);
+
+        if (result != Success || !prop) {
+            qWarning() << "Failed to get PID";
+        } else {
+            d->pid = prop[1] * 256;
+            d->pid += prop[0];
+            XFree(prop);
+        }
+    }
     return d->pid;
 }
 

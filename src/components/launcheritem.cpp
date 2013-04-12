@@ -70,6 +70,11 @@ QString LauncherItem::filePath() const
     return !_desktopEntry.isNull() ? _desktopEntry->fileName() : QString();
 }
 
+QString LauncherItem::exec() const
+{
+    return !_desktopEntry.isNull() ? _desktopEntry->exec() : QString();
+}
+
 QString LauncherItem::title() const
 {
     return !_desktopEntry.isNull() ? _desktopEntry->name() : QString();
