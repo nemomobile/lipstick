@@ -29,6 +29,7 @@ class LIPSTICK_EXPORT WindowInfo : public QObject, XEventListener
     Q_PROPERTY(qulonglong pixmapSerial READ pixmapSerial WRITE setPixmapSerial NOTIFY pixmapSerialChanged)
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
     Q_PROPERTY(qulonglong window READ window NOTIFY windowChanged)
+    Q_PROPERTY(int processId READ pid CONSTANT)
 
 
 public:
