@@ -17,6 +17,7 @@
 #include <QSet>
 #include "windowmonitor.h"
 #include "xeventlistener.h"
+#include "lipstickglobal.h"
 
 /*!
  * A window monitor implementation to be used with the home screen application.
