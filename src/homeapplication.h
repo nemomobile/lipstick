@@ -24,6 +24,7 @@ class VolumeControl;
 class BatteryNotifier;
 class USBModeSelector;
 class ShutdownScreen;
+class ConnectionSelector;
 
 /*!
  * Extends QApplication with features necessary to create a desktop.
@@ -104,6 +105,8 @@ private:
 
     //! Logic for showing the shutdown screen and related notifications
     ShutdownScreen *shutdownScreen;
+
+    ConnectionSelector *connectionSelector;
 };
 
 #endif /* HOMEAPPLICATION_H_ */
