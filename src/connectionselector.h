@@ -20,7 +20,6 @@
 #include <QObject>
 
 class QDeclarativeView;
-class NetworkManager;
 
 class ConnectionSelector : public QObject
 {
@@ -44,8 +43,6 @@ public:
     void setWindowVisible(bool visible);
 
 signals:
-    //! Signaled when the select connect mode dialog is shown.
-    void dialogShown();
 
     //! Sent when the visibility of the window has changed.
     void windowVisibleChanged();

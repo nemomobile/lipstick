@@ -1,7 +1,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2013 Jolla Ltd
-** Contact: lorn.potter@gmail.com
+** Contact: lorn.potter@jollamobile.com
 **
 **
 ** GNU Lesser General Public License Usage
@@ -25,48 +25,38 @@
 #include <QScreen>
 
 #include "utilities/closeeventeater.h"
-#include "notificationmanager.h"
+#include "notifications/notificationmanager.h"
 
 ConnectionSelector::ConnectionSelector(QObject *parent) :
     QObject(parent),
     window(0),
     currentNotification(0)
 {
-    if (window == 0) {
-        window = new QDeclarativeView();
-        window->setAttribute(Qt::WA_TranslucentBackground);
-        window->setAttribute(Qt::WA_X11NetWmWindowTypeMenu);
-        window->setWindowTitle("Connection");
-        window->setResizeMode(QDeclarativeView::SizeRootObjectToView);
-        window->viewport()->setAutoFillBackground(false);
-        window->rootContext()->setContextProperty("connectionSelector", this);
-        window->rootContext()->setContextProperty("showButtons", QVariant(true));
-
-        QSize desktopSize = QApplication::desktop()->screenGeometry(window).size();
-        if (desktopSize.width() > desktopSize.height()) {
-            window->rootContext()->setContextProperty("initialSize", desktopSize);
-        } else {
-            QSize initialSize(desktopSize.height(),desktopSize.width());
-            window->rootContext()->setContextProperty("initialSize", initialSize);
-        }
-        window->setSource(QUrl("qrc:/qml/ConnectionSelectionBanner.qml"));
-        window->installEventFilter(new CloseEventEater(this));
-        QObject *rootObject = qobject_cast< QObject * >(window->rootObject());
-        QObject::connect(rootObject,SIGNAL(canceled()),this,SLOT(onCanceled()));
-        QObject::connect(rootObject,SIGNAL(connectionRequested()),
-                         this,SLOT(onConnectionRequest()));
-    }
+    window = new QDeclarativeView();
+    window->setAttribute(Qt::WA_TranslucentBackground);
+    window->setAttribute(Qt::WA_X11NetWmWindowTypeMenu);
+    window->setWindowTitle("Connection");
+    window->setResizeMode(QDeclarativeView::SizeRootObjectToView);
+    window->viewport()->setAutoFillBackground(false);
+    window->rootContext()->setContextProperty("connectionSelector", this);
+    window->rootContext()->setContextProperty("initialSize", QApplication::desktop()->screenGeometry(window).size());
+    window->setSource(QUrl("qrc:/qml/ConnectionSelector.qml"));
+    window->installEventFilter(new CloseEventEater(this));
+    QObject *rootObject = qobject_cast< QObject * >(window->rootObject());
+    QObject::connect(rootObject,SIGNAL(canceled()),this,SLOT(onCanceled()));
+    QObject::connect(rootObject,SIGNAL(connectionRequested()),
+                     this,SLOT(onConnectionRequest()));
 }
 
 ConnectionSelector::~ConnectionSelector()
 {
+    delete window;
+    window = 0;
 }
 
 void ConnectionSelector::setWindowVisible(bool visible)
 {
-    window->resize(QApplication::desktop()->screenGeometry(window).size());
     if (visible) {
-        emit dialogShown();
 
         if (!window->isVisible()) {
             window->show();
@@ -101,8 +91,7 @@ void ConnectionSelector::showNotification(const QString &message,const QString &
 
     NotificationManager *manager = NotificationManager::instance();
     QVariantHash hints;
-    hints.insert(NotificationManager::HINT_URGENCY, 1);
-    QString cat = "connection.";
+    QString cat = "x-nemo.connectionselector.";
     cat.append(type);
     hints.insert(NotificationManager::HINT_CATEGORY, cat);
     hints.insert(NotificationManager::HINT_PREVIEW_BODY, message);

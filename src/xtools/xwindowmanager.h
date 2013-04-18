@@ -20,7 +20,7 @@
 
 #include <QObject>
 
-class XWindowManager
+class LIPSTICK_EXPORT XWindowManager
 {
 public:
     static void closeWindow(Qt::HANDLE windowId);
