@@ -75,7 +75,6 @@ bool ConnectionSelector::windowVisible() const
 
 void ConnectionSelector::onConnectionRequest()
 {
-    window->rootObject()->setProperty("showButtons", true);
     setWindowVisible(true);
 }
 
