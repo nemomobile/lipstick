@@ -1,7 +1,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2013 Jolla Ltd
-** Contact: lorn.potter@jolalmobile.com
+** Contact: lorn.potter@jollamobile.com
 **
 **
 ** GNU Lesser General Public License Usage
