@@ -56,6 +56,7 @@ ConnectionSelector::~ConnectionSelector()
 
 void ConnectionSelector::setWindowVisible(bool visible)
 {
+    window->resize(QApplication::desktop()->screenGeometry(window).size());
     if (visible) {
 
         if (!window->isVisible()) {
