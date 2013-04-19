@@ -21,8 +21,7 @@
 #include <QDeclarativeContext>
 #include <QDesktopWidget>
 #include <QGraphicsObject>
-#include <QDebug>
-#include <QScreen>
+
 
 #include "utilities/closeeventeater.h"
 #include "notifications/notificationmanager.h"
@@ -42,7 +41,7 @@ ConnectionSelector::ConnectionSelector(QObject *parent) :
     window->rootContext()->setContextProperty("initialSize", QApplication::desktop()->screenGeometry(window).size());
     window->setSource(QUrl("qrc:/qml/ConnectionSelector.qml"));
     window->installEventFilter(new CloseEventEater(this));
-    QObject *rootObject = qobject_cast< QObject * >(window->rootObject());
+    QObject *rootObject = window->rootObject();
     QObject::connect(rootObject,SIGNAL(canceled()),this,SLOT(onCanceled()));
     QObject::connect(rootObject,SIGNAL(connectionRequested()),
                      this,SLOT(onConnectionRequest()));
@@ -51,7 +50,6 @@ ConnectionSelector::ConnectionSelector(QObject *parent) :
 ConnectionSelector::~ConnectionSelector()
 {
     delete window;
-    window = 0;
 }
 
 void ConnectionSelector::setWindowVisible(bool visible)
@@ -60,7 +58,7 @@ void ConnectionSelector::setWindowVisible(bool visible)
     if (visible) {
 
         if (!window->isVisible()) {
-            window->show();
+            window->showFullScreen();
             emit windowVisibleChanged();
         }
     } else if (window != 0 && window->isVisible()) {
