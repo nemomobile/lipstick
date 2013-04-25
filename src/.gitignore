@@ -1,4 +1,5 @@
 liblipstick.*
+liblipstick-qt5.*
 pkgconfig
 *.ts
 *.qm

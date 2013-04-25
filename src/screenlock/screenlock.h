@@ -19,7 +19,10 @@
 
 #include <QObject>
 
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
 class EventEater;
+#endif
+
 class QDBusInterface;
 
 /*!
@@ -130,8 +133,10 @@ private:
         TkLockClosed
     };
 
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
     //! The event eater window
     EventEater *eventEaterWindow;
+#endif
 
     //! MCE callback D-Bus interface
     QDBusInterface *callbackInterface;

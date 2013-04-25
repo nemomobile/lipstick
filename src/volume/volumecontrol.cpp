@@ -20,20 +20,25 @@
 #include <QDeclarativeView>
 #include <QDeclarativeContext>
 #include <QDesktopWidget>
-#include <QX11Info>
-#include <X11/extensions/shape.h>
 #include "utilities/closeeventeater.h"
-#include "xtools/x11wrapper.h"
 #include "pulseaudiocontrol.h"
 #include "volumecontrol.h"
+
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
 #include "volumekeylistener.h"
+#include <QX11Info>
+#include <X11/extensions/shape.h>
+#include "xtools/x11wrapper.h"
+#endif
 
 VolumeControl::VolumeControl(QObject *parent) :
     QObject(parent),
     window(0),
     pulseAudioControl(new PulseAudioControl(this)),
     hwKeyResource(new ResourcePolicy::ResourceSet("event")),
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
     hwKeys(new VolumeKeyListener(this)),
+#endif
     volume_(0),
     maximumVolume_(0)
 {
@@ -91,11 +96,13 @@ void VolumeControl::setWindowVisible(bool visible)
             window->setSource(QUrl("qrc:/qml/VolumeControl.qml"));
             window->installEventFilter(new CloseEventEater(this));
 
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
             Display *dpy = QX11Info::display();
             XserverRegion shapeRegion = X11Wrapper::XFixesCreateRegion(dpy, NULL, 0);
             X11Wrapper::XFixesSetWindowShapeRegion(dpy, window->winId(), ShapeInput, 0, 0, shapeRegion);
             X11Wrapper::XFixesDestroyRegion(dpy, shapeRegion);
             X11Wrapper::XSync(dpy, False);
+#endif
         }
 
         if (!window->isVisible()) {
@@ -137,6 +144,7 @@ void VolumeControl::hwKeyEvent(unsigned int key, int eventType)
     }
 
     switch (eventType) {
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
     case KeyPress:
         // Key down: set which way to change the volume on each repeat, start the repeat delay timer and change the volume once
         volumeChange = key == KEY_VOLUMEUP ? 1 : -1;
@@ -149,6 +157,7 @@ void VolumeControl::hwKeyEvent(unsigned int key, int eventType)
         // Key up: stop any key repeating in progress
         keyReleaseTimer.start();
         break;
+#endif
     default:
         break;
     }
@@ -156,20 +165,26 @@ void VolumeControl::hwKeyEvent(unsigned int key, int eventType)
 
 void VolumeControl::hwKeyResourceAcquired()
 {
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
     hwKeys->disconnect();
     connect(hwKeys, SIGNAL(keyEvent(uint, int)), this, SLOT(hwKeyEvent(uint, int)));
+#endif
 }
 
 void VolumeControl::hwKeyResourceLost()
 {
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
     hwKeys->disconnect();
+#endif
     stopKeyRepeat();
 }
 
 void VolumeControl::releaseKeys()
 {
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
     hwKeys->disconnect();
     hwKeyResource->release();
+#endif
     stopKeyRepeat();
 }
 

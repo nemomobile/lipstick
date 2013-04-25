@@ -25,8 +25,10 @@
 #include "ut_screenlock.h"
 #include "screenlock.h"
 #include "homeapplication.h"
-#include "eventeater_stub.h"
 #include "closeeventeater_stub.h"
+
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
+#include "eventeater_stub.h"
 #include "x11wrapper_modified_stub.h"
 
 XEventListener::XEventListener()
@@ -36,6 +38,7 @@ XEventListener::XEventListener()
 XEventListener::~XEventListener()
 {
 }
+#endif
 
 HomeApplication *HomeApplication::instance()
 {
@@ -66,20 +69,26 @@ QDBusMessage QDBusAbstractInterface::call(QDBus::CallMode mode, const QString & 
     return QDBusMessage();
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
 void QTimer::singleShot(int, QObject *receiver, const char *member)
+#else
+void QTimer::singleShot(int, const QObject *receiver, const char *member)
+#endif
 {
     // The "member" string is of form "1member()", so remove the trailing 1 and the ()
     int memberLength = strlen(member) - 3;
     char modifiedMember[memberLength + 1];
     strncpy(modifiedMember, member + 1, memberLength);
     modifiedMember[memberLength] = 0;
-    QMetaObject::invokeMethod(receiver, modifiedMember, Qt::DirectConnection);
+    QMetaObject::invokeMethod(const_cast<QObject *>(receiver), modifiedMember, Qt::DirectConnection);
 }
 
 void Ut_ScreenLock::init()
 {
     screenLock = new ScreenLock;
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
     gX11WrapperStub->stubSetReturnValue("XInternAtom", (Atom)1);
+#endif
 }
 
 void Ut_ScreenLock::cleanup()
@@ -90,8 +99,10 @@ void Ut_ScreenLock::cleanup()
     qDbusAbstractInterfaceCallPath.clear();
     qDbusAbstractInterfaceCallService.clear();
     qDbusAbstractInterfaceCallInterface.clear();
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
     gEventEaterStub->stubReset();
     gX11WrapperStub->stubReset();
+#endif
 }
 
 void Ut_ScreenLock::initTestCase()
@@ -106,6 +117,7 @@ void Ut_ScreenLock::cleanupTestCase()
 
 void testStackingLayer(int callCount, long stackingLayer)
 {
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
     QCOMPARE(gX11WrapperStub->stubCallCount("XChangeProperty"), callCount);
     MethodCall &xcp = gX11WrapperStub->stubLastCallTo("XChangeProperty");
 
@@ -116,6 +128,10 @@ void testStackingLayer(int callCount, long stackingLayer)
     QCOMPARE(xcp.parameter<int>(5), PropModeReplace);
     QCOMPARE(*reinterpret_cast<long*>(xcp.parameter<QByteArray>(6).data()), stackingLayer);
     QCOMPARE(xcp.parameter<int>(7), 1);
+#else
+    Q_UNUSED(callCount)
+    Q_UNUSED(stackingLayer)
+#endif
 }
 
 void Ut_ScreenLock::testToggleScreenLockUI()
@@ -151,6 +167,7 @@ void Ut_ScreenLock::testToggleScreenLockUI()
     QCOMPARE(screenLock->isScreenLocked(), false);
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
 void Ut_ScreenLock::testToggleEventEater()
 {
     // Make sure the screen locking signals are sent and the eater UI is shown/hidden
@@ -160,6 +177,7 @@ void Ut_ScreenLock::testToggleEventEater()
     screenLock->toggleEventEater(false);
     QCOMPARE(gEventEaterStub->stubCallCount("hide"), 1);
 }
+#endif
 
 void Ut_ScreenLock::testUnlockScreenWhenLocked()
 {
@@ -168,7 +186,9 @@ void Ut_ScreenLock::testUnlockScreenWhenLocked()
     screenLock->toggleEventEater(true);
     screenLock->unlockScreen();
 
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
     QCOMPARE(gEventEaterStub->stubCallCount("hide"), 1);
+#endif
 
     QCOMPARE(qDbusAbstractInterfaceCallMethod, TEST_METHOD);
     QCOMPARE(qDbusAbstractInterfaceCallPath, TEST_PATH);
@@ -188,12 +208,14 @@ void Ut_ScreenLock::testUnlockScreenWhenNotLocked()
     QCOMPARE(qDbusAbstractInterfaceCallInterface.isEmpty(), true);
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
 void Ut_ScreenLock::testHideEventEater()
 {
     screenLock->showEventEater();
     screenLock->hideEventEater();
     QCOMPARE(gEventEaterStub->stubCallCount("hide"), 1);
 }
+#endif
 
 void Ut_ScreenLock::testTkLockOpen_data()
 {
@@ -226,7 +248,9 @@ void Ut_ScreenLock::testTkLockOpen()
     Q_UNUSED(mainWindowStackingLayer)
     // Make sure the event eater is visible so that it will be hidden if necessary
     screenLock->showEventEater();
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
     gEventEaterStub->stubReset();
+#endif
 
     // Modify the state
     int reply = screenLock->tklock_open(TEST_SERVICE, TEST_PATH, TEST_INTERFACE, TEST_METHOD, mode, false, false);
@@ -238,6 +262,7 @@ void Ut_ScreenLock::testTkLockOpen()
         testStackingLayer(1, mainWindowStackingLayer);
     }
 
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
     // Check that event eater window visibility was only changed if needed (and to the correct state)
     if (eventEaterWindowVisibilityModified) {
         QCOMPARE(gEventEaterStub->stubCallCount(eventEaterWindowVisible ? "show" : "hide"), 1);
@@ -245,6 +270,10 @@ void Ut_ScreenLock::testTkLockOpen()
         QCOMPARE(gEventEaterStub->stubCallCount("show"), 0);
         QCOMPARE(gEventEaterStub->stubCallCount("hide"), 0);
     }
+#else
+    Q_UNUSED(eventEaterWindowVisibilityModified)
+    Q_UNUSED(eventEaterWindowVisible)
+#endif
 }
 
 void Ut_ScreenLock::testTkLockClose()
@@ -258,7 +287,9 @@ void Ut_ScreenLock::testTkLockClose()
     QCOMPARE(reply, (int)ScreenLock::TkLockReplyOk);
 
     // Both windows should be hidden
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
     QCOMPARE(gEventEaterStub->stubCallCount("hide"), 1);
+#endif
     QCOMPARE(HomeApplication::instance()->mainWindowInstance()->windowTitle(), QString("Lipstick"));
     testStackingLayer(2, 0);
 }

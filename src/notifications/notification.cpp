@@ -251,3 +251,40 @@ const QDBusArgument &operator>>(const QDBusArgument &argument, Notification &not
     argument.endStructure();
     return argument;
 }
+
+NotificationList::NotificationList()
+{
+}
+
+NotificationList::NotificationList(const QList<Notification *> &notificationList) :
+    notificationList(notificationList)
+{
+}
+
+NotificationList::NotificationList(const NotificationList &notificationList) :
+    notificationList(notificationList.notificationList)
+{
+}
+
+QDBusArgument &operator<<(QDBusArgument &argument, const NotificationList &notificationList)
+{
+    argument.beginArray(qMetaTypeId<Notification>());
+    foreach (Notification *notification, notificationList.notificationList) {
+        argument << *notification;
+    }
+    argument.endArray();
+    return argument;
+}
+
+const QDBusArgument &operator>>(const QDBusArgument &argument, NotificationList &notificationList)
+{
+    argument.beginArray();
+    notificationList.notificationList.clear();
+    while (!argument.atEnd()) {
+        Notification *notification = new Notification;
+        argument >> *notification;
+        notificationList.notificationList.append(notification);
+    }
+    argument.endArray();
+    return argument;
+}

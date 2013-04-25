@@ -39,7 +39,7 @@
     <method name="GetNotifications">
       <arg name="app_name" type="s" direction="in"/>
       <arg name="notifications" type="a(sussasa{sv}i)" direction="out"/>
-      <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="QList &lt; Notification &gt; "/>
+      <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="NotificationList"/>
     </method>
   </interface>
 </node>

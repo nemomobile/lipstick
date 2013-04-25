@@ -16,20 +16,27 @@
 #include <QDeclarativeView>
 #include <QDeclarativeContext>
 #include <QDesktopWidget>
-#include <QX11Info>
-#include <X11/extensions/shape.h>
 #include "utilities/closeeventeater.h"
-#include "xtools/x11wrapper.h"
 #include "notifications/notificationmanager.h"
 #include "homeapplication.h"
 #include "shutdownscreen.h"
 
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
+#include <QX11Info>
+#include <X11/extensions/shape.h>
+#include "xtools/x11wrapper.h"
+#endif
+
 ShutdownScreen::ShutdownScreen(QObject *parent) :
     QObject(parent),
-    window(0),
-    systemState(new MeeGo::QmSystemState(this))
+    window(0)
+#ifdef HAVE_QMSYSTEM
+    ,systemState(new MeeGo::QmSystemState(this))
+#endif
 {
+#ifdef HAVE_QMSYSTEM
     connect(systemState, SIGNAL(systemStateChanged(MeeGo::QmSystemState::StateIndication)), this, SLOT(applySystemState(MeeGo::QmSystemState::StateIndication)));
+#endif
 }
 
 void ShutdownScreen::setWindowVisible(bool visible)
@@ -48,6 +55,7 @@ void ShutdownScreen::setWindowVisible(bool visible)
             window->setSource(QUrl("qrc:/qml/ShutdownScreen.qml"));
             window->installEventFilter(new CloseEventEater(this));
 
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
             Display *dpy = QX11Info::display();
             unsigned int customRegion[] = { window->rect().x(), window->rect().y(), window->rect().width(), window->rect().height() };
             Atom customRegionAtom = X11Wrapper::XInternAtom(dpy, "_MEEGOTOUCH_CUSTOM_REGION", False);
@@ -59,6 +67,7 @@ void ShutdownScreen::setWindowVisible(bool visible)
                 X11Wrapper::XChangeProperty(dpy, window->winId(), stackingLayerAtom, XA_CARDINAL, 32, PropModeReplace, (unsigned char*)&layer, 1);
             }
             X11Wrapper::XSync(dpy, False);
+#endif
         }
 
         if (!window->isVisible()) {
@@ -76,6 +85,7 @@ bool ShutdownScreen::windowVisible() const
     return window != 0 && window->isVisible();
 }
 
+#ifdef HAVE_QMSYSTEM
 void ShutdownScreen::applySystemState(MeeGo::QmSystemState::StateIndication what)
 {
     switch (what) {
@@ -104,6 +114,7 @@ void ShutdownScreen::applySystemState(MeeGo::QmSystemState::StateIndication what
             break;
     }
 }
+#endif
 
 void ShutdownScreen::createAndPublishNotification(const QString &category, const QString &body)
 {

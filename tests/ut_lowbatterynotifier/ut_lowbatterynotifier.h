@@ -22,7 +22,10 @@
 #include <QObject>
 
 class LowBatteryNotifier;
+
+#ifdef HAVE_CONTEXTSUBSCRIBER
 class ContextItem;
+#endif
 
 class Ut_LowBatteryNotifier : public QObject
 {
@@ -35,13 +38,19 @@ private slots:
     void cleanupTestCase();
     void testSignalConnections();
     void testSendLowBatteryAlert();
+#ifdef HAVE_QMSYSTEM
     void testSetNotificationInterval_data();
     void testSetNotificationInterval();
+#ifdef HAVE_CONTEXTSUBSCRIBER
     void testSetNotificationIntervalDoesNothingWhenStateDoesNotChange();
+#endif
+#endif
 
 private:
     LowBatteryNotifier *m_subject;
+#ifdef HAVE_CONTEXTSUBSCRIBER
     ContextItem *contextItem;
+#endif
 };
 
 #endif
