@@ -52,4 +52,6 @@ void LipstickPlugin::registerTypes(const char *uri)
     qmlRegisterUncreatableType<WindowManager>("org.nemomobile.lipstick", 0, 1, "WindowManager", "This type should be accessed through a context property.");
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
 Q_EXPORT_PLUGIN2(lipstick, LipstickPlugin)
+#endif

@@ -333,7 +333,7 @@ void QDBusArgument::assertMarker(QVariant& other) const
               arg(QString::number(index)).
               arg(mine).
               arg(his).
-              toAscii().data());
+              toUtf8().data());
     }
 }
 

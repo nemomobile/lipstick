@@ -73,6 +73,8 @@ public:
      */
     void restoreSignalHandlers();
 
+    virtual bool eventFilter(QObject *, QEvent *);
+
 private slots:
     /*!
      * Sends a dbus-signal after UI is visible, stops the process if it has
@@ -96,8 +98,10 @@ private:
     //! Logic for setting the device volume
     VolumeControl *volumeControl;
 
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
     //! Logic for notifying about battery state
     BatteryNotifier *batteryNotifier;
+#endif
 
     //! Logic for showing the USB mode selection dialog
     USBModeSelector *usbModeSelector;

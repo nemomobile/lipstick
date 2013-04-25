@@ -21,8 +21,14 @@
 
 #include <QObject>
 #include <QTime>
+
+#ifdef HAVE_QMSYSTEM
 #include <qmdisplaystate.h>
+#endif
+
+#ifdef HAVE_CONTEXTSUBSCRIBER
 #include <contextproperty.h>
+#endif
 
 class QTimer;
 
@@ -64,11 +70,15 @@ signals:
     void lowBatteryAlert();
 
 private:
+#ifdef HAVE_QMSYSTEM
     //! For getting the display state
     MeeGo::QmDisplayState *displayState;
+#endif
 
+#ifdef HAVE_CONTEXTSUBSCRIBER
     //! Call state context framework key
     ContextProperty callContextItem;
+#endif
 
     //! Timer for sending low battery alerts
     QTimer *notificationTimer;

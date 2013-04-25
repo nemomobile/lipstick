@@ -16,6 +16,7 @@
 #ifndef NOTIFICATIONFEEDBACKPLAYER_H
 #define NOTIFICATIONFEEDBACKPLAYER_H
 
+#include <QObject>
 #include <QHash>
 
 class Notification;
