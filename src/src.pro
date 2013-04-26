@@ -32,7 +32,8 @@ PUBLICHEADERS += \
     notifications/notificationlistmodel.h \
     notifications/notificationpreviewpresenter.h \
     usbmodeselector.h \
-    shutdownscreen.h
+    shutdownscreen.h \
+    connectionselector.h
 
 equals(QT_MAJOR_VERSION, 4): PUBLICHEADERS += components/windowinfo.h components/switchermodel.h components/switcherpixmapitem.h components/windowmanager.h xtools/homewindowmonitor.h xtools/windowmonitor.h xtools/xeventlistener.h xtools/xatomcache.h
 
@@ -74,7 +75,8 @@ SOURCES += \
     volume/pulseaudiocontrol.cpp \
     notifications/notificationfeedbackplayer.cpp \
     usbmodeselector.cpp \
-    shutdownscreen.cpp
+    shutdownscreen.cpp \
+    connectionselector.cpp
 
 equals(QT_MAJOR_VERSION, 4): HEADERS += xtools/xwindowmanager.h xtools/x11wrapper.h screenlock/eventeater.h volume/volumekeylistener.h notifications/batterynotifier.h
 equals(QT_MAJOR_VERSION, 4): SOURCES += components/windowinfo.cpp components/switchermodel.cpp components/switcherpixmapitem.cpp components/windowmanager.cpp xtools/homewindowmonitor.cpp xtools/xeventlistener.cpp xtools/xatomcache.cpp xtools/xwindowmanager.cpp xtools/x11wrapper.cpp screenlock/eventeater.cpp volume/volumekeylistener.cpp notifications/batterynotifier.cpp
