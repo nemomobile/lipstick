@@ -15,6 +15,9 @@ Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
 BuildRequires:  pkgconfig(Qt5Core)
 BuildRequires:  pkgconfig(Qt5Declarative)
+BuildRequires:  pkgconfig(Qt5Xml)
+BuildRequires:  pkgconfig(Qt5Sql)
+BuildRequires:  pkgconfig(Qt5SystemInfo)
 BuildRequires:  pkgconfig(QtSensors)
 BuildRequires:  pkgconfig(contentaction-0.1)
 BuildRequires:  pkgconfig(mlite5) >= 0.0.6
