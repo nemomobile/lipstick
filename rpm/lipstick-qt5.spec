@@ -26,6 +26,7 @@ BuildRequires:  pkgconfig(dbus-1)
 BuildRequires:  pkgconfig(dbus-glib-1)
 BuildRequires:  pkgconfig(libresourceqt1)
 BuildRequires:  pkgconfig(ngf-qt5)
+BuildRequires:  qt5-qttools-linguist
 BuildRequires:  doxygen
 Conflicts:   meegotouch-systemui < 1.5.7
 Obsoletes:   libnotificationsystem0
