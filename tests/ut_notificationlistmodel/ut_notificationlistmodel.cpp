@@ -18,14 +18,18 @@
 #include "notificationlistmodel.h"
 #include "notificationmanager_stub.h"
 
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
 void QTimer::singleShot(int, QObject *receiver, const char *member)
+#else
+void QTimer::singleShot(int, const QObject *receiver, const char *member)
+#endif
 {
     // The "member" string is of form "1member()", so remove the trailing 1 and the ()
     int memberLength = strlen(member) - 3;
     char modifiedMember[memberLength + 1];
     strncpy(modifiedMember, member + 1, memberLength);
     modifiedMember[memberLength] = 0;
-    QMetaObject::invokeMethod(receiver, modifiedMember, Qt::DirectConnection);
+    QMetaObject::invokeMethod(const_cast<QObject *>(receiver), modifiedMember, Qt::DirectConnection);
 }
 
 void Ut_NotificationListModel::init()

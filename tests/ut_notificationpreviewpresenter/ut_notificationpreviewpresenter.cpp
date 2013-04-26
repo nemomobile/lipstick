@@ -20,15 +20,20 @@
 #include "notificationmanager.h"
 #include "ut_notificationpreviewpresenter.h"
 #include "notificationpreviewpresenter.h"
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
 #include "xtools/x11wrapper.h"
 #include <X11/extensions/shape.h>
+#endif
 #include "closeeventeater_stub.h"
+#ifdef HAVE_QMSYSTEM
 #include "qmlocks_stub.h"
 #include "qmdisplaystate_stub.h"
+#endif
 
 Q_DECLARE_METATYPE(NotificationPreviewPresenter*)
 Q_DECLARE_METATYPE(Notification*)
 
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
 QList<XRectangle> xFixesCreateRegionRectangles;
 XserverRegion X11Wrapper::XFixesCreateRegion(Display *, XRectangle *rectangles, int nrectangles)
 {
@@ -64,6 +69,7 @@ int X11Wrapper::XSync(Display *, int)
     xSyncCalled = true;
     return 0;
 }
+#endif
 
 QList<QDeclarativeView *> qDeclarativeViews;
 void QDeclarativeView::setSource(const QUrl &)
@@ -163,8 +169,10 @@ void Ut_NotificationPreviewPresenter::cleanup()
     qDeleteAll(notificationManagerNotification);
     notificationManagerNotification.clear();
     notificationManagerCloseNotificationIds.clear();
+#ifdef HAVE_QMSYSTEM
     gQmLocksStub->stubReset();
     gQmDisplayStateStub->stubReset();
+#endif
 }
 
 void Ut_NotificationPreviewPresenter::testSignalConnections()
@@ -288,6 +296,7 @@ void Ut_NotificationPreviewPresenter::testRemoveNotification()
     QCOMPARE(qWidgetVisible[static_cast<QWidget *>(qDeclarativeViews.first())], false);
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
 void Ut_NotificationPreviewPresenter::testWindowMasking_data()
 {
     QTest::addColumn<int>("x1");
@@ -337,6 +346,7 @@ void Ut_NotificationPreviewPresenter::testWindowMasking()
     QCOMPARE(xFixesDestroyRegionRegion.last(), (XserverRegion)1);
     QCOMPARE(xSyncCalled, true);
 }
+#endif
 
 void Ut_NotificationPreviewPresenter::testNotificationNotShownIfNoSummaryOrBody_data()
 {
@@ -409,11 +419,13 @@ void Ut_NotificationPreviewPresenter::testShowingOnlyCriticalNotifications()
     notification->setHints(hints);
     notificationManagerNotification.insert(1, notification);
 
+#ifdef HAVE_QMSYSTEM
     // When the screen or device is locked and the urgency is not high enough, so the notification shouldn't be shown
     gQmLocksStub->stubSetReturnValue("getState", MeeGo::QmLocks::Locked);
     presenter.updateNotification(1);
     QCOMPARE(spy.count(), 0);
     QCOMPARE(qWidgetVisible[static_cast<QWidget *>(qDeclarativeViews.first())], false);
+#endif
 
     // Urgency set to critical, so the notification should be shown
     hints.insert(NotificationManager::HINT_URGENCY, 2);
@@ -449,6 +461,7 @@ void Ut_NotificationPreviewPresenter::testUpdateNotificationRemovesNotificationF
     QCOMPARE(presenter.notification(), (Notification *)0);
 }
 
+#ifdef HAVE_QMSYSTEM
 Q_DECLARE_METATYPE(MeeGo::QmDisplayState::DisplayState)
 Q_DECLARE_METATYPE(MeeGo::QmLocks::State)
 
@@ -480,6 +493,7 @@ void Ut_NotificationPreviewPresenter::testNotificationNotShownIfTouchScreenIsLoc
     QCOMPARE(qDeclarativeViews.count(), notifications);
     QCOMPARE(spy.count(), notifications);
 }
+#endif
 
 void Ut_NotificationPreviewPresenter::testCriticalNotificationIsClosedAfterShowing()
 {

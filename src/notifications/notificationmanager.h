@@ -182,7 +182,7 @@ public:
      * \param appName the name of the application to get notifications for
      * \return a list of notifications for the application
      */
-    QList<Notification> GetNotifications(const QString &appName);
+    NotificationList GetNotifications(const QString &appName);
 
 signals:
     /*!

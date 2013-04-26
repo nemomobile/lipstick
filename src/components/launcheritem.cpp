@@ -21,14 +21,17 @@
 #include <QDir>
 #include <QSettings>
 #include <QTimer>
-#include <mlite/mdesktopentry.h>
+#include <mdesktopentry.h>
 
 #ifdef HAVE_CONTENTACTION
 #include <contentaction.h>
 #endif
 
 #include "launcheritem.h"
+
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
 #include "xtools/homewindowmonitor.h"
+#endif
 
 // Define this if you'd like to see debug messages from the launcher
 #ifdef DEBUG_LAUNCHER
@@ -45,9 +48,11 @@ LauncherItem::LauncherItem(const QString &filePath, QObject *parent)
         setFilePath(filePath);
     }
 
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
     // TODO: instead of this, match the PID of the window thumbnails with the launcher processes
     // Launching animation will be disabled if the window of the launched app shows up
     connect(HomeWindowMonitor::instance(), SIGNAL(isHomeWindowOnTopChanged()), this, SLOT(disableIsLaunching()));
+#endif
 }
 
 LauncherItem::~LauncherItem()

@@ -18,7 +18,9 @@
 #include <QDeclarativeContext>
 #include <QDesktopWidget>
 #include "utilities/closeeventeater.h"
+#ifdef HAVE_QMSYSTEM
 #include <qmlocks.h>
+#endif
 #include "notifications/notificationmanager.h"
 #include "usbmodeselector.h"
 
@@ -26,17 +28,21 @@ QMap<QString, QString> USBModeSelector::errorCodeToTranslationID;
 
 USBModeSelector::USBModeSelector(QObject *parent) :
     QObject(parent),
-    window(0),
-    usbMode(new MeeGo::QmUSBMode(this)),
+    window(0)
+#ifdef HAVE_QMSYSTEM
+    ,usbMode(new MeeGo::QmUSBMode(this)),
     locks(new MeeGo::QmLocks(this))
+#endif
 {
     if (errorCodeToTranslationID.isEmpty()) {
         errorCodeToTranslationID.insert("qtn_usb_filessystem_inuse", "qtn_usb_filessystem_inuse");
         errorCodeToTranslationID.insert("mount_failed", "qtn_usb_mount_failed");
     }
 
+#ifdef HAVE_QMSYSTEM
     connect(usbMode, SIGNAL(modeChanged(MeeGo::QmUSBMode::Mode)), this, SLOT(applyUSBMode(MeeGo::QmUSBMode::Mode)));
     connect(usbMode, SIGNAL(error(const QString &)), this, SLOT(showError(const QString &)));
+#endif
 
     // Lazy initialize to improve startup time
     QTimer::singleShot(500, this, SLOT(applyCurrentUSBMode()));
@@ -44,7 +50,9 @@ USBModeSelector::USBModeSelector(QObject *parent) :
 
 void USBModeSelector::applyCurrentUSBMode()
 {
+#ifdef HAVE_QMSYSTEM
     applyUSBMode(usbMode->getMode());
+#endif
 }
 
 void USBModeSelector::setWindowVisible(bool visible)
@@ -81,6 +89,7 @@ bool USBModeSelector::windowVisible() const
     return window != 0 && window->isVisible();
 }
 
+#ifdef HAVE_QMSYSTEM
 void USBModeSelector::applyUSBMode(MeeGo::QmUSBMode::Mode mode)
 {
     switch (mode) {
@@ -148,6 +157,7 @@ void USBModeSelector::showNotification(MeeGo::QmUSBMode::Mode mode)
     hints.insert(NotificationManager::HINT_PREVIEW_BODY, body);
     manager->Notify(qApp->applicationName(), 0, QString(), QString(), QString(), QStringList(), hints, -1);
 }
+#endif
 
 void USBModeSelector::showError(const QString &errorCode)
 {
@@ -163,5 +173,9 @@ void USBModeSelector::showError(const QString &errorCode)
 
 void USBModeSelector::setUSBMode(int mode)
 {
+#ifdef HAVE_QMSYSTEM
     usbMode->setMode((MeeGo::QmUSBMode::Mode)mode);
+#else
+    Q_UNUSED(mode)
+#endif
 }

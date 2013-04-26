@@ -2,9 +2,11 @@ system(qdbusxml2cpp notifications/notificationmanager.xml -a notifications/notif
 system(qdbusxml2cpp screenlock/screenlock.xml -a screenlock/screenlockadaptor -c ScreenLockAdaptor -l ScreenLock -i screenlock.h)
 
 TEMPLATE = lib
-TARGET = lipstick
+equals(QT_MAJOR_VERSION, 4): TARGET = lipstick
+equals(QT_MAJOR_VERSION, 5): TARGET = lipstick-qt5
 VERSION = 0.10.6
 
+DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x000000
 DEFINES += LIPSTICK_BUILD_LIBRARY VERSION=\\\"$$VERSION\\\"
 
 CONFIG += qt
@@ -23,62 +25,43 @@ PUBLICHEADERS += \
     homeapplication.h \
     lipstickglobal.h \
     lipsticksettings.h \
-    components/windowinfo.h \
     components/launcheritem.h \
     components/launchermodel.h \
-    components/switchermodel.h \
-    components/switcherpixmapitem.h \
-    components/windowmanager.h \
     notifications/notificationmanager.h \
     notifications/notification.h \
     notifications/notificationlistmodel.h \
     notifications/notificationpreviewpresenter.h \
-    xtools/homewindowmonitor.h \
-    xtools/windowmonitor.h \
-    xtools/xeventlistener.h \
-    xtools/xatomcache.h \
     usbmodeselector.h \
     shutdownscreen.h \
     connectionselector.h
 
+equals(QT_MAJOR_VERSION, 4): PUBLICHEADERS += components/windowinfo.h components/switchermodel.h components/switcherpixmapitem.h components/windowmanager.h xtools/homewindowmonitor.h xtools/windowmonitor.h xtools/xeventlistener.h xtools/xatomcache.h
+
 INSTALLS += publicheaderfiles dbus_policy
 publicheaderfiles.files = $$PUBLICHEADERS
-publicheaderfiles.path = /usr/include/lipstick
+equals(QT_MAJOR_VERSION, 4): publicheaderfiles.path = /usr/include/lipstick
+equals(QT_MAJOR_VERSION, 5): publicheaderfiles.path = /usr/include/lipstick-qt5
 dbus_policy.files += lipstick.conf
 dbus_policy.path = /etc/dbus-1/system.d
 
 HEADERS += \
     $$PUBLICHEADERS \
-    xtools/xwindowmanager.h \
-    xtools/x11wrapper.h \
     notifications/notificationmanageradaptor.h \
     notifications/categorydefinitionstore.h \
     notifications/lowbatterynotifier.h \
     notifications/notificationfeedbackplayer.h \
-    notifications/batterynotifier.h \
-    screenlock/eventeater.h \
     screenlock/screenlock.h \
     screenlock/screenlockadaptor.h \
     volume/volumecontrol.h \
-    volume/pulseaudiocontrol.h \
-    volume/volumekeylistener.h
+    volume/pulseaudiocontrol.h
 
 SOURCES += \
     homeapplication.cpp \
     lipsticksettings.cpp \
     utilities/qobjectlistmodel.cpp \
     utilities/closeeventeater.cpp \
-    xtools/homewindowmonitor.cpp \
-    xtools/xeventlistener.cpp \
-    xtools/xatomcache.cpp \
-    xtools/xwindowmanager.cpp \
-    xtools/x11wrapper.cpp \
-    components/windowinfo.cpp \
     components/launcheritem.cpp \
     components/launchermodel.cpp \
-    components/switchermodel.cpp \
-    components/switcherpixmapitem.cpp \
-    components/windowmanager.cpp \
     notifications/notificationmanager.cpp \
     notifications/notificationmanageradaptor.cpp \
     notifications/notification.cpp \
@@ -86,37 +69,50 @@ SOURCES += \
     notifications/notificationlistmodel.cpp \
     notifications/notificationpreviewpresenter.cpp \
     notifications/lowbatterynotifier.cpp \
-    screenlock/eventeater.cpp \
     screenlock/screenlock.cpp \
     screenlock/screenlockadaptor.cpp \
     volume/volumecontrol.cpp \
     volume/pulseaudiocontrol.cpp \
-    volume/volumekeylistener.cpp \
     notifications/notificationfeedbackplayer.cpp \
-    notifications/batterynotifier.cpp \
     usbmodeselector.cpp \
     shutdownscreen.cpp \
     connectionselector.cpp
 
+equals(QT_MAJOR_VERSION, 4): HEADERS += xtools/xwindowmanager.h xtools/x11wrapper.h screenlock/eventeater.h volume/volumekeylistener.h notifications/batterynotifier.h
+equals(QT_MAJOR_VERSION, 4): SOURCES += components/windowinfo.cpp components/switchermodel.cpp components/switcherpixmapitem.cpp components/windowmanager.cpp xtools/homewindowmonitor.cpp xtools/xeventlistener.cpp xtools/xatomcache.cpp xtools/xwindowmanager.cpp xtools/x11wrapper.cpp screenlock/eventeater.cpp volume/volumekeylistener.cpp notifications/batterynotifier.cpp
+
 CONFIG += link_pkgconfig mobility qt warn_on depend_includepath qmake_cache target_qt
 MOBILITY += sensors systeminfo
-PKGCONFIG += xcomposite mlite xdamage x11 xfixes xext mce dbus-1 dbus-glib-1 libresourceqt1 ngf-qt qmsystem2 contextsubscriber-1.0
+equals(QT_MAJOR_VERSION, 4): PKGCONFIG += xcomposite mlite xdamage x11 xfixes xext mce dbus-1 dbus-glib-1 libresourceqt1 ngf-qt
+equals(QT_MAJOR_VERSION, 5): PKGCONFIG += mlite5 mce dbus-1 dbus-glib-1 libresourceqt1 ngf-qt5
 
-packagesExist(contentaction-0.1) {
+equals(QT_MAJOR_VERSION, 4): CONTENTACTION = contentaction-0.1
+equals(QT_MAJOR_VERSION, 5): CONTENTACTION = contentaction5
+
+packagesExist($$CONTENTACTION) {
     message("Using contentaction to launch applications")
-    PKGCONFIG += contentaction-0.1
+    PKGCONFIG += $$CONTENTACTION
     DEFINES += HAVE_CONTENTACTION
-}
-else {
+} else {
     warning("contentaction doesn't exist; falling back to exec - this may not work so great")
 }
 
-QT += network \
-    svg \
-    dbus \
-    xml \
-    declarative \
-    sql
+packagesExist(qmsystem2) {
+    PKGCONFIG += qmsystem2
+    DEFINES += HAVE_QMSYSTEM
+} else {
+    warning("QmSystem2 not found")
+}
+
+packagesExist(contextsubscriber-1.0) {
+    PKGCONFIG += contextsubscriber-1.0
+    DEFINES += HAVE_CONTEXTSUBSCRIBER
+} else {
+    warning("Contextsubscriber not found")
+}
+
+equals(QT_MAJOR_VERSION, 4): QT += dbus xml declarative sql
+equals(QT_MAJOR_VERSION, 5): QT += dbus xml declarative sql systeminfo
 
 QMAKE_CXXFLAGS += \
     -Werror \

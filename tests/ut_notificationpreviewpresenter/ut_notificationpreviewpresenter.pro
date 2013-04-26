@@ -1,7 +1,14 @@
 include(../common.pri)
 TARGET = ut_notificationpreviewpresenter
-INCLUDEPATH += $$SRCDIR $$NOTIFICATIONSRCDIR $$UTILITYSRCDIR /usr/include/qmsystem2
+INCLUDEPATH += $$SRCDIR $$NOTIFICATIONSRCDIR $$UTILITYSRCDIR
 QT += declarative dbus
+
+packagesExist(qmsystem2) {
+    DEFINES += HAVE_QMSYSTEM
+    INCLUDEPATH += /usr/include/qmsystem2
+} else {
+    warning("QmSystem2 not found")
+}
 
 # unit test and unit
 SOURCES += \

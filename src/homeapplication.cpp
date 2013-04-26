@@ -18,19 +18,22 @@
 #include <QDBusConnection>
 #include <QIcon>
 #include <QTranslator>
-#include <QX11Info>
 #include <QDebug>
 #include <QEvent>
 
 #include "notifications/notificationmanager.h"
 #include "notifications/notificationpreviewpresenter.h"
 #include "notifications/notificationfeedbackplayer.h"
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
 #include "notifications/batterynotifier.h"
+#endif
 #include "screenlock/screenlock.h"
 #include "screenlock/screenlockadaptor.h"
 #include "lipsticksettings.h"
 #include "homeapplication.h"
 
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
+#include <QX11Info>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
@@ -40,6 +43,7 @@
 #include "xtools/xatomcache.h"
 #include "xtools/xwindowmanager.h"
 #include "xtools/homewindowmonitor.h"
+#endif
 #include "components/windowmanager.h"
 #include "components/windowinfo.h"
 #include "volume/volumecontrol.h"
@@ -85,8 +89,10 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     new NotificationPreviewPresenter(this);
     new NotificationFeedbackPlayer(this);
 
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
     // Initialize the home window monitor
     HomeWindowMonitor::instance();
+#endif
 
     // Create screen lock logic - not parented to "this" since destruction happens too late in that case
     screenLock = new ScreenLock;
@@ -94,7 +100,9 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     new ScreenLockAdaptor(screenLock);
 
     volumeControl = new VolumeControl;
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
     batteryNotifier = new BatteryNotifier(this);
+#endif
     usbModeSelector = new USBModeSelector(this);
     connect(usbModeSelector, SIGNAL(dialogShown()), screenLock, SLOT(unlockScreen()));
     shutdownScreen = new ShutdownScreen(this);
@@ -142,19 +150,6 @@ void HomeApplication::sendStartupNotifications()
     // For device boot performance reasons initializing Home scene window must be done
     // only after ready signal is sent.
     mainWindowInstance()->showFullScreen();
-
-    // Visibility change messages are required to make the appVisible() signal work
-    XWindowAttributes attributes;
-    XGetWindowAttributes(QX11Info::display(), _mainWindowInstance->winId(), &attributes);
-    XSelectInput(QX11Info::display(), _mainWindowInstance->winId(), attributes.your_event_mask | VisibilityChangeMask);
-
-    // Excluding it from the task bar
-    XWindowManager::excludeFromTaskBar(_mainWindowInstance->winId());
-
-    // Tell X that changes in the properties and the substructure of the root
-    // window are interesting. These are used to get the list of windows and
-    // for getting window close events.
-    XSelectInput(QX11Info::display(), DefaultRootWindow(QX11Info::display()), PropertyChangeMask | SubstructureNotifyMask);
 }
 
 const QString &HomeApplication::qmlPath() const
@@ -191,12 +186,38 @@ QDeclarativeView *HomeApplication::mainWindowInstance()
     // Setting up the context and engine things
     QObject::connect(_mainWindowInstance->engine(), SIGNAL(quit()), QApplication::instance(), SLOT(quit()));
     _mainWindowInstance->rootContext()->setContextProperty("initialSize", QApplication::desktop()->screenGeometry(_mainWindowInstance).size());
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
     _mainWindowInstance->rootContext()->setContextProperty("windowManager", new WindowManager(this));
+#endif
     _mainWindowInstance->rootContext()->setContextProperty("LipstickSettings", LipstickSettings::instance());
 
     // Setting the source, if present
     if (!_qmlPath.isEmpty())
         _mainWindowInstance->setSource(_qmlPath);
 
+    _mainWindowInstance->installEventFilter(this);
+
     return _mainWindowInstance;
+}
+
+bool HomeApplication::eventFilter(QObject *, QEvent *event)
+{
+    if (event->type() == QEvent::Show) {
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
+        // Visibility change messages are required to make the appVisible() signal work
+        XWindowAttributes attributes;
+        XGetWindowAttributes(QX11Info::display(), _mainWindowInstance->winId(), &attributes);
+        XSelectInput(QX11Info::display(), _mainWindowInstance->winId(), attributes.your_event_mask | VisibilityChangeMask);
+
+        // Excluding it from the task bar
+        XWindowManager::excludeFromTaskBar(_mainWindowInstance->winId());
+
+        // Tell X that changes in the properties and the substructure of the root
+        // window are interesting. These are used to get the list of windows and
+        // for getting window close events.
+        XSelectInput(QX11Info::display(), DefaultRootWindow(QX11Info::display()), PropertyChangeMask | SubstructureNotifyMask);
+#endif
+    }
+
+    return false;
 }

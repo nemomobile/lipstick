@@ -22,7 +22,10 @@
 
 class QDeclarativeView;
 class PulseAudioControl;
+
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
 class VolumeKeyListener;
+#endif
 
 namespace ResourcePolicy {
     class ResourceSet;
@@ -148,8 +151,10 @@ private:
     //! A resource object for access to the volume keys
     ResourcePolicy::ResourceSet *hwKeyResource;
 
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
     //! For getting signals about volume key presses
     VolumeKeyListener *hwKeys;
+#endif
 
     //! The current volume
     int volume_;
