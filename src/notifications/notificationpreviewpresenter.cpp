@@ -17,21 +17,29 @@
 #include <QDesktopWidget>
 #include <QDeclarativeView>
 #include <QDeclarativeContext>
-#include <QX11Info>
-#include <X11/extensions/shape.h>
-#include <qmdisplaystate.h>
-#include <qmlocks.h>
 #include "utilities/closeeventeater.h"
-#include "xtools/x11wrapper.h"
 #include "notifications/notificationmanager.h"
 #include "notificationpreviewpresenter.h"
+
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
+#include <QX11Info>
+#include <X11/extensions/shape.h>
+#include "xtools/x11wrapper.h"
+#endif
+
+#ifdef HAVE_QMSYSTEM
+#include <qmdisplaystate.h>
+#include <qmlocks.h>
+#endif
 
 NotificationPreviewPresenter::NotificationPreviewPresenter(QObject *parent) :
     QObject(parent),
     window(0),
-    currentNotification(0),
-    locks(new MeeGo::QmLocks(this)),
+    currentNotification(0)
+#ifdef HAVE_QMSYSTEM
+    ,locks(new MeeGo::QmLocks(this)),
     displayState(new MeeGo::QmDisplayState(this))
+  #endif
 {
     connect(NotificationManager::instance(), SIGNAL(notificationModified(uint)), this, SLOT(updateNotification(uint)));
     connect(NotificationManager::instance(), SIGNAL(notificationRemoved(uint)), this, SLOT(removeNotification(uint)));
@@ -52,13 +60,16 @@ void NotificationPreviewPresenter::showNextNotification()
 
         setCurrentNotification(0);
     } else {
+#ifdef HAVE_QMSYSTEM
         if (locks->getState(MeeGo::QmLocks::TouchAndKeyboard) == MeeGo::QmLocks::Locked && displayState->get() == MeeGo::QmDisplayState::Off) {
+#endif
             // Screen locked and off: don't show the notification but just remove it from the queue
             notificationQueue.removeFirst();
 
             setCurrentNotification(0);
 
             showNextNotification();
+#ifdef HAVE_QMSYSTEM
         } else {
             // Show the notification window and the first queued notification in it
             createWindowIfNecessary();
@@ -68,6 +79,7 @@ void NotificationPreviewPresenter::showNextNotification()
 
             setCurrentNotification(notificationQueue.takeFirst());
         }
+#endif
     }
 }
 
@@ -133,7 +145,11 @@ void NotificationPreviewPresenter::createWindowIfNecessary()
 
 bool NotificationPreviewPresenter::notificationShouldBeShown(Notification *notification)
 {
+#ifdef HAVE_QMSYSTEM
     bool screenOrDeviceLocked = locks->getState(MeeGo::QmLocks::TouchAndKeyboard) == MeeGo::QmLocks::Locked || locks->getState(MeeGo::QmLocks::Device) == MeeGo::QmLocks::Locked;
+#else
+    bool screenOrDeviceLocked = false;
+#endif
     bool notificationHidden = notification->hints().value(NotificationManager::HINT_HIDDEN).toBool();
     bool notificationHasPreviewText = !(notification->previewBody().isEmpty() && notification->previewSummary().isEmpty());
     int notificationIsCritical = notification->hints().value(NotificationManager::HINT_URGENCY).toInt() >= 2;
@@ -142,6 +158,7 @@ bool NotificationPreviewPresenter::notificationShouldBeShown(Notification *notif
 
 void NotificationPreviewPresenter::setNotificationPreviewRect(qreal x1, qreal y1, qreal x2, qreal y2)
 {
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
     Display *dpy = QX11Info::display();
     XRectangle rect;
     rect.x = x1 < x2 ? x1 : x2;
@@ -152,6 +169,12 @@ void NotificationPreviewPresenter::setNotificationPreviewRect(qreal x1, qreal y1
     X11Wrapper::XFixesSetWindowShapeRegion(dpy, window->winId(), ShapeInput, 0, 0, shapeRegion);
     X11Wrapper::XFixesDestroyRegion(dpy, shapeRegion);
     X11Wrapper::XSync(dpy, False);
+#else
+    Q_UNUSED(x1)
+    Q_UNUSED(y1)
+    Q_UNUSED(x2)
+    Q_UNUSED(y2)
+#endif
 }
 
 void NotificationPreviewPresenter::setCurrentNotification(Notification *notification)

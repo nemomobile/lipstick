@@ -25,8 +25,12 @@ static const int DEVICE_INACTIVE_NOTIFICATION_INTERVAL = 30 * 60 * 1000;
 
 LowBatteryNotifier::LowBatteryNotifier(QObject *parent) :
     QObject(parent),
+#ifdef HAVE_QMSYSTEM
     displayState(new MeeGo::QmDisplayState(this)),
+#endif
+#ifdef HAVE_CONTEXTSUBSCRIBER
     callContextItem("Phone.Call"),
+#endif
     notificationTimer(new QTimer(this)),
     previousNotificationTime(QTime::currentTime()),
     notificationInterval(DEVICE_ACTIVE_NOTIFICATION_INTERVAL),
@@ -38,10 +42,14 @@ LowBatteryNotifier::LowBatteryNotifier(QObject *parent) :
 
     setNotificationInterval();
 
+#ifdef HAVE_QMSYSTEM
     connect(displayState, SIGNAL(displayStateChanged(MeeGo::QmDisplayState::DisplayState)), this, SLOT(setNotificationInterval()));
+#endif
 
+#ifdef HAVE_CONTEXTSUBSCRIBER
     connect(&callContextItem, SIGNAL(valueChanged()), this, SLOT(setNotificationInterval()));
     callContextItem.subscribe();
+#endif
 }
 
 LowBatteryNotifier::~LowBatteryNotifier()
@@ -59,10 +67,16 @@ void LowBatteryNotifier::sendLowBatteryAlert()
 void LowBatteryNotifier::setNotificationInterval()
 {
     bool deviceCurrentlyInactive = touchScreenLockActive;
+#ifdef HAVE_CONTEXTSUBSCRIBER
     bool callCurrentlyActive = callContextItem.value().toString() == "active";
+#else
+    bool callCurrentlyActive = false;
+#endif
 
+#ifdef HAVE_QMSYSTEM
     // Device can be considered inactive only if the touch screen lock is active AND the display is off
     deviceCurrentlyInactive &= displayState->get() == MeeGo::QmDisplayState::Off;
+#endif
 
     if (deviceCurrentlyInactive != deviceInactive || callCurrentlyActive != callActive) {
         // Device activity or call activity has changed

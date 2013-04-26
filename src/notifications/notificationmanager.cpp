@@ -85,7 +85,7 @@ NotificationManager::NotificationManager(QObject *parent) :
 {
     qDBusRegisterMetaType<QVariantHash>();
     qDBusRegisterMetaType<Notification>();
-    qDBusRegisterMetaType<QList<Notification> >();
+    qDBusRegisterMetaType<NotificationList>();
 
     new NotificationManagerAdaptor(this);
     QDBusConnection::sessionBus().registerService("org.freedesktop.Notifications");
@@ -202,16 +202,17 @@ QString NotificationManager::GetServerInformation(QString &name, QString &vendor
     return QString();
 }
 
-QList<Notification> NotificationManager::GetNotifications(const QString &appName)
+NotificationList NotificationManager::GetNotifications(const QString &appName)
 {
-    QList<Notification> notificationList;
+    QList<Notification *> notificationList;
     foreach (uint id, notifications.keys()) {
         Notification *notification = notifications.value(id);
         if (notification->appName() == appName) {
-            notificationList.append(*notification);
+            notificationList.append(notification);
         }
     }
-    return notificationList;
+
+    return NotificationList(notificationList);
 }
 
 uint NotificationManager::nextAvailableNotificationID()

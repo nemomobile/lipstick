@@ -16,8 +16,11 @@
 #ifndef SHUTDOWNSCREEN_H
 #define SHUTDOWNSCREEN_H
 
+#include <QObject>
 #include "lipstickglobal.h"
+#ifdef HAVE_QMSYSTEM
 #include <qmsystemstate.h>
+#endif
 
 class QDeclarativeView;
 
@@ -48,6 +51,7 @@ signals:
     void windowVisibleChanged();
 
 private slots:
+#ifdef HAVE_QMSYSTEM
     /*!
      * Reacts to system state changes by showing the shutdown screen or a
      * related notification.
@@ -55,6 +59,7 @@ private slots:
      * \param what how the system state has changed
      */
     void applySystemState(MeeGo::QmSystemState::StateIndication what);
+#endif
 
 private:
     /*!
@@ -68,8 +73,10 @@ private:
     //! The volume control window
     QDeclarativeView *window;
 
+#ifdef HAVE_QMSYSTEM
     //! For getting the system state
     MeeGo::QmSystemState *systemState;
+#endif
 
 #ifdef UNIT_TEST
     friend class Ut_ShutdownScreen;

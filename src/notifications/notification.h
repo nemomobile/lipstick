@@ -223,6 +223,20 @@ private:
 };
 
 Q_DECLARE_METATYPE(Notification)
-Q_DECLARE_METATYPE(QList<Notification>)
+
+class LIPSTICK_EXPORT NotificationList
+{
+public:
+    NotificationList();
+    NotificationList(const QList<Notification *> &notificationList);
+    NotificationList(const NotificationList &notificationList);
+    friend QDBusArgument &operator<<(QDBusArgument &, const NotificationList &);
+    friend const QDBusArgument &operator>>(const QDBusArgument &, NotificationList &);
+
+private:
+    QList<Notification *> notificationList;
+};
+
+Q_DECLARE_METATYPE(NotificationList)
 
 #endif // NOTIFICATION_H

@@ -22,6 +22,9 @@
 class Q_DECL_EXPORT LipstickPlugin : public QDeclarativeExtensionPlugin
 {
     Q_OBJECT
+#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
+    Q_PLUGIN_METADATA(IID "org.nemomobile.lipstick")
+#endif
 
 public:
     explicit LipstickPlugin(QObject *parent = 0);

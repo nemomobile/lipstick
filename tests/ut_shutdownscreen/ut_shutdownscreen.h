@@ -37,8 +37,10 @@ private slots:
     void cleanupTestCase();
 
     // Test cases
+#ifdef HAVE_QMSYSTEM
     void testConnections();
     void testSystemState();
+#endif
 
 private:
     ShutdownScreen *shutdownScreen;

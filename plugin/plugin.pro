@@ -4,7 +4,8 @@ VERSION = 0.1
 
 CONFIG += qt plugin link_pkgconfig
 QT += core gui declarative
-PKGCONFIG += qmsystem2
+equals(QT_MAJOR_VERSION, 4): PKGCONFIG += qmsystem2
+equals(QT_MAJOR_VERSION, 5:) OTHER_FILES += lipstick.json
 
 INSTALLS = target qmldirfile
 qmldirfile.files = qmldir

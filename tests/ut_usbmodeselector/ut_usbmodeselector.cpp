@@ -20,8 +20,12 @@
 #include <usbmodeselector.h>
 
 #include "ut_usbmodeselector.h"
+
+#ifdef HAVE_QMSYSTEM
 #include "qmlocks_stub.h"
 #include "qmusbmode_stub.h"
+#endif
+
 #include "notificationmanager_stub.h"
 #include "closeeventeater_stub.h"
 
@@ -52,7 +56,9 @@ void Ut_USBModeSelector::cleanupTestCase()
 void Ut_USBModeSelector::init()
 {
     usbModeSelector = new USBModeSelector;
+#ifdef HAVE_QMSYSTEM
     usbModeSelector->usbMode->setMode(MeeGo::QmUSBMode::Undefined);
+#endif
 
     gNotificationManagerStub->stubReset();
     gNotificationManagerStub->stubSetReturnValue("Notify", (uint)1);
@@ -68,9 +74,12 @@ void Ut_USBModeSelector::cleanup()
 
 void Ut_USBModeSelector::testConnections()
 {
+#ifdef HAVE_QMSYSTEM
     QCOMPARE(disconnect(usbModeSelector->usbMode, SIGNAL(modeChanged(MeeGo::QmUSBMode::Mode)), usbModeSelector, SLOT(applyUSBMode(MeeGo::QmUSBMode::Mode))), true);
+#endif
 }
 
+#ifdef HAVE_QMSYSTEM
 Q_DECLARE_METATYPE(MeeGo::QmUSBMode::Mode)
 
 void Ut_USBModeSelector::testShowDialog_data()
@@ -171,6 +180,7 @@ void Ut_USBModeSelector::testConnectingUSBWhenDeviceIsLockedEmitsDialogShown()
     usbModeSelector->applyUSBMode(MeeGo::QmUSBMode::Connected);
     QCOMPARE(spy.count(), dialogShownCount);
 }
+#endif
 
 void Ut_USBModeSelector::testShowError()
 {
@@ -186,10 +196,12 @@ void Ut_USBModeSelector::testShowError()
     QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QVariantHash>(6).value(NotificationManager::HINT_PREVIEW_BODY).toString(), qtTrId("qtn_usb_mount_failed"));
 }
 
+#ifdef HAVE_QMSYSTEM
 void Ut_USBModeSelector::testSetUSBMode()
 {
     usbModeSelector->setUSBMode(5);
     QCOMPARE(testMode, (MeeGo::QmUSBMode::Mode)5);
 }
+#endif
 
 QTEST_MAIN (Ut_USBModeSelector)

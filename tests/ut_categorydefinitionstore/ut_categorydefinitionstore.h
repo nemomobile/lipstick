@@ -21,8 +21,6 @@
 
 class CategoryDefinitionStore;
 
-Q_DECLARE_METATYPE(CategoryDefinitionStore *);
-
 class Ut_CategoryDefinitionStore : public QObject
 {
     Q_OBJECT

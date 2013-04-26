@@ -2,7 +2,7 @@ include(../common.pri)
 TARGET = ut_screenlock
 QT += dbus declarative
 CONFIG += link_pkgconfig
-PKGCONFIG += x11
+equals(QT_MAJOR_VERSION, 4): PKGCONFIG += x11
 
 INCLUDEPATH += $$SCREENLOCKSRCDIR $$UTILITYSRCDIR $$SRCDIR/xtools
 
@@ -12,5 +12,6 @@ SOURCES += ut_screenlock.cpp \
 
 HEADERS += ut_screenlock.h \
     $$SCREENLOCKSRCDIR/screenlock.h \
-    $$SCREENLOCKSRCDIR/eventeater.h \
     $$UTILITYSRCDIR/closeeventeater.h
+
+equals(QT_MAJOR_VERSION, 4): HEADERS += $$SCREENLOCKSRCDIR/eventeater.h

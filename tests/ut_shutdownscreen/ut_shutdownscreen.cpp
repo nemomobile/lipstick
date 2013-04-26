@@ -22,7 +22,9 @@
 #include "ut_shutdownscreen.h"
 #include "notificationmanager_stub.h"
 #include "closeeventeater_stub.h"
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
 #include "x11wrapper_modified_stub.h"
+#endif
 
 QList<QDeclarativeView *> qDeclarativeViews;
 void QDeclarativeView::setSource(const QUrl &)
@@ -56,6 +58,11 @@ void HomeApplication::sendStartupNotifications()
 {
 }
 
+bool HomeApplication::eventFilter(QObject *, QEvent *)
+{
+    return false;
+}
+
 int argc = 1;
 char *argv[] = { (char *) "./ut_shutdownscreen", NULL };
 
@@ -83,6 +90,7 @@ void Ut_ShutdownScreen::cleanup()
     gNotificationManagerStub->stubReset();
 }
 
+#ifdef HAVE_QMSYSTEM
 void Ut_ShutdownScreen::testConnections()
 {
     QCOMPARE(disconnect(shutdownScreen->systemState, SIGNAL(systemStateChanged(MeeGo::QmSystemState::StateIndication)), shutdownScreen, SLOT(applySystemState(MeeGo::QmSystemState::StateIndication))), true);
@@ -129,5 +137,6 @@ void Ut_ShutdownScreen::testSystemState()
     QCOMPARE(qWidgetVisible[static_cast<QWidget *>(qDeclarativeViews.first())], true);
     QCOMPARE(spy.count(), 1);
 }
+#endif
 
 QTEST_MAIN (Ut_ShutdownScreen)

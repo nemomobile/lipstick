@@ -24,12 +24,18 @@
 
 #include "homeapplication.h"
 #include "screenlock.h"
+
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
 #include "eventeater.h"
+#endif
+
 #include "utilities/closeeventeater.h"
 
 ScreenLock::ScreenLock(QObject* parent) :
     QObject(parent),
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
     eventEaterWindow(NULL),
+#endif
     callbackInterface(NULL),
     shuttingDown(false),
     lockscreenVisible(false)
@@ -154,6 +160,7 @@ void ScreenLock::toggleScreenLockUI(bool toggle)
     // mcompositor expects the lock screen window to have the title "Screen Lock"
     view->setWindowTitle(toggle ? "Screen Lock" : "Lipstick");
 
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
     // Set the stacking layer
     Display *display = QX11Info::display();
     Atom stackingLayerAtom = X11Wrapper::XInternAtom(display, "_MEEGO_STACKING_LAYER", False);
@@ -161,6 +168,7 @@ void ScreenLock::toggleScreenLockUI(bool toggle)
         long layer = toggle ? 5 : 0;
         X11Wrapper::XChangeProperty(display, view->winId(), stackingLayerAtom, XA_CARDINAL, 32, PropModeReplace, (unsigned char*)&layer, 1);
     }
+#endif
 
     lockscreenVisible = toggle;
     emit screenIsLocked(toggle);
@@ -168,6 +176,7 @@ void ScreenLock::toggleScreenLockUI(bool toggle)
 
 void ScreenLock::toggleEventEater(bool toggle)
 {
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
     if (toggle) {
         if (eventEaterWindow == NULL) {
             // Create the event eater window if it doesn't exist yet
@@ -182,6 +191,9 @@ void ScreenLock::toggleEventEater(bool toggle)
             eventEaterWindow->hide();
         }
     }
+#else
+    Q_UNUSED(toggle)
+#endif
 }
 
 bool ScreenLock::isScreenLocked() const

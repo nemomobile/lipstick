@@ -26,9 +26,16 @@ QMap<QString, QMap<QString, QString> > categoryDefinitionSettingsMap;
 uint categoryDefinitionFileSize;
 
 // QFileSystemWatcher stubs
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
 void QFileSystemWatcher::addPath(const QString &)
 {
 }
+#else
+bool QFileSystemWatcher::addPath(const QString &)
+{
+    return true;
+}
+#endif
 
 // QFileInfo stubs
 bool QFileInfo::exists() const

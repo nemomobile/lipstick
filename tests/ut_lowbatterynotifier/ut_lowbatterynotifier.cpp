@@ -18,8 +18,14 @@
  ****************************************************************************/
 #include <QtTest/QtTest>
 
+#ifdef HAVE_QMSYSTEM
 #include "qmdisplaystate_stub.h"
+#endif
+
+#ifdef HAVE_CONTEXTSUBSCRIBER
 #include "contextproperty_stub.h"
+#endif
+
 #include "lowbatterynotifier.h"
 #include "ut_lowbatterynotifier.h"
 
@@ -44,7 +50,9 @@ int QTime::elapsed() const
 
 void Ut_LowBatteryNotifier::init()
 {
+#ifdef HAVE_CONTEXTSUBSCRIBER
     gContextPropertyStub->stubSetReturnValue("value", QVariant("inactive"));
+#endif
     m_subject = new LowBatteryNotifier;
 }
 
@@ -65,8 +73,14 @@ void Ut_LowBatteryNotifier::cleanupTestCase()
 
 void Ut_LowBatteryNotifier::testSignalConnections()
 {
+#ifdef HAVE_QMSYSTEM
     QCOMPARE(disconnect(m_subject->displayState, SIGNAL(displayStateChanged(MeeGo::QmDisplayState::DisplayState)), m_subject, SLOT(setNotificationInterval())), true);
+#endif
+
+#ifdef HAVE_CONTEXTSUBSCRIBER
     QCOMPARE(disconnect(&m_subject->callContextItem, SIGNAL(valueChanged()), m_subject, SLOT(setNotificationInterval())), true);
+#endif
+
     QCOMPARE(disconnect(m_subject->notificationTimer, SIGNAL(timeout()), m_subject, SLOT(sendLowBatteryAlert())), true);
 }
 
@@ -79,6 +93,7 @@ void Ut_LowBatteryNotifier::testSendLowBatteryAlert()
     QCOMPARE(qTimerStartMsec, m_subject->notificationInterval);
 }
 
+#ifdef HAVE_QMSYSTEM
 Q_DECLARE_METATYPE(MeeGo::QmDisplayState::DisplayState)
 
 void Ut_LowBatteryNotifier::testSetNotificationInterval_data()
@@ -124,6 +139,7 @@ void Ut_LowBatteryNotifier::testSetNotificationInterval()
     QCOMPARE(spy.count(), lowBatteryAlertCount);
 }
 
+#ifdef HAVE_CONTEXTSUBSCRIBER
 void Ut_LowBatteryNotifier::testSetNotificationIntervalDoesNothingWhenStateDoesNotChange()
 {
     // Set some initial values
@@ -139,5 +155,7 @@ void Ut_LowBatteryNotifier::testSetNotificationIntervalDoesNothingWhenStateDoesN
     QCOMPARE(spy.count(), 0);
     QCOMPARE(m_subject->notificationTimer->interval(), 12345);
 }
+#endif
+#endif
 
 QTEST_MAIN(Ut_LowBatteryNotifier)
