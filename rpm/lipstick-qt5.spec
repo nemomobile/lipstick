@@ -89,6 +89,8 @@ rm -rf %{buildroot}
 %exclude %{_bindir}/notificationtool
 %exclude %{_datadir}/doc/lipstick/*
 %exclude %{_datadir}/translations/source/lipstick.ts
+%exclude %{_libdir}/debug/*
+%exclude %{_libdir}/debug/.build-id/*
 # >> files
 # << files
 
