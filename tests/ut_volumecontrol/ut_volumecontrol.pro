@@ -9,13 +9,11 @@ HEADERS += \
     ut_volumecontrol.h \
     $$VOLUMESRCDIR/volumecontrol.h \
     $$VOLUMESRCDIR/pulseaudiocontrol.h \
-    $$VOLUMESRCDIR/volumekeylistener.h \
-    $$UTILITYSRCDIR/closeeventeater.h \
-    $$XTOOLSRCDIR/x11wrapper.h \
-    $$XTOOLSRCDIR/x11eventlistener.h
+    $$UTILITYSRCDIR/closeeventeater.h
 
 SOURCES += \
     ut_volumecontrol.cpp \
     $$VOLUMESRCDIR/volumecontrol.cpp \
     $$STUBSDIR/stubbase.cpp
 
+equals(QT_MAJOR_VERSION, 4): HEADERS += $$VOLUMESRCDIR/volumekeylistener.h $$XTOOLSRCDIR/x11wrapper.h

@@ -20,9 +20,12 @@
 #include "volumecontrol.h"
 #include "pulseaudiocontrol_stub.h"
 #include "closeeventeater_stub.h"
+
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
 #include "x11wrapper_modified_stub.h"
 #include "volumekeylistener_stub.h"
 #include <X11/X.h>
+#endif
 
 extern "C"
 {
@@ -96,6 +99,7 @@ void QTimer::stop()
     qTimerStopCounts[this]++;
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
 XEventListener::XEventListener()
 {
 }
@@ -103,6 +107,7 @@ XEventListener::XEventListener()
 XEventListener::~XEventListener()
 {
 }
+#endif
 
 void Ut_VolumeControl::initTestCase()
 {
@@ -149,6 +154,7 @@ void Ut_VolumeControl::testKeyRepeatSetup()
     QCOMPARE(disconnect(&volumeControl->keyRepeatTimer, SIGNAL(timeout()), volumeControl, SLOT(changeVolume())), true);
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
 void Ut_VolumeControl::testHwKeyEvent_data()
 {
     QTest::addColumn<unsigned int>("key");
@@ -240,6 +246,7 @@ void Ut_VolumeControl::testHwKeyEventWhenKeyReleaseIsInProgress()
     QCOMPARE(qTimerStopCounts.value(&volumeControl->keyRepeatDelayTimer), 1);
     QCOMPARE(qTimerStopCounts.value(&volumeControl->keyRepeatTimer), 1);
 }
+#endif
 
 void Ut_VolumeControl::testAcquireKeys()
 {
