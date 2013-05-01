@@ -89,6 +89,9 @@ equals(QT_MAJOR_VERSION, 5): PKGCONFIG += mlite5 mce dbus-1 dbus-glib-1 libresou
 equals(QT_MAJOR_VERSION, 4): CONTENTACTION = contentaction-0.1
 equals(QT_MAJOR_VERSION, 5): CONTENTACTION = contentaction5
 
+equals(QT_MAJOR_VERSION, 4): QMSYSTEM = qmsystem2
+equals(QT_MAJOR_VERSION, 5): QMSYSTEM = qmsystem2-qt5
+
 packagesExist($$CONTENTACTION) {
     message("Using contentaction to launch applications")
     PKGCONFIG += $$CONTENTACTION
@@ -97,8 +100,8 @@ packagesExist($$CONTENTACTION) {
     warning("contentaction doesn't exist; falling back to exec - this may not work so great")
 }
 
-packagesExist(qmsystem2) {
-    PKGCONFIG += qmsystem2
+packagesExist($$QMSYSTEM) {
+    PKGCONFIG += $$QMSYSTEM
     DEFINES += HAVE_QMSYSTEM
 } else {
     warning("QmSystem2 not found")

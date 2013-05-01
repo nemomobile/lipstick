@@ -3,9 +3,12 @@ TARGET = ut_notificationpreviewpresenter
 INCLUDEPATH += $$SRCDIR $$NOTIFICATIONSRCDIR $$UTILITYSRCDIR
 QT += declarative dbus
 
-packagesExist(qmsystem2) {
+equals(QT_MAJOR_VERSION, 4): QMSYSTEM = qmsystem2
+equals(QT_MAJOR_VERSION, 5): QMSYSTEM = qmsystem2-qt5
+
+packagesExist($$QMSYSTEM) {
     DEFINES += HAVE_QMSYSTEM
-    INCLUDEPATH += /usr/include/qmsystem2
+    INCLUDEPATH += /usr/include/$$QMSYSTEM
 } else {
     warning("QmSystem2 not found")
 }
@@ -24,5 +27,5 @@ HEADERS += \
     $$NOTIFICATIONSRCDIR/notificationmanager.h \
     $$NOTIFICATIONSRCDIR/notification.h \
     $$UTILITYSRCDIR/closeeventeater.h \
-    /usr/include/qmsystem2/qmlocks.h \
-    /usr/include/qmsystem2/qmdisplaystate.h
+    /usr/include/$$QMSYSTEM/qmlocks.h \
+    /usr/include/$$QMSYSTEM/qmdisplaystate.h

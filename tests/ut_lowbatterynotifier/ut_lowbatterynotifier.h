@@ -39,9 +39,9 @@ private slots:
     void testSignalConnections();
     void testSendLowBatteryAlert();
 #ifdef HAVE_QMSYSTEM
+#ifdef HAVE_CONTEXTSUBSCRIBER
     void testSetNotificationInterval_data();
     void testSetNotificationInterval();
-#ifdef HAVE_CONTEXTSUBSCRIBER
     void testSetNotificationIntervalDoesNothingWhenStateDoesNotChange();
 #endif
 #endif

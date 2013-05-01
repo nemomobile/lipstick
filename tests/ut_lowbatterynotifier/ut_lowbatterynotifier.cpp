@@ -94,6 +94,7 @@ void Ut_LowBatteryNotifier::testSendLowBatteryAlert()
 }
 
 #ifdef HAVE_QMSYSTEM
+#ifdef HAVE_CONTEXTSUBSCRIBER
 Q_DECLARE_METATYPE(MeeGo::QmDisplayState::DisplayState)
 
 void Ut_LowBatteryNotifier::testSetNotificationInterval_data()
@@ -139,7 +140,6 @@ void Ut_LowBatteryNotifier::testSetNotificationInterval()
     QCOMPARE(spy.count(), lowBatteryAlertCount);
 }
 
-#ifdef HAVE_CONTEXTSUBSCRIBER
 void Ut_LowBatteryNotifier::testSetNotificationIntervalDoesNothingWhenStateDoesNotChange()
 {
     // Set some initial values

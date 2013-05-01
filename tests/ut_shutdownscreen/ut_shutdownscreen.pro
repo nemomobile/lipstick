@@ -4,8 +4,11 @@ CONFIG += link_pkgconfig
 INCLUDEPATH += $$SRCDIR $$NOTIFICATIONSRCDIR $$UTILITYSRCDIR $$XTOOLSRCDIR
 QT += declarative
 
-packagesExist(qmsystem2) {
-    PKGCONFIG += qmsystem2
+equals(QT_MAJOR_VERSION, 4): QMSYSTEM = qmsystem2
+equals(QT_MAJOR_VERSION, 5): QMSYSTEM = qmsystem2-qt5
+
+packagesExist($$QMSYSTEM) {
+    PKGCONFIG += $$QMSYSTEM
     DEFINES += HAVE_QMSYSTEM
 } else {
     warning("QmSystem2 not found")
