@@ -16,12 +16,15 @@
 
 #include "lipstickplugin.h"
 
+#include <QtDeclarative>
 #include <components/launcheritem.h>
 #include <components/launchermodel.h>
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
 #include <components/switchermodel.h>
 #include <components/switcherpixmapitem.h>
 #include <components/windowmanager.h>
 #include <components/windowinfo.h>
+#endif
 #include <notifications/notificationpreviewpresenter.h>
 #include <notifications/notificationlistmodel.h>
 #include <notifications/notification.h>
@@ -39,8 +42,10 @@ void LipstickPlugin::registerTypes(const char *uri)
     Q_UNUSED(uri);
 
     qmlRegisterType<LauncherModel>("org.nemomobile.lipstick", 0, 1, "LauncherModel");
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
     qmlRegisterType<SwitcherModel>("org.nemomobile.lipstick", 0, 1, "SwitcherModel");
     qmlRegisterType<SwitcherPixmapItem>("org.nemomobile.lipstick", 0, 1, "SwitcherPixmapItem");
+#endif
     qmlRegisterType<NotificationListModel>("org.nemomobile.lipstick", 0, 1, "NotificationListModel");
     qmlRegisterType<Notification>("org.nemomobile.lipstick", 0, 1, "Notification");
     qmlRegisterType<LauncherItem>("org.nemomobile.lipstick", 0, 1, "LauncherItem");
@@ -48,8 +53,10 @@ void LipstickPlugin::registerTypes(const char *uri)
     qmlRegisterUncreatableType<VolumeControl>("org.nemomobile.lipstick", 0, 1, "VolumeControl", "This type is initialized by HomeApplication");
     qmlRegisterUncreatableType<USBModeSelector>("org.nemomobile.lipstick", 0, 1, "USBModeSelector", "This type is initialized by HomeApplication");
     qmlRegisterUncreatableType<ShutdownScreen>("org.nemomobile.lipstick", 0, 1, "ShutdownScreen", "This type is initialized by HomeApplication");
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
     qmlRegisterUncreatableType<WindowInfo>("org.nemomobile.lipstick", 0, 1, "WindowInfo", "This type is initialized by SwitcherModel");
     qmlRegisterUncreatableType<WindowManager>("org.nemomobile.lipstick", 0, 1, "WindowManager", "This type should be accessed through a context property.");
+#endif
 }
 
 #if QT_VERSION < QT_VERSION_CHECK(5,0,0)
