@@ -84,7 +84,7 @@ equals(QT_MAJOR_VERSION, 4): SOURCES += components/windowinfo.cpp components/swi
 CONFIG += link_pkgconfig mobility qt warn_on depend_includepath qmake_cache target_qt
 MOBILITY += sensors systeminfo
 equals(QT_MAJOR_VERSION, 4): PKGCONFIG += xcomposite mlite xdamage x11 xfixes xext mce dbus-1 dbus-glib-1 libresourceqt1 ngf-qt
-equals(QT_MAJOR_VERSION, 5): PKGCONFIG += mlite5 mce dbus-1 dbus-glib-1 libresourceqt1 ngf-qt5
+equals(QT_MAJOR_VERSION, 5): PKGCONFIG += mlite5 mce dbus-1 dbus-glib-1 libresourceqt5 ngf-qt5
 
 equals(QT_MAJOR_VERSION, 4): CONTENTACTION = contentaction-0.1
 equals(QT_MAJOR_VERSION, 5): CONTENTACTION = contentaction5
