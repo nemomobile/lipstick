@@ -1,4 +1,4 @@
-Name: lipstick
+Name: lipstick-qt5
 Summary: QML toolkit for homescreen creation
 Version: 0.11.0
 Release: 1
@@ -10,28 +10,30 @@ Sources:
 Description: A QML toolkit for homescreen creation
 Builder: qmake
 PkgConfigBR:
-    - QtCore
-    - QtDeclarative
+    - Qt5Core
+    - Qt5Qml
+    - Qt5Quick
+    - Qt5Xml
+    - Qt5Sql
+    - Qt5SystemInfo
+    - Qt5Sensors
+    - Qt5Test
     - contentaction-0.1
-    - mlite >= 0.0.6
-    - xcomposite
-    - xdamage
-    - xfixes
-    - xext
+    - mlite5 >= 0.0.6
     - mce >= 1.12.2
     - dbus-1
     - dbus-glib-1
-    - libresourceqt1
-    - ngf-qt
-    - qmsystem2 >= 1.1.6
-    - contextsubscriber-1.0
+    - libresourceqt5
+    - ngf-qt5
+    - qmsystem2-qt5 >= 1.1.6
 PkgBR:
+    - qt5-qttools-linguist
     - doxygen
 Files:
     - "%config %{_sysconfdir}/dbus-1/system.d/lipstick.conf"
-    - "%{_libdir}/liblipstick.so.*"
-    - "%{_libdir}/qt4/imports/org/nemomobile/lipstick/liblipstickplugin.so"
-    - "%{_libdir}/qt4/imports/org/nemomobile/lipstick/qmldir"
+    - "%{_libdir}/liblipstick-qt5.so.*"
+    - "%{_libdir}/qt5/qml/org/nemomobile/lipstick/liblipstickplugin.so"
+    - "%{_libdir}/qt5/qml/org/nemomobile/lipstick/qmldir"
     - "%{_datadir}/translations/lipstick_eng_en.qm"
     - "%{_datadir}/lipstick/notificationcategories/*.conf"
 Obsoletes:
@@ -48,10 +50,10 @@ SubPackages:
       Group: System/Libraries
       License: LGPLv2.1
       Files:
-          - "%{_includedir}/lipstick/*.h"
-          - "%{_libdir}/liblipstick.so"
-          - "%{_libdir}/liblipstick.prl"
-          - "%{_libdir}/pkgconfig/lipstick.pc"
+          - "%{_includedir}/lipstick-qt5/*.h"
+          - "%{_libdir}/liblipstick-qt5.so"
+          - "%{_libdir}/liblipstick-qt5.prl"
+          - "%{_libdir}/pkgconfig/lipstick-qt5.pc"
     - Name: tests
       Summary: Tests for lipstick
       Description: Unit tests for the lipstick package.
