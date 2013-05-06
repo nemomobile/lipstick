@@ -70,7 +70,7 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
 
     // Initialize the notification manager
     NotificationManager::instance();
-//    new NotificationPreviewPresenter(this);
+    new NotificationPreviewPresenter(this);
     new NotificationFeedbackPlayer(this);
 
     // Create screen lock logic - not parented to "this" since destruction happens too late in that case
@@ -78,14 +78,14 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     LipstickSettings::instance()->setScreenLock(screenLock);
     new ScreenLockAdaptor(screenLock);
 
-    /*
     volumeControl = new VolumeControl;
-    batteryNotifier = new BatteryNotifier(this);
+    // TODO this seems to hang on exit so disable for now
+    //    batteryNotifier = new BatteryNotifier(this);
     usbModeSelector = new USBModeSelector(this);
     connect(usbModeSelector, SIGNAL(dialogShown()), screenLock, SLOT(unlockScreen()));
     shutdownScreen = new ShutdownScreen(this);
-    connectionSelector = new ConnectionSelector(this);
-*/
+    // TODO this seems to hang on exit so disable for now
+    //    connectionSelector = new ConnectionSelector(this);
 
     // MCE expects the service to be registered on the system bus
     static const char *SCREENLOCK_DBUS_SERVICE = "org.nemomobile.lipstick";
