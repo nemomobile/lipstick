@@ -1,6 +1,6 @@
 include(../common.pri)
 TARGET = ut_lowbatterynotifier
-INCLUDEPATH += $$NOTIFICATIONSRCDIR
+INCLUDEPATH += $$NOTIFICATIONSRCDIR /usr/include/qmsystem2-qt5
 
 SOURCES += \
     ut_lowbatterynotifier.cpp \
@@ -9,18 +9,8 @@ SOURCES += \
 
 HEADERS += \
     ut_lowbatterynotifier.h \
-    $$NOTIFICATIONSRCDIR/lowbatterynotifier.h
-
-equals(QT_MAJOR_VERSION, 4): QMSYSTEM = qmsystem2
-equals(QT_MAJOR_VERSION, 5): QMSYSTEM = qmsystem2-qt5
-
-packagesExist($$QMSYSTEM) {
-    DEFINES += HAVE_QMSYSTEM
-    INCLUDEPATH += /usr/include/$$QMSYSTEM
-    HEADERS += /usr/include/$$QMSYSTEM/qmdisplaystate.h
-} else {
-    warning("QmSystem2 not found")
-}
+    $$NOTIFICATIONSRCDIR/lowbatterynotifier.h \
+    /usr/include/qmsystem2-qt5/qmdisplaystate.h
 
 packagesExist(contextsubscriber-1.0) {
     DEFINES += HAVE_CONTEXTSUBSCRIBER

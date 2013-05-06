@@ -10,10 +10,10 @@
 **
 ****************************************************************************/
 
-#include <QDeclarativeContext>
-#include <QDeclarativeEngine>
+#include <QQmlContext>
+#include <QQmlEngine>
+#include <QScreen>
 #include <QTimer>
-#include <QDesktopWidget>
 #include <QDBusMessage>
 #include <QDBusConnection>
 #include <QIcon>
@@ -24,28 +24,12 @@
 #include "notifications/notificationmanager.h"
 #include "notifications/notificationpreviewpresenter.h"
 #include "notifications/notificationfeedbackplayer.h"
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
 #include "notifications/batterynotifier.h"
-#endif
 #include "screenlock/screenlock.h"
 #include "screenlock/screenlockadaptor.h"
 #include "lipsticksettings.h"
 #include "homeapplication.h"
 
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
-#include <QX11Info>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/Xatom.h>
-#include <X11/extensions/Xcomposite.h>
-#include <X11/extensions/Xdamage.h>
-#include "xtools/xeventlistener.h"
-#include "xtools/xatomcache.h"
-#include "xtools/xwindowmanager.h"
-#include "xtools/homewindowmonitor.h"
-#endif
-#include "components/windowmanager.h"
-#include "components/windowinfo.h"
 #include "volume/volumecontrol.h"
 #include "usbmodeselector.h"
 #include "shutdownscreen.h"
@@ -64,7 +48,7 @@ void HomeApplication::quitSignalHandler(int)
 }
 
 HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
-    : QApplication(argc, argv)
+    : QGuiApplication(argc, argv)
     , _mainWindowInstance(0)
     , _qmlPath(qmlPath)
     , originalSigIntHandler(signal(SIGINT, quitSignalHandler))
@@ -86,27 +70,22 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
 
     // Initialize the notification manager
     NotificationManager::instance();
-    new NotificationPreviewPresenter(this);
+//    new NotificationPreviewPresenter(this);
     new NotificationFeedbackPlayer(this);
-
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
-    // Initialize the home window monitor
-    HomeWindowMonitor::instance();
-#endif
 
     // Create screen lock logic - not parented to "this" since destruction happens too late in that case
     screenLock = new ScreenLock;
     LipstickSettings::instance()->setScreenLock(screenLock);
     new ScreenLockAdaptor(screenLock);
 
+    /*
     volumeControl = new VolumeControl;
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
     batteryNotifier = new BatteryNotifier(this);
-#endif
     usbModeSelector = new USBModeSelector(this);
     connect(usbModeSelector, SIGNAL(dialogShown()), screenLock, SLOT(unlockScreen()));
     shutdownScreen = new ShutdownScreen(this);
     connectionSelector = new ConnectionSelector(this);
+*/
 
     // MCE expects the service to be registered on the system bus
     static const char *SCREENLOCK_DBUS_SERVICE = "org.nemomobile.lipstick";
@@ -129,7 +108,7 @@ HomeApplication::~HomeApplication()
 
 HomeApplication *HomeApplication::instance()
 {
-    return qobject_cast<HomeApplication *>(QApplication::instance());
+    return qobject_cast<HomeApplication *>(qApp);
 }
 
 void HomeApplication::restoreSignalHandlers()
@@ -165,30 +144,29 @@ void HomeApplication::setQmlPath(const QString &path)
         _mainWindowInstance->setSource(path);
 }
 
-QDeclarativeView *HomeApplication::mainWindowInstance()
+QQuickView *HomeApplication::mainWindowInstance()
 {
     if (_mainWindowInstance)
         return _mainWindowInstance;
 
-    _mainWindowInstance = new QDeclarativeView();
-    _mainWindowInstance->setAttribute(Qt::WA_X11NetWmWindowTypeDesktop);
-
+    _mainWindowInstance = new QQuickView();
+    _mainWindowInstance->setGeometry(QRect(QPoint(), QGuiApplication::primaryScreen()->size()));
+    _mainWindowInstance->setResizeMode(QQuickView::SizeRootObjectToView);
+    /*
     // Setting optimalization flags
+    _mainWindowInstance->setAttribute(Qt::WA_X11NetWmWindowTypeDesktop);
     _mainWindowInstance->setOptimizationFlag(QGraphicsView::DontSavePainterState);
-    _mainWindowInstance->setResizeMode(QDeclarativeView::SizeRootObjectToView);
     _mainWindowInstance->setAutoFillBackground(false);
     _mainWindowInstance->setAttribute(Qt::WA_OpaquePaintEvent);
     _mainWindowInstance->setAttribute(Qt::WA_NoSystemBackground);
     _mainWindowInstance->viewport()->setAutoFillBackground(false);
     _mainWindowInstance->viewport()->setAttribute(Qt::WA_OpaquePaintEvent);
     _mainWindowInstance->viewport()->setAttribute(Qt::WA_NoSystemBackground);
+*/
 
     // Setting up the context and engine things
-    QObject::connect(_mainWindowInstance->engine(), SIGNAL(quit()), QApplication::instance(), SLOT(quit()));
-    _mainWindowInstance->rootContext()->setContextProperty("initialSize", QApplication::desktop()->screenGeometry(_mainWindowInstance).size());
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
-    _mainWindowInstance->rootContext()->setContextProperty("windowManager", new WindowManager(this));
-#endif
+    QObject::connect(_mainWindowInstance->engine(), SIGNAL(quit()), qApp, SLOT(quit()));
+    _mainWindowInstance->rootContext()->setContextProperty("initialSize", QGuiApplication::primaryScreen()->size());
     _mainWindowInstance->rootContext()->setContextProperty("LipstickSettings", LipstickSettings::instance());
 
     // Setting the source, if present
@@ -198,26 +176,4 @@ QDeclarativeView *HomeApplication::mainWindowInstance()
     _mainWindowInstance->installEventFilter(this);
 
     return _mainWindowInstance;
-}
-
-bool HomeApplication::eventFilter(QObject *, QEvent *event)
-{
-    if (event->type() == QEvent::Show) {
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
-        // Visibility change messages are required to make the appVisible() signal work
-        XWindowAttributes attributes;
-        XGetWindowAttributes(QX11Info::display(), _mainWindowInstance->winId(), &attributes);
-        XSelectInput(QX11Info::display(), _mainWindowInstance->winId(), attributes.your_event_mask | VisibilityChangeMask);
-
-        // Excluding it from the task bar
-        XWindowManager::excludeFromTaskBar(_mainWindowInstance->winId());
-
-        // Tell X that changes in the properties and the substructure of the root
-        // window are interesting. These are used to get the list of windows and
-        // for getting window close events.
-        XSelectInput(QX11Info::display(), DefaultRootWindow(QX11Info::display()), PropertyChangeMask | SubstructureNotifyMask);
-#endif
-    }
-
-    return false;
 }

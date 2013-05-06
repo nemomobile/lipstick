@@ -14,74 +14,33 @@
 ****************************************************************************/
 
 #include <QtTest/QtTest>
-#include <QDeclarativeView>
-#include <QDeclarativeContext>
-#include <QDesktopWidget>
+#include <QQuickView>
+#include <QQmlContext>
+#include <QScreen>
 #include "notificationmanager.h"
 #include "ut_notificationpreviewpresenter.h"
 #include "notificationpreviewpresenter.h"
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
-#include "xtools/x11wrapper.h"
-#include <X11/extensions/shape.h>
-#endif
 #include "closeeventeater_stub.h"
-#ifdef HAVE_QMSYSTEM
 #include "qmlocks_stub.h"
 #include "qmdisplaystate_stub.h"
-#endif
 
 Q_DECLARE_METATYPE(NotificationPreviewPresenter*)
 Q_DECLARE_METATYPE(Notification*)
 
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
-QList<XRectangle> xFixesCreateRegionRectangles;
-XserverRegion X11Wrapper::XFixesCreateRegion(Display *, XRectangle *rectangles, int nrectangles)
+QList<QQuickView *> qQuickViews;
+void QQuickView::setSource(const QUrl &)
 {
-    for (int i = 0; i < nrectangles; i++) {
-        xFixesCreateRegionRectangles.append(rectangles[i]);
-    }
-    return 1;
+    qQuickViews.append(this);
 }
 
-QList<Window> xFixesSetWindowShapeRegionWindow;
-QList<int> xFixesSetWindowShapeRegionShapeKind;
-QList<int> xFixesSetWindowShapeRegionXOff;
-QList<int> xFixesSetWindowShapeRegionYOff;
-QList<XserverRegion> xFixesSetWindowShapeRegionRegion;
-void X11Wrapper::XFixesSetWindowShapeRegion(Display *, Window win, int shape_kind, int x_off, int y_off, XserverRegion region)
+QHash<QWindow *, bool> qWindowVisible;
+void QWindow::show()
 {
-    xFixesSetWindowShapeRegionWindow.append(win);
-    xFixesSetWindowShapeRegionShapeKind.append(shape_kind);
-    xFixesSetWindowShapeRegionXOff.append(x_off);
-    xFixesSetWindowShapeRegionYOff.append(y_off);
-    xFixesSetWindowShapeRegionRegion.append(region);
+    qWindowVisible[this] = true;
 }
-
-QList<XserverRegion> xFixesDestroyRegionRegion;
-void X11Wrapper::XFixesDestroyRegion(Display *, XserverRegion region)
+void QWindow::hide()
 {
-    xFixesDestroyRegionRegion.append(region);
-}
-
-bool xSyncCalled = false;
-int X11Wrapper::XSync(Display *, int)
-{
-    xSyncCalled = true;
-    return 0;
-}
-#endif
-
-QList<QDeclarativeView *> qDeclarativeViews;
-void QDeclarativeView::setSource(const QUrl &)
-{
-    qDeclarativeViews.append(this);
-}
-
-QHash<QWidget *, bool> qWidgetVisible;
-void QWidget::setVisible(bool visible)
-{
-    setAttribute(Qt::WA_WState_Visible, visible);
-    qWidgetVisible[this] = visible;
+    qWindowVisible[this] = false;
 }
 
 const char *NotificationManager::HINT_CATEGORY = "category";
@@ -164,15 +123,13 @@ void Ut_NotificationPreviewPresenter::initTestCase()
 
 void Ut_NotificationPreviewPresenter::cleanup()
 {
-    qDeclarativeViews.clear();
-    qWidgetVisible.clear();
+    qQuickViews.clear();
+    qWindowVisible.clear();
     qDeleteAll(notificationManagerNotification);
     notificationManagerNotification.clear();
     notificationManagerCloseNotificationIds.clear();
-#ifdef HAVE_QMSYSTEM
     gQmLocksStub->stubReset();
     gQmDisplayStateStub->stubReset();
-#endif
 }
 
 void Ut_NotificationPreviewPresenter::testSignalConnections()
@@ -188,25 +145,27 @@ void Ut_NotificationPreviewPresenter::testAddNotificationWhenWindowNotOpen()
     QSignalSpy spy(&presenter, SIGNAL(notificationChanged()));
 
     // Check that the window is not automatically created
-    QCOMPARE(qDeclarativeViews.isEmpty(), true);
+    QCOMPARE(qQuickViews.isEmpty(), true);
 
     // Check that the window is created when a notification is added
     Notification *notification = createNotification(1);
     presenter.updateNotification(1);
-    QCOMPARE(qDeclarativeViews.count(), 1);
+    QCOMPARE(qQuickViews.count(), 1);
 
     // Check window properties
+/*
     QCOMPARE(qDeclarativeViews.first()->testAttribute(Qt::WA_TranslucentBackground), true);
     QCOMPARE(qDeclarativeViews.first()->testAttribute(Qt::WA_X11DoNotAcceptFocus), true);
     QCOMPARE(qDeclarativeViews.first()->testAttribute(Qt::WA_X11NetWmWindowTypeNotification), true);
     QCOMPARE(qDeclarativeViews.first()->windowTitle(), QString("Notification"));
-    QCOMPARE(qDeclarativeViews.first()->resizeMode(), QDeclarativeView::SizeRootObjectToView);
     QCOMPARE(qDeclarativeViews.first()->viewport()->autoFillBackground(), false);
-    QCOMPARE(qDeclarativeViews.first()->rootContext()->contextProperty("initialSize").toSize(), QApplication::desktop()->screenGeometry(qDeclarativeViews.first()).size());
-    QCOMPARE(qDeclarativeViews.first()->rootContext()->contextProperty("notificationPreviewPresenter"), QVariant::fromValue(static_cast<QObject *>(&presenter)));
+    */
+    QCOMPARE(qQuickViews.first()->resizeMode(), QQuickView::SizeRootObjectToView);
+    QCOMPARE(qQuickViews.first()->rootContext()->contextProperty("initialSize").toSize(), QGuiApplication::primaryScreen()->size());
+    QCOMPARE(qQuickViews.first()->rootContext()->contextProperty("notificationPreviewPresenter"), QVariant::fromValue(static_cast<QObject *>(&presenter)));
 
     // Check that the window was shown
-    QCOMPARE(qWidgetVisible[static_cast<QWidget *>(qDeclarativeViews.first())], true);
+    QCOMPARE(qWindowVisible[static_cast<QWindow *>(qQuickViews.first())], true);
 
     // Check that the expected notification is signaled onwards
     QCOMPARE(spy.count(), 1);
@@ -223,7 +182,7 @@ void Ut_NotificationPreviewPresenter::testAddNotificationWhenWindowAlreadyOpen()
     presenter.updateNotification(1);
 
     // Reset stubs to see what happens next
-    qDeclarativeViews.clear();
+    qQuickViews.clear();
 
     // Create another notification
     Notification *notification = createNotification(2);
@@ -236,7 +195,7 @@ void Ut_NotificationPreviewPresenter::testAddNotificationWhenWindowAlreadyOpen()
     presenter.showNextNotification();
 
     // Check that the window was not unnecessarily created again
-    QCOMPARE(qDeclarativeViews.isEmpty(), true);
+    QCOMPARE(qQuickViews.isEmpty(), true);
 
     // Check that the expected notification is signaled onwards
     QCOMPARE(spy.count(), 2);
@@ -289,64 +248,12 @@ void Ut_NotificationPreviewPresenter::testRemoveNotification()
     QCOMPARE(presenter.notification(), (Notification *)0);
 
     // Check that the window is not yet hidden
-    QCOMPARE(qWidgetVisible[static_cast<QWidget *>(qDeclarativeViews.first())], true);
+    QCOMPARE(qWindowVisible[static_cast<QWindow *>(qQuickViews.first())], true);
 
     // Check that the window is hidden when it's time to show the next notification (which doesn't exist)
     presenter.showNextNotification();
-    QCOMPARE(qWidgetVisible[static_cast<QWidget *>(qDeclarativeViews.first())], false);
+    QCOMPARE(qWindowVisible[static_cast<QWindow *>(qQuickViews.first())], false);
 }
-
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
-void Ut_NotificationPreviewPresenter::testWindowMasking_data()
-{
-    QTest::addColumn<int>("x1");
-    QTest::addColumn<int>("y1");
-    QTest::addColumn<int>("x2");
-    QTest::addColumn<int>("y2");
-    QTest::addColumn<int>("x");
-    QTest::addColumn<int>("y");
-    QTest::addColumn<int>("width");
-    QTest::addColumn<int>("height");
-    QTest::newRow("x1  < x2, y1  < y2") << 10 << 10 << 50 << 50 << 10 << 10 << 40 << 40;
-    QTest::newRow("x1 >= x2, y1  < y2") << 50 << 10 << 10 << 50 << 10 << 10 << 40 << 40;
-    QTest::newRow("x1  < x2, y1 >= y2") << 10 << 50 << 50 << 10 << 10 << 10 << 40 << 40;
-    QTest::newRow("x1 >= x2, y1 >= y2") << 50 << 50 << 10 << 10 << 10 << 10 << 40 << 40;
-}
-
-void Ut_NotificationPreviewPresenter::testWindowMasking()
-{
-    QFETCH(int, x1);
-    QFETCH(int, y1);
-    QFETCH(int, x2);
-    QFETCH(int, y2);
-    QFETCH(int, x);
-    QFETCH(int, y);
-    QFETCH(int, width);
-    QFETCH(int, height);
-    NotificationPreviewPresenter presenter;
-
-    // Check that the window is created when a notification is added
-    createNotification(1);
-    presenter.updateNotification(1);
-    presenter.setNotificationPreviewRect(x1, y1, x2, y2);
-
-    QRect rect(x, y, width, height);
-    QCOMPARE(xFixesCreateRegionRectangles.isEmpty(), false);
-    QCOMPARE(xFixesCreateRegionRectangles.last().x, (short)rect.x());
-    QCOMPARE(xFixesCreateRegionRectangles.last().y, (short)rect.y());
-    QCOMPARE(xFixesCreateRegionRectangles.last().width, (unsigned short)rect.width());
-    QCOMPARE(xFixesCreateRegionRectangles.last().height, (unsigned short)rect.height());
-    QCOMPARE(xFixesSetWindowShapeRegionWindow.isEmpty(), false);
-    QCOMPARE(xFixesSetWindowShapeRegionWindow.last(), qDeclarativeViews.first()->winId());
-    QCOMPARE(xFixesSetWindowShapeRegionShapeKind.last(), ShapeInput);
-    QCOMPARE(xFixesSetWindowShapeRegionXOff.last(), 0);
-    QCOMPARE(xFixesSetWindowShapeRegionYOff.last(), 0);
-    QCOMPARE(xFixesSetWindowShapeRegionRegion.last(), (XserverRegion)1);
-    QCOMPARE(xFixesDestroyRegionRegion.isEmpty(), false);
-    QCOMPARE(xFixesDestroyRegionRegion.last(), (XserverRegion)1);
-    QCOMPARE(xSyncCalled, true);
-}
-#endif
 
 void Ut_NotificationPreviewPresenter::testNotificationNotShownIfNoSummaryOrBody_data()
 {
@@ -382,8 +289,11 @@ void Ut_NotificationPreviewPresenter::testNotificationNotShownIfNoSummaryOrBody(
     // Check whether the expected notification is signaled onwards
     QCOMPARE(spy.count(), signalCount);
 
-    // Check whether the window was shown
-    QCOMPARE(qWidgetVisible[static_cast<QWidget *>(qDeclarativeViews.first())], windowVisible);
+    QCOMPARE(qWindowVisible.isEmpty(), !windowVisible);
+    if (windowVisible) {
+        // Check whether the window was shown
+        QCOMPARE(qWindowVisible[static_cast<QWindow *>(qQuickViews.first())], windowVisible);
+    }
 }
 
 void Ut_NotificationPreviewPresenter::testNotificationNotShownIfHidden()
@@ -402,7 +312,7 @@ void Ut_NotificationPreviewPresenter::testNotificationNotShownIfHidden()
     presenter.updateNotification(1);
 
     QCOMPARE(spy.count(), 0);
-    QCOMPARE(qWidgetVisible[static_cast<QWidget *>(qDeclarativeViews.first())], false);
+    QCOMPARE(qWindowVisible.isEmpty(), true);
 }
 
 void Ut_NotificationPreviewPresenter::testShowingOnlyCriticalNotifications()
@@ -418,21 +328,21 @@ void Ut_NotificationPreviewPresenter::testShowingOnlyCriticalNotifications()
     hints.insert(NotificationManager::HINT_URGENCY, 1);
     notification->setHints(hints);
     notificationManagerNotification.insert(1, notification);
+    QCOMPARE(qWindowVisible.isEmpty(), true);
 
-#ifdef HAVE_QMSYSTEM
     // When the screen or device is locked and the urgency is not high enough, so the notification shouldn't be shown
     gQmLocksStub->stubSetReturnValue("getState", MeeGo::QmLocks::Locked);
     presenter.updateNotification(1);
     QCOMPARE(spy.count(), 0);
-    QCOMPARE(qWidgetVisible[static_cast<QWidget *>(qDeclarativeViews.first())], false);
-#endif
+    QCOMPARE(qWindowVisible.isEmpty(), true);
 
     // Urgency set to critical, so the notification should be shown
     hints.insert(NotificationManager::HINT_URGENCY, 2);
     notification->setHints(hints);
     presenter.updateNotification(1);
     QCOMPARE(spy.count(), 1);
-    QCOMPARE(qWidgetVisible[static_cast<QWidget *>(qDeclarativeViews.first())], true);
+    QCOMPARE(qWindowVisible.isEmpty(), false);
+    QCOMPARE(qWindowVisible[static_cast<QWindow *>(qQuickViews.first())], true);
 }
 
 void Ut_NotificationPreviewPresenter::testUpdateNotificationRemovesNotificationFromQueueIfNotShowable()
@@ -461,7 +371,6 @@ void Ut_NotificationPreviewPresenter::testUpdateNotificationRemovesNotificationF
     QCOMPARE(presenter.notification(), (Notification *)0);
 }
 
-#ifdef HAVE_QMSYSTEM
 Q_DECLARE_METATYPE(MeeGo::QmDisplayState::DisplayState)
 Q_DECLARE_METATYPE(MeeGo::QmLocks::State)
 
@@ -490,10 +399,9 @@ void Ut_NotificationPreviewPresenter::testNotificationNotShownIfTouchScreenIsLoc
 
     createNotification(1, 2);
     presenter.updateNotification(1);
-    QCOMPARE(qDeclarativeViews.count(), notifications);
+    QCOMPARE(qQuickViews.count(), notifications);
     QCOMPARE(spy.count(), notifications);
 }
-#endif
 
 void Ut_NotificationPreviewPresenter::testCriticalNotificationIsClosedAfterShowing()
 {

@@ -1,13 +1,14 @@
 include(../common.pri)
 TARGET = ut_volumecontrol
-INCLUDEPATH += $$VOLUMESRCDIR $$UTILITYSRCDIR $$XTOOLSRCDIR
+INCLUDEPATH += $$VOLUMESRCDIR $$UTILITYSRCDIR
 CONFIG += link_pkgconfig
-PKGCONFIG += dbus-1 dbus-glib-1 libresourceqt1
-QT += dbus declarative
+PKGCONFIG += dbus-1 dbus-glib-1 libresourceqt5
+QT += dbus qml quick
 
 HEADERS += \
     ut_volumecontrol.h \
     $$VOLUMESRCDIR/volumecontrol.h \
+    $$VOLUMESRCDIR/volumekeylistener.h \
     $$VOLUMESRCDIR/pulseaudiocontrol.h \
     $$UTILITYSRCDIR/closeeventeater.h
 
@@ -16,4 +17,3 @@ SOURCES += \
     $$VOLUMESRCDIR/volumecontrol.cpp \
     $$STUBSDIR/stubbase.cpp
 
-equals(QT_MAJOR_VERSION, 4): HEADERS += $$VOLUMESRCDIR/volumekeylistener.h $$XTOOLSRCDIR/x11wrapper.h

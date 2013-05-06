@@ -5,8 +5,7 @@ TARGET = notificationtool
 
 QT += core dbus
 CONFIG += link_pkgconfig
-equals(QT_MAJOR_VERSION, 4): PKGCONFIG += mlite
-equals(QT_MAJOR_VERSION, 5): PKGCONFIG += mlite5
+PKGCONFIG += mlite5
 
 INSTALLS = target
 target.path = /usr/bin
@@ -14,8 +13,7 @@ target.path = /usr/bin
 DEPENDPATH += "../../src"
 INCLUDEPATH += "../../src" "../../src/notifications"
 QMAKE_LIBDIR = ../../src
-equals(QT_MAJOR_VERSION, 4): LIBS = -llipstick
-equals(QT_MAJOR_VERSION, 5): LIBS = -llipstick-qt5
+LIBS = -llipstick-qt5
 
 HEADERS += \
      notificationmanagerproxy.h

@@ -2,8 +2,7 @@ system(qdbusxml2cpp notifications/notificationmanager.xml -a notifications/notif
 system(qdbusxml2cpp screenlock/screenlock.xml -a screenlock/screenlockadaptor -c ScreenLockAdaptor -l ScreenLock -i screenlock.h)
 
 TEMPLATE = lib
-equals(QT_MAJOR_VERSION, 4): TARGET = lipstick
-equals(QT_MAJOR_VERSION, 5): TARGET = lipstick-qt5
+TARGET = lipstick-qt5
 VERSION = 0.11.0
 
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x000000
@@ -35,12 +34,9 @@ PUBLICHEADERS += \
     shutdownscreen.h \
     connectionselector.h
 
-equals(QT_MAJOR_VERSION, 4): PUBLICHEADERS += components/windowinfo.h components/switchermodel.h components/switcherpixmapitem.h components/windowmanager.h xtools/homewindowmonitor.h xtools/windowmonitor.h xtools/xeventlistener.h xtools/xatomcache.h
-
 INSTALLS += publicheaderfiles dbus_policy
 publicheaderfiles.files = $$PUBLICHEADERS
-equals(QT_MAJOR_VERSION, 4): publicheaderfiles.path = /usr/include/lipstick
-equals(QT_MAJOR_VERSION, 5): publicheaderfiles.path = /usr/include/lipstick-qt5
+publicheaderfiles.path = /usr/include/lipstick-qt5
 dbus_policy.files += lipstick.conf
 dbus_policy.path = /etc/dbus-1/system.d
 
@@ -48,10 +44,12 @@ HEADERS += \
     $$PUBLICHEADERS \
     notifications/notificationmanageradaptor.h \
     notifications/categorydefinitionstore.h \
+    notifications/batterynotifier.h \
     notifications/lowbatterynotifier.h \
     notifications/notificationfeedbackplayer.h \
     screenlock/screenlock.h \
     screenlock/screenlockadaptor.h \
+    volume/volumekeylistener.h \
     volume/volumecontrol.h \
     volume/pulseaudiocontrol.h
 
@@ -68,9 +66,11 @@ SOURCES += \
     notifications/categorydefinitionstore.cpp \
     notifications/notificationlistmodel.cpp \
     notifications/notificationpreviewpresenter.cpp \
+    notifications/batterynotifier.cpp \
     notifications/lowbatterynotifier.cpp \
     screenlock/screenlock.cpp \
     screenlock/screenlockadaptor.cpp \
+    volume/volumekeylistener.cpp \
     volume/volumecontrol.cpp \
     volume/pulseaudiocontrol.cpp \
     notifications/notificationfeedbackplayer.cpp \
@@ -78,33 +78,16 @@ SOURCES += \
     shutdownscreen.cpp \
     connectionselector.cpp
 
-equals(QT_MAJOR_VERSION, 4): HEADERS += xtools/xwindowmanager.h xtools/x11wrapper.h screenlock/eventeater.h volume/volumekeylistener.h notifications/batterynotifier.h
-equals(QT_MAJOR_VERSION, 4): SOURCES += components/windowinfo.cpp components/switchermodel.cpp components/switcherpixmapitem.cpp components/windowmanager.cpp xtools/homewindowmonitor.cpp xtools/xeventlistener.cpp xtools/xatomcache.cpp xtools/xwindowmanager.cpp xtools/x11wrapper.cpp screenlock/eventeater.cpp volume/volumekeylistener.cpp notifications/batterynotifier.cpp
-
 CONFIG += link_pkgconfig mobility qt warn_on depend_includepath qmake_cache target_qt
 MOBILITY += sensors systeminfo
-equals(QT_MAJOR_VERSION, 4): PKGCONFIG += xcomposite mlite xdamage x11 xfixes xext mce dbus-1 dbus-glib-1 libresourceqt1 ngf-qt
-equals(QT_MAJOR_VERSION, 5): PKGCONFIG += mlite5 mce dbus-1 dbus-glib-1 libresourceqt5 ngf-qt5
+PKGCONFIG += mlite5 mce dbus-1 dbus-glib-1 libresourceqt5 ngf-qt5 qmsystem2-qt5
 
-equals(QT_MAJOR_VERSION, 4): CONTENTACTION = contentaction-0.1
-equals(QT_MAJOR_VERSION, 5): CONTENTACTION = contentaction5
-
-equals(QT_MAJOR_VERSION, 4): QMSYSTEM = qmsystem2
-equals(QT_MAJOR_VERSION, 5): QMSYSTEM = qmsystem2-qt5
-
-packagesExist($$CONTENTACTION) {
+packagesExist(contentaction5) {
     message("Using contentaction to launch applications")
-    PKGCONFIG += $$CONTENTACTION
+    PKGCONFIG += contentaction5
     DEFINES += HAVE_CONTENTACTION
 } else {
     warning("contentaction doesn't exist; falling back to exec - this may not work so great")
-}
-
-packagesExist($$QMSYSTEM) {
-    PKGCONFIG += $$QMSYSTEM
-    DEFINES += HAVE_QMSYSTEM
-} else {
-    warning("QmSystem2 not found")
 }
 
 packagesExist(contextsubscriber-1.0) {
@@ -114,8 +97,7 @@ packagesExist(contextsubscriber-1.0) {
     warning("Contextsubscriber not found")
 }
 
-equals(QT_MAJOR_VERSION, 4): QT += dbus xml declarative sql
-equals(QT_MAJOR_VERSION, 5): QT += dbus xml declarative sql systeminfo
+QT += dbus xml qml quick sql systeminfo
 
 QMAKE_CXXFLAGS += \
     -Werror \

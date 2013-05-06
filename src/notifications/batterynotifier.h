@@ -19,13 +19,11 @@
 #include <QObject>
 #include <QTimer>
 #include <QScopedPointer>
-#include <QSystemBatteryInfo>
+#include <QBatteryInfo>
 #include <qmled.h>
 #include <qmdevicemode.h>
 
 class LowBatteryNotifier;
-
-using namespace QtMobility;
 
 /*!
  * Implements the configuration and state for the battery, the power save mode.
@@ -59,7 +57,7 @@ public:
     } NotificationID;
 
 public slots:
-    //! Initializes the battery status from the current values given by QSystemBatteryInfo
+    //! Initializes the battery status from the current values given by QBatteryInfo
     void initBattery();
 
     //! Sends a low battery notification
@@ -73,9 +71,9 @@ public slots:
     void setTouchScreenLockActive(bool active);
 
 private slots:
-    void applyBatteryStatus(QSystemBatteryInfo::BatteryStatus status);
-    void applyChargingState(QSystemBatteryInfo::ChargingState state);
-    void applyChargerType(QSystemBatteryInfo::ChargerType type);
+    void applyBatteryStatus(int battery, QBatteryInfo::BatteryStatus status);
+    void applyChargingState(int battery, QBatteryInfo::ChargingState state);
+    void applyChargerType(QBatteryInfo::ChargerType type);
     void applyPSMState(MeeGo::QmDeviceMode::PSMState psmState);
     void utiliseLED(bool activate, const QString &pattern);
 
@@ -114,7 +112,7 @@ private:
     bool touchScreenLockActive;
 
     //! For getting battery state
-    QtMobility::QSystemBatteryInfo *batteryInfo;
+    QBatteryInfo *batteryInfo;
 
     //! For getting device mode
     MeeGo::QmDeviceMode *qmDeviceMode;
@@ -123,7 +121,7 @@ private:
     MeeGo::QmLED *qmLed;
 
     //! The current charger type
-    QtMobility::QSystemBatteryInfo::ChargerType chargerType;
+    QBatteryInfo::ChargerType chargerType;
 
 #ifdef UNIT_TEST
     friend class Ut_BatteryNotifier;

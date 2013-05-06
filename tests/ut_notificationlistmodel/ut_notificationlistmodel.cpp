@@ -18,11 +18,7 @@
 #include "notificationlistmodel.h"
 #include "notificationmanager_stub.h"
 
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
-void QTimer::singleShot(int, QObject *receiver, const char *member)
-#else
 void QTimer::singleShot(int, const QObject *receiver, const char *member)
-#endif
 {
     // The "member" string is of form "1member()", so remove the trailing 1 and the ()
     int memberLength = strlen(member) - 3;

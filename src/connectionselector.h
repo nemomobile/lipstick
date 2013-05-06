@@ -20,7 +20,7 @@
 #include <QObject>
 #include "lipstickglobal.h"
 
-class QDeclarativeView;
+class QQuickView;
 
 class LIPSTICK_EXPORT ConnectionSelector : public QObject
 {
@@ -57,7 +57,7 @@ public slots:
     void showNotification(const QString &message, const QString &type);
 
 private:
-    QDeclarativeView *window;
+    QQuickView *window;
     uint currentNotification;
 
 };

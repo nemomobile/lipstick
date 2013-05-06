@@ -377,6 +377,9 @@ void Ut_NotificationManager::testNotificationsAreRestoredOnConstruction()
     QList<QHash<int, QVariant> > notificationValues;
     notificationValues << notification1Values << notification2Values;
     qSqlQueryValues["SELECT * FROM notifications"].append(notificationValues);
+    QHash<uint, QHash<int, QVariant> > notificationValuesById;
+    notificationValuesById.insert(1, notification1Values);
+    notificationValuesById.insert(2, notification2Values);
 
     QHash<int, QVariant> notification1ActionIdentifier;
     QHash<int, QVariant> notification1ActionName;
@@ -423,16 +426,15 @@ void Ut_NotificationManager::testNotificationsAreRestoredOnConstruction()
     // Check that the notifications exist in the manager after construction and contain the expected values
     NotificationManager *manager = NotificationManager::instance();
     QList<uint> ids = manager->notificationIds();
-    QCOMPARE(ids.count(), notificationValues.count());
-    for (int notificationIndex = 0; notificationIndex < notificationValues.count(); notificationIndex++) {
-        uint id = ids.at(notificationIndex);
-        QCOMPARE(id, notificationValues.at(notificationIndex).value(0).toUInt());
+    QCOMPARE(ids.count(), notificationValuesById.count());
+    foreach (uint id, notificationValuesById.keys()) {
+        QCOMPARE(id, notificationValuesById.value(id).value(0).toUInt());
         Notification *notification = manager->notification(id);
-        QCOMPARE(notification->appName(), notificationValues.at(notificationIndex).value(1).toString());
-        QCOMPARE(notification->appIcon(), notificationValues.at(notificationIndex).value(2).toString());
-        QCOMPARE(notification->summary(), notificationValues.at(notificationIndex).value(3).toString());
-        QCOMPARE(notification->body(), notificationValues.at(notificationIndex).value(4).toString());
-        QCOMPARE(notification->expireTimeout(), notificationValues.at(notificationIndex).value(5).toInt());
+        QCOMPARE(notification->appName(), notificationValuesById.value(id).value(1).toString());
+        QCOMPARE(notification->appIcon(), notificationValuesById.value(id).value(2).toString());
+        QCOMPARE(notification->summary(), notificationValuesById.value(id).value(3).toString());
+        QCOMPARE(notification->body(), notificationValuesById.value(id).value(4).toString());
+        QCOMPARE(notification->expireTimeout(), notificationValuesById.value(id).value(5).toInt());
         QCOMPARE(notification->actions(), notificationActionsById.value(id));
 
         typedef QPair<QString, QVariant> HintData;
@@ -498,12 +500,18 @@ void Ut_NotificationManager::testAddingNotification()
     QCOMPARE(qSqlQueryAddBindValue.at(7), QVariant("action"));
     QCOMPARE(qSqlQueryAddBindValue.at(8).toUInt(), id);
     QCOMPARE(qSqlQueryAddBindValue.at(9), QVariant("Action"));
-    QCOMPARE(qSqlQueryAddBindValue.at(10).toUInt(), id);
-    QCOMPARE(qSqlQueryAddBindValue.at(11), QVariant("hint"));
-    QCOMPARE(qSqlQueryAddBindValue.at(12), QVariant("value"));
-    QCOMPARE(qSqlQueryAddBindValue.at(13).toUInt(), id);
-    QCOMPARE(qSqlQueryAddBindValue.at(14), QVariant(NotificationManager::HINT_TIMESTAMP));
-    QCOMPARE(qSqlQueryAddBindValue.at(15).type(), QVariant::DateTime);
+    int hintBase = 10;
+    int timestampHintBase = 13;
+    if (qSqlQueryAddBindValue.at(11) != QVariant("hint")) {
+        hintBase = 13;
+        timestampHintBase = 10;
+    }
+    QCOMPARE(qSqlQueryAddBindValue.at(hintBase).toUInt(), id);
+    QCOMPARE(qSqlQueryAddBindValue.at(hintBase + 1), QVariant("hint"));
+    QCOMPARE(qSqlQueryAddBindValue.at(hintBase + 2), QVariant("value"));
+    QCOMPARE(qSqlQueryAddBindValue.at(timestampHintBase).toUInt(), id);
+    QCOMPARE(qSqlQueryAddBindValue.at(timestampHintBase + 1), QVariant(NotificationManager::HINT_TIMESTAMP));
+    QCOMPARE(qSqlQueryAddBindValue.at(timestampHintBase + 2).type(), QVariant::DateTime);
     QCOMPARE(notification->appName(), QString("appName"));
     QCOMPARE(notification->appIcon(), QString("appIcon"));
     QCOMPARE(notification->summary(), QString("summary"));
@@ -862,18 +870,26 @@ void Ut_NotificationManager::testRemoveUserRemovableNotifications()
     QSignalSpy removedSpy(manager, SIGNAL(notificationRemoved(uint)));
     QSignalSpy closedSpy(manager, SIGNAL(NotificationClosed(uint,uint)));
     manager->removeUserRemovableNotifications();
-    QCOMPARE(removedSpy.count(), 4);
-    QCOMPARE(removedSpy.at(0).at(0).toUInt(), id1);
-    QCOMPARE(removedSpy.at(1).at(0).toUInt(), id2);
-    QCOMPARE(removedSpy.at(2).at(0).toUInt(), id4);
-    QCOMPARE(removedSpy.at(3).at(0).toUInt(), id5);
-    QCOMPARE(closedSpy.count(), 3);
-    QCOMPARE(closedSpy.at(0).at(0).toUInt(), id1);
-    QCOMPARE(closedSpy.at(0).at(1).toInt(), (int)NotificationManager::NotificationDismissedByUser);
-    QCOMPARE(closedSpy.at(1).at(0).toUInt(), id2);
-    QCOMPARE(closedSpy.at(1).at(1).toInt(), (int)NotificationManager::NotificationDismissedByUser);
-    QCOMPARE(closedSpy.at(2).at(0).toUInt(), id4);
-    QCOMPARE(closedSpy.at(2).at(1).toInt(), (int)NotificationManager::NotificationDismissedByUser);
+
+    QSet<uint> removedIds;
+    for (int i = 0; i < removedSpy.count(); i++) {
+        removedIds.insert(removedSpy.at(i).at(0).toUInt());
+    }
+    QCOMPARE(removedIds.count(), 4);
+    QCOMPARE(removedIds.contains(id1), true);
+    QCOMPARE(removedIds.contains(id2), true);
+    QCOMPARE(removedIds.contains(id4), true);
+    QCOMPARE(removedIds.contains(id5), true);
+
+    QSet<uint> closedIds;
+    for (int i = 0; i < closedSpy.count(); i++) {
+        closedIds.insert(closedSpy.at(i).at(0).toUInt());
+        QCOMPARE(closedSpy.at(i).at(1).toInt(), (int)NotificationManager::NotificationDismissedByUser);
+    }
+    QCOMPARE(closedIds.count(), 3);
+    QCOMPARE(closedIds.contains(id1), true);
+    QCOMPARE(closedIds.contains(id2), true);
+    QCOMPARE(closedIds.contains(id4), true);
 }
 
 QTEST_MAIN(Ut_NotificationManager)

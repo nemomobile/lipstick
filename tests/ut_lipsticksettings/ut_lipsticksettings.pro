@@ -1,7 +1,7 @@
 include(../common.pri)
 TARGET = ut_lipsticksettings
 INCLUDEPATH += $$SCREENLOCKSRCDIR
-QT += dbus declarative
+QT += dbus qml quick
 CONFIG += link_pkgconfig mobility
 PKGCONFIG += x11 mce
 MOBILITY += sensors

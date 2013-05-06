@@ -17,14 +17,12 @@
 #ifndef LIPSTICKPLUGIN_H
 #define LIPSTICKPLUGIN_H
 
-#include <QDeclarativeExtensionPlugin>
+#include <QQmlExtensionPlugin>
 
-class Q_DECL_EXPORT LipstickPlugin : public QDeclarativeExtensionPlugin
+class Q_DECL_EXPORT LipstickPlugin : public QQmlExtensionPlugin
 {
     Q_OBJECT
-#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
     Q_PLUGIN_METADATA(IID "org.nemomobile.lipstick")
-#endif
 
 public:
     explicit LipstickPlugin(QObject *parent = 0);

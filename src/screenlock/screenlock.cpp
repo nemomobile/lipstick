@@ -20,22 +20,14 @@
 #include <QTextStream>
 #include <QCursor>
 #include <mce/mode-names.h>
-#include <QDeclarativeView>
+#include <QQuickView>
 
 #include "homeapplication.h"
 #include "screenlock.h"
-
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
-#include "eventeater.h"
-#endif
-
 #include "utilities/closeeventeater.h"
 
 ScreenLock::ScreenLock(QObject* parent) :
     QObject(parent),
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
-    eventEaterWindow(NULL),
-#endif
     callbackInterface(NULL),
     shuttingDown(false),
     lockscreenVisible(false)
@@ -155,45 +147,15 @@ void ScreenLock::hideEventEater()
 
 void ScreenLock::toggleScreenLockUI(bool toggle)
 {
-    QDeclarativeView *view = HomeApplication::instance()->mainWindowInstance();
-
-    // mcompositor expects the lock screen window to have the title "Screen Lock"
-    view->setWindowTitle(toggle ? "Screen Lock" : "Lipstick");
-
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
-    // Set the stacking layer
-    Display *display = QX11Info::display();
-    Atom stackingLayerAtom = X11Wrapper::XInternAtom(display, "_MEEGO_STACKING_LAYER", False);
-    if (stackingLayerAtom != None) {
-        long layer = toggle ? 5 : 0;
-        X11Wrapper::XChangeProperty(display, view->winId(), stackingLayerAtom, XA_CARDINAL, 32, PropModeReplace, (unsigned char*)&layer, 1);
-    }
-#endif
-
+    // TODO Make the view a lock screen view (title? stacking layer?)
     lockscreenVisible = toggle;
     emit screenIsLocked(toggle);
 }
 
 void ScreenLock::toggleEventEater(bool toggle)
 {
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
-    if (toggle) {
-        if (eventEaterWindow == NULL) {
-            // Create the event eater window if it doesn't exist yet
-            eventEaterWindow = new EventEater(this);
-            eventEaterWindow->installEventFilter(new CloseEventEater(this));
-            connect(eventEaterWindow, SIGNAL(inputEventReceived()), this, SLOT(hideEventEater()));
-        }
-
-        eventEaterWindow->show();
-    } else {
-        if (eventEaterWindow != NULL) {
-            eventEaterWindow->hide();
-        }
-    }
-#else
+    // TODO
     Q_UNUSED(toggle)
-#endif
 }
 
 bool ScreenLock::isScreenLocked() const

@@ -38,7 +38,6 @@ private slots:
 
     // Test cases
     void testConnections();
-#ifdef HAVE_QMSYSTEM
     void testShowDialog_data();
     void testShowDialog();
     void testHideDialog_data();
@@ -47,11 +46,8 @@ private slots:
     void testUSBNotifications();
     void testConnectingUSBWhenDeviceIsLockedEmitsDialogShown_data();
     void testConnectingUSBWhenDeviceIsLockedEmitsDialogShown();
-#endif
     void testShowError();
-#ifdef HAVE_QMSYSTEM
     void testSetUSBMode();
-#endif
 
 private:
     USBModeSelector *usbModeSelector;

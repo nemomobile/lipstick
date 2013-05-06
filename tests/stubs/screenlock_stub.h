@@ -39,9 +39,6 @@ class ScreenLockStub : public StubBase {
   virtual void showEventEater();
   virtual void hideEventEater();
   virtual bool isScreenLocked();
-#ifdef HAVE_QMSYSTEM
-  virtual void systemStateChanged(MeeGo::QmSystemState::StateIndication what);
-#endif
 }; 
 
 // 2. IMPLEMENT STUB
@@ -121,14 +118,6 @@ bool ScreenLockStub::isScreenLocked() {
   return stubReturnValue<bool>("isScreenLocked");
 }
 
-#ifdef HAVE_QMSYSTEM
-void ScreenLockStub::systemStateChanged(MeeGo::QmSystemState::StateIndication what) {
-    QList<ParameterBase*> params;
-    params.append( new Parameter<MeeGo::QmSystemState::StateIndication >(what));
-    stubMethodEntered("systemStateChanged",params);
-}
-#endif
-
 
 
 // 3. CREATE A STUB INSTANCE
@@ -196,12 +185,6 @@ void ScreenLock::hideEventEater() {
 bool ScreenLock::isScreenLocked() const {
   return gScreenLockStub->isScreenLocked();
 }
-
-#ifdef HAVE_QMSYSTEM
-void ScreenLock::systemStateChanged(MeeGo::QmSystemState::StateIndication what) {
-  gScreenLockStub->systemStateChanged(what);
-}
-#endif
 
 
 #endif

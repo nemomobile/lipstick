@@ -1,17 +1,7 @@
 include(../common.pri)
 TARGET = ut_notificationpreviewpresenter
-INCLUDEPATH += $$SRCDIR $$NOTIFICATIONSRCDIR $$UTILITYSRCDIR
-QT += declarative dbus
-
-equals(QT_MAJOR_VERSION, 4): QMSYSTEM = qmsystem2
-equals(QT_MAJOR_VERSION, 5): QMSYSTEM = qmsystem2-qt5
-
-packagesExist($$QMSYSTEM) {
-    DEFINES += HAVE_QMSYSTEM
-    INCLUDEPATH += /usr/include/$$QMSYSTEM
-} else {
-    warning("QmSystem2 not found")
-}
+INCLUDEPATH += $$SRCDIR $$NOTIFICATIONSRCDIR $$UTILITYSRCDIR /usr/include/qmsystem2-qt5
+QT += qml quick dbus
 
 # unit test and unit
 SOURCES += \
@@ -27,5 +17,5 @@ HEADERS += \
     $$NOTIFICATIONSRCDIR/notificationmanager.h \
     $$NOTIFICATIONSRCDIR/notification.h \
     $$UTILITYSRCDIR/closeeventeater.h \
-    /usr/include/$$QMSYSTEM/qmlocks.h \
-    /usr/include/$$QMSYSTEM/qmdisplaystate.h
+    /usr/include/qmsystem2-qt5/qmlocks.h \
+    /usr/include/qmsystem2-qt5/qmdisplaystate.h

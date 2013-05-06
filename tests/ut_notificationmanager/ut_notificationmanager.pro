@@ -3,8 +3,7 @@ TARGET = ut_notificationmanager
 INCLUDEPATH += $$NOTIFICATIONSRCDIR
 CONFIG += link_pkgconfig
 QT += sql dbus
-equals(QT_MAJOR_VERSION, 4): PKGCONFIG += mlite
-equals(QT_MAJOR_VERSION, 5): PKGCONFIG += mlite5
+PKGCONFIG += mlite5
 
 # unit test and unit
 SOURCES += \

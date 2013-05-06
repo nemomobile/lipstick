@@ -24,24 +24,12 @@
 class VolumeKeyListenerStub : public StubBase {
   public:
   virtual void VolumeKeyListenerConstructor(QObject *parent);
-  virtual bool handleXEvent(const XEvent &event);
-  virtual void selectKeyPressInputForAllWindows();
 }; 
 
 // 2. IMPLEMENT STUB
 void VolumeKeyListenerStub::VolumeKeyListenerConstructor(QObject *parent) {
   Q_UNUSED(parent);
 
-}
-bool VolumeKeyListenerStub::handleXEvent(const XEvent &event) {
-  QList<ParameterBase*> params;
-  params.append( new Parameter<const XEvent & >(event));
-  stubMethodEntered("handleXEvent",params);
-  return stubReturnValue<bool>("handleXEvent");
-}
-
-void VolumeKeyListenerStub::selectKeyPressInputForAllWindows() {
-  stubMethodEntered("selectKeyPressInputForAllWindows");
 }
 
 
@@ -54,14 +42,6 @@ VolumeKeyListenerStub* gVolumeKeyListenerStub = &gDefaultVolumeKeyListenerStub;
 // 4. CREATE A PROXY WHICH CALLS THE STUB
 VolumeKeyListener::VolumeKeyListener(QObject *parent) {
   gVolumeKeyListenerStub->VolumeKeyListenerConstructor(parent);
-}
-
-bool VolumeKeyListener::handleXEvent(const XEvent &event) {
-  return gVolumeKeyListenerStub->handleXEvent(event);
-}
-
-void VolumeKeyListener::selectKeyPressInputForAllWindows() {
-  gVolumeKeyListenerStub->selectKeyPressInputForAllWindows();
 }
 
 

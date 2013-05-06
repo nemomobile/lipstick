@@ -38,12 +38,10 @@ private slots:
     void cleanupTestCase();
     void testSignalConnections();
     void testSendLowBatteryAlert();
-#ifdef HAVE_QMSYSTEM
 #ifdef HAVE_CONTEXTSUBSCRIBER
     void testSetNotificationInterval_data();
     void testSetNotificationInterval();
     void testSetNotificationIntervalDoesNothingWhenStateDoesNotChange();
-#endif
 #endif
 
 private:

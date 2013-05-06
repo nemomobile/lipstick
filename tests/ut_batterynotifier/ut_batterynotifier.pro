@@ -1,9 +1,8 @@
 include(../common.pri)
 TARGET = ut_batterynotifier
-CONFIG += link_pkgconfig mobility
-MOBILITY += systeminfo
-INCLUDEPATH += $$NOTIFICATIONSRCDIR /usr/include/QtSystemInfo
-QT += dbus
+CONFIG += link_pkgconfig
+INCLUDEPATH += $$NOTIFICATIONSRCDIR /usr/include/QtSystemInfo /usr/include/qmsystem2-qt5
+QT += dbus systeminfo
 
 packagesExist(contextsubscriber-1.0) {
     PKGCONFIG += contextsubscriber-1.0
@@ -12,21 +11,14 @@ packagesExist(contextsubscriber-1.0) {
     warning("Contextsubscriber not found")
 }
 
-packagesExist(qmsystem2) {
-    DEFINES += HAVE_QMSYSTEM
-    INCLUDEPATH += /usr/include/qmsystem2
-} else {
-    warning("QmSystem2 not found")
-}
-
 HEADERS += \
     $$NOTIFICATIONSRCDIR/batterynotifier.h \
     $$NOTIFICATIONSRCDIR/lowbatterynotifier.h \
     $$NOTIFICATIONSRCDIR/notificationmanager.h \
     $$NOTIFICATIONSRCDIR/notification.h \
-    /usr/include/qmsystem2/qmled.h \
-    /usr/include/qmsystem2/qmdevicemode.h \
-    /usr/include/qmsystem2/qmdisplaystate.h \
+    /usr/include/qmsystem2-qt5/qmled.h \
+    /usr/include/qmsystem2-qt5/qmdevicemode.h \
+    /usr/include/qmsystem2-qt5/qmdisplaystate.h \
     $$STUBSDIR/stubbase.h \
     ut_batterynotifier.h
 

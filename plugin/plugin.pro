@@ -3,18 +3,17 @@ TARGET = lipstickplugin
 VERSION = 0.1
 
 CONFIG += qt plugin link_pkgconfig
-QT += core gui declarative
-equals(QT_MAJOR_VERSION, 4): PKGCONFIG += qmsystem2
+QT += core gui qml quick
+PKGCONFIG += qmsystem2-qt5
 
 INSTALLS = target qmldirfile
 qmldirfile.files = qmldir
-qmldirfile.path = $$[QT_INSTALL_IMPORTS]/org/nemomobile/lipstick
-target.path = $$[QT_INSTALL_IMPORTS]/org/nemomobile/lipstick
+qmldirfile.path = $$[QT_INSTALL_QML]/org/nemomobile/lipstick
+target.path = $$[QT_INSTALL_QML]/org/nemomobile/lipstick
 
 DEPENDPATH += "../src"
 INCLUDEPATH += "../src" "../src/utilities" "../src/xtools"
-equals(QT_MAJOR_VERSION, 4): LIBS += -L"../src" -llipstick
-equals(QT_MAJOR_VERSION, 5): LIBS += -L"../src" -llipstick-qt5
+LIBS += -L"../src" -llipstick-qt5
 
 HEADERS += \
     lipstickplugin.h

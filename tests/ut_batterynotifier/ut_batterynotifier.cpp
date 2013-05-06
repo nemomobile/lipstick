@@ -18,8 +18,8 @@
 
 #include "lowbatterynotifier_stub.h"
 #include "notificationmanager_stub.h"
+#include "qbatteryinfo_stub.h"
 #include "qmled_stub.h"
-#include "qsystembatteryinfo_stub.h"
 #include "qmdevicemode_stub.h"
 #include "qmdisplaystate_stub.h"
 #include "batterynotifier.h"
@@ -52,13 +52,13 @@ void Ut_BatteryNotifier::cleanup()
     batteryNotifier = NULL;
     gNotificationManagerStub->stubReset();
     gLowBatteryNotifierStub->stubReset();
-    gQSystemBatteryInfoStub->stubReset();
+    gQBatteryInfoStub->stubReset();
 }
 
 void Ut_BatteryNotifier::testInitBattery()
 {
-    gQSystemBatteryInfoStub->stubSetReturnValue<QtMobility::QSystemBatteryInfo::ChargingState>("chargingState", QtMobility::QSystemBatteryInfo::NotCharging);
-    gQSystemBatteryInfoStub->stubSetReturnValue<QtMobility::QSystemBatteryInfo::BatteryStatus>("batteryStatus", QtMobility::QSystemBatteryInfo::BatteryOk);
+    gQBatteryInfoStub->stubSetReturnValue<QBatteryInfo::ChargingState>("chargingState", QBatteryInfo::UnknownChargingState);
+    gQBatteryInfoStub->stubSetReturnValue<QBatteryInfo::BatteryStatus>("batteryStatus", QBatteryInfo::BatteryOk);
 
     // no notification should be shown and battery charging pattern should be deactivated
     batteryNotifier->initBattery();
@@ -81,11 +81,11 @@ void Ut_BatteryNotifier::testBatteryStateChanged()
 {
     QList<QVariant> arguments;
 
-    gQSystemBatteryInfoStub->stubReset();
+    gQBatteryInfoStub->stubReset();
     gQmLEDStub->stubReset();
 
     /* StateFull */
-    batteryNotifier->applyBatteryStatus(QtMobility::QSystemBatteryInfo::BatteryFull);
+    batteryNotifier->applyBatteryStatus(0, QBatteryInfo::BatteryFull);
 
     QCOMPARE(gNotificationManagerStub->stubCallCount("Notify"), 1);
     QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QVariantHash>(6).value(NotificationManager::HINT_CATEGORY).toString(), QString("x-nemo.battery.chargingcomplete"));
@@ -94,13 +94,13 @@ void Ut_BatteryNotifier::testBatteryStateChanged()
     QCOMPARE(gQmLEDStub->stubLastCallTo("activate").parameter<QString>(0), QString("PatternBatteryFull"));
 
     /* StateOK */
-    batteryNotifier->applyBatteryStatus(QtMobility::QSystemBatteryInfo::BatteryOk);
+    batteryNotifier->applyBatteryStatus(0, QBatteryInfo::BatteryOk);
 
     /* no notifications should be published, just silently no-op */
     QCOMPARE(gNotificationManagerStub->stubCallCount("Notify"), 1);
 
     /* StateEmpty */
-    batteryNotifier->applyBatteryStatus(QtMobility::QSystemBatteryInfo::BatteryEmpty);
+    batteryNotifier->applyBatteryStatus(0, QBatteryInfo::BatteryEmpty);
 
     QCOMPARE(gNotificationManagerStub->stubCallCount("Notify"), 2);
     QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QVariantHash>(6).value(NotificationManager::HINT_CATEGORY).toString(), QString("x-nemo.battery.recharge"));
@@ -108,22 +108,22 @@ void Ut_BatteryNotifier::testBatteryStateChanged()
     QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QString>(2), QString());
 
     /* StateError */
-    batteryNotifier->applyBatteryStatus(QtMobility::QSystemBatteryInfo::BatteryUnknown);
+    batteryNotifier->applyBatteryStatus(0, QBatteryInfo::BatteryStatusUnknown);
 
     /* no notifications should be published, just silently no-op */
     QCOMPARE(gNotificationManagerStub->stubCallCount("Notify"), 2);
 
     /* StateLow and charging */
-    gQSystemBatteryInfoStub->stubSetReturnValue<QtMobility::QSystemBatteryInfo::ChargingState>("chargingState", QtMobility::QSystemBatteryInfo::Charging);
-    batteryNotifier->applyBatteryStatus(QtMobility::QSystemBatteryInfo::BatteryLow);
+    gQBatteryInfoStub->stubSetReturnValue<QBatteryInfo::ChargingState>("chargingState", QBatteryInfo::Charging);
+    batteryNotifier->applyBatteryStatus(0, QBatteryInfo::BatteryLow);
 
     /* no notifications should be published, because battery is charging... */
     QCOMPARE(gNotificationManagerStub->stubCallCount("Notify"), 2);
 
     /* StateLow and not charging */
-    gQSystemBatteryInfoStub->stubSetReturnValue<QtMobility::QSystemBatteryInfo::ChargingState>("chargingState", QtMobility::QSystemBatteryInfo::NotCharging);
+    gQBatteryInfoStub->stubSetReturnValue<QBatteryInfo::ChargingState>("chargingState", QBatteryInfo::UnknownChargingState);
     batteryNotifier->setTouchScreenLockActive(true);
-    batteryNotifier->applyBatteryStatus(QtMobility::QSystemBatteryInfo::BatteryLow);
+    batteryNotifier->applyBatteryStatus(0, QBatteryInfo::BatteryLow);
 
     QCOMPARE(gLowBatteryNotifierStub->stubCallCount("setTouchScreenLockActive"), 1);
     QCOMPARE(gLowBatteryNotifierStub->stubLastCallTo("setTouchScreenLockActive").parameter<bool>(0), true);
@@ -134,15 +134,15 @@ void Ut_BatteryNotifier::testChargingStateChanged()
 {
     QList<QVariant> arguments;
 
-    gQSystemBatteryInfoStub->stubReset();
+    gQBatteryInfoStub->stubReset();
     gQmLEDStub->stubReset();
 
-    gQSystemBatteryInfoStub->stubSetReturnValue("chargerType", QtMobility::QSystemBatteryInfo::WallCharger);
+    gQBatteryInfoStub->stubSetReturnValue("chargerType", QBatteryInfo::WallCharger);
 
     for(int i = 0; i <= 100; i += 5) {
         /* StateCharging */
-        gQSystemBatteryInfoStub->stubSetReturnValue<int>("remainingCapacityPercent", i);
-        batteryNotifier->applyChargingState(QtMobility::QSystemBatteryInfo::Charging);
+        gQBatteryInfoStub->stubSetReturnValue<int>("remainingCapacityPercent", i);
+        batteryNotifier->applyChargingState(0, QBatteryInfo::Charging);
 
         QCOMPARE(gNotificationManagerStub->stubCallCount("Notify"), 1);
         QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QVariantHash>(6).value(NotificationManager::HINT_CATEGORY).toString(), QString("x-nemo.battery"));
@@ -153,14 +153,14 @@ void Ut_BatteryNotifier::testChargingStateChanged()
         gNotificationManagerStub->stubReset();
     }
 
-    /* StateNotCharging */
-    batteryNotifier->applyChargingState(QtMobility::QSystemBatteryInfo::NotCharging);
+    /* StateUnknownChargingState */
+    batteryNotifier->applyChargingState(0, QBatteryInfo::UnknownChargingState);
 
     QCOMPARE(gNotificationManagerStub->stubCallCount("Notify"), 0);
     QCOMPARE(gQmLEDStub->stubLastCallTo("deactivate").parameter<QString>(0), QString("PatternBatteryCharging"));
 
     /* StateChargingFailed */
-    batteryNotifier->applyChargingState(QtMobility::QSystemBatteryInfo::ChargingError);
+    batteryNotifier->applyChargingState(0, QBatteryInfo::NotCharging);
 
     QCOMPARE(gNotificationManagerStub->stubCallCount("Notify"), 1);
     QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QVariantHash>(6).value(NotificationManager::HINT_CATEGORY).toString(), QString("x-nemo.battery.chargingnotstarted"));
@@ -168,8 +168,9 @@ void Ut_BatteryNotifier::testChargingStateChanged()
     QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QString>(2), QString());
 
     /* Test "not enough power to charge" situation... */
-    gQSystemBatteryInfoStub->stubSetReturnValue("chargerType", QtMobility::QSystemBatteryInfo::USB_100mACharger);
-    batteryNotifier->applyChargingState(QtMobility::QSystemBatteryInfo::Charging);
+    gQBatteryInfoStub->stubSetReturnValue("chargerType", QBatteryInfo::USBCharger);
+    gQBatteryInfoStub->stubSetReturnValue("currentFlow", 100);
+    batteryNotifier->applyChargingState(0, QBatteryInfo::Charging);
 
     QCOMPARE(gNotificationManagerStub->stubCallCount("Notify"), 2);
     QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QVariantHash>(6).value(NotificationManager::HINT_CATEGORY).toString(), QString("x-nemo.battery.notenoughpower"));
@@ -182,12 +183,12 @@ void Ut_BatteryNotifier::testBatteryChargerEvent()
     QList<QVariant> arguments;
 
     /* Wall charger */
-    batteryNotifier->applyChargerType(QtMobility::QSystemBatteryInfo::WallCharger);
-    QCOMPARE(batteryNotifier->chargerType, QtMobility::QSystemBatteryInfo::WallCharger);
+    batteryNotifier->applyChargerType(QBatteryInfo::WallCharger);
+    QCOMPARE(batteryNotifier->chargerType, QBatteryInfo::WallCharger);
 
     /* Plug out : charger type = none */
-    batteryNotifier->applyChargerType(QtMobility::QSystemBatteryInfo::NoCharger);
-    QCOMPARE(batteryNotifier->chargerType, QtMobility::QSystemBatteryInfo::NoCharger);
+    batteryNotifier->applyChargerType(QBatteryInfo::UnknownCharger);
+    QCOMPARE(batteryNotifier->chargerType, QBatteryInfo::UnknownCharger);
 
     /* Look for the notification: "Disconnect the charger from..." */
     QCOMPARE(gNotificationManagerStub->stubCallCount("Notify"), 1);
@@ -196,16 +197,17 @@ void Ut_BatteryNotifier::testBatteryChargerEvent()
     QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QString>(2), QString());
 
     /* USB 500mA */
-    batteryNotifier->applyChargerType(QtMobility::QSystemBatteryInfo::USB_500mACharger);
-    QCOMPARE(batteryNotifier->chargerType, QtMobility::QSystemBatteryInfo::USB_500mACharger);
+    batteryNotifier->applyChargerType(QBatteryInfo::USBCharger);
+    QCOMPARE(batteryNotifier->chargerType, QBatteryInfo::USBCharger);
 
     /* USB 100mA */
-    batteryNotifier->applyChargerType(QtMobility::QSystemBatteryInfo::USB_100mACharger);
-    QCOMPARE(batteryNotifier->chargerType, QtMobility::QSystemBatteryInfo::USB_100mACharger);
+    gQBatteryInfoStub->stubSetReturnValue("currentFlow", 100);
+    batteryNotifier->applyChargerType(QBatteryInfo::USBCharger);
+    QCOMPARE(batteryNotifier->chargerType, QBatteryInfo::USBCharger);
 
     /* Unknown */
-    batteryNotifier->applyChargerType(QtMobility::QSystemBatteryInfo::UnknownCharger);
-    QCOMPARE(batteryNotifier->chargerType, QtMobility::QSystemBatteryInfo::UnknownCharger);
+    batteryNotifier->applyChargerType(QBatteryInfo::UnknownCharger);
+    QCOMPARE(batteryNotifier->chargerType, QBatteryInfo::UnknownCharger);
 }
 
 void Ut_BatteryNotifier::testPSMStateChanged()
@@ -233,15 +235,15 @@ void Ut_BatteryNotifier::testLowBatteryNotifierConnection()
 {
     QList<QVariant> arguments;
 
-    gQSystemBatteryInfoStub->stubSetReturnValue("chargerType", QtMobility::QSystemBatteryInfo::USB_500mACharger);
+    gQBatteryInfoStub->stubSetReturnValue("chargerType", QBatteryInfo::USBCharger);
 
     /* LowBatteryNotifier shouldn't be instantiated at first */
     QCOMPARE(batteryNotifier->lowBatteryNotifier, (LowBatteryNotifier *)NULL);
 
     /* Simulate battery-state-low change */
-    gQSystemBatteryInfoStub->stubSetReturnValue<QtMobility::QSystemBatteryInfo::ChargingState>("chargingState", QtMobility::QSystemBatteryInfo::NotCharging);
+    gQBatteryInfoStub->stubSetReturnValue<QBatteryInfo::ChargingState>("chargingState", QBatteryInfo::UnknownChargingState);
     batteryNotifier->setTouchScreenLockActive(true);
-    batteryNotifier->applyBatteryStatus(QtMobility::QSystemBatteryInfo::BatteryLow);
+    batteryNotifier->applyBatteryStatus(0, QBatteryInfo::BatteryLow);
 
     /* LowBatteryNotifier should be exists now... */
     QVERIFY(batteryNotifier->lowBatteryNotifier != NULL);
@@ -252,87 +254,88 @@ void Ut_BatteryNotifier::testLowBatteryNotifierConnection()
     QCOMPARE(gLowBatteryNotifierStub->stubCallCount("sendLowBatteryAlert"), 1);
 
     /* Simulate now a charging event */
-    batteryNotifier->applyChargingState(QtMobility::QSystemBatteryInfo::Charging);
+    gQBatteryInfoStub->stubSetReturnValue("currentFlow", 500);
+    batteryNotifier->applyChargingState(0, QBatteryInfo::Charging);
 
     /* After this call LowBatteryNotifier should be destroyed */
     QCOMPARE(batteryNotifier->lowBatteryNotifier, (LowBatteryNotifier *)NULL);
 
     /* State OK should stop notifications */
-    batteryNotifier->applyBatteryStatus(QtMobility::QSystemBatteryInfo::BatteryLow);
-    batteryNotifier->applyBatteryStatus(QtMobility::QSystemBatteryInfo::BatteryOk);
+    batteryNotifier->applyBatteryStatus(0, QBatteryInfo::BatteryLow);
+    batteryNotifier->applyBatteryStatus(0, QBatteryInfo::BatteryOk);
     QCOMPARE(batteryNotifier->lowBatteryNotifier, (LowBatteryNotifier *)NULL);
 
     /* State Full should stop notifications */
-    batteryNotifier->applyBatteryStatus(QtMobility::QSystemBatteryInfo::BatteryLow);
-    batteryNotifier->applyBatteryStatus(QtMobility::QSystemBatteryInfo::BatteryFull);
+    batteryNotifier->applyBatteryStatus(0, QBatteryInfo::BatteryLow);
+    batteryNotifier->applyBatteryStatus(0, QBatteryInfo::BatteryFull);
     QCOMPARE(batteryNotifier->lowBatteryNotifier, (LowBatteryNotifier *)NULL);
 }
 
 void Ut_BatteryNotifier::testWhenChargingStopsThenNotificationRemoved()
 {
-    batteryNotifier->applyChargingState(QtMobility::QSystemBatteryInfo::Charging);
+    batteryNotifier->applyChargingState(0, QBatteryInfo::Charging);
     QCOMPARE(gNotificationManagerStub->stubCallCount("Notify"), 1);
     QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QVariantHash>(6).value(NotificationManager::HINT_CATEGORY).toString(), QString("x-nemo.battery"));
     QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QVariantHash>(6).value(NotificationManager::HINT_PREVIEW_BODY).toString(), qtTrId("qtn_ener_charging"));
     QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QString>(2), batteryNotifier->chargingImageId());
 
-    batteryNotifier->applyChargingState(QtMobility::QSystemBatteryInfo::NotCharging);
+    batteryNotifier->applyChargingState(0, QBatteryInfo::UnknownChargingState);
     QCOMPARE(gNotificationManagerStub->stubCallCount("CloseNotification"), 1);
     QCOMPARE(batteryNotifier->notificationTimer.isActive(), false);
 }
 
 void Ut_BatteryNotifier::testWhenChargingStopsWhenConnectedToWallChargerThenNotificationRemoved()
 {
-    batteryNotifier->applyChargerType(QtMobility::QSystemBatteryInfo::WallCharger);
-    batteryNotifier->applyChargingState(QtMobility::QSystemBatteryInfo::Charging);
-    batteryNotifier->applyChargerType(QtMobility::QSystemBatteryInfo::NoCharger);
+    batteryNotifier->applyChargerType(QBatteryInfo::WallCharger);
+    batteryNotifier->applyChargingState(0, QBatteryInfo::Charging);
+    batteryNotifier->applyChargerType(QBatteryInfo::UnknownCharger);
     QCOMPARE(gNotificationManagerStub->stubCallCount("CloseNotification"), 1);
 
-    batteryNotifier->applyChargerType(QtMobility::QSystemBatteryInfo::WallCharger);
-    batteryNotifier->applyChargingState(QtMobility::QSystemBatteryInfo::Charging);
-    batteryNotifier->applyBatteryStatus(QtMobility::QSystemBatteryInfo::BatteryFull);
-    batteryNotifier->applyChargerType(QtMobility::QSystemBatteryInfo::NoCharger);
+    batteryNotifier->applyChargerType(QBatteryInfo::WallCharger);
+    batteryNotifier->applyChargingState(0, QBatteryInfo::Charging);
+    batteryNotifier->applyBatteryStatus(0, QBatteryInfo::BatteryFull);
+    batteryNotifier->applyChargerType(QBatteryInfo::UnknownCharger);
     QCOMPARE(gNotificationManagerStub->stubCallCount("CloseNotification"), 4);
 }
 
 void Ut_BatteryNotifier::testWhenChargingStopsMoreThanNSecondAfterBeingStartedThenNotificationNotRemoved()
 {
-    batteryNotifier->applyChargingState(QtMobility::QSystemBatteryInfo::Charging);
+    batteryNotifier->applyChargingState(0, QBatteryInfo::Charging);
     batteryNotifier->notificationTimer.stop();
-    batteryNotifier->applyChargingState(QtMobility::QSystemBatteryInfo::NotCharging);
+    batteryNotifier->applyChargingState(0, QBatteryInfo::UnknownChargingState);
     QCOMPARE(gNotificationManagerStub->stubCallCount("CloseNotification"), 0);
 }
 
 void Ut_BatteryNotifier::testWhenChargingStartsWhenRemoveChargerNotifiedThenNotificationRemoved()
 {
-    batteryNotifier->applyChargerType(QtMobility::QSystemBatteryInfo::WallCharger);
-    batteryNotifier->applyChargingState(QtMobility::QSystemBatteryInfo::Charging);
-    batteryNotifier->applyChargerType(QtMobility::QSystemBatteryInfo::NoCharger);
-    batteryNotifier->applyChargingState(QtMobility::QSystemBatteryInfo::Charging);
+    batteryNotifier->applyChargerType(QBatteryInfo::WallCharger);
+    batteryNotifier->applyChargingState(0, QBatteryInfo::Charging);
+    batteryNotifier->applyChargerType(QBatteryInfo::UnknownCharger);
+    batteryNotifier->applyChargingState(0, QBatteryInfo::Charging);
     QCOMPARE(gNotificationManagerStub->stubCallCount("CloseNotification"), 2);
 }
 
 void Ut_BatteryNotifier::testWhenChargingStopsAndBatteryIsLowNotifierIsCreated()
 {
-    gQSystemBatteryInfoStub->stubSetReturnValue<QtMobility::QSystemBatteryInfo::BatteryStatus>("batteryStatus", QtMobility::QSystemBatteryInfo::BatteryLow);
-    batteryNotifier->applyChargerType(QtMobility::QSystemBatteryInfo::WallCharger);
-    batteryNotifier->applyChargerType(QtMobility::QSystemBatteryInfo::NoCharger);
+    gQBatteryInfoStub->stubSetReturnValue<QBatteryInfo::BatteryStatus>("batteryStatus", QBatteryInfo::BatteryLow);
+    batteryNotifier->applyChargerType(QBatteryInfo::WallCharger);
+    batteryNotifier->applyChargerType(QBatteryInfo::UnknownCharger);
     QVERIFY(batteryNotifier->lowBatteryNotifier != NULL);
 }
 
 void Ut_BatteryNotifier::testWhenStateChargingLowBatteryNotificationRemoved()
 {
     batteryNotifier->lowBatteryAlert();
-    batteryNotifier->applyChargerType(QtMobility::QSystemBatteryInfo::WallCharger);
-    batteryNotifier->applyChargingState(QtMobility::QSystemBatteryInfo::Charging);
+    batteryNotifier->applyChargerType(QBatteryInfo::WallCharger);
+    batteryNotifier->applyChargingState(0, QBatteryInfo::Charging);
     QCOMPARE(gNotificationManagerStub->stubCallCount("CloseNotification"), 1);
 }
 
 void Ut_BatteryNotifier::testWhenBatteryFullWhenChargingNotifiedThenNotificationRemoved()
 {
-    batteryNotifier->applyChargerType(QtMobility::QSystemBatteryInfo::WallCharger);
-    batteryNotifier->applyChargingState(QtMobility::QSystemBatteryInfo::Charging);
-    batteryNotifier->applyBatteryStatus(QtMobility::QSystemBatteryInfo::BatteryFull);
+    batteryNotifier->applyChargerType(QBatteryInfo::WallCharger);
+    batteryNotifier->applyChargingState(0, QBatteryInfo::Charging);
+    batteryNotifier->applyBatteryStatus(0, QBatteryInfo::BatteryFull);
     QCOMPARE(gNotificationManagerStub->stubCallCount("CloseNotification"), 1);
 }
 
@@ -341,9 +344,9 @@ void Ut_BatteryNotifier::testSetTouchScreenLockActive()
     batteryNotifier->setTouchScreenLockActive(true);
     QCOMPARE(gLowBatteryNotifierStub->stubCallCount("setTouchScreenLockActive"), 0);
 
-    gQSystemBatteryInfoStub->stubSetReturnValue("chargerType", QtMobility::QSystemBatteryInfo::USB_500mACharger);
-    gQSystemBatteryInfoStub->stubSetReturnValue<QtMobility::QSystemBatteryInfo::ChargingState>("chargingState", QtMobility::QSystemBatteryInfo::NotCharging);
-    batteryNotifier->applyBatteryStatus(QtMobility::QSystemBatteryInfo::BatteryLow);
+    gQBatteryInfoStub->stubSetReturnValue("chargerType", QBatteryInfo::USBCharger);
+    gQBatteryInfoStub->stubSetReturnValue<QBatteryInfo::ChargingState>("chargingState", QBatteryInfo::UnknownChargingState);
+    batteryNotifier->applyBatteryStatus(0, QBatteryInfo::BatteryLow);
     QCOMPARE(gLowBatteryNotifierStub->stubCallCount("setTouchScreenLockActive"), 1);
     QCOMPARE(gLowBatteryNotifierStub->stubLastCallTo("setTouchScreenLockActive").parameter<bool>(0), true);
 

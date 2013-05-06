@@ -17,7 +17,7 @@
 #ifndef UT_SCREENLOCK_H
 #define UT_SCREENLOCK_H
 
-#include <QGraphicsWidget>
+#include <QObject>
 
 class ScreenLock;
 
@@ -32,14 +32,8 @@ private slots:
     void cleanupTestCase();
 
     void testToggleScreenLockUI();
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
-    void testToggleEventEater();
-#endif
     void testUnlockScreenWhenLocked();
     void testUnlockScreenWhenNotLocked();
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
-    void testHideEventEater();
-#endif
     void testTkLockOpen_data();
     void testTkLockOpen();
     void testTkLockClose();

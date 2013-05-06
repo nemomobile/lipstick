@@ -13,7 +13,7 @@
 ** of this file.
 **
 ****************************************************************************/
-#include <QApplication>
+#include <QCoreApplication>
 #include <QStringList>
 #include <QTimer>
 #include "lowbatterynotifier.h"
@@ -25,14 +25,16 @@ BatteryNotifier::BatteryNotifier(QObject *parent) :
     lowBatteryNotifier(0),
     notificationId(0),
     touchScreenLockActive(false),
-    batteryInfo(new QtMobility::QSystemBatteryInfo(this)),
+    batteryInfo(new QBatteryInfo(this)),
     qmDeviceMode(new MeeGo::QmDeviceMode(this)),
     qmLed(new MeeGo::QmLED(this)),
-    chargerType(QtMobility::QSystemBatteryInfo::UnknownCharger)
+    chargerType(QBatteryInfo::UnknownCharger)
 {
-    connect(batteryInfo, SIGNAL(batteryStatusChanged(QSystemBatteryInfo::BatteryStatus)), this, SLOT(applyBatteryStatus(QSystemBatteryInfo::BatteryStatus)));
-    connect(batteryInfo, SIGNAL(chargingStateChanged(QSystemBatteryInfo::ChargingState)), this, SLOT(applyChargingState(QSystemBatteryInfo::ChargingState)));
-    connect(batteryInfo, SIGNAL(chargerTypeChanged(QSystemBatteryInfo::ChargerType)), this, SLOT(applyChargerType(QSystemBatteryInfo::ChargerType)));
+#ifndef UNIT_TEST
+    connect(batteryInfo, SIGNAL(batteryStatusChanged(int,QBatteryInfo::BatteryStatus)), this, SLOT(applyBatteryStatus(int,QBatteryInfo::BatteryStatus)));
+    connect(batteryInfo, SIGNAL(chargingStateChanged(int,QBatteryInfo::ChargingState)), this, SLOT(applyChargingState(int,QBatteryInfo::ChargingState)));
+    connect(batteryInfo, SIGNAL(chargerTypeChanged(QBatteryInfo::ChargerType)), this, SLOT(applyChargerType(QBatteryInfo::ChargerType)));
+#endif
     connect(qmDeviceMode, SIGNAL(devicePSMStateChanged(MeeGo::QmDeviceMode::PSMState)), this, SLOT(applyPSMState(MeeGo::QmDeviceMode::PSMState)));
 
     // Init battery values delayed...
@@ -48,8 +50,8 @@ BatteryNotifier::~BatteryNotifier()
 
 void BatteryNotifier::initBattery()
 {
-    applyChargingState(batteryInfo->chargingState());
-    applyBatteryStatus(batteryInfo->batteryStatus());
+    applyChargingState(0, batteryInfo->chargingState(0));
+    applyBatteryStatus(0, batteryInfo->batteryStatus(0));
 }
 
 void BatteryNotifier::lowBatteryAlert()
@@ -57,11 +59,11 @@ void BatteryNotifier::lowBatteryAlert()
     sendNotification(NotificationLowBattery);
 }
 
-void BatteryNotifier::applyChargingState(QtMobility::QSystemBatteryInfo::ChargingState state)
+void BatteryNotifier::applyChargingState(int, QBatteryInfo::ChargingState state)
 {
     switch(state) {
-    case QtMobility::QSystemBatteryInfo::Charging:
-        if (batteryInfo->chargerType() == QtMobility::QSystemBatteryInfo::USB_100mACharger) {
+    case QBatteryInfo::Charging:
+        if (batteryInfo->chargerType() == QBatteryInfo::USBCharger && batteryInfo->currentFlow(0) <= 100) {
             sendNotification(NotificationNoEnoughPower);
         } else {
             // The low battery notifications should not be sent when the battery is charging
@@ -72,38 +74,39 @@ void BatteryNotifier::applyChargingState(QtMobility::QSystemBatteryInfo::Chargin
         }
         break;
 
-    case QtMobility::QSystemBatteryInfo::NotCharging:
+    case QBatteryInfo::NotCharging:
+        sendNotification(NotificationChargingNotStarted);
+        break;
+
+    default:
         removeNotification(QStringList() << "x-nemo.battery");
         utiliseLED(false, QString("PatternBatteryCharging"));
         break;
 
-    case QtMobility::QSystemBatteryInfo::ChargingError:
-        sendNotification(NotificationChargingNotStarted);
-        break;
     }
 }
 
-void BatteryNotifier::applyBatteryStatus(QtMobility::QSystemBatteryInfo::BatteryStatus status)
+void BatteryNotifier::applyBatteryStatus(int, QBatteryInfo::BatteryStatus status)
 {
     switch(status) {
-    case QtMobility::QSystemBatteryInfo::BatteryFull:
+    case QBatteryInfo::BatteryFull:
         stopLowBatteryNotifier();
         removeNotification(QStringList() << "x-nemo.battery");
         sendNotification(NotificationChargingComplete);
         break;
 
-    case QtMobility::QSystemBatteryInfo::BatteryOk:
+    case QBatteryInfo::BatteryOk:
         stopLowBatteryNotifier();
         break;
 
-    case QtMobility::QSystemBatteryInfo::BatteryLow:
-        if (batteryInfo->chargingState() != QtMobility::QSystemBatteryInfo::Charging) {
+    case QBatteryInfo::BatteryLow:
+        if (batteryInfo->chargingState(0) != QBatteryInfo::Charging) {
             // The low battery notifications should be sent only if the battery is not charging
             startLowBatteryNotifier();
         }
         break;
 
-    case QtMobility::QSystemBatteryInfo::BatteryEmpty:
+    case QBatteryInfo::BatteryEmpty:
         sendNotification(NotificationRechargeBattery);
         break;
 
@@ -112,10 +115,10 @@ void BatteryNotifier::applyBatteryStatus(QtMobility::QSystemBatteryInfo::Battery
     }
 }
 
-void BatteryNotifier::applyChargerType(QtMobility::QSystemBatteryInfo::ChargerType type)
+void BatteryNotifier::applyChargerType(QBatteryInfo::ChargerType type)
 {
     switch(type) {
-    case QtMobility::QSystemBatteryInfo::NoCharger:
+    case QBatteryInfo::UnknownCharger:
         /*
          * After the user plugs out the charger from the device, this system
          * banner is displayed to remind the users to unplug charger from
@@ -123,27 +126,15 @@ void BatteryNotifier::applyChargerType(QtMobility::QSystemBatteryInfo::ChargerTy
          * notification should not be shown in case if USB cable is used for
          * charging the device.
          */
-        if (chargerType == QtMobility::QSystemBatteryInfo::WallCharger) {
+        if (chargerType == QBatteryInfo::WallCharger) {
             removeNotification(QStringList() << "x-nemo.battery" << "x-nemo.battery.chargingcomplete");
             sendNotification(NotificationRemoveCharger);
         }
 
-        if (chargerType != QtMobility::QSystemBatteryInfo::NoCharger && chargerType != QtMobility::QSystemBatteryInfo::USB_100mACharger && batteryInfo->batteryStatus() == QtMobility::QSystemBatteryInfo::BatteryLow && batteryInfo->chargingState() != QtMobility::QSystemBatteryInfo::Charging) {
+        if (chargerType != QBatteryInfo::UnknownCharger && chargerType != QBatteryInfo::USBCharger && batteryInfo->batteryStatus(0) == QBatteryInfo::BatteryLow && batteryInfo->chargingState(0) != QBatteryInfo::Charging) {
             // A charger was connected but is no longer connected and the battery is low, so start low battery notifier
             startLowBatteryNotifier();
         }
-        break;
-
-    case QtMobility::QSystemBatteryInfo::WallCharger:
-        // Wall charger
-        break;
-
-    case QtMobility::QSystemBatteryInfo::USB_500mACharger:
-        // USB with 500mA output
-        break;
-
-    case QtMobility::QSystemBatteryInfo::USB_100mACharger:
-        // USB with 100mA output
         break;
 
     default:
@@ -257,7 +248,8 @@ void BatteryNotifier::removeNotification(const QStringList &categories)
 
 QString BatteryNotifier::chargingImageId()
 {
-    int percentage = batteryInfo->remainingCapacityPercent();
+    int maximumCapacity = batteryInfo->maximumCapacity(0);
+    int percentage = batteryInfo->remainingCapacity(0) * 100 / (maximumCapacity != 0 ? maximumCapacity : 1);
 
     if (percentage >= 84) {
         return QString("icon-m-energy-management-charging8");
@@ -289,6 +281,7 @@ void BatteryNotifier::setTouchScreenLockActive(bool active)
 
 void BatteryNotifier::startLowBatteryNotifier()
 {
+    qWarning("XX START");
     if (lowBatteryNotifier == NULL) {
         lowBatteryNotifier = new LowBatteryNotifier();
         connect(lowBatteryNotifier, SIGNAL(lowBatteryAlert()), this, SLOT(lowBatteryAlert()));

@@ -29,10 +29,6 @@
 
 #include "launcheritem.h"
 
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
-#include "xtools/homewindowmonitor.h"
-#endif
-
 // Define this if you'd like to see debug messages from the launcher
 #ifdef DEBUG_LAUNCHER
 #define LAUNCHER_DEBUG(things) qDebug() << Q_FUNC_INFO << things
@@ -48,11 +44,8 @@ LauncherItem::LauncherItem(const QString &filePath, QObject *parent)
         setFilePath(filePath);
     }
 
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
-    // TODO: instead of this, match the PID of the window thumbnails with the launcher processes
+    // TODO: match the PID of the window thumbnails with the launcher processes
     // Launching animation will be disabled if the window of the launched app shows up
-    connect(HomeWindowMonitor::instance(), SIGNAL(isHomeWindowOnTopChanged()), this, SLOT(disableIsLaunching()));
-#endif
 }
 
 LauncherItem::~LauncherItem()

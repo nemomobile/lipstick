@@ -14,32 +14,32 @@
 **
 ****************************************************************************/
 #include <QtTest/QtTest>
-#include <QDeclarativeView>
-#include <QDeclarativeContext>
-#include <QDesktopWidget>
+#include <QQuickView>
+#include <QQmlContext>
+#include <QScreen>
 #include <usbmodeselector.h>
 
 #include "ut_usbmodeselector.h"
-
-#ifdef HAVE_QMSYSTEM
 #include "qmlocks_stub.h"
 #include "qmusbmode_stub.h"
-#endif
 
 #include "notificationmanager_stub.h"
 #include "closeeventeater_stub.h"
 
-QList<QDeclarativeView *> qDeclarativeViews;
-void QDeclarativeView::setSource(const QUrl &)
+QList<QQuickView *> qQuickViews;
+void QQuickView::setSource(const QUrl &)
 {
-    qDeclarativeViews.append(this);
+    qQuickViews.append(this);
 }
 
-QHash<QWidget *, bool> qWidgetVisible;
-void QWidget::setVisible(bool visible)
+QHash<QWindow *, bool> qWindowVisible;
+void QWindow::show()
 {
-    setAttribute(Qt::WA_WState_Visible, visible);
-    qWidgetVisible[this] = visible;
+    qWindowVisible[this] = true;
+}
+void QWindow::hide()
+{
+    qWindowVisible[this] = false;
 }
 
 int argc = 1;
@@ -56,9 +56,7 @@ void Ut_USBModeSelector::cleanupTestCase()
 void Ut_USBModeSelector::init()
 {
     usbModeSelector = new USBModeSelector;
-#ifdef HAVE_QMSYSTEM
     usbModeSelector->usbMode->setMode(MeeGo::QmUSBMode::Undefined);
-#endif
 
     gNotificationManagerStub->stubReset();
     gNotificationManagerStub->stubSetReturnValue("Notify", (uint)1);
@@ -67,19 +65,16 @@ void Ut_USBModeSelector::init()
 void Ut_USBModeSelector::cleanup()
 {
     delete usbModeSelector;
-    qDeclarativeViews.clear();
-    qWidgetVisible.clear();
+    qQuickViews.clear();
+    qWindowVisible.clear();
     gNotificationManagerStub->stubReset();
 }
 
 void Ut_USBModeSelector::testConnections()
 {
-#ifdef HAVE_QMSYSTEM
     QCOMPARE(disconnect(usbModeSelector->usbMode, SIGNAL(modeChanged(MeeGo::QmUSBMode::Mode)), usbModeSelector, SLOT(applyUSBMode(MeeGo::QmUSBMode::Mode))), true);
-#endif
 }
 
-#ifdef HAVE_QMSYSTEM
 Q_DECLARE_METATYPE(MeeGo::QmUSBMode::Mode)
 
 void Ut_USBModeSelector::testShowDialog_data()
@@ -98,20 +93,22 @@ void Ut_USBModeSelector::testShowDialog()
     usbModeSelector->usbMode->setDefaultMode(mode);
     usbModeSelector->applyUSBMode(mode);
 
-    QCOMPARE(qDeclarativeViews.count(), 1);
+    QCOMPARE(qQuickViews.count(), 1);
 
     // Check window properties
-    QCOMPARE(qDeclarativeViews.first()->testAttribute(Qt::WA_TranslucentBackground), true);
-    QCOMPARE(qDeclarativeViews.first()->testAttribute(Qt::WA_X11DoNotAcceptFocus), true);
-    QCOMPARE(qDeclarativeViews.first()->testAttribute(Qt::WA_X11NetWmWindowTypeMenu), true);
-    QCOMPARE(qDeclarativeViews.first()->windowTitle(), QString("USB Mode"));
-    QCOMPARE(qDeclarativeViews.first()->resizeMode(), QDeclarativeView::SizeRootObjectToView);
-    QCOMPARE(qDeclarativeViews.first()->viewport()->autoFillBackground(), false);
-    QCOMPARE(qDeclarativeViews.first()->rootContext()->contextProperty("initialSize").toSize(), QApplication::desktop()->screenGeometry(qDeclarativeViews.first()).size());
-    QCOMPARE(qDeclarativeViews.first()->rootContext()->contextProperty("usbModeSelector"), QVariant::fromValue(static_cast<QObject *>(usbModeSelector)));
+    /*
+    QCOMPARE(qQuickViews.first()->testAttribute(Qt::WA_TranslucentBackground), true);
+    QCOMPARE(qQuickViews.first()->testAttribute(Qt::WA_X11DoNotAcceptFocus), true);
+    QCOMPARE(qQuickViews.first()->testAttribute(Qt::WA_X11NetWmWindowTypeMenu), true);
+    QCOMPARE(qQuickViews.first()->windowTitle(), QString("USB Mode"));
+    QCOMPARE(qQuickViews.first()->viewport()->autoFillBackground(), false);
+    */
+    QCOMPARE(qQuickViews.first()->resizeMode(), QQuickView::SizeRootObjectToView);
+    QCOMPARE(qQuickViews.first()->rootContext()->contextProperty("initialSize").toSize(), QGuiApplication::primaryScreen()->size());
+    QCOMPARE(qQuickViews.first()->rootContext()->contextProperty("usbModeSelector"), QVariant::fromValue(static_cast<QObject *>(usbModeSelector)));
 
     // Check that the window was shown
-    QCOMPARE(qWidgetVisible[static_cast<QWidget *>(qDeclarativeViews.first())], true);
+    QCOMPARE(qWindowVisible[static_cast<QWindow *>(qQuickViews.first())], true);
     QCOMPARE(spy.count(), 1);
 }
 
@@ -132,7 +129,7 @@ void Ut_USBModeSelector::testHideDialog()
     usbModeSelector->usbMode->setDefaultMode(MeeGo::QmUSBMode::Ask);
     usbModeSelector->applyUSBMode(MeeGo::QmUSBMode::Ask);
     usbModeSelector->applyUSBMode(mode);
-    QCOMPARE(qWidgetVisible[static_cast<QWidget *>(qDeclarativeViews.first())], false);
+    QCOMPARE(qWindowVisible[static_cast<QWindow *>(qQuickViews.first())], false);
 }
 
 void Ut_USBModeSelector::testUSBNotifications_data()
@@ -180,7 +177,6 @@ void Ut_USBModeSelector::testConnectingUSBWhenDeviceIsLockedEmitsDialogShown()
     usbModeSelector->applyUSBMode(MeeGo::QmUSBMode::Connected);
     QCOMPARE(spy.count(), dialogShownCount);
 }
-#endif
 
 void Ut_USBModeSelector::testShowError()
 {
@@ -196,12 +192,10 @@ void Ut_USBModeSelector::testShowError()
     QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QVariantHash>(6).value(NotificationManager::HINT_PREVIEW_BODY).toString(), qtTrId("qtn_usb_mount_failed"));
 }
 
-#ifdef HAVE_QMSYSTEM
 void Ut_USBModeSelector::testSetUSBMode()
 {
     usbModeSelector->setUSBMode(5);
     QCOMPARE(testMode, (MeeGo::QmUSBMode::Mode)5);
 }
-#endif
 
 QTEST_MAIN (Ut_USBModeSelector)

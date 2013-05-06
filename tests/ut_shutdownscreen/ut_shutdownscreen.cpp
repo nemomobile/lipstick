@@ -14,29 +14,29 @@
 **
 ****************************************************************************/
 #include <QtTest/QtTest>
-#include <QDeclarativeView>
-#include <QDeclarativeContext>
-#include <QDesktopWidget>
+#include <QQuickView>
+#include <QQmlContext>
+#include <QScreen>
 #include "shutdownscreen.h"
 #include "homeapplication.h"
 #include "ut_shutdownscreen.h"
 #include "notificationmanager_stub.h"
 #include "closeeventeater_stub.h"
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
-#include "x11wrapper_modified_stub.h"
-#endif
 
-QList<QDeclarativeView *> qDeclarativeViews;
-void QDeclarativeView::setSource(const QUrl &)
+QList<QQuickView *> qQuickViews;
+void QQuickView::setSource(const QUrl &)
 {
-    qDeclarativeViews.append(this);
+    qQuickViews.append(this);
 }
 
-QHash<QWidget *, bool> qWidgetVisible;
-void QWidget::setVisible(bool visible)
+QHash<QWindow *, bool> qWindowVisible;
+void QWindow::show()
 {
-    setAttribute(Qt::WA_WState_Visible, visible);
-    qWidgetVisible[this] = visible;
+    qWindowVisible[this] = true;
+}
+void QWindow::hide()
+{
+    qWindowVisible[this] = false;
 }
 
 HomeApplication::~HomeApplication()
@@ -56,11 +56,6 @@ void HomeApplication::restoreSignalHandlers()
 
 void HomeApplication::sendStartupNotifications()
 {
-}
-
-bool HomeApplication::eventFilter(QObject *, QEvent *)
-{
-    return false;
 }
 
 int argc = 1;
@@ -85,12 +80,11 @@ void Ut_ShutdownScreen::init()
 void Ut_ShutdownScreen::cleanup()
 {
     delete shutdownScreen;
-    qDeclarativeViews.clear();
-    qWidgetVisible.clear();
+    qQuickViews.clear();
+    qWindowVisible.clear();
     gNotificationManagerStub->stubReset();
 }
 
-#ifdef HAVE_QMSYSTEM
 void Ut_ShutdownScreen::testConnections()
 {
     QCOMPARE(disconnect(shutdownScreen->systemState, SIGNAL(systemStateChanged(MeeGo::QmSystemState::StateIndication)), shutdownScreen, SLOT(applySystemState(MeeGo::QmSystemState::StateIndication))), true);
@@ -100,43 +94,44 @@ void Ut_ShutdownScreen::testSystemState()
 {
     QSignalSpy spy(shutdownScreen, SIGNAL(windowVisibleChanged()));
     shutdownScreen->applySystemState(MeeGo::QmSystemState::ThermalStateFatal);
-    QCOMPARE(qDeclarativeViews.count(), 0);
+    QCOMPARE(qQuickViews.count(), 0);
     QCOMPARE(gNotificationManagerStub->stubCallCount("Notify"), 1);
     QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QVariantHash>(6).value(NotificationManager::HINT_CATEGORY).toString(), QString("x-nemo.battery.temperature"));
     QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QVariantHash>(6).value(NotificationManager::HINT_PREVIEW_BODY).toString(), qtTrId("qtn_shut_high_temp"));
     QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QString>(2), QString());
 
     shutdownScreen->applySystemState(MeeGo::QmSystemState::ShutdownDeniedUSB);
-    QCOMPARE(qDeclarativeViews.count(), 0);
+    QCOMPARE(qQuickViews.count(), 0);
     QCOMPARE(gNotificationManagerStub->stubCallCount("Notify"), 2);
     QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QVariantHash>(6).value(NotificationManager::HINT_CATEGORY).toString(), QString("device.added"));
     QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QVariantHash>(6).value(NotificationManager::HINT_PREVIEW_BODY).toString(), qtTrId("qtn_shut_unplug_usb"));
     QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QString>(2), QString());
 
     shutdownScreen->applySystemState(MeeGo::QmSystemState::BatteryStateEmpty);
-    QCOMPARE(qDeclarativeViews.count(), 0);
+    QCOMPARE(qQuickViews.count(), 0);
     QCOMPARE(gNotificationManagerStub->stubCallCount("Notify"), 3);
     QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QVariantHash>(6).value(NotificationManager::HINT_CATEGORY).toString(), QString("x-nemo.battery.shutdown"));
     QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QVariantHash>(6).value(NotificationManager::HINT_PREVIEW_BODY).toString(), qtTrId("qtn_shut_batt_empty"));
     QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QString>(2), QString());
 
     shutdownScreen->applySystemState(MeeGo::QmSystemState::Shutdown);
-    QCOMPARE(qDeclarativeViews.count(), 1);
+    QCOMPARE(qQuickViews.count(), 1);
 
     // Check window properties
-    QCOMPARE(qDeclarativeViews.first()->testAttribute(Qt::WA_TranslucentBackground), true);
-    QCOMPARE(qDeclarativeViews.first()->testAttribute(Qt::WA_X11DoNotAcceptFocus), true);
-    QCOMPARE(qDeclarativeViews.first()->testAttribute(Qt::WA_X11NetWmWindowTypeNotification), true);
-    QCOMPARE(qDeclarativeViews.first()->windowTitle(), QString("Shutdown"));
-    QCOMPARE(qDeclarativeViews.first()->resizeMode(), QDeclarativeView::SizeRootObjectToView);
-    QCOMPARE(qDeclarativeViews.first()->viewport()->autoFillBackground(), false);
-    QCOMPARE(qDeclarativeViews.first()->rootContext()->contextProperty("initialSize").toSize(), QApplication::desktop()->screenGeometry(qDeclarativeViews.first()).size());
-    QCOMPARE(qDeclarativeViews.first()->rootContext()->contextProperty("shutdownScreen"), QVariant::fromValue(static_cast<QObject *>(shutdownScreen)));
+    /*
+    QCOMPARE(qQuickViews.first()->testAttribute(Qt::WA_TranslucentBackground), true);
+    QCOMPARE(qQuickViews.first()->testAttribute(Qt::WA_X11DoNotAcceptFocus), true);
+    QCOMPARE(qQuickViews.first()->testAttribute(Qt::WA_X11NetWmWindowTypeNotification), true);
+    QCOMPARE(qQuickViews.first()->windowTitle(), QString("Shutdown"));
+    QCOMPARE(qQuickViews.first()->viewport()->autoFillBackground(), false);
+    */
+    QCOMPARE(qQuickViews.first()->resizeMode(), QQuickView::SizeRootObjectToView);
+    QCOMPARE(qQuickViews.first()->rootContext()->contextProperty("initialSize").toSize(), QGuiApplication::primaryScreen()->size());
+    QCOMPARE(qQuickViews.first()->rootContext()->contextProperty("shutdownScreen"), QVariant::fromValue(static_cast<QObject *>(shutdownScreen)));
 
     // Check that the window was shown
-    QCOMPARE(qWidgetVisible[static_cast<QWidget *>(qDeclarativeViews.first())], true);
+    QCOMPARE(qWindowVisible[static_cast<QWindow *>(qQuickViews.first())], true);
     QCOMPARE(spy.count(), 1);
 }
-#endif
 
 QTEST_MAIN (Ut_ShutdownScreen)

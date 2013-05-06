@@ -2,17 +2,8 @@ include(../common.pri)
 TARGET = ut_shutdownscreen
 CONFIG += link_pkgconfig
 INCLUDEPATH += $$SRCDIR $$NOTIFICATIONSRCDIR $$UTILITYSRCDIR $$XTOOLSRCDIR
-QT += declarative
-
-equals(QT_MAJOR_VERSION, 4): QMSYSTEM = qmsystem2
-equals(QT_MAJOR_VERSION, 5): QMSYSTEM = qmsystem2-qt5
-
-packagesExist($$QMSYSTEM) {
-    PKGCONFIG += $$QMSYSTEM
-    DEFINES += HAVE_QMSYSTEM
-} else {
-    warning("QmSystem2 not found")
-}
+QT += qml quick
+PKGCONFIG += qmsystem2-qt5
 
 # unit test and unit
 SOURCES += \

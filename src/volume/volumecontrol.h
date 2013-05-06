@@ -20,12 +20,9 @@
 #include <QObject>
 #include "lipstickglobal.h"
 
-class QDeclarativeView;
+class QQuickView;
 class PulseAudioControl;
-
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
 class VolumeKeyListener;
-#endif
 
 namespace ResourcePolicy {
     class ResourceSet;
@@ -125,9 +122,9 @@ private slots:
      * Internal slot to handle the hardware volume-key presses (see QmKeys API documentation)
      *
      * \param key the key type
-     * \param state the key new state
+     * \param press \c true if the key was pressed, \c false otherwise
      */
-    void hwKeyEvent(unsigned int key, int eventType);
+    void hwKeyEvent(unsigned int key, bool press = true);
 
     //! An internal slot to handle the case when we got the hardware volume keys resource
     void hwKeyResourceAcquired();
@@ -143,7 +140,7 @@ private slots:
 
 private:
     //! The volume control window
-    QDeclarativeView *window;
+    QQuickView *window;
 
     //! PulseAudio volume controller
     PulseAudioControl *pulseAudioControl;
@@ -151,10 +148,8 @@ private:
     //! A resource object for access to the volume keys
     ResourcePolicy::ResourceSet *hwKeyResource;
 
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
     //! For getting signals about volume key presses
     VolumeKeyListener *hwKeys;
-#endif
 
     //! The current volume
     int volume_;

@@ -18,11 +18,9 @@
 
 #include <QObject>
 #include "lipstickglobal.h"
-#ifdef HAVE_QMSYSTEM
 #include <qmsystemstate.h>
-#endif
 
-class QDeclarativeView;
+class QQuickView;
 
 class LIPSTICK_EXPORT ShutdownScreen : public QObject
 {
@@ -51,7 +49,6 @@ signals:
     void windowVisibleChanged();
 
 private slots:
-#ifdef HAVE_QMSYSTEM
     /*!
      * Reacts to system state changes by showing the shutdown screen or a
      * related notification.
@@ -59,7 +56,6 @@ private slots:
      * \param what how the system state has changed
      */
     void applySystemState(MeeGo::QmSystemState::StateIndication what);
-#endif
 
 private:
     /*!
@@ -71,12 +67,10 @@ private:
     void createAndPublishNotification(const QString &category, const QString &body);
 
     //! The volume control window
-    QDeclarativeView *window;
+    QQuickView *window;
 
-#ifdef HAVE_QMSYSTEM
     //! For getting the system state
     MeeGo::QmSystemState *systemState;
-#endif
 
 #ifdef UNIT_TEST
     friend class Ut_ShutdownScreen;

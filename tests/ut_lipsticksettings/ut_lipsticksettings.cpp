@@ -24,15 +24,15 @@ HomeApplication *HomeApplication::instance()
     return 0;
 }
 
-QDeclarativeView *homeApplicationMainWindowInstance = 0;
-QDeclarativeView *HomeApplication::mainWindowInstance()
+QQuickView *homeApplicationMainWindowInstance = 0;
+QQuickView *HomeApplication::mainWindowInstance()
 {
     return homeApplicationMainWindowInstance;
 }
 
 void Ut_LipstickSettings::initTestCase()
 {
-    homeApplicationMainWindowInstance = new QDeclarativeView;
+    homeApplicationMainWindowInstance = new QQuickView;
 }
 
 void Ut_LipstickSettings::cleanupTestCase()

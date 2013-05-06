@@ -21,10 +21,7 @@
 
 #include <QObject>
 #include <QTime>
-
-#ifdef HAVE_QMSYSTEM
 #include <qmdisplaystate.h>
-#endif
 
 #ifdef HAVE_CONTEXTSUBSCRIBER
 #include <contextproperty.h>
@@ -70,10 +67,8 @@ signals:
     void lowBatteryAlert();
 
 private:
-#ifdef HAVE_QMSYSTEM
     //! For getting the display state
     MeeGo::QmDisplayState *displayState;
-#endif
 
 #ifdef HAVE_CONTEXTSUBSCRIBER
     //! Call state context framework key

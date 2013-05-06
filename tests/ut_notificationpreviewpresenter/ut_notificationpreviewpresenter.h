@@ -30,19 +30,13 @@ private slots:
     void testAddNotificationWhenWindowAlreadyOpen();
     void testUpdateNotification();
     void testRemoveNotification();
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
-    void testWindowMasking_data();
-    void testWindowMasking();
-#endif
     void testNotificationNotShownIfNoSummaryOrBody_data();
     void testNotificationNotShownIfNoSummaryOrBody();
     void testNotificationNotShownIfHidden();
     void testShowingOnlyCriticalNotifications();
     void testUpdateNotificationRemovesNotificationFromQueueIfNotShowable();
-#ifdef HAVE_QMSYSTEM
     void testNotificationNotShownIfTouchScreenIsLockedAndDisplayIsOff_data();
     void testNotificationNotShownIfTouchScreenIsLockedAndDisplayIsOff();
-#endif
     void testCriticalNotificationIsClosedAfterShowing();
 };
 

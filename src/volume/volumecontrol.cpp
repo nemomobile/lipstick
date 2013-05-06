@@ -16,29 +16,21 @@
 #include <dbus/dbus.h>
 #include <policy/resource-set.h>
 #include <linux/input.h>
-#include <QApplication>
-#include <QDeclarativeView>
-#include <QDeclarativeContext>
-#include <QDesktopWidget>
+#include <QGuiApplication>
+#include <QQuickView>
+#include <QQmlContext>
+#include <QScreen>
 #include "utilities/closeeventeater.h"
 #include "pulseaudiocontrol.h"
 #include "volumecontrol.h"
-
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
 #include "volumekeylistener.h"
-#include <QX11Info>
-#include <X11/extensions/shape.h>
-#include "xtools/x11wrapper.h"
-#endif
 
 VolumeControl::VolumeControl(QObject *parent) :
     QObject(parent),
     window(0),
     pulseAudioControl(new PulseAudioControl(this)),
     hwKeyResource(new ResourcePolicy::ResourceSet("event")),
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
     hwKeys(new VolumeKeyListener(this)),
-#endif
     volume_(0),
     maximumVolume_(0)
 {
@@ -84,25 +76,19 @@ void VolumeControl::setWindowVisible(bool visible)
 {
     if (visible) {
         if (window == 0) {
-            window = new QDeclarativeView();
+            window = new QQuickView();
+            /*
             window->setAttribute(Qt::WA_TranslucentBackground);
             window->setAttribute(Qt::WA_X11DoNotAcceptFocus);
             window->setAttribute(Qt::WA_X11NetWmWindowTypeNotification);
             window->setWindowTitle("Volume");
-            window->setResizeMode(QDeclarativeView::SizeRootObjectToView);
+            window->setResizeMode(QQuickView::SizeRootObjectToView);
             window->viewport()->setAutoFillBackground(false);
-            window->rootContext()->setContextProperty("initialSize", QApplication::desktop()->screenGeometry(window).size());
+            */
+            window->rootContext()->setContextProperty("initialSize", QGuiApplication::primaryScreen()->size());
             window->rootContext()->setContextProperty("volumeControl", this);
             window->setSource(QUrl("qrc:/qml/VolumeControl.qml"));
             window->installEventFilter(new CloseEventEater(this));
-
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
-            Display *dpy = QX11Info::display();
-            XserverRegion shapeRegion = X11Wrapper::XFixesCreateRegion(dpy, NULL, 0);
-            X11Wrapper::XFixesSetWindowShapeRegion(dpy, window->winId(), ShapeInput, 0, 0, shapeRegion);
-            X11Wrapper::XFixesDestroyRegion(dpy, shapeRegion);
-            X11Wrapper::XSync(dpy, False);
-#endif
         }
 
         if (!window->isVisible()) {
@@ -136,55 +122,42 @@ void VolumeControl::setMaximumVolume(int maximumVolume)
     }
 }
 
-void VolumeControl::hwKeyEvent(unsigned int key, int eventType)
+void VolumeControl::hwKeyEvent(unsigned int key, bool press)
 {
     if (!(key == KEY_VOLUMEUP || key == KEY_VOLUMEDOWN)) {
         // Do nothing when a non-volume key is pressed
         return;
     }
 
-    switch (eventType) {
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
-    case KeyPress:
+    if (press) {
         // Key down: set which way to change the volume on each repeat, start the repeat delay timer and change the volume once
         volumeChange = key == KEY_VOLUMEUP ? 1 : -1;
         if (!keyRepeatDelayTimer.isActive() && !keyRepeatTimer.isActive()) {
             keyRepeatDelayTimer.start();
             changeVolume();
         }
-        break;
-    case KeyRelease:
+    } else {
         // Key up: stop any key repeating in progress
         keyReleaseTimer.start();
-        break;
-#endif
-    default:
-        break;
     }
 }
 
 void VolumeControl::hwKeyResourceAcquired()
 {
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
     hwKeys->disconnect();
     connect(hwKeys, SIGNAL(keyEvent(uint, int)), this, SLOT(hwKeyEvent(uint, int)));
-#endif
 }
 
 void VolumeControl::hwKeyResourceLost()
 {
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
     hwKeys->disconnect();
-#endif
     stopKeyRepeat();
 }
 
 void VolumeControl::releaseKeys()
 {
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
     hwKeys->disconnect();
     hwKeyResource->release();
-#endif
     stopKeyRepeat();
 }
 

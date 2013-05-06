@@ -17,17 +17,13 @@
 #define VOLUMEKEYLISTENER_H
 
 #include <QObject>
-#include "xtools/xeventlistener.h"
 
 /*!
  * \class VolumeKeyListener
  *
  * \brief Listens to KeyPress and KeyRelease events in all windows.
- *
- * Calls XSelectInput for all windows in the _NET_CLIENT_LIST except
- * Lipstick's own windows in order to listen to key presses and releases.
  */
-class VolumeKeyListener : public QObject, XEventListener
+class VolumeKeyListener : public QObject
 {
     Q_OBJECT
 
@@ -39,17 +35,9 @@ public:
      */
     VolumeKeyListener(QObject *parent = 0);
 
-    //! \reimp
-    virtual bool handleXEvent(const XEvent &event);
-    //! \reimp_end
-
 signals:
     //! Sent when a volume key is pressed or released
     void keyEvent(unsigned int key, int type);
-
-private:
-    //! Calls XSelectInput for all windows in the _NET_CLIENT_LIST except Lipstick's own windows
-    void selectKeyPressInputForAllWindows();
 };
 
 #endif // VOLUMEKEYLISTENER_H

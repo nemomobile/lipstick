@@ -16,12 +16,11 @@
 
 #include "connectionselector.h"
 
-#include <QApplication>
-#include <QDeclarativeView>
-#include <QDeclarativeContext>
-#include <QDesktopWidget>
-#include <QGraphicsObject>
-
+#include <QGuiApplication>
+#include <QQuickView>
+#include <QQuickItem>
+#include <QQmlContext>
+#include <QScreen>
 
 #include "utilities/closeeventeater.h"
 #include "notifications/notificationmanager.h"
@@ -31,17 +30,20 @@ ConnectionSelector::ConnectionSelector(QObject *parent) :
     window(0),
     currentNotification(0)
 {
-    window = new QDeclarativeView();
+    window = new QQuickView();
+    window->setGeometry(QRect(QPoint(), QGuiApplication::primaryScreen()->size()));
+    window->setResizeMode(QQuickView::SizeRootObjectToView);
+    /*
     window->setAttribute(Qt::WA_TranslucentBackground);
     window->setAttribute(Qt::WA_X11NetWmWindowTypeMenu);
     window->setWindowTitle("Connection");
-    window->setResizeMode(QDeclarativeView::SizeRootObjectToView);
     window->viewport()->setAutoFillBackground(false);
+    */
     window->rootContext()->setContextProperty("connectionSelector", this);
-    window->rootContext()->setContextProperty("initialSize", QApplication::desktop()->screenGeometry(window).size());
+    window->rootContext()->setContextProperty("initialSize", QGuiApplication::primaryScreen()->size());
     window->setSource(QUrl("qrc:/qml/ConnectionSelector.qml"));
     window->installEventFilter(new CloseEventEater(this));
-    QObject *rootObject = window->rootObject();
+    QQuickItem *rootObject = window->rootObject();
     QObject::connect(rootObject,SIGNAL(canceled()),this,SLOT(onCanceled()));
     QObject::connect(rootObject,SIGNAL(connectionRequested()),
                      this,SLOT(onConnectionRequest()));
@@ -54,7 +56,7 @@ ConnectionSelector::~ConnectionSelector()
 
 void ConnectionSelector::setWindowVisible(bool visible)
 {
-    window->resize(QApplication::desktop()->screenGeometry(window).size());
+    window->resize(QGuiApplication::primaryScreen()->size());
     if (visible) {
 
         if (!window->isVisible()) {

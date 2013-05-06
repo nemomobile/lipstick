@@ -34,13 +34,11 @@ private slots:
     void cleanupTestCase();
     void testConnections();
     void testKeyRepeatSetup();
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
     void testHwKeyEvent_data();
     void testHwKeyEvent();
     void testHwKeyEventWhenKeyRepeatDelayIsInProgress();
     void testHwKeyEventWhenKeyRepeatIsInProgress();
     void testHwKeyEventWhenKeyReleaseIsInProgress();
-#endif
     void testAcquireKeys();
     void testReleaseKeys();
 

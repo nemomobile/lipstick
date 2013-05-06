@@ -15,9 +15,8 @@
 // Copyright (c) 2012, Robin Burchell <robin+nemo@viroteck.net>
 //
 
-#include <QDebug>
-#include <QDesktopWidget>
-
+#include <QGuiApplication>
+#include <QScreen>
 #include "screenlock/screenlock.h"
 #include "homeapplication.h"
 #include "lipsticksettings.h"
@@ -59,6 +58,6 @@ void LipstickSettings::setLockscreenVisible(bool lockscreenVisible)
 
 QSize LipstickSettings::screenSize()
 {
-    return QApplication::desktop()->screenGeometry(HomeApplication::instance()->mainWindowInstance()).size();
+    return QGuiApplication::primaryScreen()->size();
 }
 

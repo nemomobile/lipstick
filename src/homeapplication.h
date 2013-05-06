@@ -14,8 +14,8 @@
 #define HOMEAPPLICATION_H_
 
 #include <signal.h>
-#include <QApplication>
-#include <QDeclarativeView>
+#include <QGuiApplication>
+#include <QQuickView>
 #include "lipstickglobal.h"
 
 class XEventListener;
@@ -29,11 +29,11 @@ class ConnectionSelector;
 /*!
  * Extends QApplication with features necessary to create a desktop.
  */
-class LIPSTICK_EXPORT HomeApplication : public QApplication
+class LIPSTICK_EXPORT HomeApplication : public QGuiApplication
 {
     Q_OBJECT
 
-    QDeclarativeView *_mainWindowInstance;
+    QQuickView *_mainWindowInstance;
     QString _qmlPath;
 
 public:
@@ -57,7 +57,7 @@ public:
       * Gets the main window instance associated to this application.
       * If it hasn't been created yet, this will create it.
       */
-    QDeclarativeView *mainWindowInstance();
+    QQuickView *mainWindowInstance();
 
     /*!
       * Gets the path to the QML file to display.
@@ -73,8 +73,6 @@ public:
      * Restores any installed signal handlers.
      */
     void restoreSignalHandlers();
-
-    virtual bool eventFilter(QObject *, QEvent *);
 
 private slots:
     /*!
@@ -99,10 +97,8 @@ private:
     //! Logic for setting the device volume
     VolumeControl *volumeControl;
 
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
     //! Logic for notifying about battery state
     BatteryNotifier *batteryNotifier;
-#endif
 
     //! Logic for showing the USB mode selection dialog
     USBModeSelector *usbModeSelector;

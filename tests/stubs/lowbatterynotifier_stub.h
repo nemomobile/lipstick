@@ -45,7 +45,11 @@ LowBatteryNotifierStub* gLowBatteryNotifierStub = &gDefaultLowBatteryNotifierStu
 
 
 // 4. CREATE A PROXY WHICH CALLS THE STUB
-LowBatteryNotifier::LowBatteryNotifier(QObject *parent) : callContextItem("") {
+LowBatteryNotifier::LowBatteryNotifier(QObject *parent)
+#ifdef HAVE_CONTEXTSUBSCRIBER
+: callContextItem("")
+#endif
+{
   gLowBatteryNotifierStub->LowBatteryNotifierConstructor(parent);
 }
 

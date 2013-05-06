@@ -18,18 +18,14 @@
 
 #include <QObject>
 #include <QMap>
-#ifdef HAVE_QMSYSTEM
 #include <qmusbmode.h>
-#endif
 #include "lipstickglobal.h"
 
-class QDeclarativeView;
+class QQuickView;
 
-#ifdef HAVE_QMSYSTEM
 namespace MeeGo {
 class QmLocks;
 }
-#endif
 
 class LIPSTICK_EXPORT USBModeSelector : public QObject
 {
@@ -68,14 +64,12 @@ signals:
     void windowVisibleChanged();
 
 private slots:
-#ifdef HAVE_QMSYSTEM
     /*!
      * Shows the USB dialog/banners based on the given USB mode.
      *
      * \param mode the USB mode to show UI elements for
      */
     void applyUSBMode(MeeGo::QmUSBMode::Mode mode);
-#endif
 
     /*!
      * Shows an error string matching the given error code, if any.
@@ -90,28 +84,24 @@ private slots:
     void applyCurrentUSBMode();
 
 private:
-#ifdef HAVE_QMSYSTEM
     /*!
      * Shows a notification.
      *
      * \param mode the USB mode for the notification
      */
     void showNotification(MeeGo::QmUSBMode::Mode mode);
-#endif
 
     //! MeeGo::QmUSBMode::error() error code to translation ID mapping
     static QMap<QString, QString> errorCodeToTranslationID;
 
     //! The volume control window
-    QDeclarativeView *window;
+    QQuickView *window;
 
-#ifdef HAVE_QMSYSTEM
     //! For getting and setting the USB mode
     MeeGo::QmUSBMode *usbMode;
 
     //! For getting information about the device lock state
     MeeGo::QmLocks *locks;
-#endif
 
 #ifdef UNIT_TEST
     friend class Ut_USBModeSelector;
