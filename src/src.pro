@@ -97,7 +97,7 @@ packagesExist(contextsubscriber-1.0) {
     warning("Contextsubscriber not found")
 }
 
-QT += dbus xml qml quick sql systeminfo
+QT += dbus xml qml quick sql systeminfo gui
 
 QMAKE_CXXFLAGS += \
     -Werror \

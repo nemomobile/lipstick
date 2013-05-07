@@ -11,6 +11,7 @@ Description: A QML toolkit for homescreen creation
 Builder: qmake
 PkgConfigBR:
     - Qt5Core
+    - Qt5Gui
     - Qt5Qml
     - Qt5Quick
     - Qt5Xml
