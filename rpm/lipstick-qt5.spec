@@ -99,7 +99,7 @@ Translation files for the lipstick package.
 # >> build pre
 # << build pre
 
-%qmake 
+%qmake5
 
 make %{?jobs:-j%jobs}
 

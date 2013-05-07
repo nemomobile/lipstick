@@ -8,7 +8,7 @@ URL: http://github.com/nemomobile/lipstick
 Sources:
     - "%{name}-%{version}.tar.bz2"
 Description: A QML toolkit for homescreen creation
-Builder: qmake
+Builder: qmake5
 PkgConfigBR:
     - Qt5Core
     - Qt5Gui
