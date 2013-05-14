@@ -20,7 +20,6 @@
 #include <QTextStream>
 #include <QCursor>
 #include <mce/mode-names.h>
-#include <QQuickView>
 
 #include "homeapplication.h"
 #include "screenlock.h"

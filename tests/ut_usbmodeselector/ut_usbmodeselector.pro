@@ -7,7 +7,8 @@ QT += qml quick
 SOURCES += \
     $$SRCDIR/usbmodeselector.cpp \
     $$STUBSDIR/stubbase.cpp \
-    ut_usbmodeselector.cpp
+    ut_usbmodeselector.cpp \
+    $$STUBSDIR/homewindow.cpp \
 
 HEADERS += \
     $$SRCDIR/usbmodeselector.h \
@@ -15,5 +16,5 @@ HEADERS += \
     $$UTILITYSRCDIR/closeeventeater.h \
     /usr/include/qmsystem2-qt5/qmlocks.h \
     /usr/include/qmsystem2-qt5/qmusbmode.h \
-    ut_usbmodeselector.h
-
+    ut_usbmodeselector.h \
+    $$SRCDIR/homewindow.h \

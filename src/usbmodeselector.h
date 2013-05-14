@@ -21,7 +21,7 @@
 #include <qmusbmode.h>
 #include "lipstickglobal.h"
 
-class QQuickView;
+class HomeWindow;
 
 namespace MeeGo {
 class QmLocks;
@@ -95,7 +95,7 @@ private:
     static QMap<QString, QString> errorCodeToTranslationID;
 
     //! The volume control window
-    QQuickView *window;
+    HomeWindow *window;
 
     //! For getting and setting the USB mode
     MeeGo::QmUSBMode *usbMode;

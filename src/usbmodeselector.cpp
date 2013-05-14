@@ -14,7 +14,7 @@
 **
 ****************************************************************************/
 #include <QGuiApplication>
-#include <QQuickView>
+#include "homewindow.h"
 #include <QQmlContext>
 #include <QScreen>
 #include "utilities/closeeventeater.h"
@@ -53,18 +53,11 @@ void USBModeSelector::setWindowVisible(bool visible)
         emit dialogShown();
 
         if (window == 0) {
-            window = new QQuickView();
+            window = new HomeWindow();
             window->setGeometry(QRect(QPoint(), QGuiApplication::primaryScreen()->size()));
-            window->setResizeMode(QQuickView::SizeRootObjectToView);
-            /*
-            window->setAttribute(Qt::WA_TranslucentBackground);
-            window->setAttribute(Qt::WA_X11DoNotAcceptFocus);
-            window->setAttribute(Qt::WA_X11NetWmWindowTypeMenu);
             window->setWindowTitle("USB Mode");
-            window->viewport()->setAutoFillBackground(false);
-            */
-            window->rootContext()->setContextProperty("initialSize", QGuiApplication::primaryScreen()->size());
-            window->rootContext()->setContextProperty("usbModeSelector", this);
+            window->setContextProperty("initialSize", QGuiApplication::primaryScreen()->size());
+            window->setContextProperty("usbModeSelector", this);
             window->setSource(QUrl("qrc:/qml/USBModeSelector.qml"));
             window->installEventFilter(new CloseEventEater(this));
         }

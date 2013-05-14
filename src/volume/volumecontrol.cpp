@@ -17,7 +17,7 @@
 #include <policy/resource-set.h>
 #include <linux/input.h>
 #include <QGuiApplication>
-#include <QQuickView>
+#include "homewindow.h"
 #include <QQmlContext>
 #include <QScreen>
 #include "utilities/closeeventeater.h"
@@ -76,7 +76,7 @@ void VolumeControl::setWindowVisible(bool visible)
 {
     if (visible) {
         if (window == 0) {
-            window = new QQuickView();
+            window = new HomeWindow();
             /*
             window->setAttribute(Qt::WA_TranslucentBackground);
             window->setAttribute(Qt::WA_X11DoNotAcceptFocus);
@@ -85,8 +85,8 @@ void VolumeControl::setWindowVisible(bool visible)
             window->setResizeMode(QQuickView::SizeRootObjectToView);
             window->viewport()->setAutoFillBackground(false);
             */
-            window->rootContext()->setContextProperty("initialSize", QGuiApplication::primaryScreen()->size());
-            window->rootContext()->setContextProperty("volumeControl", this);
+            window->setContextProperty("initialSize", QGuiApplication::primaryScreen()->size());
+            window->setContextProperty("volumeControl", this);
             window->setSource(QUrl("qrc:/qml/VolumeControl.qml"));
             window->installEventFilter(new CloseEventEater(this));
         }

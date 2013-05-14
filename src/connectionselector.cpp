@@ -17,7 +17,7 @@
 #include "connectionselector.h"
 
 #include <QGuiApplication>
-#include <QQuickView>
+#include "homewindow.h"
 #include <QQuickItem>
 #include <QQmlContext>
 #include <QScreen>
@@ -30,17 +30,11 @@ ConnectionSelector::ConnectionSelector(QObject *parent) :
     window(0),
     currentNotification(0)
 {
-    window = new QQuickView();
+    window = new HomeWindow();
     window->setGeometry(QRect(QPoint(), QGuiApplication::primaryScreen()->size()));
-    window->setResizeMode(QQuickView::SizeRootObjectToView);
-    /*
-    window->setAttribute(Qt::WA_TranslucentBackground);
-    window->setAttribute(Qt::WA_X11NetWmWindowTypeMenu);
     window->setWindowTitle("Connection");
-    window->viewport()->setAutoFillBackground(false);
-    */
-    window->rootContext()->setContextProperty("connectionSelector", this);
-    window->rootContext()->setContextProperty("initialSize", QGuiApplication::primaryScreen()->size());
+    window->setContextProperty("connectionSelector", this);
+    window->setContextProperty("initialSize", QGuiApplication::primaryScreen()->size());
     window->setSource(QUrl("qrc:/qml/ConnectionSelector.qml"));
     window->installEventFilter(new CloseEventEater(this));
     QQuickItem *rootObject = window->rootObject();

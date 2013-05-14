@@ -8,7 +8,8 @@ SOURCES += \
     ut_notificationpreviewpresenter.cpp \
     $$NOTIFICATIONSRCDIR/notificationpreviewpresenter.cpp \
     $$NOTIFICATIONSRCDIR/notification.cpp \
-    $$STUBSDIR/stubbase.cpp
+    $$STUBSDIR/stubbase.cpp \
+    $$STUBSDIR/homewindow.cpp \
 
 # unit test and unit
 HEADERS += \
@@ -18,4 +19,5 @@ HEADERS += \
     $$NOTIFICATIONSRCDIR/notification.h \
     $$UTILITYSRCDIR/closeeventeater.h \
     /usr/include/qmsystem2-qt5/qmlocks.h \
-    /usr/include/qmsystem2-qt5/qmdisplaystate.h
+    /usr/include/qmsystem2-qt5/qmdisplaystate.h \
+    $$SRCDIR/homewindow.h \
