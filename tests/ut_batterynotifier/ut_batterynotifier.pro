@@ -4,13 +4,6 @@ CONFIG += link_pkgconfig
 INCLUDEPATH += $$NOTIFICATIONSRCDIR /usr/include/QtSystemInfo /usr/include/qmsystem2-qt5
 QT += dbus systeminfo
 
-packagesExist(contextsubscriber-1.0) {
-    PKGCONFIG += contextsubscriber-1.0
-    DEFINES += HAVE_CONTEXTSUBSCRIBER
-} else {
-    warning("Contextsubscriber not found")
-}
-
 HEADERS += \
     $$NOTIFICATIONSRCDIR/batterynotifier.h \
     $$NOTIFICATIONSRCDIR/lowbatterynotifier.h \
