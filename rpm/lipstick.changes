@@ -1,3 +1,6 @@
+* Thu May 21 2013 Vesa Halttunen <vesa.halttunen@jollamobile.com> - 0.11.2
+- Don't show desktop entries with NoDisplay=true in the launcher (from Vesa)
+
 * Fri Mar 15 2013 Vesa Halttunen <vesa.halttunen@jollamobile.com> - 0.10.5
 - Export LipstickSettings so that it can be used in UX implementations (from Vesa)
 
