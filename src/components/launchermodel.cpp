@@ -98,6 +98,12 @@ void LauncherModel::monitoredDirectoryChanged(QString changedPath)
                 continue;
             }
 
+            if (!item->shouldDisplay()) {
+                LAUNCHER_DEBUG("Item " << fileInfo.absoluteFilePath() << " should not be displayed");
+                delete item;
+                continue;
+            }
+
             this->addItem(item);
 
             QVariant pos = launcherSettings.value("LauncherOrder/" + item->filePath());
