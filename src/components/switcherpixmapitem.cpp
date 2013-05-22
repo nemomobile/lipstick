@@ -20,6 +20,7 @@
 #include <QPainter>
 #include <QTimer>
 #include <QX11Info>
+#include <QElapsedTimer>
 
 #include "switcherpixmapitem.h"
 #include "xtools/homewindowmonitor.h"
@@ -87,6 +88,7 @@ SwitcherPixmapItem::~SwitcherPixmapItem()
 void SwitcherPixmapItem::toggleDamage()
 {
     updateXWindowPixmap();
+    update();
 }
 
 void SwitcherPixmapItem::destroyDamage()
@@ -255,13 +257,34 @@ bool SwitcherPixmapItem::handleXEvent(const XEvent &event)
     if (event.type != xDamageEventBase + XDamageNotify)
         return false;
 
-    SWITCHER_DEBUG() << Q_FUNC_INFO << "Processing damage event";
     const XDamageNotifyEvent *xevent = reinterpret_cast<const XDamageNotifyEvent *>(&event);
 
     // xevent->more would inform us if there is more events for the
     // rendering operation.
     if (d->xWindowPixmapDamage != xevent->damage)
         return false;
+
+    if (!HomeWindowMonitor::instance()->isHomeWindowOnTop()) {
+        static QElapsedTimer t;
+        // cap to only process a damage event every so often when the homescreen
+        // is in the background.
+        //
+        // this way, we minimise our resource consumption while still ensuring
+        // we have a (more or less) up to date pixmap when it is required.
+        // this is especially important for software not using the meego
+        // graphicssystem, as pixmap updating is more expensive.
+        if (t.isValid() && t.elapsed() < 500) {
+            SWITCHER_DEBUG() << Q_FUNC_INFO << "Ignoring damage event, since last: " << t.elapsed();
+            // ignore repeated updates from foregrounded apps
+            // we don't need to schedule a redraw; toggleDamage will take care
+            // of doing the update when the homescreen is in the foreground
+            // again.
+            return true;
+        } else if (!t.isValid() || t.elapsed() >= 500) {
+            SWITCHER_DEBUG() << Q_FUNC_INFO << "Processing damage event, since last: " << t.elapsed();
+            t.restart();
+        }
+    }
 
     XDamageSubtract(QX11Info::display(), d->xWindowPixmapDamage, None, None);
     update();
