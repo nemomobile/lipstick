@@ -19,7 +19,7 @@
 #include "lipstickglobal.h"
 #include <QObject>
 
-class QQuickView;
+class HomeWindow;
 class Notification;
 
 namespace MeeGo {
@@ -113,7 +113,7 @@ private:
     void setCurrentNotification(Notification *notification);
 
     //! The notification window
-    QQuickView *window;
+    HomeWindow *window;
 
     //! Notifications to be shown
     QList<Notification *> notificationQueue;

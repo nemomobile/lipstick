@@ -20,7 +20,7 @@
 #include "lipstickglobal.h"
 #include <qmsystemstate.h>
 
-class QQuickView;
+class HomeWindow;
 
 class LIPSTICK_EXPORT ShutdownScreen : public QObject
 {
@@ -67,7 +67,7 @@ private:
     void createAndPublishNotification(const QString &category, const QString &body);
 
     //! The volume control window
-    QQuickView *window;
+    HomeWindow *window;
 
     //! For getting the system state
     MeeGo::QmSystemState *systemState;

@@ -15,10 +15,10 @@
 
 #include <signal.h>
 #include <QGuiApplication>
-#include <QQuickView>
 #include "lipstickglobal.h"
 
-class XEventListener;
+class QQmlEngine;
+class HomeWindow;
 class ScreenLock;
 class VolumeControl;
 class BatteryNotifier;
@@ -33,8 +33,9 @@ class LIPSTICK_EXPORT HomeApplication : public QGuiApplication
 {
     Q_OBJECT
 
-    QQuickView *_mainWindowInstance;
+    HomeWindow *_mainWindowInstance;
     QString _qmlPath;
+    QString _compositorPath;
 
 public:
     /*!
@@ -57,7 +58,12 @@ public:
       * Gets the main window instance associated to this application.
       * If it hasn't been created yet, this will create it.
       */
-    QQuickView *mainWindowInstance();
+    HomeWindow *mainWindowInstance();
+
+    /*!
+     * Gets the QQmlEngine used for all the windows in this application.
+     */
+    QQmlEngine *engine() const;
 
     /*!
       * Gets the path to the QML file to display.
@@ -70,9 +76,33 @@ public:
     void setQmlPath(const QString &path);
 
     /*!
+     * Gets the path to the compositor to load.
+     */
+    const QString &compositorPath() const;
+    /*!
+     * Sets the path to the compositor QML file to run.  This must be set before
+     * the first window is created, or the mainWindowInstance() method is called.
+     */
+    void setCompositorPath(const QString &path);
+
+    /*!
      * Restores any installed signal handlers.
      */
     void restoreSignalHandlers();
+
+    /*!
+     * Gets the home active flag.
+     */
+    bool homeActive() const;
+
+signals:
+    /*!
+     * Emitted whenever the home active flag changes.
+     */
+    void homeActiveChanged();
+
+protected:
+    virtual bool event(QEvent *);
 
 private slots:
     /*!
@@ -82,6 +112,8 @@ private slots:
     void sendStartupNotifications();
 
 private:
+    friend class LipstickApi;
+
     //! A signal handler that quits the QApplication
     static void quitSignalHandler(int);
 
@@ -90,6 +122,9 @@ private:
 
     //! The original SIGTERM handler
     sighandler_t originalSigTermHandler;
+
+    //! QML Engine instance
+    QQmlEngine *qmlEngine;
 
     //! Logic for locking and unlocking the screen
     ScreenLock *screenLock;

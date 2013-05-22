@@ -27,17 +27,6 @@
 #include "homeapplication.h"
 #include "closeeventeater_stub.h"
 
-HomeApplication *HomeApplication::instance()
-{
-    return 0;
-}
-
-QQuickView *homeApplicationMainWindowInstance = 0;
-QQuickView *HomeApplication::mainWindowInstance()
-{
-    return homeApplicationMainWindowInstance;
-}
-
 QDBus::CallMode qDbusAbstractInterfaceCallMode;
 QVariant qDbusAbstractInterfaceCallArg1;
 QString qDbusAbstractInterfaceCallMethod;
@@ -83,12 +72,10 @@ void Ut_ScreenLock::cleanup()
 
 void Ut_ScreenLock::initTestCase()
 {
-    homeApplicationMainWindowInstance = new QQuickView;
 }
 
 void Ut_ScreenLock::cleanupTestCase()
 {
-    delete homeApplicationMainWindowInstance;
 }
 
 void testStackingLayer(int callCount, long stackingLayer)

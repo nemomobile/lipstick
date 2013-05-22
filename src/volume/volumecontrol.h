@@ -20,7 +20,7 @@
 #include <QObject>
 #include "lipstickglobal.h"
 
-class QQuickView;
+class HomeWindow;
 class PulseAudioControl;
 class VolumeKeyListener;
 
@@ -140,7 +140,7 @@ private slots:
 
 private:
     //! The volume control window
-    QQuickView *window;
+    HomeWindow *window;
 
     //! PulseAudio volume controller
     PulseAudioControl *pulseAudioControl;

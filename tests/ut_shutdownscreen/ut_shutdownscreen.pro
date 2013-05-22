@@ -9,6 +9,8 @@ PKGCONFIG += qmsystem2-qt5
 SOURCES += \
     $$SRCDIR/shutdownscreen.cpp \
     $$STUBSDIR/stubbase.cpp \
+    $$STUBSDIR/homewindow.cpp \
+    $$STUBSDIR/homeapplication.cpp \
     ut_shutdownscreen.cpp
 
 HEADERS += \
@@ -16,4 +18,5 @@ HEADERS += \
     $$NOTIFICATIONSRCDIR/notificationmanager.h \
     $$UTILITYSRCDIR/closeeventeater.h \
     $$SRCDIR/homeapplication.h \
+    $$SRCDIR/homewindow.h \
     ut_shutdownscreen.h

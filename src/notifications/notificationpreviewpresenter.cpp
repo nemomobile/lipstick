@@ -15,7 +15,7 @@
 
 #include <QGuiApplication>
 #include <QScreen>
-#include <QQuickView>
+#include "homewindow.h"
 #include <QQmlContext>
 #include "utilities/closeeventeater.h"
 #include "notifications/notificationmanager.h"
@@ -116,18 +116,11 @@ void NotificationPreviewPresenter::createWindowIfNecessary()
         return;
     }
 
-    window = new QQuickView();
+    window = new HomeWindow();
     window->setGeometry(QRect(QPoint(), QGuiApplication::primaryScreen()->size()));
-    window->setResizeMode(QQuickView::SizeRootObjectToView);
-    /*
-    window->setAttribute(Qt::WA_TranslucentBackground);
-    window->setAttribute(Qt::WA_X11DoNotAcceptFocus);
-    window->setAttribute(Qt::WA_X11NetWmWindowTypeNotification);
     window->setWindowTitle("Notification");
-    window->viewport()->setAutoFillBackground(false);
-    */
-    window->rootContext()->setContextProperty("initialSize", QGuiApplication::primaryScreen()->size());
-    window->rootContext()->setContextProperty("notificationPreviewPresenter", this);
+    window->setContextProperty("initialSize", QGuiApplication::primaryScreen()->size());
+    window->setContextProperty("notificationPreviewPresenter", this);
     window->setSource(QUrl("qrc:/qml/NotificationPreview.qml"));
     window->installEventFilter(new CloseEventEater(this));
 }

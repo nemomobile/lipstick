@@ -122,9 +122,9 @@ void Ut_ShutdownScreen::testSystemState()
     QCOMPARE(qQuickViews.first()->testAttribute(Qt::WA_TranslucentBackground), true);
     QCOMPARE(qQuickViews.first()->testAttribute(Qt::WA_X11DoNotAcceptFocus), true);
     QCOMPARE(qQuickViews.first()->testAttribute(Qt::WA_X11NetWmWindowTypeNotification), true);
-    QCOMPARE(qQuickViews.first()->windowTitle(), QString("Shutdown"));
     QCOMPARE(qQuickViews.first()->viewport()->autoFillBackground(), false);
     */
+    QCOMPARE(qQuickViews.first()->title(), QString("Shutdown"));
     QCOMPARE(qQuickViews.first()->resizeMode(), QQuickView::SizeRootObjectToView);
     QCOMPARE(qQuickViews.first()->rootContext()->contextProperty("initialSize").toSize(), QGuiApplication::primaryScreen()->size());
     QCOMPARE(qQuickViews.first()->rootContext()->contextProperty("shutdownScreen"), QVariant::fromValue(static_cast<QObject *>(shutdownScreen)));

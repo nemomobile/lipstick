@@ -25,6 +25,16 @@
 #include <volume/volumecontrol.h>
 #include <usbmodeselector.h>
 #include <shutdownscreen.h>
+#include <compositor/lipstickcompositor.h>
+#include <compositor/windowmodel.h>
+#include <compositor/windowpixmapitem.h>
+#include <compositor/windowproperty.h>
+#include <lipstickapi.h>
+
+static QObject *lipstickApi_callback(QQmlEngine *e, QJSEngine *)
+{
+    return new LipstickApi(e);
+}
 
 LipstickPlugin::LipstickPlugin(QObject *parent) :
     QQmlExtensionPlugin(parent)
@@ -43,4 +53,10 @@ void LipstickPlugin::registerTypes(const char *uri)
     qmlRegisterUncreatableType<VolumeControl>("org.nemomobile.lipstick", 0, 1, "VolumeControl", "This type is initialized by HomeApplication");
     qmlRegisterUncreatableType<USBModeSelector>("org.nemomobile.lipstick", 0, 1, "USBModeSelector", "This type is initialized by HomeApplication");
     qmlRegisterUncreatableType<ShutdownScreen>("org.nemomobile.lipstick", 0, 1, "ShutdownScreen", "This type is initialized by HomeApplication");
+
+    qmlRegisterType<LipstickCompositor>("org.nemomobile.lipstick", 0, 1, "Compositor");
+    qmlRegisterType<WindowModel>("org.nemomobile.lipstick", 0, 1, "WindowModel");
+    qmlRegisterType<WindowPixmapItem>("org.nemomobile.lipstick", 0, 1, "WindowPixmapItem");
+    qmlRegisterType<WindowProperty>("org.nemomobile.lipstick", 0, 1, "WindowProperty");
+    qmlRegisterSingletonType<LipstickApi>("org.nemomobile.lipstick", 0, 1, "Lipstick", lipstickApi_callback);
 }

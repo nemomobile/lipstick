@@ -19,25 +19,12 @@
 #include "lipsticksettings.h"
 #include "ut_lipsticksettings.h"
 
-HomeApplication *HomeApplication::instance()
-{
-    return 0;
-}
-
-QQuickView *homeApplicationMainWindowInstance = 0;
-QQuickView *HomeApplication::mainWindowInstance()
-{
-    return homeApplicationMainWindowInstance;
-}
-
 void Ut_LipstickSettings::initTestCase()
 {
-    homeApplicationMainWindowInstance = new QQuickView;
 }
 
 void Ut_LipstickSettings::cleanupTestCase()
 {
-    delete homeApplicationMainWindowInstance;
 }
 
 void Ut_LipstickSettings::testSetLockScreenVisible()

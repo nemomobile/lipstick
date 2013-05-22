@@ -3,7 +3,7 @@ TARGET = lipstickplugin
 VERSION = 0.1
 
 CONFIG += qt plugin link_pkgconfig
-QT += core gui qml quick
+QT += core gui qml quick compositor
 PKGCONFIG += qmsystem2-qt5
 
 INSTALLS = target qmldirfile

@@ -18,10 +18,13 @@ MOC_DIR = .moc
 
 INCLUDEPATH += utilities components xtools
 
+include(compositor/compositor.pri)
+
 PUBLICHEADERS += \
     utilities/qobjectlistmodel.h \
     utilities/closeeventeater.h \
     homeapplication.h \
+    homewindow.h \
     lipstickglobal.h \
     lipsticksettings.h \
     components/launcheritem.h \
@@ -51,10 +54,13 @@ HEADERS += \
     screenlock/screenlockadaptor.h \
     volume/volumekeylistener.h \
     volume/volumecontrol.h \
-    volume/pulseaudiocontrol.h
+    volume/pulseaudiocontrol.h \
+    lipstickapi.h \
+
 
 SOURCES += \
     homeapplication.cpp \
+    homewindow.cpp \
     lipsticksettings.cpp \
     utilities/qobjectlistmodel.cpp \
     utilities/closeeventeater.cpp \
@@ -76,7 +82,8 @@ SOURCES += \
     notifications/notificationfeedbackplayer.cpp \
     usbmodeselector.cpp \
     shutdownscreen.cpp \
-    connectionselector.cpp
+    connectionselector.cpp \
+    lipstickapi.cpp \
 
 CONFIG += link_pkgconfig mobility qt warn_on depend_includepath qmake_cache target_qt
 MOBILITY += sensors systeminfo

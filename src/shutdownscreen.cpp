@@ -14,7 +14,7 @@
 **
 ****************************************************************************/
 #include <QGuiApplication>
-#include <QQuickView>
+#include "homewindow.h"
 #include <QQmlContext>
 #include <QScreen>
 #include "utilities/closeeventeater.h"
@@ -34,18 +34,11 @@ void ShutdownScreen::setWindowVisible(bool visible)
 {
     if (visible) {
         if (window == 0) {
-            window = new QQuickView();
+            window = new HomeWindow();
             window->setGeometry(QRect(QPoint(), QGuiApplication::primaryScreen()->size()));
-            window->setResizeMode(QQuickView::SizeRootObjectToView);
-            /*
-            window->setAttribute(Qt::WA_TranslucentBackground);
-            window->setAttribute(Qt::WA_X11DoNotAcceptFocus);
-            window->setAttribute(Qt::WA_X11NetWmWindowTypeNotification);
             window->setWindowTitle("Shutdown");
-            window->viewport()->setAutoFillBackground(false);
-            */
-            window->rootContext()->setContextProperty("initialSize", QGuiApplication::primaryScreen()->size());
-            window->rootContext()->setContextProperty("shutdownScreen", this);
+            window->setContextProperty("initialSize", QGuiApplication::primaryScreen()->size());
+            window->setContextProperty("shutdownScreen", this);
             window->setSource(QUrl("qrc:/qml/ShutdownScreen.qml"));
             window->installEventFilter(new CloseEventEater(this));
 

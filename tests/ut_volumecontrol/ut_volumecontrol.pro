@@ -10,10 +10,11 @@ HEADERS += \
     $$VOLUMESRCDIR/volumecontrol.h \
     $$VOLUMESRCDIR/volumekeylistener.h \
     $$VOLUMESRCDIR/pulseaudiocontrol.h \
-    $$UTILITYSRCDIR/closeeventeater.h
+    $$UTILITYSRCDIR/closeeventeater.h \
+    $$SRCDIR/homewindow.h \
 
 SOURCES += \
     ut_volumecontrol.cpp \
     $$VOLUMESRCDIR/volumecontrol.cpp \
-    $$STUBSDIR/stubbase.cpp
-
+    $$STUBSDIR/stubbase.cpp \
+    $$STUBSDIR/homewindow.cpp \

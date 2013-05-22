@@ -37,6 +37,7 @@ BuildRequires:  pkgconfig(libresourceqt5)
 BuildRequires:  pkgconfig(ngf-qt5)
 BuildRequires:  pkgconfig(qmsystem2-qt5) >= 1.1.6
 BuildRequires:  qt5-qttools-linguist
+BuildRequires:  qt5-qtwayland-nogl-devel
 BuildRequires:  doxygen
 Conflicts:   meegotouch-systemui < 1.5.7
 Obsoletes:   libnotificationsystem0

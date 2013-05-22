@@ -10,6 +10,7 @@
 **
 ****************************************************************************/
 
+#include <QQmlComponent>
 #include <QQmlContext>
 #include <QQmlEngine>
 #include <QScreen>
@@ -29,6 +30,8 @@
 #include "screenlock/screenlockadaptor.h"
 #include "lipsticksettings.h"
 #include "homeapplication.h"
+#include "homewindow.h"
+#include "compositor/lipstickcompositor.h"
 
 #include "volume/volumecontrol.h"
 #include "usbmodeselector.h"
@@ -68,6 +71,9 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     // launch a timer for sending a dbus-signal upstart when basic construct is done
     QTimer::singleShot(0, this, SLOT(sendStartupNotifications()));
 
+    // Initialize the QML engine
+    qmlEngine = new QQmlEngine(this);
+
     // Initialize the notification manager
     NotificationManager::instance();
     new NotificationPreviewPresenter(this);
@@ -104,6 +110,7 @@ HomeApplication::~HomeApplication()
     delete volumeControl;
     delete screenLock;
     delete _mainWindowInstance;
+    delete qmlEngine;
 }
 
 HomeApplication *HomeApplication::instance()
@@ -131,6 +138,22 @@ void HomeApplication::sendStartupNotifications()
     mainWindowInstance()->showFullScreen();
 }
 
+bool HomeApplication::homeActive() const
+{
+    LipstickCompositor *c = LipstickCompositor::instance();
+    return c?c->homeActive():(QGuiApplication::focusWindow() != 0);
+}
+
+bool HomeApplication::event(QEvent *e)
+{
+    bool rv = QGuiApplication::event(e);
+    if (LipstickCompositor::instance() == 0 &&
+        (e->type() == QEvent::ApplicationActivate ||
+         e->type() == QEvent::ApplicationDeactivate))
+        emit homeActiveChanged();
+    return rv;
+}
+
 const QString &HomeApplication::qmlPath() const
 {
     return _qmlPath;
@@ -140,34 +163,66 @@ void HomeApplication::setQmlPath(const QString &path)
 {
     _qmlPath = path;
 
-    if (_mainWindowInstance)
+    if (_mainWindowInstance) {
         _mainWindowInstance->setSource(path);
+        if (_mainWindowInstance->hasErrors()) {
+            qWarning() << "HomeApplication: Errors while loading" << path;
+            qWarning() << _mainWindowInstance->errors();
+        }
+    }
 }
 
-QQuickView *HomeApplication::mainWindowInstance()
+const QString &HomeApplication::compositorPath() const
+{
+    return _compositorPath;
+}
+
+void HomeApplication::setCompositorPath(const QString &path)
+{
+    if (path.isEmpty()) {
+        qWarning() << "HomeApplication: Invalid empty compositor path";
+        return;
+    }
+
+    if (!_compositorPath.isEmpty()) {
+        qWarning() << "HomeApplication: Compositor already set";
+        return;
+    }
+
+    _compositorPath = path;
+    QQmlComponent component(qmlEngine, QUrl(path));
+    if (component.isError()) {
+        qWarning() << "HomeApplication: Errors while loading compositor from" << path;
+        qWarning() << component.errors();
+        return;
+    } 
+
+    QObject *compositor = component.create();
+    if (compositor) {
+        compositor->setParent(this);
+        if (LipstickCompositor::instance()) {
+            LipstickCompositor::instance()->setGeometry(QRect(QPoint(0, 0), QGuiApplication::primaryScreen()->size()));
+            LipstickCompositor::instance()->show();
+        }
+    } else {
+        qWarning() << "HomeApplication: Error creating compositor from" << path;
+        qWarning() << component.errors();
+    }
+}
+
+HomeWindow *HomeApplication::mainWindowInstance()
 {
     if (_mainWindowInstance)
         return _mainWindowInstance;
 
-    _mainWindowInstance = new QQuickView();
+    _mainWindowInstance = new HomeWindow();
     _mainWindowInstance->setGeometry(QRect(QPoint(), QGuiApplication::primaryScreen()->size()));
-    _mainWindowInstance->setResizeMode(QQuickView::SizeRootObjectToView);
-    /*
-    // Setting optimalization flags
-    _mainWindowInstance->setAttribute(Qt::WA_X11NetWmWindowTypeDesktop);
-    _mainWindowInstance->setOptimizationFlag(QGraphicsView::DontSavePainterState);
-    _mainWindowInstance->setAutoFillBackground(false);
-    _mainWindowInstance->setAttribute(Qt::WA_OpaquePaintEvent);
-    _mainWindowInstance->setAttribute(Qt::WA_NoSystemBackground);
-    _mainWindowInstance->viewport()->setAutoFillBackground(false);
-    _mainWindowInstance->viewport()->setAttribute(Qt::WA_OpaquePaintEvent);
-    _mainWindowInstance->viewport()->setAttribute(Qt::WA_NoSystemBackground);
-*/
+    _mainWindowInstance->setWindowTitle("Home");
 
     // Setting up the context and engine things
+    _mainWindowInstance->setContextProperty("initialSize", QGuiApplication::primaryScreen()->size());
+    _mainWindowInstance->setContextProperty("LipstickSettings", LipstickSettings::instance());
     QObject::connect(_mainWindowInstance->engine(), SIGNAL(quit()), qApp, SLOT(quit()));
-    _mainWindowInstance->rootContext()->setContextProperty("initialSize", QGuiApplication::primaryScreen()->size());
-    _mainWindowInstance->rootContext()->setContextProperty("LipstickSettings", LipstickSettings::instance());
 
     // Setting the source, if present
     if (!_qmlPath.isEmpty())
@@ -177,3 +232,9 @@ QQuickView *HomeApplication::mainWindowInstance()
 
     return _mainWindowInstance;
 }
+
+QQmlEngine *HomeApplication::engine() const
+{
+    return qmlEngine;
+}
+
