@@ -1,6 +1,6 @@
 Name: lipstick-qt5
 Summary: QML toolkit for homescreen creation
-Version: 0.11.2
+Version: 0.12.0
 Release: 1
 Group: System/Libraries
 License: LGPLv2.1
@@ -29,6 +29,7 @@ PkgConfigBR:
     - qmsystem2-qt5 >= 1.1.6
 PkgBR:
     - qt5-qttools-linguist
+    - qt5-qtwayland-nogl-devel
     - doxygen
 Files:
     - "%config %{_sysconfdir}/dbus-1/system.d/lipstick.conf"

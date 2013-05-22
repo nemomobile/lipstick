@@ -1,4 +1,7 @@
-* Thu May 21 2013 Vesa Halttunen <vesa.halttunen@jollamobile.com> - 0.11.2
+* Wed May 22 2013 Vesa Halttunen <vesa.halttunen@jollamobile.com> - 0.12.0
+- Introduce an extensible wayland compositor API (from Aaron)
+
+* Tue May 21 2013 Vesa Halttunen <vesa.halttunen@jollamobile.com> - 0.11.2
 - Don't show desktop entries with NoDisplay=true in the launcher (from Vesa)
 
 * Mon May 06 2013 Vesa Halttunen <vesa.halttunen@jollamobile.com> - 0.11.0
