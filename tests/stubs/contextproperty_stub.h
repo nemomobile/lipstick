@@ -21,7 +21,6 @@ class ContextPropertyStub : public StubBase {
   virtual void waitForSubscription(bool block) const;
   virtual void ignoreCommander();
   virtual void setTypeCheck(bool typeCheck);
-  virtual void onValueChanged();
 }; 
 
 // 2. IMPLEMENT STUB
@@ -83,10 +82,6 @@ void ContextPropertyStub::setTypeCheck(bool typeCheck) {
   stubMethodEntered("setTypeCheck",params);
 }
 
-void ContextPropertyStub::onValueChanged() {
-  stubMethodEntered("onValueChanged");
-}
-
 
 
 // 3. CREATE A STUB INSTANCE
@@ -141,10 +136,6 @@ void ContextProperty::ignoreCommander() {
 
 void ContextProperty::setTypeCheck(bool typeCheck) {
   gContextPropertyStub->setTypeCheck(typeCheck);
-}
-
-void ContextProperty::onValueChanged() {
-  gContextPropertyStub->onValueChanged();
 }
 
 

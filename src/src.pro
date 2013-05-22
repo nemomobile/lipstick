@@ -97,8 +97,8 @@ packagesExist(contentaction5) {
     warning("contentaction doesn't exist; falling back to exec - this may not work so great")
 }
 
-packagesExist(contextsubscriber-1.0) {
-    PKGCONFIG += contextsubscriber-1.0
+packagesExist(contextkit-statefs) {
+    PKGCONFIG += contextkit-statefs
     DEFINES += HAVE_CONTEXTSUBSCRIBER
 } else {
     warning("Contextsubscriber not found")

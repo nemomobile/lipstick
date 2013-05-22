@@ -12,10 +12,9 @@ HEADERS += \
     $$NOTIFICATIONSRCDIR/lowbatterynotifier.h \
     /usr/include/qmsystem2-qt5/qmdisplaystate.h
 
-packagesExist(contextsubscriber-1.0) {
+packagesExist(contextkit-statefs) {
     DEFINES += HAVE_CONTEXTSUBSCRIBER
-    INCLUDEPATH += /usr/include/contextsubscriber
-    HEADERS += /usr/include/contextsubscriber/contextproperty.h
+    HEADERS += /usr/include/contextproperty.h
 } else {
     warning("Contextsubscriber not found")
 }
