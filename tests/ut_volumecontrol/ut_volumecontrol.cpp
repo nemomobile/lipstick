@@ -94,6 +94,16 @@ void QTimer::stop()
     qTimerStopCounts[this]++;
 }
 
+QHash<QWindow *, bool> qWindowVisible;
+void QWindow::show()
+{
+    qWindowVisible[this] = true;
+}
+void QWindow::hide()
+{
+    qWindowVisible[this] = false;
+}
+
 void Ut_VolumeControl::initTestCase()
 {
 }
