@@ -4,7 +4,6 @@ INCLUDEPATH += $$SCREENLOCKSRCDIR
 QT += dbus qml quick
 CONFIG += link_pkgconfig mobility
 PKGCONFIG += x11 mce
-MOBILITY += sensors
 
 # unit test and unit
 SOURCES += \
