@@ -56,6 +56,7 @@ public:
     bool debug() const;
 
     Q_INVOKABLE QObject *windowForId(int) const;
+    Q_INVOKABLE void closeClientForWindowId(int);
     Q_INVOKABLE void clearKeyboardFocus();
 
     LipstickCompositorProcWindow *mapProcWindow(const QString &, const QRect &);
