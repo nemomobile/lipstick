@@ -50,6 +50,7 @@ public:
     SurfaceNode();
     void setRect(const QRectF &);
     void setTextureProvider(QSGTextureProvider *);
+    void setBlending(bool);
 
 private slots:
     void providerDestroyed();
@@ -145,6 +146,11 @@ void SurfaceNode::setTextureProvider(QSGTextureProvider *p)
     setTexture(m_provider->texture());
 }
 
+void SurfaceNode::setBlending(bool b)
+{
+    m_material->setFlag(QSGMaterial::Blending, b);
+}
+
 void SurfaceNode::setTexture(QSGTexture *texture)
 {
     m_material->state()->setTexture(texture);
@@ -175,7 +181,7 @@ void SurfaceNode::providerDestroyed()
 }
 
 WindowPixmapItem::WindowPixmapItem()
-: m_item(0), m_shaderEffect(0)
+: m_item(0), m_shaderEffect(0), m_id(0), m_opaque(false)
 {
     setFlag(ItemHasContents);
 }
@@ -206,6 +212,22 @@ void WindowPixmapItem::setWindowId(int id)
     emit windowIdChanged();
 }
 
+bool WindowPixmapItem::opaque() const
+{
+    return m_opaque;
+}
+
+void WindowPixmapItem::setOpaque(bool o)
+{
+    if (m_opaque == o)
+        return;
+
+    m_opaque = o;
+    if (m_item) update();
+
+    emit opaqueChanged();
+}
+
 QSGNode *WindowPixmapItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
 {
     SurfaceNode *node = static_cast<SurfaceNode *>(oldNode);
@@ -219,6 +241,7 @@ QSGNode *WindowPixmapItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData
 
     node->setTextureProvider(m_item->textureProvider());
     node->setRect(QRectF(0, 0, width(), height()));
+    node->setBlending(!m_opaque);
 
     return node;
 }

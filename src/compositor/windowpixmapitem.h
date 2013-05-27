@@ -25,6 +25,7 @@ class LIPSTICK_EXPORT WindowPixmapItem : public QQuickItem
 {
     Q_OBJECT
     Q_PROPERTY(int windowId READ windowId WRITE setWindowId NOTIFY windowIdChanged)
+    Q_PROPERTY(bool opaque READ opaque WRITE setOpaque NOTIFY opaqueChanged)
 
 public:
     WindowPixmapItem();
@@ -33,12 +34,16 @@ public:
     int windowId() const;
     void setWindowId(int);
 
+    bool opaque() const;
+    void setOpaque(bool);
+
 protected:
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *);
     virtual void geometryChanged(const QRectF &, const QRectF &);
 
 signals:
     void windowIdChanged();
+    void opaqueChanged();
 
 private:
     void updateItem();
@@ -46,6 +51,7 @@ private:
     LipstickCompositorWindow *m_item;
     QQuickItem *m_shaderEffect;
     int m_id;
+    bool m_opaque;
 };
 
 #endif // WINDOWPIXMAPITEM_H
