@@ -86,7 +86,7 @@ SOURCES += \
     lipstickapi.cpp \
 
 CONFIG += link_pkgconfig mobility qt warn_on depend_includepath qmake_cache target_qt
-MOBILITY += sensors systeminfo
+MOBILITY += systeminfo
 PKGCONFIG += mlite5 mce dbus-1 dbus-glib-1 libresourceqt5 ngf-qt5 qmsystem2-qt5
 
 packagesExist(contentaction5) {
