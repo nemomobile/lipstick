@@ -1,16 +1,15 @@
-/****************************************************************************
+/***************************************************************************
 **
-** Copyright (C) 2013 Jolla Ltd
-** Contact: lorn.potter@jollamobile.com
+** Copyright (C) 2013 Jolla Ltd.
+** Contact: Robin Burchell <robin.burchell@jollamobile.com>
 **
+** This file is part of lipstick.
 **
-** GNU Lesser General Public License Usage
-** This file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** This library is free software; you can redistribute it and/or
+** modify it under the terms of the GNU Lesser General Public
+** License version 2.1 as published by the Free Software Foundation
+** and appearing in the file LICENSE.LGPL included in the packaging
+** of this file.
 **
 ****************************************************************************/
 
@@ -26,9 +25,20 @@ class LIPSTICK_EXPORT ConnectionSelector : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool windowVisible READ windowVisible WRITE setWindowVisible NOTIFY windowVisibleChanged)
+
 public:
+    /*!
+     * Creates a connection selector.
+     *
+     * \param parent the parent object
+     */
     explicit ConnectionSelector(QObject *parent = 0);
-    virtual~ConnectionSelector();
+
+    /*!
+     * Destroys the connection selector.
+     */
+    virtual ~ConnectionSelector();
+
     /*!
      * Returns whether the window is visible or not.
      *
@@ -43,23 +53,18 @@ public:
      */
     void setWindowVisible(bool visible);
 
-signals:
+private slots:
+    /*!
+     * Creates the window.
+     */
+    void createWindow();
 
+signals:
     //! Sent when the visibility of the window has changed.
     void windowVisibleChanged();
 
-    void hide();
-    void show();
-
-public slots:
-    void onConnectionRequest();
-    void onCanceled();
-    void showNotification(const QString &message, const QString &type);
-
 private:
     HomeWindow *window;
-    uint currentNotification;
-
 };
 
 #endif // CONNECTIONSELECTOR_H
