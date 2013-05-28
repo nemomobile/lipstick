@@ -1,3 +1,6 @@
+* Tue May 28 2013 Aaron Kennedy <aaron.kennedy@jollamobile.com> - 0.12.2
+- Added WindowPixmapItem.radius and Compositor.closeClientForWindowId() APIs
+
 * Wed May 22 2013 Vesa Halttunen <vesa.halttunen@jollamobile.com> - 0.12.1
 - Re-enable contextkit integration (from Vesa)
 
