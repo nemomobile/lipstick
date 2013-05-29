@@ -77,14 +77,7 @@ void VolumeControl::setWindowVisible(bool visible)
     if (visible) {
         if (window == 0) {
             window = new HomeWindow();
-            /*
-            window->setAttribute(Qt::WA_TranslucentBackground);
-            window->setAttribute(Qt::WA_X11DoNotAcceptFocus);
-            window->setAttribute(Qt::WA_X11NetWmWindowTypeNotification);
-            window->setWindowTitle("Volume");
-            window->setResizeMode(QQuickView::SizeRootObjectToView);
-            window->viewport()->setAutoFillBackground(false);
-            */
+            window->setIsNotification(true);
             window->setContextProperty("initialSize", QGuiApplication::primaryScreen()->size());
             window->setContextProperty("volumeControl", this);
             window->setSource(QUrl("qrc:/qml/VolumeControl.qml"));
