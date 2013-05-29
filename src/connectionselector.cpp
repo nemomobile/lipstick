@@ -36,7 +36,6 @@ ConnectionSelector::~ConnectionSelector()
 void ConnectionSelector::createWindow()
 {
     window->setAttribute(Qt::WA_TranslucentBackground);
-    window->setAttribute(Qt::WA_X11DoNotAcceptFocus);
     window->setAttribute(Qt::WA_X11NetWmWindowTypeMenu);
     window->setWindowTitle("Connection");
     window->setResizeMode(QDeclarativeView::SizeRootObjectToView);
