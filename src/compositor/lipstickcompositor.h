@@ -59,7 +59,7 @@ public:
     Q_INVOKABLE void closeClientForWindowId(int);
     Q_INVOKABLE void clearKeyboardFocus();
 
-    LipstickCompositorProcWindow *mapProcWindow(const QString &, const QRect &);
+    LipstickCompositorProcWindow *mapProcWindow(const QString &title, const QString &category, const QRect &);
 
 signals:
     void windowAdded(QObject *window);
@@ -183,7 +183,7 @@ public:
     void setTitle(const QString &);
 private:
     friend class LipstickCompositor;
-    LipstickCompositorProcWindow(int windowId, QQuickItem *parent = 0);
+    LipstickCompositorProcWindow(int windowId, const QString &, QQuickItem *parent = 0);
 
     QString m_title;
 };
