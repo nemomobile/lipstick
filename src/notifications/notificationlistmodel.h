@@ -19,7 +19,7 @@
 #include "qobjectlistmodel.h"
 #include "lipstickglobal.h"
 
-class Notification;
+class LipstickNotification;
 
 class LIPSTICK_EXPORT NotificationListModel : public QObjectListModel
 {
@@ -46,7 +46,7 @@ protected:
      * \param notification the notification to check
      * \return \c true if the notification should be shown, \c false otherwise
      */
-    virtual bool notificationShouldBeShown(Notification *notification);
+    virtual bool notificationShouldBeShown(LipstickNotification *notification);
 
     /*!
      * Checks where the notification should be placed so that the
@@ -55,7 +55,7 @@ protected:
      * \param notification the notification for which to get the position
      * \return index in which the notification shoud be placed
      */
-    virtual int indexFor(Notification *notification);
+    virtual int indexFor(LipstickNotification *notification);
 
 private:
     Q_DISABLE_COPY(NotificationListModel)

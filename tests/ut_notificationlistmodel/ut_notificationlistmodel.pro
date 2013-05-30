@@ -7,7 +7,7 @@ QT += sql dbus
 SOURCES += \
     ut_notificationlistmodel.cpp \
     $$NOTIFICATIONSRCDIR/notificationlistmodel.cpp \
-    $$NOTIFICATIONSRCDIR/notification.cpp \
+    $$NOTIFICATIONSRCDIR/lipsticknotification.cpp \
     $$SRCDIR/utilities/qobjectlistmodel.cpp \
     $$STUBSDIR/stubbase.cpp \
 
@@ -15,6 +15,6 @@ SOURCES += \
 HEADERS += \
     ut_notificationlistmodel.h \
     $$NOTIFICATIONSRCDIR/notificationlistmodel.h \
-    $$NOTIFICATIONSRCDIR/notification.h \
+    $$NOTIFICATIONSRCDIR/lipsticknotification.h \
     $$NOTIFICATIONSRCDIR/notificationmanager.h \
     $$SRCDIR/utilities/qobjectlistmodel.h

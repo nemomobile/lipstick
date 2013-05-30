@@ -4,7 +4,7 @@ system(qdbusxml2cpp screenlock/screenlock.xml -a screenlock/screenlockadaptor -c
 TEMPLATE = lib
 equals(QT_MAJOR_VERSION, 4): TARGET = lipstick
 equals(QT_MAJOR_VERSION, 5): TARGET = lipstick-qt5
-VERSION = 0.11.4
+VERSION = 0.11.5
 
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x000000
 DEFINES += LIPSTICK_BUILD_LIBRARY VERSION=\\\"$$VERSION\\\"
@@ -28,7 +28,7 @@ PUBLICHEADERS += \
     components/launcheritem.h \
     components/launchermodel.h \
     notifications/notificationmanager.h \
-    notifications/notification.h \
+    notifications/lipsticknotification.h \
     notifications/notificationlistmodel.h \
     notifications/notificationpreviewpresenter.h \
     usbmodeselector.h \
@@ -64,7 +64,7 @@ SOURCES += \
     components/launchermodel.cpp \
     notifications/notificationmanager.cpp \
     notifications/notificationmanageradaptor.cpp \
-    notifications/notification.cpp \
+    notifications/lipsticknotification.cpp \
     notifications/categorydefinitionstore.cpp \
     notifications/notificationlistmodel.cpp \
     notifications/notificationpreviewpresenter.cpp \

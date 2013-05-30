@@ -31,7 +31,7 @@
 #endif
 
 Q_DECLARE_METATYPE(NotificationPreviewPresenter*)
-Q_DECLARE_METATYPE(Notification*)
+Q_DECLARE_METATYPE(LipstickNotification*)
 
 #if QT_VERSION < QT_VERSION_CHECK(5,0,0)
 QList<XRectangle> xFixesCreateRegionRectangles;
@@ -134,8 +134,8 @@ NotificationManager *NotificationManager::instance()
     return notificationManagerInstance;
 }
 
-QHash<uint, Notification *> notificationManagerNotification;
-Notification *NotificationManager::notification(uint id) const
+QHash<uint, LipstickNotification *> notificationManagerNotification;
+LipstickNotification *NotificationManager::notification(uint id) const
 {
     return notificationManagerNotification.value(id);
 }
@@ -144,9 +144,9 @@ void NotificationManager::removeUserRemovableNotifications()
 {
 }
 
-Notification *createNotification(uint id, int urgency = 0)
+LipstickNotification *createNotification(uint id, int urgency = 0)
 {
-    Notification *notification = new Notification;
+    LipstickNotification *notification = new LipstickNotification;
     QVariantHash hints;
     hints.insert(NotificationManager::HINT_PREVIEW_SUMMARY, "summary");
     hints.insert(NotificationManager::HINT_PREVIEW_BODY, "body");
@@ -158,7 +158,7 @@ Notification *createNotification(uint id, int urgency = 0)
 
 void Ut_NotificationPreviewPresenter::initTestCase()
 {
-    qRegisterMetaType<Notification *>();
+    qRegisterMetaType<LipstickNotification *>();
     NotificationManager::instance()->setParent(this);
 }
 
@@ -191,7 +191,7 @@ void Ut_NotificationPreviewPresenter::testAddNotificationWhenWindowNotOpen()
     QCOMPARE(qDeclarativeViews.isEmpty(), true);
 
     // Check that the window is created when a notification is added
-    Notification *notification = createNotification(1);
+    LipstickNotification *notification = createNotification(1);
     presenter.updateNotification(1);
     QCOMPARE(qDeclarativeViews.count(), 1);
 
@@ -226,7 +226,7 @@ void Ut_NotificationPreviewPresenter::testAddNotificationWhenWindowAlreadyOpen()
     qDeclarativeViews.clear();
 
     // Create another notification
-    Notification *notification = createNotification(2);
+    LipstickNotification *notification = createNotification(2);
     presenter.updateNotification(2);
 
     // The second notification should not be signaled onwards yet since the first one is being presented
@@ -278,7 +278,7 @@ void Ut_NotificationPreviewPresenter::testRemoveNotification()
 
     // Check that an empty notification is signaled onwards
     QCOMPARE(spy.count(), 2);
-    QCOMPARE(presenter.notification(), (Notification *)0);
+    QCOMPARE(presenter.notification(), (LipstickNotification *)0);
 
     // Show and remove the second one
     presenter.showNextNotification();
@@ -286,7 +286,7 @@ void Ut_NotificationPreviewPresenter::testRemoveNotification()
 
     // Check that an empty notification is signaled onwards
     QCOMPARE(spy.count(), 4);
-    QCOMPARE(presenter.notification(), (Notification *)0);
+    QCOMPARE(presenter.notification(), (LipstickNotification *)0);
 
     // Check that the window is not yet hidden
     QCOMPARE(qWidgetVisible[static_cast<QWidget *>(qDeclarativeViews.first())], true);
@@ -371,7 +371,7 @@ void Ut_NotificationPreviewPresenter::testNotificationNotShownIfNoSummaryOrBody(
     QSignalSpy spy(&presenter, SIGNAL(notificationChanged()));
 
     // Create notification
-    Notification *notification = new Notification;
+    LipstickNotification *notification = new LipstickNotification;
     QVariantHash hints;
     hints.insert(NotificationManager::HINT_PREVIEW_SUMMARY, previewSummary);
     hints.insert(NotificationManager::HINT_PREVIEW_BODY, previewBody);
@@ -392,7 +392,7 @@ void Ut_NotificationPreviewPresenter::testNotificationNotShownIfHidden()
     QSignalSpy spy(&presenter, SIGNAL(notificationChanged()));
 
     // Create notification
-    Notification *notification = new Notification;
+    LipstickNotification *notification = new LipstickNotification;
     QVariantHash hints;
     hints.insert(NotificationManager::HINT_PREVIEW_SUMMARY, "previewSummary");
     hints.insert(NotificationManager::HINT_PREVIEW_BODY, "previewBody");
@@ -411,7 +411,7 @@ void Ut_NotificationPreviewPresenter::testShowingOnlyCriticalNotifications()
     QSignalSpy spy(&presenter, SIGNAL(notificationChanged()));
 
     // Create normal urgency notification
-    Notification *notification = new Notification;
+    LipstickNotification *notification = new LipstickNotification;
     QVariantHash hints;
     hints.insert(NotificationManager::HINT_PREVIEW_SUMMARY, "previewSummary");
     hints.insert(NotificationManager::HINT_PREVIEW_BODY, "previewBody");
@@ -440,8 +440,8 @@ void Ut_NotificationPreviewPresenter::testUpdateNotificationRemovesNotificationF
     NotificationPreviewPresenter presenter;
 
     // Create two notifications
-    Notification *notification1 = createNotification(1);
-    Notification *notification2 = createNotification(2);
+    LipstickNotification *notification1 = createNotification(1);
+    LipstickNotification *notification2 = createNotification(2);
     presenter.updateNotification(1);
     presenter.updateNotification(2);
 
@@ -458,7 +458,7 @@ void Ut_NotificationPreviewPresenter::testUpdateNotificationRemovesNotificationF
     // Check that the other notification is removed from the queue
     presenter.showNextNotification();
     QCOMPARE(spy.count(), 1);
-    QCOMPARE(presenter.notification(), (Notification *)0);
+    QCOMPARE(presenter.notification(), (LipstickNotification *)0);
 }
 
 #ifdef HAVE_QMSYSTEM

@@ -13,8 +13,8 @@
 **
 ****************************************************************************/
 
-#ifndef NOTIFICATION_H
-#define NOTIFICATION_H
+#ifndef LIPSTICKNOTIFICATION_H
+#define LIPSTICKNOTIFICATION_H
 
 #include "lipstickglobal.h"
 #include <QStringList>
@@ -26,7 +26,7 @@ class QDBusArgument;
 /*!
  * An object for storing information about a single notification.
  */
-class LIPSTICK_EXPORT Notification : public QObject
+class LIPSTICK_EXPORT LipstickNotification : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString appName READ appName)
@@ -60,14 +60,14 @@ public:
      * \param expireTimeout expiration timeout for the notification
      * \param parent the parent QObject
      */
-    Notification(const QString &appName, uint replacesId, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expireTimeout, QObject *parent = 0);
+    LipstickNotification(const QString &appName, uint replacesId, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expireTimeout, QObject *parent = 0);
 
     /*!
      * Creates a new uninitialized representation of a notification.
      *
      * \param parent the parent QObject
      */
-    Notification(QObject *parent = 0);
+    LipstickNotification(QObject *parent = 0);
 
     //! Returns the name of the application sending the notification
     QString appName() const;
@@ -149,10 +149,10 @@ public:
      *
      * \param notification the notification representation to a create copy of
      */
-    explicit Notification(const Notification &notification);
+    explicit LipstickNotification(const LipstickNotification &notification);
 
-    friend QDBusArgument &operator<<(QDBusArgument &, const Notification &);
-    friend const QDBusArgument &operator>>(const QDBusArgument &, Notification &);
+    friend QDBusArgument &operator<<(QDBusArgument &, const LipstickNotification &);
+    friend const QDBusArgument &operator>>(const QDBusArgument &, LipstickNotification &);
     //! \internal_end
 
 signals:
@@ -222,21 +222,21 @@ private:
     int expireTimeout_;
 };
 
-Q_DECLARE_METATYPE(Notification)
+Q_DECLARE_METATYPE(LipstickNotification)
 
 class LIPSTICK_EXPORT NotificationList
 {
 public:
     NotificationList();
-    NotificationList(const QList<Notification *> &notificationList);
+    NotificationList(const QList<LipstickNotification *> &notificationList);
     NotificationList(const NotificationList &notificationList);
     friend QDBusArgument &operator<<(QDBusArgument &, const NotificationList &);
     friend const QDBusArgument &operator>>(const QDBusArgument &, NotificationList &);
 
 private:
-    QList<Notification *> notificationList;
+    QList<LipstickNotification *> notificationList;
 };
 
 Q_DECLARE_METATYPE(NotificationList)
 
-#endif // NOTIFICATION_H
+#endif // LIPSTICKNOTIFICATION_H

@@ -15,9 +15,9 @@
 
 #include <QDBusArgument>
 #include "notificationmanager.h"
-#include "notification.h"
+#include "lipsticknotification.h"
 
-Notification::Notification(const QString &appName, uint replacesId, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expireTimeout, QObject *parent) :
+LipstickNotification::LipstickNotification(const QString &appName, uint replacesId, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expireTimeout, QObject *parent) :
     QObject(parent),
     appName_(appName),
     replacesId_(replacesId),
@@ -30,14 +30,14 @@ Notification::Notification(const QString &appName, uint replacesId, const QStrin
 {
 }
 
-Notification::Notification(QObject *parent) :
+LipstickNotification::LipstickNotification(QObject *parent) :
     QObject(parent),
     replacesId_(0),
     expireTimeout_(-1)
 {
 }
 
-Notification::Notification(const Notification &notification) :
+LipstickNotification::LipstickNotification(const LipstickNotification &notification) :
     QObject(notification.parent()),
     appName_(notification.appName_),
     replacesId_(notification.replacesId_),
@@ -50,37 +50,37 @@ Notification::Notification(const Notification &notification) :
 {
 }
 
-QString Notification::appName() const
+QString LipstickNotification::appName() const
 {
     return appName_;
 }
 
-void Notification::setAppName(const QString &appName)
+void LipstickNotification::setAppName(const QString &appName)
 {
     appName_ = appName;
 }
 
-uint Notification::replacesId() const
+uint LipstickNotification::replacesId() const
 {
     return replacesId_;
 }
 
-QString Notification::appIcon() const
+QString LipstickNotification::appIcon() const
 {
     return appIcon_;
 }
 
-void Notification::setAppIcon(const QString &appIcon)
+void LipstickNotification::setAppIcon(const QString &appIcon)
 {
     appIcon_ = appIcon;
 }
 
-QString Notification::summary() const
+QString LipstickNotification::summary() const
 {
     return summary_;
 }
 
-void Notification::setSummary(const QString &summary)
+void LipstickNotification::setSummary(const QString &summary)
 {
     if (summary_ != summary) {
         summary_ = summary;
@@ -88,12 +88,12 @@ void Notification::setSummary(const QString &summary)
     }
 }
 
-QString Notification::body() const
+QString LipstickNotification::body() const
 {
     return body_;
 }
 
-void Notification::setBody(const QString &body)
+void LipstickNotification::setBody(const QString &body)
 {
     if (body_ != body) {
         body_ = body;
@@ -101,22 +101,22 @@ void Notification::setBody(const QString &body)
     }
 }
 
-QStringList Notification::actions() const
+QStringList LipstickNotification::actions() const
 {
     return actions_;
 }
 
-void Notification::setActions(const QStringList &actions)
+void LipstickNotification::setActions(const QStringList &actions)
 {
     actions_ = actions;
 }
 
-QVariantHash Notification::hints() const
+QVariantHash LipstickNotification::hints() const
 {
     return hints_;
 }
 
-void Notification::setHints(const QVariantHash &hints)
+void LipstickNotification::setHints(const QVariantHash &hints)
 {
     QString oldIcon = icon();
     QDateTime oldTimestamp = timestamp();
@@ -167,62 +167,62 @@ void Notification::setHints(const QVariantHash &hints)
     }
 }
 
-int Notification::expireTimeout() const
+int LipstickNotification::expireTimeout() const
 {
     return expireTimeout_;
 }
 
-void Notification::setExpireTimeout(int expireTimeout)
+void LipstickNotification::setExpireTimeout(int expireTimeout)
 {
     expireTimeout_ = expireTimeout;
 }
 
-QString Notification::icon() const
+QString LipstickNotification::icon() const
 {
     return appIcon_.isEmpty() ? hints_.value(NotificationManager::HINT_ICON).toString() : appIcon_;
 }
 
-QDateTime Notification::timestamp() const
+QDateTime LipstickNotification::timestamp() const
 {
     return hints_.value(NotificationManager::HINT_TIMESTAMP).toDateTime();
 }
 
-QString Notification::previewIcon() const
+QString LipstickNotification::previewIcon() const
 {
     return hints_.value(NotificationManager::HINT_PREVIEW_ICON).toString();
 }
 
-QString Notification::previewSummary() const
+QString LipstickNotification::previewSummary() const
 {
     return hints_.value(NotificationManager::HINT_PREVIEW_SUMMARY).toString();
 }
 
-QString Notification::previewBody() const
+QString LipstickNotification::previewBody() const
 {
     return hints_.value(NotificationManager::HINT_PREVIEW_BODY).toString();
 }
 
-int Notification::urgency() const
+int LipstickNotification::urgency() const
 {
     return hints_.value(NotificationManager::HINT_URGENCY).toInt();
 }
 
-int Notification::itemCount() const
+int LipstickNotification::itemCount() const
 {
     return hints_.value(NotificationManager::HINT_ITEM_COUNT).toInt();
 }
 
-int Notification::priority() const
+int LipstickNotification::priority() const
 {
     return hints_.value(NotificationManager::HINT_PRIORITY).toInt();
 }
 
-QString Notification::category() const
+QString LipstickNotification::category() const
 {
     return hints_.value(NotificationManager::HINT_CATEGORY).toString();
 }
 
-QDBusArgument &operator<<(QDBusArgument &argument, const Notification &notification)
+QDBusArgument &operator<<(QDBusArgument &argument, const LipstickNotification &notification)
 {
     argument.beginStructure();
     argument << notification.appName_;
@@ -237,7 +237,7 @@ QDBusArgument &operator<<(QDBusArgument &argument, const Notification &notificat
     return argument;
 }
 
-const QDBusArgument &operator>>(const QDBusArgument &argument, Notification &notification)
+const QDBusArgument &operator>>(const QDBusArgument &argument, LipstickNotification &notification)
 {
     argument.beginStructure();
     argument >> notification.appName_;
@@ -256,7 +256,7 @@ NotificationList::NotificationList()
 {
 }
 
-NotificationList::NotificationList(const QList<Notification *> &notificationList) :
+NotificationList::NotificationList(const QList<LipstickNotification *> &notificationList) :
     notificationList(notificationList)
 {
 }
@@ -268,8 +268,8 @@ NotificationList::NotificationList(const NotificationList &notificationList) :
 
 QDBusArgument &operator<<(QDBusArgument &argument, const NotificationList &notificationList)
 {
-    argument.beginArray(qMetaTypeId<Notification>());
-    foreach (Notification *notification, notificationList.notificationList) {
+    argument.beginArray(qMetaTypeId<LipstickNotification>());
+    foreach (LipstickNotification *notification, notificationList.notificationList) {
         argument << *notification;
     }
     argument.endArray();
@@ -281,7 +281,7 @@ const QDBusArgument &operator>>(const QDBusArgument &argument, NotificationList 
     argument.beginArray();
     notificationList.notificationList.clear();
     while (!argument.atEnd()) {
-        Notification *notification = new Notification;
+        LipstickNotification *notification = new LipstickNotification;
         argument >> *notification;
         notificationList.notificationList.append(notification);
     }

@@ -84,7 +84,7 @@ NotificationManager::NotificationManager(QObject *parent) :
     committed(true)
 {
     qDBusRegisterMetaType<QVariantHash>();
-    qDBusRegisterMetaType<Notification>();
+    qDBusRegisterMetaType<LipstickNotification>();
     qDBusRegisterMetaType<NotificationList>();
 
     new NotificationManagerAdaptor(this);
@@ -108,7 +108,7 @@ NotificationManager::~NotificationManager()
     delete database;
 }
 
-Notification *NotificationManager::notification(uint id) const
+LipstickNotification *NotificationManager::notification(uint id) const
 {
     return notifications.value(id);
 }
@@ -137,12 +137,12 @@ uint NotificationManager::Notify(const QString &appName, uint replacesId, const 
 
         if (replacesId == 0) {
             // Create a new notification
-            Notification *notification = new Notification(appName, id, appIcon, summary, body, actions, hints, expireTimeout, this);
+            LipstickNotification *notification = new LipstickNotification(appName, id, appIcon, summary, body, actions, hints, expireTimeout, this);
             connect(notification, SIGNAL(actionInvoked(QString)), this, SLOT(invokeAction(QString)));
             notifications.insert(id, notification);
         } else {
             // Only replace an existing notification if it really exists
-            Notification *notification = notifications.value(id);
+            LipstickNotification *notification = notifications.value(id);
             notification->setAppName(appName);
             notification->setAppIcon(appIcon);
             notification->setSummary(summary);
@@ -204,9 +204,9 @@ QString NotificationManager::GetServerInformation(QString &name, QString &vendor
 
 NotificationList NotificationManager::GetNotifications(const QString &appName)
 {
-    QList<Notification *> notificationList;
+    QList<LipstickNotification *> notificationList;
     foreach (uint id, notifications.keys()) {
-        Notification *notification = notifications.value(id);
+        LipstickNotification *notification = notifications.value(id);
         if (notification->appName() == appName) {
             notificationList.append(notification);
         }
@@ -432,7 +432,7 @@ void NotificationManager::fetchData()
         QString summary = notificationsQuery.value(notificationsTableSummaryFieldIndex).toString();
         QString body = notificationsQuery.value(notificationsTableBodyFieldIndex).toString();
         int expireTimeout = notificationsQuery.value(notificationsTableExpireTimeoutFieldIndex).toInt();
-        Notification *notification = new Notification(appName, id, appIcon, summary, body, actions[id], hints[id], expireTimeout, this);
+        LipstickNotification *notification = new LipstickNotification(appName, id, appIcon, summary, body, actions[id], hints[id], expireTimeout, this);
         connect(notification, SIGNAL(actionInvoked(QString)), this, SLOT(invokeAction(QString)));
         notifications.insert(id, notification);
 
@@ -487,7 +487,7 @@ void NotificationManager::execSQL(const QString &command, const QVariantList &ar
 
 void NotificationManager::invokeAction(const QString &action)
 {
-    Notification *notification = qobject_cast<Notification *>(sender());
+    LipstickNotification *notification = qobject_cast<LipstickNotification *>(sender());
     if (notification != 0) {
         uint id = notifications.key(notification, 0);
         if (id > 0) {
@@ -515,7 +515,7 @@ void NotificationManager::invokeAction(const QString &action)
 
 void NotificationManager::removeNotificationIfUserRemovable(uint id)
 {
-    Notification *notification = notifications[id];
+    LipstickNotification *notification = notifications[id];
     QVariant userRemovable = notification->hints().value(HINT_USER_REMOVABLE);
     if (!userRemovable.isValid() || userRemovable.toBool()) {
         // The notification should be removed if user removability is not defined (defaults to true) or is set to true

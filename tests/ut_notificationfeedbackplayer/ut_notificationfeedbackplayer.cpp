@@ -67,15 +67,15 @@ NotificationManager *NotificationManager::instance()
     return notificationManagerInstance;
 }
 
-QHash<uint, Notification *> notificationManagerNotification;
-Notification *NotificationManager::notification(uint id) const
+QHash<uint, LipstickNotification *> notificationManagerNotification;
+LipstickNotification *NotificationManager::notification(uint id) const
 {
     return notificationManagerNotification.value(id);
 }
 
-Notification *createNotification(uint id)
+LipstickNotification *createNotification(uint id)
 {
-    Notification *notification = new Notification;
+    LipstickNotification *notification = new LipstickNotification;
     QVariantHash hints;
     hints.insert(NotificationManager::HINT_FEEDBACK, "feedback");
     notification->setHints(hints);
@@ -122,7 +122,7 @@ void Ut_NotificationFeedbackPlayer::testAddAndRemoveNotification()
 void Ut_NotificationFeedbackPlayer::testWithoutFeedbackId()
 {
     // Create a notification
-    Notification *notification = createNotification(1);
+    LipstickNotification *notification = createNotification(1);
     notification->setHints(QVariantHash());
     player->addNotification(1);
 
@@ -133,7 +133,7 @@ void Ut_NotificationFeedbackPlayer::testWithoutFeedbackId()
 void Ut_NotificationFeedbackPlayer::testUpdateNotificationIsNotPossible()
 {
     // Create a notification
-    Notification *notification = createNotification(1);
+    LipstickNotification *notification = createNotification(1);
     player->addNotification(1);
 
     // Update the notification

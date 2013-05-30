@@ -9,7 +9,7 @@ HEADERS += \
     ut_notificationfeedbackplayer.h \
     $$NOTIFICATIONSRCDIR/notificationfeedbackplayer.h \
     $$NOTIFICATIONSRCDIR/notificationmanager.h \
-    $$NOTIFICATIONSRCDIR/notification.h
+    $$NOTIFICATIONSRCDIR/lipsticknotification.h
 
 equals(QT_MAJOR_VERSION, 4): HEADERS += /usr/include/ngf-qt/ngfclient.h
 equals(QT_MAJOR_VERSION, 5): HEADERS += /usr/include/ngf-qt5/ngfclient.h
@@ -17,6 +17,6 @@ equals(QT_MAJOR_VERSION, 5): HEADERS += /usr/include/ngf-qt5/ngfclient.h
 SOURCES += \
     ut_notificationfeedbackplayer.cpp \
     $$NOTIFICATIONSRCDIR/notificationfeedbackplayer.cpp \
-    $$NOTIFICATIONSRCDIR/notification.cpp \
+    $$NOTIFICATIONSRCDIR/lipsticknotification.cpp \
     $$STUBSDIR/stubbase.cpp
 

@@ -17,7 +17,7 @@ packagesExist($$QMSYSTEM) {
 SOURCES += \
     ut_notificationpreviewpresenter.cpp \
     $$NOTIFICATIONSRCDIR/notificationpreviewpresenter.cpp \
-    $$NOTIFICATIONSRCDIR/notification.cpp \
+    $$NOTIFICATIONSRCDIR/lipsticknotification.cpp \
     $$STUBSDIR/stubbase.cpp
 
 # unit test and unit
@@ -25,7 +25,7 @@ HEADERS += \
     ut_notificationpreviewpresenter.h \
     $$NOTIFICATIONSRCDIR/notificationpreviewpresenter.h \
     $$NOTIFICATIONSRCDIR/notificationmanager.h \
-    $$NOTIFICATIONSRCDIR/notification.h \
+    $$NOTIFICATIONSRCDIR/lipsticknotification.h \
     $$UTILITYSRCDIR/closeeventeater.h \
     /usr/include/$$QMSYSTEM/qmlocks.h \
     /usr/include/$$QMSYSTEM/qmdisplaystate.h

@@ -23,7 +23,7 @@ HEADERS += \
     $$NOTIFICATIONSRCDIR/batterynotifier.h \
     $$NOTIFICATIONSRCDIR/lowbatterynotifier.h \
     $$NOTIFICATIONSRCDIR/notificationmanager.h \
-    $$NOTIFICATIONSRCDIR/notification.h \
+    $$NOTIFICATIONSRCDIR/lipsticknotification.h \
     /usr/include/qmsystem2/qmled.h \
     /usr/include/qmsystem2/qmdevicemode.h \
     /usr/include/qmsystem2/qmdisplaystate.h \
@@ -32,6 +32,6 @@ HEADERS += \
 
 SOURCES += \
     $$NOTIFICATIONSRCDIR/batterynotifier.cpp \
-    $$NOTIFICATIONSRCDIR/notification.cpp \
+    $$NOTIFICATIONSRCDIR/lipsticknotification.cpp \
     $$STUBSDIR/stubbase.cpp \
     ut_batterynotifier.cpp
