@@ -20,7 +20,7 @@
 #include <QObject>
 
 class HomeWindow;
-class Notification;
+class LipstickNotification;
 
 namespace MeeGo {
 class QmLocks;
@@ -38,7 +38,7 @@ class QmDisplayState;
 class LIPSTICK_EXPORT NotificationPreviewPresenter : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(Notification *notification READ notification NOTIFY notificationChanged)
+    Q_PROPERTY(LipstickNotification *notification READ notification NOTIFY notificationChanged)
 
 public:
     /*!
@@ -73,7 +73,7 @@ public:
      *
      * \return the notification to be currently shown or 0 if no notification should be shown
      */
-    Notification *notification() const;
+    LipstickNotification *notification() const;
 
 signals:
     //! Sent when the notification to be shown has changed.
@@ -107,19 +107,19 @@ private:
     void createWindowIfNecessary();
 
     //! Checks whether the given notification has a preview body and a preview summary.
-    bool notificationShouldBeShown(Notification *notification);
+    bool notificationShouldBeShown(LipstickNotification *notification);
 
     //! Sets the given notification as the current notification
-    void setCurrentNotification(Notification *notification);
+    void setCurrentNotification(LipstickNotification *notification);
 
     //! The notification window
     HomeWindow *window;
 
     //! Notifications to be shown
-    QList<Notification *> notificationQueue;
+    QList<LipstickNotification *> notificationQueue;
 
     //! Notification currently being shown
-    Notification *currentNotification;
+    LipstickNotification *currentNotification;
 
     //! For getting information about the touch screen lock state
     MeeGo::QmLocks *locks;

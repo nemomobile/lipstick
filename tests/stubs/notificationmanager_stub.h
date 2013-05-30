@@ -25,7 +25,7 @@ class NotificationManagerStub : public StubBase {
   public:
    enum NotificationClosedReason { NotificationExpired=1, NotificationDismissedByUser, CloseNotificationCalled } ;
   virtual NotificationManager * instance();
-  virtual Notification * notification(uint id) const;
+  virtual LipstickNotification * notification(uint id) const;
   virtual QList<uint> notificationIds() const;
   virtual QStringList GetCapabilities();
   virtual uint Notify(const QString &appName, uint replacesId, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expireTimeout);
@@ -46,11 +46,11 @@ NotificationManager * NotificationManagerStub::instance() {
   return stubReturnValue<NotificationManager *>("instance");
 }
 
-Notification * NotificationManagerStub::notification(uint id) const {
+LipstickNotification * NotificationManagerStub::notification(uint id) const {
   QList<ParameterBase*> params;
   params.append( new Parameter<uint >(id));
   stubMethodEntered("notification",params);
-  return stubReturnValue<Notification *>("notification");
+  return stubReturnValue<LipstickNotification *>("notification");
 }
 
 QList<uint> NotificationManagerStub::notificationIds() const {
@@ -154,7 +154,7 @@ NotificationManager * NotificationManager::instance() {
   return instance_;
 }
 
-Notification * NotificationManager::notification(uint id) const {
+LipstickNotification * NotificationManager::notification(uint id) const {
   return gNotificationManagerStub->notification(id);
 }
 

@@ -39,7 +39,7 @@ void NotificationListModel::init()
 
 void NotificationListModel::updateNotification(uint id)
 {
-    Notification *notification = NotificationManager::instance()->notification(id);
+    LipstickNotification *notification = NotificationManager::instance()->notification(id);
     int index = indexOf(notification);
     if (notificationShouldBeShown(notification)) {
         // Place the notifications in the model latest first, moving existing notifications if necessary
@@ -54,10 +54,10 @@ void NotificationListModel::updateNotification(uint id)
     }
 }
 
-int NotificationListModel::indexFor(Notification *notification)
+int NotificationListModel::indexFor(LipstickNotification *notification)
 {
     for (int index = 0; index < itemCount(); index++) {
-        Notification *notificationAtIndex = static_cast<Notification *>(get(index));
+        LipstickNotification *notificationAtIndex = static_cast<LipstickNotification *>(get(index));
         if (notificationAtIndex->timestamp() <= notification->timestamp()) {
             return index;
         }
@@ -70,7 +70,7 @@ void NotificationListModel::removeNotification(uint id)
     removeItem(NotificationManager::instance()->notification(id));
 }
 
-bool NotificationListModel::notificationShouldBeShown(Notification *notification)
+bool NotificationListModel::notificationShouldBeShown(LipstickNotification *notification)
 {
     return !notification->hints().value(NotificationManager::HINT_HIDDEN).toBool() && !(notification->body().isEmpty() && notification->summary().isEmpty()) && notification->hints().value(NotificationManager::HINT_URGENCY).toInt() < 2;
 }

@@ -19,7 +19,7 @@
 #include <QObject>
 #include <QHash>
 
-class Notification;
+class LipstickNotification;
 namespace Ngf {
     class Client;
 }
@@ -56,7 +56,7 @@ private:
     Ngf::Client *ngfClient;
 
     //! A mapping between notification IDs and NGF play IDs.
-    QHash<Notification *, uint> idToEventId;
+    QHash<LipstickNotification *, uint> idToEventId;
 
 #ifdef UNIT_TEST
     friend class Ut_NotificationFeedbackPlayer;

@@ -7,7 +7,7 @@ QT += qml quick dbus
 SOURCES += \
     ut_notificationpreviewpresenter.cpp \
     $$NOTIFICATIONSRCDIR/notificationpreviewpresenter.cpp \
-    $$NOTIFICATIONSRCDIR/notification.cpp \
+    $$NOTIFICATIONSRCDIR/lipsticknotification.cpp \
     $$STUBSDIR/stubbase.cpp \
     $$STUBSDIR/homewindow.cpp \
 
@@ -16,7 +16,7 @@ HEADERS += \
     ut_notificationpreviewpresenter.h \
     $$NOTIFICATIONSRCDIR/notificationpreviewpresenter.h \
     $$NOTIFICATIONSRCDIR/notificationmanager.h \
-    $$NOTIFICATIONSRCDIR/notification.h \
+    $$NOTIFICATIONSRCDIR/lipsticknotification.h \
     $$UTILITYSRCDIR/closeeventeater.h \
     /usr/include/qmsystem2-qt5/qmlocks.h \
     /usr/include/qmsystem2-qt5/qmdisplaystate.h \

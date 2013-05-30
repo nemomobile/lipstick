@@ -21,7 +21,7 @@
 #include <components/launchermodel.h>
 #include <notifications/notificationpreviewpresenter.h>
 #include <notifications/notificationlistmodel.h>
-#include <notifications/notification.h>
+#include <notifications/lipsticknotification.h>
 #include <volume/volumecontrol.h>
 #include <usbmodeselector.h>
 #include <shutdownscreen.h>
@@ -47,7 +47,7 @@ void LipstickPlugin::registerTypes(const char *uri)
 
     qmlRegisterType<LauncherModel>("org.nemomobile.lipstick", 0, 1, "LauncherModel");
     qmlRegisterType<NotificationListModel>("org.nemomobile.lipstick", 0, 1, "NotificationListModel");
-    qmlRegisterType<Notification>("org.nemomobile.lipstick", 0, 1, "Notification");
+    qmlRegisterType<LipstickNotification>("org.nemomobile.lipstick", 0, 1, "Notification");
     qmlRegisterType<LauncherItem>("org.nemomobile.lipstick", 0, 1, "LauncherItem");
     qmlRegisterUncreatableType<NotificationPreviewPresenter>("org.nemomobile.lipstick", 0, 1, "NotificationPreviewPresenter", "This type is initialized by HomeApplication");
     qmlRegisterUncreatableType<VolumeControl>("org.nemomobile.lipstick", 0, 1, "VolumeControl", "This type is initialized by HomeApplication");

@@ -17,7 +17,7 @@
 #define NOTIFICATIONMANAGER_H
 
 #include "lipstickglobal.h"
-#include "notification.h"
+#include "lipsticknotification.h"
 #include <QObject>
 #include <QTimer>
 #include <QSet>
@@ -123,7 +123,7 @@ public:
      * \param id the ID of the notification to return
      * \return the notification with the given ID
      */
-    Notification *notification(uint id) const;
+    LipstickNotification *notification(uint id) const;
 
     /*!
      * Returns a list of notification IDs.
@@ -352,10 +352,10 @@ private:
     static NotificationManager *instance_;
 
     //! Hash of all notifications keyed by notification IDs
-    QHash<uint, Notification*> notifications;
+    QHash<uint, LipstickNotification*> notifications;
 
     //! Notifications waiting to be destroyed
-    QSet<Notification *> removedNotifications;
+    QSet<LipstickNotification *> removedNotifications;
 
     //! Previous notification ID used
     uint previousNotificationID;

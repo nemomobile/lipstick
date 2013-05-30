@@ -29,7 +29,7 @@ NotificationFeedbackPlayer::NotificationFeedbackPlayer(QObject *parent) :
 
 void NotificationFeedbackPlayer::addNotification(uint id)
 {
-    Notification *notification = NotificationManager::instance()->notification(id);
+    LipstickNotification *notification = NotificationManager::instance()->notification(id);
 
     // Play the feedback related to the notification if any
     if (!idToEventId.contains(notification)) {
@@ -42,7 +42,7 @@ void NotificationFeedbackPlayer::addNotification(uint id)
 
 void NotificationFeedbackPlayer::removeNotification(uint id)
 {
-    Notification *notification = NotificationManager::instance()->notification(id);
+    LipstickNotification *notification = NotificationManager::instance()->notification(id);
 
     if (notification != 0) {
         // Stop the feedback related to the notification, if any

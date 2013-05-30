@@ -69,14 +69,14 @@ void NotificationPreviewPresenter::showNextNotification()
     }
 }
 
-Notification *NotificationPreviewPresenter::notification() const
+LipstickNotification *NotificationPreviewPresenter::notification() const
 {
     return currentNotification;
 }
 
 void NotificationPreviewPresenter::updateNotification(uint id)
 {
-    Notification *notification = NotificationManager::instance()->notification(id);
+    LipstickNotification *notification = NotificationManager::instance()->notification(id);
     notification->setProperty("id", id);
     if (notificationShouldBeShown(notification)) {
         // Add the notification to the queue if not already there or the current notification
@@ -97,7 +97,7 @@ void NotificationPreviewPresenter::updateNotification(uint id)
 void NotificationPreviewPresenter::removeNotification(uint id, bool onlyFromQueue)
 {
     // Remove the notification from the queue
-    Notification *notification = NotificationManager::instance()->notification(id);
+    LipstickNotification *notification = NotificationManager::instance()->notification(id);
 
     if (notification != 0) {
         notificationQueue.removeAll(notification);
@@ -126,7 +126,7 @@ void NotificationPreviewPresenter::createWindowIfNecessary()
     window->installEventFilter(new CloseEventEater(this));
 }
 
-bool NotificationPreviewPresenter::notificationShouldBeShown(Notification *notification)
+bool NotificationPreviewPresenter::notificationShouldBeShown(LipstickNotification *notification)
 {
     bool screenOrDeviceLocked = locks->getState(MeeGo::QmLocks::TouchAndKeyboard) == MeeGo::QmLocks::Locked || locks->getState(MeeGo::QmLocks::Device) == MeeGo::QmLocks::Locked;
     bool notificationHidden = notification->hints().value(NotificationManager::HINT_HIDDEN).toBool();
@@ -144,7 +144,7 @@ void NotificationPreviewPresenter::setNotificationPreviewRect(qreal x1, qreal y1
     Q_UNUSED(y2)
 }
 
-void NotificationPreviewPresenter::setCurrentNotification(Notification *notification)
+void NotificationPreviewPresenter::setCurrentNotification(LipstickNotification *notification)
 {
     if (currentNotification != notification) {
         if (currentNotification != 0 && currentNotification->hints().value(NotificationManager::HINT_URGENCY).toInt() >= 2) {

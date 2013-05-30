@@ -15,8 +15,8 @@
 
 #include <QtTest/QtTest>
 #include "qdbusargument_fake.h"
-#include "ut_notification.h"
-#include "notification.h"
+#include "ut_lipsticknotification.h"
+#include "lipsticknotification.h"
 #include "notificationmanager_stub.h"
 
 void Ut_Notification::testGettersAndSetters()
@@ -47,7 +47,7 @@ void Ut_Notification::testGettersAndSetters()
     int expireTimeout = 1;
 
     // Ensure that the constructor puts things in place
-    Notification notification(appName, replacesId, appIcon, summary, body, actions, hints, expireTimeout);
+    LipstickNotification notification(appName, replacesId, appIcon, summary, body, actions, hints, expireTimeout);
     QCOMPARE(notification.appName(), appName);
     QCOMPARE(notification.replacesId(), replacesId);
     QCOMPARE(notification.appIcon(), appIcon);
@@ -130,9 +130,9 @@ void Ut_Notification::testIcon()
     QVariantHash hints;
     hints.insert(NotificationManager::HINT_ICON, hintIcon);
 
-    Notification notification1(QString(), 0, appIcon, QString(), QString(), QStringList(), hints, 0);
+    LipstickNotification notification1(QString(), 0, appIcon, QString(), QString(), QStringList(), hints, 0);
     QCOMPARE(notification1.icon(), icon);
-    Notification notification2(QString(), 0, QString(), QString(), QString(), QStringList(), QVariantHash(), 0);
+    LipstickNotification notification2(QString(), 0, QString(), QString(), QString(), QStringList(), QVariantHash(), 0);
     notification2.setAppIcon(appIcon);
     notification2.setHints(hints);
     QCOMPARE(notification2.icon(), icon);
@@ -141,7 +141,7 @@ void Ut_Notification::testIcon()
 void Ut_Notification::testSignals()
 {
     QVariantHash hints;
-    Notification notification(QString(), 0, QString(), QString(), QString(), QStringList(), hints, 0);
+    LipstickNotification notification(QString(), 0, QString(), QString(), QString(), QStringList(), hints, 0);
     QSignalSpy summarySpy(&notification, SIGNAL(summaryChanged()));
     QSignalSpy bodySpy(&notification, SIGNAL(bodyChanged()));
     QSignalSpy iconSpy(&notification, SIGNAL(iconChanged()));
@@ -206,8 +206,8 @@ void Ut_Notification::testSerialization()
     hints.insert(NotificationManager::HINT_TIMESTAMP, timestamp);
     int expireTimeout = 1;
 
-    Notification n1(appName, replacesId, appIcon, summary, body, actions, hints, expireTimeout);
-    Notification n2;
+    LipstickNotification n1(appName, replacesId, appIcon, summary, body, actions, hints, expireTimeout);
+    LipstickNotification n2;
 
     // Transfer a Notification from n1 to n2 by serializing it to a QDBusArgument and unserializing it
     QDBusArgument arg;

@@ -5,7 +5,7 @@ SUBDIRS = \
           ut_closeeventeater \
           ut_lipsticksettings \
           ut_lowbatterynotifier \
-          ut_notification \
+          ut_lipsticknotification \
           ut_notificationfeedbackplayer \
           ut_notificationlistmodel \
           ut_notificationmanager \

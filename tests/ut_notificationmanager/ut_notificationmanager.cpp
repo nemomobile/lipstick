@@ -429,7 +429,7 @@ void Ut_NotificationManager::testNotificationsAreRestoredOnConstruction()
     QCOMPARE(ids.count(), notificationValuesById.count());
     foreach (uint id, notificationValuesById.keys()) {
         QCOMPARE(id, notificationValuesById.value(id).value(0).toUInt());
-        Notification *notification = manager->notification(id);
+        LipstickNotification *notification = manager->notification(id);
         QCOMPARE(notification->appName(), notificationValuesById.value(id).value(1).toString());
         QCOMPARE(notification->appIcon(), notificationValuesById.value(id).value(2).toString());
         QCOMPARE(notification->summary(), notificationValuesById.value(id).value(3).toString());
@@ -479,7 +479,7 @@ void Ut_NotificationManager::testAddingNotification()
     QVariantHash hints;
     hints.insert("hint", "value");
     uint id = manager->Notify("appName", 0, "appIcon", "summary", "body", QStringList() << "action" << "Action", hints, 1);
-    Notification *notification = manager->notification(id);
+    LipstickNotification *notification = manager->notification(id);
     QCOMPARE(disconnect(notification, SIGNAL(actionInvoked(QString)), manager, SLOT(invokeAction(QString))), true);
     QCOMPARE(spy.count(), 1);
     QCOMPARE(spy.last().at(0).toUInt(), id);
@@ -534,7 +534,7 @@ void Ut_NotificationManager::testUpdatingExistingNotification()
     QSignalSpy spy(manager, SIGNAL(notificationModified(uint)));
     uint newId = manager->Notify("newAppName", id, "newAppIcon", "newSummary", "newBody", QStringList() << "action", QVariantHash(), 2);
     QCOMPARE(newId, id);
-    Notification *notification = manager->notification(id);
+    LipstickNotification *notification = manager->notification(id);
     QCOMPARE(disconnect(notification, SIGNAL(actionInvoked(QString)), manager, SLOT(invokeAction(QString))), true);
     QCOMPARE(spy.count(), 1);
     QCOMPARE(spy.last().at(0).toUInt(), id);
@@ -670,7 +670,7 @@ void Ut_NotificationManager::testUninstallingCategoryDefinitionRemovesNotificati
     QCOMPARE(removedSpy.count(), 1);
     QCOMPARE(removedSpy.last().at(0).toUInt(), id2);
     QVERIFY(manager->notification(id1) != 0);
-    QCOMPARE(manager->notification(id2), (Notification *)0);
+    QCOMPARE(manager->notification(id2), (LipstickNotification *)0);
 }
 
 void Ut_NotificationManager::testActionIsInvokedIfDefined()
@@ -679,8 +679,8 @@ void Ut_NotificationManager::testActionIsInvokedIfDefined()
     NotificationManager *manager = NotificationManager::instance();
     uint id1 = manager->Notify("app1", 0, QString(), QString(), QString(), QStringList() << "action1" << "Action 1", QVariantHash(), 0);
     uint id2 = manager->Notify("app2", 0, QString(), QString(), QString(), QStringList() << "action2" << "Action 2", QVariantHash(), 0);
-    Notification *notification1 = manager->notification(id1);
-    Notification *notification2 = manager->notification(id2);
+    LipstickNotification *notification1 = manager->notification(id1);
+    LipstickNotification *notification2 = manager->notification(id2);
     connect(this, SIGNAL(actionInvoked(QString)), notification1, SIGNAL(actionInvoked(QString)));
     connect(this, SIGNAL(actionInvoked(QString)), notification2, SIGNAL(actionInvoked(QString)));
 
@@ -698,8 +698,8 @@ void Ut_NotificationManager::testActionIsNotInvokedIfIncomplete()
     NotificationManager *manager = NotificationManager::instance();
     uint id1 = manager->Notify("app1", 0, QString(), QString(), QString(), QStringList() << "action1", QVariantHash(), 0);
     uint id2 = manager->Notify("app2", 0, QString(), QString(), QString(), QStringList() << "action2" << "Action 2", QVariantHash(), 0);
-    Notification *notification1 = manager->notification(id1);
-    Notification *notification2 = manager->notification(id2);
+    LipstickNotification *notification1 = manager->notification(id1);
+    LipstickNotification *notification2 = manager->notification(id2);
     connect(this, SIGNAL(actionInvoked(QString)), notification1, SIGNAL(actionInvoked(QString)));
     connect(this, SIGNAL(actionInvoked(QString)), notification2, SIGNAL(actionInvoked(QString)));
 
@@ -716,7 +716,7 @@ void Ut_NotificationManager::testRemoteActionIsInvokedIfDefined()
     QVariantHash hints;
     hints.insert(QString(NotificationManager::HINT_REMOTE_ACTION_PREFIX) + "action", "a b c d");
     uint id = manager->Notify("app", 0, QString(), QString(), QString(), QStringList(), hints, 0);
-    Notification *notification = manager->notification(id);
+    LipstickNotification *notification = manager->notification(id);
     connect(this, SIGNAL(actionInvoked(QString)), notification, SIGNAL(actionInvoked(QString)));
 
     // Invoking the notification should trigger the remote action
@@ -775,7 +775,7 @@ void Ut_NotificationManager::testInvokingActionRemovesNotificationIfUserRemovabl
     hints.insert(NotificationManager::HINT_USER_REMOVABLE, true);
     hints.insert(NotificationManager::HINT_USER_CLOSEABLE, false);
     uint id = manager->Notify("app2", 0, QString(), QString(), QString(), QStringList(), hints, 0);
-    Notification *notification = manager->notification(id);
+    LipstickNotification *notification = manager->notification(id);
     connect(this, SIGNAL(actionInvoked(QString)), notification, SIGNAL(actionInvoked(QString)));
     qSqlQueryPrepare.clear();
     qSqlQueryAddBindValue.clear();
