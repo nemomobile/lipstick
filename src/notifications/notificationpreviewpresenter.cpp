@@ -118,6 +118,7 @@ void NotificationPreviewPresenter::createWindowIfNecessary()
 
     window = new HomeWindow();
     window->setGeometry(QRect(QPoint(), QGuiApplication::primaryScreen()->size()));
+    window->setIsNotification(true);
     window->setWindowTitle("Notification");
     window->setContextProperty("initialSize", QGuiApplication::primaryScreen()->size());
     window->setContextProperty("notificationPreviewPresenter", this);

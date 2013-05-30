@@ -43,6 +43,9 @@ public:
     bool hasErrors() const;
     QList<QQmlError> errors() const;
 
+    bool isNotification() const;
+    void setIsNotification(bool);
+
     void resize(const QSize &);
     void setGeometry(const QRect &);
 

@@ -24,10 +24,11 @@ class HomeWindowPrivate : public QQuickView
 public:
     HomeWindowPrivate();
     bool isVisible;
+    bool isNotification;
 };
 
 HomeWindowPrivate::HomeWindowPrivate()
-: isVisible(false)
+: isVisible(false), isNotification(false)
 {
 }
 
@@ -90,6 +91,16 @@ bool HomeWindow::hasErrors() const
 QList<QQmlError> HomeWindow::errors() const
 {
     return d->errors();
+}
+
+bool HomeWindow::isNotification() const
+{
+    return d->isNotification;
+}
+
+void HomeWindow::setIsNotification(bool n)
+{
+    d->isNotification = n;
 }
 
 void HomeWindow::resize(const QSize &s)

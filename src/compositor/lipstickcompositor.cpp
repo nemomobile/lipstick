@@ -405,11 +405,12 @@ bool LipstickCompositorWindow::event(QEvent *e)
     return rv;
 }
 
-LipstickCompositorProcWindow *LipstickCompositor::mapProcWindow(const QString &title, const QRect &g)
+LipstickCompositorProcWindow *LipstickCompositor::mapProcWindow(const QString &title, const QString &category,
+                                                                const QRect &g)
 {
     int id = m_nextWindowId++;
 
-    LipstickCompositorProcWindow *item = new LipstickCompositorProcWindow(id, contentItem());
+    LipstickCompositorProcWindow *item = new LipstickCompositorProcWindow(id, category, contentItem());
     item->setSize(g.size());
     item->setTitle(title);
     QObject::connect(item, SIGNAL(destroyed(QObject*)), this, SLOT(windowDestroyed()));
@@ -429,8 +430,8 @@ LipstickCompositorProcWindow *LipstickCompositor::mapProcWindow(const QString &t
     return item;
 }
 
-LipstickCompositorProcWindow::LipstickCompositorProcWindow(int windowId, QQuickItem *parent)
-: LipstickCompositorWindow(windowId, QString(), 0, parent)
+LipstickCompositorProcWindow::LipstickCompositorProcWindow(int windowId, const QString &c, QQuickItem *parent)
+: LipstickCompositorWindow(windowId, c, 0, parent)
 {
 }
 
