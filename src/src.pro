@@ -4,7 +4,7 @@ system(qdbusxml2cpp screenlock/screenlock.xml -a screenlock/screenlockadaptor -c
 TEMPLATE = lib
 equals(QT_MAJOR_VERSION, 4): TARGET = lipstick
 equals(QT_MAJOR_VERSION, 5): TARGET = lipstick-qt5
-VERSION = 0.11.5
+VERSION = 0.11.6
 
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x000000
 DEFINES += LIPSTICK_BUILD_LIBRARY VERSION=\\\"$$VERSION\\\"
