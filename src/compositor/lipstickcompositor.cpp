@@ -64,7 +64,6 @@ void LipstickCompositor::classBegin()
 
 void LipstickCompositor::componentComplete()
 {
-    QWaylandCompositor::setOutputGeometry(QRect(0, 0, width(), height()));
 }
 
 void LipstickCompositor::surfaceCreated(QWaylandSurface *surface)
@@ -287,6 +286,11 @@ void LipstickCompositor::windowRemoved(int id)
 {
     for (int ii = 0; ii < m_windowModels.count(); ++ii)
         m_windowModels.at(ii)->remItem(id);
+}
+
+void LipstickCompositor::resizeEvent(QResizeEvent *event)
+{
+    setOutputGeometry(QRect(QPoint(0,0), event->size()));
 }
 
 QQmlComponent *LipstickCompositor::shaderEffectComponent()
