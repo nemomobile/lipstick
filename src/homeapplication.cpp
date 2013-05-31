@@ -197,13 +197,16 @@ void HomeApplication::setCompositorPath(const QString &path)
         return;
     } 
 
-    QObject *compositor = component.create();
+    QObject *compositor = component.beginCreate(qmlEngine->rootContext());
     if (compositor) {
         compositor->setParent(this);
-        if (LipstickCompositor::instance()) {
+        if (LipstickCompositor::instance())
             LipstickCompositor::instance()->setGeometry(QRect(QPoint(0, 0), QGuiApplication::primaryScreen()->size()));
+
+        component.completeCreate();
+
+        if (LipstickCompositor::instance())
             LipstickCompositor::instance()->show();
-        }
     } else {
         qWarning() << "HomeApplication: Error creating compositor from" << path;
         qWarning() << component.errors();
