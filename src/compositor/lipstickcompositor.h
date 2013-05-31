@@ -101,6 +101,8 @@ private:
 
     QQmlComponent *shaderEffectComponent();
 
+    void resizeEvent(QResizeEvent *);
+
     static LipstickCompositor *m_instance;
 
     int m_totalWindowCount;
