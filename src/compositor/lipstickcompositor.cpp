@@ -234,10 +234,8 @@ void LipstickCompositor::windowPropertyChanged(const QString &property)
 
     if (property == QLatin1String("MOUSE_REGION")) {
         LipstickCompositorWindow *window = static_cast<LipstickCompositorWindow *>(surface->surfaceItem());
-        if (window) {
-            QRegion r = surface->windowProperties().value("MOUSE_REGION").value<QRegion>();
-            window->setMouseRegion(r);
-        }
+        if (window)
+            window->refreshMouseRegion();
     }
 }
 
@@ -318,12 +316,9 @@ QQmlComponent *LipstickCompositor::shaderEffectComponent()
 LipstickCompositorWindow::LipstickCompositorWindow(int windowId, const QString &category,
                                                    QWaylandSurface *surface, QQuickItem *parent)
 : QWaylandSurfaceItem(surface, parent), m_windowId(windowId), m_category(category), m_ref(0),
-  m_delayRemove(false), m_windowClosed(false), m_removePosted(false)
+  m_delayRemove(false), m_windowClosed(false), m_removePosted(false), m_mouseRegionValid(false)
 {
-    if (surface) {
-        QRegion r = surface->windowProperties().value("MOUSE_REGION").value<QRegion>();
-        setMouseRegion(r);
-    }
+    refreshMouseRegion();
 }
 
 QVariant LipstickCompositorWindow::userData() const
@@ -404,9 +399,22 @@ void LipstickCompositorWindow::tryRemove()
     }
 }
 
-void LipstickCompositorWindow::setMouseRegion(const QRegion &r)
+void LipstickCompositorWindow::refreshMouseRegion()
 {
-    m_mouseRegion = r;
+    QWaylandSurface *s = surface();
+    if (s) {
+        QVariantMap properties = s->windowProperties();
+        if (properties.contains(QLatin1String("MOUSE_REGION"))) {
+            m_mouseRegion = s->windowProperties().value("MOUSE_REGION").value<QRegion>();
+            m_mouseRegionValid = true;
+            if (compositorDebug())
+                qDebug() << "Window" << windowId() << "mouse region set:" << m_mouseRegion;
+        } else {
+            m_mouseRegionValid = false;
+            if (compositorDebug())
+                qDebug() << "Window" << windowId() << "mouse region cleared";
+        }
+    }
 }
 
 bool LipstickCompositorWindow::isInProcess() const
@@ -427,7 +435,7 @@ bool LipstickCompositorWindow::event(QEvent *e)
 void LipstickCompositorWindow::mousePressEvent(QMouseEvent *event)
 {
     QWaylandSurface *m_surface = surface();
-    if (m_surface && (m_mouseRegion.isEmpty() || m_mouseRegion.contains(event->pos()))) {
+    if (m_surface && (!m_mouseRegionValid || m_mouseRegion.contains(event->pos()))) {
         QWaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
         if (inputDevice->mouseFocus() != m_surface)
             inputDevice->setMouseFocus(m_surface, event->pos(), event->globalPos());
@@ -476,7 +484,7 @@ void LipstickCompositorWindow::touchEvent(QTouchEvent *event)
     if (touchEventsEnabled() && m_surface) {
         QList<QTouchEvent::TouchPoint> points = event->touchPoints();
 
-        if (!m_mouseRegion.isEmpty() && points.count() == 1 &&
+        if (m_mouseRegionValid && points.count() == 1 &&
             event->touchPointStates() & Qt::TouchPointPressed &&
             !m_mouseRegion.contains(points.at(0).pos().toPoint())) {
             event->ignore();

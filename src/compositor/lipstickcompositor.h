@@ -165,7 +165,7 @@ private:
 
     bool canRemove() const;
     void tryRemove();
-    void setMouseRegion(const QRegion &);
+    void refreshMouseRegion();
 
     int m_windowId;
     QString m_category;
@@ -173,6 +173,7 @@ private:
     bool m_delayRemove:1;
     bool m_windowClosed:1;
     bool m_removePosted:1;
+    bool m_mouseRegionValid:1;
     QVariant m_data;
     QRegion m_mouseRegion;
 };
