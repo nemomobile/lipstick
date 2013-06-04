@@ -26,7 +26,7 @@
 
 ConnectionSelector::ConnectionSelector(QObject *parent) :
     QObject(parent),
-    window(new HomeWindow())
+    window(0)
 {
     QTimer::singleShot(0, this, SLOT(createWindow()));
 }
@@ -38,6 +38,7 @@ ConnectionSelector::~ConnectionSelector()
 
 void ConnectionSelector::createWindow()
 {
+    window = new HomeWindow();
     window->setGeometry(QRect(QPoint(), QGuiApplication::primaryScreen()->size()));
     window->setWindowTitle("Connection");
     window->setContextProperty("connectionSelector", this);
