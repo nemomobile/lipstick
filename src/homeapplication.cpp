@@ -85,13 +85,11 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     new ScreenLockAdaptor(screenLock);
 
     volumeControl = new VolumeControl;
-    // TODO this seems to hang on exit so disable for now
-    //    batteryNotifier = new BatteryNotifier(this);
+    batteryNotifier = new BatteryNotifier(this);
     usbModeSelector = new USBModeSelector(this);
     connect(usbModeSelector, SIGNAL(dialogShown()), screenLock, SLOT(unlockScreen()));
     shutdownScreen = new ShutdownScreen(this);
-    // TODO this seems to hang on exit so disable for now
-    //    connectionSelector = new ConnectionSelector(this);
+    connectionSelector = new ConnectionSelector(this);
 
     // MCE expects the service to be registered on the system bus
     static const char *SCREENLOCK_DBUS_SERVICE = "org.nemomobile.lipstick";
