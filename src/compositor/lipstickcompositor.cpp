@@ -77,7 +77,7 @@ void LipstickCompositor::surfaceCreated(QWaylandSurface *surface)
     connect(surface, SIGNAL(titleChanged()), this, SLOT(surfaceTitleChanged()));
 
     if (compositorDebug())
-        connect(surface, SIGNAL(windowPropertyChanged(QString,QVariant)), this, SLOT(windowPropertyChanged()));
+        connect(surface, SIGNAL(windowPropertyChanged(QString,QVariant)), this, SLOT(windowPropertyChanged(QString)));
 }
 
 int LipstickCompositor::windowCount() const
@@ -225,10 +225,18 @@ void LipstickCompositor::windowDestroyed()
     emit ghostWindowCountChanged();
 }
 
-void LipstickCompositor::windowPropertyChanged()
+void LipstickCompositor::windowPropertyChanged(const QString &property)
 {
     QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
-    qDebug() << "Window properties changed:" << surface << surface->windowProperties();
+
+    if (debug())
+        qDebug() << "Window properties changed:" << surface << surface->windowProperties();
+
+    if (property == QLatin1String("MOUSE_REGION")) {
+        LipstickCompositorWindow *window = static_cast<LipstickCompositorWindow *>(surface->surfaceItem());
+        if (window)
+            window->refreshMouseRegion();
+    }
 }
 
 void LipstickCompositor::surfaceUnmapped(QWaylandSurface *surface)
@@ -308,8 +316,9 @@ QQmlComponent *LipstickCompositor::shaderEffectComponent()
 LipstickCompositorWindow::LipstickCompositorWindow(int windowId, const QString &category,
                                                    QWaylandSurface *surface, QQuickItem *parent)
 : QWaylandSurfaceItem(surface, parent), m_windowId(windowId), m_category(category), m_ref(0),
-  m_delayRemove(false), m_windowClosed(false), m_removePosted(false)
+  m_delayRemove(false), m_windowClosed(false), m_removePosted(false), m_mouseRegionValid(false)
 {
+    refreshMouseRegion();
 }
 
 QVariant LipstickCompositorWindow::userData() const
@@ -390,6 +399,24 @@ void LipstickCompositorWindow::tryRemove()
     }
 }
 
+void LipstickCompositorWindow::refreshMouseRegion()
+{
+    QWaylandSurface *s = surface();
+    if (s) {
+        QVariantMap properties = s->windowProperties();
+        if (properties.contains(QLatin1String("MOUSE_REGION"))) {
+            m_mouseRegion = s->windowProperties().value("MOUSE_REGION").value<QRegion>();
+            m_mouseRegionValid = true;
+            if (compositorDebug())
+                qDebug() << "Window" << windowId() << "mouse region set:" << m_mouseRegion;
+        } else {
+            m_mouseRegionValid = false;
+            if (compositorDebug())
+                qDebug() << "Window" << windowId() << "mouse region cleared";
+        }
+    }
+}
+
 bool LipstickCompositorWindow::isInProcess() const
 {
     return false;
@@ -403,6 +430,79 @@ bool LipstickCompositorWindow::event(QEvent *e)
         if (canRemove()) delete this;
     }
     return rv;
+}
+
+void LipstickCompositorWindow::mousePressEvent(QMouseEvent *event)
+{
+    QWaylandSurface *m_surface = surface();
+    if (m_surface && (!m_mouseRegionValid || m_mouseRegion.contains(event->pos()))) {
+        QWaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
+        if (inputDevice->mouseFocus() != m_surface)
+            inputDevice->setMouseFocus(m_surface, event->pos(), event->globalPos());
+        inputDevice->sendMousePressEvent(event->button(), event->pos(), event->globalPos());
+    } else {
+        event->ignore();
+    }
+}
+
+void LipstickCompositorWindow::mouseMoveEvent(QMouseEvent *event)
+{
+    QWaylandSurface *m_surface = surface();
+    if (m_surface){
+        QWaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
+        inputDevice->sendMouseMoveEvent(m_surface, event->pos(), event->globalPos());
+    } else {
+        event->ignore();
+    }
+}
+
+void LipstickCompositorWindow::mouseReleaseEvent(QMouseEvent *event)
+{
+    QWaylandSurface *m_surface = surface();
+    if (m_surface){
+        QWaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
+        inputDevice->sendMouseReleaseEvent(event->button(), event->pos(), event->globalPos());
+    } else {
+        event->ignore();
+    }
+}
+
+void LipstickCompositorWindow::wheelEvent(QWheelEvent *event)
+{
+    QWaylandSurface *m_surface = surface();
+    if (m_surface) {
+        QWaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
+        inputDevice->sendMouseWheelEvent(event->orientation(), event->delta());
+    } else {
+        event->ignore();
+    }
+}
+
+void LipstickCompositorWindow::touchEvent(QTouchEvent *event)
+{
+    QWaylandSurface *m_surface = surface();
+    if (touchEventsEnabled() && m_surface) {
+        QList<QTouchEvent::TouchPoint> points = event->touchPoints();
+
+        if (m_mouseRegionValid && points.count() == 1 &&
+            event->touchPointStates() & Qt::TouchPointPressed &&
+            !m_mouseRegion.contains(points.at(0).pos().toPoint())) {
+            event->ignore();
+            return;
+        }
+
+        QWaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
+        event->accept();
+        if (inputDevice->mouseFocus() != m_surface) {
+            QPoint pointPos;
+            if (!points.isEmpty())
+                pointPos = points.at(0).pos().toPoint();
+            inputDevice->setMouseFocus(m_surface, pointPos, pointPos);
+        }
+        inputDevice->sendFullTouchEvent(event);
+    } else {
+        event->ignore();
+    }
 }
 
 LipstickCompositorProcWindow *LipstickCompositor::mapProcWindow(const QString &title, const QString &category,
