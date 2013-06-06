@@ -80,7 +80,7 @@ private slots:
     void surfaceTitleChanged();
     void windowSwapped();
     void windowDestroyed();
-    void windowPropertyChanged();
+    void windowPropertyChanged(const QString &);
 
 private:
     friend class LipstickCompositorWindow;
@@ -146,6 +146,11 @@ public:
 
 protected:
     virtual bool event(QEvent *);
+    virtual void mousePressEvent(QMouseEvent *event);
+    virtual void mouseMoveEvent(QMouseEvent *event);
+    virtual void mouseReleaseEvent(QMouseEvent *event);
+    virtual void wheelEvent(QWheelEvent *event);
+    virtual void touchEvent(QTouchEvent *event);
 
 signals:
     void userDataChanged();
@@ -160,6 +165,7 @@ private:
 
     bool canRemove() const;
     void tryRemove();
+    void refreshMouseRegion();
 
     int m_windowId;
     QString m_category;
@@ -167,7 +173,9 @@ private:
     bool m_delayRemove:1;
     bool m_windowClosed:1;
     bool m_removePosted:1;
+    bool m_mouseRegionValid:1;
     QVariant m_data;
+    QRegion m_mouseRegion;
 };
 
 class LipstickCompositorProcWindow : public LipstickCompositorWindow
