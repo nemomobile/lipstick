@@ -128,6 +128,8 @@ class LIPSTICK_EXPORT LipstickCompositorWindow : public QWaylandSurfaceItem
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
     Q_PROPERTY(qint64 processId READ processId CONSTANT)
 
+    Q_PROPERTY(QRect mouseRegionBounds READ mouseRegionBounds NOTIFY mouseRegionBoundsChanged)
+
 public:
     LipstickCompositorWindow(int windowId, const QString &, QWaylandSurface *surface, QQuickItem *parent = 0);
 
@@ -144,6 +146,8 @@ public:
     virtual QString title() const;
     virtual bool isInProcess() const;
 
+    QRect mouseRegionBounds() const;
+
 protected:
     virtual bool event(QEvent *);
     virtual void mousePressEvent(QMouseEvent *event);
@@ -156,6 +160,7 @@ signals:
     void userDataChanged();
     void titleChanged();
     void delayRemoveChanged();
+    void mouseRegionBoundsChanged();
 
 private:
     friend class LipstickCompositor;
