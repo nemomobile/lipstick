@@ -93,9 +93,9 @@ void WindowModel::componentComplete()
 /*!
     Reimplement this method to provide custom filtering.
 */
-bool WindowModel::approveWindow(LipstickCompositorWindow *)
+bool WindowModel::approveWindow(LipstickCompositorWindow *window)
 {
-    return true;
+    return window->isInProcess() == false;
 }
 
 void WindowModel::addItem(int id)
