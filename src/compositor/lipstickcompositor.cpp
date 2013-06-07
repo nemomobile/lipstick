@@ -75,9 +75,7 @@ void LipstickCompositor::surfaceCreated(QWaylandSurface *surface)
     connect(surface, SIGNAL(unmapped()), this, SLOT(surfaceUnmapped()));
     connect(surface, SIGNAL(sizeChanged()), this, SLOT(surfaceSizeChanged()));
     connect(surface, SIGNAL(titleChanged()), this, SLOT(surfaceTitleChanged()));
-
-    if (compositorDebug())
-        connect(surface, SIGNAL(windowPropertyChanged(QString,QVariant)), this, SLOT(windowPropertyChanged(QString)));
+    connect(surface, SIGNAL(windowPropertyChanged(QString,QVariant)), this, SLOT(windowPropertyChanged(QString)));
 }
 
 int LipstickCompositor::windowCount() const
@@ -399,6 +397,14 @@ void LipstickCompositorWindow::tryRemove()
     }
 }
 
+QRect LipstickCompositorWindow::mouseRegionBounds() const
+{
+    if (m_mouseRegionValid)
+        return m_mouseRegion.boundingRect();
+    else
+        return QRect(0, 0, width(), height());
+}
+
 void LipstickCompositorWindow::refreshMouseRegion()
 {
     QWaylandSurface *s = surface();
@@ -414,6 +420,8 @@ void LipstickCompositorWindow::refreshMouseRegion()
             if (compositorDebug())
                 qDebug() << "Window" << windowId() << "mouse region cleared";
         }
+
+        emit mouseRegionBoundsChanged();
     }
 }
 
