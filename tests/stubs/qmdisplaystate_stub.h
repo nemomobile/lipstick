@@ -45,8 +45,8 @@ class QmDisplayStateStub : public StubBase {
   virtual void setDisplayBlankTimeout(int timeout);
   virtual void setDisplayDimTimeout(int timeout);
   virtual void setBlankingWhenCharging(bool blanking);
-  virtual void connectNotify(const char *signal);
-  virtual void disconnectNotify(const char *signal);
+  virtual void connectNotify(const QMetaMethod &signal);
+  virtual void disconnectNotify(const QMetaMethod &signal);
 }; 
 
 // 2. IMPLEMENT STUB
@@ -128,18 +128,18 @@ void QmDisplayStateStub::setBlankingWhenCharging(bool blanking) {
   stubMethodEntered("setBlankingWhenCharging",params);
 }
 
-void QmDisplayStateStub::connectNotify(const char *signal)
+void QmDisplayStateStub::connectNotify(const QMetaMethod &signal)
 {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const char *>(signal));
+  params.append( new Parameter<const QMetaMethod &>(signal));
   stubMethodEntered("connectNotify",params);
 }
 
 
-void QmDisplayStateStub::disconnectNotify(const char *signal)
+void QmDisplayStateStub::disconnectNotify(const QMetaMethod &signal)
 {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const char *>(signal));
+  params.append( new Parameter<const QMetaMethod &>(signal));
   stubMethodEntered("disconnectNotify",params);
 }
 
@@ -215,11 +215,11 @@ void QmDisplayState::setBlankingWhenCharging(bool blanking) {
   gQmDisplayStateStub->setBlankingWhenCharging(blanking);
 }
 
-void QmDisplayState::connectNotify(const char *signal)
+void QmDisplayState::connectNotify(const QMetaMethod &signal)
 {
 	gQmDisplayStateStub->connectNotify(signal);
 }
-void QmDisplayState::disconnectNotify(const char * signal)
+void QmDisplayState::disconnectNotify(const QMetaMethod & signal)
 {
     gQmDisplayStateStub->disconnectNotify(signal);
 }

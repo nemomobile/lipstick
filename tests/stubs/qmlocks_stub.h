@@ -14,8 +14,8 @@ public:
     virtual bool setState(MeeGo::QmLocks::Lock what, MeeGo::QmLocks::State how);
     virtual bool setDeviceAutolockTime(int seconds);
     virtual int getDeviceAutolockTime();
-    virtual void connectNotify(const char *signal);
-    virtual void disconnectNotify(const char *signal);
+    virtual void connectNotify(const QMetaMethod &signal);
+    virtual void disconnectNotify(const QMetaMethod &signal);
 };
 
 // 2. IMPLEMENT STUB
@@ -54,17 +54,17 @@ int QmLocksStub::getDeviceAutolockTime() {
     return stubReturnValue<int>("getDeviceAutolockTime");
 }
 
-void QmLocksStub::connectNotify(const char *signal)
+void QmLocksStub::connectNotify(const QMetaMethod &signal)
 {
   QList<ParameterBase*> params;
-  params.append(new Parameter<const char *>(signal));
+  params.append(new Parameter<const QMetaMethod &>(signal));
   stubMethodEntered("connectNotify",params);
 }
 
-void QmLocksStub::disconnectNotify(const char *signal)
+void QmLocksStub::disconnectNotify(const QMetaMethod &signal)
 {
   QList<ParameterBase*> params;
-  params.append(new Parameter<const char *>(signal));
+  params.append(new Parameter<const QMetaMethod &>(signal));
   stubMethodEntered("disconnectNotify",params);
 }
 
@@ -100,12 +100,12 @@ int QmLocks::getDeviceAutolockTime() {
     return gQmLocksStub->getDeviceAutolockTime();
 }
 
-void QmLocks::connectNotify(const char *signal)
+void QmLocks::connectNotify(const QMetaMethod &signal)
 {
     gQmLocksStub->connectNotify(signal);
 }
 
-void QmLocks::disconnectNotify(const char *signal)
+void QmLocks::disconnectNotify(const QMetaMethod &signal)
 {
     gQmLocksStub->disconnectNotify(signal);
 }

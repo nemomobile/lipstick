@@ -34,7 +34,7 @@ BuildRequires:  pkgconfig(dbus-1)
 BuildRequires:  pkgconfig(dbus-glib-1)
 BuildRequires:  pkgconfig(libresourceqt5)
 BuildRequires:  pkgconfig(ngf-qt5)
-BuildRequires:  pkgconfig(qmsystem2-qt5) >= 1.1.6
+BuildRequires:  pkgconfig(qmsystem2-qt5) >= 1.4.7
 BuildRequires:  pkgconfig(contextkit-statefs) >= 0.2.7
 BuildRequires:  qt5-qttools-linguist
 BuildRequires:  qt5-qtwayland-nogl-devel

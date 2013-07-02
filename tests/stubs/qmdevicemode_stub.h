@@ -35,8 +35,8 @@ public:
     virtual void setPSMBatteryMode (int percentages);
     virtual MeeGo::QmDeviceMode::DeviceMode getMode();
     virtual bool setMode(MeeGo::QmDeviceMode::DeviceMode mode);
-    virtual void connectNotify(const char *signal);
-    virtual void disconnectNotify(const char *signal);
+    virtual void connectNotify(const QMetaMethod &signal);
+    virtual void disconnectNotify(const QMetaMethod &signal);
 };
 
 MeeGo::QmDeviceMode::PSMState
@@ -77,18 +77,18 @@ bool QmDeviceModeStub::setMode (MeeGo::QmDeviceMode::DeviceMode mode)
     return stubReturnValue<bool> ("setMode");
 }
 
-void QmDeviceModeStub::connectNotify(const char *signal)
+void QmDeviceModeStub::connectNotify(const QMetaMethod &signal)
 {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const char *>(signal));
+  params.append( new Parameter<const QMetaMethod &>(signal));
   stubMethodEntered("connectNotify",params);
 }
 
 
-void QmDeviceModeStub::disconnectNotify(const char *signal)
+void QmDeviceModeStub::disconnectNotify(const QMetaMethod &signal)
 {
   QList<ParameterBase*> params;
-  params.append( new Parameter<const char *>(signal));
+  params.append( new Parameter<const QMetaMethod &>(signal));
   stubMethodEntered("disconnectNotify",params);
 }
 
@@ -160,11 +160,11 @@ bool QmDeviceMode::setMode(QmDeviceMode::DeviceMode mode)
     return gQmDeviceModeStub->setMode(mode);
 }
 
-void QmDeviceMode::connectNotify(const char *signal)
+void QmDeviceMode::connectNotify(const QMetaMethod &signal)
 {
 	 gQmDeviceModeStub->connectNotify(signal);
 }
-void QmDeviceMode::disconnectNotify(const char *signal)
+void QmDeviceMode::disconnectNotify(const QMetaMethod &signal)
 {
 	gQmDeviceModeStub->disconnectNotify(signal);
 }
