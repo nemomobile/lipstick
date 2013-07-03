@@ -52,7 +52,6 @@ HEADERS += \
     notifications/notificationfeedbackplayer.h \
     screenlock/screenlock.h \
     screenlock/screenlockadaptor.h \
-    volume/volumekeylistener.h \
     volume/volumecontrol.h \
     volume/pulseaudiocontrol.h \
     lipstickapi.h \
@@ -76,7 +75,6 @@ SOURCES += \
     notifications/lowbatterynotifier.cpp \
     screenlock/screenlock.cpp \
     screenlock/screenlockadaptor.cpp \
-    volume/volumekeylistener.cpp \
     volume/volumecontrol.cpp \
     volume/pulseaudiocontrol.cpp \
     notifications/notificationfeedbackplayer.cpp \

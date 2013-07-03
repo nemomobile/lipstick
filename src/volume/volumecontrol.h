@@ -91,6 +91,10 @@ public:
      */
     void setWindowVisible(bool visible);
 
+    //! \reimp
+    virtual bool eventFilter(QObject *watched, QEvent *event);
+    //! \reimp_end
+
 signals:
     //! Sent when the mode has changed.
     void volumeModeChanged();
@@ -118,14 +122,6 @@ private slots:
     //! Sets the maximum volume
     void setMaximumVolume(int maximumVolume);
 
-    /*!
-     * Internal slot to handle the hardware volume-key presses (see QmKeys API documentation)
-     *
-     * \param key the key type
-     * \param press \c true if the key was pressed, \c false otherwise
-     */
-    void hwKeyEvent(unsigned int key, bool press = true);
-
     //! An internal slot to handle the case when we got the hardware volume keys resource
     void hwKeyResourceAcquired();
 
@@ -148,8 +144,8 @@ private:
     //! A resource object for access to the volume keys
     ResourcePolicy::ResourceSet *hwKeyResource;
 
-    //! For getting signals about volume key presses
-    VolumeKeyListener *hwKeys;
+    //! Whether to react to volume key presses
+    bool hwKeysAcquired;
 
     //! The current volume
     int volume_;

@@ -34,8 +34,8 @@ private slots:
     void cleanupTestCase();
     void testConnections();
     void testKeyRepeatSetup();
-    void testHwKeyEvent_data();
-    void testHwKeyEvent();
+    void testEventFilter_data();
+    void testEventFilter();
     void testHwKeyEventWhenKeyRepeatDelayIsInProgress();
     void testHwKeyEventWhenKeyRepeatIsInProgress();
     void testHwKeyEventWhenKeyReleaseIsInProgress();

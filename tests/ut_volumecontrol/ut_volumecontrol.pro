@@ -8,7 +8,6 @@ QT += dbus qml quick
 HEADERS += \
     ut_volumecontrol.h \
     $$VOLUMESRCDIR/volumecontrol.h \
-    $$VOLUMESRCDIR/volumekeylistener.h \
     $$VOLUMESRCDIR/pulseaudiocontrol.h \
     $$UTILITYSRCDIR/closeeventeater.h \
     $$SRCDIR/homewindow.h \

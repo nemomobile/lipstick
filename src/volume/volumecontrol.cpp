@@ -20,17 +20,17 @@
 #include "homewindow.h"
 #include <QQmlContext>
 #include <QScreen>
+#include <QKeyEvent>
 #include "utilities/closeeventeater.h"
 #include "pulseaudiocontrol.h"
 #include "volumecontrol.h"
-#include "volumekeylistener.h"
 
 VolumeControl::VolumeControl(QObject *parent) :
     QObject(parent),
     window(0),
     pulseAudioControl(new PulseAudioControl(this)),
     hwKeyResource(new ResourcePolicy::ResourceSet("event")),
-    hwKeys(new VolumeKeyListener(this)),
+    hwKeysAcquired(false),
     volume_(0),
     maximumVolume_(0)
 {
@@ -52,6 +52,8 @@ VolumeControl::VolumeControl(QObject *parent) :
     connect(pulseAudioControl, SIGNAL(currentVolumeSet(int)), this, SLOT(setVolume(int)));
     connect(pulseAudioControl, SIGNAL(maximumVolumeSet(int)), this, SLOT(setMaximumVolume(int)));
     pulseAudioControl->update();
+
+    qApp->installEventFilter(this);
 
     acquireKeys();
 }
@@ -115,41 +117,19 @@ void VolumeControl::setMaximumVolume(int maximumVolume)
     }
 }
 
-void VolumeControl::hwKeyEvent(unsigned int key, bool press)
-{
-    if (!(key == KEY_VOLUMEUP || key == KEY_VOLUMEDOWN)) {
-        // Do nothing when a non-volume key is pressed
-        return;
-    }
-
-    if (press) {
-        // Key down: set which way to change the volume on each repeat, start the repeat delay timer and change the volume once
-        volumeChange = key == KEY_VOLUMEUP ? 1 : -1;
-        if (!keyRepeatDelayTimer.isActive() && !keyRepeatTimer.isActive()) {
-            keyRepeatDelayTimer.start();
-            changeVolume();
-        }
-    } else {
-        // Key up: stop any key repeating in progress
-        keyReleaseTimer.start();
-    }
-}
-
 void VolumeControl::hwKeyResourceAcquired()
 {
-    hwKeys->disconnect();
-    connect(hwKeys, SIGNAL(keyEvent(uint, int)), this, SLOT(hwKeyEvent(uint, int)));
+    hwKeysAcquired = true;
 }
 
 void VolumeControl::hwKeyResourceLost()
 {
-    hwKeys->disconnect();
+    hwKeysAcquired = false;
     stopKeyRepeat();
 }
 
 void VolumeControl::releaseKeys()
 {
-    hwKeys->disconnect();
     hwKeyResource->release();
     stopKeyRepeat();
 }
@@ -177,4 +157,26 @@ void VolumeControl::stopKeyRepeat()
 {
     keyRepeatDelayTimer.stop();
     keyRepeatTimer.stop();
+}
+
+bool VolumeControl::eventFilter(QObject *, QEvent *event)
+{
+    if (hwKeysAcquired && (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease)) {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+        if (keyEvent->key() == Qt::Key_VolumeUp || keyEvent->key() == Qt::Key_VolumeDown) {
+            if (event->type() == QEvent::KeyPress) {
+                // Key down: set which way to change the volume on each repeat, start the repeat delay timer and change the volume once
+                volumeChange = keyEvent->key() == Qt::Key_VolumeUp ? 1 : -1;
+                if (!keyRepeatDelayTimer.isActive() && !keyRepeatTimer.isActive()) {
+                    keyRepeatDelayTimer.start();
+                    changeVolume();
+                }
+            } else {
+                // Key up: stop any key repeating in progress
+                keyReleaseTimer.start();
+            }
+            return true;
+        }
+    }
+    return false;
 }
