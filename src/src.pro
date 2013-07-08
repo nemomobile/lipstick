@@ -84,8 +84,7 @@ SOURCES += \
     lipstickapi.cpp \
 
 CONFIG += link_pkgconfig mobility qt warn_on depend_includepath qmake_cache target_qt
-MOBILITY += systeminfo
-PKGCONFIG += mlite5 mce dbus-1 dbus-glib-1 libresourceqt5 ngf-qt5 qmsystem2-qt5
+PKGCONFIG += mlite5 mce dbus-1 dbus-glib-1 libresourceqt5 ngf-qt5 qmsystem2-qt5 Qt5SystemInfo
 
 packagesExist(contentaction5) {
     message("Using contentaction to launch applications")
@@ -102,7 +101,7 @@ packagesExist(contextkit-statefs) {
     warning("Contextsubscriber not found")
 }
 
-QT += dbus xml qml quick sql systeminfo gui
+QT += dbus xml qml quick sql gui
 
 QMAKE_CXXFLAGS += \
     -Werror \
