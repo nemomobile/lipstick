@@ -16,7 +16,7 @@ PkgConfigBR:
     - Qt5Quick
     - Qt5Xml
     - Qt5Sql
-    - Qt0SystemInfo
+    - Qt5SystemInfo
     - Qt5Sensors
     - Qt5Test
     - contentaction-0.1

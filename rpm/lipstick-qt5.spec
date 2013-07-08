@@ -25,7 +25,7 @@ BuildRequires:  pkgconfig(Qt5Qml)
 BuildRequires:  pkgconfig(Qt5Quick)
 BuildRequires:  pkgconfig(Qt5Xml)
 BuildRequires:  pkgconfig(Qt5Sql)
-BuildRequires:  pkgconfig(Qt0SystemInfo)
+BuildRequires:  pkgconfig(Qt5SystemInfo)
 BuildRequires:  pkgconfig(Qt5Test)
 BuildRequires:  pkgconfig(contentaction-0.1)
 BuildRequires:  pkgconfig(mlite5) >= 0.0.6
