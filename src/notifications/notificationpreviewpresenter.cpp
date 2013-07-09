@@ -20,6 +20,7 @@
 #include "utilities/closeeventeater.h"
 #include "notifications/notificationmanager.h"
 #include "notificationpreviewpresenter.h"
+#include "compositor/lipstickcompositor.h"
 
 #include <qmdisplaystate.h>
 #include <qmlocks.h>
@@ -42,6 +43,11 @@ NotificationPreviewPresenter::~NotificationPreviewPresenter()
 
 void NotificationPreviewPresenter::showNextNotification()
 {
+    if (!LipstickCompositor::instance() && !notificationQueue.isEmpty()) {
+        QTimer::singleShot(500, this, SLOT(showNextNotification()));
+        return;
+    }
+
     if (notificationQueue.isEmpty()) {
         // No more notifications to show: hide the notification window if it's visible
         if (window != 0 && window->isVisible()) {
