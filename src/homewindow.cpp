@@ -89,6 +89,9 @@ void HomeWindowPrivate::checkMode()
 {
     if (mode == Unknown) {
         mode = LipstickCompositor::instance()?Compositor:Window;
+        if (mode == Window && qApp->platformName().startsWith("eglfs")) {
+            qFatal("HomeWindow: Window mode not supported on eglfs");
+        }
     } else if (mode == Window) {
         qWarning("HomeWindow: Compositor appeared after first window");
     }

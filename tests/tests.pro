@@ -9,7 +9,7 @@ SUBDIRS = \
           ut_notificationfeedbackplayer \
           ut_notificationlistmodel \
           ut_notificationmanager \
-          ut_notificationpreviewpresenter \
+          #ut_notificationpreviewpresenter \
           ut_screenlock \
           ut_shutdownscreen \
           ut_usbmodeselector \
