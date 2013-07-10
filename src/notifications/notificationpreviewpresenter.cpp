@@ -141,15 +141,6 @@ bool NotificationPreviewPresenter::notificationShouldBeShown(LipstickNotificatio
     return !notificationHidden && notificationHasPreviewText && (!screenOrDeviceLocked || notificationIsCritical);
 }
 
-void NotificationPreviewPresenter::setNotificationPreviewRect(qreal x1, qreal y1, qreal x2, qreal y2)
-{
-    // TODO set touch area
-    Q_UNUSED(x1)
-    Q_UNUSED(y1)
-    Q_UNUSED(x2)
-    Q_UNUSED(y2)
-}
-
 void NotificationPreviewPresenter::setCurrentNotification(LipstickNotification *notification)
 {
     if (currentNotification != notification) {

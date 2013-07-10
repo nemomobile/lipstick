@@ -54,20 +54,6 @@ public:
     virtual ~NotificationPreviewPresenter();
 
     /*!
-     * Sets the notification window's shape region according to the given
-     * coordinates. The coordinates should be set to match the coordinates of
-     * the notification preview in the window. This allows input events to be
-     * caught only on the notification preview area and passed through to the
-     * underneath window otherwise.
-     *
-     * \param x1 the X coordinate of the top left edge of the notification preview
-     * \param y1 the Y coordinate of the top left edge of the notification preview
-     * \param x2 the X coordinate of the bottom right edge of the notification preview
-     * \param y2 the Y coordinate of the bottom right edge of the notification preview
-     */
-    Q_INVOKABLE void setNotificationPreviewRect(qreal x1, qreal y1, qreal x2, qreal y2);
-    
-    /*!
      * Returns the notification to be currently shown or 0 if no notification
      * should be shown.
      *
