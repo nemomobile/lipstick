@@ -17,6 +17,7 @@
 #include <QQuickView>
 #include <QQmlContext>
 #include <QScreen>
+#include "lipstickcompositor.h"
 #include "notificationmanager.h"
 #include "ut_notificationpreviewpresenter.h"
 #include "notificationpreviewpresenter.h"
@@ -26,6 +27,11 @@
 
 Q_DECLARE_METATYPE(NotificationPreviewPresenter*)
 Q_DECLARE_METATYPE(LipstickNotification*)
+
+LipstickCompositor *LipstickCompositor::instance()
+{
+    return (LipstickCompositor *)1;
+}
 
 QList<QQuickView *> qQuickViews;
 void QQuickView::setSource(const QUrl &)

@@ -44,7 +44,7 @@ NotificationPreviewPresenter::~NotificationPreviewPresenter()
 void NotificationPreviewPresenter::showNextNotification()
 {
     if (!LipstickCompositor::instance() && !notificationQueue.isEmpty()) {
-        QTimer::singleShot(500, this, SLOT(showNextNotification()));
+        QTimer::singleShot(0, this, SLOT(showNextNotification()));
         return;
     }
 

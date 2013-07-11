@@ -37,11 +37,10 @@ BatteryNotifier::BatteryNotifier(QObject *parent) :
 #endif
     connect(qmDeviceMode, SIGNAL(devicePSMStateChanged(MeeGo::QmDeviceMode::PSMState)), this, SLOT(applyPSMState(MeeGo::QmDeviceMode::PSMState)));
 
-    // Init battery values delayed...
-    initBattery();
-
     notificationTimer.setInterval(5000);
     notificationTimer.setSingleShot(true);
+
+    QTimer::singleShot(0, this, SLOT(initBattery()));
 }
 
 BatteryNotifier::~BatteryNotifier()
@@ -281,7 +280,6 @@ void BatteryNotifier::setTouchScreenLockActive(bool active)
 
 void BatteryNotifier::startLowBatteryNotifier()
 {
-    qWarning("XX START");
     if (lowBatteryNotifier == NULL) {
         lowBatteryNotifier = new LowBatteryNotifier();
         connect(lowBatteryNotifier, SIGNAL(lowBatteryAlert()), this, SLOT(lowBatteryAlert()));
