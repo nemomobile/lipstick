@@ -9,7 +9,7 @@ Name:       lipstick-qt5
 # << macros
 
 Summary:    QML toolkit for homescreen creation
-Version:    0.12.14
+Version:    0.12.16
 Release:    1
 Group:      System/Libraries
 License:    LGPLv2.1
@@ -111,7 +111,7 @@ make %{?jobs:-j%jobs}
 rm -rf %{buildroot}
 # >> install pre
 # << install pre
-%qmake_install
+%qmake5_install
 
 # >> install post
 # << install post
