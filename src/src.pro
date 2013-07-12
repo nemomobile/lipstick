@@ -49,6 +49,7 @@ HEADERS += \
     notifications/categorydefinitionstore.h \
     notifications/batterynotifier.h \
     notifications/lowbatterynotifier.h \
+    notifications/diskspacenotifier.h \
     notifications/notificationfeedbackplayer.h \
     screenlock/screenlock.h \
     screenlock/screenlockadaptor.h \
@@ -73,6 +74,7 @@ SOURCES += \
     notifications/notificationpreviewpresenter.cpp \
     notifications/batterynotifier.cpp \
     notifications/lowbatterynotifier.cpp \
+    notifications/diskspacenotifier.cpp \
     screenlock/screenlock.cpp \
     screenlock/screenlockadaptor.cpp \
     volume/volumecontrol.cpp \

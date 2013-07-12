@@ -31,6 +31,7 @@ class NotificationManagerStub : public StubBase {
   virtual uint Notify(const QString &appName, uint replacesId, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expireTimeout);
   virtual void CloseNotification(uint id, NotificationManager::NotificationClosedReason closeReason);
   virtual QString GetServerInformation(QString &name, QString &vendor, QString &version);
+  virtual NotificationList GetNotifications(const QString &appName);
   virtual void removeNotificationsWithCategory(const QString &category);
   virtual void updateNotificationsWithCategory(const QString &category);
   virtual void commit();
@@ -91,6 +92,13 @@ QString NotificationManagerStub::GetServerInformation(QString &name, QString &ve
   params.append( new Parameter<QString & >(version));
   stubMethodEntered("GetServerInformation",params);
   return stubReturnValue<QString>("GetServerInformation");
+}
+
+NotificationList NotificationManagerStub::GetNotifications(const QString &appName) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<QString >(appName));
+  stubMethodEntered("GetNotifications",params);
+  return stubReturnValue<NotificationList>("GetNotifications");
 }
 
 void NotificationManagerStub::removeNotificationsWithCategory(const QString &category) {
@@ -176,6 +184,10 @@ void NotificationManager::CloseNotification(uint id, NotificationClosedReason cl
 
 QString NotificationManager::GetServerInformation(QString &name, QString &vendor, QString &version) {
   return gNotificationManagerStub->GetServerInformation(name, vendor, version);
+}
+
+NotificationList NotificationManager::GetNotifications(const QString &appName) {
+  return gNotificationManagerStub->GetNotifications(appName);
 }
 
 void NotificationManager::removeNotificationsWithCategory(const QString &category) {

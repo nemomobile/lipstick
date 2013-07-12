@@ -26,6 +26,7 @@
 #include "notifications/notificationpreviewpresenter.h"
 #include "notifications/notificationfeedbackplayer.h"
 #include "notifications/batterynotifier.h"
+#include "notifications/diskspacenotifier.h"
 #include "screenlock/screenlock.h"
 #include "screenlock/screenlockadaptor.h"
 #include "lipsticksettings.h"
@@ -85,7 +86,8 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     new ScreenLockAdaptor(screenLock);
 
     volumeControl = new VolumeControl;
-    batteryNotifier = new BatteryNotifier(this);
+    new BatteryNotifier(this);
+    new DiskSpaceNotifier(this);
     usbModeSelector = new USBModeSelector(this);
     connect(usbModeSelector, SIGNAL(dialogShown()), screenLock, SLOT(unlockScreen()));
     shutdownScreen = new ShutdownScreen(this);

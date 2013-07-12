@@ -21,7 +21,6 @@ class QQmlEngine;
 class HomeWindow;
 class ScreenLock;
 class VolumeControl;
-class BatteryNotifier;
 class USBModeSelector;
 class ShutdownScreen;
 class ConnectionSelector;
@@ -131,9 +130,6 @@ private:
 
     //! Logic for setting the device volume
     VolumeControl *volumeControl;
-
-    //! Logic for notifying about battery state
-    BatteryNotifier *batteryNotifier;
 
     //! Logic for showing the USB mode selection dialog
     USBModeSelector *usbModeSelector;

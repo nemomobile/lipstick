@@ -266,6 +266,11 @@ NotificationList::NotificationList(const NotificationList &notificationList) :
 {
 }
 
+QList<LipstickNotification *> NotificationList::notifications() const
+{
+    return notificationList;
+}
+
 QDBusArgument &operator<<(QDBusArgument &argument, const NotificationList &notificationList)
 {
     argument.beginArray(qMetaTypeId<LipstickNotification>());
