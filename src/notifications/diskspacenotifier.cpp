@@ -15,6 +15,7 @@
 ****************************************************************************/
 
 #include <QDBusConnection>
+#include <QTimer>
 #include "homeapplication.h"
 #include "lipsticknotification.h"
 #include "notificationmanager.h"
@@ -25,14 +26,7 @@ DiskSpaceNotifier::DiskSpaceNotifier(QObject *parent) : QObject(parent),
 {
     QDBusConnection::systemBus().connect(QString(), "/com/nokia/diskmonitor/signal", "com.nokia.diskmonitor.signal", "disk_space_change_ind", this, SLOT(handleDiskSpaceChange(QString, int)));
 
-    // Destroy any previous disk space notifications
-    NotificationManager *manager = NotificationManager::instance();
-    foreach (LipstickNotification *notification, manager->GetNotifications(qApp->applicationName()).notifications()) {
-        if (notification->category() == "x-nemo.system.diskspace") {
-            manager->CloseNotification(notification->replacesId());
-        }
-        delete notification;
-    }
+    QTimer::singleShot(0, this, SLOT(removeDiskSpaceNotifications()));
 }
 
 DiskSpaceNotifier::~DiskSpaceNotifier()
@@ -72,5 +66,16 @@ void DiskSpaceNotifier::handleDiskSpaceChange(const QString &path, int percentag
         hints.insert(NotificationManager::HINT_PREVIEW_BODY, qtTrId("qtn_memu_memlow_notification_src"));
         // TODO go to some relevant place when clicking the notification
         notificationId = manager->Notify(qApp->applicationName(), 0, QString(), QString(), QString(), QStringList(), hints, -1);
+    }
+}
+
+void DiskSpaceNotifier::removeDiskSpaceNotifications()
+{
+    NotificationManager *manager = NotificationManager::instance();
+    foreach (uint id, manager->notificationIds()) {
+        LipstickNotification *notification = NotificationManager::instance()->notification(id);
+        if (notification->appName() == qApp->applicationName() && notification->category() == "x-nemo.system.diskspace") {
+            manager->CloseNotification(id);
+        }
     }
 }

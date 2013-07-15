@@ -48,6 +48,9 @@ private slots:
      */
     void handleDiskSpaceChange(const QString &path, int percentage);
 
+    //! Initializes the disk space notifier by removing any previous notifications
+    void removeDiskSpaceNotifications();
+
 private:
     //! Notifications sent for each path. The first bool in the pair is whether the threshold notification was sent, second whether the 100% notification was sent.
     QMap<QString, QPair<bool, bool> > notificationsSentForPath;
