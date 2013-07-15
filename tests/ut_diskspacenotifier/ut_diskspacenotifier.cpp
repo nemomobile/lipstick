@@ -40,6 +40,16 @@ bool QDBusConnection::connect(const QString &service, const QString &path, const
     return true;
 }
 
+void QTimer::singleShot(int, const QObject *receiver, const char *member)
+{
+    // The "member" string is of form "1member()", so remove the trailing 1 and the ()
+    int memberLength = strlen(member) - 3;
+    char modifiedMember[memberLength + 1];
+    strncpy(modifiedMember, member + 1, memberLength);
+    modifiedMember[memberLength] = 0;
+    QMetaObject::invokeMethod(const_cast<QObject *>(receiver), modifiedMember, Qt::DirectConnection);
+}
+
 void Ut_DiskSpaceNotifier::initTestCase()
 {
 }
@@ -115,12 +125,9 @@ void Ut_DiskSpaceNotifier::testConstruction()
     // Check that the constructor destroys only any previous notifications of type x-nemo.system.diskspace
     QVariantHash hints;
     hints.insert(NotificationManager::HINT_CATEGORY, "x-nemo.system.diskspace");
-    NotificationList notificationList(QList<LipstickNotification *>() <<
-                                      new LipstickNotification(qApp->applicationName(), 1, QString(), QString(), QString(), QStringList(), QVariantHash(), -1) <<
-                                      new LipstickNotification(qApp->applicationName(), 2, QString(), QString(), QString(), QStringList(), QVariantHash(), -1) <<
-                                      new LipstickNotification(qApp->applicationName(), 3, QString(), QString(), QString(), QStringList(), hints, -1) <<
-                                      new LipstickNotification(qApp->applicationName(), 4, QString(), QString(), QString(), QStringList(), hints, -1));
-    gNotificationManagerStub->stubSetReturnValue("GetNotifications", notificationList);
+    LipstickNotification notification(qApp->applicationName(), 1, QString(), QString(), QString(), QStringList(), hints, -1);
+    gNotificationManagerStub->stubSetReturnValue("notificationIds", QList<uint>() << 1u << 1u);
+    gNotificationManagerStub->stubSetReturnValue("notification", &notification);
     m_subject = new DiskSpaceNotifier();
     QCOMPARE(gNotificationManagerStub->stubCallCount("CloseNotification"), 2);
 }
