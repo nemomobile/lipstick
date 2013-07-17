@@ -19,7 +19,7 @@
 
 #include <QObject>
 #include "launcheritem.h"
-#include "utilities/qobjectlistmodel.h"
+#include "qobjectlistmodel.h"
 #include "lipstickglobal.h"
 
 class QFileSystemWatcher;
