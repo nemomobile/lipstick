@@ -40,6 +40,11 @@ LauncherModel::LauncherModel(QObject *parent) :
     monitoredDirectoryChanged(defaultAppsPath);
     connect(_fileSystemWatcher, SIGNAL(directoryChanged(QString)), this, SLOT(monitoredDirectoryChanged(QString)));
     connect(this, SIGNAL(rowsMoved(const QModelIndex&,int,int,const QModelIndex&,int)), this, SLOT(savePositions()));
+    // watch for changes to order
+    QSettings launcherSettings("nemomobile", "lipstick");
+    _settingsPath = launcherSettings.fileName();
+    _fileSystemWatcher->addPath(_settingsPath);
+    connect(_fileSystemWatcher, SIGNAL(fileChanged(QString)), this, SLOT(monitoredFileChanged(QString)));
 }
 
 LauncherModel::~LauncherModel()
@@ -121,6 +126,41 @@ void LauncherModel::monitoredDirectoryChanged(QString changedPath)
         }
     }
 
+    reorderItems(itemsWithPositions);
+
+    savePositions();
+}
+
+void LauncherModel::monitoredFileChanged(QString changedPath)
+{
+    if (changedPath != _settingsPath)
+        return;
+
+    // Settings file changed - update positions.
+    QMap<int, LauncherItem *> itemsWithPositions;
+    QSettings launcherSettings("nemomobile", "lipstick");
+    QSettings globalSettings("/usr/share/lipstick/lipstick.conf", QSettings::IniFormat);
+
+    QList<LauncherItem *> *currentLauncherList = getList<LauncherItem>();
+    foreach (LauncherItem *item, *currentLauncherList) {
+        QVariant pos = launcherSettings.value("LauncherOrder/" + item->filePath());
+
+        // fall back to vendor configuration if the user hasn't specified a location
+        if (!pos.isValid())
+            pos = globalSettings.value("LauncherOrder/" + item->filePath());
+
+        if (!pos.isValid())
+            continue;
+
+        int gridPos = pos.toInt();
+        itemsWithPositions.insert(gridPos, item);
+    }
+
+    reorderItems(itemsWithPositions);
+}
+
+void LauncherModel::reorderItems(const QMap<int, LauncherItem *> &itemsWithPositions)
+{
     // QMap is key-ordered, the int here is the desired position in the launcher we want the item to appear
     // so, we'll iterate from the lowest desired position to the highest, and move the items there.
     for (QMap<int, LauncherItem *>::ConstIterator it = itemsWithPositions.constBegin();
@@ -144,8 +184,6 @@ void LauncherModel::monitoredDirectoryChanged(QString changedPath)
 
         move(currentPos, gridPos);
     }
-
-    savePositions();
 }
 
 QStringList LauncherModel::directories() const
@@ -173,6 +211,7 @@ void LauncherModel::setDirectories(QStringList newDirectories)
 void LauncherModel::savePositions()
 {
     QSettings launcherSettings("nemomobile", "lipstick");
+    _fileSystemWatcher->removePath(launcherSettings.fileName());
     QList<LauncherItem *> *currentLauncherList = getList<LauncherItem>();
 
     int pos = 0;
@@ -182,5 +221,6 @@ void LauncherModel::savePositions()
     }
 
     launcherSettings.sync();
+    _fileSystemWatcher->addPath(launcherSettings.fileName());
 }
 
