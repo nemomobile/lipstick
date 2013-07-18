@@ -32,9 +32,11 @@ class LIPSTICK_EXPORT LauncherModel : public QObjectListModel
     Q_PROPERTY(QStringList directories READ directories WRITE setDirectories NOTIFY directoriesChanged)
 
     QFileSystemWatcher *_fileSystemWatcher;
+    QString _settingsPath;
 
 private slots:
     void monitoredDirectoryChanged(QString);
+    void monitoredFileChanged(QString changedPath);
 
 public:
     explicit LauncherModel(QObject *parent = 0);
@@ -49,6 +51,8 @@ public slots:
 signals:
     void directoriesChanged();
 
+private:
+    void reorderItems(const QMap<int, LauncherItem *> &itemsWithPositions);
 };
 
 #endif // LAUNCHERMODEL_H
