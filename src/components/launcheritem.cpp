@@ -93,6 +93,11 @@ QStringList LauncherItem::desktopCategories() const
     return !_desktopEntry.isNull() ? _desktopEntry->categories() : QStringList();
 }
 
+QString LauncherItem::titleUnlocalized() const
+{
+    return !_desktopEntry.isNull() ? _desktopEntry->nameUnlocalized() : QString();
+}
+
 bool LauncherItem::shouldDisplay() const
 {
     return !_desktopEntry.isNull() ? !_desktopEntry->noDisplay() : false;
