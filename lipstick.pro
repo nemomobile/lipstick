@@ -1,7 +1,7 @@
 TEMPLATE = subdirs
-CONFIG += ordered
 SUBDIRS += src plugin tools tests doc
 
+plugin.depends = src
 tools.depends = src
 
 QMAKE_CLEAN += \
