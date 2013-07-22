@@ -64,6 +64,8 @@ public:
 signals:
     void windowAdded(QObject *window);
     void windowRemoved(QObject *window);
+    void windowRaised(QObject *window);
+    void windowLowered(QObject *window);
 
     void windowCountChanged();
     void ghostWindowCountChanged();
@@ -78,6 +80,8 @@ private slots:
     void surfaceUnmapped();
     void surfaceSizeChanged();
     void surfaceTitleChanged();
+    void surfaceRaised();
+    void surfaceLowered();
     void windowSwapped();
     void windowDestroyed();
     void windowPropertyChanged(const QString &);

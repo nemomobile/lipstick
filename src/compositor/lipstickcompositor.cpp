@@ -76,6 +76,8 @@ void LipstickCompositor::surfaceCreated(QWaylandSurface *surface)
     connect(surface, SIGNAL(sizeChanged()), this, SLOT(surfaceSizeChanged()));
     connect(surface, SIGNAL(titleChanged()), this, SLOT(surfaceTitleChanged()));
     connect(surface, SIGNAL(windowPropertyChanged(QString,QVariant)), this, SLOT(windowPropertyChanged(QString)));
+    connect(surface, SIGNAL(raiseRequested()), this, SLOT(surfaceRaised()));
+    connect(surface, SIGNAL(lowerRequested()), this, SLOT(surfaceLowered()));
 }
 
 int LipstickCompositor::windowCount() const
@@ -209,6 +211,26 @@ void LipstickCompositor::surfaceTitleChanged()
 
         for (int ii = 0; ii < m_windowModels.count(); ++ii)
             m_windowModels.at(ii)->titleChanged(windowId);
+    }
+}
+
+void LipstickCompositor::surfaceRaised()
+{
+    QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
+    LipstickCompositorWindow *window = static_cast<LipstickCompositorWindow *>(surface->surfaceItem());
+
+    if (window) {
+        emit windowRaised(window);
+    }
+}
+
+void LipstickCompositor::surfaceLowered()
+{
+    QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
+    LipstickCompositorWindow *window = static_cast<LipstickCompositorWindow *>(surface->surfaceItem());
+
+    if (window) {
+        emit windowLowered(window);
     }
 }
 
