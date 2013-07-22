@@ -30,7 +30,7 @@ PkgConfigBR:
     - contextkit-statefs >= 0.2.7
 PkgBR:
     - qt5-qttools-linguist
-    - qt5-qtwayland-wayland_egl-devel >= 5.1.0+git3-1.14.1
+    - qt5-qtwayland-wayland_egl-devel >= 5.1.0+git3
     - doxygen
 Files:
     - "%config %{_sysconfdir}/dbus-1/system.d/lipstick.conf"
