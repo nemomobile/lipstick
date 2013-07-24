@@ -51,6 +51,9 @@ protected:
 
     virtual bool approveWindow(LipstickCompositorWindow *);
 
+public slots:
+    void launchProcess(const QString &binaryName);
+
 private:
     friend class LipstickCompositor;
     void setCompositor(LipstickCompositor *);
