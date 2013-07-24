@@ -13,6 +13,8 @@
 **
 ****************************************************************************/
 
+#include <QDBusConnection>
+
 #include "windowmodel.h"
 
 #include "lipstickcompositor.h"
@@ -26,6 +28,10 @@ WindowModel::WindowModel()
     } else {
         c->m_windowModels.append(this);
     }
+
+    QDBusConnection dbus = QDBusConnection::sessionBus();
+    dbus.registerObject("/WindowModel", this, QDBusConnection::ExportAllSlots);
+    dbus.registerService("org.nemomobile.lipstick");
 }
 
 WindowModel::~WindowModel()
@@ -161,3 +167,36 @@ void WindowModel::refresh()
 
     endResetModel();
 }
+
+// used by mapplauncherd to bring a binary to the front
+void WindowModel::launchProcess(const QString &binaryName)
+{
+    LipstickCompositor *c = LipstickCompositor::instance();
+    if (!m_complete || !c)
+        return;
+
+    for (QHash<int, LipstickCompositorWindow *>::ConstIterator iter = c->m_mappedSurfaces.begin();
+        iter != c->m_mappedSurfaces.end(); ++iter) {
+
+        LipstickCompositorWindow *win = iter.value();
+        if (!approveWindow(win))
+            continue;
+
+        QString pidFile = QString::fromLatin1("/proc/%1/cmdline").arg(win->processId());
+        QFile f(pidFile);
+        if (!f.open(QIODevice::ReadOnly)) {
+            qWarning() << Q_FUNC_INFO << "Cannot open cmdline for " << pidFile;
+            continue;
+        }
+
+        // cmdline contains a \0, so we use constData to truncate that away
+        QByteArray proc = QByteArray(f.readAll().constData());
+
+        if (proc != binaryName)
+            continue;
+
+        win->surface()->raiseRequested();
+        break;
+    }
+}
+
