@@ -30,6 +30,7 @@ class LIPSTICK_EXPORT SwitcherModel : public QObjectListModel, XEventListener
 {
     Q_OBJECT
     Q_DISABLE_COPY(SwitcherModel)
+    Q_CLASSINFO("D-Bus Interface", "local.Lipstick.WindowModel")
 
     Q_PROPERTY(int itemCount READ itemCount NOTIFY itemCountChanged)
 
@@ -40,6 +41,9 @@ public:
     virtual bool handleXEvent(const XEvent &event);
     void updateWindowList();
     void updateApps(const QList<WindowInfo> &windowList);
+
+public slots:
+    void launchProcess(const QString &binaryName);
 
 signals:
     void itemCountChanged();
