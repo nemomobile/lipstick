@@ -40,6 +40,11 @@ void NotificationListModel::init()
 void NotificationListModel::updateNotification(uint id)
 {
     LipstickNotification *notification = NotificationManager::instance()->notification(id);
+    // This can happen if the notification is removed by someone else connected to
+    // the notificationModified() signal
+    if (!notification)
+        return;
+
     int index = indexOf(notification);
     if (notificationShouldBeShown(notification)) {
         // Place the notifications in the model latest first, moving existing notifications if necessary

@@ -31,6 +31,11 @@ void NotificationFeedbackPlayer::addNotification(uint id)
 {
     LipstickNotification *notification = NotificationManager::instance()->notification(id);
 
+    // This can happen if the notification is removed by someone else connected to
+    // the notificationModified() signal
+    if (!notification)
+        return;
+
     // Play the feedback related to the notification if any
     if (!idToEventId.contains(notification)) {
         QString feedback = notification->hints().value(NotificationManager::HINT_FEEDBACK).toString();
