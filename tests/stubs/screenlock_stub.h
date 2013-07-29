@@ -35,10 +35,12 @@ class ScreenLockStub : public StubBase {
   virtual void showScreenLock();
   virtual void showLowPowerMode();
   virtual void setDisplayOffMode();
+  virtual void hideScreenLock();
   virtual void hideScreenLockAndEventEater();
   virtual void showEventEater();
   virtual void hideEventEater();
   virtual bool isScreenLocked();
+  virtual bool eventFilter(QObject *, QEvent *event);
 }; 
 
 // 2. IMPLEMENT STUB
@@ -101,6 +103,10 @@ void ScreenLockStub::setDisplayOffMode() {
   stubMethodEntered("setDisplayOffMode");
 }
 
+void ScreenLockStub::hideScreenLock() {
+  stubMethodEntered("hideScreenLock");
+}
+
 void ScreenLockStub::hideScreenLockAndEventEater() {
   stubMethodEntered("hideScreenLockAndEventEater");
 }
@@ -116,6 +122,14 @@ void ScreenLockStub::hideEventEater() {
 bool ScreenLockStub::isScreenLocked() {
   stubMethodEntered("isScreenLocked");
   return stubReturnValue<bool>("isScreenLocked");
+}
+
+bool ScreenLockStub::eventFilter(QObject *object, QEvent *event) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<QObject * >(object));
+  params.append( new Parameter<QEvent * >(event));
+  stubMethodEntered("eventFilter",params);
+  return stubReturnValue<bool>("eventFilter");
 }
 
 
@@ -170,6 +184,10 @@ void ScreenLock::setDisplayOffMode() {
   gScreenLockStub->setDisplayOffMode();
 }
 
+void ScreenLock::hideScreenLock() {
+  gScreenLockStub->hideScreenLock();
+}
+
 void ScreenLock::hideScreenLockAndEventEater() {
   gScreenLockStub->hideScreenLockAndEventEater();
 }
@@ -184,6 +202,10 @@ void ScreenLock::hideEventEater() {
 
 bool ScreenLock::isScreenLocked() const {
   return gScreenLockStub->isScreenLocked();
+}
+
+bool ScreenLock::eventFilter(QObject *object, QEvent *event) {
+  return gScreenLockStub->eventFilter(object, event);
 }
 
 
