@@ -159,3 +159,10 @@ void LauncherItem::launchApplication()
     // Launching animation will stop after 5 seconds
     QTimer::singleShot(5000, this, SLOT(disableIsLaunching()));
 }
+
+bool LauncherItem::isStillValid()
+{
+    _desktopEntry = QSharedPointer<MDesktopEntry>(new MDesktopEntry(filePath()));
+    emit this->itemChanged();
+    return isValid();
+}
