@@ -231,8 +231,6 @@ HomeWindow *HomeApplication::mainWindowInstance()
     if (!_qmlPath.isEmpty())
         _mainWindowInstance->setSource(_qmlPath);
 
-    _mainWindowInstance->installEventFilter(this);
-
     return _mainWindowInstance;
 }
 

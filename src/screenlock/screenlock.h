@@ -69,6 +69,10 @@ public:
      */
     bool isScreenLocked() const;
 
+    //! \reimp
+    virtual bool eventFilter(QObject *, QEvent *event);
+    //! \reimp_end
+
 public slots:
     //! Shows the screen lock window and calls the MCE's lock function.
     void lockScreen();
@@ -91,6 +95,9 @@ private slots:
 
     //! Sets the screen lock extensions into display off state
     void setDisplayOffMode();
+
+    //! Hides the screen lock window.
+    void hideScreenLock();
 
     //! Hides the event eater window and the screen lock window.
     void hideScreenLockAndEventEater();
@@ -140,6 +147,9 @@ private:
 
     //! Whether the lockscreen is visible or not
     bool lockscreenVisible;
+
+    //! Whether events should be eaten or not
+    bool eatEvents;
 
 #ifdef UNIT_TEST
     friend class Ut_ScreenLock;
