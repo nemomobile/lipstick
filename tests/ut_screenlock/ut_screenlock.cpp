@@ -16,6 +16,7 @@
 
 #include <QtTest/QtTest>
 #include <QDBusAbstractInterface>
+#include <QMouseEvent>
 
 #define TEST_SERVICE   QString("com.nokia.mcetest")
 #define TEST_PATH      QString("/com/nokia/mcetest")
@@ -78,24 +79,12 @@ void Ut_ScreenLock::cleanupTestCase()
 {
 }
 
-void testStackingLayer(int callCount, long stackingLayer)
-{
-    Q_UNUSED(callCount)
-    Q_UNUSED(stackingLayer)
-}
-
 void Ut_ScreenLock::testToggleScreenLockUI()
 {
     QSignalSpy spy(screenLock, SIGNAL(screenIsLocked(bool)));
 
     // When the lock is toggled on, make sure the lock UI is shown
     screenLock->toggleScreenLockUI(true);
-
-    // The title should now be "Screen Lock"
-//    QCOMPARE(HomeApplication::instance()->mainWindowInstance()->windowTitle(), QString("Screen Lock"));
-
-    // The stacking layer should be 5
-    testStackingLayer(1, 5);
 
     // Locked state should be set
     QCOMPARE(spy.count(), 1);
@@ -105,16 +94,22 @@ void Ut_ScreenLock::testToggleScreenLockUI()
     // When the lock is toggled off, make sure the lock UI is hidden
     screenLock->toggleScreenLockUI(false);
 
-    // The title should now be "Lipstick"
-//    QCOMPARE(HomeApplication::instance()->mainWindowInstance()->windowTitle(), QString("Lipstick"));
-
-    // The stacking layer should be 0
-    testStackingLayer(2, 0);
-
     // Locked state should not be set
     QCOMPARE(spy.count(), 2);
     QCOMPARE(spy.last().at(0).toBool(), false);
     QCOMPARE(screenLock->isScreenLocked(), false);
+}
+
+void Ut_ScreenLock::testToggleEventEater()
+{
+    QMouseEvent event(QEvent::MouseButtonPress, QPointF(), Qt::NoButton, 0, 0);
+
+    // Make sure the screen locking signals are sent and the eater UI is shown/hidden
+    screenLock->toggleEventEater(true);
+    QCOMPARE(screenLock->eventFilter(0, &event), true);
+
+    screenLock->toggleEventEater(false);
+    QCOMPARE(screenLock->eventFilter(0, &event), false);
 }
 
 void Ut_ScreenLock::testUnlockScreenWhenLocked()
@@ -146,46 +141,46 @@ void Ut_ScreenLock::testTkLockOpen_data()
 {
     QTest::addColumn<int>("mode");
     QTest::addColumn<bool>("mainWindowModified");
-    QTest::addColumn<QString>("mainWindowTitle");
-    QTest::addColumn<int>("mainWindowStackingLayer");
+    QTest::addColumn<bool>("screenIsLocked");
     QTest::addColumn<bool>("eventEaterWindowVisibilityModified");
     QTest::addColumn<bool>("eventEaterWindowVisible");
 
-    QTest::newRow("TkLockModeNone") << (int)ScreenLock::TkLockModeNone << false << "" << 0 << false << false;
-    QTest::newRow("TkLockModeEnable") << (int)ScreenLock::TkLockModeEnable << true << "Screen Lock" << 5 << true << false;
-    QTest::newRow("TkLockModeHelp") << (int)ScreenLock::TkLockModeHelp << false << "" << 0 << false << false;
-    QTest::newRow("TkLockModeSelect") << (int)ScreenLock::TkLockModeSelect << false << "" << 0 << false << false;
-    QTest::newRow("TkLockModeOneInput") << (int)ScreenLock::TkLockModeOneInput << false << "" << 0 << true << true;
-    QTest::newRow("TkLockEnableVisual") << (int)ScreenLock::TkLockEnableVisual << true << "Screen Lock" << 5 << true << false;
-    QTest::newRow("TkLockEnableLowPowerMode") << (int)ScreenLock::TkLockEnableLowPowerMode << true << "Screen Lock" << 5 << true << false;
-    QTest::newRow("TkLockRealBlankMode") << (int)ScreenLock::TkLockRealBlankMode << true << "Screen Lock" << 5 << true << false;
+    QTest::newRow("TkLockModeNone") << (int)ScreenLock::TkLockModeNone << false << false << false << false;
+    QTest::newRow("TkLockModeEnable") << (int)ScreenLock::TkLockModeEnable << true << true << true << false;
+    QTest::newRow("TkLockModeHelp") << (int)ScreenLock::TkLockModeHelp << false << false << false << false;
+    QTest::newRow("TkLockModeSelect") << (int)ScreenLock::TkLockModeSelect << false << false << false << false;
+    QTest::newRow("TkLockModeOneInput") << (int)ScreenLock::TkLockModeOneInput << false << false << true << true;
+    QTest::newRow("TkLockEnableVisual") << (int)ScreenLock::TkLockEnableVisual << true << true << true << false;
+    QTest::newRow("TkLockEnableLowPowerMode") << (int)ScreenLock::TkLockEnableLowPowerMode << true << true << true << false;
+    QTest::newRow("TkLockRealBlankMode") << (int)ScreenLock::TkLockRealBlankMode << true << true << true << false;
 }
 
 void Ut_ScreenLock::testTkLockOpen()
 {
     QFETCH(int, mode);
     QFETCH(bool, mainWindowModified);
-    QFETCH(QString, mainWindowTitle);
-    QFETCH(int, mainWindowStackingLayer);
+    QFETCH(bool, screenIsLocked);
     QFETCH(bool, eventEaterWindowVisibilityModified);
     QFETCH(bool, eventEaterWindowVisible);
 
-    Q_UNUSED(mainWindowStackingLayer)
     // Make sure the event eater is visible so that it will be hidden if necessary
     screenLock->showEventEater();
 
     // Modify the state
+    QSignalSpy spy(screenLock, SIGNAL(screenIsLocked(bool)));
     int reply = screenLock->tklock_open(TEST_SERVICE, TEST_PATH, TEST_INTERFACE, TEST_METHOD, mode, false, false);
     QCOMPARE(reply, (int)ScreenLock::TkLockReplyOk);
 
     // Check that main window title and stacking layer were only changed if needed (and to the correct state)
     if (mainWindowModified) {
-//        QCOMPARE(HomeApplication::instance()->mainWindowInstance()->windowTitle(), mainWindowTitle);
-        testStackingLayer(1, mainWindowStackingLayer);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(spy.last().at(0).toBool(), screenIsLocked);
     }
 
-    Q_UNUSED(eventEaterWindowVisibilityModified)
-    Q_UNUSED(eventEaterWindowVisible)
+    if (eventEaterWindowVisibilityModified) {
+        QMouseEvent event(QEvent::MouseButtonPress, QPointF(), Qt::NoButton, 0, 0);
+        QCOMPARE(screenLock->eventFilter(0, &event), eventEaterWindowVisible);
+    }
 }
 
 void Ut_ScreenLock::testTkLockClose()
@@ -195,12 +190,17 @@ void Ut_ScreenLock::testTkLockClose()
     screenLock->showEventEater();
 
     // Modify the state
+    QSignalSpy spy(screenLock, SIGNAL(screenIsLocked(bool)));
     int reply = screenLock->tklock_close(false);
     QCOMPARE(reply, (int)ScreenLock::TkLockReplyOk);
 
-    // Both windows should be hidden
-//    QCOMPARE(HomeApplication::instance()->mainWindowInstance()->windowTitle(), QString("Lipstick"));
-    testStackingLayer(2, 0);
+    // The screen should no longer be locked
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.last().at(0).toBool(), false);
+
+    // Events should still be eaten
+    QMouseEvent event(QEvent::MouseButtonPress, QPointF(), Qt::NoButton, 0, 0);
+    QCOMPARE(screenLock->eventFilter(0, &event), true);
 }
 
 QTEST_MAIN(Ut_ScreenLock)

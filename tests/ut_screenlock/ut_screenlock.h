@@ -32,6 +32,7 @@ private slots:
     void cleanupTestCase();
 
     void testToggleScreenLockUI();
+    void testToggleEventEater();
     void testUnlockScreenWhenLocked();
     void testUnlockScreenWhenNotLocked();
     void testTkLockOpen_data();

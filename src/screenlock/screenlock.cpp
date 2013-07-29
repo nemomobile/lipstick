@@ -29,8 +29,10 @@ ScreenLock::ScreenLock(QObject* parent) :
     QObject(parent),
     callbackInterface(NULL),
     shuttingDown(false),
-    lockscreenVisible(false)
+    lockscreenVisible(false),
+    eatEvents(false)
 {
+    qApp->installEventFilter(this);
 }
 
 ScreenLock::~ScreenLock()
@@ -87,7 +89,7 @@ int ScreenLock::tklock_open(const QString &service, const QString &path, const Q
 
 int ScreenLock::tklock_close(bool)
 {
-    QTimer::singleShot(0, this, SLOT(hideScreenLockAndEventEater()));
+    QTimer::singleShot(0, this, SLOT(hideScreenLock()));
 
     return TkLockReplyOk;
 }
@@ -128,6 +130,11 @@ void ScreenLock::setDisplayOffMode()
     toggleEventEater(false);
 }
 
+void ScreenLock::hideScreenLock()
+{
+    toggleScreenLockUI(false);
+}
+
 void ScreenLock::hideScreenLockAndEventEater()
 {
     toggleScreenLockUI(false);
@@ -153,11 +160,21 @@ void ScreenLock::toggleScreenLockUI(bool toggle)
 
 void ScreenLock::toggleEventEater(bool toggle)
 {
-    // TODO
-    Q_UNUSED(toggle)
+    eatEvents = toggle;
 }
 
 bool ScreenLock::isScreenLocked() const
 {
     return lockscreenVisible;
+}
+
+bool ScreenLock::eventFilter(QObject *, QEvent *event)
+{
+    bool eat = eatEvents && (event->type() == QEvent::MouseButtonPress || event->type() == QEvent::TouchBegin || event->type() == QEvent::TouchUpdate || event->type() == QEvent::TouchEnd);
+
+    if (eat) {
+        hideEventEater();
+    }
+
+    return eat;
 }
