@@ -63,6 +63,7 @@ public:
     bool shouldDisplay() const;
     bool isValid() const;
     bool isLaunching() const;
+    bool isStillValid();
 
     Q_INVOKABLE void launchApplication();
 

@@ -51,26 +51,22 @@ LauncherModel::~LauncherModel()
 {
 }
 
-void LauncherModel::monitoredDirectoryChanged(QString changedPath)
+void LauncherModel::monitoredDirectoryChanged(const QString &changedPath)
 {
-    QDir directory(changedPath);
-    directory.setFilter(QDir::Files);
-    QFileInfoList fileInfoList = directory.entryInfoList();
-    QList<LauncherItem *> *currentLauncherList = getList<LauncherItem>();
+    QFileInfoList fileInfoList = QDir(changedPath).entryInfoList(QStringList() << "*.desktop", QDir::Files);
 
-    // Finding removed desktop entries
-    foreach (LauncherItem *item, *currentLauncherList) {
-        if (!item->filePath().startsWith(changedPath))
-            continue;
-
-        bool foundOnDisk = false;
+    // Find removed and invalidated desktop entries
+    foreach (LauncherItem *item, *getList<LauncherItem>()) {
+        bool isValid = false;
         foreach (const QFileInfo &fileInfo, fileInfoList) {
-            if (fileInfo.absoluteFilePath() == item->filePath())
-                foundOnDisk = true;
+            if (fileInfo.absoluteFilePath() == item->filePath()) {
+                isValid = item->isStillValid() && item->shouldDisplay();
+                break;
+            }
         }
 
-        if (!foundOnDisk) {
-            LAUNCHER_DEBUG(item->filePath() << " removed from disk");
+        if (!isValid) {
+            LAUNCHER_DEBUG(item->filePath() << "no longer a valid .desktop entry");
             removeItem(item);
         }
     }
@@ -81,48 +77,13 @@ void LauncherModel::monitoredDirectoryChanged(QString changedPath)
 
     // Finding newly added desktop entries
     foreach (const QFileInfo &fileInfo, fileInfoList) {
-        // Skip files which are not desktop entries
-        if (!fileInfo.fileName().endsWith(".desktop"))
-            continue;
-
-        bool foundInModel = false;
-        foreach (LauncherItem *item, *currentLauncherList) {
-            if (fileInfo.absoluteFilePath() == item->filePath()) {
-                foundInModel = true;
-                break;
-            }
+        QString filePath = fileInfo.absoluteFilePath();
+        if (!_fileSystemWatcher->files().contains(filePath)) {
+            _fileSystemWatcher->addPath(filePath);
         }
 
-        if (!foundInModel) {
-            LAUNCHER_DEBUG("Creating LauncherItem for desktop entry" << fileInfo.absoluteFilePath());
-            LauncherItem *item = new LauncherItem(fileInfo.absoluteFilePath(), this);
-
-            if (!item->isValid()) {
-                LAUNCHER_DEBUG("Item " << fileInfo.absoluteFilePath() << " is not valid");
-                delete item;
-                continue;
-            }
-
-            if (!item->shouldDisplay()) {
-                LAUNCHER_DEBUG("Item " << fileInfo.absoluteFilePath() << " should not be displayed");
-                delete item;
-                continue;
-            }
-
-            this->addItem(item);
-
-            QVariant pos = launcherSettings.value("LauncherOrder/" + item->filePath());
-
-            // fall back to vendor configuration if the user hasn't specified a location
-            if (!pos.isValid())
-                pos = globalSettings.value("LauncherOrder/" + item->filePath());
-
-            if (!pos.isValid())
-                continue;
-
-            int gridPos = pos.toInt();
-            itemsWithPositions.insert(gridPos, item);
-            LAUNCHER_DEBUG("Planned move of " << item->filePath() << " to " << gridPos);
+        if (itemInModel(filePath) == 0) {
+            addItemIfValid(filePath, itemsWithPositions, launcherSettings, globalSettings);
         }
     }
 
@@ -131,12 +92,28 @@ void LauncherModel::monitoredDirectoryChanged(QString changedPath)
     savePositions();
 }
 
-void LauncherModel::monitoredFileChanged(QString changedPath)
+void LauncherModel::monitoredFileChanged(const QString &changedPath)
 {
-    if (changedPath != _settingsPath)
-        return;
+    if (changedPath == _settingsPath) {
+        loadPositions();
+    } else {
+        LauncherItem *item = itemInModel(changedPath);
+        if (item == 0) {
+            QMap<int, LauncherItem *> itemsWithPositions;
+            QSettings launcherSettings("nemomobile", "lipstick");
+            QSettings globalSettings("/usr/share/lipstick/lipstick.conf", QSettings::IniFormat);
+            addItemIfValid(changedPath, itemsWithPositions, launcherSettings, globalSettings);
+            reorderItems(itemsWithPositions);
+            savePositions();
+        } else if (!(item->isStillValid() && item->shouldDisplay())) {
+            LAUNCHER_DEBUG(item->filePath() << "no longer a valid .desktop entry");
+            removeItem(item);
+        }
+    }
+}
 
-    // Settings file changed - update positions.
+void LauncherModel::loadPositions()
+{
     QMap<int, LauncherItem *> itemsWithPositions;
     QSettings launcherSettings("nemomobile", "lipstick");
     QSettings globalSettings("/usr/share/lipstick/lipstick.conf", QSettings::IniFormat);
@@ -146,14 +123,14 @@ void LauncherModel::monitoredFileChanged(QString changedPath)
         QVariant pos = launcherSettings.value("LauncherOrder/" + item->filePath());
 
         // fall back to vendor configuration if the user hasn't specified a location
-        if (!pos.isValid())
+        if (!pos.isValid()) {
             pos = globalSettings.value("LauncherOrder/" + item->filePath());
+        }
 
-        if (!pos.isValid())
-            continue;
-
-        int gridPos = pos.toInt();
-        itemsWithPositions.insert(gridPos, item);
+        if (pos.isValid()) {
+            int gridPos = pos.toInt();
+            itemsWithPositions.insert(gridPos, item);
+        }
     }
 
     reorderItems(itemsWithPositions);
@@ -167,10 +144,10 @@ void LauncherModel::reorderItems(const QMap<int, LauncherItem *> &itemsWithPosit
          it != itemsWithPositions.constEnd(); ++it) {
         LauncherItem *item = it.value();
         int gridPos = it.key();
-        LAUNCHER_DEBUG("Moving " << item->filePath() << " to " << gridPos);
+        LAUNCHER_DEBUG("Moving" << item->filePath() << "to" << gridPos);
 
         if (gridPos < 0 || gridPos >= itemCount()) {
-            qWarning() << Q_FUNC_INFO << "Invalid planned position for " << item->filePath();
+            LAUNCHER_DEBUG("Invalid planned position for" << item->filePath());
             continue;
         }
 
@@ -224,3 +201,40 @@ void LauncherModel::savePositions()
     _fileSystemWatcher->addPath(launcherSettings.fileName());
 }
 
+LauncherItem *LauncherModel::itemInModel(const QString &path)
+{
+    foreach (LauncherItem *item, *getList<LauncherItem>()) {
+        if (item->filePath() == path) {
+            return item;
+        }
+    }
+    return 0;
+}
+
+void LauncherModel::addItemIfValid(const QString &path, QMap<int, LauncherItem *> &itemsWithPositions, QSettings &launcherSettings, QSettings &globalSettings)
+{
+    LAUNCHER_DEBUG("Creating LauncherItem for desktop entry" << path);
+    LauncherItem *item = new LauncherItem(path, this);
+
+    bool isValid = item->isValid();
+    bool shouldDisplay = item->shouldDisplay();
+    if (isValid && shouldDisplay) {
+        addItem(item);
+
+        QVariant pos = launcherSettings.value("LauncherOrder/" + item->filePath());
+
+        // fall back to vendor configuration if the user hasn't specified a location
+        if (!pos.isValid()) {
+            pos = globalSettings.value("LauncherOrder/" + item->filePath());
+        }
+
+        if (pos.isValid()) {
+            int gridPos = pos.toInt();
+            itemsWithPositions.insert(gridPos, item);
+            LAUNCHER_DEBUG("Planned move of" << item->filePath() << "to" << gridPos);
+        }
+    } else {
+        LAUNCHER_DEBUG("Item" << path << (!isValid ? "is not valid" : "should not be displayed"));
+        delete item;
+    }
+}
