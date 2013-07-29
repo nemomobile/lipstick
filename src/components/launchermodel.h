@@ -23,6 +23,7 @@
 #include "lipstickglobal.h"
 
 class QFileSystemWatcher;
+class QSettings;
 
 class LIPSTICK_EXPORT LauncherModel : public QObjectListModel
 {
@@ -35,8 +36,8 @@ class LIPSTICK_EXPORT LauncherModel : public QObjectListModel
     QString _settingsPath;
 
 private slots:
-    void monitoredDirectoryChanged(QString);
-    void monitoredFileChanged(QString changedPath);
+    void monitoredDirectoryChanged(const QString &changedPath);
+    void monitoredFileChanged(const QString &changedPath);
 
 public:
     explicit LauncherModel(QObject *parent = 0);
@@ -53,6 +54,9 @@ signals:
 
 private:
     void reorderItems(const QMap<int, LauncherItem *> &itemsWithPositions);
+    void loadPositions();
+    LauncherItem *itemInModel(const QString &path);
+    void addItemIfValid(const QString &path, QMap<int, LauncherItem *> &itemsWithPositions, QSettings &launcherSettings, QSettings &globalSettings);
 };
 
 #endif // LAUNCHERMODEL_H
