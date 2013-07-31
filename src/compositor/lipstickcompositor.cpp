@@ -38,7 +38,8 @@ static bool compositorDebug()
 }
 
 LipstickCompositor::LipstickCompositor()
-: QWaylandCompositor(this), m_totalWindowCount(0), m_nextWindowId(1), m_homeActive(true), m_shaderEffect(0)
+: QWaylandCompositor(this), m_totalWindowCount(0), m_nextWindowId(1), m_homeActive(true), m_shaderEffect(0),
+  m_fullscreenSurface(0)
 {
     if (m_instance) qFatal("LipstickCompositor: Only one compositor instance per process is supported");
     m_instance = this;
@@ -70,7 +71,6 @@ void LipstickCompositor::componentComplete()
 void LipstickCompositor::surfaceCreated(QWaylandSurface *surface)
 {
     Q_UNUSED(surface)
-    connect(surface, SIGNAL(destroyed(QObject*)), this, SLOT(surfaceDestroyed()));
     connect(surface, SIGNAL(mapped()), this, SLOT(surfaceMapped()));
     connect(surface, SIGNAL(unmapped()), this, SLOT(surfaceUnmapped()));
     connect(surface, SIGNAL(sizeChanged()), this, SLOT(surfaceSizeChanged()));
@@ -147,12 +147,23 @@ int LipstickCompositor::windowIdForLink(QWaylandSurface *s, uint link) const
 
 void LipstickCompositor::clearKeyboardFocus()
 {
-    defaultInputDevice()->setKeyboardFocus(0); 
+    defaultInputDevice()->setKeyboardFocus(0);
 }
 
-void LipstickCompositor::surfaceDestroyed()
+void LipstickCompositor::setFullscreenSurface(QWaylandSurface *surface)
 {
-    surfaceUnmapped(static_cast<QWaylandSurface *>(sender()));
+    if (surface == m_fullscreenSurface)
+        return;
+    m_fullscreenSurface = surface;
+    if (!setDirectRenderSurface(m_fullscreenSurface, openglContext()))
+        qWarning() << Q_FUNC_INFO << "failed to set direct render surface";
+    emit fullscreenSurfaceChanged();
+}
+
+void LipstickCompositor::surfaceAboutToBeDestroyed(QWaylandSurface *surface)
+{
+    Q_ASSERT(surface);
+    surfaceUnmapped(static_cast<QWaylandSurface *>(surface));
 }
 
 void LipstickCompositor::surfaceMapped()
@@ -236,7 +247,7 @@ void LipstickCompositor::surfaceLowered()
 
 void LipstickCompositor::windowSwapped()
 {
-    frameFinished();
+    frameFinished(m_fullscreenSurface);
 }
 
 void LipstickCompositor::windowDestroyed()
@@ -262,6 +273,10 @@ void LipstickCompositor::windowPropertyChanged(const QString &property)
 void LipstickCompositor::surfaceUnmapped(QWaylandSurface *surface)
 {
     LipstickCompositorWindow *item = static_cast<LipstickCompositorWindow *>(surface->surfaceItem());
+    surface->setSurfaceItem(0);
+
+    if (surface == m_fullscreenSurface)
+        setFullscreenSurface(0);
 
     if (item) {
         int id = item->windowId();

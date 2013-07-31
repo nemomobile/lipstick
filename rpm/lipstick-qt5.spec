@@ -37,7 +37,7 @@ BuildRequires:  pkgconfig(ngf-qt5)
 BuildRequires:  pkgconfig(qmsystem2-qt5) >= 1.4.7
 BuildRequires:  pkgconfig(contextkit-statefs) >= 0.2.7
 BuildRequires:  qt5-qttools-linguist
-BuildRequires:  qt5-qtwayland-wayland_egl-devel >= 5.1.0+git3
+BuildRequires:  qt5-qtwayland-wayland_egl-devel >= 5.1.0+git7
 BuildRequires:  doxygen
 Conflicts:   meegotouch-systemui < 1.5.7
 Obsoletes:   libnotificationsystem0
