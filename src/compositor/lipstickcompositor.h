@@ -36,6 +36,7 @@ class LIPSTICK_EXPORT LipstickCompositor : public QQuickWindow, public QWaylandC
     Q_PROPERTY(int ghostWindowCount READ ghostWindowCount NOTIFY ghostWindowCountChanged)
     Q_PROPERTY(bool homeActive READ homeActive WRITE setHomeActive NOTIFY homeActiveChanged)
     Q_PROPERTY(bool debug READ debug CONSTANT)
+    Q_PROPERTY(QWaylandSurface* fullscreenSurface READ fullscreenSurface WRITE setFullscreenSurface NOTIFY fullscreenSurfaceChanged)
 
 public:
     LipstickCompositor();
@@ -52,6 +53,9 @@ public:
 
     bool homeActive() const;
     void setHomeActive(bool);
+
+    QWaylandSurface *fullscreenSurface() const { return m_fullscreenSurface; }
+    void setFullscreenSurface(QWaylandSurface *surface);
 
     bool debug() const;
 
@@ -73,9 +77,12 @@ signals:
     void availableWinIdsChanged();
 
     void homeActiveChanged();
+    void fullscreenSurfaceChanged();
+
+protected:
+     virtual void surfaceAboutToBeDestroyed(QWaylandSurface *surface);
 
 private slots:
-    void surfaceDestroyed();
     void surfaceMapped();
     void surfaceUnmapped();
     void surfaceSizeChanged();
@@ -116,6 +123,7 @@ private:
     bool m_homeActive;
 
     QQmlComponent *m_shaderEffect;
+    QWaylandSurface *m_fullscreenSurface;
 };
 
 class LIPSTICK_EXPORT LipstickCompositorWindow : public QWaylandSurfaceItem
