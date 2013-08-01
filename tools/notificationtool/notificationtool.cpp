@@ -49,7 +49,7 @@ int expireTimeout = -1;
 QString timestamp;
 
 // Actions for the notification
-QHash<QString, QStringList> actions;
+QHash<QString, QString> actions;
 
 // Prints usage information
 int usage(const char *program)
@@ -131,9 +131,32 @@ int parseArguments(int argc, char *argv[])
             expireTimeout = atoi(optarg);
             break;
         case 'a': {
-            QStringList action = QString(optarg).split(' ');
-            QString name = action.takeFirst();
-            actions.insert(name, action);
+            QStringList actionList = QString(optarg).split(' ');
+            if (actionList.count() < 5) {
+                toolOperation = Undefined;
+            } else {
+                QString name = actionList.takeFirst();
+                QString action;
+                action.append(actionList.takeFirst()).append(' ');
+                action.append(actionList.takeFirst()).append(' ');
+                action.append(actionList.takeFirst()).append(' ');
+                action.append(actionList.takeFirst());
+
+                foreach(const QString &arg, actionList) {
+                    // Serialize the QVariant into a QBuffer
+                    QBuffer buffer;
+                    buffer.open(QIODevice::ReadWrite);
+                    QDataStream stream(&buffer);
+                    stream << QVariant(arg);
+                    buffer.close();
+
+                    // Encode the contents of the QBuffer in Base64
+                    action.append(' ');
+                    action.append(buffer.buffer().toBase64().data());
+                }
+
+                actions.insert(name, action);
+            }
             break;
             }
         default:
