@@ -409,6 +409,12 @@ QString LipstickCompositorWindow::title() const
     return QString();
 }
 
+void LipstickCompositorWindow::hide()
+{
+    if (surface())
+        surface()->setVisibility(QWindow::Hidden);
+}
+
 void LipstickCompositorWindow::imageAddref()
 {
     ++m_ref;

@@ -158,6 +158,8 @@ public:
     virtual QString title() const;
     virtual bool isInProcess() const;
 
+    Q_INVOKABLE void hide();
+
     QRect mouseRegionBounds() const;
 
 protected:
