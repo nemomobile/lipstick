@@ -198,4 +198,14 @@ void Ut_USBModeSelector::testSetUSBMode()
     QCOMPARE(testMode, (MeeGo::QmUSBMode::Mode)5);
 }
 
+void Ut_USBModeSelector::testSupportedUSBModes()
+{
+    testSupportedModes << MeeGo::QmUSBMode::OviSuite << MeeGo::QmUSBMode::MassStorage;
+    usbModeSelector->applyCurrentUSBMode();
+    QCOMPARE(usbModeSelector->supportedUSBModes().count(), testSupportedModes.count());
+    for (int i = 0; i < testSupportedModes.count(); i++) {
+        QCOMPARE(usbModeSelector->supportedUSBModes().at(i), (int)testSupportedModes.at(i));
+    }
+}
+
 QTEST_MAIN (Ut_USBModeSelector)

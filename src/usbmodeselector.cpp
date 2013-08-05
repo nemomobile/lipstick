@@ -44,6 +44,11 @@ USBModeSelector::USBModeSelector(QObject *parent) :
 
 void USBModeSelector::applyCurrentUSBMode()
 {
+    foreach (MeeGo::QmUSBMode::Mode supportedMode, usbMode->getSupportedModes()) {
+        supportedUSBModeList.append(supportedMode);
+    }
+    emit supportedUSBModesChanged();
+
     applyUSBMode(usbMode->getMode());
 }
 
@@ -75,6 +80,11 @@ void USBModeSelector::setWindowVisible(bool visible)
 bool USBModeSelector::windowVisible() const
 {
     return window != 0 && window->isVisible();
+}
+
+QList<int> USBModeSelector::supportedUSBModes() const
+{
+    return supportedUSBModeList;
 }
 
 void USBModeSelector::applyUSBMode(MeeGo::QmUSBMode::Mode mode)

@@ -48,6 +48,7 @@ private slots:
     void testConnectingUSBWhenDeviceIsLockedEmitsDialogShown();
     void testShowError();
     void testSetUSBMode();
+    void testSupportedUSBModes();
 
 private:
     USBModeSelector *usbModeSelector;

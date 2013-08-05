@@ -20,6 +20,7 @@
 
 MeeGo::QmUSBMode::Mode testMode = MeeGo::QmUSBMode::Undefined;
 MeeGo::QmUSBMode::Mode testDefaultMode = MeeGo::QmUSBMode::Undefined;
+QList<MeeGo::QmUSBMode::Mode> testSupportedModes;
 
 MeeGo::QmUSBMode::QmUSBMode(QObject *parent)
 {
@@ -50,6 +51,11 @@ bool MeeGo::QmUSBMode::setDefaultMode(MeeGo::QmUSBMode::Mode mode)
 MeeGo::QmUSBMode::Mode MeeGo::QmUSBMode::getDefaultMode()
 {
     return testDefaultMode;
+}
+
+QList<MeeGo::QmUSBMode::Mode> MeeGo::QmUSBMode::getSupportedModes()
+{
+    return testSupportedModes;
 }
 
 void MeeGo::QmUSBMode::connectNotify(const QMetaMethod &)

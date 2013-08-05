@@ -31,6 +31,7 @@ class LIPSTICK_EXPORT USBModeSelector : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool windowVisible READ windowVisible WRITE setWindowVisible NOTIFY windowVisibleChanged)
+    Q_PROPERTY(QList<int> supportedUSBModes READ supportedUSBModes NOTIFY supportedUSBModesChanged)
 
 public:
     explicit USBModeSelector(QObject *parent = 0);
@@ -50,6 +51,13 @@ public:
     void setWindowVisible(bool visible);
 
     /*!
+     * Returns the supported USB modes.
+     *
+     * \return a list of numbers of the supported USB modes
+     */
+    QList<int> supportedUSBModes() const;
+
+    /*!
      * Sets the USB mode to the given mode.
      *
      * \param mode the mode to set
@@ -62,6 +70,9 @@ signals:
 
     //! Sent when the visibility of the window has changed.
     void windowVisibleChanged();
+
+    //! Sent when the supported USB modes have changed.
+    void supportedUSBModesChanged();
 
 private slots:
     /*!
@@ -102,6 +113,9 @@ private:
 
     //! For getting information about the device lock state
     MeeGo::QmLocks *locks;
+
+    //! A list of supported USB modes
+    QList<int> supportedUSBModeList;
 
 #ifdef UNIT_TEST
     friend class Ut_USBModeSelector;
