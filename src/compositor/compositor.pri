@@ -2,6 +2,8 @@ INCLUDEPATH += $$PWD
 
 PUBLICHEADERS += \
     $$PWD/lipstickcompositor.h \
+    $$PWD/lipstickcompositorwindow.h \
+    $$PWD/lipstickcompositorprocwindow.h \
     $$PWD/windowmodel.h \
 
 HEADERS += \
@@ -10,6 +12,8 @@ HEADERS += \
 
 SOURCES += \
     $$PWD/lipstickcompositor.cpp \
+    $$PWD/lipstickcompositorwindow.cpp \
+    $$PWD/lipstickcompositorprocwindow.cpp \
     $$PWD/windowmodel.cpp \
     $$PWD/windowpixmapitem.cpp \
     $$PWD/windowproperty.cpp \

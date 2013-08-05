@@ -14,10 +14,9 @@
 ****************************************************************************/
 
 #include <QDBusConnection>
-
-#include "windowmodel.h"
-
+#include "lipstickcompositorwindow.h"
 #include "lipstickcompositor.h"
+#include "windowmodel.h"
 
 WindowModel::WindowModel()
 : m_complete(false)

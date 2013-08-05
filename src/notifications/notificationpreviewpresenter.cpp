@@ -25,6 +25,13 @@
 #include <qmdisplaystate.h>
 #include <qmlocks.h>
 
+enum PreviewMode {
+    AllNotificationsEnabled = 0,
+    ApplicationNotificationsDisabled,
+    SystemNotificationsDisabled,
+    AllNotificationsDisabled
+};
+
 NotificationPreviewPresenter::NotificationPreviewPresenter(QObject *parent) :
     QObject(parent),
     window(0),
@@ -83,20 +90,27 @@ LipstickNotification *NotificationPreviewPresenter::notification() const
 void NotificationPreviewPresenter::updateNotification(uint id)
 {
     LipstickNotification *notification = NotificationManager::instance()->notification(id);
-    notification->setProperty("id", id);
-    if (notificationShouldBeShown(notification)) {
-        // Add the notification to the queue if not already there or the current notification
-        if (currentNotification != notification && !notificationQueue.contains(notification)) {
-            notificationQueue.append(notification);
 
-            // Show the notification if no notification currently being shown
-            if (currentNotification == 0) {
-                showNextNotification();
+    if (notification != 0) {
+        notification->setProperty("id", id);
+        if (notificationShouldBeShown(notification)) {
+            // Add the notification to the queue if not already there or the current notification
+            if (currentNotification != notification && !notificationQueue.contains(notification)) {
+                notificationQueue.append(notification);
+
+                // Show the notification if no notification currently being shown
+                if (currentNotification == 0) {
+                    showNextNotification();
+                }
+            }
+        } else {
+            // Remove updated notification only from the queue so that a currently visible notification won't suddenly disappear
+            removeNotification(id, true);
+
+            if (currentNotification != notification && notification->hints().value(NotificationManager::HINT_URGENCY).toInt() >= 2) {
+                NotificationManager::instance()->CloseNotification(id);
             }
         }
-    } else {
-        // Remove updated notification only from the queue so that a currently visible notification won't suddenly disappear
-        removeNotification(id, true);
     }
 }
 
@@ -138,7 +152,15 @@ bool NotificationPreviewPresenter::notificationShouldBeShown(LipstickNotificatio
     bool notificationHidden = notification->hints().value(NotificationManager::HINT_HIDDEN).toBool();
     bool notificationHasPreviewText = !(notification->previewBody().isEmpty() && notification->previewSummary().isEmpty());
     int notificationIsCritical = notification->hints().value(NotificationManager::HINT_URGENCY).toInt() >= 2;
-    return !notificationHidden && notificationHasPreviewText && (!screenOrDeviceLocked || notificationIsCritical);
+
+    uint mode = AllNotificationsEnabled;
+    QWaylandSurface *surface = LipstickCompositor::instance()->surfaceForId(LipstickCompositor::instance()->topmostWindowId());
+    if (surface != 0) {
+        mode = surface->windowProperties().value("NOTIFICATION_PREVIEWS_DISABLED", uint(AllNotificationsEnabled)).toUInt();
+    }
+
+    return !notificationHidden && notificationHasPreviewText && (!screenOrDeviceLocked || notificationIsCritical) &&
+            (mode == AllNotificationsEnabled || (mode == ApplicationNotificationsDisabled && notificationIsCritical) || (mode == SystemNotificationsDisabled && !notificationIsCritical));
 }
 
 void NotificationPreviewPresenter::setCurrentNotification(LipstickNotification *notification)

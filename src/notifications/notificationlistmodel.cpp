@@ -40,17 +40,20 @@ void NotificationListModel::init()
 void NotificationListModel::updateNotification(uint id)
 {
     LipstickNotification *notification = NotificationManager::instance()->notification(id);
-    int index = indexOf(notification);
-    if (notificationShouldBeShown(notification)) {
-        // Place the notifications in the model latest first, moving existing notifications if necessary
-        int expectedIndex = indexFor(notification);
-        if (index < 0) {
-            insertItem(expectedIndex, notification);
-        } else if (index != expectedIndex) {
-            move(index, expectedIndex);
+
+    if (notification != 0) {
+        int index = indexOf(notification);
+        if (notificationShouldBeShown(notification)) {
+            // Place the notifications in the model latest first, moving existing notifications if necessary
+            int expectedIndex = indexFor(notification);
+            if (index < 0) {
+                insertItem(expectedIndex, notification);
+            } else if (index != expectedIndex) {
+                move(index, expectedIndex);
+            }
+        } else if (index >= 0) {
+            removeItem(notification);
         }
-    } else if (index >= 0) {
-        removeItem(notification);
     }
 }
 

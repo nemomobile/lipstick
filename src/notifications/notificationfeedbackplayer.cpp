@@ -14,8 +14,17 @@
 ****************************************************************************/
 
 #include <NgfClient>
+#include <QWaylandSurface>
 #include "notificationmanager.h"
 #include "notificationfeedbackplayer.h"
+#include "lipstickcompositor.h"
+
+enum PreviewMode {
+    AllNotificationsEnabled = 0,
+    ApplicationNotificationsDisabled,
+    SystemNotificationsDisabled,
+    AllNotificationsDisabled
+};
 
 NotificationFeedbackPlayer::NotificationFeedbackPlayer(QObject *parent) :
     QObject(parent),
@@ -31,11 +40,13 @@ void NotificationFeedbackPlayer::addNotification(uint id)
 {
     LipstickNotification *notification = NotificationManager::instance()->notification(id);
 
-    // Play the feedback related to the notification if any
-    if (!idToEventId.contains(notification)) {
-        QString feedback = notification->hints().value(NotificationManager::HINT_FEEDBACK).toString();
-        if (!feedback.isEmpty()) {
-            idToEventId.insert(notification, ngfClient->play(feedback, QMap<QString, QVariant>()));
+    if (notification != 0) {
+        // Play the feedback related to the notification if any
+        if (!idToEventId.contains(notification) && isEnabled(notification)) {
+            QString feedback = notification->hints().value(NotificationManager::HINT_FEEDBACK).toString();
+            if (!feedback.isEmpty()) {
+                idToEventId.insert(notification, ngfClient->play(feedback, QMap<QString, QVariant>()));
+            }
         }
     }
 }
@@ -51,4 +62,17 @@ void NotificationFeedbackPlayer::removeNotification(uint id)
             ngfClient->stop(eventId);
         }
     }
+}
+
+bool NotificationFeedbackPlayer::isEnabled(LipstickNotification *notification)
+{
+    uint mode = AllNotificationsEnabled;
+    QWaylandSurface *surface = LipstickCompositor::instance()->surfaceForId(LipstickCompositor::instance()->topmostWindowId());
+    if (surface != 0) {
+        mode = surface->windowProperties().value("NOTIFICATION_PREVIEWS_DISABLED", uint(AllNotificationsEnabled)).toUInt();
+    }
+
+    return mode == AllNotificationsEnabled ||
+           (mode == ApplicationNotificationsDisabled && notification->hints().value(NotificationManager::HINT_URGENCY).toInt() >= 2) ||
+           (mode == SystemNotificationsDisabled && notification->hints().value(NotificationManager::HINT_URGENCY).toInt() < 2);
 }

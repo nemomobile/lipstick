@@ -52,6 +52,9 @@ private slots:
     void removeNotification(uint id);
 
 private:
+    //! Check whether feedbacks should be enabled for the given notification
+    static bool isEnabled(LipstickNotification *notification);
+
     //! Non-graphical feedback player
     Ngf::Client *ngfClient;
 

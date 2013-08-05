@@ -13,13 +13,13 @@
 **
 ****************************************************************************/
 
-#include "windowpixmapitem.h"
-
 #include <QtCore/qmath.h>
 #include <QSGGeometryNode>
 #include <QSGSimpleMaterial>
 #include <QWaylandSurfaceItem>
+#include "lipstickcompositorwindow.h"
 #include "lipstickcompositor.h"
+#include "windowpixmapitem.h"
 
 namespace {
 

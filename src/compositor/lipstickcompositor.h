@@ -37,6 +37,7 @@ class LIPSTICK_EXPORT LipstickCompositor : public QQuickWindow, public QWaylandC
     Q_PROPERTY(bool homeActive READ homeActive WRITE setHomeActive NOTIFY homeActiveChanged)
     Q_PROPERTY(bool debug READ debug CONSTANT)
     Q_PROPERTY(QWaylandSurface* fullscreenSurface READ fullscreenSurface WRITE setFullscreenSurface NOTIFY fullscreenSurfaceChanged)
+    Q_PROPERTY(int topmostWindowId READ topmostWindowId WRITE setTopmostWindowId NOTIFY topmostWindowIdChanged)
 
 public:
     LipstickCompositor();
@@ -57,6 +58,9 @@ public:
     QWaylandSurface *fullscreenSurface() const { return m_fullscreenSurface; }
     void setFullscreenSurface(QWaylandSurface *surface);
 
+    int topmostWindowId() const { return m_topmostWindowId; }
+    void setTopmostWindowId(int id);
+
     bool debug() const;
 
     Q_INVOKABLE QObject *windowForId(int) const;
@@ -64,6 +68,8 @@ public:
     Q_INVOKABLE void clearKeyboardFocus();
 
     LipstickCompositorProcWindow *mapProcWindow(const QString &title, const QString &category, const QRect &);
+
+    QWaylandSurface *surfaceForId(int) const;
 
 signals:
     void windowAdded(QObject *window);
@@ -78,6 +84,7 @@ signals:
 
     void homeActiveChanged();
     void fullscreenSurfaceChanged();
+    void topmostWindowIdChanged();
 
 protected:
      virtual void surfaceAboutToBeDestroyed(QWaylandSurface *surface);
@@ -102,7 +109,6 @@ private:
 
     void surfaceUnmapped(LipstickCompositorProcWindow *item);
 
-    QWaylandSurface *surfaceForId(int) const;
     int windowIdForLink(QWaylandSurface *, uint) const;
 
     void surfaceUnmapped(QWaylandSurface *);
@@ -124,93 +130,7 @@ private:
 
     QQmlComponent *m_shaderEffect;
     QWaylandSurface *m_fullscreenSurface;
-};
-
-class LIPSTICK_EXPORT LipstickCompositorWindow : public QWaylandSurfaceItem
-{
-    Q_OBJECT
-
-    Q_PROPERTY(int windowId READ windowId CONSTANT)
-    Q_PROPERTY(bool isInProcess READ isInProcess CONSTANT)
-
-    Q_PROPERTY(bool delayRemove READ delayRemove WRITE setDelayRemove NOTIFY delayRemoveChanged)
-    Q_PROPERTY(QVariant userData READ userData WRITE setUserData NOTIFY userDataChanged)
-
-    Q_PROPERTY(QString category READ category CONSTANT)
-    Q_PROPERTY(QString title READ title NOTIFY titleChanged)
-    Q_PROPERTY(qint64 processId READ processId CONSTANT)
-
-    Q_PROPERTY(QRect mouseRegionBounds READ mouseRegionBounds NOTIFY mouseRegionBoundsChanged)
-
-public:
-    LipstickCompositorWindow(int windowId, const QString &, QWaylandSurface *surface, QQuickItem *parent = 0);
-
-    QVariant userData() const;
-    void setUserData(QVariant);
-
-    int windowId() const;
-    qint64 processId() const;
-
-    bool delayRemove() const;
-    void setDelayRemove(bool);
-
-    QString category() const;
-    virtual QString title() const;
-    virtual bool isInProcess() const;
-
-    QRect mouseRegionBounds() const;
-
-protected:
-    virtual bool event(QEvent *);
-    virtual void mousePressEvent(QMouseEvent *event);
-    virtual void mouseMoveEvent(QMouseEvent *event);
-    virtual void mouseReleaseEvent(QMouseEvent *event);
-    virtual void wheelEvent(QWheelEvent *event);
-    virtual void touchEvent(QTouchEvent *event);
-
-signals:
-    void userDataChanged();
-    void titleChanged();
-    void delayRemoveChanged();
-    void mouseRegionBoundsChanged();
-
-private:
-    friend class LipstickCompositor;
-    friend class WindowPixmapItem;
-    void imageAddref();
-    void imageRelease();
-
-    bool canRemove() const;
-    void tryRemove();
-    void refreshMouseRegion();
-
-    int m_windowId;
-    QString m_category;
-    int m_ref;
-    bool m_delayRemove:1;
-    bool m_windowClosed:1;
-    bool m_removePosted:1;
-    bool m_mouseRegionValid:1;
-    QVariant m_data;
-    QRegion m_mouseRegion;
-};
-
-class LipstickCompositorProcWindow : public LipstickCompositorWindow
-{
-    Q_OBJECT
-public:
-    void hide();
-
-    virtual bool isInProcess() const;
-    virtual bool isTextureProvider() const { return false; }
-
-    virtual QString title() const;
-    void setTitle(const QString &);
-private:
-    friend class LipstickCompositor;
-    LipstickCompositorProcWindow(int windowId, const QString &, QQuickItem *parent = 0);
-
-    QString m_title;
+    int m_topmostWindowId;
 };
 
 #endif // LIPSTICKCOMPOSITOR_H

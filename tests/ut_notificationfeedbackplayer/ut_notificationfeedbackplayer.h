@@ -28,6 +28,7 @@ signals:
     void timeout();
 
 private slots:
+    void initTestCase();
     void init();
     void cleanup();
 
@@ -35,6 +36,8 @@ private slots:
     void testAddAndRemoveNotification();
     void testWithoutFeedbackId();
     void testUpdateNotificationIsNotPossible();
+    void testNotificationPreviewsDisabled_data();
+    void testNotificationPreviewsDisabled();
 
 private:
     NotificationFeedbackPlayer *player;

@@ -21,17 +21,13 @@
 #include "notificationmanager.h"
 #include "ut_notificationpreviewpresenter.h"
 #include "notificationpreviewpresenter.h"
+#include "lipstickcompositor_stub.h"
 #include "closeeventeater_stub.h"
 #include "qmlocks_stub.h"
 #include "qmdisplaystate_stub.h"
 
 Q_DECLARE_METATYPE(NotificationPreviewPresenter*)
 Q_DECLARE_METATYPE(LipstickNotification*)
-
-LipstickCompositor *LipstickCompositor::instance()
-{
-    return (LipstickCompositor *)1;
-}
 
 QList<QQuickView *> qQuickViews;
 void QQuickView::setSource(const QUrl &)
@@ -121,9 +117,16 @@ LipstickNotification *createNotification(uint id, int urgency = 0)
     return notification;
 }
 
+QVariantMap qWaylandSurfaceWindowProperties;
+QVariantMap QWaylandSurface::windowProperties() const
+{
+    return qWaylandSurfaceWindowProperties;
+}
+
 void Ut_NotificationPreviewPresenter::initTestCase()
 {
     qRegisterMetaType<LipstickNotification *>();
+    gLipstickCompositorStub->stubSetReturnValue("instance", new LipstickCompositor());
     NotificationManager::instance()->setParent(this);
 }
 
@@ -426,6 +429,53 @@ void Ut_NotificationPreviewPresenter::testCriticalNotificationIsClosedAfterShowi
 
     presenter.showNextNotification();
     QCOMPARE(notificationManagerCloseNotificationIds.count(), 1);
+}
+
+QWaylandSurface surface;
+void Ut_NotificationPreviewPresenter::testNotificationPreviewsDisabled_data()
+{
+    QTest::addColumn<QWaylandSurface *>("surface");
+    QTest::addColumn<QVariantMap>("windowProperties");
+    QTest::addColumn<int>("urgency");
+    QTest::addColumn<int>("playCount");
+
+    QVariantMap allNotificationsEnabled;
+    QVariantMap applicationNotificationsDisabled;
+    QVariantMap systemNotificationsDisabled;
+    QVariantMap allNotificationsDisabled;
+    allNotificationsEnabled.insert("NOTIFICATION_PREVIEWS_DISABLED", 0);
+    applicationNotificationsDisabled.insert("NOTIFICATION_PREVIEWS_DISABLED", 1);
+    systemNotificationsDisabled.insert("NOTIFICATION_PREVIEWS_DISABLED", 2);
+    allNotificationsDisabled.insert("NOTIFICATION_PREVIEWS_DISABLED", 3);
+    QTest::newRow("No surface, application notification") << (QWaylandSurface *)0 << QVariantMap() << 1 << 1;
+    QTest::newRow("Surface, no properties, application notification") << &surface << QVariantMap() << 1 << 1;
+    QTest::newRow("Surface, all notifications enabled, application notification") << &surface << allNotificationsEnabled << 1 << 1;
+    QTest::newRow("Surface, application notifications disabled, application notification") << &surface << applicationNotificationsDisabled << 1 << 0;
+    QTest::newRow("Surface, system notifications disabled, application notification") << &surface << systemNotificationsDisabled << 1 << 1;
+    QTest::newRow("Surface, all notifications disabled, application notification") << &surface << allNotificationsDisabled << 1 << 0;
+    QTest::newRow("No surface, system notification") << (QWaylandSurface *)0 << QVariantMap() << 2 << 1;
+    QTest::newRow("Surface, no properties, system notification") << &surface << QVariantMap() << 2 << 1;
+    QTest::newRow("Surface, all notifications enabled, system notification") << &surface << allNotificationsEnabled << 2 << 1;
+    QTest::newRow("Surface, application notifications disabled, system notification") << &surface << applicationNotificationsDisabled << 2 << 1;
+    QTest::newRow("Surface, system notifications disabled, system notification") << &surface << systemNotificationsDisabled << 2 << 0;
+    QTest::newRow("Surface, all notifications disabled, system notification") << &surface << allNotificationsDisabled << 2 << 0;
+}
+
+void Ut_NotificationPreviewPresenter::testNotificationPreviewsDisabled()
+{
+    QFETCH(QWaylandSurface *, surface);
+    QFETCH(QVariantMap, windowProperties);
+    QFETCH(int, urgency);
+    QFETCH(int, playCount);
+
+    gLipstickCompositorStub->stubSetReturnValue("surfaceForId", surface);
+    qWaylandSurfaceWindowProperties = windowProperties;
+
+    NotificationPreviewPresenter presenter;
+    createNotification(1, urgency);
+    presenter.updateNotification(1);
+
+    QCOMPARE(qQuickViews.count(), playCount);
 }
 
 QTEST_MAIN(Ut_NotificationPreviewPresenter)

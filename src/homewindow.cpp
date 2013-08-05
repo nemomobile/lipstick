@@ -21,6 +21,7 @@
 #include <QQmlContext>
 #include <QGuiApplication>
 #include "homeapplication.h"
+#include "compositor/lipstickcompositorprocwindow.h"
 #include "compositor/lipstickcompositor.h"
 
 class HomeWindowPrivate
