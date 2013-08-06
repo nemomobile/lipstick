@@ -106,6 +106,8 @@ void USBModeSelector::applyUSBMode(MeeGo::QmUSBMode::Mode mode)
     case MeeGo::QmUSBMode::SDK:
     case MeeGo::QmUSBMode::MTP:
     case MeeGo::QmUSBMode::Developer:
+    case MeeGo::QmUSBMode::Adb:
+    case MeeGo::QmUSBMode::Diag:
         // Hide the mode selection dialog and show a mode notification
         setWindowVisible(false);
         showNotification(mode);
@@ -138,6 +140,18 @@ void USBModeSelector::showNotification(MeeGo::QmUSBMode::Mode mode)
     case MeeGo::QmUSBMode::Developer:
         //% "SDK mode in use"
         body = qtTrId("qtn_usb_sdk_active");
+        break;
+    case MeeGo::QmUSBMode::MTP:
+        //% "MTP mode in use"
+        body = qtTrId("qtn_usb_mtp_active");
+        break;
+    case MeeGo::QmUSBMode::Adb:
+        //% "Adb mode in use"
+        body = qtTrId("qtn_usb_adb_active");
+        break;
+    case MeeGo::QmUSBMode::Diag:
+        //% "Diag mode in use"
+        body = qtTrId("qtn_usb_diag_active");
         break;
     case MeeGo::QmUSBMode::Disconnected:
         category = "device.removed";

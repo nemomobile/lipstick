@@ -8,8 +8,7 @@ SOURCES += \
     $$SRCDIR/usbmodeselector.cpp \
     $$NOTIFICATIONSRCDIR/lipsticknotification.cpp \
     $$STUBSDIR/stubbase.cpp \
-    ut_usbmodeselector.cpp \
-    $$STUBSDIR/homewindow.cpp \
+    ut_usbmodeselector.cpp
 
 HEADERS += \
     $$SRCDIR/usbmodeselector.h \

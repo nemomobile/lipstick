@@ -14,7 +14,6 @@
 **
 ****************************************************************************/
 #include <QtTest/QtTest>
-#include <QQuickView>
 #include <QQmlContext>
 #include <QScreen>
 #include <usbmodeselector.h>
@@ -22,24 +21,59 @@
 #include "ut_usbmodeselector.h"
 #include "qmlocks_stub.h"
 #include "qmusbmode_stub.h"
-
 #include "notificationmanager_stub.h"
 #include "closeeventeater_stub.h"
+#include "homewindow.h"
 
-QList<QQuickView *> qQuickViews;
-void QQuickView::setSource(const QUrl &)
+HomeWindow::HomeWindow()
 {
-    qQuickViews.append(this);
 }
 
-QHash<QWindow *, bool> qWindowVisible;
-void QWindow::show()
+HomeWindow::~HomeWindow()
 {
-    qWindowVisible[this] = true;
 }
-void QWindow::hide()
+
+QList<HomeWindow *> homeWindows;
+void HomeWindow::setSource(const QUrl &)
 {
-    qWindowVisible[this] = false;
+    homeWindows.append(this);
+}
+
+QHash<HomeWindow *, QString> homeWindowTitle;
+void HomeWindow::setWindowTitle(const QString &title)
+{
+    homeWindowTitle[this] = title;
+}
+
+QHash<HomeWindow *, bool> homeWindowVisible;
+void HomeWindow::show()
+{
+    homeWindowVisible[this] = true;
+}
+
+void HomeWindow::hide()
+{
+    homeWindowVisible[this] = false;
+}
+
+bool HomeWindow::isVisible() const
+{
+    return homeWindowVisible[const_cast<HomeWindow *>(this)];
+}
+
+QHash<HomeWindow *, QVariantMap> homeWindowContextProperties;
+void HomeWindow::setContextProperty(const QString &key, const QVariant &value)
+{
+    homeWindowContextProperties[this].insert(key, value);
+}
+
+void HomeWindow::setContextProperty(const QString &key, QObject *value)
+{
+    homeWindowContextProperties[this].insert(key, QVariant::fromValue(static_cast<QObject *>(value)));
+}
+
+void HomeWindow::setGeometry(const QRect &)
+{
 }
 
 int argc = 1;
@@ -65,8 +99,8 @@ void Ut_USBModeSelector::init()
 void Ut_USBModeSelector::cleanup()
 {
     delete usbModeSelector;
-    qQuickViews.clear();
-    qWindowVisible.clear();
+    homeWindows.clear();
+    homeWindowVisible.clear();
     gNotificationManagerStub->stubReset();
 }
 
@@ -93,22 +127,15 @@ void Ut_USBModeSelector::testShowDialog()
     usbModeSelector->usbMode->setDefaultMode(mode);
     usbModeSelector->applyUSBMode(mode);
 
-    QCOMPARE(qQuickViews.count(), 1);
+    QCOMPARE(homeWindows.count(), 1);
 
     // Check window properties
-    /*
-    QCOMPARE(qQuickViews.first()->testAttribute(Qt::WA_TranslucentBackground), true);
-    QCOMPARE(qQuickViews.first()->testAttribute(Qt::WA_X11DoNotAcceptFocus), true);
-    QCOMPARE(qQuickViews.first()->testAttribute(Qt::WA_X11NetWmWindowTypeMenu), true);
-    QCOMPARE(qQuickViews.first()->windowTitle(), QString("USB Mode"));
-    QCOMPARE(qQuickViews.first()->viewport()->autoFillBackground(), false);
-    */
-    QCOMPARE(qQuickViews.first()->resizeMode(), QQuickView::SizeRootObjectToView);
-    QCOMPARE(qQuickViews.first()->rootContext()->contextProperty("initialSize").toSize(), QGuiApplication::primaryScreen()->size());
-    QCOMPARE(qQuickViews.first()->rootContext()->contextProperty("usbModeSelector"), QVariant::fromValue(static_cast<QObject *>(usbModeSelector)));
+    QCOMPARE(homeWindowTitle[homeWindows.first()], QString("USB Mode"));
+    QCOMPARE(homeWindowContextProperties[homeWindows.first()].value("initialSize").toSize(), QGuiApplication::primaryScreen()->size());
+    QCOMPARE(homeWindowContextProperties[homeWindows.first()].value("usbModeSelector"), QVariant::fromValue(static_cast<QObject *>(usbModeSelector)));
 
     // Check that the window was shown
-    QCOMPARE(qWindowVisible[static_cast<QWindow *>(qQuickViews.first())], true);
+    QCOMPARE(homeWindowVisible[homeWindows.first()], true);
     QCOMPARE(spy.count(), 1);
 }
 
@@ -120,6 +147,10 @@ void Ut_USBModeSelector::testHideDialog_data()
     QTest::newRow("Ovi Suite") << MeeGo::QmUSBMode::OviSuite;
     QTest::newRow("Mass Storage") << MeeGo::QmUSBMode::MassStorage;
     QTest::newRow("SDK") << MeeGo::QmUSBMode::SDK;
+    QTest::newRow("MTP") << MeeGo::QmUSBMode::MTP;
+    QTest::newRow("Developer") << MeeGo::QmUSBMode::Developer;
+    QTest::newRow("Adb") << MeeGo::QmUSBMode::Adb;
+    QTest::newRow("Diag") << MeeGo::QmUSBMode::Diag;
 }
 
 void Ut_USBModeSelector::testHideDialog()
@@ -129,7 +160,7 @@ void Ut_USBModeSelector::testHideDialog()
     usbModeSelector->usbMode->setDefaultMode(MeeGo::QmUSBMode::Ask);
     usbModeSelector->applyUSBMode(MeeGo::QmUSBMode::Ask);
     usbModeSelector->applyUSBMode(mode);
-    QCOMPARE(qWindowVisible[static_cast<QWindow *>(qQuickViews.first())], false);
+    QCOMPARE(homeWindowVisible[homeWindows.first()], false);
 }
 
 void Ut_USBModeSelector::testUSBNotifications_data()
@@ -142,6 +173,10 @@ void Ut_USBModeSelector::testUSBNotifications_data()
     QTest::newRow("Ovi Suite") << MeeGo::QmUSBMode::OviSuite << "device.added" << qtTrId("qtn_usb_sync_active");
     QTest::newRow("Mass Storage") << MeeGo::QmUSBMode::MassStorage << "device.added" << qtTrId("qtn_usb_storage_active");
     QTest::newRow("SDK") << MeeGo::QmUSBMode::SDK << "device.added" << qtTrId("qtn_usb_sdk_active");
+    QTest::newRow("Developer") << MeeGo::QmUSBMode::Developer << "device.added" << qtTrId("qtn_usb_sdk_active");
+    QTest::newRow("MTP") << MeeGo::QmUSBMode::MTP << "device.added" << qtTrId("qtn_usb_mtp_active");
+    QTest::newRow("Adb") << MeeGo::QmUSBMode::Adb << "device.added" << qtTrId("qtn_usb_adb_active");
+    QTest::newRow("Diag") << MeeGo::QmUSBMode::Diag << "device.added" << qtTrId("qtn_usb_diag_active");
 }
 
 void Ut_USBModeSelector::testUSBNotifications()
