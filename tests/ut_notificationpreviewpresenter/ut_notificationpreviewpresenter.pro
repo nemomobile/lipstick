@@ -8,8 +8,7 @@ SOURCES += \
     ut_notificationpreviewpresenter.cpp \
     $$NOTIFICATIONSRCDIR/notificationpreviewpresenter.cpp \
     $$NOTIFICATIONSRCDIR/lipsticknotification.cpp \
-    $$STUBSDIR/stubbase.cpp \
-    $$STUBSDIR/homewindow.cpp \
+    $$STUBSDIR/stubbase.cpp
 
 # unit test and unit
 HEADERS += \

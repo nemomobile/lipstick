@@ -29,20 +29,63 @@
 Q_DECLARE_METATYPE(NotificationPreviewPresenter*)
 Q_DECLARE_METATYPE(LipstickNotification*)
 
-QList<QQuickView *> qQuickViews;
-void QQuickView::setSource(const QUrl &)
+#include "homewindow.h"
+
+HomeWindow::HomeWindow()
 {
-    qQuickViews.append(this);
 }
 
-QHash<QWindow *, bool> qWindowVisible;
-void QWindow::show()
+HomeWindow::~HomeWindow()
 {
-    qWindowVisible[this] = true;
 }
-void QWindow::hide()
+
+QList<HomeWindow *> homeWindows;
+void HomeWindow::setSource(const QUrl &)
 {
-    qWindowVisible[this] = false;
+    homeWindows.append(this);
+}
+
+QHash<HomeWindow *, QString> homeWindowTitle;
+void HomeWindow::setWindowTitle(const QString &title)
+{
+    homeWindowTitle[this] = title;
+}
+
+QHash<HomeWindow *, bool> homeWindowVisible;
+void HomeWindow::show()
+{
+    homeWindowVisible[this] = true;
+}
+
+void HomeWindow::hide()
+{
+    homeWindowVisible[this] = false;
+}
+
+bool HomeWindow::isVisible() const
+{
+    return homeWindowVisible[const_cast<HomeWindow *>(this)];
+}
+
+QHash<HomeWindow *, QVariantMap> homeWindowContextProperties;
+void HomeWindow::setContextProperty(const QString &key, const QVariant &value)
+{
+    homeWindowContextProperties[this].insert(key, value);
+}
+
+void HomeWindow::setContextProperty(const QString &key, QObject *value)
+{
+    homeWindowContextProperties[this].insert(key, QVariant::fromValue(static_cast<QObject *>(value)));
+}
+
+void HomeWindow::setGeometry(const QRect &)
+{
+}
+
+QHash<HomeWindow *, bool> homeWindowIsNotification;
+void HomeWindow::setIsNotification(bool notification)
+{
+    homeWindowIsNotification[this] = notification;
 }
 
 const char *NotificationManager::HINT_CATEGORY = "category";
@@ -132,8 +175,8 @@ void Ut_NotificationPreviewPresenter::initTestCase()
 
 void Ut_NotificationPreviewPresenter::cleanup()
 {
-    qQuickViews.clear();
-    qWindowVisible.clear();
+    homeWindows.clear();
+    homeWindowVisible.clear();
     qDeleteAll(notificationManagerNotification);
     notificationManagerNotification.clear();
     notificationManagerCloseNotificationIds.clear();
@@ -154,27 +197,21 @@ void Ut_NotificationPreviewPresenter::testAddNotificationWhenWindowNotOpen()
     QSignalSpy spy(&presenter, SIGNAL(notificationChanged()));
 
     // Check that the window is not automatically created
-    QCOMPARE(qQuickViews.isEmpty(), true);
+    QCOMPARE(homeWindows.isEmpty(), true);
 
     // Check that the window is created when a notification is added
     LipstickNotification *notification = createNotification(1);
     presenter.updateNotification(1);
-    QCOMPARE(qQuickViews.count(), 1);
+    QCOMPARE(homeWindows.count(), 1);
 
     // Check window properties
-/*
-    QCOMPARE(qDeclarativeViews.first()->testAttribute(Qt::WA_TranslucentBackground), true);
-    QCOMPARE(qDeclarativeViews.first()->testAttribute(Qt::WA_X11DoNotAcceptFocus), true);
-    QCOMPARE(qDeclarativeViews.first()->testAttribute(Qt::WA_X11NetWmWindowTypeNotification), true);
-    QCOMPARE(qDeclarativeViews.first()->windowTitle(), QString("Notification"));
-    QCOMPARE(qDeclarativeViews.first()->viewport()->autoFillBackground(), false);
-    */
-    QCOMPARE(qQuickViews.first()->resizeMode(), QQuickView::SizeRootObjectToView);
-    QCOMPARE(qQuickViews.first()->rootContext()->contextProperty("initialSize").toSize(), QGuiApplication::primaryScreen()->size());
-    QCOMPARE(qQuickViews.first()->rootContext()->contextProperty("notificationPreviewPresenter"), QVariant::fromValue(static_cast<QObject *>(&presenter)));
+    QCOMPARE(homeWindowTitle[homeWindows.first()], QString("Notification"));
+    QCOMPARE(homeWindowContextProperties[homeWindows.first()].value("initialSize").toSize(), QGuiApplication::primaryScreen()->size());
+    QCOMPARE(homeWindowContextProperties[homeWindows.first()].value("notificationPreviewPresenter"), QVariant::fromValue(static_cast<QObject *>(&presenter)));
+    QCOMPARE(homeWindowIsNotification[homeWindows.first()], true);
 
     // Check that the window was shown
-    QCOMPARE(qWindowVisible[static_cast<QWindow *>(qQuickViews.first())], true);
+    QCOMPARE(homeWindowVisible[homeWindows.first()], true);
 
     // Check that the expected notification is signaled onwards
     QCOMPARE(spy.count(), 1);
@@ -191,7 +228,7 @@ void Ut_NotificationPreviewPresenter::testAddNotificationWhenWindowAlreadyOpen()
     presenter.updateNotification(1);
 
     // Reset stubs to see what happens next
-    qQuickViews.clear();
+    homeWindows.clear();
 
     // Create another notification
     LipstickNotification *notification = createNotification(2);
@@ -204,7 +241,7 @@ void Ut_NotificationPreviewPresenter::testAddNotificationWhenWindowAlreadyOpen()
     presenter.showNextNotification();
 
     // Check that the window was not unnecessarily created again
-    QCOMPARE(qQuickViews.isEmpty(), true);
+    QCOMPARE(homeWindows.isEmpty(), true);
 
     // Check that the expected notification is signaled onwards
     QCOMPARE(spy.count(), 2);
@@ -257,11 +294,11 @@ void Ut_NotificationPreviewPresenter::testRemoveNotification()
     QCOMPARE(presenter.notification(), (LipstickNotification *)0);
 
     // Check that the window is not yet hidden
-    QCOMPARE(qWindowVisible[static_cast<QWindow *>(qQuickViews.first())], true);
+    QCOMPARE(homeWindowVisible[homeWindows.first()], true);
 
     // Check that the window is hidden when it's time to show the next notification (which doesn't exist)
     presenter.showNextNotification();
-    QCOMPARE(qWindowVisible[static_cast<QWindow *>(qQuickViews.first())], false);
+    QCOMPARE(homeWindowVisible[homeWindows.first()], false);
 }
 
 void Ut_NotificationPreviewPresenter::testNotificationNotShownIfNoSummaryOrBody_data()
@@ -298,10 +335,10 @@ void Ut_NotificationPreviewPresenter::testNotificationNotShownIfNoSummaryOrBody(
     // Check whether the expected notification is signaled onwards
     QCOMPARE(spy.count(), signalCount);
 
-    QCOMPARE(qWindowVisible.isEmpty(), !windowVisible);
+    QCOMPARE(homeWindowVisible.isEmpty(), !windowVisible);
     if (windowVisible) {
         // Check whether the window was shown
-        QCOMPARE(qWindowVisible[static_cast<QWindow *>(qQuickViews.first())], windowVisible);
+        QCOMPARE(homeWindowVisible[homeWindows.first()], windowVisible);
     }
 }
 
@@ -321,7 +358,7 @@ void Ut_NotificationPreviewPresenter::testNotificationNotShownIfHidden()
     presenter.updateNotification(1);
 
     QCOMPARE(spy.count(), 0);
-    QCOMPARE(qWindowVisible.isEmpty(), true);
+    QCOMPARE(homeWindowVisible.isEmpty(), true);
 }
 
 void Ut_NotificationPreviewPresenter::testShowingOnlyCriticalNotifications()
@@ -337,21 +374,21 @@ void Ut_NotificationPreviewPresenter::testShowingOnlyCriticalNotifications()
     hints.insert(NotificationManager::HINT_URGENCY, 1);
     notification->setHints(hints);
     notificationManagerNotification.insert(1, notification);
-    QCOMPARE(qWindowVisible.isEmpty(), true);
+    QCOMPARE(homeWindowVisible.isEmpty(), true);
 
     // When the screen or device is locked and the urgency is not high enough, so the notification shouldn't be shown
     gQmLocksStub->stubSetReturnValue("getState", MeeGo::QmLocks::Locked);
     presenter.updateNotification(1);
     QCOMPARE(spy.count(), 0);
-    QCOMPARE(qWindowVisible.isEmpty(), true);
+    QCOMPARE(homeWindowVisible.isEmpty(), true);
 
     // Urgency set to critical, so the notification should be shown
     hints.insert(NotificationManager::HINT_URGENCY, 2);
     notification->setHints(hints);
     presenter.updateNotification(1);
     QCOMPARE(spy.count(), 1);
-    QCOMPARE(qWindowVisible.isEmpty(), false);
-    QCOMPARE(qWindowVisible[static_cast<QWindow *>(qQuickViews.first())], true);
+    QCOMPARE(homeWindowVisible.isEmpty(), false);
+    QCOMPARE(homeWindowVisible[homeWindows.first()], true);
 }
 
 void Ut_NotificationPreviewPresenter::testUpdateNotificationRemovesNotificationFromQueueIfNotShowable()
@@ -408,7 +445,7 @@ void Ut_NotificationPreviewPresenter::testNotificationNotShownIfTouchScreenIsLoc
 
     createNotification(1, 2);
     presenter.updateNotification(1);
-    QCOMPARE(qQuickViews.count(), notifications);
+    QCOMPARE(homeWindows.count(), notifications);
     QCOMPARE(spy.count(), notifications);
 }
 
@@ -475,7 +512,7 @@ void Ut_NotificationPreviewPresenter::testNotificationPreviewsDisabled()
     createNotification(1, urgency);
     presenter.updateNotification(1);
 
-    QCOMPARE(qQuickViews.count(), playCount);
+    QCOMPARE(homeWindows.count(), playCount);
 }
 
 QTEST_MAIN(Ut_NotificationPreviewPresenter)
