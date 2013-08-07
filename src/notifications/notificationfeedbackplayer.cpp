@@ -15,9 +15,10 @@
 
 #include <NgfClient>
 #include <QWaylandSurface>
-#include "notificationmanager.h"
-#include "notificationfeedbackplayer.h"
 #include "lipstickcompositor.h"
+#include "notificationmanager.h"
+#include "notificationpreviewpresenter.h"
+#include "notificationfeedbackplayer.h"
 
 enum PreviewMode {
     AllNotificationsEnabled = 0,
@@ -26,11 +27,12 @@ enum PreviewMode {
     AllNotificationsDisabled
 };
 
-NotificationFeedbackPlayer::NotificationFeedbackPlayer(QObject *parent) :
-    QObject(parent),
-    ngfClient(new Ngf::Client(this))
+NotificationFeedbackPlayer::NotificationFeedbackPlayer(NotificationPreviewPresenter *notificationPreviewPresenter) :
+    QObject(notificationPreviewPresenter),
+    ngfClient(new Ngf::Client(this)),
+    notificationPreviewPresenter(notificationPreviewPresenter)
 {
-    connect(NotificationManager::instance(), SIGNAL(notificationModified(uint)), this, SLOT(addNotification(uint)));
+    connect(notificationPreviewPresenter, SIGNAL(notificationChanged()), this, SLOT(addNotification()));
     connect(NotificationManager::instance(), SIGNAL(notificationRemoved(uint)), this, SLOT(removeNotification(uint)));
 
     QTimer::singleShot(0, this, SLOT(init()));
@@ -45,10 +47,9 @@ void NotificationFeedbackPlayer::init()
     }
 }
 
-void NotificationFeedbackPlayer::addNotification(uint id)
+void NotificationFeedbackPlayer::addNotification()
 {
-    LipstickNotification *notification = NotificationManager::instance()->notification(id);
-
+    LipstickNotification *notification = notificationPreviewPresenter->notification();
     if (notification != 0) {
         // Play the feedback related to the notification if any
         if (!idToEventId.contains(notification) && isEnabled(notification)) {

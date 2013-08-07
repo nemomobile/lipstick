@@ -16,6 +16,7 @@
 #include <QtTest/QtTest>
 #include "notificationmanager.h"
 #include "notificationfeedbackplayer.h"
+#include "notificationpreviewpresenter_stub.h"
 #include "lipstickcompositor_stub.h"
 #include "ngfclient_stub.h"
 #include "ut_notificationfeedbackplayer.h"
@@ -87,6 +88,7 @@ LipstickNotification *createNotification(uint id, int urgency = 0)
     hints.insert(NotificationManager::HINT_URGENCY, urgency);
     notification->setHints(hints);
     notificationManagerNotification.insert(id, notification);
+    gNotificationPreviewPresenterStub->stubSetReturnValue("notification", notification);
     return notification;
 }
 
@@ -121,6 +123,7 @@ void Ut_NotificationFeedbackPlayer::cleanup()
     delete player;
 
     gClientStub->stubReset();
+    gNotificationPreviewPresenterStub->stubReset();
 }
 
 void Ut_NotificationFeedbackPlayer::testAddAndRemoveNotification()
@@ -129,7 +132,7 @@ void Ut_NotificationFeedbackPlayer::testAddAndRemoveNotification()
 
     // Create a notification
     createNotification(1);
-    player->addNotification(1);
+    player->addNotification();
 
     // Check that NGFAdapter::play() was called for the feedback
     QCOMPARE(gClientStub->stubCallCount("play"), 1);
@@ -152,7 +155,7 @@ void Ut_NotificationFeedbackPlayer::testWithoutFeedbackId()
     // Create a notification
     LipstickNotification *notification = createNotification(1);
     notification->setHints(QVariantHash());
-    player->addNotification(1);
+    player->addNotification();
 
     // Check that NGFAdapter::play() was not called for the feedback
     QCOMPARE(gClientStub->stubCallCount("play"), 0);
@@ -162,13 +165,13 @@ void Ut_NotificationFeedbackPlayer::testUpdateNotificationIsNotPossible()
 {
     // Create a notification
     LipstickNotification *notification = createNotification(1);
-    player->addNotification(1);
+    player->addNotification();
 
     // Update the notification
     QVariantHash hints;
     hints.insert(NotificationManager::HINT_FEEDBACK, "feedback2");
     notification->setHints(hints);
-    player->addNotification(1);
+    player->addNotification();
 
     // Check that NGFAdapter::play() was only called for the first feedback
     QCOMPARE(gClientStub->stubCallCount("play"), 1);
@@ -184,7 +187,7 @@ void Ut_NotificationFeedbackPlayer::testUpdateNotificationIsNotPossibleAfterRest
     player = new NotificationFeedbackPlayer;
 
     // Update the notification
-    player->addNotification(1);
+    player->addNotification();
 
     // Check that NGFAdapter::play() was not called
     QCOMPARE(gClientStub->stubCallCount("play"), 0);
@@ -231,7 +234,7 @@ void Ut_NotificationFeedbackPlayer::testNotificationPreviewsDisabled()
     qWaylandSurfaceWindowProperties = windowProperties;
 
     createNotification(1, urgency);
-    player->addNotification(1);
+    player->addNotification();
 
     QCOMPARE(gClientStub->stubCallCount("play"), playCount);
 }
