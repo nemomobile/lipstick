@@ -26,6 +26,7 @@ class ScreenLockStub : public StubBase {
   public:
   virtual void ScreenLockConstructor(QObject *parent);
   virtual void ScreenLockDestructor();
+  virtual void displayStatusChanged(const QString &mode);
   virtual int tklock_open(const QString &service, const QString &path, const QString &interface, const QString &method, uint mode, bool silent, bool flicker);
   virtual int tklock_close(bool silent);
   virtual void toggleScreenLockUI(bool toggle);
@@ -51,6 +52,14 @@ void ScreenLockStub::ScreenLockConstructor(QObject *parent) {
 void ScreenLockStub::ScreenLockDestructor() {
 
 }
+
+void ScreenLockStub::displayStatusChanged(const QString &mode)
+{
+  QList<ParameterBase*> params;
+  params.append( new Parameter<const QString &>(mode));
+  stubMethodEntered("displayStatusChanged",params);
+}
+
 int ScreenLockStub::tklock_open(const QString &service, const QString &path, const QString &interface, const QString &method, uint mode, bool silent, bool flicker) {
   QList<ParameterBase*> params;
   params.append( new Parameter<const QString & >(service));
@@ -146,6 +155,11 @@ ScreenLock::ScreenLock(QObject *parent) {
 
 ScreenLock::~ScreenLock() {
   gScreenLockStub->ScreenLockDestructor();
+}
+
+void ScreenLock::displayStatusChanged(const QString &mode)
+{
+    gScreenLockStub->displayStatusChanged(mode);
 }
 
 int ScreenLock::tklock_open(const QString &service, const QString &path, const QString &interface, const QString &method, uint mode, bool silent, bool flicker) {
