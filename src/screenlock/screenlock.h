@@ -112,6 +112,9 @@ signals:
     //! Emitted when the screen lock state changes
     void screenIsLocked(bool locked);
 
+private slots:
+    void displayStatusChanged(const QString &mode);
+
 private:
     enum TkLockReply {
         TkLockReplyFailed = 0,

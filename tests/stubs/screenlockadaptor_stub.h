@@ -26,6 +26,7 @@ class ScreenLockAdaptorStub : public StubBase {
   public:
   virtual void ScreenLockAdaptorConstructor(ScreenLock *parent);
   virtual void ScreenLockAdaptorDestructor();
+  virtual void displayStatusChanged(const QString &mode);
   virtual int tklock_close(bool silent);
   virtual int tklock_open(const QString &service, const QString &path, const QString &interface, const QString &method, uint mode, bool silent, bool flicker);
 }; 
@@ -38,6 +39,13 @@ void ScreenLockAdaptorStub::ScreenLockAdaptorConstructor(ScreenLock *parent) {
 void ScreenLockAdaptorStub::ScreenLockAdaptorDestructor() {
 
 }
+
+void ScreenLockAdaptorStub::displayStatusChanged(const QString &mode) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<const QString & >(mode));
+  stubMethodEntered("displayStatusChanged",params);
+}
+
 int ScreenLockAdaptorStub::tklock_close(bool silent) {
   QList<ParameterBase*> params;
   params.append( new Parameter<bool >(silent));
