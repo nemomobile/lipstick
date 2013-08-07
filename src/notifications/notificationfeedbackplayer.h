@@ -37,6 +37,9 @@ public:
     explicit NotificationFeedbackPlayer(QObject *parent = 0);
     
 private slots:
+    //! Initializes the feedback player
+    void init();
+
     /*!
      * Adds the notification with the given ID.
      *

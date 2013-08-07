@@ -36,6 +36,7 @@ private slots:
     void testAddAndRemoveNotification();
     void testWithoutFeedbackId();
     void testUpdateNotificationIsNotPossible();
+    void testUpdateNotificationIsNotPossibleAfterRestart();
     void testNotificationPreviewsDisabled_data();
     void testNotificationPreviewsDisabled();
 

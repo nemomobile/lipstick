@@ -30,10 +30,19 @@ NotificationFeedbackPlayer::NotificationFeedbackPlayer(QObject *parent) :
     QObject(parent),
     ngfClient(new Ngf::Client(this))
 {
-    ngfClient->connect();
-
     connect(NotificationManager::instance(), SIGNAL(notificationModified(uint)), this, SLOT(addNotification(uint)));
     connect(NotificationManager::instance(), SIGNAL(notificationRemoved(uint)), this, SLOT(removeNotification(uint)));
+
+    QTimer::singleShot(0, this, SLOT(init()));
+}
+
+void NotificationFeedbackPlayer::init()
+{
+    ngfClient->connect();
+
+    foreach(uint id, NotificationManager::instance()->notificationIds()) {
+        idToEventId.insert(NotificationManager::instance()->notification(id), 0);
+    }
 }
 
 void NotificationFeedbackPlayer::addNotification(uint id)

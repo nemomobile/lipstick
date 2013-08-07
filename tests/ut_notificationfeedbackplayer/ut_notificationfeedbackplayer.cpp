@@ -74,6 +74,11 @@ LipstickNotification *NotificationManager::notification(uint id) const
     return notificationManagerNotification.value(id);
 }
 
+QList<uint> NotificationManager::notificationIds() const
+{
+    return notificationManagerNotification.keys();
+}
+
 LipstickNotification *createNotification(uint id, int urgency = 0)
 {
     LipstickNotification *notification = new LipstickNotification;
@@ -89,6 +94,16 @@ QVariantMap qWaylandSurfaceWindowProperties;
 QVariantMap QWaylandSurface::windowProperties() const
 {
     return qWaylandSurfaceWindowProperties;
+}
+
+void QTimer::singleShot(int, const QObject *receiver, const char *member)
+{
+    // The "member" string is of form "1member()", so remove the trailing 1 and the ()
+    int memberLength = strlen(member) - 3;
+    char modifiedMember[memberLength + 1];
+    strncpy(modifiedMember, member + 1, memberLength);
+    modifiedMember[memberLength] = 0;
+    QMetaObject::invokeMethod(const_cast<QObject *>(receiver), modifiedMember, Qt::DirectConnection);
 }
 
 void Ut_NotificationFeedbackPlayer::initTestCase()
@@ -158,6 +173,21 @@ void Ut_NotificationFeedbackPlayer::testUpdateNotificationIsNotPossible()
     // Check that NGFAdapter::play() was only called for the first feedback
     QCOMPARE(gClientStub->stubCallCount("play"), 1);
     QCOMPARE(gClientStub->stubLastCallTo("play").parameter<QString>(0), QString("feedback"));
+}
+
+void Ut_NotificationFeedbackPlayer::testUpdateNotificationIsNotPossibleAfterRestart()
+{
+    delete player;
+
+    // Create a notification
+    createNotification(1);
+    player = new NotificationFeedbackPlayer;
+
+    // Update the notification
+    player->addNotification(1);
+
+    // Check that NGFAdapter::play() was not called
+    QCOMPARE(gClientStub->stubCallCount("play"), 0);
 }
 
 QWaylandSurface surface;
