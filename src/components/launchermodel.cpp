@@ -108,6 +108,7 @@ void LauncherModel::monitoredFileChanged(const QString &changedPath)
         } else if (!(item->isStillValid() && item->shouldDisplay())) {
             LAUNCHER_DEBUG(item->filePath() << "no longer a valid .desktop entry");
             removeItem(item);
+            savePositions();
         }
     }
 }
