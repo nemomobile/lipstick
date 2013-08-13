@@ -1,5 +1,6 @@
 system(qdbusxml2cpp notifications/notificationmanager.xml -a notifications/notificationmanageradaptor -c NotificationManagerAdaptor -l NotificationManager -i notificationmanager.h)
 system(qdbusxml2cpp screenlock/screenlock.xml -a screenlock/screenlockadaptor -c ScreenLockAdaptor -l ScreenLock -i screenlock.h)
+system(qdbusxml2cpp devicelock/devicelock.xml -a devicelock/devicelockadaptor -c DeviceLockAdaptor -l DeviceLock -i devicelock.h)
 
 TEMPLATE = lib
 TARGET = lipstick-qt5
@@ -56,7 +57,8 @@ HEADERS += \
     volume/volumecontrol.h \
     volume/pulseaudiocontrol.h \
     lipstickapi.h \
-
+    devicelock/devicelockadaptor.h \
+    devicelock/devicelock.h \
 
 SOURCES += \
     homeapplication.cpp \
@@ -84,6 +86,8 @@ SOURCES += \
     shutdownscreen.cpp \
     connectionselector.cpp \
     lipstickapi.cpp \
+    devicelock/devicelockadaptor.cpp \
+    devicelock/devicelock.cpp \
 
 CONFIG += link_pkgconfig mobility qt warn_on depend_includepath qmake_cache target_qt
 CONFIG -= link_prl

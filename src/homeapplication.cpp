@@ -29,6 +29,8 @@
 #include "notifications/diskspacenotifier.h"
 #include "screenlock/screenlock.h"
 #include "screenlock/screenlockadaptor.h"
+#include "devicelock/devicelock.h"
+#include "devicelock/devicelockadaptor.h"
 #include "lipsticksettings.h"
 #include "homeapplication.h"
 #include "homewindow.h"
@@ -84,6 +86,9 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     LipstickSettings::instance()->setScreenLock(screenLock);
     new ScreenLockAdaptor(screenLock);
 
+    deviceLock = new DeviceLock(this);
+    new DeviceLockAdaptor(deviceLock);
+
     volumeControl = new VolumeControl;
     new BatteryNotifier(this);
     new DiskSpaceNotifier(this);
@@ -101,6 +106,16 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     }
     if (!systemBus.registerObject(SCREENLOCK_DBUS_PATH, screenLock)) {
         qWarning("Unable to register screen lock object at path %s: %s", SCREENLOCK_DBUS_PATH, systemBus.lastError().message().toUtf8().constData());
+    }
+
+    // usb-moded expects the service to be registered on the system bus
+    static const char *DEVICELOCK_DBUS_SERVICE = "org.nemomobile.lipstick";
+    static const char *DEVICELOCK_DBUS_PATH = "/devicelock";
+    if (!systemBus.registerService(DEVICELOCK_DBUS_SERVICE)) {
+        qWarning("Unable to register device lock D-Bus service %s: %s", DEVICELOCK_DBUS_SERVICE, systemBus.lastError().message().toUtf8().constData());
+    }
+    if (!systemBus.registerObject(DEVICELOCK_DBUS_PATH, deviceLock)) {
+        qWarning("Unable to register device lock object at path %s: %s", DEVICELOCK_DBUS_PATH, systemBus.lastError().message().toUtf8().constData());
     }
 }
 
@@ -224,6 +239,8 @@ HomeWindow *HomeApplication::mainWindowInstance()
     // Setting up the context and engine things
     _mainWindowInstance->setContextProperty("initialSize", QGuiApplication::primaryScreen()->size());
     _mainWindowInstance->setContextProperty("LipstickSettings", LipstickSettings::instance());
+    _mainWindowInstance->setContextProperty("deviceLock", deviceLock);
+
     QObject::connect(_mainWindowInstance->engine(), SIGNAL(quit()), qApp, SLOT(quit()));
 
     // Setting the source, if present
