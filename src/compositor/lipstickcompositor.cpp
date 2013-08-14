@@ -174,7 +174,31 @@ void LipstickCompositor::setTopmostWindowId(int id)
 void LipstickCompositor::surfaceAboutToBeDestroyed(QWaylandSurface *surface)
 {
     Q_ASSERT(surface);
-    surfaceUnmapped(static_cast<QWaylandSurface *>(surface));
+    LipstickCompositorWindow *item = static_cast<LipstickCompositorWindow *>(surface->surfaceItem());
+    surface->setSurfaceItem(0);
+
+    if (surface == m_fullscreenSurface)
+        setFullscreenSurface(0);
+
+    if (item) {
+        int id = item->windowId();
+
+        int gc = ghostWindowCount();
+        m_mappedSurfaces.remove(item->windowId());
+
+        emit windowCountChanged();
+        emit windowRemoved(item);
+
+        item->m_windowClosed = true;
+        item->tryRemove();
+
+        if (gc != ghostWindowCount())
+            emit ghostWindowCountChanged();
+
+        windowRemoved(id);
+
+        emit availableWinIdsChanged();
+    }
 }
 
 void LipstickCompositor::surfaceMapped()
@@ -187,10 +211,11 @@ void LipstickCompositor::surfaceMapped()
     QVariantMap properties = surface->windowProperties();
     QString category = properties.value("CATEGORY").toString();
 
-    Q_ASSERT(surface->surfaceItem() == 0);
+    if (surface->surfaceItem())
+        return;
 
+    // The surface was mapped for the first time
     int id = m_nextWindowId++;
-
     LipstickCompositorWindow *item = new LipstickCompositorWindow(id, category, surface, contentItem());
     item->setSize(surface->size());
     QObject::connect(item, SIGNAL(destroyed(QObject*)), this, SLOT(windowDestroyed()));
@@ -283,31 +308,8 @@ void LipstickCompositor::windowPropertyChanged(const QString &property)
 
 void LipstickCompositor::surfaceUnmapped(QWaylandSurface *surface)
 {
-    LipstickCompositorWindow *item = static_cast<LipstickCompositorWindow *>(surface->surfaceItem());
-    surface->setSurfaceItem(0);
-
     if (surface == m_fullscreenSurface)
         setFullscreenSurface(0);
-
-    if (item) {
-        int id = item->windowId();
-
-        int gc = ghostWindowCount();
-        m_mappedSurfaces.remove(item->windowId());
-
-        emit windowCountChanged();
-        emit windowRemoved(item);
-
-        item->m_windowClosed = true;
-        item->tryRemove();
-
-        if (gc != ghostWindowCount())
-            emit ghostWindowCountChanged();
-
-        windowRemoved(id);
-
-        emit availableWinIdsChanged();
-    }
 }
 
 void LipstickCompositor::surfaceUnmapped(LipstickCompositorProcWindow *item)
