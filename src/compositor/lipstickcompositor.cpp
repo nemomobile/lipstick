@@ -23,7 +23,7 @@ LipstickCompositor *LipstickCompositor::m_instance = 0;
 
 LipstickCompositor::LipstickCompositor()
 : QWaylandCompositor(this), m_totalWindowCount(0), m_nextWindowId(1), m_homeActive(true), m_shaderEffect(0),
-  m_fullscreenSurface(0), m_topmostWindowId(0)
+  m_fullscreenSurface(0), m_directRenderingActive(false), m_topmostWindowId(0)
 {
     if (m_instance) qFatal("LipstickCompositor: Only one compositor instance per process is supported");
     m_instance = this;
@@ -146,8 +146,15 @@ void LipstickCompositor::setFullscreenSurface(QWaylandSurface *surface)
     if (surface == m_fullscreenSurface)
         return;
     m_fullscreenSurface = surface;
-    if (!setDirectRenderSurface(m_fullscreenSurface, openglContext()))
+
+    const bool directRenderingSucceeded = setDirectRenderSurface(m_fullscreenSurface, openglContext());
+    if (surface && !directRenderingSucceeded)
         qWarning() << Q_FUNC_INFO << "failed to set direct render surface";
+    if ((surface && directRenderingSucceeded) != m_directRenderingActive) {
+        m_directRenderingActive = surface && directRenderingSucceeded;
+        emit directRenderingActiveChanged();
+    }
+
     emit fullscreenSurfaceChanged();
 }
 
