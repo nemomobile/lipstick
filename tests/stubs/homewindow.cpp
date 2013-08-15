@@ -23,12 +23,12 @@ class HomeWindowPrivate : public QQuickView
 {
 public:
     HomeWindowPrivate();
+    QString category;
     bool isVisible;
-    bool isNotification;
 };
 
 HomeWindowPrivate::HomeWindowPrivate()
-: isVisible(false), isNotification(false)
+: isVisible(false)
 {
 }
 
@@ -93,14 +93,14 @@ QList<QQmlError> HomeWindow::errors() const
     return d->errors();
 }
 
-bool HomeWindow::isNotification() const
+QString HomeWindow::category() const
 {
-    return d->isNotification;
+    return d->category;
 }
 
-void HomeWindow::setIsNotification(bool n)
+void HomeWindow::setCategory(const QString &category)
 {
-    d->isNotification = n;
+    d->category = category;
 }
 
 void HomeWindow::resize(const QSize &s)
