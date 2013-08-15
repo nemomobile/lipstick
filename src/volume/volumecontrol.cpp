@@ -80,7 +80,7 @@ void VolumeControl::setWindowVisible(bool visible)
         if (window == 0) {
             window = new HomeWindow();
             window->setGeometry(QRect(QPoint(), QGuiApplication::primaryScreen()->size()));
-            window->setIsNotification(true);
+            window->setCategory(QLatin1String("notification"));
             window->setWindowTitle("Volume");
             window->setContextProperty("initialSize", QGuiApplication::primaryScreen()->size());
             window->setContextProperty("volumeControl", this);

@@ -43,8 +43,8 @@ public:
     bool hasErrors() const;
     QList<QQmlError> errors() const;
 
-    bool isNotification() const;
-    void setIsNotification(bool);
+    QString category() const;
+    void setCategory(const QString &category);
 
     void resize(const QSize &);
     void setGeometry(const QRect &);
