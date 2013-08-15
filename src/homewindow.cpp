@@ -37,8 +37,8 @@ public:
     static void checkMode();
 
     bool isVisible:1;
-    bool isNotification:1;
     QString title;
+    QString category;
     QRect geometry;
     QQuickWindow *window;
     LipstickCompositorProcWindow *compositorWindow;
@@ -50,7 +50,7 @@ public:
 HomeWindowPrivate::Mode HomeWindowPrivate::mode = HomeWindowPrivate::Unknown;
 
 HomeWindowPrivate::HomeWindowPrivate()
-: isVisible(false), isNotification(false), window(0), compositorWindow(0), context(0), root(0)
+: isVisible(false), window(0), compositorWindow(0), context(0), root(0)
 {
     checkMode();
     if (0 == HomeApplication::instance())
@@ -122,7 +122,7 @@ void HomeWindow::show()
     if (d->isWindow()) {
         d->window->show();
     } else {
-        d->compositorWindow = LipstickCompositor::instance()->mapProcWindow(d->title, d->isNotification?QString("notification"):QString(), d->geometry);
+        d->compositorWindow = LipstickCompositor::instance()->mapProcWindow(d->title, d->category, d->geometry);
         if (d->root) d->root->setParentItem(d->compositorWindow);
     }
 }
@@ -150,7 +150,7 @@ void HomeWindow::showFullScreen()
     if (d->isWindow()) {
         d->window->showFullScreen();
     } else {
-        d->compositorWindow = LipstickCompositor::instance()->mapProcWindow(d->title, d->isNotification?QString("notification"):QString(), d->geometry);
+        d->compositorWindow = LipstickCompositor::instance()->mapProcWindow(d->title, d->category, d->geometry);
         if (d->root) d->root->setParentItem(d->compositorWindow);
     }
 }
@@ -204,14 +204,14 @@ bool HomeWindow::hasErrors() const
     return !d->errors.isEmpty();
 }
 
-bool HomeWindow::isNotification() const
+QString HomeWindow::category() const
 {
-    return d->isNotification;
+    return d->category;
 }
 
-void HomeWindow::setIsNotification(bool n)
+void HomeWindow::setCategory(const QString &category)
 {
-    d->isNotification = n;
+    d->category = category;
 }
 
 QList<QQmlError> HomeWindow::errors() const

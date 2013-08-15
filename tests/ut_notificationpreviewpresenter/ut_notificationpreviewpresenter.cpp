@@ -82,10 +82,11 @@ void HomeWindow::setGeometry(const QRect &)
 {
 }
 
-QHash<HomeWindow *, bool> homeWindowIsNotification;
-void HomeWindow::setIsNotification(bool notification)
+QHash<HomeWindow *, QString> homeWindowCategories;
+
+void HomeWindow::setCategory(const QString &category)
 {
-    homeWindowIsNotification[this] = notification;
+    homeWindowCategories[this] = category;
 }
 
 const char *NotificationManager::HINT_CATEGORY = "category";
@@ -208,7 +209,7 @@ void Ut_NotificationPreviewPresenter::testAddNotificationWhenWindowNotOpen()
     QCOMPARE(homeWindowTitle[homeWindows.first()], QString("Notification"));
     QCOMPARE(homeWindowContextProperties[homeWindows.first()].value("initialSize").toSize(), QGuiApplication::primaryScreen()->size());
     QCOMPARE(homeWindowContextProperties[homeWindows.first()].value("notificationPreviewPresenter"), QVariant::fromValue(static_cast<QObject *>(&presenter)));
-    QCOMPARE(homeWindowIsNotification[homeWindows.first()], true);
+    QCOMPARE(homeWindowCategories[homeWindows.first()], QString("notification"));
 
     // Check that the window was shown
     QCOMPARE(homeWindowVisible[homeWindows.first()], true);
