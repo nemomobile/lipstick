@@ -4,7 +4,7 @@ system(qdbusxml2cpp devicelock/devicelock.xml -a devicelock/devicelockadaptor -c
 
 TEMPLATE = lib
 TARGET = lipstick-qt5
-VERSION = 0.13.8
+VERSION = 0.14.0
 
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x000000
 DEFINES += LIPSTICK_BUILD_LIBRARY VERSION=\\\"$$VERSION\\\"
