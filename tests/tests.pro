@@ -3,6 +3,7 @@ SUBDIRS = \
           ut_batterynotifier \
           ut_categorydefinitionstore \
           ut_closeeventeater \
+          ut_devicelock \
           ut_diskspacenotifier \
           ut_lipsticksettings \
           ut_lowbatterynotifier \

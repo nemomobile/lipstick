@@ -52,8 +52,6 @@ private slots:
     void setupLockTimer();
     void setStateAndSetupLockTimer();
     void lock();
-    void setActivity(MeeGo::QmActivity::Activity);
-    void setTouchScreenLockState(MeeGo::QmLocks::Lock,MeeGo::QmLocks::State);
 
 private:
     static bool runPlugin(const QStringList &args);
@@ -64,8 +62,10 @@ private:
     MeeGo::QmActivity *qmActivity;
     MeeGo::QmLocks *qmLocks;
     LockState deviceLockState;
-    MeeGo::QmActivity::Activity activity;
-    MeeGo::QmLocks::State touchScreenLockState;
+
+#ifdef UNIT_TEST
+    friend class Ut_DeviceLock;
+#endif
 };
 
 #endif // LOCKSERVICE_H

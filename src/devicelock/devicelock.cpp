@@ -26,14 +26,12 @@ DeviceLock::DeviceLock(QObject * parent) :
     lockTimer(new QTimer(this)),
     qmActivity(new MeeGo::QmActivity(this)),
     qmLocks(new MeeGo::QmLocks(this)),
-    deviceLockState(Undefined),
-    activity(qmActivity->get()),
-    touchScreenLockState(qmLocks->getState(MeeGo::QmLocks::TouchAndKeyboard))
+    deviceLockState(Undefined)
 {
     connect(lockingGConfItem, SIGNAL(valueChanged()), this, SLOT(setStateAndSetupLockTimer()));
     connect(lockTimer, SIGNAL(timeout()), this, SLOT(lock()));
-    connect(qmActivity, SIGNAL(activityChanged(MeeGo::QmActivity::Activity)), this, SLOT(setActivity(MeeGo::QmActivity::Activity)));
-    connect(qmLocks, SIGNAL(stateChanged(MeeGo::QmLocks::Lock,MeeGo::QmLocks::State)), this, SLOT(setTouchScreenLockState(MeeGo::QmLocks::Lock,MeeGo::QmLocks::State)));
+    connect(qmActivity, SIGNAL(activityChanged(MeeGo::QmActivity::Activity)), this, SLOT(setStateAndSetupLockTimer()));
+    connect(qmLocks, SIGNAL(stateChanged(MeeGo::QmLocks::Lock,MeeGo::QmLocks::State)), this, SLOT(setStateAndSetupLockTimer()));
 
     setState(isSet() && lockingGConfItem->value(-1).toInt() >= 0 ? Locked : Unlocked);
 }
@@ -45,7 +43,7 @@ void DeviceLock::setupLockTimer()
         lockTimer->stop();
     } else {
         int lockingDelay = lockingGConfItem->value(-1).toInt();
-        if (lockingDelay <= 0 || activity == MeeGo::QmActivity::Active) {
+        if (lockingDelay <= 0 || qmActivity->get() == MeeGo::QmActivity::Active) {
             // Locking disabled or device active: stop the timer
             lockTimer->stop();
         } else {
@@ -61,7 +59,7 @@ void DeviceLock::setStateAndSetupLockTimer()
     if (lockingDelay < 0) {
         // Locking disabled: unlock
         setState(Unlocked);
-    } else if (lockingDelay == 0 && touchScreenLockState == MeeGo::QmLocks::Locked) {
+    } else if (lockingDelay == 0 && qmLocks->getState(MeeGo::QmLocks::TouchAndKeyboard) == MeeGo::QmLocks::Locked) {
         // Immediate locking enabled and the touch screen is locked: lock
         setState(Locked);
     }
@@ -71,20 +69,6 @@ void DeviceLock::setStateAndSetupLockTimer()
 void DeviceLock::lock()
 {
     setState(Locked);
-}
-
-void DeviceLock::setActivity(MeeGo::QmActivity::Activity activity)
-{
-    this->activity = activity;
-    setStateAndSetupLockTimer();
-}
-
-void DeviceLock::setTouchScreenLockState(MeeGo::QmLocks::Lock lock, MeeGo::QmLocks::State state)
-{
-    if (lock == MeeGo::QmLocks::TouchAndKeyboard) {
-        touchScreenLockState = state;
-        setStateAndSetupLockTimer();
-    }
 }
 
 int DeviceLock::state() const
