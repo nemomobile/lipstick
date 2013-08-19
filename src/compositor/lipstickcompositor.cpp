@@ -145,6 +145,11 @@ void LipstickCompositor::setFullscreenSurface(QWaylandSurface *surface)
 {
     if (surface == m_fullscreenSurface)
         return;
+
+    // Prevent flicker when returning to composited mode
+    if (!surface && m_fullscreenSurface && m_fullscreenSurface->surfaceItem())
+        m_fullscreenSurface->surfaceItem()->update();
+
     m_fullscreenSurface = surface;
 
     const bool directRenderingSucceeded = setDirectRenderSurface(m_fullscreenSurface, openglContext());
