@@ -39,6 +39,7 @@ class LIPSTICK_EXPORT LipstickCompositor : public QQuickWindow, public QWaylandC
     Q_PROPERTY(QWaylandSurface* fullscreenSurface READ fullscreenSurface WRITE setFullscreenSurface NOTIFY fullscreenSurfaceChanged)
     Q_PROPERTY(bool directRenderingActive READ directRenderingActive NOTIFY directRenderingActiveChanged)
     Q_PROPERTY(int topmostWindowId READ topmostWindowId WRITE setTopmostWindowId NOTIFY topmostWindowIdChanged)
+    Q_PROPERTY(Qt::ScreenOrientation screenOrientation READ screenOrientation WRITE setScreenOrientation NOTIFY screenOrientationChanged)
 
 public:
     LipstickCompositor();
@@ -62,6 +63,9 @@ public:
 
     int topmostWindowId() const { return m_topmostWindowId; }
     void setTopmostWindowId(int id);
+
+    Qt::ScreenOrientation screenOrientation() const { return m_screenOrientation; }
+    void setScreenOrientation(Qt::ScreenOrientation screenOrientation);
 
     bool debug() const;
 
@@ -88,6 +92,7 @@ signals:
     void fullscreenSurfaceChanged();
     void directRenderingActiveChanged();
     void topmostWindowIdChanged();
+    void screenOrientationChanged();
 
 protected:
      virtual void surfaceAboutToBeDestroyed(QWaylandSurface *surface);
@@ -135,6 +140,7 @@ private:
     QWaylandSurface *m_fullscreenSurface;
     bool m_directRenderingActive;
     int m_topmostWindowId;
+    Qt::ScreenOrientation m_screenOrientation;
 };
 
 #endif // LIPSTICKCOMPOSITOR_H

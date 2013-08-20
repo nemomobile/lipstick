@@ -23,7 +23,7 @@ LipstickCompositor *LipstickCompositor::m_instance = 0;
 
 LipstickCompositor::LipstickCompositor()
 : QWaylandCompositor(this), m_totalWindowCount(0), m_nextWindowId(1), m_homeActive(true), m_shaderEffect(0),
-  m_fullscreenSurface(0), m_directRenderingActive(false), m_topmostWindowId(0)
+  m_fullscreenSurface(0), m_directRenderingActive(false), m_topmostWindowId(0), m_screenOrientation(Qt::PrimaryOrientation)
 {
     if (m_instance) qFatal("LipstickCompositor: Only one compositor instance per process is supported");
     m_instance = this;
@@ -359,3 +359,12 @@ QQmlComponent *LipstickCompositor::shaderEffectComponent()
     return m_shaderEffect;
 }
 
+void LipstickCompositor::setScreenOrientation(Qt::ScreenOrientation screenOrientation)
+{
+    if (m_screenOrientation != screenOrientation) {
+        QWaylandCompositor::setScreenOrientation(screenOrientation);
+
+        m_screenOrientation = screenOrientation;
+        emit screenOrientationChanged();
+    }
+}
