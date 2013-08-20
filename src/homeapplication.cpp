@@ -266,5 +266,18 @@ void HomeApplication::setUpdatesEnabled(bool enabled)
         updatesEnabled = enabled;
 
         QGuiApplication::platformNativeInterface()->nativeResourceForIntegration(updatesEnabled ? "DisplayOn" : "DisplayOff");
+
+        if (updatesEnabled) {
+            // Force a repaint to get the contents back on the screen in the case that the framebuffer doesn't retain it
+            foreach (QWindow *window, QGuiApplication::topLevelWindows()) {
+                QQuickWindow *quickWindow = qobject_cast<QQuickWindow *>(window);
+
+                if (quickWindow != 0) {
+                    quickWindow->update();
+                } else {
+                    HOME_DEBUG("Unknown top level window " << quickWindow);
+                }
+            }
+        }
     }
 }
