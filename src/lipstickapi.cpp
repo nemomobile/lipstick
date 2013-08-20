@@ -17,11 +17,13 @@
 
 #include "homeapplication.h"
 #include "compositor/lipstickcompositor.h"
+#include "devicelock/devicelock.h"
 
 LipstickApi::LipstickApi(QObject *parent)
 : QObject(parent)
 {
     QObject::connect(HomeApplication::instance(), SIGNAL(homeActiveChanged()), this, SIGNAL(activeChanged()));
+    QObject::connect(HomeApplication::instance()->deviceLock, SIGNAL(peekChanged(int)), this, SIGNAL(bottomPeekAllowedChanged(int)));
 }
 
 bool LipstickApi::active() const
@@ -32,4 +34,10 @@ bool LipstickApi::active() const
 QObject *LipstickApi::compositor() const
 {
     return LipstickCompositor::instance();
+}
+
+bool LipstickApi::bottomPeekAllowed() const
+{
+    return (HomeApplication::instance()->deviceLock->peek() == 1
+            || HomeApplication::instance()->deviceLock->state() != 1);
 }

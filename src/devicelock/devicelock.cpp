@@ -23,17 +23,20 @@
 DeviceLock::DeviceLock(QObject * parent) :
     QObject(parent),
     lockingGConfItem(new MGConfItem("/desktop/nemo/devicelock/automatic_locking", this)),
+    peekingGConfItem(new MGConfItem("/desktop/nemo/devicelock/peeking_allowed", this)),
     lockTimer(new QTimer(this)),
     qmActivity(new MeeGo::QmActivity(this)),
     qmLocks(new MeeGo::QmLocks(this)),
     deviceLockState(Undefined)
 {
     connect(lockingGConfItem, SIGNAL(valueChanged()), this, SLOT(setStateAndSetupLockTimer()));
+    connect(peekingGConfItem, SIGNAL(valueChanged()), this, SLOT(updatePeek()));
     connect(lockTimer, SIGNAL(timeout()), this, SLOT(lock()));
     connect(qmActivity, SIGNAL(activityChanged(MeeGo::QmActivity::Activity)), this, SLOT(setStateAndSetupLockTimer()));
     connect(qmLocks, SIGNAL(stateChanged(MeeGo::QmLocks::Lock,MeeGo::QmLocks::State)), this, SLOT(setStateAndSetupLockTimer()));
 
     setState(isSet() && lockingGConfItem->value(-1).toInt() >= 0 ? Locked : Unlocked);
+    updatePeek();
 }
 
 void DeviceLock::setupLockTimer()
@@ -66,6 +69,12 @@ void DeviceLock::setStateAndSetupLockTimer()
     setupLockTimer();
 }
 
+void DeviceLock::updatePeek()
+{
+    peekAllowed = peekingGConfItem->value(-1).toInt();
+    emit peekChanged(peekAllowed);
+}
+
 void DeviceLock::lock()
 {
     setState(Locked);
@@ -75,6 +84,12 @@ int DeviceLock::state() const
 {
     return deviceLockState;
 }
+
+int DeviceLock::peek() const
+{
+    return peekAllowed;
+}
+
 
 void DeviceLock::setState(int state)
 {
