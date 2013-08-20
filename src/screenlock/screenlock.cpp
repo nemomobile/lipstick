@@ -19,11 +19,8 @@
 #include <QDBusPendingCall>
 #include <QTextStream>
 #include <QCursor>
-#include <QQuickWindow>
-#include <QDebug>
 
 #include <mce/mode-names.h>
-#include <mce/dbus-names.h>
 
 #include "homeapplication.h"
 #include "screenlock.h"
@@ -37,43 +34,10 @@ ScreenLock::ScreenLock(QObject* parent) :
     eatEvents(false)
 {
     qApp->installEventFilter(this);
-
-    QDBusConnection::systemBus().connect(MCE_SERVICE,
-                                         MCE_SIGNAL_PATH,
-                                         MCE_SIGNAL_IF,
-                                         MCE_DISPLAY_SIG,
-                                         this,
-                                         SLOT(displayStatusChanged(QString)));
 }
 
 ScreenLock::~ScreenLock()
 {
-}
-
-void ScreenLock::displayStatusChanged(const QString &mode)
-{
-    static QString previousState = MCE_DISPLAY_OFF_STRING;
-
-    if (previousState != MCE_DISPLAY_OFF_STRING) {
-        // we don't care about ON to DIM transitions (for instance), just about
-        // redrawing when we see OFF => ?
-        previousState = mode;
-        return;
-    }
-
-    // force a repaint to get the contents back on the screen in the case that
-    // the framebuffer doesn't retain it
-    foreach (QWindow *win, QGuiApplication::topLevelWindows()) {
-        QQuickWindow *quickwin = qobject_cast<QQuickWindow *>(win);
-        if (!quickwin) {
-            qWarning() << Q_FUNC_INFO << "Unknown top level window " << quickwin;
-            continue;
-        }
-
-        quickwin->update();
-    }
-
-    previousState = mode;
 }
 
 int ScreenLock::tklock_open(const QString &service, const QString &path, const QString &interface, const QString &method, uint mode, bool, bool)
