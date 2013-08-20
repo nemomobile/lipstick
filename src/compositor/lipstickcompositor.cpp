@@ -310,6 +310,10 @@ void LipstickCompositor::surfaceUnmapped(QWaylandSurface *surface)
 {
     if (surface == m_fullscreenSurface)
         setFullscreenSurface(0);
+
+    LipstickCompositorWindow *window = static_cast<LipstickCompositorWindow *>(surface->surfaceItem());
+    if (window)
+        emit windowHidden(window);
 }
 
 void LipstickCompositor::surfaceUnmapped(LipstickCompositorProcWindow *item)
