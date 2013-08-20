@@ -3,3 +3,5 @@ liblipstick-qt5.*
 pkgconfig
 *.ts
 *.qm
+homeapplicationadaptor.*
+.moc
