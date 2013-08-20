@@ -1,6 +1,7 @@
 system(qdbusxml2cpp notifications/notificationmanager.xml -a notifications/notificationmanageradaptor -c NotificationManagerAdaptor -l NotificationManager -i notificationmanager.h)
 system(qdbusxml2cpp screenlock/screenlock.xml -a screenlock/screenlockadaptor -c ScreenLockAdaptor -l ScreenLock -i screenlock.h)
 system(qdbusxml2cpp devicelock/devicelock.xml -a devicelock/devicelockadaptor -c DeviceLockAdaptor -l DeviceLock -i devicelock.h)
+system(qdbusxml2cpp lipstick.xml -a homeapplicationadaptor -c HomeApplicationAdaptor -l HomeApplication -i homeapplication.h)
 
 TEMPLATE = lib
 TARGET = lipstick-qt5
@@ -59,9 +60,11 @@ HEADERS += \
     lipstickapi.h \
     devicelock/devicelockadaptor.h \
     devicelock/devicelock.h \
+    homeapplicationadaptor.h \
 
 SOURCES += \
     homeapplication.cpp \
+    homeapplicationadaptor.cpp \
     homewindow.cpp \
     lipsticksettings.cpp \
     utilities/qobjectlistmodel.cpp \
@@ -108,7 +111,7 @@ packagesExist(contextkit-statefs) {
     warning("Contextsubscriber not found")
 }
 
-QT += dbus xml qml quick sql gui
+QT += dbus xml qml quick sql gui gui-private
 
 QMAKE_CXXFLAGS += \
     -Werror \
