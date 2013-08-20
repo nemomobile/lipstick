@@ -27,6 +27,7 @@ class DeviceLock : public QObject
     Q_OBJECT
     Q_ENUMS(LockState)
     Q_PROPERTY(int state READ state WRITE setState NOTIFY stateChanged)
+    Q_PROPERTY(int peek READ peek NOTIFY peekChanged)
 
 public:
     DeviceLock(QObject *parent = 0);
@@ -39,6 +40,7 @@ public:
     };
 
     Q_INVOKABLE int state() const;
+    Q_INVOKABLE int peek() const;
     Q_INVOKABLE void setState(int state);
 
     Q_INVOKABLE bool checkCode(const QString &code);
@@ -47,21 +49,25 @@ public:
 
 signals:
     void stateChanged(int state);
+    void peekChanged(int value);
 
 private slots:
     void setupLockTimer();
     void setStateAndSetupLockTimer();
     void lock();
+    void updatePeek();
 
 private:
     static bool runPlugin(const QStringList &args);
     void setupTimer();
 
     MGConfItem *lockingGConfItem;
+    MGConfItem *peekingGConfItem;
     QTimer *lockTimer;
     MeeGo::QmActivity *qmActivity;
     MeeGo::QmLocks *qmLocks;
     LockState deviceLockState;
+    int peekAllowed;
 
 #ifdef UNIT_TEST
     friend class Ut_DeviceLock;

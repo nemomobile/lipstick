@@ -23,16 +23,19 @@ class LIPSTICK_EXPORT LipstickApi : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool active READ active NOTIFY activeChanged)
+    Q_PROPERTY(bool bottomPeekAllowed READ bottomPeekAllowed NOTIFY bottomPeekAllowedChanged)
     Q_PROPERTY(QObject *compositor READ compositor CONSTANT)
 
 public:
     LipstickApi(QObject *parent = 0);
 
     bool active() const;
+    bool bottomPeekAllowed() const;
     QObject *compositor() const;
 
 signals:
     void activeChanged();
+    void bottomPeekAllowedChanged(int value);
 };
 
 #endif // LIPSTICKAPI_H
