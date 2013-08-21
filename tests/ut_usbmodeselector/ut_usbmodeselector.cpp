@@ -39,6 +39,12 @@ void HomeWindow::setSource(const QUrl &)
     homeWindows.append(this);
 }
 
+QHash<HomeWindow *, QString> homeWindowCategory;
+void HomeWindow::setCategory(const QString &category)
+{
+    homeWindowCategory[this] = category;
+}
+
 QHash<HomeWindow *, QString> homeWindowTitle;
 void HomeWindow::setWindowTitle(const QString &title)
 {
@@ -130,6 +136,7 @@ void Ut_USBModeSelector::testShowDialog()
     QCOMPARE(homeWindows.count(), 1);
 
     // Check window properties
+    QCOMPARE(homeWindowCategory[homeWindows.first()], QLatin1String("dialog"));
     QCOMPARE(homeWindowTitle[homeWindows.first()], QString("USB Mode"));
     QCOMPARE(homeWindowContextProperties[homeWindows.first()].value("initialSize").toSize(), QGuiApplication::primaryScreen()->size());
     QCOMPARE(homeWindowContextProperties[homeWindows.first()].value("usbModeSelector"), QVariant::fromValue(static_cast<QObject *>(usbModeSelector)));

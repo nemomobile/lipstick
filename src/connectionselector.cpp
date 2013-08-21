@@ -40,6 +40,7 @@ void ConnectionSelector::createWindow()
 {
     window = new HomeWindow();
     window->setGeometry(QRect(QPoint(), QGuiApplication::primaryScreen()->size()));
+    window->setCategory(QLatin1String("dialog"));
     window->setWindowTitle("Connection");
     window->setContextProperty("connectionSelector", this);
     window->setContextProperty("initialSize", QGuiApplication::primaryScreen()->size());

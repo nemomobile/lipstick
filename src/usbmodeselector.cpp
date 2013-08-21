@@ -60,6 +60,7 @@ void USBModeSelector::setWindowVisible(bool visible)
         if (window == 0) {
             window = new HomeWindow();
             window->setGeometry(QRect(QPoint(), QGuiApplication::primaryScreen()->size()));
+            window->setCategory(QLatin1String("dialog"));
             window->setWindowTitle("USB Mode");
             window->setContextProperty("initialSize", QGuiApplication::primaryScreen()->size());
             window->setContextProperty("usbModeSelector", this);
