@@ -157,11 +157,6 @@ ScreenLock::~ScreenLock() {
   gScreenLockStub->ScreenLockDestructor();
 }
 
-void ScreenLock::displayStatusChanged(const QString &mode)
-{
-    gScreenLockStub->displayStatusChanged(mode);
-}
-
 int ScreenLock::tklock_open(const QString &service, const QString &path, const QString &interface, const QString &method, uint mode, bool silent, bool flicker) {
   return gScreenLockStub->tklock_open(service, path, interface, method, mode, silent, flicker);
 }

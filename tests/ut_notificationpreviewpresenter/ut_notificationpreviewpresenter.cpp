@@ -17,7 +17,6 @@
 #include <QQuickView>
 #include <QQmlContext>
 #include <QScreen>
-#include "lipstickcompositor.h"
 #include "notificationmanager.h"
 #include "ut_notificationpreviewpresenter.h"
 #include "notificationpreviewpresenter.h"
