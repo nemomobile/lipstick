@@ -82,6 +82,7 @@ signals:
     void windowRemoved(QObject *window);
     void windowRaised(QObject *window);
     void windowLowered(QObject *window);
+    void windowHidden(QObject *window);
 
     void windowCountChanged();
     void ghostWindowCountChanged();

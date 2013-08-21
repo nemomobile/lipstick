@@ -60,4 +60,6 @@ void LipstickPlugin::registerTypes(const char *uri)
     qmlRegisterType<WindowPixmapItem>("org.nemomobile.lipstick", 0, 1, "WindowPixmapItem");
     qmlRegisterType<WindowProperty>("org.nemomobile.lipstick", 0, 1, "WindowProperty");
     qmlRegisterSingletonType<LipstickApi>("org.nemomobile.lipstick", 0, 1, "Lipstick", lipstickApi_callback);
+
+    qmlRegisterRevision<QQuickWindow,1>("org.nemomobile.lipstick", 0, 1);
 }
