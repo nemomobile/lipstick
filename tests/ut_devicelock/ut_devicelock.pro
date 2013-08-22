@@ -1,8 +1,6 @@
 include(../common.pri)
 TARGET = ut_devicelock
 
-QT += dbus
-
 INCLUDEPATH += $$DEVICELOCKSRCDIR
 QMAKE_CXXFLAGS += `pkg-config --cflags-only-I mlite5 qmsystem2-qt5`
 
@@ -18,4 +16,5 @@ HEADERS += \
     $$DEVICELOCKSRCDIR/devicelock.h \
     /usr/include/mlite5/mgconfitem.h \
     /usr/include/qmsystem2-qt5/qmlocks.h \
-    /usr/include/qmsystem2-qt5/qmactivity.h
+    /usr/include/qmsystem2-qt5/qmactivity.h \
+    /usr/include/qmsystem2-qt5/qmdisplaystate.h

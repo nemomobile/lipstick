@@ -18,7 +18,7 @@
 
 #include <qmactivity.h>
 #include <qmlocks.h>
-#include <QString>
+#include <qmdisplaystate.h>
 
 class MGConfItem;
 class QTimer;
@@ -53,7 +53,7 @@ private slots:
     void setupLockTimer();
     void setStateAndSetupLockTimer();
     void lock();
-    void displayStatusChanged(QString status);
+    void checkDisplayState(MeeGo::QmDisplayState::DisplayState state);
 
 private:
     static bool runPlugin(const QStringList &args);
@@ -63,6 +63,7 @@ private:
     QTimer *lockTimer;
     MeeGo::QmActivity *qmActivity;
     MeeGo::QmLocks *qmLocks;
+    MeeGo::QmDisplayState *qmDisplayState;
     LockState deviceLockState;
 
 #ifdef UNIT_TEST
