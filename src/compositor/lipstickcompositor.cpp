@@ -13,6 +13,10 @@
 **
 ****************************************************************************/
 
+#ifdef HAVE_CONTENTACTION
+#include <contentaction.h>
+#endif
+
 #include <QWaylandInputDevice>
 #include "homeapplication.h"
 #include "windowmodel.h"
@@ -63,6 +67,13 @@ void LipstickCompositor::surfaceCreated(QWaylandSurface *surface)
     connect(surface, SIGNAL(raiseRequested()), this, SLOT(surfaceRaised()));
     connect(surface, SIGNAL(lowerRequested()), this, SLOT(surfaceLowered()));
 }
+
+#if defined(HAVE_CONTENTACTION)
+void LipstickCompositor::openUrl(WaylandClient *, const QUrl &url)
+{
+    ContentAction::Action::defaultActionForScheme(url.toString()).trigger();
+}
+#endif
 
 int LipstickCompositor::windowCount() const
 {
