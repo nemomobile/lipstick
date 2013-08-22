@@ -18,6 +18,7 @@
 
 #include <qmactivity.h>
 #include <qmlocks.h>
+#include <QString>
 
 class MGConfItem;
 class QTimer;
@@ -52,6 +53,7 @@ private slots:
     void setupLockTimer();
     void setStateAndSetupLockTimer();
     void lock();
+    void displayStatusChanged(QString status);
 
 private:
     static bool runPlugin(const QStringList &args);

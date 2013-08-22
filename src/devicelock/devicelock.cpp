@@ -17,6 +17,7 @@
 #include <QProcess>
 #include <QTimer>
 #include <MGConfItem>
+#include <QtDBus/QDBusConnection>
 #include <QDebug>
 #include "devicelock.h"
 
@@ -32,6 +33,7 @@ DeviceLock::DeviceLock(QObject * parent) :
     connect(lockTimer, SIGNAL(timeout()), this, SLOT(lock()));
     connect(qmActivity, SIGNAL(activityChanged(MeeGo::QmActivity::Activity)), this, SLOT(setStateAndSetupLockTimer()));
     connect(qmLocks, SIGNAL(stateChanged(MeeGo::QmLocks::Lock,MeeGo::QmLocks::State)), this, SLOT(setStateAndSetupLockTimer()));
+    QDBusConnection::systemBus().connect("com.nokia.mce", "/com/nokia/mce/signal", "com.nokia.mce.signal","display_status_ind", this, SLOT(displayStatusChanged(QString)));
 
     setState(isSet() && lockingGConfItem->value(-1).toInt() >= 0 ? Locked : Unlocked);
 }
@@ -59,11 +61,17 @@ void DeviceLock::setStateAndSetupLockTimer()
     if (lockingDelay < 0) {
         // Locking disabled: unlock
         setState(Unlocked);
-    } else if (lockingDelay == 0 && qmLocks->getState(MeeGo::QmLocks::TouchAndKeyboard) == MeeGo::QmLocks::Locked) {
-        // Immediate locking enabled and the touch screen is locked: lock
-        setState(Locked);
     }
     setupLockTimer();
+}
+
+void DeviceLock::displayStatusChanged(QString status)
+{
+    int lockingDelay = lockingGConfItem->value(-1).toInt();
+    if (lockingDelay == 0 && status.contains("off")) {
+        // Immediate locking enabled and the display is off: lock
+        setState(Locked);
+    }
 }
 
 void DeviceLock::lock()

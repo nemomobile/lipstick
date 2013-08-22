@@ -1,6 +1,8 @@
 include(../common.pri)
 TARGET = ut_devicelock
 
+QT += dbus
+
 INCLUDEPATH += $$DEVICELOCKSRCDIR
 QMAKE_CXXFLAGS += `pkg-config --cflags-only-I mlite5 qmsystem2-qt5`
 
