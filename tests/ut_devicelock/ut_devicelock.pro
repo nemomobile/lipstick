@@ -16,4 +16,5 @@ HEADERS += \
     $$DEVICELOCKSRCDIR/devicelock.h \
     /usr/include/mlite5/mgconfitem.h \
     /usr/include/qmsystem2-qt5/qmlocks.h \
-    /usr/include/qmsystem2-qt5/qmactivity.h
+    /usr/include/qmsystem2-qt5/qmactivity.h \
+    /usr/include/qmsystem2-qt5/qmdisplaystate.h

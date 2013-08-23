@@ -34,6 +34,8 @@ private slots:
     void testLockTimerWhenDeviceIsLocked();
     void testLockTimerWhenDeviceIsUnlocked_data();
     void testLockTimerWhenDeviceIsUnlocked();
+    void testDisplayStateWhenDeviceScreenIsLocked_data();
+    void testDisplayStateWhenDeviceScreenIsLocked();
     void testLockTimerTimeout();
     void testStateOnAutomaticLockingAndTouchScreenLockState_data();
     void testStateOnAutomaticLockingAndTouchScreenLockState();
