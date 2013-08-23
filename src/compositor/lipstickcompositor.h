@@ -50,9 +50,7 @@ public:
     virtual void classBegin();
     virtual void componentComplete();
     virtual void surfaceCreated(QWaylandSurface *surface);
-#ifdef HAVE_CONTENTACTION
     virtual void openUrl(WaylandClient *client, const QUrl &url);
-#endif
 
     int windowCount() const;
     int ghostWindowCount() const;
