@@ -20,6 +20,7 @@
 #include "mgconfitem_stub.h"
 #include "qmlocks_stub.h"
 #include "qmactivity_stub.h"
+#include "qmdisplaystate_stub.h"
 #include "devicelock.h"
 #include "ut_devicelock.h"
 
@@ -96,7 +97,8 @@ void Ut_DeviceLock::testSignalConnections()
     QCOMPARE(disconnect(deviceLock->lockingGConfItem, SIGNAL(valueChanged()), deviceLock, SLOT(setStateAndSetupLockTimer())), true);
     QCOMPARE(disconnect(deviceLock->lockTimer, SIGNAL(timeout()), deviceLock, SLOT(lock())), true);
     QCOMPARE(disconnect(deviceLock->qmActivity, SIGNAL(activityChanged(MeeGo::QmActivity::Activity)), deviceLock, SLOT(setStateAndSetupLockTimer())), true);
-            QCOMPARE(disconnect(deviceLock->qmLocks, SIGNAL(stateChanged(MeeGo::QmLocks::Lock,MeeGo::QmLocks::State)), deviceLock, SLOT(setStateAndSetupLockTimer())), true);
+    QCOMPARE(disconnect(deviceLock->qmLocks, SIGNAL(stateChanged(MeeGo::QmLocks::Lock,MeeGo::QmLocks::State)), deviceLock, SLOT(setStateAndSetupLockTimer())), true);
+    QCOMPARE(disconnect(deviceLock->qmDisplayState, SIGNAL(displayStateChanged(MeeGo::QmDisplayState::DisplayState)), deviceLock, SLOT(checkDisplayState(MeeGo::QmDisplayState::DisplayState))), true);
 }
 
 void Ut_DeviceLock::testInitialState()
@@ -208,6 +210,56 @@ void Ut_DeviceLock::testLockTimerWhenDeviceIsUnlocked()
     QCOMPARE(qTimerStartMsec.count(), startMSec > 0 ? 1 : 0);
 }
 
+Q_DECLARE_METATYPE(MeeGo::QmLocks::State)
+Q_DECLARE_METATYPE(MeeGo::QmDisplayState::DisplayState)
+Q_DECLARE_METATYPE(DeviceLock::LockState)
+
+void Ut_DeviceLock::testDisplayStateWhenDeviceScreenIsLocked_data()
+{
+    QTest::addColumn<int>("automaticLocking");
+    QTest::addColumn<MeeGo::QmDisplayState::DisplayState>("state");
+    QTest::addColumn<MeeGo::QmLocks::State>("touchScreenLockState");
+    QTest::addColumn<int>("stopCount");
+    QTest::addColumn<DeviceLock::LockState>("deviceLockState");
+
+    QTest::newRow("Automatic locking disabled, display on, screen unlocked")
+            << -1 << MeeGo::QmDisplayState::DisplayState::On << MeeGo::QmLocks::Unlocked << 0 << DeviceLock::Unlocked;
+    QTest::newRow("Automatic locking immediate, display on, screen unlocked")
+            << 0 << MeeGo::QmDisplayState::DisplayState::On << MeeGo::QmLocks::Unlocked << 0 << DeviceLock::Unlocked;
+    QTest::newRow("Automatic locking immediate, display on, screen locked")
+            << 0 << MeeGo::QmDisplayState::DisplayState::On << MeeGo::QmLocks::Locked << 0 << DeviceLock::Unlocked;
+    QTest::newRow("Automatic locking immediate, display off, screen locked")
+            << 0 << MeeGo::QmDisplayState::DisplayState::Off << MeeGo::QmLocks::Locked << 1 << DeviceLock::Locked;
+    QTest::newRow("Automatic locking immediate, display off, screen unlocked")
+            << 0 << MeeGo::QmDisplayState::DisplayState::Off << MeeGo::QmLocks::Unlocked << 0 << DeviceLock::Unlocked;
+    QTest::newRow("Automatic locking in 5 minutes, display off, screen locked")
+            << 5 << MeeGo::QmDisplayState::DisplayState::Off << MeeGo::QmLocks::Locked << 0 << DeviceLock::Unlocked;
+    QTest::newRow("Automatic locking disabled, display off, screen locked")
+            << -1 << MeeGo::QmDisplayState::DisplayState::Off << MeeGo::QmLocks::Locked << 0 << DeviceLock::Unlocked;
+}
+
+void Ut_DeviceLock::testDisplayStateWhenDeviceScreenIsLocked()
+{
+    QFETCH(int, automaticLocking);
+    QFETCH(MeeGo::QmDisplayState::DisplayState, state);
+    QFETCH(MeeGo::QmLocks::State, touchScreenLockState);
+    QFETCH(int, stopCount);
+    QFETCH(DeviceLock::LockState, deviceLockState);
+
+    deviceLock->setState(DeviceLock::Unlocked);
+    qTimerStartMsec.clear();
+    qTimerStopCount = 0;
+
+    gMGConfItemStub->stubSetReturnValue("value", QVariant(automaticLocking));
+    gQmLocksStub->stubSetReturnValue("getState", touchScreenLockState);
+    gQmDisplayStateStub->stubSetReturnValue("get", state);
+
+    deviceLock->checkDisplayState(state);
+
+    QCOMPARE(deviceLock->state(), (int)deviceLockState);
+    QCOMPARE(qTimerStopCount, stopCount);
+}
+
 void Ut_DeviceLock::testLockTimerTimeout()
 {
     QSignalSpy spy(deviceLock, SIGNAL(stateChanged(int)));
@@ -218,9 +270,6 @@ void Ut_DeviceLock::testLockTimerTimeout()
     QCOMPARE(spy.count(), 1);
     QCOMPARE(spy.last().at(0).toInt(), (int)DeviceLock::Locked);
 }
-
-Q_DECLARE_METATYPE(MeeGo::QmLocks::State)
-Q_DECLARE_METATYPE(DeviceLock::LockState)
 
 void Ut_DeviceLock::testStateOnAutomaticLockingAndTouchScreenLockState_data()
 {
