@@ -68,12 +68,15 @@ void LipstickCompositor::surfaceCreated(QWaylandSurface *surface)
     connect(surface, SIGNAL(lowerRequested()), this, SLOT(surfaceLowered()));
 }
 
-#if defined(HAVE_CONTENTACTION)
-void LipstickCompositor::openUrl(WaylandClient *, const QUrl &url)
+void LipstickCompositor::openUrl(WaylandClient *client, const QUrl &url)
 {
+#if defined(HAVE_CONTENTACTION)
+    Q_UNUSED(client)
     ContentAction::Action::defaultActionForScheme(url.toString()).trigger();
-}
+#else
+    QWaylandCompositor::openUrl(client, url);
 #endif
+}
 
 int LipstickCompositor::windowCount() const
 {
