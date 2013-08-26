@@ -16,15 +16,34 @@
 #include <QCoreApplication>
 #include <QWaylandCompositor>
 #include <QWaylandInputDevice>
+#include <MDesktopEntry>
 #include "lipstickcompositor.h"
 #include "lipstickcompositorwindow.h"
 
 LipstickCompositorWindow::LipstickCompositorWindow(int windowId, const QString &category,
                                                    QWaylandSurface *surface, QQuickItem *parent)
 : QWaylandSurfaceItem(surface, parent), m_windowId(windowId), m_category(category), m_ref(0),
-  m_delayRemove(false), m_windowClosed(false), m_removePosted(false), m_mouseRegionValid(false)
+  m_delayRemove(false), m_windowClosed(false), m_removePosted(false), m_mouseRegionValid(false), m_supportedOrientations(Qt::PrimaryOrientation)
 {
     refreshMouseRegion();
+
+    QString desktopEntryFileName = surface->className();
+    if (!desktopEntryFileName.isEmpty()) {
+        MDesktopEntry desktopEntry("/usr/share/applications/" + desktopEntryFileName);
+        if (desktopEntry.isValid()) {
+            foreach (const QString &supportedOrientation, desktopEntry.stringListValue("X-Nemo", "SupportedOrientations")) {
+                if (supportedOrientation == "Landscape") {
+                    m_supportedOrientations |= Qt::LandscapeOrientation;
+                } else if (supportedOrientation == "Portrait") {
+                    m_supportedOrientations |= Qt::PortraitOrientation;
+                } else if (supportedOrientation == "InvertedLandscape") {
+                    m_supportedOrientations |= Qt::InvertedLandscapeOrientation;
+                } else if (supportedOrientation == "InvertedPortrait") {
+                    m_supportedOrientations |= Qt::InvertedPortraitOrientation;
+                }
+            }
+        }
+    }
 }
 
 QVariant LipstickCompositorWindow::userData() const
@@ -111,6 +130,11 @@ QRect LipstickCompositorWindow::mouseRegionBounds() const
         return m_mouseRegion.boundingRect();
     else
         return QRect(0, 0, width(), height());
+}
+
+Qt::ScreenOrientations LipstickCompositorWindow::supportedOrientations() const
+{
+    return m_supportedOrientations;
 }
 
 void LipstickCompositorWindow::refreshMouseRegion()

@@ -20,7 +20,7 @@ PkgConfigBR:
     - Qt5Sensors
     - Qt5Test
     - contentaction5
-    - mlite5 >= 0.0.6
+    - mlite5 >= 0.2.0
     - mce >= 1.12.2
     - dbus-1
     - dbus-glib-1

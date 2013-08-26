@@ -28,7 +28,7 @@ BuildRequires:  pkgconfig(Qt5Sql)
 BuildRequires:  pkgconfig(Qt5SystemInfo)
 BuildRequires:  pkgconfig(Qt5Test)
 BuildRequires:  pkgconfig(contentaction5)
-BuildRequires:  pkgconfig(mlite5) >= 0.0.6
+BuildRequires:  pkgconfig(mlite5) >= 0.2.0
 BuildRequires:  pkgconfig(mce) >= 1.12.2
 BuildRequires:  pkgconfig(dbus-1)
 BuildRequires:  pkgconfig(dbus-glib-1)
