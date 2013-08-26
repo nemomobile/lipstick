@@ -20,6 +20,7 @@
 #include <QHash>
 
 class LipstickNotification;
+class NotificationPreviewPresenter;
 namespace Ngf {
     class Client;
 }
@@ -34,7 +35,7 @@ class NotificationFeedbackPlayer : public QObject
     Q_OBJECT
 
 public:
-    explicit NotificationFeedbackPlayer(QObject *parent = 0);
+    explicit NotificationFeedbackPlayer(NotificationPreviewPresenter *notificationPreviewPresenter = 0);
     
 private slots:
     //! Initializes the feedback player
@@ -63,6 +64,9 @@ private:
 
     //! A mapping between notification IDs and NGF play IDs.
     QHash<LipstickNotification *, uint> idToEventId;
+
+    //! The notification preview presenter this feedback player is synced to
+    NotificationPreviewPresenter *notificationPreviewPresenter;
 
 #ifdef UNIT_TEST
     friend class Ut_NotificationFeedbackPlayer;

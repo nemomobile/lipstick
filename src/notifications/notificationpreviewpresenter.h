@@ -65,6 +65,9 @@ signals:
     //! Sent when the notification to be shown has changed.
     void notificationChanged();
 
+    //! Sent when a notification is considered presented by the presenter
+    void notificationPresented(uint id);
+
 public slots:
     /*!
      * Shows the next notification to be shown, if any. If the notification

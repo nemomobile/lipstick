@@ -194,7 +194,8 @@ void Ut_NotificationPreviewPresenter::testSignalConnections()
 void Ut_NotificationPreviewPresenter::testAddNotificationWhenWindowNotOpen()
 {
     NotificationPreviewPresenter presenter;
-    QSignalSpy spy(&presenter, SIGNAL(notificationChanged()));
+    QSignalSpy changedSpy(&presenter, SIGNAL(notificationChanged()));
+    QSignalSpy presentedSpy(&presenter, SIGNAL(notificationPresented(uint)));
 
     // Check that the window is not automatically created
     QCOMPARE(homeWindows.isEmpty(), true);
@@ -214,14 +215,17 @@ void Ut_NotificationPreviewPresenter::testAddNotificationWhenWindowNotOpen()
     QCOMPARE(homeWindowVisible[homeWindows.first()], true);
 
     // Check that the expected notification is signaled onwards
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(changedSpy.count(), 1);
     QCOMPARE(presenter.notification(), notification);
+    QCOMPARE(presentedSpy.count(), 1);
+    QCOMPARE(presentedSpy.last().at(0).toUInt(), (uint)1);
 }
 
 void Ut_NotificationPreviewPresenter::testAddNotificationWhenWindowAlreadyOpen()
 {
     NotificationPreviewPresenter presenter;
-    QSignalSpy spy(&presenter, SIGNAL(notificationChanged()));
+    QSignalSpy changedSpy(&presenter, SIGNAL(notificationChanged()));
+    QSignalSpy presentedSpy(&presenter, SIGNAL(notificationPresented(uint)));
 
     // Create a notification: this will create a window
     createNotification(1);
@@ -235,7 +239,9 @@ void Ut_NotificationPreviewPresenter::testAddNotificationWhenWindowAlreadyOpen()
     presenter.updateNotification(2);
 
     // The second notification should not be signaled onwards yet since the first one is being presented
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(changedSpy.count(), 1);
+    QCOMPARE(presentedSpy.count(), 1);
+    QCOMPARE(presentedSpy.last().at(0).toUInt(), (uint)1);
 
     // Show the next notification
     presenter.showNextNotification();
@@ -244,8 +250,10 @@ void Ut_NotificationPreviewPresenter::testAddNotificationWhenWindowAlreadyOpen()
     QCOMPARE(homeWindows.isEmpty(), true);
 
     // Check that the expected notification is signaled onwards
-    QCOMPARE(spy.count(), 2);
+    QCOMPARE(changedSpy.count(), 2);
     QCOMPARE(presenter.notification(), notification);
+    QCOMPARE(presentedSpy.count(), 2);
+    QCOMPARE(presentedSpy.last().at(0).toUInt(), (uint)2);
 }
 
 void Ut_NotificationPreviewPresenter::testUpdateNotification()
@@ -259,18 +267,20 @@ void Ut_NotificationPreviewPresenter::testUpdateNotification()
     presenter.updateNotification(2);
 
     // Update both notifications
-    QSignalSpy spy(&presenter, SIGNAL(notificationChanged()));
+    QSignalSpy changedSpy(&presenter, SIGNAL(notificationChanged()));
+    QSignalSpy presentedSpy(&presenter, SIGNAL(notificationPresented(uint)));
     presenter.updateNotification(1);
     presenter.updateNotification(2);
 
     // Check that no signals were sent
-    QCOMPARE(spy.count(), 0);
+    QCOMPARE(changedSpy.count(), 0);
+    QCOMPARE(presentedSpy.count(), 0);
 }
 
 void Ut_NotificationPreviewPresenter::testRemoveNotification()
 {
     NotificationPreviewPresenter presenter;
-    QSignalSpy spy(&presenter, SIGNAL(notificationChanged()));
+    QSignalSpy changedSpy(&presenter, SIGNAL(notificationChanged()));
 
     // Create two notifications
     createNotification(1);
@@ -282,7 +292,7 @@ void Ut_NotificationPreviewPresenter::testRemoveNotification()
     presenter.removeNotification(1);
 
     // Check that an empty notification is signaled onwards
-    QCOMPARE(spy.count(), 2);
+    QCOMPARE(changedSpy.count(), 2);
     QCOMPARE(presenter.notification(), (LipstickNotification *)0);
 
     // Show and remove the second one
@@ -290,7 +300,7 @@ void Ut_NotificationPreviewPresenter::testRemoveNotification()
     presenter.removeNotification(2);
 
     // Check that an empty notification is signaled onwards
-    QCOMPARE(spy.count(), 4);
+    QCOMPARE(changedSpy.count(), 4);
     QCOMPARE(presenter.notification(), (LipstickNotification *)0);
 
     // Check that the window is not yet hidden
@@ -305,23 +315,26 @@ void Ut_NotificationPreviewPresenter::testNotificationNotShownIfNoSummaryOrBody_
 {
     QTest::addColumn<QString>("previewSummary");
     QTest::addColumn<QString>("previewBody");
-    QTest::addColumn<int>("signalCount");
+    QTest::addColumn<int>("changedSignalCount");
+    QTest::addColumn<int>("presentedSignalCount");
     QTest::addColumn<bool>("windowVisible");
-    QTest::newRow("No summary, no body") << "" << "" << 0 << false;
-    QTest::newRow("Summary, no body") << "summary" << "" << 1 << true;
-    QTest::newRow("No summary, body") << "" << "body" << 1 << true;
-    QTest::newRow("Summary, body") << "summary" << "body" << 1 << true;
+    QTest::newRow("No summary, no body") << "" << "" << 0 << 1 << false;
+    QTest::newRow("Summary, no body") << "summary" << "" << 1 << 1 << true;
+    QTest::newRow("No summary, body") << "" << "body" << 1 << 1 << true;
+    QTest::newRow("Summary, body") << "summary" << "body" << 1 << 1 << true;
 }
 
 void Ut_NotificationPreviewPresenter::testNotificationNotShownIfNoSummaryOrBody()
 {
     QFETCH(QString, previewSummary);
     QFETCH(QString, previewBody);
-    QFETCH(int, signalCount);
+    QFETCH(int, changedSignalCount);
+    QFETCH(int, presentedSignalCount);
     QFETCH(bool, windowVisible);
 
     NotificationPreviewPresenter presenter;
-    QSignalSpy spy(&presenter, SIGNAL(notificationChanged()));
+    QSignalSpy changedSpy(&presenter, SIGNAL(notificationChanged()));
+    QSignalSpy presentedSpy(&presenter, SIGNAL(notificationPresented(uint)));
 
     // Create notification
     LipstickNotification *notification = new LipstickNotification;
@@ -333,7 +346,8 @@ void Ut_NotificationPreviewPresenter::testNotificationNotShownIfNoSummaryOrBody(
     presenter.updateNotification(1);
 
     // Check whether the expected notification is signaled onwards
-    QCOMPARE(spy.count(), signalCount);
+    QCOMPARE(changedSpy.count(), changedSignalCount);
+    QCOMPARE(presentedSpy.count(), presentedSignalCount);
 
     QCOMPARE(homeWindowVisible.isEmpty(), !windowVisible);
     if (windowVisible) {
@@ -345,7 +359,8 @@ void Ut_NotificationPreviewPresenter::testNotificationNotShownIfNoSummaryOrBody(
 void Ut_NotificationPreviewPresenter::testNotificationNotShownIfHidden()
 {
     NotificationPreviewPresenter presenter;
-    QSignalSpy spy(&presenter, SIGNAL(notificationChanged()));
+    QSignalSpy changedSpy(&presenter, SIGNAL(notificationChanged()));
+    QSignalSpy presentedSpy(&presenter, SIGNAL(notificationPresented(uint)));
 
     // Create notification
     LipstickNotification *notification = new LipstickNotification;
@@ -357,14 +372,19 @@ void Ut_NotificationPreviewPresenter::testNotificationNotShownIfHidden()
     notificationManagerNotification.insert(1, notification);
     presenter.updateNotification(1);
 
-    QCOMPARE(spy.count(), 0);
+    QCOMPARE(changedSpy.count(), 0);
     QCOMPARE(homeWindowVisible.isEmpty(), true);
+
+    // The notification should be considered presented
+    QCOMPARE(presentedSpy.count(), 1);
+    QCOMPARE(presentedSpy.last().at(0).toUInt(), (uint)1);
 }
 
 void Ut_NotificationPreviewPresenter::testShowingOnlyCriticalNotifications()
 {
     NotificationPreviewPresenter presenter;
-    QSignalSpy spy(&presenter, SIGNAL(notificationChanged()));
+    QSignalSpy changedSpy(&presenter, SIGNAL(notificationChanged()));
+    QSignalSpy presentedSpy(&presenter, SIGNAL(notificationPresented(uint)));
 
     // Create normal urgency notification
     LipstickNotification *notification = new LipstickNotification;
@@ -379,16 +399,22 @@ void Ut_NotificationPreviewPresenter::testShowingOnlyCriticalNotifications()
     // When the screen or device is locked and the urgency is not high enough, so the notification shouldn't be shown
     gQmLocksStub->stubSetReturnValue("getState", MeeGo::QmLocks::Locked);
     presenter.updateNotification(1);
-    QCOMPARE(spy.count(), 0);
+    QCOMPARE(changedSpy.count(), 0);
     QCOMPARE(homeWindowVisible.isEmpty(), true);
+
+    // The notification should be considered presented
+    QCOMPARE(presentedSpy.count(), 1);
+    QCOMPARE(presentedSpy.last().at(0).toUInt(), (uint)1);
 
     // Urgency set to critical, so the notification should be shown
     hints.insert(NotificationManager::HINT_URGENCY, 2);
     notification->setHints(hints);
     presenter.updateNotification(1);
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(changedSpy.count(), 1);
     QCOMPARE(homeWindowVisible.isEmpty(), false);
     QCOMPARE(homeWindowVisible[homeWindows.first()], true);
+    QCOMPARE(presentedSpy.count(), 2);
+    QCOMPARE(presentedSpy.last().at(0).toUInt(), (uint)1);
 }
 
 void Ut_NotificationPreviewPresenter::testUpdateNotificationRemovesNotificationFromQueueIfNotShowable()
@@ -402,19 +428,24 @@ void Ut_NotificationPreviewPresenter::testUpdateNotificationRemovesNotificationF
     presenter.updateNotification(2);
 
     // Update the notifications to have no summary or body
-    QSignalSpy spy(&presenter, SIGNAL(notificationChanged()));
+    QSignalSpy changedSpy(&presenter, SIGNAL(notificationChanged()));
+    QSignalSpy presentedSpy(&presenter, SIGNAL(notificationPresented(uint)));
     notification1->setHints(QVariantHash());
     notification2->setHints(QVariantHash());
     presenter.updateNotification(1);
     presenter.updateNotification(2);
 
     // Check that the current notification is not removed
-    QCOMPARE(spy.count(), 0);
+    QCOMPARE(changedSpy.count(), 0);
+
+    // The notifications should be considered presented
+    QCOMPARE(presentedSpy.count(), 2);
 
     // Check that the other notification is removed from the queue
     presenter.showNextNotification();
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(changedSpy.count(), 1);
     QCOMPARE(presenter.notification(), (LipstickNotification *)0);
+    QCOMPARE(presentedSpy.count(), 2);
 }
 
 Q_DECLARE_METATYPE(MeeGo::QmDisplayState::DisplayState)
@@ -425,10 +456,11 @@ void Ut_NotificationPreviewPresenter::testNotificationNotShownIfTouchScreenIsLoc
     QTest::addColumn<MeeGo::QmDisplayState::DisplayState>("displayState");
     QTest::addColumn<MeeGo::QmLocks::State>("lockState");
     QTest::addColumn<int>("notifications");
-    QTest::newRow("Display on, touch screen not locked") << MeeGo::QmDisplayState::On << MeeGo::QmLocks::Unlocked << 1;
-    QTest::newRow("Display on, touch screen locked") << MeeGo::QmDisplayState::On << MeeGo::QmLocks::Locked << 1;
-    QTest::newRow("Display off, touch screen not locked") << MeeGo::QmDisplayState::Off << MeeGo::QmLocks::Unlocked << 1;
-    QTest::newRow("Display off, touch screen locked") << MeeGo::QmDisplayState::Off << MeeGo::QmLocks::Locked << 0;
+    QTest::addColumn<int>("presentedCount");
+    QTest::newRow("Display on, touch screen not locked") << MeeGo::QmDisplayState::On << MeeGo::QmLocks::Unlocked << 1 << 1;
+    QTest::newRow("Display on, touch screen locked") << MeeGo::QmDisplayState::On << MeeGo::QmLocks::Locked << 1 << 1;
+    QTest::newRow("Display off, touch screen not locked") << MeeGo::QmDisplayState::Off << MeeGo::QmLocks::Unlocked << 1 << 1;
+    QTest::newRow("Display off, touch screen locked") << MeeGo::QmDisplayState::Off << MeeGo::QmLocks::Locked << 0 << 1;
 }
 
 void Ut_NotificationPreviewPresenter::testNotificationNotShownIfTouchScreenIsLockedAndDisplayIsOff()
@@ -436,17 +468,20 @@ void Ut_NotificationPreviewPresenter::testNotificationNotShownIfTouchScreenIsLoc
     QFETCH(MeeGo::QmDisplayState::DisplayState, displayState);
     QFETCH(MeeGo::QmLocks::State, lockState);
     QFETCH(int, notifications);
+    QFETCH(int, presentedCount);
 
     gQmDisplayStateStub->stubSetReturnValue("get", displayState);
     gQmLocksStub->stubSetReturnValue("getState", lockState);
 
     NotificationPreviewPresenter presenter;
-    QSignalSpy spy(&presenter, SIGNAL(notificationChanged()));
+    QSignalSpy changedSpy(&presenter, SIGNAL(notificationChanged()));
+    QSignalSpy presentedSpy(&presenter, SIGNAL(notificationPresented(uint)));
 
     createNotification(1, 2);
     presenter.updateNotification(1);
     QCOMPARE(homeWindows.count(), notifications);
-    QCOMPARE(spy.count(), notifications);
+    QCOMPARE(changedSpy.count(), notifications);
+    QCOMPARE(presentedSpy.count(), presentedCount);
 }
 
 void Ut_NotificationPreviewPresenter::testCriticalNotificationIsClosedAfterShowing()
@@ -474,7 +509,7 @@ void Ut_NotificationPreviewPresenter::testNotificationPreviewsDisabled_data()
     QTest::addColumn<QWaylandSurface *>("surface");
     QTest::addColumn<QVariantMap>("windowProperties");
     QTest::addColumn<int>("urgency");
-    QTest::addColumn<int>("playCount");
+    QTest::addColumn<int>("showCount");
 
     QVariantMap allNotificationsEnabled;
     QVariantMap applicationNotificationsDisabled;
@@ -503,7 +538,7 @@ void Ut_NotificationPreviewPresenter::testNotificationPreviewsDisabled()
     QFETCH(QWaylandSurface *, surface);
     QFETCH(QVariantMap, windowProperties);
     QFETCH(int, urgency);
-    QFETCH(int, playCount);
+    QFETCH(int, showCount);
 
     gLipstickCompositorStub->stubSetReturnValue("surfaceForId", surface);
     qWaylandSurfaceWindowProperties = windowProperties;
@@ -512,7 +547,7 @@ void Ut_NotificationPreviewPresenter::testNotificationPreviewsDisabled()
     createNotification(1, urgency);
     presenter.updateNotification(1);
 
-    QCOMPARE(homeWindows.count(), playCount);
+    QCOMPARE(homeWindows.count(), showCount);
 }
 
 QTEST_MAIN(Ut_NotificationPreviewPresenter)

@@ -63,9 +63,11 @@ void NotificationPreviewPresenter::showNextNotification()
 
         setCurrentNotification(0);
     } else {
+        LipstickNotification *notification = notificationQueue.takeFirst();
+
         if (locks->getState(MeeGo::QmLocks::TouchAndKeyboard) == MeeGo::QmLocks::Locked && displayState->get() == MeeGo::QmDisplayState::Off) {
             // Screen locked and off: don't show the notification but just remove it from the queue
-            notificationQueue.removeFirst();
+            emit notificationPresented(notification->property("id").toUInt());
 
             setCurrentNotification(0);
 
@@ -77,7 +79,9 @@ void NotificationPreviewPresenter::showNextNotification()
                 window->show();
             }
 
-            setCurrentNotification(notificationQueue.takeFirst());
+            emit notificationPresented(notification->property("id").toUInt());
+
+            setCurrentNotification(notification);
         }
     }
 }
@@ -105,6 +109,8 @@ void NotificationPreviewPresenter::updateNotification(uint id)
             }
         } else {
             // Remove updated notification only from the queue so that a currently visible notification won't suddenly disappear
+            emit notificationPresented(id);
+
             removeNotification(id, true);
 
             if (currentNotification != notification && notification->hints().value(NotificationManager::HINT_URGENCY).toInt() >= 2) {

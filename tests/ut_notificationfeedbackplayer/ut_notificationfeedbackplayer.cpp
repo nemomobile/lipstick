@@ -16,6 +16,7 @@
 #include <QtTest/QtTest>
 #include "notificationmanager.h"
 #include "notificationfeedbackplayer.h"
+#include "notificationpreviewpresenter_stub.h"
 #include "lipstickcompositor_stub.h"
 #include "ngfclient_stub.h"
 #include "ut_notificationfeedbackplayer.h"
@@ -87,6 +88,7 @@ LipstickNotification *createNotification(uint id, int urgency = 0)
     hints.insert(NotificationManager::HINT_URGENCY, urgency);
     notification->setHints(hints);
     notificationManagerNotification.insert(id, notification);
+    gNotificationPreviewPresenterStub->stubSetReturnValue("notification", notification);
     return notification;
 }
 
@@ -113,14 +115,17 @@ void Ut_NotificationFeedbackPlayer::initTestCase()
 
 void Ut_NotificationFeedbackPlayer::init()
 {
-    player = new NotificationFeedbackPlayer;
+    presenter = new NotificationPreviewPresenter();
+    player = new NotificationFeedbackPlayer(presenter);
 }
 
 void Ut_NotificationFeedbackPlayer::cleanup()
 {
     delete player;
+    delete presenter;
 
     gClientStub->stubReset();
+    gNotificationPreviewPresenterStub->stubReset();
 }
 
 void Ut_NotificationFeedbackPlayer::testAddAndRemoveNotification()
@@ -181,7 +186,7 @@ void Ut_NotificationFeedbackPlayer::testUpdateNotificationIsNotPossibleAfterRest
 
     // Create a notification
     createNotification(1);
-    player = new NotificationFeedbackPlayer;
+    player = new NotificationFeedbackPlayer(presenter);
 
     // Update the notification
     player->addNotification(1);
