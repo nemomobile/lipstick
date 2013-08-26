@@ -35,6 +35,8 @@ class LIPSTICK_EXPORT LipstickCompositorWindow : public QWaylandSurfaceItem
 
     Q_PROPERTY(QRect mouseRegionBounds READ mouseRegionBounds NOTIFY mouseRegionBoundsChanged)
 
+    Q_PROPERTY(Qt::ScreenOrientations supportedOrientations READ supportedOrientations CONSTANT)
+
 public:
     LipstickCompositorWindow(int windowId, const QString &, QWaylandSurface *surface, QQuickItem *parent = 0);
 
@@ -52,6 +54,8 @@ public:
     virtual bool isInProcess() const;
 
     QRect mouseRegionBounds() const;
+
+    Qt::ScreenOrientations supportedOrientations() const;
 
 protected:
     virtual bool event(QEvent *);
@@ -86,6 +90,7 @@ private:
     bool m_mouseRegionValid:1;
     QVariant m_data;
     QRegion m_mouseRegion;
+    Qt::ScreenOrientations m_supportedOrientations;
 };
 
 #endif // LIPSTICKCOMPOSITORWINDOW_H
