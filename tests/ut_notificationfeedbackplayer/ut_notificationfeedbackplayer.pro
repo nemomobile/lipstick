@@ -8,7 +8,6 @@ DEFINES += QT_COMPOSITOR_QUICK
 HEADERS += \
     ut_notificationfeedbackplayer.h \
     $$NOTIFICATIONSRCDIR/notificationfeedbackplayer.h \
-    $$NOTIFICATIONSRCDIR/notificationpreviewpresenter.h \
     $$NOTIFICATIONSRCDIR/notificationmanager.h \
     $$NOTIFICATIONSRCDIR/lipsticknotification.h \
     $$COMPOSITORSRCDIR/lipstickcompositor.h \

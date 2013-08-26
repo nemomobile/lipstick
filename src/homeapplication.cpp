@@ -82,7 +82,8 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
 
     // Initialize the notification manager
     NotificationManager::instance();
-    new NotificationFeedbackPlayer(new NotificationPreviewPresenter(this));
+    new NotificationPreviewPresenter(this);
+    new NotificationFeedbackPlayer(this);
 
     // Create screen lock logic - not parented to "this" since destruction happens too late in that case
     screenLock = new ScreenLock;
