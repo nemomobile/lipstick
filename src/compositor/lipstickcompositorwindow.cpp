@@ -25,6 +25,9 @@ LipstickCompositorWindow::LipstickCompositorWindow(int windowId, const QString &
   m_delayRemove(false), m_windowClosed(false), m_removePosted(false), m_mouseRegionValid(false)
 {
     refreshMouseRegion();
+    connectSignals();
+
+    connect(this, SIGNAL(surfaceChanged()), this, SLOT(connectSignals()));
 }
 
 QVariant LipstickCompositorWindow::userData() const
@@ -113,6 +116,13 @@ QRect LipstickCompositorWindow::mouseRegionBounds() const
         return QRect(0, 0, width(), height());
 }
 
+Qt::ScreenOrientation LipstickCompositorWindow::contentOrientation() const
+{
+    if (surface())
+        return surface()->contentOrientation();
+    return Qt::PrimaryOrientation;
+}
+
 void LipstickCompositorWindow::refreshMouseRegion()
 {
     QWaylandSurface *s = surface();
@@ -130,6 +140,16 @@ void LipstickCompositorWindow::refreshMouseRegion()
         }
 
         emit mouseRegionBoundsChanged();
+    }
+}
+
+void LipstickCompositorWindow::connectSignals()
+{
+    disconnect(this, SIGNAL(contentOrientationChanged()));
+
+    QWaylandSurface *surface = this->surface();
+    if (surface) {
+        connect(surface, SIGNAL(contentOrientationChanged()), this, SIGNAL(contentOrientationChanged()));
     }
 }
 

@@ -35,6 +35,8 @@ class LIPSTICK_EXPORT LipstickCompositorWindow : public QWaylandSurfaceItem
 
     Q_PROPERTY(QRect mouseRegionBounds READ mouseRegionBounds NOTIFY mouseRegionBoundsChanged)
 
+    Q_PROPERTY(Qt::ScreenOrientation contentOrientation READ contentOrientation NOTIFY contentOrientationChanged)
+
 public:
     LipstickCompositorWindow(int windowId, const QString &, QWaylandSurface *surface, QQuickItem *parent = 0);
 
@@ -53,6 +55,8 @@ public:
 
     QRect mouseRegionBounds() const;
 
+    Qt::ScreenOrientation contentOrientation() const;
+
 protected:
     virtual bool event(QEvent *);
     virtual void mousePressEvent(QMouseEvent *event);
@@ -66,6 +70,10 @@ signals:
     void titleChanged();
     void delayRemoveChanged();
     void mouseRegionBoundsChanged();
+    void contentOrientationChanged();
+
+private slots:
+    void connectSignals();
 
 private:
     friend class LipstickCompositor;
