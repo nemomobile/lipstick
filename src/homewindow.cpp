@@ -178,8 +178,6 @@ void HomeWindow::setSource(const QUrl &source)
     if (QQuickItem *item = qobject_cast<QQuickItem *>(o)) {
         d->root = item;
 
-        d->root->setSize(d->geometry.size());
-
         if (d->isWindow())
             item->setParentItem(d->window->contentItem());
         else if (d->compositorWindow)
