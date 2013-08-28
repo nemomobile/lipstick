@@ -5,7 +5,7 @@ system(qdbusxml2cpp lipstick.xml -a homeapplicationadaptor -c HomeApplicationAda
 
 TEMPLATE = lib
 TARGET = lipstick-qt5
-VERSION = 0.15.4
+VERSION = 0.15.5
 
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x000000
 DEFINES += LIPSTICK_BUILD_LIBRARY VERSION=\\\"$$VERSION\\\"
