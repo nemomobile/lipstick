@@ -171,6 +171,10 @@ void HomeWindow::setSource(const QUrl &source)
     QQmlComponent component(d->context->engine(), source);
     if (component.isError()) {
         d->errors = component.errors();
+        foreach (const QQmlError &error, d->errors) {
+            QMessageLogger(error.url().toString().toLatin1().constData(), error.line(), 0).warning()
+                    << error;
+        }
         return;
     }
 
