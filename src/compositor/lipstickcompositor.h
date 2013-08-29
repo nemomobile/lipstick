@@ -114,6 +114,7 @@ private slots:
     void windowSwapped();
     void windowDestroyed();
     void windowPropertyChanged(const QString &);
+    void openUrl(const QUrl &);
 
 private:
     friend class LipstickCompositorWindow;

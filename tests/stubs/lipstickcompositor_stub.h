@@ -16,6 +16,7 @@ class LipstickCompositorStub : public StubBase {
   virtual void componentComplete();
   virtual void surfaceCreated(QWaylandSurface *surface);
   virtual void openUrl(WaylandClient *, const QUrl &);
+  virtual void openUrl(const QUrl &);
   virtual int windowCount() const;
   virtual int ghostWindowCount() const;
   virtual bool homeActive() const;
@@ -71,6 +72,12 @@ void LipstickCompositorStub::surfaceCreated(QWaylandSurface *surface) {
 void LipstickCompositorStub::openUrl(WaylandClient *client, const QUrl &url) {
     QList<ParameterBase*> params;
     params.append( new Parameter<WaylandClient * >(client));
+    params.append( new Parameter<const QUrl &>(url));
+    stubMethodEntered("openUrl",params);
+}
+
+void LipstickCompositorStub::openUrl(const QUrl &url) {
+    QList<ParameterBase*> params;
     params.append( new Parameter<const QUrl &>(url));
     stubMethodEntered("openUrl",params);
 }
@@ -234,6 +241,10 @@ void LipstickCompositor::surfaceCreated(QWaylandSurface *surface) {
 
 void LipstickCompositor::openUrl(WaylandClient *client, const QUrl &url) {
   gLipstickCompositorStub->openUrl(client, url);
+}
+
+void LipstickCompositor::openUrl(const QUrl &url) {
+  gLipstickCompositorStub->openUrl(url);
 }
 
 int LipstickCompositor::windowCount() const {

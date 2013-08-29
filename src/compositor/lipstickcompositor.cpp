@@ -19,6 +19,7 @@
 
 #include <qmdisplaystate.h>
 #include <QWaylandInputDevice>
+#include <QDesktopServices>
 #include "homeapplication.h"
 #include "windowmodel.h"
 #include "lipstickcompositorprocwindow.h"
@@ -36,6 +37,10 @@ LipstickCompositor::LipstickCompositor()
     QObject::connect(this, SIGNAL(frameSwapped()), this, SLOT(windowSwapped()));
 
     emit HomeApplication::instance()->homeActiveChanged();
+
+    QDesktopServices::setUrlHandler("http", this, "openUrl");
+    QDesktopServices::setUrlHandler("https", this, "openUrl");
+    QDesktopServices::setUrlHandler("mailto", this, "openUrl");
 }
 
 LipstickCompositor::~LipstickCompositor()
@@ -71,11 +76,16 @@ void LipstickCompositor::surfaceCreated(QWaylandSurface *surface)
 
 void LipstickCompositor::openUrl(WaylandClient *client, const QUrl &url)
 {
-#if defined(HAVE_CONTENTACTION)
     Q_UNUSED(client)
+    openUrl(url);
+}
+
+void LipstickCompositor::openUrl(const QUrl &url)
+{
+#if defined(HAVE_CONTENTACTION)
     ContentAction::Action::defaultActionForScheme(url.toString()).trigger();
 #else
-    QWaylandCompositor::openUrl(client, url);
+    Q_UNUSED(url)
 #endif
 }
 
