@@ -26,6 +26,10 @@ class WindowModel;
 class LipstickCompositorWindow;
 class LipstickCompositorProcWindow;
 
+namespace MeeGo {
+    class QmDisplayState;
+}
+
 class LIPSTICK_EXPORT LipstickCompositor : public QQuickWindow, public QWaylandCompositor,
                                            public QQmlParserStatus
 {
@@ -73,6 +77,7 @@ public:
     Q_INVOKABLE QObject *windowForId(int) const;
     Q_INVOKABLE void closeClientForWindowId(int);
     Q_INVOKABLE void clearKeyboardFocus();
+    Q_INVOKABLE void displayOff();
 
     LipstickCompositorProcWindow *mapProcWindow(const QString &title, const QString &category, const QRect &);
 
@@ -143,6 +148,7 @@ private:
     bool m_directRenderingActive;
     int m_topmostWindowId;
     Qt::ScreenOrientation m_screenOrientation;
+    MeeGo::QmDisplayState *m_displayState;
 };
 
 #endif // LIPSTICKCOMPOSITOR_H

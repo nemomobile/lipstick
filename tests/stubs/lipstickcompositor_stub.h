@@ -27,6 +27,7 @@ class LipstickCompositorStub : public StubBase {
   virtual QObject * windowForId(int) const;
   virtual void closeClientForWindowId(int);
   virtual void clearKeyboardFocus();
+  virtual void displayOff();
   virtual LipstickCompositorProcWindow * mapProcWindow(const QString &title, const QString &category, const QRect &);
   virtual QWaylandSurface * surfaceForId(int) const;
   virtual void surfaceAboutToBeDestroyed(QWaylandSurface *surface);
@@ -133,6 +134,10 @@ void LipstickCompositorStub::closeClientForWindowId(int id) {
 
 void LipstickCompositorStub::clearKeyboardFocus() {
   stubMethodEntered("clearKeyboardFocus");
+}
+
+void LipstickCompositorStub::displayOff() {
+  stubMethodEntered("displayOff");
 }
 
 LipstickCompositorProcWindow * LipstickCompositorStub::mapProcWindow(const QString &title, const QString &category, const QRect &rect) {
@@ -273,6 +278,10 @@ void LipstickCompositor::closeClientForWindowId(int id) {
 
 void LipstickCompositor::clearKeyboardFocus() {
   gLipstickCompositorStub->clearKeyboardFocus();
+}
+
+void LipstickCompositor::displayOff() {
+  gLipstickCompositorStub->displayOff();
 }
 
 LipstickCompositorProcWindow * LipstickCompositor::mapProcWindow(const QString &title, const QString &category, const QRect &rect) {

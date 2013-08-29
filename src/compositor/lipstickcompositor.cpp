@@ -17,6 +17,7 @@
 #include <contentaction.h>
 #endif
 
+#include <qmdisplaystate.h>
 #include <QWaylandInputDevice>
 #include "homeapplication.h"
 #include "windowmodel.h"
@@ -27,7 +28,7 @@ LipstickCompositor *LipstickCompositor::m_instance = 0;
 
 LipstickCompositor::LipstickCompositor()
 : QWaylandCompositor(this), m_totalWindowCount(0), m_nextWindowId(1), m_homeActive(true), m_shaderEffect(0),
-  m_fullscreenSurface(0), m_directRenderingActive(false), m_topmostWindowId(0), m_screenOrientation(Qt::PrimaryOrientation)
+  m_fullscreenSurface(0), m_directRenderingActive(false), m_topmostWindowId(0), m_screenOrientation(Qt::PrimaryOrientation), m_displayState(new MeeGo::QmDisplayState(this))
 {
     if (m_instance) qFatal("LipstickCompositor: Only one compositor instance per process is supported");
     m_instance = this;
@@ -153,6 +154,11 @@ int LipstickCompositor::windowIdForLink(QWaylandSurface *s, uint link) const
 void LipstickCompositor::clearKeyboardFocus()
 {
     defaultInputDevice()->setKeyboardFocus(0);
+}
+
+void LipstickCompositor::displayOff()
+{
+    m_displayState->set(MeeGo::QmDisplayState::Off);
 }
 
 void LipstickCompositor::setFullscreenSurface(QWaylandSurface *surface)
