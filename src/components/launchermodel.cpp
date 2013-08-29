@@ -190,6 +190,7 @@ void LauncherModel::savePositions()
 {
     QSettings launcherSettings("nemomobile", "lipstick");
     _fileSystemWatcher->removePath(launcherSettings.fileName());
+    launcherSettings.clear();
     QList<LauncherItem *> *currentLauncherList = getList<LauncherItem>();
 
     int pos = 0;
