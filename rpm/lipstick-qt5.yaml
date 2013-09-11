@@ -17,7 +17,6 @@ PkgConfigBR:
     - Qt5Xml
     - Qt5Sql
     - Qt5SystemInfo
-    - Qt5Sensors
     - Qt5Test
     - contentaction5
     - mlite5 >= 0.0.6
