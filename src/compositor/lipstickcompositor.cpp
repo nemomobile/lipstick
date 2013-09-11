@@ -31,6 +31,8 @@ LipstickCompositor::LipstickCompositor()
 : QWaylandCompositor(this), m_totalWindowCount(0), m_nextWindowId(1), m_homeActive(true), m_shaderEffect(0),
   m_fullscreenSurface(0), m_directRenderingActive(false), m_topmostWindowId(0), m_screenOrientation(Qt::PrimaryOrientation), m_displayState(new MeeGo::QmDisplayState(this))
 {
+    setColor(Qt::black);
+
     if (m_instance) qFatal("LipstickCompositor: Only one compositor instance per process is supported");
     m_instance = this;
 
