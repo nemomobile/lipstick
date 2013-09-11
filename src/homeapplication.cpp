@@ -266,11 +266,11 @@ void HomeApplication::setUpdatesEnabled(bool enabled)
         updatesEnabled = enabled;
 
         if (!updatesEnabled) {
-            _mainWindowInstance->hide();
+            LipstickCompositor::instance()->hide();
             QGuiApplication::platformNativeInterface()->nativeResourceForIntegration("DisplayOff");
         } else {
             QGuiApplication::platformNativeInterface()->nativeResourceForIntegration("DisplayOn");
-            _mainWindowInstance->showFullScreen();
+            LipstickCompositor::instance()->showFullScreen();
         }
     }
 }
