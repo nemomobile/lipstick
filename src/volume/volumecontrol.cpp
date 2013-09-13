@@ -21,6 +21,7 @@
 #include <QQmlContext>
 #include <QScreen>
 #include <QKeyEvent>
+#include <MGConfItem>
 #include "utilities/closeeventeater.h"
 #include "pulseaudiocontrol.h"
 #include "volumecontrol.h"
@@ -32,7 +33,8 @@ VolumeControl::VolumeControl(QObject *parent) :
     hwKeyResource(new ResourcePolicy::ResourceSet("event")),
     hwKeysAcquired(false),
     volume_(0),
-    maximumVolume_(0)
+    maximumVolume_(0),
+    volumeWarning(new MGConfItem("/desktop/nemo/volumewarning", this))
 {
     hwKeyResource->setAlwaysReply();
     hwKeyResource->addResourceObject(new ResourcePolicy::ScaleButtonResource);
@@ -50,6 +52,8 @@ VolumeControl::VolumeControl(QObject *parent) :
     connect(&keyRepeatTimer, SIGNAL(timeout()), this, SLOT(changeVolume()));
 
     connect(pulseAudioControl, SIGNAL(volumeChanged(int,int)), this, SLOT(setVolume(int,int)));
+    connect(pulseAudioControl, SIGNAL(highVolume(int)), SIGNAL(highVolume(int)));
+    connect(pulseAudioControl, SIGNAL(longListeningTime(int)), SIGNAL(longListeningTime(int)));
     pulseAudioControl->update();
 
     qApp->installEventFilter(this);
@@ -100,6 +104,20 @@ void VolumeControl::setWindowVisible(bool visible)
 bool VolumeControl::windowVisible() const
 {
     return window != 0 && window->isVisible();
+}
+
+bool VolumeControl::showVolumeWarning() const
+{
+    return volumeWarning->value(true).toBool();
+}
+
+void VolumeControl::setShowVolumeWarning(bool showWarning)
+{
+    if (volumeWarning->value(true).toBool() == showWarning)
+        return;
+
+    volumeWarning->set(showWarning);
+    emit showVolumeWarningChanged();
 }
 
 void VolumeControl::setVolume(int volume, int maximumVolume)
