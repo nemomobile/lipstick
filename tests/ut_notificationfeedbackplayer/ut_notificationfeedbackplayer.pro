@@ -1,6 +1,6 @@
 include(../common.pri)
 TARGET = ut_notificationfeedbackplayer
-INCLUDEPATH += $$NOTIFICATIONSRCDIR $$COMPOSITORSRCDIR /usr/include/ngf-qt5
+INCLUDEPATH += $$NOTIFICATIONSRCDIR $$COMPOSITORSRCDIR /usr/include/ngf-qt5 /usr/include/qmsystem2-qt5
 CONFIG += link_pkgconfig
 QT += dbus compositor quick
 DEFINES += QT_COMPOSITOR_QUICK

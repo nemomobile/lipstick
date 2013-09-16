@@ -17,7 +17,6 @@
 #include <contentaction.h>
 #endif
 
-#include <qmdisplaystate.h>
 #include <QWaylandInputDevice>
 #include <QDesktopServices>
 #include "homeapplication.h"
@@ -37,6 +36,7 @@ LipstickCompositor::LipstickCompositor()
     m_instance = this;
 
     QObject::connect(this, SIGNAL(frameSwapped()), this, SLOT(windowSwapped()));
+    connect(m_displayState, SIGNAL(displayStateChanged(MeeGo::QmDisplayState::DisplayState)), this, SLOT(reactOnDisplayStateChanges(MeeGo::QmDisplayState::DisplayState)));
 
     emit HomeApplication::instance()->homeActiveChanged();
 
@@ -404,5 +404,12 @@ void LipstickCompositor::setScreenOrientation(Qt::ScreenOrientation screenOrient
 
         m_screenOrientation = screenOrientation;
         emit screenOrientationChanged();
+    }
+}
+
+void LipstickCompositor::reactOnDisplayStateChanges(MeeGo::QmDisplayState::DisplayState state)
+{
+    if (state == MeeGo::QmDisplayState::On) {
+        emit displayIsOn();
     }
 }

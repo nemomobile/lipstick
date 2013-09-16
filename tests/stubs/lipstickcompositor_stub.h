@@ -41,6 +41,7 @@ class LipstickCompositorStub : public StubBase {
   virtual void windowSwapped();
   virtual void windowDestroyed();
   virtual void windowPropertyChanged(const QString &);
+  virtual void reactOnDisplayStateChanges(MeeGo::QmDisplayState::DisplayState);
 }; 
 
 // 2. IMPLEMENT STUB
@@ -207,6 +208,12 @@ void LipstickCompositorStub::windowPropertyChanged(const QString &property) {
   stubMethodEntered("windowPropertyChanged",params);
 }
 
+void LipstickCompositorStub::reactOnDisplayStateChanges(MeeGo::QmDisplayState::DisplayState state) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<MeeGo::QmDisplayState::DisplayState >(state));
+  stubMethodEntered("reactOnDisplayStateChanges",params);
+}
+
 
 
 // 3. CREATE A STUB INSTANCE
@@ -341,6 +348,10 @@ void LipstickCompositor::windowDestroyed() {
 
 void LipstickCompositor::windowPropertyChanged(const QString &property) {
   gLipstickCompositorStub->windowPropertyChanged(property);
+}
+
+void LipstickCompositor::reactOnDisplayStateChanges(MeeGo::QmDisplayState::DisplayState state) {
+  gLipstickCompositorStub->reactOnDisplayStateChanges(state);
 }
 
 QWaylandCompositor::QWaylandCompositor(QWindow *, const char *)

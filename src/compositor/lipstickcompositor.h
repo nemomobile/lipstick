@@ -21,14 +21,11 @@
 #include <QQmlParserStatus>
 #include <QWaylandCompositor>
 #include <QWaylandSurfaceItem>
+#include <qmdisplaystate.h>
 
 class WindowModel;
 class LipstickCompositorWindow;
 class LipstickCompositorProcWindow;
-
-namespace MeeGo {
-    class QmDisplayState;
-}
 
 class LIPSTICK_EXPORT LipstickCompositor : public QQuickWindow, public QWaylandCompositor,
                                            public QQmlParserStatus
@@ -101,6 +98,8 @@ signals:
     void topmostWindowIdChanged();
     void screenOrientationChanged();
 
+    void displayIsOn();
+
 protected:
      virtual void surfaceAboutToBeDestroyed(QWaylandSurface *surface);
 
@@ -115,6 +114,7 @@ private slots:
     void windowDestroyed();
     void windowPropertyChanged(const QString &);
     void openUrl(const QUrl &);
+    void reactOnDisplayStateChanges(MeeGo::QmDisplayState::DisplayState state);
 
 private:
     friend class LipstickCompositorWindow;
