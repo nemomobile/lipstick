@@ -168,7 +168,7 @@ void LipstickCompositor::clearKeyboardFocus()
     defaultInputDevice()->setKeyboardFocus(0);
 }
 
-void LipstickCompositor::displayOff()
+void LipstickCompositor::setDisplayOff()
 {
     m_displayState->set(MeeGo::QmDisplayState::Off);
 }
@@ -410,6 +410,6 @@ void LipstickCompositor::setScreenOrientation(Qt::ScreenOrientation screenOrient
 void LipstickCompositor::reactOnDisplayStateChanges(MeeGo::QmDisplayState::DisplayState state)
 {
     if (state == MeeGo::QmDisplayState::On) {
-        emit displayIsOn();
+        emit displayOn();
     }
 }

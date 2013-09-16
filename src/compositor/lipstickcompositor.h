@@ -74,7 +74,7 @@ public:
     Q_INVOKABLE QObject *windowForId(int) const;
     Q_INVOKABLE void closeClientForWindowId(int);
     Q_INVOKABLE void clearKeyboardFocus();
-    Q_INVOKABLE void displayOff();
+    Q_INVOKABLE void setDisplayOff();
 
     LipstickCompositorProcWindow *mapProcWindow(const QString &title, const QString &category, const QRect &);
 
@@ -98,7 +98,7 @@ signals:
     void topmostWindowIdChanged();
     void screenOrientationChanged();
 
-    void displayIsOn();
+    void displayOn();
 
 protected:
      virtual void surfaceAboutToBeDestroyed(QWaylandSurface *surface);
