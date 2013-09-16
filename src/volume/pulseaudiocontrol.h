@@ -37,25 +37,18 @@ public:
 
     /*!
      * Queries the PulseAudio daemon for the volume levels (current and maximum).
-     * If successful, maximumVolumeSet and currentVolumeSet signals will be
-     * emitted.
+     * If successful, volumeChanged signal will be emitted.
      */
     void update();
 
 signals:
     /*!
-     * Sent when the current volume level has changed.
+     * Sent when the current or maximum volume has changed.
      *
      * \param level The new volume level
+     * \param maximum The maximum volume level
      */
-    void currentVolumeSet(int level);
-
-    /*!
-     * Sent when the maximum volume level has changed.
-     *
-     * \param level The new maximum volume level
-     */
-    void maximumVolumeSet(int level);
+    void volumeChanged(int volume, int maximum);
 
 public slots:
     /*!

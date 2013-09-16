@@ -189,8 +189,7 @@ DBusHandlerResult PulseAudioControl::stepsUpdatedSignalHandler(DBusConnection *,
 void PulseAudioControl::setSteps(quint32 currentStep, quint32 stepCount)
 {
     // The pulseaudio API reports the step count (starting from 0), so the maximum volume is stepCount - 1
-    emit maximumVolumeSet(stepCount - 1);
-    emit currentVolumeSet(currentStep);
+    emit volumeChanged(currentStep, stepCount - 1);
 }
 
 void PulseAudioControl::setVolume(int volume)
