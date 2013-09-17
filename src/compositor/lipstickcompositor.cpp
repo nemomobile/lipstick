@@ -85,7 +85,11 @@ void LipstickCompositor::openUrl(WaylandClient *client, const QUrl &url)
 void LipstickCompositor::openUrl(const QUrl &url)
 {
 #if defined(HAVE_CONTENTACTION)
-    ContentAction::Action::defaultActionForScheme(url.toString()).trigger();
+    if (url.scheme() == "file") {
+        ContentAction::Action::defaultActionForFile(url.toString()).trigger();
+    } else {
+        ContentAction::Action::defaultActionForScheme(url.toString()).trigger();
+    }
 #else
     Q_UNUSED(url)
 #endif
