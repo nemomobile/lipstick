@@ -112,7 +112,7 @@ void PulseAudioControl::addSignalMatch() {
   gPulseAudioControlStub->addSignalMatch();
 }
 
-DBusHandlerResult PulseAudioControl::stepsUpdatedSignalHandler(DBusConnection *conn, DBusMessage *message, void *control) {
+DBusHandlerResult PulseAudioControl::signalHandler(DBusConnection *conn, DBusMessage *message, void *control) {
   return gPulseAudioControlStub->stepsUpdatedSignalHandler(conn, message, control);
 }
 
