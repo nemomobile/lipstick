@@ -50,6 +50,20 @@ signals:
      */
     void volumeChanged(int volume, int maximum);
 
+    /*!
+     * Sent when main volume is set to so high that it can hurt hearing
+     *
+     * \param safeLevel Highest level for volume that does not risk hurting hearing
+     */
+    void highVolume(int safeLevel);
+
+    /*!
+     * Sent when user needs to be warned about long listening time.
+     *
+     * \param listeningTime listening time in minutes
+     */
+    void longListeningTime(int listeningTime);
+
 public slots:
     /*!
      * Changes the volume level through the volume backend.
@@ -80,7 +94,7 @@ private:
      * \param message signal message
      * \param control PulseAudioControl instance handling this signal
      */
-    static DBusHandlerResult stepsUpdatedSignalHandler(DBusConnection *conn, DBusMessage *message, void *control);
+    static DBusHandlerResult signalHandler(DBusConnection *conn, DBusMessage *message, void *control);
 
     //! D-Bus connection structure
     DBusConnection *dbusConnection;
