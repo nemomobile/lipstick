@@ -335,6 +335,10 @@ void LipstickCompositor::windowPropertyChanged(const QString &property)
         LipstickCompositorWindow *window = static_cast<LipstickCompositorWindow *>(surface->surfaceItem());
         if (window)
             window->refreshMouseRegion();
+    } else if (property == QLatin1String("GRABBED_KEYS")) {
+        LipstickCompositorWindow *window = static_cast<LipstickCompositorWindow *>(surface->surfaceItem());
+        if (window)
+            window->refreshGrabbedKeys();
     }
 }
 

@@ -53,6 +53,8 @@ public:
 
     QRect mouseRegionBounds() const;
 
+    bool eventFilter(QObject *object, QEvent *event);
+
 protected:
     virtual bool event(QEvent *);
     virtual void mousePressEvent(QMouseEvent *event);
@@ -76,6 +78,7 @@ private:
     bool canRemove() const;
     void tryRemove();
     void refreshMouseRegion();
+    void refreshGrabbedKeys();
 
     int m_windowId;
     QString m_category;
@@ -86,6 +89,7 @@ private:
     bool m_mouseRegionValid:1;
     QVariant m_data;
     QRegion m_mouseRegion;
+    QList<int> m_grabbedKeys;
 };
 
 #endif // LIPSTICKCOMPOSITORWINDOW_H
