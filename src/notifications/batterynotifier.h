@@ -87,9 +87,6 @@ private:
     //! Removes the current notification if its type is one listed in eventTypes
     void removeNotification(const QStringList &categories);
 
-    //! Returns the charging image ID based on the current battery level
-    QString chargingImageId();
-
     //! Starts the low battery notifier if not already started
     void startLowBatteryNotifier();
 

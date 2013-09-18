@@ -168,7 +168,7 @@ void BatteryNotifier::sendNotification(BatteryNotifier::NotificationID id)
         utiliseLED(true, QString("PatternBatteryCharging"));
         sendNotification("x-nemo.battery",
                 //% "Charging"
-                qtTrId("qtn_ener_charging"), chargingImageId());
+                qtTrId("qtn_ener_charging"));
         break;
 
     case NotificationChargingComplete:
@@ -200,13 +200,13 @@ void BatteryNotifier::sendNotification(BatteryNotifier::NotificationID id)
     case NotificationEnteringPSM:
         sendNotification("x-nemo.battery.enterpsm",
                 //% "Entering power save mode"
-                qtTrId("qtn_ener_ent_psnote"), chargingImageId());
+                qtTrId("qtn_ener_ent_psnote"));
         break;
 
     case NotificationExitingPSM:
         sendNotification("x-nemo.battery.exitpsm",
                 //% "Exiting power save mode"
-                qtTrId("qtn_ener_exit_psnote"), chargingImageId());
+                qtTrId("qtn_ener_exit_psnote"));
         break;
 
     case NotificationLowBattery:
@@ -243,31 +243,6 @@ void BatteryNotifier::removeNotification(const QStringList &categories)
         notificationCategory.clear();
         notificationTimer.stop();
     }
-}
-
-QString BatteryNotifier::chargingImageId()
-{
-    int maximumCapacity = batteryInfo->maximumCapacity(0);
-    int percentage = batteryInfo->remainingCapacity(0) * 100 / (maximumCapacity != 0 ? maximumCapacity : 1);
-
-    if (percentage >= 84) {
-        return QString("icon-m-energy-management-charging8");
-    } else if (percentage >= 73) {
-        return QString("icon-m-energy-management-charging7");
-    } else if (percentage >= 62) {
-        return QString("icon-m-energy-management-charging6");
-    } else if (percentage >= 51) {
-        return QString("icon-m-energy-management-charging5");
-    } else if (percentage >= 39) {
-        return QString("icon-m-energy-management-charging4");
-    } else if (percentage >= 28) {
-        return QString("icon-m-energy-management-charging3");
-    } else if (percentage >= 17) {
-        return QString("icon-m-energy-management-charging2");
-    } else if (percentage >= 5) {
-        return QString("icon-m-energy-management-charging1");
-    }
-    return QString("icon-m-energy-management-charging-low");
 }
 
 void BatteryNotifier::setTouchScreenLockActive(bool active)

@@ -147,7 +147,6 @@ void Ut_BatteryNotifier::testChargingStateChanged()
         QCOMPARE(gNotificationManagerStub->stubCallCount("Notify"), 1);
         QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QVariantHash>(6).value(NotificationManager::HINT_CATEGORY).toString(), QString("x-nemo.battery"));
         QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QVariantHash>(6).value(NotificationManager::HINT_PREVIEW_BODY).toString(), qtTrId("qtn_ener_charging"));
-        QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QString>(2), batteryNotifier->chargingImageId());
         QCOMPARE(gQmLEDStub->stubLastCallTo("activate").parameter<QString>(0), QString("PatternBatteryCharging"));
 
         gNotificationManagerStub->stubReset();
@@ -220,7 +219,6 @@ void Ut_BatteryNotifier::testPSMStateChanged()
     QCOMPARE(gNotificationManagerStub->stubCallCount("Notify"), 1);
     QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QVariantHash>(6).value(NotificationManager::HINT_CATEGORY).toString(), QString("x-nemo.battery.enterpsm"));
     QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QVariantHash>(6).value(NotificationManager::HINT_PREVIEW_BODY).toString(), qtTrId("qtn_ener_ent_psnote"));
-    QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QString>(2), batteryNotifier->chargingImageId());
 
     /* Exiting from power-save mode */
     batteryNotifier->applyPSMState(MeeGo::QmDeviceMode::PSMStateOff);
@@ -228,7 +226,6 @@ void Ut_BatteryNotifier::testPSMStateChanged()
     QCOMPARE(gNotificationManagerStub->stubCallCount("Notify"), 2);
     QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QVariantHash>(6).value(NotificationManager::HINT_CATEGORY).toString(), QString("x-nemo.battery.exitpsm"));
     QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QVariantHash>(6).value(NotificationManager::HINT_PREVIEW_BODY).toString(), qtTrId("qtn_ener_exit_psnote"));
-    QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QString>(2), batteryNotifier->chargingImageId());
 }
 
 void Ut_BatteryNotifier::testLowBatteryNotifierConnection()
@@ -277,7 +274,6 @@ void Ut_BatteryNotifier::testWhenChargingStopsThenNotificationRemoved()
     QCOMPARE(gNotificationManagerStub->stubCallCount("Notify"), 1);
     QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QVariantHash>(6).value(NotificationManager::HINT_CATEGORY).toString(), QString("x-nemo.battery"));
     QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QVariantHash>(6).value(NotificationManager::HINT_PREVIEW_BODY).toString(), qtTrId("qtn_ener_charging"));
-    QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QString>(2), batteryNotifier->chargingImageId());
 
     batteryNotifier->applyChargingState(0, QBatteryInfo::UnknownChargingState);
     QCOMPARE(gNotificationManagerStub->stubCallCount("CloseNotification"), 1);
