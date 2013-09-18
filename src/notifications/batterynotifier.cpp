@@ -49,8 +49,8 @@ BatteryNotifier::~BatteryNotifier()
 
 void BatteryNotifier::initBattery()
 {
-    applyChargingState(0, batteryInfo->chargingState(1));
-    applyBatteryStatus(0, batteryInfo->batteryStatus(1));
+    applyChargingState(0, batteryInfo->chargingState(0));
+    applyBatteryStatus(0, batteryInfo->batteryStatus(0));
 }
 
 void BatteryNotifier::lowBatteryAlert()
@@ -62,7 +62,7 @@ void BatteryNotifier::applyChargingState(int, QBatteryInfo::ChargingState state)
 {
     switch(state) {
     case QBatteryInfo::Charging:
-        if (batteryInfo->chargerType() == QBatteryInfo::USBCharger && batteryInfo->currentFlow(1) <= 100) {
+        if (batteryInfo->chargerType() == QBatteryInfo::USBCharger && batteryInfo->currentFlow(0) <= 100) {
             sendNotification(NotificationNoEnoughPower);
         } else {
             // The low battery notifications should not be sent when the battery is charging
@@ -99,7 +99,7 @@ void BatteryNotifier::applyBatteryStatus(int, QBatteryInfo::BatteryStatus status
         break;
 
     case QBatteryInfo::BatteryLow:
-        if (batteryInfo->chargingState(1) != QBatteryInfo::Charging) {
+        if (batteryInfo->chargingState(0) != QBatteryInfo::Charging) {
             // The low battery notifications should be sent only if the battery is not charging
             startLowBatteryNotifier();
         }
@@ -130,7 +130,7 @@ void BatteryNotifier::applyChargerType(QBatteryInfo::ChargerType type)
             sendNotification(NotificationRemoveCharger);
         }
 
-        if (chargerType != QBatteryInfo::UnknownCharger && chargerType != QBatteryInfo::USBCharger && batteryInfo->batteryStatus(1) == QBatteryInfo::BatteryLow && batteryInfo->chargingState(1) != QBatteryInfo::Charging) {
+        if (chargerType != QBatteryInfo::UnknownCharger && chargerType != QBatteryInfo::USBCharger && batteryInfo->batteryStatus(0) == QBatteryInfo::BatteryLow && batteryInfo->chargingState(0) != QBatteryInfo::Charging) {
             // A charger was connected but is no longer connected and the battery is low, so start low battery notifier
             startLowBatteryNotifier();
         }
@@ -247,8 +247,8 @@ void BatteryNotifier::removeNotification(const QStringList &categories)
 
 QString BatteryNotifier::chargingImageId()
 {
-    int maximumCapacity = batteryInfo->maximumCapacity(1);
-    int percentage = batteryInfo->remainingCapacity(1) * 100 / (maximumCapacity != 0 ? maximumCapacity : 1);
+    int maximumCapacity = batteryInfo->maximumCapacity(0);
+    int percentage = batteryInfo->remainingCapacity(0) * 100 / (maximumCapacity != 0 ? maximumCapacity : 1);
 
     if (percentage >= 84) {
         return QString("icon-m-energy-management-charging8");
