@@ -100,7 +100,8 @@ void WindowModel::componentComplete()
 */
 bool WindowModel::approveWindow(LipstickCompositorWindow *window)
 {
-    return window->isInProcess() == false;
+    return window->isInProcess() == false && 
+        window->category() != QLatin1String("overlay");
 }
 
 void WindowModel::addItem(int id)
