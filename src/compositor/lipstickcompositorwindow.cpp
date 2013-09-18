@@ -24,6 +24,7 @@ LipstickCompositorWindow::LipstickCompositorWindow(int windowId, const QString &
 : QWaylandSurfaceItem(surface, parent), m_windowId(windowId), m_category(category), m_ref(0),
   m_delayRemove(false), m_windowClosed(false), m_removePosted(false), m_mouseRegionValid(false)
 {
+    setFlags(QQuickItem::ItemIsFocusScope | flags());
     refreshMouseRegion();
 }
 
