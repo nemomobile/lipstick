@@ -638,8 +638,12 @@ void Ut_NotificationManager::testModifyingCategoryDefinitionUpdatesNotifications
     QVariantHash hints1;
     QVariantHash hints2;
     hints1.insert(NotificationManager::HINT_CATEGORY, "category1");
+    hints1.insert(NotificationManager::HINT_PREVIEW_BODY, "previewBody1");
+    hints1.insert(NotificationManager::HINT_PREVIEW_SUMMARY, "previewSummary1");
     hints2.insert(NotificationManager::HINT_CATEGORY, "category2");
-    manager->Notify("app1", 0, QString(), QString(), QString(), QStringList(), hints1, 0);
+    hints2.insert(NotificationManager::HINT_PREVIEW_BODY, "previewBody2");
+    hints2.insert(NotificationManager::HINT_PREVIEW_SUMMARY, "previewSummary2");
+    uint id1 = manager->Notify("app1", 0, QString(), QString(), QString(), QStringList(), hints1, 0);
     uint id2 = manager->Notify("app2", 0, QString(), QString(), QString(), QStringList(), hints2, 0);
 
     // Updating notifications with category "category2" should only update the notification with that category
@@ -647,6 +651,12 @@ void Ut_NotificationManager::testModifyingCategoryDefinitionUpdatesNotifications
     manager->updateNotificationsWithCategory("category2");
     QCOMPARE(modifiedSpy.count(), 1);
     QCOMPARE(modifiedSpy.last().at(0).toUInt(), id2);
+
+    // The preview summary and body should be removed for the notification in category "category2"
+    QCOMPARE(manager->notification(id1)->hints().value(NotificationManager::HINT_PREVIEW_BODY), QVariant("previewBody1"));
+    QCOMPARE(manager->notification(id1)->hints().value(NotificationManager::HINT_PREVIEW_SUMMARY), QVariant("previewSummary1"));
+    QCOMPARE(manager->notification(id2)->hints().contains(NotificationManager::HINT_PREVIEW_BODY), false);
+    QCOMPARE(manager->notification(id2)->hints().contains(NotificationManager::HINT_PREVIEW_SUMMARY), false);
 }
 
 void Ut_NotificationManager::testUninstallingCategoryDefinitionRemovesNotifications()

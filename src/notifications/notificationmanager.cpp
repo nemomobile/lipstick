@@ -245,7 +245,12 @@ void NotificationManager::updateNotificationsWithCategory(const QString &categor
 {
     foreach(uint id, notifications.keys()) {
         if (notifications[id]->hints().value("category").toString() == category) {
-            Notify(notifications[id]->appName(), id, notifications[id]->appIcon(), notifications[id]->summary(), notifications[id]->body(), notifications[id]->actions(), notifications[id]->hints(), notifications[id]->expireTimeout());
+            // Remove the preview summary and body hints to avoid showing the preview banner again
+            QVariantHash hints = notifications[id]->hints();
+            hints.remove(HINT_PREVIEW_SUMMARY);
+            hints.remove(HINT_PREVIEW_BODY);
+
+            Notify(notifications[id]->appName(), id, notifications[id]->appIcon(), notifications[id]->summary(), notifications[id]->body(), notifications[id]->actions(), hints, notifications[id]->expireTimeout());
         }
     }
 }
