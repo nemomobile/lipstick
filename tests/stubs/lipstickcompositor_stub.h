@@ -41,6 +41,7 @@ class LipstickCompositorStub : public StubBase {
   virtual void surfaceTitleChanged();
   virtual void surfaceRaised();
   virtual void surfaceLowered();
+  virtual void surfaceDamaged(const QRect &);
   virtual void windowSwapped();
   virtual void windowDestroyed();
   virtual void windowPropertyChanged(const QString &);
@@ -212,6 +213,12 @@ void LipstickCompositorStub::surfaceLowered() {
   stubMethodEntered("surfaceLowered");
 }
 
+void LipstickCompositorStub::surfaceDamaged(const QRect &rect) {
+    QList<ParameterBase*> params;
+    params.append( new Parameter<QRect>(rect));
+    stubMethodEntered("surfaceDamaged",params);
+}
+
 void LipstickCompositorStub::windowSwapped() {
   stubMethodEntered("windowSwapped");
 }
@@ -366,6 +373,10 @@ void LipstickCompositor::surfaceRaised() {
 
 void LipstickCompositor::surfaceLowered() {
   gLipstickCompositorStub->surfaceLowered();
+}
+
+void LipstickCompositor::surfaceDamaged(const QRect &rect) {
+  gLipstickCompositorStub->surfaceDamaged(rect);
 }
 
 void LipstickCompositor::windowSwapped() {

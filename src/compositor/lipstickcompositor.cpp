@@ -75,6 +75,7 @@ void LipstickCompositor::surfaceCreated(QWaylandSurface *surface)
     connect(surface, SIGNAL(windowPropertyChanged(QString,QVariant)), this, SLOT(windowPropertyChanged(QString)));
     connect(surface, SIGNAL(raiseRequested()), this, SLOT(surfaceRaised()));
     connect(surface, SIGNAL(lowerRequested()), this, SLOT(surfaceLowered()));
+    connect(surface, SIGNAL(damaged(QRect)), this, SLOT(surfaceDamaged(QRect)));
 }
 
 void LipstickCompositor::openUrl(WaylandClient *client, const QUrl &url)
@@ -176,6 +177,15 @@ void LipstickCompositor::clearKeyboardFocus()
 void LipstickCompositor::setDisplayOff()
 {
     m_displayState->set(MeeGo::QmDisplayState::Off);
+}
+
+void LipstickCompositor::surfaceDamaged(const QRect &)
+{
+    if (!isVisible()) {
+        // If the compositor is not visible, do not throttle.
+        // make it conditional to QT_WAYLAND_COMPOSITOR_NO_THROTTLE?
+        frameFinished(0);
+    }
 }
 
 void LipstickCompositor::setFullscreenSurface(QWaylandSurface *surface)

@@ -113,6 +113,7 @@ private slots:
     void surfaceTitleChanged();
     void surfaceRaised();
     void surfaceLowered();
+    void surfaceDamaged(const QRect &);
     void windowSwapped();
     void windowDestroyed();
     void windowPropertyChanged(const QString &);
