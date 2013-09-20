@@ -101,9 +101,12 @@ signals:
     void displayOn();
 
 protected:
-     virtual void surfaceAboutToBeDestroyed(QWaylandSurface *surface);
+    virtual bool event(QEvent *);
+    virtual void surfaceAboutToBeDestroyed(QWaylandSurface *surface);
 
 private slots:
+    void clearUpdateRequest();
+    void maybePostUpdateRequest();
     void surfaceMapped();
     void surfaceUnmapped();
     void surfaceSizeChanged();
@@ -150,6 +153,7 @@ private:
     int m_topmostWindowId;
     Qt::ScreenOrientation m_screenOrientation;
     MeeGo::QmDisplayState *m_displayState;
+    QAtomicInt m_updateRequestPosted;
 };
 
 #endif // LIPSTICKCOMPOSITOR_H
