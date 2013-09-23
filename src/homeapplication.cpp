@@ -42,6 +42,8 @@
 #include "usbmodeselector.h"
 #include "shutdownscreen.h"
 #include "connectionselector.h"
+#include "screenshotservice.h"
+#include "screenshotserviceadaptor.h"
 
 // Define this if you'd like to see debug messages from the home app
 #ifdef DEBUG_HOME
@@ -121,6 +123,14 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     static const char *DEVICELOCK_DBUS_PATH = "/devicelock";
     if (!systemBus.registerObject(DEVICELOCK_DBUS_PATH, deviceLock)) {
         qWarning("Unable to register device lock object at path %s: %s", DEVICELOCK_DBUS_PATH, systemBus.lastError().message().toUtf8().constData());
+    }
+
+    ScreenshotService *screenshotService = new ScreenshotService(this);
+    new ScreenshotServiceAdaptor(screenshotService);
+    QDBusConnection sessionBus = QDBusConnection::sessionBus();
+    static const char *SCREENSHOT_DBUS_PATH = "/org/nemomobile/lipstick/screenshot";
+    if (!sessionBus.registerObject(SCREENSHOT_DBUS_PATH, screenshotService)) {
+        qWarning("Unable to register screenshot object at path %s: %s", SCREENSHOT_DBUS_PATH, sessionBus.lastError().message().toUtf8().constData());
     }
 }
 
