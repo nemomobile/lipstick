@@ -1,7 +1,7 @@
 lipstick
 ========
 
-lipstick is a research project aimed at offering easy to modify user experiences
+lipstick is a project aimed at offering easy to modify user experiences
 for varying mobile device form factors, e.g. handsets, netbooks, tablets.
 
 User experiences are written in QML.
@@ -12,41 +12,34 @@ acknowledgements
 lipstick builds heavily on the work of the meegotouchhome and meego-ux-daemon
 authors. Thanks.
 
-requirements
-============
+Thanks also to Nokia and Intel for opening this work, and thanks to Jolla for
+continuing to work on it, in the open.
 
-libX
-libXcomposite
-libXdamage
-libmlite (https://github.com/nemomobile/mlite)
+authors
+=======
 
-building
-========
+lipstick contains work from many, many folks. here's a particular special few.
 
-qmake
-make
+Robin Burchell - initial prototyping, naming, occasional hackery
+Timur Kristof - the UX/library split, initial work on a pretty UX
+Tom Swindell - initial work on a pretty UX
+Vesa Halttunen - various functionality additions, guidance, working it towards a product
+Aaron Kennedy - work on Wayland port
+Mikko Harju - work on Wayland issues/port
 
-contents
-========
+... and many others. If you feel like you belong here, you probably do. Submit a
+pull request.
 
-src - a shared library
-plugin - a QML plugin which exposes stuff to the QML engine
+building / dependencies
+=======================
+
+check the specfile in the 'rpm' directory. or just use mb2 to build.
 
 how to run lipstick
 ===================
 
-1. Build the project.
-   This involves a library, and a qml plugin.
-   They should compile without errors/warnings.
-
-2. Place the library .so file under /usr/lib
-   
-   NOTE: 64 bit variants of some distributions use /usr/lib64 instead of /usr/lib
-
-2. Place the plugin .so file and the qmldir file under /usr/lib/qt4/imports/org/nemomobile/lipstick
-   
-   NOTE: The warning about /usr/lib64 applies here too
-
+1. Build lipstick.
+2. Install lipstick.
 3. Get yourself a desktop
    If you haven't got anything better to use, grab the example
    (http://github.com/nemomobile/lipstick-example-home/).
