@@ -2,6 +2,7 @@ system(qdbusxml2cpp notifications/notificationmanager.xml -a notifications/notif
 system(qdbusxml2cpp screenlock/screenlock.xml -a screenlock/screenlockadaptor -c ScreenLockAdaptor -l ScreenLock -i screenlock.h)
 system(qdbusxml2cpp devicelock/devicelock.xml -a devicelock/devicelockadaptor -c DeviceLockAdaptor -l DeviceLock -i devicelock.h)
 system(qdbusxml2cpp lipstick.xml -a homeapplicationadaptor -c HomeApplicationAdaptor -l HomeApplication -i homeapplication.h)
+system(qdbusxml2cpp screenshotservice.xml -a screenshotserviceadaptor -c ScreenshotServiceAdaptor -l ScreenshotService -i screenshotservice.h)
 
 TEMPLATE = lib
 TARGET = lipstick-qt5
@@ -61,6 +62,8 @@ HEADERS += \
     devicelock/devicelockadaptor.h \
     devicelock/devicelock.h \
     homeapplicationadaptor.h \
+    screenshotservice.h \
+    screenshotserviceadaptor.h
 
 SOURCES += \
     homeapplication.cpp \
@@ -91,6 +94,8 @@ SOURCES += \
     lipstickapi.cpp \
     devicelock/devicelockadaptor.cpp \
     devicelock/devicelock.cpp \
+    screenshotservice.cpp \
+    screenshotserviceadaptor.cpp
 
 CONFIG += link_pkgconfig mobility qt warn_on depend_includepath qmake_cache target_qt
 CONFIG -= link_prl
