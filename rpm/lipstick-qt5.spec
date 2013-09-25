@@ -9,7 +9,7 @@ Name:       lipstick-qt5
 # << macros
 
 Summary:    QML toolkit for homescreen creation
-Version:    0.16.12
+Version:    0.16.14
 Release:    1
 Group:      System/Libraries
 License:    LGPLv2.1
