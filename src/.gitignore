@@ -4,4 +4,5 @@ pkgconfig
 *.ts
 *.qm
 homeapplicationadaptor.*
+screenshotserviceadaptor.*
 .moc
