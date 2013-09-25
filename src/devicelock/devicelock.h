@@ -50,6 +50,7 @@ signals:
     void stateChanged(int state);
 
 private slots:
+    void init();
     void setupLockTimer();
     void setStateAndSetupLockTimer();
     void lock();

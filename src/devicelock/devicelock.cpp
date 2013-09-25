@@ -35,6 +35,11 @@ DeviceLock::DeviceLock(QObject * parent) :
     connect(qmLocks, SIGNAL(stateChanged(MeeGo::QmLocks::Lock,MeeGo::QmLocks::State)), this, SLOT(setStateAndSetupLockTimer()));
     connect(qmDisplayState, SIGNAL(displayStateChanged(MeeGo::QmDisplayState::DisplayState)), this, SLOT(checkDisplayState(MeeGo::QmDisplayState::DisplayState)));
 
+    QTimer::singleShot(0, this, SLOT(init()));
+}
+
+void DeviceLock::init()
+{
     setState(isSet() && lockingGConfItem->value(-1).toInt() >= 0 ? Locked : Unlocked);
 }
 
