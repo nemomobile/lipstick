@@ -26,6 +26,11 @@ LipstickCompositorWindow::LipstickCompositorWindow(int windowId, const QString &
 {
     setFlags(QQuickItem::ItemIsFocusScope | flags());
     refreshMouseRegion();
+
+    // Handle ungrab situations
+    connect(this, SIGNAL(visibleChanged()), SLOT(handleTouchCancel()));
+    connect(this, SIGNAL(enabledChanged()), SLOT(handleTouchCancel()));
+    connect(this, SIGNAL(touchEventsEnabledChanged()), SLOT(handleTouchCancel()));
 }
 
 QVariant LipstickCompositorWindow::userData() const
@@ -222,3 +227,15 @@ void LipstickCompositorWindow::touchEvent(QTouchEvent *event)
     }
 }
 
+void LipstickCompositorWindow::handleTouchCancel()
+{
+    QWaylandSurface *m_surface = surface();
+    if (!m_surface)
+        return;
+    QWaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
+    if (inputDevice->mouseFocus() == m_surface &&
+            (!isVisible() || !isEnabled() || !touchEventsEnabled())) {
+        inputDevice->sendTouchCancelEvent();
+        inputDevice->setMouseFocus(0, QPointF());
+    }
+}

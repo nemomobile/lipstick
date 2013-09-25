@@ -67,6 +67,9 @@ signals:
     void delayRemoveChanged();
     void mouseRegionBoundsChanged();
 
+private slots:
+    void handleTouchCancel();
+
 private:
     friend class LipstickCompositor;
     friend class WindowPixmapItem;
