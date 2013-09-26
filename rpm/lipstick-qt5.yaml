@@ -70,6 +70,8 @@ SubPackages:
       License: LGPLv2.1
       Files:
           - "%{_bindir}/notificationtool"
+          - "%{_bindir}/screenshottool"
+          - "%{_datadir}/applications/screenshottool.desktop"
     - Name: doc
       Summary: Documentation for lipstick
       Description: Documentation for the lipstick package.

@@ -149,6 +149,8 @@ rm -rf %{buildroot}
 %files tools
 %defattr(-,root,root,-)
 %{_bindir}/notificationtool
+%{_bindir}/screenshottool
+%{_datadir}/applications/screenshottool.desktop
 # >> files tools
 # << files tools
 
