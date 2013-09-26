@@ -175,6 +175,8 @@ void WindowModel::launchProcess(const QString &binaryName)
     if (!m_complete || !c)
         return;
 
+    QStringList binaryParts = binaryName.split(QRegExp(QRegExp("\\s+")));
+
     for (QHash<int, LipstickCompositorWindow *>::ConstIterator iter = c->m_mappedSurfaces.begin();
         iter != c->m_mappedSurfaces.end(); ++iter) {
 
@@ -189,14 +191,36 @@ void WindowModel::launchProcess(const QString &binaryName)
             continue;
         }
 
-        // cmdline contains a \0, so we use constData to truncate that away
-        QByteArray proc = QByteArray(f.readAll().constData());
+        // Command line arguments are split by '\0' in /proc/*/cmdline
+        QStringList proc;
+        QByteArray data = f.readAll();
+        Q_FOREACH (const QByteArray &array, data.split('\0')) {
+            QString part = QString::fromUtf8(array);
+            if (part.size() > 0) {
+                proc << part;
+            }
+        }
 
-        if (proc != binaryName)
+        // Cannot match, as the cmdline has less arguments than then binary part
+        if (binaryParts.size() > proc.size()) {
             continue;
+        }
 
-        win->surface()->raiseRequested();
-        break;
+        bool match = true;
+
+        // All parts of binaryName must be contained in this order in the
+        // process command line to match the given process
+        for (int i=0; i<binaryParts.count(); i++) {
+            if (proc[i] != binaryParts[i]) {
+                match = false;
+                break;
+            }
+        }
+
+        if (match) {
+            win->surface()->raiseRequested();
+            break;
+        }
     }
 }
 
