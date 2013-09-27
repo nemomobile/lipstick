@@ -24,10 +24,12 @@
 
 ShutdownScreen::ShutdownScreen(QObject *parent) :
     QObject(parent),
-    window(0)
-    ,systemState(new MeeGo::QmSystemState(this))
+    window(0),
+    systemState(new MeeGo::QmSystemState(this)),
+    thermalState(new MeeGo::QmThermal(this))
 {
     connect(systemState, SIGNAL(systemStateChanged(MeeGo::QmSystemState::StateIndication)), this, SLOT(applySystemState(MeeGo::QmSystemState::StateIndication)));
+    connect(thermalState, SIGNAL(thermalChanged(MeeGo::QmThermal::ThermalState)), this, SLOT(applyThermalState(MeeGo::QmThermal::ThermalState)));
 }
 
 void ShutdownScreen::setWindowVisible(bool visible)
@@ -85,6 +87,22 @@ void ShutdownScreen::applySystemState(MeeGo::QmSystemState::StateIndication what
 
         default:
             break;
+    }
+}
+
+void ShutdownScreen::applyThermalState(MeeGo::QmThermal::ThermalState state)
+{
+    switch (state) {
+    case MeeGo::QmThermal::Warning:
+        //% "Device is getting hot. Close all apps."
+        createAndPublishNotification("x-nemo.battery.temperature", qtTrId("qtn_shut_high_temp_warning"));
+        break;
+    case MeeGo::QmThermal::Alert:
+        //% "Device is overheating. turn it off."
+        createAndPublishNotification("x-nemo.battery.temperature", qtTrId("qtn_shut_high_temp_alert"));
+        break;
+    default:
+        break;
     }
 }
 

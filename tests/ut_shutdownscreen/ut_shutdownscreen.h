@@ -39,6 +39,7 @@ private slots:
     // Test cases
     void testConnections();
     void testSystemState();
+    void testThermalState();
 
 private:
     ShutdownScreen *shutdownScreen;

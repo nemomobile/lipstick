@@ -118,12 +118,6 @@ void Ut_ShutdownScreen::testSystemState()
     QCOMPARE(qQuickViews.count(), 1);
 
     // Check window properties
-    /*
-    QCOMPARE(qQuickViews.first()->testAttribute(Qt::WA_TranslucentBackground), true);
-    QCOMPARE(qQuickViews.first()->testAttribute(Qt::WA_X11DoNotAcceptFocus), true);
-    QCOMPARE(qQuickViews.first()->testAttribute(Qt::WA_X11NetWmWindowTypeNotification), true);
-    QCOMPARE(qQuickViews.first()->viewport()->autoFillBackground(), false);
-    */
     QCOMPARE(qQuickViews.first()->title(), QString("Shutdown"));
     QCOMPARE(qQuickViews.first()->resizeMode(), QQuickView::SizeRootObjectToView);
     QCOMPARE(qQuickViews.first()->rootContext()->contextProperty("initialSize").toSize(), QGuiApplication::primaryScreen()->size());
@@ -132,6 +126,24 @@ void Ut_ShutdownScreen::testSystemState()
     // Check that the window was shown
     QCOMPARE(qWindowVisible[static_cast<QWindow *>(qQuickViews.first())], true);
     QCOMPARE(spy.count(), 1);
+}
+
+
+void Ut_ShutdownScreen::testThermalState()
+{
+    shutdownScreen->applyThermalState(MeeGo::QmThermal::Warning);
+    QCOMPARE(qQuickViews.count(), 0);
+    QCOMPARE(gNotificationManagerStub->stubCallCount("Notify"), 1);
+    QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QVariantHash>(6).value(NotificationManager::HINT_CATEGORY).toString(), QString("x-nemo.battery.temperature"));
+    QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QVariantHash>(6).value(NotificationManager::HINT_PREVIEW_BODY).toString(), qtTrId("qtn_shut_high_temp_warning"));
+    QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QString>(2), QString());
+
+    shutdownScreen->applyThermalState(MeeGo::QmThermal::Alert);
+    QCOMPARE(qQuickViews.count(), 0);
+    QCOMPARE(gNotificationManagerStub->stubCallCount("Notify"), 2);
+    QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QVariantHash>(6).value(NotificationManager::HINT_CATEGORY).toString(), QString("x-nemo.battery.temperature"));
+    QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QVariantHash>(6).value(NotificationManager::HINT_PREVIEW_BODY).toString(), qtTrId("qtn_shut_high_temp_alert"));
+    QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QString>(2), QString());
 }
 
 QTEST_MAIN (Ut_ShutdownScreen)

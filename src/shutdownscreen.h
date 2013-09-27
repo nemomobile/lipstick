@@ -19,6 +19,7 @@
 #include <QObject>
 #include "lipstickglobal.h"
 #include <qmsystemstate.h>
+#include <qmthermal.h>
 
 class HomeWindow;
 
@@ -57,6 +58,14 @@ private slots:
      */
     void applySystemState(MeeGo::QmSystemState::StateIndication what);
 
+    /*!
+     * Reacts to thermal state changes by showing the a
+     * related notification.
+     *
+     * \param state the new thermal state
+     */
+    void applyThermalState(MeeGo::QmThermal::ThermalState state);
+
 private:
     /*!
      * Shows a system notification.
@@ -71,6 +80,9 @@ private:
 
     //! For getting the system state
     MeeGo::QmSystemState *systemState;
+
+    //! For getting the thermal state
+    MeeGo::QmThermal *thermalState;
 
 #ifdef UNIT_TEST
     friend class Ut_ShutdownScreen;
