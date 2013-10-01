@@ -55,6 +55,8 @@ public:
 
     bool eventFilter(QObject *object, QEvent *event);
 
+    Q_INVOKABLE void terminateProcess(int killTimeout);
+
 protected:
     virtual bool event(QEvent *);
     virtual void mousePressEvent(QMouseEvent *event);
@@ -71,6 +73,7 @@ signals:
 
 private slots:
     void handleTouchCancel();
+    void killProcess();
 
 private:
     friend class LipstickCompositor;
