@@ -108,10 +108,20 @@ signals:
      */
     void homeActiveChanged();
 
+    /*!
+     * Emitted when the home screen has been drawn on screen for the first time.
+     */
+    void homeReady();
+
 protected:
     virtual bool event(QEvent *);
 
 private slots:
+    /*!
+     * Emits the homeReady() signal unless it has already been sent
+     */
+    void sendHomeReadySignalIfNotAlreadySent();
+
     /*!
      * Sends a dbus-signal after UI is visible, stops the process if it has
      * been started by upstart
@@ -153,6 +163,9 @@ private:
 
     //! Whether user interface updates should be enabled or not
     bool updatesEnabled;
+
+    //! Whether the home ready signal has been sent or not
+    bool homeReadySent;
 };
 
 #endif /* HOMEAPPLICATION_H_ */
