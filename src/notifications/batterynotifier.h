@@ -20,7 +20,6 @@
 #include <QTimer>
 #include <QScopedPointer>
 #include <QBatteryInfo>
-#include <qmled.h>
 #include <qmdevicemode.h>
 
 class LowBatteryNotifier;
@@ -75,7 +74,6 @@ private slots:
     void applyChargingState(int battery, QBatteryInfo::ChargingState state);
     void applyChargerType(QBatteryInfo::ChargerType type);
     void applyPSMState(MeeGo::QmDeviceMode::PSMState psmState);
-    void utiliseLED(bool activate, const QString &pattern);
 
 private:
     //! Sends a notification based on the notification ID
@@ -113,9 +111,6 @@ private:
 
     //! For getting device mode
     MeeGo::QmDeviceMode *qmDeviceMode;
-
-    //! For controlling the LED
-    MeeGo::QmLED *qmLed;
 
     //! The current charger type
     QBatteryInfo::ChargerType chargerType;

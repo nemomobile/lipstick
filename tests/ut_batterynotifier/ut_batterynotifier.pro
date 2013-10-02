@@ -9,7 +9,6 @@ HEADERS += \
     $$NOTIFICATIONSRCDIR/lowbatterynotifier.h \
     $$NOTIFICATIONSRCDIR/notificationmanager.h \
     $$NOTIFICATIONSRCDIR/lipsticknotification.h \
-    /usr/include/qmsystem2-qt5/qmled.h \
     /usr/include/qmsystem2-qt5/qmdevicemode.h \
     /usr/include/qmsystem2-qt5/qmdisplaystate.h \
     $$STUBSDIR/stubbase.h \

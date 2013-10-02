@@ -27,7 +27,6 @@ BatteryNotifier::BatteryNotifier(QObject *parent) :
     touchScreenLockActive(false),
     batteryInfo(new QBatteryInfo(this)),
     qmDeviceMode(new MeeGo::QmDeviceMode(this)),
-    qmLed(new MeeGo::QmLED(this)),
     chargerType(QBatteryInfo::UnknownCharger)
 {
 #ifndef UNIT_TEST
@@ -79,7 +78,6 @@ void BatteryNotifier::applyChargingState(int, QBatteryInfo::ChargingState state)
 
     default:
         removeNotification(QStringList() << "x-nemo.battery");
-        utiliseLED(false, QString("PatternBatteryCharging"));
         break;
 
     }
@@ -152,27 +150,16 @@ void BatteryNotifier::applyPSMState(MeeGo::QmDeviceMode::PSMState psmState)
     }
 }
 
-void BatteryNotifier::utiliseLED(bool activate, const QString &pattern)
-{
-    if (activate) {
-        qmLed->activate(pattern);
-    } else {
-        qmLed->deactivate(pattern);
-    }
-}
-
 void BatteryNotifier::sendNotification(BatteryNotifier::NotificationID id)
 {
     switch(id) {
     case NotificationCharging:
-        utiliseLED(true, QString("PatternBatteryCharging"));
         sendNotification("x-nemo.battery",
                 //% "Charging"
                 qtTrId("qtn_ener_charging"));
         break;
 
     case NotificationChargingComplete:
-        utiliseLED(true, QString("PatternBatteryFull"));
         sendNotification("x-nemo.battery.chargingcomplete",
                 //% "Charging complete"
                 qtTrId("qtn_ener_charcomp"));
@@ -185,7 +172,6 @@ void BatteryNotifier::sendNotification(BatteryNotifier::NotificationID id)
         break;
 
     case NotificationChargingNotStarted:
-        utiliseLED(false, QString("PatternBatteryCharging"));
         sendNotification("x-nemo.battery.chargingnotstarted",
                 //% "Charging not started. Replace charger."
                 qtTrId("qtn_ener_repcharger"));
