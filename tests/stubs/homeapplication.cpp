@@ -20,3 +20,7 @@ bool HomeApplication::event(QEvent *)
     qFatal("Not implemented");
     return true;
 }
+
+void HomeApplication::sendHomeReadySignalIfNotAlreadySent()
+{
+}
