@@ -13,6 +13,7 @@
 **
 ****************************************************************************/
 
+#include <QCoreApplication>
 #include <QSettings>
 #include <QProcess>
 #include <QTimer>
@@ -35,7 +36,7 @@ DeviceLock::DeviceLock(QObject * parent) :
     connect(qmLocks, SIGNAL(stateChanged(MeeGo::QmLocks::Lock,MeeGo::QmLocks::State)), this, SLOT(setStateAndSetupLockTimer()));
     connect(qmDisplayState, SIGNAL(displayStateChanged(MeeGo::QmDisplayState::DisplayState)), this, SLOT(checkDisplayState(MeeGo::QmDisplayState::DisplayState)));
 
-    QTimer::singleShot(0, this, SLOT(init()));
+    connect(qApp, SIGNAL(homeReady()), this, SLOT(init()));
 }
 
 void DeviceLock::init()

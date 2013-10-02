@@ -27,6 +27,7 @@ PkgConfigBR:
     - ngf-qt5
     - qmsystem2-qt5 >= 1.4.11
     - contextkit-statefs >= 0.2.7
+    - systemd
 PkgBR:
     - qt5-qttools-linguist
     - qt5-qtwayland-wayland_egl-devel >= 5.1.0+git7
