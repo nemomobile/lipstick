@@ -22,6 +22,7 @@
 #include <QDebug>
 #include <QEvent>
 #include <QtGui/qpa/qplatformnativeinterface.h>
+#include <systemd/sd-daemon.h>
 
 #include "notifications/notificationmanager.h"
 #include "notifications/notificationpreviewpresenter.h"
@@ -64,6 +65,7 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     , originalSigIntHandler(signal(SIGINT, quitSignalHandler))
     , originalSigTermHandler(signal(SIGTERM, quitSignalHandler))
     , updatesEnabled(true)
+    , homeReadySent(false)
 {
     setApplicationName("Lipstick");
     // TODO: autogenerate this from tags
@@ -75,9 +77,6 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     QTranslator *translator = new QTranslator(this);
     translator->load(QLocale(), "lipstick", "-", "/usr/share/translations");
     installTranslator(translator);
-
-    // launch a timer for sending a dbus-signal upstart when basic construct is done
-    QTimer::singleShot(0, this, SLOT(sendStartupNotifications()));
 
     // Initialize the QML engine
     qmlEngine = new QQmlEngine(this);
@@ -132,6 +131,8 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     if (!sessionBus.registerObject(SCREENSHOT_DBUS_PATH, screenshotService)) {
         qWarning("Unable to register screenshot object at path %s: %s", SCREENSHOT_DBUS_PATH, sessionBus.lastError().message().toUtf8().constData());
     }
+
+    connect(this, SIGNAL(homeReady()), this, SLOT(sendStartupNotifications()));
 }
 
 HomeApplication::~HomeApplication()
@@ -153,6 +154,16 @@ void HomeApplication::restoreSignalHandlers()
     signal(SIGTERM, originalSigTermHandler);
 }
 
+void HomeApplication::sendHomeReadySignalIfNotAlreadySent()
+{
+    if (!homeReadySent) {
+        homeReadySent = true;
+        disconnect(LipstickCompositor::instance(), SIGNAL(frameSwapped()), this, SLOT(sendHomeReadySignalIfNotAlreadySent()));
+
+        emit homeReady();
+    }
+}
+
 void HomeApplication::sendStartupNotifications()
 {
     static QDBusConnection systemBus = QDBusConnection::systemBus();
@@ -162,9 +173,13 @@ void HomeApplication::sendStartupNotifications()
                                    "ready");
     systemBus.send(homeReadySignal);
 
-    // For device boot performance reasons initializing Home scene window must be done
-    // only after ready signal is sent.
-    mainWindowInstance()->showFullScreen();
+    /* Let systemd know that we are initialized */
+    if (arguments().indexOf("--systemd") >= 0) {
+        sd_notify(0, "READY=1");
+    }
+
+    /* Let timed know that the UI is up */
+    systemBus.call(QDBusMessage::createSignal("/com/nokia/startup/signal", "com.nokia.startup.signal", "desktop_visible"), QDBus::NoBlock);
 }
 
 bool HomeApplication::homeActive() const
@@ -197,6 +212,9 @@ void HomeApplication::setQmlPath(const QString &path)
         if (_mainWindowInstance->hasErrors()) {
             qWarning() << "HomeApplication: Errors while loading" << path;
             qWarning() << _mainWindowInstance->errors();
+        } else {
+            _mainWindowInstance->showFullScreen();
+            connect(LipstickCompositor::instance(), SIGNAL(frameSwapped()), this, SLOT(sendHomeReadySignalIfNotAlreadySent()));
         }
     }
 }

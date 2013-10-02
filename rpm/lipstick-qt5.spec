@@ -36,6 +36,7 @@ BuildRequires:  pkgconfig(libresourceqt5)
 BuildRequires:  pkgconfig(ngf-qt5)
 BuildRequires:  pkgconfig(qmsystem2-qt5) >= 1.4.11
 BuildRequires:  pkgconfig(contextkit-statefs) >= 0.2.7
+BuildRequires:  pkgconfig(systemd)
 BuildRequires:  qt5-qttools-linguist
 BuildRequires:  qt5-qtwayland-wayland_egl-devel >= 5.1.0+git7
 BuildRequires:  doxygen
