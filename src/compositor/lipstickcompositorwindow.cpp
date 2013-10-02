@@ -16,6 +16,9 @@
 #include <QCoreApplication>
 #include <QWaylandCompositor>
 #include <QWaylandInputDevice>
+#include <QTimer>
+#include <sys/types.h>
+#include <signal.h>
 #include "lipstickcompositor.h"
 #include "lipstickcompositorwindow.h"
 
@@ -275,4 +278,16 @@ void LipstickCompositorWindow::handleTouchCancel()
         inputDevice->sendTouchCancelEvent();
         inputDevice->setMouseFocus(0, QPointF());
     }
+}
+
+void LipstickCompositorWindow::terminateProcess(int killTimeout)
+{
+    kill(processId(), SIGTERM);
+
+    QTimer::singleShot(killTimeout, this, SLOT(killProcess()));
+}
+
+void LipstickCompositorWindow::killProcess()
+{
+    kill(processId(), SIGKILL);
 }
