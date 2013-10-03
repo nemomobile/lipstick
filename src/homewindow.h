@@ -28,16 +28,21 @@ class HomeWindowPrivate;
 class LIPSTICK_EXPORT HomeWindow : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString category READ category WRITE setCategory)
+    Q_PROPERTY(bool visible READ isVisible WRITE setVisible)
+    Q_PROPERTY(QQuickItem *rootObject READ rootObject WRITE setRootObject)
 public:
     HomeWindow();
     ~HomeWindow();
 
     bool isVisible() const;
+    void setVisible(bool v);
     void show();
     void hide();
     void showFullScreen();
 
     QQuickItem *rootObject() const;
+    void setRootObject(QQuickItem *i);
     void setSource(const QUrl &);
     void setWindowTitle(const QString &);
     bool hasErrors() const;

@@ -113,6 +113,11 @@ bool HomeWindow::isVisible() const
     return d->isVisible;
 }
 
+void HomeWindow::setVisible(bool v)
+{
+    v ? show() : hide();
+}
+
 void HomeWindow::show()
 {
     if (d->isVisible)
@@ -164,6 +169,21 @@ void HomeWindow::showFullScreen()
 QQuickItem *HomeWindow::rootObject() const
 {
     return d->root;
+}
+
+void HomeWindow::setRootObject(QQuickItem *i)
+{
+    if (i == d->root)
+        return;
+
+    delete d->root;
+    d->root = i;
+    if (i) {
+        if (d->isWindow())
+            i->setParentItem(d->window->contentItem());
+        else if (d->compositorWindow)
+            i->setParentItem(d->compositorWindow);
+    }
 }
 
 void HomeWindow::setSource(const QUrl &source)

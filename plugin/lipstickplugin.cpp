@@ -30,6 +30,7 @@
 #include <compositor/windowpixmapitem.h>
 #include <compositor/windowproperty.h>
 #include <lipstickapi.h>
+#include <homewindow.h>
 
 static QObject *lipstickApi_callback(QQmlEngine *e, QJSEngine *)
 {
@@ -49,6 +50,7 @@ void LipstickPlugin::registerTypes(const char *uri)
     qmlRegisterType<NotificationListModel>("org.nemomobile.lipstick", 0, 1, "NotificationListModel");
     qmlRegisterType<LipstickNotification>("org.nemomobile.lipstick", 0, 1, "Notification");
     qmlRegisterType<LauncherItem>("org.nemomobile.lipstick", 0, 1, "LauncherItem");
+    qmlRegisterType<HomeWindow>("org.nemomobile.lipstick", 0, 1, "HomeWindow");
     qmlRegisterUncreatableType<NotificationPreviewPresenter>("org.nemomobile.lipstick", 0, 1, "NotificationPreviewPresenter", "This type is initialized by HomeApplication");
     qmlRegisterUncreatableType<VolumeControl>("org.nemomobile.lipstick", 0, 1, "VolumeControl", "This type is initialized by HomeApplication");
     qmlRegisterUncreatableType<USBModeSelector>("org.nemomobile.lipstick", 0, 1, "USBModeSelector", "This type is initialized by HomeApplication");

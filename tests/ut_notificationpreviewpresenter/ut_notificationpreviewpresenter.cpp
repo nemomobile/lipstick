@@ -66,6 +66,21 @@ bool HomeWindow::isVisible() const
     return homeWindowVisible[const_cast<HomeWindow *>(this)];
 }
 
+void HomeWindow::setVisible(bool v)
+{
+    v ? show() : hide();
+}
+
+QQuickItem *HomeWindow::rootObject() const
+{
+    return 0;
+}
+
+void HomeWindow::setRootObject(QQuickItem *)
+{
+
+}
+
 QHash<HomeWindow *, QVariantMap> homeWindowContextProperties;
 void HomeWindow::setContextProperty(const QString &key, const QVariant &value)
 {
@@ -81,7 +96,12 @@ void HomeWindow::setGeometry(const QRect &)
 {
 }
 
-QHash<HomeWindow *, QString> homeWindowCategories;
+QHash<const HomeWindow *, QString> homeWindowCategories;
+
+QString HomeWindow::category() const
+{
+    return homeWindowCategories[this];
+}
 
 void HomeWindow::setCategory(const QString &category)
 {
