@@ -42,8 +42,8 @@ class LIPSTICK_EXPORT VolumeControl : public QObject
     Q_OBJECT
     Q_PROPERTY(int volume READ volume NOTIFY volumeChanged)
     Q_PROPERTY(int maximumVolume READ maximumVolume NOTIFY maximumVolumeChanged)
+    Q_PROPERTY(int safeVolume READ safeVolume NOTIFY safeVolumeChanged)
     Q_PROPERTY(bool windowVisible READ windowVisible WRITE setWindowVisible NOTIFY windowVisibleChanged)
-    Q_PROPERTY(bool showVolumeWarning READ showVolumeWarning WRITE setShowVolumeWarning NOTIFY showVolumeWarningChanged)
 
 public:
     /*!
@@ -80,6 +80,13 @@ public:
     int maximumVolume() const;
 
     /*!
+     * Returns the safe volume.
+     *
+     * \return the safe volume
+     */
+    int safeVolume() const;
+
+    /*!
      * Returns whether the volume window is visible or not.
      *
      * \return \c true if the volume window is visible, \c false otherwise
@@ -94,18 +101,11 @@ public:
     void setWindowVisible(bool visible);
 
     /*!
-     * Returns whether the high volume should be show to user.
+     * Returns whether the audio warning has been acknowledged by user.
      *
-     * \return \c true if warning should be shown \c false otherwise
+     * \return \c true if acknowledged \c false otherwise
      */
-    bool showVolumeWarning() const;
-
-    /*!
-     * Sets the visibility of the high volume warning.
-     *
-     * \param showWarning \c true if the warning should be shown, \c false is user want's to suppress it for ever
-     */
-    void setShowVolumeWarning(bool showWarning);
+    bool warningAcknowledged() const;
 
     //! \reimp
     virtual bool eventFilter(QObject *watched, QEvent *event);
@@ -121,25 +121,18 @@ signals:
     //! Sent when the maximum volume has changed.
     void maximumVolumeChanged();
 
+    //! Sent when the safe volume has changed.
+    void safeVolumeChanged();
+
     //! Sent when the visibility of the volume window has changed.
     void windowVisibleChanged();
 
-    //! Sent when the visibility of the high volume warning.
-    void showVolumeWarningChanged();
-
     /*!
-     * Sent when main volume is set to so high that it can hurt hearing
+     * Sent when high volume or long listening time warning should show to user.
      *
-     * \param safeLevel Highest level for volumume that does not risk hurting hearing
+     * \param initial \c true if warning is initial, listening time == 0 \c false otherwise
      */
-    void highVolume(int safeLevel);
-
-    /*!
-     * Sent when user needs to be warned about long listening time.
-     *
-     * \param listeningTime listening time in minutes
-     */
-    void longListeningTime(int listeningTime);
+    void showAudioWarning(bool initial);
 
 public slots:
     //! Acquires access to hardware keys
@@ -147,6 +140,13 @@ public slots:
 
     //! Releases access to hardware keys
     void releaseKeys();
+
+    /*!
+     * Sets the audio warning acknowledged.
+     *
+     * \param acknowledged \c true if the used has acknowledged warning, \c false otherwise.
+     */
+    void setWarningAcknowledged(bool acknowledged);
 
 private slots:
     //! Sets the volume and maximum volume
@@ -163,6 +163,12 @@ private slots:
 
     //! Stops any key repeat in progress
     void stopKeyRepeat();
+
+    //! Used to capture safe volume level and reset it to safe when needed.
+    void handleHighVolume(int safeLevel);
+
+    //! Used to show long listening time warning
+    void handleLongListeningTime(int listeningTime);
 
 private:
     //! The volume control window
@@ -195,8 +201,11 @@ private:
     //! Timer for the key repeat
     QTimer keyRepeatTimer;
 
-    //! Stores high volume warning visibility
-    MGConfItem *volumeWarning;
+    //! Stores audio warning acknowledgement state
+    MGConfItem *audioWarning;
+
+    //! The current safe volume
+    int safeVolume_;
 
 #ifdef UNIT_TEST
     friend class Ut_VolumeControl;

@@ -34,7 +34,8 @@ VolumeControl::VolumeControl(QObject *parent) :
     hwKeysAcquired(false),
     volume_(0),
     maximumVolume_(0),
-    volumeWarning(new MGConfItem("/desktop/nemo/volumewarning", this))
+    audioWarning(new MGConfItem("/desktop/nemo/audiowarning", this)),
+    safeVolume_(0)
 {
     hwKeyResource->setAlwaysReply();
     hwKeyResource->addResourceObject(new ResourcePolicy::ScaleButtonResource);
@@ -52,8 +53,8 @@ VolumeControl::VolumeControl(QObject *parent) :
     connect(&keyRepeatTimer, SIGNAL(timeout()), this, SLOT(changeVolume()));
 
     connect(pulseAudioControl, SIGNAL(volumeChanged(int,int)), this, SLOT(setVolume(int,int)));
-    connect(pulseAudioControl, SIGNAL(highVolume(int)), SIGNAL(highVolume(int)));
-    connect(pulseAudioControl, SIGNAL(longListeningTime(int)), SIGNAL(longListeningTime(int)));
+    connect(pulseAudioControl, SIGNAL(highVolume(int)), SLOT(handleHighVolume(int)));
+    connect(pulseAudioControl, SIGNAL(longListeningTime(int)), SLOT(handleLongListeningTime(int)));
     pulseAudioControl->update();
 
     qApp->installEventFilter(this);
@@ -75,6 +76,11 @@ int VolumeControl::volume() const
 int VolumeControl::maximumVolume() const
 {
     return maximumVolume_;
+}
+
+int VolumeControl::safeVolume() const
+{
+    return safeVolume_ == 0 ? maximumVolume() : safeVolume_;
 }
 
 void VolumeControl::setWindowVisible(bool visible)
@@ -106,18 +112,18 @@ bool VolumeControl::windowVisible() const
     return window != 0 && window->isVisible();
 }
 
-bool VolumeControl::showVolumeWarning() const
+bool VolumeControl::warningAcknowledged() const
 {
-    return volumeWarning->value(true).toBool();
+    return audioWarning->value(false).toBool();
 }
 
-void VolumeControl::setShowVolumeWarning(bool showWarning)
+void VolumeControl::setWarningAcknowledged(bool acknowledged)
 {
-    if (volumeWarning->value(true).toBool() == showWarning)
+    if (audioWarning->value(false).toBool() == acknowledged) {
         return;
+    }
 
-    volumeWarning->set(showWarning);
-    emit showVolumeWarningChanged();
+    audioWarning->set(acknowledged);
 }
 
 void VolumeControl::setVolume(int volume, int maximumVolume)
@@ -171,22 +177,44 @@ void VolumeControl::acquireKeys()
 
 void VolumeControl::changeVolume()
 {
-    volume_ += volumeChange;
-    if (volume_ < 0) {
-        volume_ = 0;
-    } else if (volume_ >= maximumVolume_) {
-        volume_ = maximumVolume_;
-    }
-
+    volume_ = qBound(0, volume_ + volumeChange, warningAcknowledged() ? maximumVolume() : safeVolume());
     pulseAudioControl->setVolume(volume_);
     setWindowVisible(true);
     emit volumeChanged();
+
+    if (!warningAcknowledged() && safeVolume_ != 0 && volume_ >= safeVolume_) {
+        emit showAudioWarning(false);
+    }
 }
 
 void VolumeControl::stopKeyRepeat()
 {
     keyRepeatDelayTimer.stop();
     keyRepeatTimer.stop();
+}
+
+void VolumeControl::handleHighVolume(int safeLevel)
+{
+    safeVolume_ = safeLevel;
+    volume_ = qBound(0, volume_, warningAcknowledged() ? maximumVolume() : safeVolume());
+    pulseAudioControl->setVolume(volume_);
+    emit safeVolumeChanged();
+    emit volumeChanged();
+
+    if (!warningAcknowledged() && safeVolume_ != 0 && volume_ >= safeVolume_) {
+        setWindowVisible(true);
+        emit showAudioWarning(false);
+    }
+}
+
+void VolumeControl::handleLongListeningTime(int listeningTime)
+{
+    setWarningAcknowledged(false);
+    setWindowVisible(true);
+    volume_ = qBound(0, volume_, warningAcknowledged() ? maximumVolume() : safeVolume());
+    pulseAudioControl->setVolume(volume_);
+    emit volumeChanged();
+    emit showAudioWarning(listeningTime == 0);
 }
 
 bool VolumeControl::eventFilter(QObject *, QEvent *event)
