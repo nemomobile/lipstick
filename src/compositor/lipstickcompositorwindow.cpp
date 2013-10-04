@@ -171,7 +171,7 @@ bool LipstickCompositorWindow::eventFilter(QObject *, QEvent *event)
         QWaylandSurface *m_surface = surface();
         if (m_surface && m_grabbedKeys.contains(ke->key())) {
             QWaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
-            inputDevice->sendFullKeyEvent(ke);
+            inputDevice->sendFullKeyEvent(m_surface, ke);
 
             return true;
         }
