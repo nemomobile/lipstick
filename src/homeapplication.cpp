@@ -207,15 +207,17 @@ void HomeApplication::setQmlPath(const QString &path)
 {
     _qmlPath = path;
 
-    if (_mainWindowInstance) {
+    if (_mainWindowInstance)
         _mainWindowInstance->setSource(path);
-        if (_mainWindowInstance->hasErrors()) {
-            qWarning() << "HomeApplication: Errors while loading" << path;
-            qWarning() << _mainWindowInstance->errors();
-        } else {
-            _mainWindowInstance->showFullScreen();
-            connect(LipstickCompositor::instance(), SIGNAL(frameSwapped()), this, SLOT(sendHomeReadySignalIfNotAlreadySent()));
-        }
+    else
+        mainWindowInstance();
+
+    if (_mainWindowInstance->hasErrors()) {
+        qWarning() << "HomeApplication: Errors while loading" << path;
+        qWarning() << _mainWindowInstance->errors();
+    } else {
+        _mainWindowInstance->showFullScreen();
+        connect(LipstickCompositor::instance(), SIGNAL(frameSwapped()), this, SLOT(sendHomeReadySignalIfNotAlreadySent()));
     }
 }
 
