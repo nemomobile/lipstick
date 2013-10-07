@@ -24,3 +24,7 @@ bool HomeApplication::event(QEvent *)
 void HomeApplication::sendHomeReadySignalIfNotAlreadySent()
 {
 }
+
+void HomeApplication::connectFrameSwappedSignal(bool)
+{
+}

@@ -212,9 +212,6 @@ void HomeApplication::setQmlPath(const QString &path)
         if (_mainWindowInstance->hasErrors()) {
             qWarning() << "HomeApplication: Errors while loading" << path;
             qWarning() << _mainWindowInstance->errors();
-        } else {
-            _mainWindowInstance->showFullScreen();
-            connect(LipstickCompositor::instance(), SIGNAL(frameSwapped()), this, SLOT(sendHomeReadySignalIfNotAlreadySent()));
         }
     }
 }
@@ -275,6 +272,7 @@ HomeWindow *HomeApplication::mainWindowInstance()
     _mainWindowInstance->setContextProperty("deviceLock", deviceLock);
 
     QObject::connect(_mainWindowInstance->engine(), SIGNAL(quit()), qApp, SLOT(quit()));
+    QObject::connect(_mainWindowInstance, SIGNAL(visibleChanged(bool)), this, SLOT(connectFrameSwappedSignal(bool)));
 
     // Setting the source, if present
     if (!_qmlPath.isEmpty())
@@ -300,5 +298,12 @@ void HomeApplication::setUpdatesEnabled(bool enabled)
             QGuiApplication::platformNativeInterface()->nativeResourceForIntegration("DisplayOn");
             LipstickCompositor::instance()->showFullScreen();
         }
+    }
+}
+
+void HomeApplication::connectFrameSwappedSignal(bool mainWindowVisible)
+{
+    if (!homeReadySent && mainWindowVisible) {
+        connect(LipstickCompositor::instance(), SIGNAL(frameSwapped()), this, SLOT(sendHomeReadySignalIfNotAlreadySent()));
     }
 }

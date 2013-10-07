@@ -125,6 +125,8 @@ void HomeWindow::show()
         d->compositorWindow = LipstickCompositor::instance()->mapProcWindow(d->title, d->category, d->geometry);
         if (d->root) d->root->setParentItem(d->compositorWindow);
     }
+
+    emit visibleChanged(d->isVisible);
 }
 
 void HomeWindow::hide()
@@ -139,6 +141,8 @@ void HomeWindow::hide()
         d->compositorWindow->hide();
         d->compositorWindow = 0;
     }
+
+    emit visibleChanged(d->isVisible);
 }
 
 void HomeWindow::showFullScreen()
@@ -153,6 +157,8 @@ void HomeWindow::showFullScreen()
         d->compositorWindow = LipstickCompositor::instance()->mapProcWindow(d->title, d->category, d->geometry);
         if (d->root) d->root->setParentItem(d->compositorWindow);
     }
+
+    emit visibleChanged(d->isVisible);
 }
 
 QQuickItem *HomeWindow::rootObject() const

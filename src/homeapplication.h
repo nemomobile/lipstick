@@ -128,6 +128,12 @@ private slots:
      */
     void sendStartupNotifications();
 
+    /*!
+     * Connects to the compositor's frame swapped signal for sending the
+     * startup notifications.
+     */
+    void connectFrameSwappedSignal(bool mainWindowVisible);
+
 private:
     friend class LipstickApi;
 

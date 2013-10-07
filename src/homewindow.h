@@ -53,6 +53,9 @@ public:
     void setContextProperty(const QString &, const QVariant &);
     void setContextProperty(const QString &, QObject *);
 
+signals:
+    void visibleChanged(bool arg);
+
 private:
     HomeWindowPrivate *d;
 };
