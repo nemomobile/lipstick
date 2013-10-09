@@ -395,6 +395,9 @@ void LipstickCompositor::reactOnDisplayStateChanges(MeeGo::QmDisplayState::Displ
   gLipstickCompositorStub->reactOnDisplayStateChanges(state);
 }
 
+void LipstickCompositor::homeApplicationAboutToDestroy() {
+}
+
 QWaylandCompositor::QWaylandCompositor(QWindow *, const char *)
 {
 }

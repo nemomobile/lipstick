@@ -119,6 +119,7 @@ private slots:
     void windowPropertyChanged(const QString &);
     void openUrl(const QUrl &);
     void reactOnDisplayStateChanges(MeeGo::QmDisplayState::DisplayState state);
+    void homeApplicationAboutToDestroy();
 
 private:
     friend class LipstickCompositorWindow;
