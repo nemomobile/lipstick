@@ -113,6 +113,11 @@ signals:
      */
     void homeReady();
 
+    /*
+     * Emitted before the HomeApplication commences destruction.
+     */
+    void aboutToDestroy();
+
 protected:
     virtual bool event(QEvent *);
 

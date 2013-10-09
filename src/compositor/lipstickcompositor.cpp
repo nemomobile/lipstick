@@ -38,6 +38,7 @@ LipstickCompositor::LipstickCompositor()
     QObject::connect(this, SIGNAL(frameSwapped()), this, SLOT(windowSwapped()));
     QObject::connect(this, SIGNAL(beforeSynchronizing()), this, SLOT(clearUpdateRequest()));
     connect(m_displayState, SIGNAL(displayStateChanged(MeeGo::QmDisplayState::DisplayState)), this, SLOT(reactOnDisplayStateChanges(MeeGo::QmDisplayState::DisplayState)));
+    QObject::connect(HomeApplication::instance(), SIGNAL(aboutToDestroy()), this, SLOT(homeApplicationAboutToDestroy()));
 
     emit HomeApplication::instance()->homeActiveChanged();
 
@@ -54,6 +55,12 @@ LipstickCompositor::~LipstickCompositor()
 LipstickCompositor *LipstickCompositor::instance()
 {
     return m_instance;
+}
+
+void LipstickCompositor::homeApplicationAboutToDestroy()
+{
+    m_instance = 0;
+    delete this;
 }
 
 void LipstickCompositor::classBegin()
