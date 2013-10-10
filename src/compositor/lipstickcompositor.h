@@ -26,6 +26,7 @@
 class WindowModel;
 class LipstickCompositorWindow;
 class LipstickCompositorProcWindow;
+class QOrientationSensor;
 
 class LIPSTICK_EXPORT LipstickCompositor : public QQuickWindow, public QWaylandCompositor,
                                            public QQmlParserStatus
@@ -121,6 +122,7 @@ private slots:
     void openUrl(const QUrl &);
     void reactOnDisplayStateChanges(MeeGo::QmDisplayState::DisplayState state);
     void homeApplicationAboutToDestroy();
+    void setScreenOrientationFromSensor();
 
 private:
     friend class LipstickCompositorWindow;
@@ -157,6 +159,7 @@ private:
     Qt::ScreenOrientation m_screenOrientation;
     MeeGo::QmDisplayState *m_displayState;
     QAtomicInt m_updateRequestPosted;
+    QOrientationSensor* m_orientationSensor;
 };
 
 #endif // LIPSTICKCOMPOSITOR_H
