@@ -222,6 +222,11 @@ QString LipstickNotification::category() const
     return hints_.value(NotificationManager::HINT_CATEGORY).toString();
 }
 
+bool LipstickNotification::isUserRemovable() const
+{
+    return hints_.value(NotificationManager::HINT_USER_REMOVABLE, QVariant(true)).toBool();
+}
+
 QDBusArgument &operator<<(QDBusArgument &argument, const LipstickNotification &notification)
 {
     argument.beginStructure();

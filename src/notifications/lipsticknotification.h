@@ -45,6 +45,7 @@ class LIPSTICK_EXPORT LipstickNotification : public QObject
     Q_PROPERTY(int itemCount READ itemCount NOTIFY itemCountChanged)
     Q_PROPERTY(int priority READ priority NOTIFY priorityChanged)
     Q_PROPERTY(QString category READ category NOTIFY categoryChanged)
+    Q_PROPERTY(bool userRemovable READ isUserRemovable NOTIFY userRemovableChanged)
 
 public:
     /*!
@@ -141,6 +142,9 @@ public:
     //! Returns the category of the notification
     QString category() const;
 
+    //! Returns the user removability of the notification
+    bool isUserRemovable() const;
+
     //! \internal
     /*!
      * Creates a copy of an existing representation of a notification.
@@ -195,6 +199,9 @@ signals:
 
     //! Sent when the category has been modified
     void categoryChanged();
+
+    //! Sent when the user removability has been modified
+    void userRemovableChanged();
 
 private:
     //! Name of the application sending the notification
