@@ -471,5 +471,7 @@ void LipstickCompositor::reactOnDisplayStateChanges(MeeGo::QmDisplayState::Displ
 {
     if (state == MeeGo::QmDisplayState::On) {
         emit displayOn();
+    } else if (state == MeeGo::QmDisplayState::Off) {
+        emit displayOff();
     }
 }
