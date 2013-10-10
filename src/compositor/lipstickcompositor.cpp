@@ -19,6 +19,7 @@
 
 #include <QWaylandInputDevice>
 #include <QDesktopServices>
+#include <QtSensors/QOrientationSensor>
 #include "homeapplication.h"
 #include "windowmodel.h"
 #include "lipstickcompositorprocwindow.h"
@@ -40,6 +41,14 @@ LipstickCompositor::LipstickCompositor()
     connect(m_displayState, SIGNAL(displayStateChanged(MeeGo::QmDisplayState::DisplayState)), this, SLOT(reactOnDisplayStateChanges(MeeGo::QmDisplayState::DisplayState)));
     QObject::connect(HomeApplication::instance(), SIGNAL(aboutToDestroy()), this, SLOT(homeApplicationAboutToDestroy()));
 
+    m_orientationSensor = new QOrientationSensor(this);
+    QObject::connect(m_orientationSensor, SIGNAL(readingChanged()), this, SLOT(setScreenOrientationFromSensor()));
+    if (!m_orientationSensor->connectToBackend()) {
+        qWarning() << "Could not connect to the orientation sensor backend";
+    } else {
+        if (!m_orientationSensor->start())
+            qWarning() << "Could not start the orientation sensor";
+    }
     emit HomeApplication::instance()->homeActiveChanged();
 
     QDesktopServices::setUrlHandler("http", this, "openUrl");
@@ -460,6 +469,10 @@ QQmlComponent *LipstickCompositor::shaderEffectComponent()
 void LipstickCompositor::setScreenOrientation(Qt::ScreenOrientation screenOrientation)
 {
     if (m_screenOrientation != screenOrientation) {
+
+        if (debug())
+            qDebug() << "Setting screen orientation on QWaylandCompositor";
+
         QWaylandCompositor::setScreenOrientation(screenOrientation);
 
         m_screenOrientation = screenOrientation;
@@ -473,5 +486,34 @@ void LipstickCompositor::reactOnDisplayStateChanges(MeeGo::QmDisplayState::Displ
         emit displayOn();
     } else if (state == MeeGo::QmDisplayState::Off) {
         emit displayOff();
+    }
+}
+
+void LipstickCompositor::setScreenOrientationFromSensor()
+{
+    QOrientationReading* reading = m_orientationSensor->reading();
+
+    if (debug())
+        qDebug() << "Screen orientation changed " << reading->orientation();
+
+    switch (reading->orientation()) {
+        case QOrientationReading::TopUp:
+            setScreenOrientation(Qt::PortraitOrientation);
+            break;
+        case QOrientationReading::TopDown:
+            setScreenOrientation(Qt::InvertedPortraitOrientation);
+            break;
+        case QOrientationReading::LeftUp:
+            setScreenOrientation(Qt::InvertedLandscapeOrientation);
+            break;
+        case QOrientationReading::RightUp:
+            setScreenOrientation(Qt::LandscapeOrientation);
+            break;
+        case QOrientationReading::Undefined:
+        case QOrientationReading::FaceUp:
+        case QOrientationReading::FaceDown:
+        default:
+            setScreenOrientation(Qt::PrimaryOrientation);
+            break;
     }
 }

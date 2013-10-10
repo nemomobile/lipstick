@@ -116,7 +116,7 @@ packagesExist(contextkit-statefs) {
     warning("Contextsubscriber not found")
 }
 
-QT += dbus xml qml quick sql gui gui-private
+QT += dbus xml qml quick sql gui gui-private sensors
 
 QMAKE_CXXFLAGS += \
     -Werror \

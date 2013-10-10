@@ -46,6 +46,7 @@ class LipstickCompositorStub : public StubBase {
   virtual void windowDestroyed();
   virtual void windowPropertyChanged(const QString &);
   virtual void reactOnDisplayStateChanges(MeeGo::QmDisplayState::DisplayState);
+  virtual void setScreenOrientationFromSensor();
 }; 
 
 // 2. IMPLEMENT STUB
@@ -239,7 +240,9 @@ void LipstickCompositorStub::reactOnDisplayStateChanges(MeeGo::QmDisplayState::D
   stubMethodEntered("reactOnDisplayStateChanges",params);
 }
 
-
+void LipstickCompositorStub::setScreenOrientationFromSensor( ) {
+  stubMethodEntered("setScreenOrientationFromSensor");
+}
 
 // 3. CREATE A STUB INSTANCE
 LipstickCompositorStub gDefaultLipstickCompositorStub;
@@ -396,6 +399,10 @@ void LipstickCompositor::reactOnDisplayStateChanges(MeeGo::QmDisplayState::Displ
 }
 
 void LipstickCompositor::homeApplicationAboutToDestroy() {
+}
+
+void LipstickCompositor::setScreenOrientationFromSensor() {
+  gLipstickCompositorStub->setScreenOrientationFromSensor();
 }
 
 QWaylandCompositor::QWaylandCompositor(QWindow *, const char *)
