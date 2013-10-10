@@ -137,6 +137,8 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
 
 HomeApplication::~HomeApplication()
 {
+    emit aboutToDestroy();
+
     delete volumeControl;
     delete screenLock;
     delete _mainWindowInstance;
