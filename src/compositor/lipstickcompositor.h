@@ -99,6 +99,7 @@ signals:
     void screenOrientationChanged();
 
     void displayOn();
+    void displayOff();
 
 protected:
     virtual bool event(QEvent *);
