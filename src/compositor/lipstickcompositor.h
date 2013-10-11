@@ -42,6 +42,7 @@ class LIPSTICK_EXPORT LipstickCompositor : public QQuickWindow, public QWaylandC
     Q_PROPERTY(bool directRenderingActive READ directRenderingActive NOTIFY directRenderingActiveChanged)
     Q_PROPERTY(int topmostWindowId READ topmostWindowId WRITE setTopmostWindowId NOTIFY topmostWindowIdChanged)
     Q_PROPERTY(Qt::ScreenOrientation screenOrientation READ screenOrientation WRITE setScreenOrientation NOTIFY screenOrientationChanged)
+    Q_PROPERTY(QObject* clipboard READ clipboard CONSTANT)
 
 public:
     LipstickCompositor();
@@ -53,6 +54,7 @@ public:
     virtual void componentComplete();
     virtual void surfaceCreated(QWaylandSurface *surface);
     virtual void openUrl(WaylandClient *client, const QUrl &url);
+    virtual void retainedSelectionReceived(QMimeData *mimeData);
 
     int windowCount() const;
     int ghostWindowCount() const;
@@ -69,6 +71,8 @@ public:
 
     Qt::ScreenOrientation screenOrientation() const { return m_screenOrientation; }
     void setScreenOrientation(Qt::ScreenOrientation screenOrientation);
+
+    QObject *clipboard() const;
 
     bool debug() const;
 
@@ -123,6 +127,7 @@ private slots:
     void reactOnDisplayStateChanges(MeeGo::QmDisplayState::DisplayState state);
     void homeApplicationAboutToDestroy();
     void setScreenOrientationFromSensor();
+    void clipboardDataChanged();
 
 private:
     friend class LipstickCompositorWindow;
@@ -160,6 +165,7 @@ private:
     MeeGo::QmDisplayState *m_displayState;
     QAtomicInt m_updateRequestPosted;
     QOrientationSensor* m_orientationSensor;
+    const QMimeData *m_retainedSelection;
 };
 
 #endif // LIPSTICKCOMPOSITOR_H

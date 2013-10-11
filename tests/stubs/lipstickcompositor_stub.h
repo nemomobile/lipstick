@@ -17,6 +17,7 @@ class LipstickCompositorStub : public StubBase {
   virtual void surfaceCreated(QWaylandSurface *surface);
   virtual void openUrl(WaylandClient *, const QUrl &);
   virtual void openUrl(const QUrl &);
+  virtual void retainedSelectionReceived(QMimeData *mimeData);
   virtual int windowCount() const;
   virtual int ghostWindowCount() const;
   virtual bool homeActive() const;
@@ -24,6 +25,7 @@ class LipstickCompositorStub : public StubBase {
   virtual void setFullscreenSurface(QWaylandSurface *surface);
   virtual void setTopmostWindowId(int id);
   virtual void setScreenOrientation(Qt::ScreenOrientation screenOrientation);
+  virtual QObject *clipboard() const;
   virtual bool debug() const;
   virtual QObject * windowForId(int) const;
   virtual void closeClientForWindowId(int);
@@ -47,6 +49,7 @@ class LipstickCompositorStub : public StubBase {
   virtual void windowPropertyChanged(const QString &);
   virtual void reactOnDisplayStateChanges(MeeGo::QmDisplayState::DisplayState);
   virtual void setScreenOrientationFromSensor();
+  virtual void clipboardDataChanged();
 }; 
 
 // 2. IMPLEMENT STUB
@@ -88,6 +91,12 @@ void LipstickCompositorStub::openUrl(const QUrl &url) {
     stubMethodEntered("openUrl",params);
 }
 
+void LipstickCompositorStub::retainedSelectionReceived(QMimeData *mimeData) {
+  QList<ParameterBase*> params;
+  params.append(new Parameter<QMimeData *>(mimeData));
+  stubMethodEntered("retainedSelectionReceived", params);
+}
+
 int LipstickCompositorStub::windowCount() const {
   stubMethodEntered("windowCount");
   return stubReturnValue<int>("windowCount");
@@ -125,6 +134,11 @@ void LipstickCompositorStub::setScreenOrientation(Qt::ScreenOrientation screenOr
   QList<ParameterBase*> params;
   params.append( new Parameter<Qt::ScreenOrientation >(screenOrientation));
   stubMethodEntered("setScreenOrientation",params);
+}
+
+QObject *LipstickCompositorStub::clipboard() const {
+  stubMethodEntered("clipboard");
+  return stubReturnValue<QObject *>("clipboard");
 }
 
 bool LipstickCompositorStub::debug() const {
@@ -244,6 +258,10 @@ void LipstickCompositorStub::setScreenOrientationFromSensor( ) {
   stubMethodEntered("setScreenOrientationFromSensor");
 }
 
+void LipstickCompositorStub::clipboardDataChanged() {
+  stubMethodEntered("clipboardDataChanged");
+}
+
 // 3. CREATE A STUB INSTANCE
 LipstickCompositorStub gDefaultLipstickCompositorStub;
 LipstickCompositorStub* gLipstickCompositorStub = &gDefaultLipstickCompositorStub;
@@ -282,6 +300,11 @@ void LipstickCompositor::openUrl(const QUrl &url) {
   gLipstickCompositorStub->openUrl(url);
 }
 
+void LipstickCompositor::retainedSelectionReceived(QMimeData *mimeData)
+{
+  gLipstickCompositorStub->retainedSelectionReceived(mimeData);
+}
+
 int LipstickCompositor::windowCount() const {
   return gLipstickCompositorStub->windowCount();
 }
@@ -308,6 +331,10 @@ void LipstickCompositor::setTopmostWindowId(int id) {
 
 void LipstickCompositor::setScreenOrientation(Qt::ScreenOrientation screenOrientation) {
   gLipstickCompositorStub->setScreenOrientation(screenOrientation);
+}
+
+QObject *LipstickCompositor::clipboard() const {
+  return gLipstickCompositorStub->clipboard();
 }
 
 bool LipstickCompositor::debug() const {
@@ -403,6 +430,10 @@ void LipstickCompositor::homeApplicationAboutToDestroy() {
 
 void LipstickCompositor::setScreenOrientationFromSensor() {
   gLipstickCompositorStub->setScreenOrientationFromSensor();
+}
+
+void LipstickCompositor::clipboardDataChanged() {
+  gLipstickCompositorStub->clipboardDataChanged();
 }
 
 QWaylandCompositor::QWaylandCompositor(QWindow *, const char *)
