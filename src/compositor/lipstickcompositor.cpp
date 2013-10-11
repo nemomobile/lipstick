@@ -20,6 +20,7 @@
 #include <QWaylandInputDevice>
 #include <QDesktopServices>
 #include <QtSensors/QOrientationSensor>
+#include <QClipboard>
 #include "homeapplication.h"
 #include "windowmodel.h"
 #include "lipstickcompositorprocwindow.h"
@@ -29,9 +30,10 @@ LipstickCompositor *LipstickCompositor::m_instance = 0;
 
 LipstickCompositor::LipstickCompositor()
 : QWaylandCompositor(this), m_totalWindowCount(0), m_nextWindowId(1), m_homeActive(true), m_shaderEffect(0),
-  m_fullscreenSurface(0), m_directRenderingActive(false), m_topmostWindowId(0), m_screenOrientation(Qt::PrimaryOrientation), m_displayState(new MeeGo::QmDisplayState(this))
+  m_fullscreenSurface(0), m_directRenderingActive(false), m_topmostWindowId(0), m_screenOrientation(Qt::PrimaryOrientation), m_displayState(new MeeGo::QmDisplayState(this)), m_retainedSelection(0)
 {
     setColor(Qt::black);
+    setRetainedSelectionEnabled(true);
 
     if (m_instance) qFatal("LipstickCompositor: Only one compositor instance per process is supported");
     m_instance = this;
@@ -54,6 +56,8 @@ LipstickCompositor::LipstickCompositor()
     QDesktopServices::setUrlHandler("http", this, "openUrl");
     QDesktopServices::setUrlHandler("https", this, "openUrl");
     QDesktopServices::setUrlHandler("mailto", this, "openUrl");
+
+    connect(QGuiApplication::clipboard(), SIGNAL(dataChanged()), SLOT(clipboardDataChanged()));
 }
 
 LipstickCompositor::~LipstickCompositor()
@@ -111,6 +115,12 @@ void LipstickCompositor::openUrl(const QUrl &url)
 #else
     Q_UNUSED(url)
 #endif
+}
+
+void LipstickCompositor::retainedSelectionReceived(QMimeData *mimeData)
+{
+    m_retainedSelection = mimeData;
+    QGuiApplication::clipboard()->setMimeData(mimeData);
 }
 
 int LipstickCompositor::windowCount() const
@@ -224,6 +234,11 @@ void LipstickCompositor::setFullscreenSurface(QWaylandSurface *surface)
     }
 
     emit fullscreenSurfaceChanged();
+}
+
+QObject *LipstickCompositor::clipboard() const
+{
+    return QGuiApplication::clipboard();
 }
 
 void LipstickCompositor::setTopmostWindowId(int id)
@@ -515,5 +530,13 @@ void LipstickCompositor::setScreenOrientationFromSensor()
         default:
             setScreenOrientation(Qt::PrimaryOrientation);
             break;
+    }
+}
+
+void LipstickCompositor::clipboardDataChanged()
+{
+    if (QGuiApplication::clipboard()->mimeData() != m_retainedSelection) {
+        m_retainedSelection = QGuiApplication::clipboard()->mimeData();
+        overrideSelection(const_cast<QMimeData *>(m_retainedSelection));
     }
 }
