@@ -6,7 +6,7 @@ system(qdbusxml2cpp screenshotservice.xml -a screenshotserviceadaptor -c Screens
 
 TEMPLATE = lib
 TARGET = lipstick-qt5
-VERSION = 0.17.4
+VERSION = 0.17.5
 
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x000000
 DEFINES += LIPSTICK_BUILD_LIBRARY VERSION=\\\"$$VERSION\\\"
