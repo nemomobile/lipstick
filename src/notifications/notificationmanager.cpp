@@ -39,8 +39,8 @@ static const char *CATEGORY_DEFINITION_FILE_DIRECTORY = "/usr/share/lipstick/not
 //! The number configuration files to load into the event type store.
 static const uint MAX_CATEGORY_DEFINITION_FILES = 100;
 
-//! Path of the configuration directory relative to the home directory
-static const char *CONFIG_PATH = "/.config/lipstick";
+//! Path of the privileged storage directory relative to the home directory
+static const char *PRIVILEGED_DATA_PATH= "/.local/share/system/privileged";
 
 //! Minimum amount of disk space needed for the notification database in kilobytes
 static const uint MINIMUM_FREE_SPACE_NEEDED_IN_KB = 1024;
@@ -285,15 +285,15 @@ void NotificationManager::restoreNotifications()
 
 bool NotificationManager::connectToDatabase()
 {
-    QString configPath = QDir::homePath() + QString(CONFIG_PATH);
-    if (!QDir::root().exists(configPath)) {
-        QDir::root().mkpath(configPath);
+    QString databasePath = QDir::homePath() + QString(PRIVILEGED_DATA_PATH) + QDir::separator() + "Notifications";
+    if (!QDir::root().exists(databasePath)) {
+        QDir::root().mkpath(databasePath);
     }
+    QString databaseName = databasePath + "/notifications.db";
 
-    QString databaseName = configPath + "/notifications.db";
     *database = QSqlDatabase::addDatabase("QSQLITE", metaObject()->className());
     database->setDatabaseName(databaseName);
-    bool success = checkForDiskSpace(configPath, MINIMUM_FREE_SPACE_NEEDED_IN_KB);
+    bool success = checkForDiskSpace(databasePath, MINIMUM_FREE_SPACE_NEEDED_IN_KB);
     if (success) {
         success = database->open();
         if (!success) {
