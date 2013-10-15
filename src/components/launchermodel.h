@@ -24,6 +24,7 @@
 
 class QFileSystemWatcher;
 class QSettings;
+class QTimer;
 
 class LIPSTICK_EXPORT LauncherModel : public QObjectListModel
 {
@@ -34,10 +35,14 @@ class LIPSTICK_EXPORT LauncherModel : public QObjectListModel
 
     QFileSystemWatcher *_fileSystemWatcher;
     QString _settingsPath;
+    QTimer *_handleChangedFilesTimer;
+    QStringList _changedFiles;
 
 private slots:
     void monitoredDirectoryChanged(const QString &changedPath);
     void monitoredFileChanged(const QString &changedPath);
+    void savePositions();
+    void handleChangedFiles();
 
 public:
     explicit LauncherModel(QObject *parent = 0);
@@ -46,9 +51,6 @@ public:
     QStringList directories() const;
     void setDirectories(QStringList);
 
-public slots:
-    void savePositions();
-
 signals:
     void directoriesChanged();
 
@@ -56,7 +58,6 @@ private:
     void reorderItems(const QMap<int, LauncherItem *> &itemsWithPositions);
     void loadPositions();
     LauncherItem *itemInModel(const QString &path);
-    void addItemIfValid(const QString &path, QMap<int, LauncherItem *> &itemsWithPositions, QSettings &launcherSettings, QSettings &globalSettings);
 };
 
 #endif // LAUNCHERMODEL_H

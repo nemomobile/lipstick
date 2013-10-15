@@ -92,31 +92,61 @@ void QObjectListModel::addItem(QObject *item)
     insertItem(_list->count(), item);
 }
 
+void QObjectListModel::addItems(const QList<QObject *> &items)
+{
+    if (!items.isEmpty()) {
+        beginResetModel();
+        foreach (QObject *item, items) {
+            _list->insert(_list->count(), item);
+            connect(item, SIGNAL(destroyed()), this, SLOT(removeDestroyedItem()));
+            emit itemAdded(item);
+        }
+        endResetModel();
+        emit itemCountChanged();
+    }
+}
+
 void QObjectListModel::removeDestroyedItem()
 {
-    QObject *obj = QObject::sender();
-    removeItem(obj);
+    removeItem(QObject::sender());
 }
 
 void QObjectListModel::removeItem(QObject *item)
 {
-    int index = _list->indexOf(item);
+    removeItem(_list->indexOf(item));
+}
+
+void QObjectListModel::removeItem(int index)
+{
     if (index >= 0) {
         beginRemoveRows(QModelIndex(), index, index);
+        disconnect(((QObject*)_list->at(index)), SIGNAL(destroyed()), this, SLOT(removeDestroyedItem()));
         _list->removeAt(index);
-        disconnect(item, SIGNAL(destroyed()), this, SLOT(removeDestroyedItem()));
         endRemoveRows();
         emit itemCountChanged();
     }
 }
 
-void QObjectListModel::removeItem(int index)
+void QObjectListModel::removeItems(const QList<QObject *> &items)
 {
-    beginRemoveRows(QModelIndex(), index, index);
-    disconnect(((QObject*)_list->at(index)), SIGNAL(destroyed()), this, SLOT(removeDestroyedItem()));
-    _list->removeAt(index);
-    endRemoveRows();
-    emit itemCountChanged();
+    bool itemsRemoved = false;
+
+    if (!items.isEmpty()) {
+        beginResetModel();
+        foreach (QObject *item, items) {
+            int index = _list->indexOf(item);
+            if (index >= 0) {
+                _list->removeAt(index);
+                disconnect(item, SIGNAL(destroyed()), this, SLOT(removeDestroyedItem()));
+                itemsRemoved = true;
+            }
+        }
+        endResetModel();
+    }
+
+    if (itemsRemoved) {
+        emit itemCountChanged();
+    }
 }
 
 QObject* QObjectListModel::get(int index)
