@@ -260,7 +260,8 @@ void NotificationManager::applyCategoryDefinition(QVariantHash &hints)
     QString category = hints.value(HINT_CATEGORY).toString();
     if (!category.isEmpty()) {
         foreach (const QString &key, categoryDefinitionStore->allKeys(category)) {
-            hints.insert(key, categoryDefinitionStore->value(category, key));
+            if (!hints.contains(key))
+                hints.insert(key, categoryDefinitionStore->value(category, key));
         }
     }
 }
