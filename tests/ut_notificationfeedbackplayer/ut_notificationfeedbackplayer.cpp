@@ -32,6 +32,7 @@ const char *NotificationManager::HINT_PREVIEW_BODY = "x-nemo-preview-body";
 const char *NotificationManager::HINT_PREVIEW_SUMMARY = "x-nemo-preview-summary";
 const char *NotificationManager::HINT_FEEDBACK = "x-nemo-feedback";
 const char *NotificationManager::HINT_USER_REMOVABLE = "x-nemo-user-removable";
+const char *NotificationManager::HINT_DISPLAY_ON = "x-nemo-display-on";
 
 NotificationManager::NotificationManager(QObject *parent) : QObject(parent)
 {

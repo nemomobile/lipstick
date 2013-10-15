@@ -100,6 +100,9 @@ public:
     //! Nemo hint: Whether the notification is hidden.
     static const char *HINT_HIDDEN;
 
+    //! Nemo hint: Whether to turn the screen on when displaying preview
+    static const char *HINT_DISPLAY_ON;
+
     //! Notifation closing reasons used in the NotificationClosed signal
     enum NotificationClosedReason {
         //! The notification expired.
