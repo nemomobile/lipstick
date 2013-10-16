@@ -18,6 +18,7 @@
 #include <QDBusConnection>
 #include <QDBusArgument>
 #include <dbus/dbus-glib-lowlevel.h>
+#include <QTimer>
 
 #define DBUS_ERR_CHECK(err) \
     if(dbus_error_is_set(&err)) \
@@ -32,7 +33,8 @@ static const char *VOLUME_INTERFACE = "com.Nokia.MainVolume1";
 
 PulseAudioControl::PulseAudioControl(QObject *parent) :
     QObject(parent),
-    dbusConnection(NULL)
+    dbusConnection(NULL),
+    reconnectTimeout(2000) // first reconnect after 2000ms
 {
 }
 
@@ -78,6 +80,11 @@ void PulseAudioControl::openConnection()
         dbus_connection_add_filter(dbusConnection, PulseAudioControl::signalHandler, (void *)this, NULL);
 
         addSignalMatch();
+    }
+
+    if (!dbusConnection) {
+        QTimer::singleShot(reconnectTimeout, this, SLOT(update()));
+        reconnectTimeout += 5000; // next reconnects wait for 5000ms more
     }
 }
 

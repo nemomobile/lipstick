@@ -35,12 +35,6 @@ public:
     //! Destroys the PulseAudioControl instance
     virtual ~PulseAudioControl();
 
-    /*!
-     * Queries the PulseAudio daemon for the volume levels (current and maximum).
-     * If successful, volumeChanged signal will be emitted.
-     */
-    void update();
-
 signals:
     /*!
      * Sent when the current or maximum volume has changed.
@@ -65,6 +59,12 @@ signals:
     void longListeningTime(int listeningTime);
 
 public slots:
+    /*!
+     * Queries the PulseAudio daemon for the volume levels (current and maximum).
+     * If successful, volumeChanged signal will be emitted.
+     */
+    void update();
+
     /*!
      * Changes the volume level through the volume backend.
      *
@@ -98,6 +98,7 @@ private:
 
     //! D-Bus connection structure
     DBusConnection *dbusConnection;
+    int reconnectTimeout;
 
     Q_DISABLE_COPY(PulseAudioControl)
 
