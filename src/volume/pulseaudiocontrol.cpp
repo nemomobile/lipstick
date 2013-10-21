@@ -111,7 +111,7 @@ void PulseAudioControl::update()
         dbus_message_unref(msg);
     }
 
-    int currentStep = -1, stepCount = -1; highVolumeStep = -1;
+    int currentStep = -1, stepCount = -1, highVolumeStep = -1;
     if (reply != NULL) {
         if (dbus_message_get_type(reply) == DBUS_MESSAGE_TYPE_METHOD_RETURN) {
             DBusMessageIter iter;
