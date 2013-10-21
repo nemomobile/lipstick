@@ -26,9 +26,9 @@
         dbus_error_free(&err); \
     }
 
-static const char *VOLUME_SERVICE = "com.Nokia.MainVolume1";
-static const char *VOLUME_PATH = "/com/meego/mainvolume1";
-static const char *VOLUME_INTERFACE = "com.Nokia.MainVolume1";
+static const char *VOLUME_SERVICE = "com.Meego.MainVolume2";
+static const char *VOLUME_PATH = "/com/meego/mainvolume2";
+static const char *VOLUME_INTERFACE = "com.Meego.MainVolume2";
 
 PulseAudioControl::PulseAudioControl(QObject *parent) :
     QObject(parent),
@@ -104,7 +104,7 @@ void PulseAudioControl::update()
         dbus_message_unref(msg);
     }
 
-    int currentStep = -1, stepCount = -1;
+    int currentStep = -1, stepCount = -1; highVolumeStep = -1;
     if (reply != NULL) {
         if (dbus_message_get_type(reply) == DBUS_MESSAGE_TYPE_METHOD_RETURN) {
             DBusMessageIter iter;
@@ -138,6 +138,8 @@ void PulseAudioControl::update()
                             stepCount = value;
                         } else if (prop_name && strcmp(prop_name, "CurrentStep") == 0) {
                             currentStep = value;
+                        } else if (prop_name && strcmp(prop_name, "HighVolumeStep") == 0) {
+                            highVolumeStep = value;
                         }
                     }
 
@@ -152,11 +154,15 @@ void PulseAudioControl::update()
     if (currentStep != -1 && stepCount != -1) {
         setSteps(currentStep, stepCount);
     }
+
+    if(highVolumeStep != -1) {
+        emit highVolume(highVolumeStep);
+    }
 }
 
 void PulseAudioControl::addSignalMatch()
 {
-    static const char *singnals []  = {"com.Nokia.MainVolume1.StepsUpdated", "com.Nokia.MainVolume1.NotifyHighVolume", "com.Nokia.MainVolume1.NotifyListeningTime"};
+    static const char *singnals []  = {"com.Meego.MainVolume2.StepsUpdated", "com.Meego.MainVolume2.NotifyHighVolume", "com.Meego.MainVolume2.NotifyListeningTime"};
     for (int index = 0; index < 3; ++index) {
         DBusMessage *message = dbus_message_new_method_call(NULL, "/org/pulseaudio/core1", NULL, "ListenForSignal");
         if (message != NULL) {
