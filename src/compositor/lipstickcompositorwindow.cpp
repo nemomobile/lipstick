@@ -34,6 +34,9 @@ LipstickCompositorWindow::LipstickCompositorWindow(int windowId, const QString &
     connect(this, SIGNAL(visibleChanged()), SLOT(handleTouchCancel()));
     connect(this, SIGNAL(enabledChanged()), SLOT(handleTouchCancel()));
     connect(this, SIGNAL(touchEventsEnabledChanged()), SLOT(handleTouchCancel()));
+
+    connect(this, SIGNAL(surfaceChanged()), SLOT(connectSurfaceSignals()));
+    connectSurfaceSignals();
 }
 
 QVariant LipstickCompositorWindow::userData() const
@@ -290,4 +293,16 @@ void LipstickCompositorWindow::terminateProcess(int killTimeout)
 void LipstickCompositorWindow::killProcess()
 {
     kill(processId(), SIGKILL);
+}
+
+void LipstickCompositorWindow::connectSurfaceSignals()
+{
+    foreach (const QMetaObject::Connection &connection, m_surfaceConnections) {
+        disconnect(connection);
+    }
+
+    m_surfaceConnections.clear();
+    if (surface()) {
+        m_surfaceConnections << connect(surface(), SIGNAL(titleChanged()), SIGNAL(titleChanged()));
+    }
 }

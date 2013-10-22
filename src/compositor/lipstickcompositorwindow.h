@@ -74,6 +74,7 @@ signals:
 private slots:
     void handleTouchCancel();
     void killProcess();
+    void connectSurfaceSignals();
 
 private:
     friend class LipstickCompositor;
@@ -96,6 +97,7 @@ private:
     QVariant m_data;
     QRegion m_mouseRegion;
     QList<int> m_grabbedKeys;
+    QList<QMetaObject::Connection> m_surfaceConnections;
 };
 
 #endif // LIPSTICKCOMPOSITORWINDOW_H
