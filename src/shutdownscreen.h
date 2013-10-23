@@ -45,6 +45,13 @@ public:
      */
     void setWindowVisible(bool visible);
 
+    /*!
+     * Sets the shutdown mode for showing the shutdown screen.
+     *
+     * \param mode a UI frontend specific shutdown mode identifier
+     */
+    void setShutdownMode(const QString &mode);
+
 signals:
     //! Sent when the visibility of the window has changed.
     void windowVisibleChanged();
@@ -83,6 +90,9 @@ private:
 
     //! For getting the thermal state
     MeeGo::QmThermal *thermalState;
+
+    //! The shutdown mode to be communicated to the UI
+    QString shutdownMode;
 
 #ifdef UNIT_TEST
     friend class Ut_ShutdownScreen;

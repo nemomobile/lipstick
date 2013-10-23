@@ -3,6 +3,7 @@ system(qdbusxml2cpp screenlock/screenlock.xml -a screenlock/screenlockadaptor -c
 system(qdbusxml2cpp devicelock/devicelock.xml -a devicelock/devicelockadaptor -c DeviceLockAdaptor -l DeviceLock -i devicelock.h)
 system(qdbusxml2cpp lipstick.xml -a homeapplicationadaptor -c HomeApplicationAdaptor -l HomeApplication -i homeapplication.h)
 system(qdbusxml2cpp screenshotservice.xml -a screenshotserviceadaptor -c ScreenshotServiceAdaptor -l ScreenshotService -i screenshotservice.h)
+system(qdbusxml2cpp shutdownscreen.xml -a shutdownscreenadaptor -c ShutdownScreenAdaptor -l ShutdownScreen -i shutdownscreen.h)
 
 TEMPLATE = lib
 TARGET = lipstick-qt5
@@ -62,6 +63,7 @@ HEADERS += \
     devicelock/devicelockadaptor.h \
     devicelock/devicelock.h \
     homeapplicationadaptor.h \
+    shutdownscreenadaptor.h \
     screenshotservice.h \
     screenshotserviceadaptor.h
 
@@ -90,6 +92,7 @@ SOURCES += \
     notifications/notificationfeedbackplayer.cpp \
     usbmodeselector.cpp \
     shutdownscreen.cpp \
+    shutdownscreenadaptor.cpp \
     connectionselector.cpp \
     lipstickapi.cpp \
     devicelock/devicelockadaptor.cpp \

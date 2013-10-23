@@ -42,6 +42,7 @@
 #include "volume/volumecontrol.h"
 #include "usbmodeselector.h"
 #include "shutdownscreen.h"
+#include "shutdownscreenadaptor.h"
 #include "connectionselector.h"
 #include "screenshotservice.h"
 #include "screenshotserviceadaptor.h"
@@ -99,6 +100,7 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     usbModeSelector = new USBModeSelector(this);
     connect(usbModeSelector, SIGNAL(dialogShown()), screenLock, SLOT(unlockScreen()));
     shutdownScreen = new ShutdownScreen(this);
+    new ShutdownScreenAdaptor(shutdownScreen);
     connectionSelector = new ConnectionSelector(this);
 
     // MCE and usb-moded expect services to be registered on the system bus
@@ -122,6 +124,11 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     static const char *DEVICELOCK_DBUS_PATH = "/devicelock";
     if (!systemBus.registerObject(DEVICELOCK_DBUS_PATH, deviceLock)) {
         qWarning("Unable to register device lock object at path %s: %s", DEVICELOCK_DBUS_PATH, systemBus.lastError().message().toUtf8().constData());
+    }
+
+    static const char *SHUTDOWN_DBUS_PATH = "/shutdown";
+    if (!systemBus.registerObject(SHUTDOWN_DBUS_PATH, shutdownScreen)) {
+        qWarning("Unable to register shutdown object at path %s: %s", SHUTDOWN_DBUS_PATH, systemBus.lastError().message().toUtf8().constData());
     }
 
     ScreenshotService *screenshotService = new ScreenshotService(this);

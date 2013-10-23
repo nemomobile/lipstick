@@ -42,6 +42,7 @@ void ShutdownScreen::setWindowVisible(bool visible)
             window->setWindowTitle("Shutdown");
             window->setContextProperty("initialSize", QGuiApplication::primaryScreen()->size());
             window->setContextProperty("shutdownScreen", this);
+            window->setContextProperty("shutdownMode", shutdownMode);
             window->setSource(QUrl("qrc:/qml/ShutdownScreen.qml"));
             window->installEventFilter(new CloseEventEater(this));
         }
@@ -113,4 +114,10 @@ void ShutdownScreen::createAndPublishNotification(const QString &category, const
     hints.insert(NotificationManager::HINT_CATEGORY, category);
     hints.insert(NotificationManager::HINT_PREVIEW_BODY, body);
     manager->Notify(qApp->applicationName(), 0, QString(), QString(), QString(), QStringList(), hints, -1);
+}
+
+void ShutdownScreen::setShutdownMode(const QString &mode)
+{
+    shutdownMode = mode;
+    applySystemState(MeeGo::QmSystemState::Shutdown);
 }
