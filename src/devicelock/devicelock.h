@@ -19,6 +19,7 @@
 #include <qmactivity.h>
 #include <qmlocks.h>
 #include <qmdisplaystate.h>
+#include <sys/time.h>
 
 class MGConfItem;
 class QTimer;
@@ -66,6 +67,7 @@ private:
     MeeGo::QmLocks *qmLocks;
     MeeGo::QmDisplayState *qmDisplayState;
     LockState deviceLockState;
+    struct timeval monoTime;
 
 #ifdef UNIT_TEST
     friend class Ut_DeviceLock;

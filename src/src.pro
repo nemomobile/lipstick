@@ -104,6 +104,8 @@ CONFIG += link_pkgconfig mobility qt warn_on depend_includepath qmake_cache targ
 CONFIG -= link_prl
 PKGCONFIG += mlite5 mce dbus-1 dbus-glib-1 libresourceqt5 ngf-qt5 qmsystem2-qt5 Qt5SystemInfo libsystemd-daemon
 
+LIBS += -lrt
+
 packagesExist(contentaction5) {
     message("Using contentaction to launch applications")
     PKGCONFIG += contentaction5
