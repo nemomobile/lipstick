@@ -33,7 +33,7 @@
 
 LauncherModel::LauncherModel(QObject *parent) :
     QObjectListModel(parent),
-    _fileSystemWatcher(new QFileSystemWatcher(this)),
+    _fileSystemWatcher(),
     _launcherSettings("nemomobile", "lipstick"),
     _globalSettings("/usr/share/lipstick/lipstick.conf", QSettings::IniFormat)
 {
@@ -41,13 +41,13 @@ LauncherModel::LauncherModel(QObject *parent) :
     QString defaultAppsPath("/usr/share/applications");
 
     // Setting up the file system wacher
-    _fileSystemWatcher->addPath(defaultAppsPath);
+    _fileSystemWatcher.addPath(defaultAppsPath);
     monitoredDirectoryChanged(defaultAppsPath);
-    connect(_fileSystemWatcher, SIGNAL(directoryChanged(QString)), this, SLOT(monitoredDirectoryChanged(QString)));
+    connect(&_fileSystemWatcher, SIGNAL(directoryChanged(QString)), this, SLOT(monitoredDirectoryChanged(QString)));
     connect(this, SIGNAL(rowsMoved(const QModelIndex&,int,int,const QModelIndex&,int)), this, SLOT(savePositions()));
     // watch for changes to order
-    _fileSystemWatcher->addPath(_launcherSettings.fileName());
-    connect(_fileSystemWatcher, SIGNAL(fileChanged(QString)), this, SLOT(monitoredFileChanged(QString)));
+    _fileSystemWatcher.addPath(_launcherSettings.fileName());
+    connect(&_fileSystemWatcher, SIGNAL(fileChanged(QString)), this, SLOT(monitoredFileChanged(QString)));
 }
 
 LauncherModel::~LauncherModel()
@@ -79,7 +79,7 @@ void LauncherModel::monitoredDirectoryChanged(const QString &changedPath)
     // Finding newly added desktop entries
     foreach (const QFileInfo &fileInfo, fileInfoList) {
         QString filePath = fileInfo.absoluteFilePath();
-        _fileSystemWatcher->addPath(filePath);
+        _fileSystemWatcher.addPath(filePath);
 
         if (itemInModel(filePath) == 0) {
             addItemIfValid(filePath, itemsWithPositions);
@@ -158,12 +158,12 @@ void LauncherModel::reorderItems(const QMap<int, LauncherItem *> &itemsWithPosit
 
 QStringList LauncherModel::directories() const
 {
-    return _fileSystemWatcher->directories();
+    return _fileSystemWatcher.directories();
 }
 
 void LauncherModel::setDirectories(QStringList newDirectories)
 {
-    _fileSystemWatcher->removePaths(_fileSystemWatcher->directories());
+    _fileSystemWatcher.removePaths(_fileSystemWatcher.directories());
 
     foreach (const QString &path, newDirectories) {
         if (!path.startsWith('/')) {
@@ -171,7 +171,7 @@ void LauncherModel::setDirectories(QStringList newDirectories)
             continue;
         }
 
-        _fileSystemWatcher->addPath(path);
+        _fileSystemWatcher.addPath(path);
         monitoredDirectoryChanged(path);
     }
 
@@ -180,7 +180,7 @@ void LauncherModel::setDirectories(QStringList newDirectories)
 
 void LauncherModel::savePositions()
 {
-    _fileSystemWatcher->removePath(_launcherSettings.fileName());
+    _fileSystemWatcher.removePath(_launcherSettings.fileName());
     _launcherSettings.clear();
     QList<LauncherItem *> *currentLauncherList = getList<LauncherItem>();
 
@@ -191,7 +191,7 @@ void LauncherModel::savePositions()
     }
 
     _launcherSettings.sync();
-    _fileSystemWatcher->addPath(_launcherSettings.fileName());
+    _fileSystemWatcher.addPath(_launcherSettings.fileName());
 }
 
 LauncherItem *LauncherModel::itemInModel(const QString &path)

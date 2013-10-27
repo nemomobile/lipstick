@@ -19,13 +19,12 @@
 
 #include <QObject>
 #include <QSettings>
+#include <QFileSystemWatcher>
 
 #include "launcheritem.h"
 #include "qobjectlistmodel.h"
 #include "lipstickglobal.h"
 
-class QFileSystemWatcher;
-class QSettings;
 
 class LIPSTICK_EXPORT LauncherModel : public QObjectListModel
 {
@@ -34,7 +33,7 @@ class LIPSTICK_EXPORT LauncherModel : public QObjectListModel
 
     Q_PROPERTY(QStringList directories READ directories WRITE setDirectories NOTIFY directoriesChanged)
 
-    QFileSystemWatcher *_fileSystemWatcher;
+    QFileSystemWatcher _fileSystemWatcher;
     QSettings _launcherSettings;
     QSettings _globalSettings;
 
