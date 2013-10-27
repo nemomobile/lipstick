@@ -78,9 +78,7 @@ void LauncherModel::monitoredDirectoryChanged(const QString &changedPath)
     // Finding newly added desktop entries
     foreach (const QFileInfo &fileInfo, fileInfoList) {
         QString filePath = fileInfo.absoluteFilePath();
-        if (!_fileSystemWatcher->files().contains(filePath)) {
-            _fileSystemWatcher->addPath(filePath);
-        }
+        _fileSystemWatcher->addPath(filePath);
 
         if (itemInModel(filePath) == 0) {
             addItemIfValid(filePath, itemsWithPositions, launcherSettings, globalSettings);
