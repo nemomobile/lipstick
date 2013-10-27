@@ -160,7 +160,7 @@ void LauncherItem::launchApplication()
 
 bool LauncherItem::isStillValid()
 {
-    _desktopEntry = QSharedPointer<MDesktopEntry>(new MDesktopEntry(filePath()));
-    emit this->itemChanged();
+    // Force a reload of _desktopEntry
+    setFilePath(filePath());
     return isValid();
 }
