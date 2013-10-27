@@ -18,6 +18,8 @@
 #define LAUNCHERMODEL_H
 
 #include <QObject>
+#include <QSettings>
+
 #include "launcheritem.h"
 #include "qobjectlistmodel.h"
 #include "lipstickglobal.h"
@@ -33,7 +35,8 @@ class LIPSTICK_EXPORT LauncherModel : public QObjectListModel
     Q_PROPERTY(QStringList directories READ directories WRITE setDirectories NOTIFY directoriesChanged)
 
     QFileSystemWatcher *_fileSystemWatcher;
-    QString _settingsPath;
+    QSettings _launcherSettings;
+    QSettings _globalSettings;
 
 private slots:
     void monitoredDirectoryChanged(const QString &changedPath);
@@ -56,7 +59,8 @@ private:
     void reorderItems(const QMap<int, LauncherItem *> &itemsWithPositions);
     void loadPositions();
     LauncherItem *itemInModel(const QString &path);
-    void addItemIfValid(const QString &path, QMap<int, LauncherItem *> &itemsWithPositions, QSettings &launcherSettings, QSettings &globalSettings);
+    QVariant launcherPos(const QString &path);
+    void addItemIfValid(const QString &path, QMap<int, LauncherItem *> &itemsWithPositions);
 };
 
 #endif // LAUNCHERMODEL_H

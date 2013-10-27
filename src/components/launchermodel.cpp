@@ -28,9 +28,14 @@
 #define LAUNCHER_DEBUG(things)
 #endif
 
+
+#define LAUNCHER_KEY_FOR_PATH(path) ("LauncherOrder/" + path)
+
 LauncherModel::LauncherModel(QObject *parent) :
     QObjectListModel(parent),
-    _fileSystemWatcher(new QFileSystemWatcher(this))
+    _fileSystemWatcher(new QFileSystemWatcher(this)),
+    _launcherSettings("nemomobile", "lipstick"),
+    _globalSettings("/usr/share/lipstick/lipstick.conf", QSettings::IniFormat)
 {
     // This is the most common path for .desktop files in most distributions
     QString defaultAppsPath("/usr/share/applications");
@@ -41,9 +46,7 @@ LauncherModel::LauncherModel(QObject *parent) :
     connect(_fileSystemWatcher, SIGNAL(directoryChanged(QString)), this, SLOT(monitoredDirectoryChanged(QString)));
     connect(this, SIGNAL(rowsMoved(const QModelIndex&,int,int,const QModelIndex&,int)), this, SLOT(savePositions()));
     // watch for changes to order
-    QSettings launcherSettings("nemomobile", "lipstick");
-    _settingsPath = launcherSettings.fileName();
-    _fileSystemWatcher->addPath(_settingsPath);
+    _fileSystemWatcher->addPath(_launcherSettings.fileName());
     connect(_fileSystemWatcher, SIGNAL(fileChanged(QString)), this, SLOT(monitoredFileChanged(QString)));
 }
 
@@ -72,8 +75,6 @@ void LauncherModel::monitoredDirectoryChanged(const QString &changedPath)
     }
 
     QMap<int, LauncherItem *> itemsWithPositions;
-    QSettings launcherSettings("nemomobile", "lipstick");
-    QSettings globalSettings("/usr/share/lipstick/lipstick.conf", QSettings::IniFormat);
 
     // Finding newly added desktop entries
     foreach (const QFileInfo &fileInfo, fileInfoList) {
@@ -81,7 +82,7 @@ void LauncherModel::monitoredDirectoryChanged(const QString &changedPath)
         _fileSystemWatcher->addPath(filePath);
 
         if (itemInModel(filePath) == 0) {
-            addItemIfValid(filePath, itemsWithPositions, launcherSettings, globalSettings);
+            addItemIfValid(filePath, itemsWithPositions);
         }
     }
 
@@ -92,15 +93,13 @@ void LauncherModel::monitoredDirectoryChanged(const QString &changedPath)
 
 void LauncherModel::monitoredFileChanged(const QString &changedPath)
 {
-    if (changedPath == _settingsPath) {
+    if (changedPath == _launcherSettings.fileName()) {
         loadPositions();
     } else {
         LauncherItem *item = itemInModel(changedPath);
         if (item == 0) {
             QMap<int, LauncherItem *> itemsWithPositions;
-            QSettings launcherSettings("nemomobile", "lipstick");
-            QSettings globalSettings("/usr/share/lipstick/lipstick.conf", QSettings::IniFormat);
-            addItemIfValid(changedPath, itemsWithPositions, launcherSettings, globalSettings);
+            addItemIfValid(changedPath, itemsWithPositions);
             reorderItems(itemsWithPositions);
             savePositions();
         } else if (!(item->isStillValid() && item->shouldDisplay())) {
@@ -114,17 +113,12 @@ void LauncherModel::monitoredFileChanged(const QString &changedPath)
 void LauncherModel::loadPositions()
 {
     QMap<int, LauncherItem *> itemsWithPositions;
-    QSettings launcherSettings("nemomobile", "lipstick");
-    QSettings globalSettings("/usr/share/lipstick/lipstick.conf", QSettings::IniFormat);
+
+    _launcherSettings.sync();
 
     QList<LauncherItem *> *currentLauncherList = getList<LauncherItem>();
     foreach (LauncherItem *item, *currentLauncherList) {
-        QVariant pos = launcherSettings.value("LauncherOrder/" + item->filePath());
-
-        // fall back to vendor configuration if the user hasn't specified a location
-        if (!pos.isValid()) {
-            pos = globalSettings.value("LauncherOrder/" + item->filePath());
-        }
+        QVariant pos = launcherPos(item->filePath());
 
         if (pos.isValid()) {
             int gridPos = pos.toInt();
@@ -186,19 +180,18 @@ void LauncherModel::setDirectories(QStringList newDirectories)
 
 void LauncherModel::savePositions()
 {
-    QSettings launcherSettings("nemomobile", "lipstick");
-    _fileSystemWatcher->removePath(launcherSettings.fileName());
-    launcherSettings.clear();
+    _fileSystemWatcher->removePath(_launcherSettings.fileName());
+    _launcherSettings.clear();
     QList<LauncherItem *> *currentLauncherList = getList<LauncherItem>();
 
     int pos = 0;
     foreach (LauncherItem *item, *currentLauncherList) {
-        launcherSettings.setValue("LauncherOrder/" + item->filePath(), pos);
+        _launcherSettings.setValue(LAUNCHER_KEY_FOR_PATH(item->filePath()), pos);
         ++pos;
     }
 
-    launcherSettings.sync();
-    _fileSystemWatcher->addPath(launcherSettings.fileName());
+    _launcherSettings.sync();
+    _fileSystemWatcher->addPath(_launcherSettings.fileName());
 }
 
 LauncherItem *LauncherModel::itemInModel(const QString &path)
@@ -211,7 +204,19 @@ LauncherItem *LauncherModel::itemInModel(const QString &path)
     return 0;
 }
 
-void LauncherModel::addItemIfValid(const QString &path, QMap<int, LauncherItem *> &itemsWithPositions, QSettings &launcherSettings, QSettings &globalSettings)
+QVariant LauncherModel::launcherPos(const QString &path)
+{
+    QString key = LAUNCHER_KEY_FOR_PATH(path);
+
+    if (_launcherSettings.contains(key)) {
+        _launcherSettings.value(key);
+    }
+
+    // fall back to vendor configuration if the user hasn't specified a location
+    return _globalSettings.value(key);
+}
+
+void LauncherModel::addItemIfValid(const QString &path, QMap<int, LauncherItem *> &itemsWithPositions)
 {
     LAUNCHER_DEBUG("Creating LauncherItem for desktop entry" << path);
     LauncherItem *item = new LauncherItem(path, this);
@@ -221,12 +226,7 @@ void LauncherModel::addItemIfValid(const QString &path, QMap<int, LauncherItem *
     if (isValid && shouldDisplay) {
         addItem(item);
 
-        QVariant pos = launcherSettings.value("LauncherOrder/" + item->filePath());
-
-        // fall back to vendor configuration if the user hasn't specified a location
-        if (!pos.isValid()) {
-            pos = globalSettings.value("LauncherOrder/" + item->filePath());
-        }
+        QVariant pos = launcherPos(item->filePath());
 
         if (pos.isValid()) {
             int gridPos = pos.toInt();
