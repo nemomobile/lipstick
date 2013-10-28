@@ -113,12 +113,12 @@ bool LauncherItem::isLaunching() const
     return _isLaunching;
 }
 
-void LauncherItem::disableIsLaunching()
+void LauncherItem::setIsLaunching(bool isLaunching)
 {
-    if (!_isLaunching)
-        return; // prevent spurious signals from all delegates
-    _isLaunching = false;
-    emit this->isLaunchingChanged();
+    if (_isLaunching != isLaunching) {
+        _isLaunching = isLaunching;
+        emit this->isLaunchingChanged();
+    }
 }
 
 void LauncherItem::launchApplication()
@@ -152,12 +152,10 @@ void LauncherItem::launchApplication()
     QProcess::startDetached(commandText);
 #endif
 
-    _isLaunching = true;
-    emit this->isLaunchingChanged();
+    setIsLaunching(true);
 
-    // TODO: instead of this, match the PID of the window thumbnails with the launcher processes
-    // Launching animation will stop after 5 seconds
-    QTimer::singleShot(5000, this, SLOT(disableIsLaunching()));
+    // This is a failsafe to allow launching again after 5 seconds in case the application crashes on startup and no window is ever created
+    QTimer::singleShot(5000, this, SLOT(setIsLaunching()));
 }
 
 bool LauncherItem::isStillValid()

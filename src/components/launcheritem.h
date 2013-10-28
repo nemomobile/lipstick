@@ -40,13 +40,13 @@ class LIPSTICK_EXPORT LauncherItem : public QObject
     Q_PROPERTY(QString titleUnlocalized READ titleUnlocalized NOTIFY itemChanged)
     Q_PROPERTY(bool shouldDisplay READ shouldDisplay NOTIFY itemChanged)
     Q_PROPERTY(bool isValid READ isValid NOTIFY itemChanged)
-    Q_PROPERTY(bool isLaunching READ isLaunching NOTIFY isLaunchingChanged)
+    Q_PROPERTY(bool isLaunching READ isLaunching WRITE setIsLaunching NOTIFY isLaunchingChanged)
 
     QSharedPointer<MDesktopEntry> _desktopEntry;
     bool _isLaunching;
 
-private slots:
-    void disableIsLaunching();
+public slots:
+    void setIsLaunching(bool isLaunching = false);
 
 public:
     explicit LauncherItem(const QString &filePath = QString(), QObject *parent = 0);
