@@ -4,6 +4,8 @@ TARGET = ut_devicelock
 INCLUDEPATH += $$DEVICELOCKSRCDIR
 QMAKE_CXXFLAGS += `pkg-config --cflags-only-I mlite5 qmsystem2-qt5`
 
+LIBS += -lrt
+
 # unit test and unit
 SOURCES += \
     ut_devicelock.cpp \
