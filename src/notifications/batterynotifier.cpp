@@ -73,7 +73,17 @@ void BatteryNotifier::applyChargingState(int, QBatteryInfo::ChargingState state)
         break;
 
     case QBatteryInfo::NotCharging:
-        sendNotification(NotificationChargingNotStarted);
+        // When using Qt System Info plugin with upower backend, "NotCharging"
+        // actually means that the battery is fully charged, and it's not
+        // charging anymore (because it's full..)
+        //
+        // See also:
+        // Repository: https://qt.gitorious.org/qt/qtsystems/source/
+        // File: src/systeminfo/linux/qbatteryinfo_upower.cpp
+        // Function: QBatteryInfoPrivate::getCurrentChargingState
+        stopLowBatteryNotifier();
+        removeNotification(QStringList() << "x-nemo.battery");
+        sendNotification(NotificationChargingComplete);
         break;
 
     default:
