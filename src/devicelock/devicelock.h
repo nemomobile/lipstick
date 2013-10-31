@@ -56,6 +56,7 @@ private slots:
     void setStateAndSetupLockTimer();
     void lock();
     void checkDisplayState(MeeGo::QmDisplayState::DisplayState state);
+    void handleCallStateChange(const QString &state, const QString &ignored);
 
 private:
     static bool runPlugin(const QStringList &args);
@@ -67,6 +68,7 @@ private:
     MeeGo::QmLocks *qmLocks;
     MeeGo::QmDisplayState *qmDisplayState;
     LockState deviceLockState;
+    bool isCallActive;
     struct timeval monoTime;
 
 #ifdef UNIT_TEST
