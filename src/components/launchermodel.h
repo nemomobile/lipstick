@@ -18,12 +18,14 @@
 #define LAUNCHERMODEL_H
 
 #include <QObject>
+#include <QSettings>
+#include <QFileSystemWatcher>
+
 #include "launcheritem.h"
 #include "qobjectlistmodel.h"
 #include "lipstickglobal.h"
+#include "launchermonitor.h"
 
-class QFileSystemWatcher;
-class QSettings;
 
 class LIPSTICK_EXPORT LauncherModel : public QObjectListModel
 {
@@ -32,12 +34,14 @@ class LIPSTICK_EXPORT LauncherModel : public QObjectListModel
 
     Q_PROPERTY(QStringList directories READ directories WRITE setDirectories NOTIFY directoriesChanged)
 
-    QFileSystemWatcher *_fileSystemWatcher;
-    QString _settingsPath;
+    QFileSystemWatcher _fileSystemWatcher;
+    QSettings _launcherSettings;
+    QSettings _globalSettings;
+    LauncherMonitor _launcherMonitor;
 
 private slots:
-    void monitoredDirectoryChanged(const QString &changedPath);
     void monitoredFileChanged(const QString &changedPath);
+    void onFilesUpdated(const QStringList &added, const QStringList &modified, const QStringList &removed);
 
 public:
     explicit LauncherModel(QObject *parent = 0);
@@ -56,7 +60,9 @@ private:
     void reorderItems(const QMap<int, LauncherItem *> &itemsWithPositions);
     void loadPositions();
     LauncherItem *itemInModel(const QString &path);
-    void addItemIfValid(const QString &path, QMap<int, LauncherItem *> &itemsWithPositions, QSettings &launcherSettings, QSettings &globalSettings);
+    QVariant launcherPos(const QString &path);
+    void addItemIfValid(const QString &path, QMap<int, LauncherItem *> &itemsWithPositions);
+    void updateItemsWithIcon(const QString &filename, bool existing);
 };
 
 #endif // LAUNCHERMODEL_H
