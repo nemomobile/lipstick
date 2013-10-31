@@ -24,6 +24,7 @@
 #include "launcheritem.h"
 #include "qobjectlistmodel.h"
 #include "lipstickglobal.h"
+#include "launchermonitor.h"
 
 
 class LIPSTICK_EXPORT LauncherModel : public QObjectListModel
@@ -36,10 +37,11 @@ class LIPSTICK_EXPORT LauncherModel : public QObjectListModel
     QFileSystemWatcher _fileSystemWatcher;
     QSettings _launcherSettings;
     QSettings _globalSettings;
+    LauncherMonitor _launcherMonitor;
 
 private slots:
-    void monitoredDirectoryChanged(const QString &changedPath);
     void monitoredFileChanged(const QString &changedPath);
+    void onFilesUpdated(const QStringList &added, const QStringList &modified, const QStringList &removed);
 
 public:
     explicit LauncherModel(QObject *parent = 0);
@@ -60,6 +62,7 @@ private:
     LauncherItem *itemInModel(const QString &path);
     QVariant launcherPos(const QString &path);
     void addItemIfValid(const QString &path, QMap<int, LauncherItem *> &itemsWithPositions);
+    void updateItemsWithIcon(const QString &filename, bool existing);
 };
 
 #endif // LAUNCHERMODEL_H

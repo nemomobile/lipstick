@@ -22,6 +22,14 @@
 #include <QStringList>
 #include <QSharedPointer>
 
+// Define this if you'd like to see debug messages from the launcher
+#ifdef DEBUG_LAUNCHER
+#include <QDebug>
+#define LAUNCHER_DEBUG(things) qDebug() << Q_FUNC_INFO << things
+#else
+#define LAUNCHER_DEBUG(things)
+#endif
+
 #include "lipstickglobal.h"
 
 class MDesktopEntry;
@@ -44,6 +52,8 @@ class LIPSTICK_EXPORT LauncherItem : public QObject
 
     QSharedPointer<MDesktopEntry> _desktopEntry;
     bool _isLaunching;
+    QString _customIconFilename;
+    int _serial;
 
 public slots:
     void setIsLaunching(bool isLaunching = false);
@@ -64,6 +74,10 @@ public:
     bool isValid() const;
     bool isLaunching() const;
     bool isStillValid();
+
+    QString getOriginalIconId() const;
+    void setIconFilename(const QString &path);
+    QString iconFilename() const;
 
     Q_INVOKABLE void launchApplication();
 

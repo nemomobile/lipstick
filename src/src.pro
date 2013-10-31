@@ -33,6 +33,7 @@ PUBLICHEADERS += \
     lipsticksettings.h \
     components/launcheritem.h \
     components/launchermodel.h \
+    components/launchermonitor.h \
     notifications/notificationmanager.h \
     notifications/lipsticknotification.h \
     notifications/notificationlistmodel.h \
@@ -76,6 +77,7 @@ SOURCES += \
     utilities/closeeventeater.cpp \
     components/launcheritem.cpp \
     components/launchermodel.cpp \
+    components/launchermonitor.cpp \
     notifications/notificationmanager.cpp \
     notifications/notificationmanageradaptor.cpp \
     notifications/lipsticknotification.cpp \
