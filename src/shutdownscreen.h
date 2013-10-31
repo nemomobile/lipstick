@@ -17,13 +17,14 @@
 #define SHUTDOWNSCREEN_H
 
 #include <QObject>
+#include <QDBusContext>
 #include "lipstickglobal.h"
 #include <qmsystemstate.h>
 #include <qmthermal.h>
 
 class HomeWindow;
 
-class LIPSTICK_EXPORT ShutdownScreen : public QObject
+class LIPSTICK_EXPORT ShutdownScreen : public QObject, protected QDBusContext
 {
     Q_OBJECT
     Q_PROPERTY(bool windowVisible READ windowVisible WRITE setWindowVisible NOTIFY windowVisibleChanged)
@@ -97,6 +98,8 @@ private:
 #ifdef UNIT_TEST
     friend class Ut_ShutdownScreen;
 #endif
+
+    bool isPrivileged();
 };
 
 #endif // SHUTDOWNSCREEN_H
