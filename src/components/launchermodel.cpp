@@ -35,7 +35,7 @@ static inline bool isDesktopFile(const QString &filename)
 
 static inline bool isIconFile(const QString &filename)
 {
-    // XXX: Support for other files types in addition to PNG?
+    // TODO: Possibly support other file types
     return filename.startsWith(LAUNCHER_ICONS_PATH) && filename.endsWith(".png");
 }
 
@@ -147,8 +147,6 @@ void LauncherModel::onFilesUpdated(const QStringList &added,
                 // we should show the item now
                 addItemIfValid(filename, itemsWithPositions);
             }
-
-            // TODO: Do the icon update thingie
         } else if (isIconFile(filename)) {
             // Icons has been updated - find item and update its icon path
             updateItemsWithIcon(filename, true);

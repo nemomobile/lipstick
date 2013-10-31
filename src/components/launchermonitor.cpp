@@ -55,6 +55,8 @@ LauncherMonitor::LauncherMonitor(const QString &desktopFilesPath,
     m_watcher.addPath(m_desktopFilesPath);
 
     // Force initial scan of directories
+    // Scan the desktop files first, so that the launcher items are already
+    // available by the time the icons will be processed
     onDirectoryChanged(m_desktopFilesPath);
     onDirectoryChanged(m_iconFilesPath);
 }
