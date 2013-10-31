@@ -163,7 +163,7 @@ void LauncherMonitor::onHoldbackTimerTimeout()
         //   1. The file was added and then modified
         //   2. The file was modified and then removed
         if (m_addedFiles.contains(filename) || m_removedFiles.contains(filename)) {
-            m_modifiedFiles.removeAll(filename);
+            m_modifiedFiles.removeOne(filename);
         }
     }
 
