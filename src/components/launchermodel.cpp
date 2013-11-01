@@ -289,7 +289,7 @@ QVariant LauncherModel::launcherPos(const QString &path)
     return _globalSettings.value(key);
 }
 
-void LauncherModel::addItemIfValid(const QString &path, QMap<int, LauncherItem *> &itemsWithPositions)
+LauncherItem *LauncherModel::addItemIfValid(const QString &path, QMap<int, LauncherItem *> &itemsWithPositions)
 {
     LAUNCHER_DEBUG("Creating LauncherItem for desktop entry" << path);
     LauncherItem *item = new LauncherItem(path, this);
@@ -309,5 +309,8 @@ void LauncherModel::addItemIfValid(const QString &path, QMap<int, LauncherItem *
     } else {
         LAUNCHER_DEBUG("Item" << path << (!isValid ? "is not valid" : "should not be displayed"));
         delete item;
+        item = NULL;
     }
+
+    return item;
 }
