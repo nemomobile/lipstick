@@ -116,6 +116,7 @@ void LauncherMonitor::onDirectoryChanged(const QString &path)
         m_watcher.removePaths(removed);
 
         foreach (const QString &filename, removed) {
+            m_modifiedFiles.removeAll(filename);
             if (m_addedFiles.contains(filename)) {
                 // We have an "added" notification that's not sent out yet
                 // Just remove this notification, as if nothing happened
@@ -132,6 +133,7 @@ void LauncherMonitor::onDirectoryChanged(const QString &path)
         m_watcher.addPaths(added);
 
         foreach (const QString &filename, added) {
+            m_modifiedFiles.removeAll(filename);
             if (m_removedFiles.contains(filename)) {
                 // We have a "removed" notification that's not sent out yet
                 // Just remove this notification, as if nothing happened
