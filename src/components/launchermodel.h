@@ -61,7 +61,7 @@ private:
     void loadPositions();
     LauncherItem *itemInModel(const QString &path);
     QVariant launcherPos(const QString &path);
-    void addItemIfValid(const QString &path, QMap<int, LauncherItem *> &itemsWithPositions);
+    LauncherItem *addItemIfValid(const QString &path, QMap<int, LauncherItem *> &itemsWithPositions);
     void updateItemsWithIcon(const QString &filename, bool existing);
 };
 
