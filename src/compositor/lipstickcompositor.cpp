@@ -524,9 +524,11 @@ void LipstickCompositor::setScreenOrientationFromSensor()
         case QOrientationReading::RightUp:
             setScreenOrientation(Qt::LandscapeOrientation);
             break;
-        case QOrientationReading::Undefined:
         case QOrientationReading::FaceUp:
         case QOrientationReading::FaceDown:
+            /* Keep screen orientation at previous state */
+            break;
+        case QOrientationReading::Undefined:
         default:
             setScreenOrientation(Qt::PrimaryOrientation);
             break;
