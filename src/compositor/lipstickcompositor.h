@@ -21,6 +21,7 @@
 #include <QQmlParserStatus>
 #include <QWaylandCompositor>
 #include <QWaylandSurfaceItem>
+#include <QPointer>
 #include <qmdisplaystate.h>
 
 class WindowModel;
@@ -165,7 +166,7 @@ private:
     MeeGo::QmDisplayState *m_displayState;
     QAtomicInt m_updateRequestPosted;
     QOrientationSensor* m_orientationSensor;
-    const QMimeData *m_retainedSelection;
+    QPointer<QMimeData> m_retainedSelection;
 };
 
 #endif // LIPSTICKCOMPOSITOR_H
