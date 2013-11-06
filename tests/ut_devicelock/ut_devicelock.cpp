@@ -17,7 +17,6 @@
 #include <QtTest/QtTest>
 #include <QTimer>
 #include <QSettings>
-#include "mgconfitem_stub.h"
 #include "qmlocks_stub.h"
 #include "qmactivity_stub.h"
 #include "qmdisplaystate_stub.h"
@@ -89,7 +88,6 @@ void Ut_DeviceLock::init()
     qProcessStartArguments.clear();
     qProcessWaitForFinished = true;
     qProcessExitCode = 1;
-    gMGConfItemStub->stubSetReturnValue("value", QVariant(-1));
 
     deviceLock = new DeviceLock();
 }
@@ -104,7 +102,6 @@ void Ut_DeviceLock::cleanup()
 
 void Ut_DeviceLock::testSignalConnections()
 {
-    QCOMPARE(disconnect(deviceLock->lockingGConfItem, SIGNAL(valueChanged()), deviceLock, SLOT(setStateAndSetupLockTimer())), true);
     QCOMPARE(disconnect(deviceLock->lockTimer, SIGNAL(timeout()), deviceLock, SLOT(lock())), true);
     QCOMPARE(disconnect(deviceLock->qmActivity, SIGNAL(activityChanged(MeeGo::QmActivity::Activity)), deviceLock, SLOT(setStateAndSetupLockTimer())), true);
     QCOMPARE(disconnect(deviceLock->qmLocks, SIGNAL(stateChanged(MeeGo::QmLocks::Lock,MeeGo::QmLocks::State)), deviceLock, SLOT(setStateAndSetupLockTimer())), true);
@@ -123,7 +120,7 @@ void Ut_DeviceLock::testInitialState()
     QCOMPARE(deviceLock->state(), (int)DeviceLock::Unlocked);
 
     delete deviceLock;
-    qSettingsValue = "test";
+    qSettingsValue = "-1";
     deviceLock = new DeviceLock();
 
     QCOMPARE(deviceLock->state(), (int)DeviceLock::Unlocked);
@@ -135,12 +132,6 @@ void Ut_DeviceLock::testInitialState()
     deviceLock = new DeviceLock();
 
     QCOMPARE(deviceLock->state(), (int)DeviceLock::Unlocked);
-
-    delete deviceLock;
-    gMGConfItemStub->stubSetReturnValue("value", QVariant(0));
-    deviceLock = new DeviceLock();
-
-    QCOMPARE(deviceLock->state(), (int)DeviceLock::Locked);
 
     delete deviceLock;
     qProcessExitCode = 1;
@@ -188,7 +179,7 @@ Q_DECLARE_METATYPE(MeeGo::QmActivity::Activity)
 
 void Ut_DeviceLock::testLockTimerWhenDeviceIsUnlocked_data()
 {
-    QTest::addColumn<int>("automaticLocking");
+    QTest::addColumn<int>("lockingDelayValue");
     QTest::addColumn<MeeGo::QmActivity::Activity>("activity");
     QTest::addColumn<int>("stopCount");
     QTest::addColumn<int>("startMSec");
@@ -203,7 +194,7 @@ void Ut_DeviceLock::testLockTimerWhenDeviceIsUnlocked_data()
 
 void Ut_DeviceLock::testLockTimerWhenDeviceIsUnlocked()
 {
-    QFETCH(int, automaticLocking);
+    QFETCH(int, lockingDelayValue);
     QFETCH(MeeGo::QmActivity::Activity, activity);
     QFETCH(int, stopCount);
     QFETCH(int, startMSec);
@@ -212,7 +203,7 @@ void Ut_DeviceLock::testLockTimerWhenDeviceIsUnlocked()
     qTimerStartMsec.clear();
     qTimerStopCount = 0;
 
-    gMGConfItemStub->stubSetReturnValue("value", QVariant(automaticLocking));
+    deviceLock->lockingDelay = lockingDelayValue;
     gQmActivityStub->stubSetReturnValue("get", activity);
 
     deviceLock->setState(DeviceLock::Unlocked);
@@ -226,7 +217,7 @@ Q_DECLARE_METATYPE(DeviceLock::LockState)
 
 void Ut_DeviceLock::testDisplayStateWhenDeviceScreenIsLocked_data()
 {
-    QTest::addColumn<int>("automaticLocking");
+    QTest::addColumn<int>("lockingDelayValue");
     QTest::addColumn<MeeGo::QmDisplayState::DisplayState>("state");
     QTest::addColumn<MeeGo::QmLocks::State>("touchScreenLockState");
     QTest::addColumn<int>("stopCount");
@@ -241,16 +232,16 @@ void Ut_DeviceLock::testDisplayStateWhenDeviceScreenIsLocked_data()
     QTest::newRow("Automatic locking immediate, display off, screen locked")
             << 0 << MeeGo::QmDisplayState::DisplayState::Off << MeeGo::QmLocks::Locked << 1 << DeviceLock::Locked;
     QTest::newRow("Automatic locking immediate, display off, screen unlocked")
-            << 0 << MeeGo::QmDisplayState::DisplayState::Off << MeeGo::QmLocks::Unlocked << 0 << DeviceLock::Unlocked;
+            << 0 << MeeGo::QmDisplayState::DisplayState::Off << MeeGo::QmLocks::Unlocked << 1 << DeviceLock::Unlocked;
     QTest::newRow("Automatic locking in 5 minutes, display off, screen locked")
             << 5 << MeeGo::QmDisplayState::DisplayState::Off << MeeGo::QmLocks::Locked << 0 << DeviceLock::Unlocked;
     QTest::newRow("Automatic locking disabled, display off, screen locked")
-            << -1 << MeeGo::QmDisplayState::DisplayState::Off << MeeGo::QmLocks::Locked << 0 << DeviceLock::Unlocked;
+            << -1 << MeeGo::QmDisplayState::DisplayState::Off << MeeGo::QmLocks::Locked << 1 << DeviceLock::Unlocked;
 }
 
 void Ut_DeviceLock::testDisplayStateWhenDeviceScreenIsLocked()
 {
-    QFETCH(int, automaticLocking);
+    QFETCH(int, lockingDelayValue);
     QFETCH(MeeGo::QmDisplayState::DisplayState, state);
     QFETCH(MeeGo::QmLocks::State, touchScreenLockState);
     QFETCH(int, stopCount);
@@ -260,7 +251,7 @@ void Ut_DeviceLock::testDisplayStateWhenDeviceScreenIsLocked()
     qTimerStartMsec.clear();
     qTimerStopCount = 0;
 
-    gMGConfItemStub->stubSetReturnValue("value", QVariant(automaticLocking));
+    deviceLock->lockingDelay = lockingDelayValue;
     gQmLocksStub->stubSetReturnValue("getState", touchScreenLockState);
     gQmDisplayStateStub->stubSetReturnValue("get", state);
 
@@ -283,7 +274,7 @@ void Ut_DeviceLock::testLockTimerTimeout()
 
 void Ut_DeviceLock::testStateOnAutomaticLockingAndTouchScreenLockState_data()
 {
-    QTest::addColumn<int>("automaticLocking");
+    QTest::addColumn<int>("lockingDelayValue");
     QTest::addColumn<MeeGo::QmLocks::State>("touchScreenLockState");
     QTest::addColumn<DeviceLock::LockState>("deviceLockState");
 
@@ -292,13 +283,13 @@ void Ut_DeviceLock::testStateOnAutomaticLockingAndTouchScreenLockState_data()
 
 void Ut_DeviceLock::testStateOnAutomaticLockingAndTouchScreenLockState()
 {
-    QFETCH(int, automaticLocking);
+    QFETCH(int, lockingDelayValue);
     QFETCH(MeeGo::QmLocks::State, touchScreenLockState);
     QFETCH(DeviceLock::LockState, deviceLockState);
 
     deviceLock->setState(DeviceLock::Undefined);
 
-    gMGConfItemStub->stubSetReturnValue("value", QVariant(automaticLocking));
+    deviceLock->lockingDelay = lockingDelayValue;
     gQmLocksStub->stubSetReturnValue("getState", touchScreenLockState);
     deviceLock->setStateAndSetupLockTimer();
 
