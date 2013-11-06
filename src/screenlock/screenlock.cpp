@@ -95,10 +95,10 @@ int ScreenLock::tklock_close(bool)
     return TkLockReplyOk;
 }
 
-void ScreenLock::lockScreen()
+void ScreenLock::lockScreen(bool immediate)
 {
     QDBusMessage message = QDBusMessage::createMethodCall("com.nokia.mce", "/com/nokia/mce/request", "com.nokia.mce.request", "req_tklock_mode_change");
-    message.setArguments(QVariantList() << MCE_TK_LOCKED_DELAY);
+    message.setArguments(QVariantList() << (immediate ? MCE_TK_LOCKED : MCE_TK_LOCKED_DELAY));
     QDBusConnection::systemBus().asyncCall(message);
 
     showScreenLock();
