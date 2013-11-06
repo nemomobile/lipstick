@@ -21,6 +21,7 @@
 #include <QDesktopServices>
 #include <QtSensors/QOrientationSensor>
 #include <QClipboard>
+#include <QMimeData>
 #include "homeapplication.h"
 #include "windowmodel.h"
 #include "lipstickcompositorprocwindow.h"
@@ -119,8 +120,15 @@ void LipstickCompositor::openUrl(const QUrl &url)
 
 void LipstickCompositor::retainedSelectionReceived(QMimeData *mimeData)
 {
-    m_retainedSelection = mimeData;
-    QGuiApplication::clipboard()->setMimeData(mimeData);
+    if (!m_retainedSelection)
+        m_retainedSelection = new QMimeData;
+
+    // Make a copy to allow QClipboard to take ownership of our data
+    m_retainedSelection->clear();
+    foreach (const QString &format, mimeData->formats())
+        m_retainedSelection->setData(format, mimeData->data(format));
+
+    QGuiApplication::clipboard()->setMimeData(m_retainedSelection.data());
 }
 
 int LipstickCompositor::windowCount() const
@@ -537,8 +545,7 @@ void LipstickCompositor::setScreenOrientationFromSensor()
 
 void LipstickCompositor::clipboardDataChanged()
 {
-    if (QGuiApplication::clipboard()->mimeData() != m_retainedSelection) {
-        m_retainedSelection = QGuiApplication::clipboard()->mimeData();
-        overrideSelection(const_cast<QMimeData *>(m_retainedSelection));
-    }
+    const QMimeData *mimeData = QGuiApplication::clipboard()->mimeData();
+    if (mimeData && mimeData != m_retainedSelection)
+        overrideSelection(const_cast<QMimeData *>(mimeData));
 }
