@@ -40,6 +40,8 @@ public:
 
     QSize screenSize();
 
+    Q_INVOKABLE void lockScreen(bool immediate);
+
 signals:
     void lockscreenVisibleChanged();
     void screenSizeChanged();

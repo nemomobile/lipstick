@@ -56,6 +56,13 @@ void LipstickSettings::setLockscreenVisible(bool lockscreenVisible)
     }
 }
 
+void LipstickSettings::lockScreen(bool immediate)
+{
+    if (screenLock != 0 && (!screenLock->isScreenLocked() || immediate)) {
+        screenLock->lockScreen(immediate);
+    }
+}
+
 QSize LipstickSettings::screenSize()
 {
     return QGuiApplication::primaryScreen()->size();
