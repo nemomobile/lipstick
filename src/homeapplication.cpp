@@ -305,6 +305,7 @@ void HomeApplication::setUpdatesEnabled(bool enabled)
             QGuiApplication::platformNativeInterface()->nativeResourceForIntegration("DisplayOff");
         } else {
             QGuiApplication::platformNativeInterface()->nativeResourceForIntegration("DisplayOn");
+            emit LipstickCompositor::instance()->displayAboutToBeOn();
             LipstickCompositor::instance()->showFullScreen();
         }
     }

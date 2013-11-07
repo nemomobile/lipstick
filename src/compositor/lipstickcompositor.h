@@ -106,6 +106,7 @@ signals:
 
     void displayOn();
     void displayOff();
+    void displayAboutToBeOn();
 
 protected:
     virtual bool event(QEvent *);
