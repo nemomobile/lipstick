@@ -140,6 +140,7 @@ uint NotificationManager::Notify(const QString &appName, uint replacesId, const 
             // Create a new notification
             LipstickNotification *notification = new LipstickNotification(appName, id, appIcon, summary, body, actions, hints, expireTimeout, this);
             connect(notification, SIGNAL(actionInvoked(QString)), this, SLOT(invokeAction(QString)));
+            connect(notification, SIGNAL(removeRequested()), this, SLOT(removeNotificationIfUserRemovable()));
             notifications.insert(id, notification);
         } else {
             // Only replace an existing notification if it really exists
