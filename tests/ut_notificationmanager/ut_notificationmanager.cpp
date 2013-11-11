@@ -297,7 +297,7 @@ void Ut_NotificationManager::testDatabaseConnectionSucceedsAndTablesAreOk()
     NotificationManager::instance();
     QCOMPARE(diskSpaceChecked, true);
     QCOMPARE(qSqlDatabaseAddDatabaseType, QString("QSQLITE"));
-    QCOMPARE(qSqlDatabaseDatabaseName, QDir::homePath() + "/.config/lipstick/notifications.db");
+    QCOMPARE(qSqlDatabaseDatabaseName, QDir::homePath() + "/.local/share/system/privileged/Notifications/notifications.db");
     QCOMPARE(qSqlDatabaseOpenCalledCount, 1);
     QVERIFY(qSqlQueryExecQuery.count() > 0);
     QCOMPARE(qSqlQueryExecQuery.at(0), QString("PRAGMA journal_mode=WAL"));
@@ -317,7 +317,7 @@ void Ut_NotificationManager::testDatabaseConnectionSucceedsAndTablesAreNotOk()
     // Check that the tables are dropped and recreated
     NotificationManager::instance();
     QCOMPARE(qSqlDatabaseAddDatabaseType, QString("QSQLITE"));
-    QCOMPARE(qSqlDatabaseDatabaseName, QDir::homePath() + "/.config/lipstick/notifications.db");
+    QCOMPARE(qSqlDatabaseDatabaseName, QDir::homePath() + "/.local/share/system/privileged/Notifications/notifications.db");
     QCOMPARE(qSqlDatabaseOpenCalledCount, 1);
     QCOMPARE(qSqlQueryExecQuery.count(), 10);
     QCOMPARE(qSqlQueryExecQuery.at(0), QString("PRAGMA journal_mode=WAL"));
@@ -697,6 +697,7 @@ void Ut_NotificationManager::testActionIsInvokedIfDefined()
     // Make both notifications emit the actionInvoked() signal for action "action1"; only the first one contains it and should be invoked
     QSignalSpy spy(manager, SIGNAL(ActionInvoked(uint, QString)));
     emit actionInvoked("action1");
+    QCoreApplication::processEvents();
     QCOMPARE(spy.count(), 1);
     QCOMPARE(spy.last().at(0).toUInt(), id1);
     QCOMPARE(spy.last().at(1).toString(), QString("action1"));
@@ -716,6 +717,7 @@ void Ut_NotificationManager::testActionIsNotInvokedIfIncomplete()
     // Make both notifications emit the actionInvoked() signal for action "action1"; no action should be invoked
     QSignalSpy spy(manager, SIGNAL(ActionInvoked(uint, QString)));
     emit actionInvoked("action1");
+    QCoreApplication::processEvents();
     QCOMPARE(spy.count(), 0);
 }
 
@@ -731,6 +733,7 @@ void Ut_NotificationManager::testRemoteActionIsInvokedIfDefined()
 
     // Invoking the notification should trigger the remote action
     emit actionInvoked("action");
+    QCoreApplication::processEvents();
     QCOMPARE(mRemoteActionTrigger.count(), 1);
     QCOMPARE(mRemoteActionTrigger.last(), hints.value(QString(NotificationManager::HINT_REMOTE_ACTION_PREFIX) + "action").toString());
 }
@@ -763,6 +766,7 @@ void Ut_NotificationManager::testInvokingActionClosesNotificationIfUserRemovable
     QSignalSpy removedSpy(manager, SIGNAL(notificationRemoved(uint)));
     QSignalSpy closedSpy(manager, SIGNAL(NotificationClosed(uint,uint)));
     emit actionInvoked("action");
+    QCoreApplication::processEvents();
     QCOMPARE(removedSpy.count(), 4);
     QCOMPARE(removedSpy.at(0).at(0).toUInt(), id1);
     QCOMPARE(removedSpy.at(1).at(0).toUInt(), id2);
@@ -794,6 +798,7 @@ void Ut_NotificationManager::testInvokingActionRemovesNotificationIfUserRemovabl
     QSignalSpy removedSpy(manager, SIGNAL(notificationRemoved(uint)));
     QSignalSpy closedSpy(manager, SIGNAL(NotificationClosed(uint,uint)));
     emit actionInvoked("action");
+    QCoreApplication::processEvents();
     QCOMPARE(removedSpy.count(), 1);
     QCOMPARE(removedSpy.at(0).at(0).toUInt(), id);
     QCOMPARE(closedSpy.count(), 0);
@@ -900,6 +905,20 @@ void Ut_NotificationManager::testRemoveUserRemovableNotifications()
     QCOMPARE(closedIds.contains(id1), true);
     QCOMPARE(closedIds.contains(id2), true);
     QCOMPARE(closedIds.contains(id4), true);
+}
+
+void Ut_NotificationManager::testRemoveRequested()
+{
+    NotificationManager *manager = NotificationManager::instance();
+    uint id1 = manager->Notify("app1", 0, QString(), QString(), QString(), QStringList() << "action1" << "Action 1", QVariantHash(), 0);
+    LipstickNotification *notification1 = manager->notification(id1);
+    connect(this, SIGNAL(removeRequested()), notification1, SIGNAL(removeRequested()));
+
+    QSignalSpy spy(manager, SIGNAL(notificationRemoved(uint)));
+    emit removeRequested();
+    QCoreApplication::processEvents();
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.last().at(0).toUInt(), id1);
 }
 
 QTEST_MAIN(Ut_NotificationManager)

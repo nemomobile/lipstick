@@ -47,9 +47,11 @@ private slots:
     void testInvokingActionRemovesNotificationIfUserRemovableAndNotCloseable();
     void testListingNotifications();
     void testRemoveUserRemovableNotifications();
+    void testRemoveRequested();
 
 signals:
     void actionInvoked(QString action);
+    void removeRequested();
 };
 
 #endif
