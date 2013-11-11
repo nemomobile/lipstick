@@ -167,6 +167,9 @@ signals:
      */
     void actionInvoked(QString action);
 
+    //! Sent when the removal of this notification was requested.
+    void removeRequested();
+
     //! Sent when the summary has been modified
     void summaryChanged();
 

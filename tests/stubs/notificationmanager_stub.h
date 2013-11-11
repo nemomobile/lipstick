@@ -36,6 +36,7 @@ class NotificationManagerStub : public StubBase {
   virtual void updateNotificationsWithCategory(const QString &category);
   virtual void commit();
   virtual void invokeAction(const QString &action);
+  virtual void removeNotificationIfUserRemovable(uint id);
   virtual void removeUserRemovableNotifications();
   virtual void NotificationManagerConstructor(QObject *parent);
   virtual void NotificationManagerDestructor();
@@ -123,6 +124,13 @@ void NotificationManagerStub::invokeAction(const QString &action) {
   stubMethodEntered("invokeAction",params);
 }
 
+void NotificationManagerStub::removeNotificationIfUserRemovable(uint id)
+{
+  QList<ParameterBase*> params;
+  params.append( new Parameter<uint >(id));
+  stubMethodEntered("removeNotificationIfUserRemovable",params);
+}
+
 void NotificationManagerStub::removeUserRemovableNotifications() {
   stubMethodEntered("removeUserRemovableNotifications");
 }
@@ -205,6 +213,10 @@ void NotificationManager::commit() {
 
 void NotificationManager::invokeAction(const QString &action) {
   gNotificationManagerStub->invokeAction(action);
+}
+
+void NotificationManager::removeNotificationIfUserRemovable(uint id) {
+  gNotificationManagerStub->removeNotificationIfUserRemovable(id);
 }
 
 void NotificationManager::removeUserRemovableNotifications() {

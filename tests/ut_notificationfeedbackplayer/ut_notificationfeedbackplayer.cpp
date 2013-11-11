@@ -46,6 +46,10 @@ void NotificationManager::invokeAction(const QString &)
 {
 }
 
+void NotificationManager::removeNotificationIfUserRemovable(uint)
+{
+}
+
 void NotificationManager::removeNotificationsWithCategory(const QString &)
 {
 }

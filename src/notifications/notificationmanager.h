@@ -256,6 +256,13 @@ private slots:
      */
     void invokeAction(const QString &action);
 
+    /*!
+     * Removes a notification if it is removable by the user.
+     *
+     * \param id the ID of the notification to be removed
+     */
+    void removeNotificationIfUserRemovable(uint id = 0);
+
 private:
     /*!
      * Creates a new notification manager.
@@ -343,13 +350,6 @@ private:
      * \param args list of values to be bound to the positional placeholders ('?' -character) in the command.
      */
     void execSQL(const QString &command, const QVariantList &args = QVariantList());
-
-    /*!
-     * Removes a notification if it is removable by the user.
-     *
-     * \param id the ID of the notification to be removed
-     */
-    void removeNotificationIfUserRemovable(uint id);
 
     //! The singleton notification manager instance
     static NotificationManager *instance_;
