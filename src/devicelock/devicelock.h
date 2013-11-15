@@ -20,6 +20,7 @@
 #include <qmlocks.h>
 #include <qmdisplaystate.h>
 #include <sys/time.h>
+#include <QFileSystemWatcher>
 
 class MGConfItem;
 class QTimer;
@@ -57,12 +58,14 @@ private slots:
     void lock();
     void checkDisplayState(MeeGo::QmDisplayState::DisplayState state);
     void handleCallStateChange(const QString &state, const QString &ignored);
+    void readSettings();
 
 private:
     static bool runPlugin(const QStringList &args);
     void setupTimer();
 
-    MGConfItem *lockingGConfItem;
+    int lockingDelay;
+    QFileSystemWatcher watcher;
     QTimer *lockTimer;
     MeeGo::QmActivity *qmActivity;
     MeeGo::QmLocks *qmLocks;
