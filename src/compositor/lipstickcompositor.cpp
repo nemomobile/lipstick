@@ -26,6 +26,7 @@
 #include "windowmodel.h"
 #include "lipstickcompositorprocwindow.h"
 #include "lipstickcompositor.h"
+#include <qpa/qwindowsysteminterface.h>
 
 LipstickCompositor *LipstickCompositor::m_instance = 0;
 
@@ -481,7 +482,7 @@ QQmlComponent *LipstickCompositor::shaderEffectComponent()
             "property QtObject window\n"
             "property ShaderEffectSource source: ShaderEffectSource { sourceItem: window }\n"
         "}";
-            
+
     if (!m_shaderEffect) {
         m_shaderEffect = new QQmlComponent(qmlEngine(this));
         m_shaderEffect->setData(qml_source, QUrl());
@@ -492,11 +493,11 @@ QQmlComponent *LipstickCompositor::shaderEffectComponent()
 void LipstickCompositor::setScreenOrientation(Qt::ScreenOrientation screenOrientation)
 {
     if (m_screenOrientation != screenOrientation) {
-
         if (debug())
             qDebug() << "Setting screen orientation on QWaylandCompositor";
 
         QWaylandCompositor::setScreenOrientation(screenOrientation);
+        QWindowSystemInterface::handleScreenOrientationChange(qApp->primaryScreen(),screenOrientation);
 
         m_screenOrientation = screenOrientation;
         emit screenOrientationChanged();
