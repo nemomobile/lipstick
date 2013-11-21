@@ -63,14 +63,9 @@ DeviceLock::DeviceLock(QObject * parent) :
     connect(qmActivity, SIGNAL(activityChanged(MeeGo::QmActivity::Activity)), this, SLOT(setStateAndSetupLockTimer()));
     connect(qmLocks, SIGNAL(stateChanged(MeeGo::QmLocks::Lock,MeeGo::QmLocks::State)), this, SLOT(setStateAndSetupLockTimer()));
     connect(qmDisplayState, SIGNAL(displayStateChanged(MeeGo::QmDisplayState::DisplayState)), this, SLOT(checkDisplayState(MeeGo::QmDisplayState::DisplayState)));
-    connect(&watcher, SIGNAL(fileChanged(QString)), this, SLOT(readSettings()));
     connect(qApp, SIGNAL(homeReady()), this, SLOT(init()));
 
     QDBusConnection::systemBus().connect(QString(), "/com/nokia/mce/signal", "com.nokia.mce.signal", "sig_call_state_ind", this, SLOT(handleCallStateChange(QString, QString)));
-
-    if (QFile(settingsFile).exists() && watcher.addPath(settingsFile)) {
-        readSettings();
-    }
 }
 
 void DeviceLock::handleCallStateChange(const QString &state, const QString &ignored)
@@ -85,10 +80,12 @@ void DeviceLock::handleCallStateChange(const QString &state, const QString &igno
 
 void DeviceLock::init()
 {
-    if (isSet() && lockingDelay >= 0)
-        setState(Locked);
-    else
-        setState(Unlocked);
+    if (QFile(settingsFile).exists() && watcher.addPath(settingsFile)) {
+        readSettings();
+        connect(&watcher, SIGNAL(fileChanged(QString)), this, SLOT(readSettings()));
+    }
+
+    setState(isSet() && lockingDelay >= 0 ? Locked : Unlocked);
 }
 
 void DeviceLock::setupLockTimer()
@@ -197,6 +194,7 @@ void DeviceLock::readSettings()
 {
     QSettings settings(settingsFile, QSettings::IniFormat);
     lockingDelay = settings.value(lockingKey, "-1").toInt();
-    if (deviceLockState == Undefined) init();
-    setStateAndSetupLockTimer();
+    if (deviceLockState != Undefined) {
+        setStateAndSetupLockTimer();
+    }
 }
