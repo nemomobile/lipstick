@@ -3,7 +3,7 @@ TARGET = ut_lipsticksettings
 INCLUDEPATH += $$SCREENLOCKSRCDIR
 QT += dbus qml quick
 CONFIG += link_pkgconfig mobility
-PKGCONFIG += x11 mce
+PKGCONFIG += mce
 
 # unit test and unit
 SOURCES += \
