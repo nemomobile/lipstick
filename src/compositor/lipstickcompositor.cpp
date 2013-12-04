@@ -32,7 +32,8 @@ LipstickCompositor *LipstickCompositor::m_instance = 0;
 
 LipstickCompositor::LipstickCompositor()
 : QWaylandCompositor(this), m_totalWindowCount(0), m_nextWindowId(1), m_homeActive(true), m_shaderEffect(0),
-  m_fullscreenSurface(0), m_directRenderingActive(false), m_topmostWindowId(0), m_screenOrientation(Qt::PrimaryOrientation), m_displayState(new MeeGo::QmDisplayState(this)), m_retainedSelection(0)
+  m_fullscreenSurface(0), m_directRenderingActive(false), m_topmostWindowId(0), m_screenOrientation(Qt::PrimaryOrientation),
+  m_meegoDisplayState(new MeeGo::QmDisplayState(this)), m_displayState(DisplayUnknown), m_retainedSelection(0)
 {
     setColor(Qt::black);
     setRetainedSelectionEnabled(true);
@@ -42,8 +43,9 @@ LipstickCompositor::LipstickCompositor()
 
     QObject::connect(this, SIGNAL(frameSwapped()), this, SLOT(windowSwapped()));
     QObject::connect(this, SIGNAL(beforeSynchronizing()), this, SLOT(clearUpdateRequest()));
-    connect(m_displayState, SIGNAL(displayStateChanged(MeeGo::QmDisplayState::DisplayState)), this, SLOT(reactOnDisplayStateChanges(MeeGo::QmDisplayState::DisplayState)));
+    connect(m_meegoDisplayState, SIGNAL(displayStateChanged(MeeGo::QmDisplayState::DisplayState)), this, SLOT(reactOnDisplayStateChanges(MeeGo::QmDisplayState::DisplayState)));
     QObject::connect(HomeApplication::instance(), SIGNAL(aboutToDestroy()), this, SLOT(homeApplicationAboutToDestroy()));
+    reactOnDisplayStateChanges(m_meegoDisplayState->get());
 
     m_orientationSensor = new QOrientationSensor(this);
     QObject::connect(m_orientationSensor, SIGNAL(readingChanged()), this, SLOT(setScreenOrientationFromSensor()));
@@ -211,7 +213,7 @@ void LipstickCompositor::clearKeyboardFocus()
 
 void LipstickCompositor::setDisplayOff()
 {
-    m_displayState->set(MeeGo::QmDisplayState::Off);
+    m_meegoDisplayState->set(MeeGo::QmDisplayState::Off);
 }
 
 void LipstickCompositor::surfaceDamaged(const QRect &)
@@ -504,13 +506,41 @@ void LipstickCompositor::setScreenOrientation(Qt::ScreenOrientation screenOrient
     }
 }
 
+LipstickCompositor::DisplayState LipstickCompositor::displayState() const
+{
+    return m_displayState;
+}
+
 void LipstickCompositor::reactOnDisplayStateChanges(MeeGo::QmDisplayState::DisplayState state)
 {
-    if (state == MeeGo::QmDisplayState::On) {
+    DisplayState newState = DisplayUnknown;
+
+    switch (state) {
+    case MeeGo::QmDisplayState::On:
+        newState = DisplayOn;
+        break;
+    case MeeGo::QmDisplayState::Off:
+        newState = DisplayOff;
+        break;
+    case MeeGo::QmDisplayState::Dimmed:
+        newState = DisplayDimmed;
+        break;
+    default:
+        newState = DisplayUnknown;
+    }
+
+    if (newState == m_displayState)
+        return;
+
+    m_displayState = newState;
+
+    if (m_displayState == DisplayOn) {
         emit displayOn();
-    } else if (state == MeeGo::QmDisplayState::Off) {
+    } else if (m_displayState == DisplayOff) {
         emit displayOff();
     }
+
+    emit displayStateChanged();
 }
 
 void LipstickCompositor::setScreenOrientationFromSensor()

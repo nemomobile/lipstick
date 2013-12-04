@@ -25,6 +25,7 @@ class LipstickCompositorStub : public StubBase {
   virtual void setFullscreenSurface(QWaylandSurface *surface);
   virtual void setTopmostWindowId(int id);
   virtual void setScreenOrientation(Qt::ScreenOrientation screenOrientation);
+  virtual LipstickCompositor::DisplayState displayState() const;
   virtual QObject *clipboard() const;
   virtual bool debug() const;
   virtual QObject * windowForId(int) const;
@@ -139,6 +140,11 @@ void LipstickCompositorStub::setScreenOrientation(Qt::ScreenOrientation screenOr
 QObject *LipstickCompositorStub::clipboard() const {
   stubMethodEntered("clipboard");
   return stubReturnValue<QObject *>("clipboard");
+}
+
+LipstickCompositor::DisplayState LipstickCompositorStub::displayState() const {
+  stubMethodEntered("displayState");
+  return stubReturnValue<LipstickCompositor::DisplayState>("displayState");
 }
 
 bool LipstickCompositorStub::debug() const {
@@ -335,6 +341,10 @@ void LipstickCompositor::setScreenOrientation(Qt::ScreenOrientation screenOrient
 
 QObject *LipstickCompositor::clipboard() const {
   return gLipstickCompositorStub->clipboard();
+}
+
+LipstickCompositor::DisplayState LipstickCompositor::displayState() const {
+  return gLipstickCompositorStub->displayState();
 }
 
 bool LipstickCompositor::debug() const {
