@@ -73,6 +73,15 @@ Requires:   %{name} = %{version}-%{release}
 %description tools
 Tools for the lipstick package.
 
+%package tools-ui
+Summary:    UI-based tools for lipstick
+License:    LGPLv2.1
+Group:      System/Libraries
+Requires:   %{name} = %{version}-%{release}
+
+%description tools-ui
+UI-based tools for the lipstick package.
+
 %package doc
 Summary:    Documentation for lipstick
 License:    LGPLv2.1
@@ -151,9 +160,14 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %{_bindir}/notificationtool
 %{_bindir}/screenshottool
-%{_datadir}/applications/screenshottool.desktop
 # >> files tools
 # << files tools
+
+%files tools-ui
+%defattr(-,root,root,-)
+%{_datadir}/applications/screenshottool.desktop
+# >> files tools-ui
+# << files tools-ui
 
 %files doc
 %defattr(-,root,root,-)
