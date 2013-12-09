@@ -1,7 +1,7 @@
 TEMPLATE = subdirs
-INSTALLS += screenshottool desktop
+SUBDIRS = application
 
 screenshottool.files = screenshottool
 screenshottool.path = /usr/bin
-desktop.files = screenshottool.desktop
-desktop.path = /usr/share/applications
+
+INSTALLS += screenshottool
