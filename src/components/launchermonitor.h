@@ -39,6 +39,8 @@ public:
 
     void start();
     QStringList directories() const;
+    QStringList iconDirectories() const;
+    void setIconDirectories(const QStringList &dirs);
 
 signals:
     void filesUpdated(const QStringList &added, const QStringList &modified, const QStringList &removed);
@@ -54,7 +56,7 @@ private: // fields
     QStringList m_removedFiles;
 
     QString m_desktopFilesPath;
-    QString m_iconFilesPath;
+    QStringList m_iconFilesPaths;
 
 private slots:
     void onDirectoryChanged(const QString &path);
