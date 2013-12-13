@@ -1,5 +1,5 @@
 [Desktop Entry]
 Type=Application
 Name=Screenshot
-Icon=icon-launcher-settings
+Icon=icon-launcher-screenshot
 Exec=screenshottool
