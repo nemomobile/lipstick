@@ -6,6 +6,9 @@
 Name:       lipstick-qt5
 
 # >> macros
+# We need this folder, so that lipstick can monitor it. See the code
+# in src/components/launchermodel.cpp for reference.
+%define icondirectory %{_datadir}/icons/hicolor/86x86/apps
 # << macros
 
 Summary:    QML toolkit for homescreen creation
@@ -120,6 +123,7 @@ make %{?_smp_mflags}
 %install
 rm -rf %{buildroot}
 # >> install pre
+mkdir -p %{buildroot}/%{icondirectory}
 # << install pre
 %qmake5_install
 
@@ -139,6 +143,7 @@ rm -rf %{buildroot}
 %{_datadir}/translations/lipstick_eng_en.qm
 %{_datadir}/lipstick/notificationcategories/*.conf
 # >> files
+%dir %{icondirectory}
 # << files
 
 %files devel

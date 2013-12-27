@@ -24,6 +24,10 @@
 
 
 #define LAUNCHER_APPS_PATH "/usr/share/applications/"
+
+// Make sure to also update this in the .spec file, so it gets
+// created whenever lipstick is installed, otherwise monitoring
+// will fail and newly-installed icons will not be detected
 #define LAUNCHER_ICONS_PATH "/usr/share/icons/hicolor/86x86/apps/"
 
 #define LAUNCHER_KEY_FOR_PATH(path) ("LauncherOrder/" + path)
