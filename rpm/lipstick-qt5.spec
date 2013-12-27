@@ -18,7 +18,6 @@ Group:      System/Libraries
 License:    LGPLv2.1
 URL:        http://github.com/nemomobile/lipstick
 Source0:    %{name}-%{version}.tar.bz2
-Source100:  lipstick-qt5.yaml
 Requires:   mce >= 1.12.4
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
