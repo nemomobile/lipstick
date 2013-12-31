@@ -33,6 +33,7 @@ class LIPSTICK_EXPORT LauncherModel : public QObjectListModel
     Q_DISABLE_COPY(LauncherModel)
 
     Q_PROPERTY(QStringList directories READ directories WRITE setDirectories NOTIFY directoriesChanged)
+    Q_PROPERTY(QStringList iconDirectories READ iconDirectories WRITE setIconDirectories NOTIFY iconDirectoriesChanged)
 
     QFileSystemWatcher _fileSystemWatcher;
     QSettings _launcherSettings;
@@ -50,11 +51,15 @@ public:
     QStringList directories() const;
     void setDirectories(QStringList);
 
+    QStringList iconDirectories() const;
+    void setIconDirectories(QStringList);
+
 public slots:
     void savePositions();
 
 signals:
     void directoriesChanged();
+    void iconDirectoriesChanged();
 
 private:
     void reorderItems(const QMap<int, LauncherItem *> &itemsWithPositions);

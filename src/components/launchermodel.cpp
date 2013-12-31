@@ -40,7 +40,7 @@ static inline bool isDesktopFile(const QString &filename)
 static inline bool isIconFile(const QString &filename)
 {
     // TODO: Possibly support other file types
-    return filename.startsWith(LAUNCHER_ICONS_PATH) && filename.endsWith(".png");
+    return filename.startsWith(QLatin1Char('/')) && filename.endsWith(".png");
 }
 
 static inline QString iconIdFromFilename(const QString &filename)
@@ -56,9 +56,9 @@ static inline QString iconIdFromFilename(const QString &filename)
     return filename.mid(start, end - start);
 }
 
-static inline QString filenameFromIconId(const QString &filename)
+static inline QString filenameFromIconId(const QString &filename, const QString &path)
 {
-    return QString("%1%2%3").arg(LAUNCHER_ICONS_PATH).arg(filename).arg(".png");
+    return QString("%1%2%3").arg(path).arg(filename).arg(".png");
 }
 
 LauncherModel::LauncherModel(QObject *parent) :
@@ -116,10 +116,13 @@ void LauncherModel::onFilesUpdated(const QStringList &added,
 
                 if (item != NULL) {
                     // Try to look up an already-installed icon in the icons directory
-                    QString iconname = filenameFromIconId(item->getOriginalIconId());
-                    if (QFile(iconname).exists()) {
-                        LAUNCHER_DEBUG("Loading existing icon:" << iconname);
-                        updateItemsWithIcon(iconname, true);
+                    foreach (const QString &iconPath, _launcherMonitor.iconDirectories()) {
+                        QString iconname = filenameFromIconId(item->getOriginalIconId(), iconPath);
+                        if (QFile(iconname).exists()) {
+                            LAUNCHER_DEBUG("Loading existing icon:" << iconname);
+                            updateItemsWithIcon(iconname, true);
+                            break;
+                        }
                     }
                 }
             } else {
@@ -146,12 +149,13 @@ void LauncherModel::onFilesUpdated(const QStringList &added,
                     // File has been updated and is still valid; check if we
                     // might need to auto-update the icon file
                     if (item->iconFilename().isEmpty()) {
-                        QString filename = filenameFromIconId(item->getOriginalIconId());
-                        LAUNCHER_DEBUG("Desktop file changed, checking for:" << filename);
-                        if (QFile(filename).exists()) {
-                            updateItemsWithIcon(filename, true);
-                        } else {
-                            LAUNCHER_DEBUG("No icon found, assuming in theme");
+                        foreach (const QString &iconPath, _launcherMonitor.iconDirectories()) {
+                            QString filename = filenameFromIconId(item->getOriginalIconId(), iconPath);
+                            LAUNCHER_DEBUG("Desktop file changed, checking for:" << filename);
+                            if (QFile(filename).exists()) {
+                                updateItemsWithIcon(filename, true);
+                                break;
+                            }
                         }
                     }
                 }
@@ -262,6 +266,19 @@ void LauncherModel::setDirectories(QStringList newDirectories)
     qWarning() << "Changing the directories of desktop files to watch not supported";
     // TODO: Maybe add support for this to LauncherMonitor and call from here
     //emit this->directoriesChanged();
+}
+
+QStringList LauncherModel::iconDirectories() const
+{
+    return _launcherMonitor.iconDirectories();
+}
+
+void LauncherModel::setIconDirectories(QStringList newDirectories)
+{
+    if (!newDirectories.contains(LAUNCHER_ICONS_PATH))
+        newDirectories << LAUNCHER_ICONS_PATH;
+    _launcherMonitor.setIconDirectories(newDirectories);
+    emit iconDirectoriesChanged();
 }
 
 void LauncherModel::savePositions()
