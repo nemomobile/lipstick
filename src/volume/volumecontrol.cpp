@@ -119,11 +119,9 @@ bool VolumeControl::warningAcknowledged() const
 
 void VolumeControl::setWarningAcknowledged(bool acknowledged)
 {
-    if (audioWarning->value(false).toBool() == acknowledged) {
-        return;
+    if (audioWarning->value(false).toBool() != acknowledged) {
+        audioWarning->set(acknowledged);
     }
-
-    audioWarning->set(acknowledged);
 }
 
 void VolumeControl::setVolume(int volume, int maximumVolume)
@@ -177,14 +175,20 @@ void VolumeControl::acquireKeys()
 
 void VolumeControl::changeVolume()
 {
-    volume_ = qBound(0, volume_ + volumeChange, warningAcknowledged() ? maximumVolume() : safeVolume());
-    pulseAudioControl->setVolume(volume_);
+    int newVolume = qBound(0, volume_ + volumeChange, warningAcknowledged() ? maximumVolume() : safeVolume());
+    if (newVolume != volume_) {
+        volume_ = newVolume;
+        pulseAudioControl->setVolume(volume_);
+        emit volumeChanged();
+    }
+
     setWindowVisible(true);
-    emit volumeChanged();
 
     if (!warningAcknowledged() && safeVolume_ != 0 && volume_ >= safeVolume_) {
         emit showAudioWarning(false);
     }
+
+    emit volumeKeyPressed();
 }
 
 void VolumeControl::stopKeyRepeat()
@@ -195,11 +199,16 @@ void VolumeControl::stopKeyRepeat()
 
 void VolumeControl::handleHighVolume(int safeLevel)
 {
-    safeVolume_ = safeLevel;
-    volume_ = qBound(0, volume_, warningAcknowledged() ? maximumVolume() : safeVolume());
-    pulseAudioControl->setVolume(volume_);
-    emit safeVolumeChanged();
-    emit volumeChanged();
+    if (safeVolume_ != safeLevel) {
+        safeVolume_ = safeLevel;
+        emit safeVolumeChanged();
+    }
+
+    int newVolume = qBound(0, volume_, warningAcknowledged() ? maximumVolume() : safeVolume());
+    if (newVolume != volume_) {
+        pulseAudioControl->setVolume(volume_);
+        emit volumeChanged();
+    }
 
     if (!warningAcknowledged() && safeVolume_ != 0 && volume_ >= safeVolume_) {
         setWindowVisible(true);
@@ -211,9 +220,13 @@ void VolumeControl::handleLongListeningTime(int listeningTime)
 {
     setWarningAcknowledged(false);
     setWindowVisible(true);
-    volume_ = qBound(0, volume_, warningAcknowledged() ? maximumVolume() : safeVolume());
-    pulseAudioControl->setVolume(volume_);
-    emit volumeChanged();
+
+    int newVolume = qBound(0, volume_, warningAcknowledged() ? maximumVolume() : safeVolume());
+    if (newVolume != volume_) {
+        pulseAudioControl->setVolume(volume_);
+        emit volumeChanged();
+    }
+
     emit showAudioWarning(listeningTime == 0);
 }
 
