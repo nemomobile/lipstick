@@ -43,12 +43,9 @@ VolumeControl::VolumeControl(QObject *parent) :
     connect(hwKeyResource, SIGNAL(lostResources()), this, SLOT(hwKeyResourceLost()));
 
     // Set up key repeat: initial delay and per-repeat delay
-    keyReleaseTimer.setSingleShot(true);
-    keyReleaseTimer.setInterval(100);
     keyRepeatDelayTimer.setSingleShot(true);
     keyRepeatDelayTimer.setInterval(600);
     keyRepeatTimer.setInterval(75);
-    connect(&keyReleaseTimer, SIGNAL(timeout()), this, SLOT(stopKeyRepeat()));
     connect(&keyRepeatDelayTimer, SIGNAL(timeout()), &keyRepeatTimer, SLOT(start()));
     connect(&keyRepeatTimer, SIGNAL(timeout()), this, SLOT(changeVolume()));
 
@@ -243,8 +240,8 @@ bool VolumeControl::eventFilter(QObject *, QEvent *event)
                     changeVolume();
                 }
             } else {
-                // Key up: stop any key repeating in progress
-                keyReleaseTimer.start();
+                // Key up: stop any key repeating in progress and the repeat delay timer
+                stopKeyRepeat();
             }
             return true;
         }
