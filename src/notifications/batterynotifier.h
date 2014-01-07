@@ -70,8 +70,16 @@ public slots:
     void setTouchScreenLockActive(bool active);
 
 private slots:
+#if QT_VERSION < QT_VERSION_CHECK(5, 2, 0)
     void applyBatteryStatus(int battery, QBatteryInfo::BatteryStatus status);
     void applyChargingState(int battery, QBatteryInfo::ChargingState state);
+#else
+    void applyBatteryStatus(QBatteryInfo::LevelStatus status);
+    void applyChargingState(QBatteryInfo::ChargingState state);
+
+    // to somewhat mitigate the ifdef hell
+    void applyChargingState(int, QBatteryInfo::ChargingState state) { applyChargingState(state); }
+#endif
     void applyChargerType(QBatteryInfo::ChargerType type);
     void applyPSMState(MeeGo::QmDeviceMode::PSMState psmState);
 
