@@ -25,7 +25,7 @@ PkgConfigBR:
     - dbus-glib-1
     - libresourceqt5
     - ngf-qt5
-    - qmsystem2-qt5 >= 1.4.11
+    - qmsystem2-qt5 >= 1.4.15
     - contextkit-statefs >= 0.2.7
     - systemd
 PkgBR:
