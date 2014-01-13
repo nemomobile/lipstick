@@ -6,16 +6,18 @@
 Name:       lipstick-qt5
 
 # >> macros
+# We need this folder, so that lipstick can monitor it. See the code
+# in src/components/launchermodel.cpp for reference.
+%define icondirectory %{_datadir}/icons/hicolor/86x86/apps
 # << macros
 
 Summary:    QML toolkit for homescreen creation
-Version:    0.18.19
+Version:    0.18.22
 Release:    1
 Group:      System/Libraries
 License:    LGPLv2.1
 URL:        http://github.com/nemomobile/lipstick
 Source0:    %{name}-%{version}.tar.bz2
-Source100:  lipstick-qt5.yaml
 Requires:   mce >= 1.12.4
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
@@ -120,6 +122,7 @@ make %{?_smp_mflags}
 %install
 rm -rf %{buildroot}
 # >> install pre
+mkdir -p %{buildroot}/%{icondirectory}
 # << install pre
 %qmake5_install
 
@@ -139,6 +142,7 @@ rm -rf %{buildroot}
 %{_datadir}/translations/lipstick_eng_en.qm
 %{_datadir}/lipstick/notificationcategories/*.conf
 # >> files
+%dir %{icondirectory}
 # << files
 
 %files devel

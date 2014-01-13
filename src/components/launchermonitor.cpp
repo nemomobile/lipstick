@@ -40,7 +40,6 @@ LauncherMonitor::LauncherMonitor(const QString &desktopFilesPath,
     , m_modifiedFiles()
     , m_removedFiles()
     , m_desktopFilesPath(desktopFilesPath)
-    , m_iconFilesPath(iconFilesPath)
 {
     m_holdbackTimer.setSingleShot(true);
 
@@ -51,14 +50,16 @@ LauncherMonitor::LauncherMonitor(const QString &desktopFilesPath,
     QObject::connect(&m_holdbackTimer, SIGNAL(timeout()),
             this, SLOT(onHoldbackTimerTimeout()));
 
-    m_watcher.addPath(m_iconFilesPath);
+    m_iconFilesPaths << iconFilesPath;
+
+    m_watcher.addPaths(m_iconFilesPaths);
     m_watcher.addPath(m_desktopFilesPath);
 
     // Force initial scan of directories
     // Scan the desktop files first, so that the launcher items are already
     // available by the time the icons will be processed
     onDirectoryChanged(m_desktopFilesPath);
-    onDirectoryChanged(m_iconFilesPath);
+    onDirectoryChanged(iconFilesPath);
 }
 
 LauncherMonitor::~LauncherMonitor()
@@ -79,6 +80,32 @@ QStringList LauncherMonitor::directories() const
     // Right now, we only monitor one directory for .desktop files
     result.append(m_desktopFilesPath);
     return result;
+}
+
+QStringList LauncherMonitor::iconDirectories() const
+{
+    return m_iconFilesPaths;
+}
+
+void LauncherMonitor::setIconDirectories(const QStringList &dirs)
+{
+    QStringList newPaths;
+    QStringList::ConstIterator it = dirs.begin();
+    while (it != dirs.end()) {
+        if (!m_iconFilesPaths.contains(*it)) {
+            newPaths << *it;
+        } else {
+            m_iconFilesPaths.removeAll(*it);
+        }
+        ++it;
+    }
+
+    m_watcher.removePaths(m_iconFilesPaths);
+
+    m_iconFilesPaths = dirs;
+    m_watcher.addPaths(newPaths);
+    foreach (QString path, newPaths)
+        onDirectoryChanged(path);
 }
 
 void LauncherMonitor::onDirectoryChanged(const QString &path)
