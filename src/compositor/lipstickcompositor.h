@@ -119,12 +119,9 @@ signals:
     void displayAboutToBeOn();
 
 protected:
-    virtual bool event(QEvent *);
     virtual void surfaceAboutToBeDestroyed(QWaylandSurface *surface);
 
 private slots:
-    void clearUpdateRequest();
-    void maybePostUpdateRequest();
     void surfaceMapped();
     void surfaceUnmapped();
     void surfaceSizeChanged();
@@ -176,7 +173,6 @@ private:
     Qt::ScreenOrientation m_screenOrientation;
     Qt::ScreenOrientation m_sensorOrientation;
     MeeGo::QmDisplayState *m_displayState;
-    QAtomicInt m_updateRequestPosted;
     QOrientationSensor* m_orientationSensor;
     QPointer<QMimeData> m_retainedSelection;
     QSettings m_compositorSettings;
