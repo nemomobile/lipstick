@@ -95,11 +95,11 @@ void DeviceLock::setupLockTimer()
         lockTimer->stop();
         monoTime.tv_sec = 0;
     } else {
-        if (lockingDelay <= 0 || qmActivity->get() == MeeGo::QmActivity::Active) {
+        if (lockingDelay <= 0 || (qmActivity->get() == MeeGo::QmActivity::Active && qmDisplayState->get() != MeeGo::QmDisplayState::DisplayState::Off)) {
             // Locking disabled or device active: stop the timer
             lockTimer->stop();
             monoTime.tv_sec = 0;
-        } else if (!isCallActive) {
+        } else if (!isCallActive && !monoTime.tv_sec) {
             // Locking in N minutes enabled and device inactive: start the timer
             lockTimer->start(lockingDelay * 60 * 1000);
             tv_get_monotime(&monoTime);
