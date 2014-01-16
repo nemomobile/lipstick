@@ -34,8 +34,8 @@ BatteryNotifier::BatteryNotifier(QObject *parent) :
     connect(batteryInfo, SIGNAL(batteryStatusChanged(int,QBatteryInfo::BatteryStatus)), this, SLOT(applyBatteryStatus(int,QBatteryInfo::BatteryStatus)));
     connect(batteryInfo, SIGNAL(chargingStateChanged(int,QBatteryInfo::ChargingState)), this, SLOT(applyChargingState(int,QBatteryInfo::ChargingState)));
 #else
-    connect(batteryInfo, SIGNAL(batteryStatusChanged(QBatteryInfo::LevelStatus)), this, SLOT(applyBatteryStatus(QBatteryInfo::LevelStatus)));
-    connect(batteryInfo, SIGNAL(chargingStateChanged(QBatteryInfo::ChargingState)), this, SLOT(applyChargingState(int,QBatteryInfo::ChargingState)));
+    connect(batteryInfo, SIGNAL(levelStatusChanged(QBatteryInfo::LevelStatus)), this, SLOT(applyBatteryStatus(QBatteryInfo::LevelStatus)));
+    connect(batteryInfo, SIGNAL(chargingStateChanged(QBatteryInfo::ChargingState)), this, SLOT(applyChargingState(QBatteryInfo::ChargingState)));
 #endif
     connect(batteryInfo, SIGNAL(chargerTypeChanged(QBatteryInfo::ChargerType)), this, SLOT(applyChargerType(QBatteryInfo::ChargerType)));
 #endif
