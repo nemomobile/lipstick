@@ -41,6 +41,7 @@ private slots:
     void testHwKeyEventWhenKeyReleaseIsInProgress();
     void testAcquireKeys();
     void testReleaseKeys();
+    void testMaximumVolume();
 
 private:
     VolumeControl *volumeControl;

@@ -118,6 +118,9 @@ signals:
     //! Sent when the volume has changed.
     void volumeChanged();
 
+    //! Sent when a volume key was pressed or a key repeat occurred.
+    void volumeKeyPressed();
+
     //! Sent when the maximum volume has changed.
     void maximumVolumeChanged();
 
