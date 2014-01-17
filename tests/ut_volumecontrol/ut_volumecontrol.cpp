@@ -138,12 +138,9 @@ void Ut_VolumeControl::testConnections()
 
 void Ut_VolumeControl::testKeyRepeatSetup()
 {
-    QCOMPARE(volumeControl->keyReleaseTimer.interval(), 100);
-    QCOMPARE(volumeControl->keyReleaseTimer.isSingleShot(), true);
     QCOMPARE(volumeControl->keyRepeatDelayTimer.interval(), 600);
     QCOMPARE(volumeControl->keyRepeatDelayTimer.isSingleShot(), true);
     QCOMPARE(volumeControl->keyRepeatTimer.interval(), 75);
-    QCOMPARE(disconnect(&volumeControl->keyReleaseTimer, SIGNAL(timeout()), volumeControl, SLOT(stopKeyRepeat())), true);
     QCOMPARE(disconnect(&volumeControl->keyRepeatDelayTimer, SIGNAL(timeout()), &volumeControl->keyRepeatTimer, SLOT(start())), true);
     QCOMPARE(disconnect(&volumeControl->keyRepeatTimer, SIGNAL(timeout()), volumeControl, SLOT(changeVolume())), true);
 }
@@ -261,21 +258,15 @@ void Ut_VolumeControl::testHwKeyEventWhenKeyReleaseIsInProgress()
     volumeControl->keyRepeatTimer.start();
     disconnect(this, SIGNAL(timeout()), &volumeControl->keyRepeatDelayTimer, SIGNAL(timeout()));
 
-    // Key release should not stop the repeat timer but start the release timer
+    // Key release should stop the repeat timer and the delay timer
     QKeyEvent event(QEvent::KeyRelease, Qt::Key_VolumeDown, 0);
     volumeControl->eventFilter(0, &event);
-    QCOMPARE(qTimerStartCounts.value(&volumeControl->keyReleaseTimer), 1);
     QCOMPARE(qTimerStartCounts.value(&volumeControl->keyRepeatDelayTimer), 0);
     QCOMPARE(qTimerStartCounts.value(&volumeControl->keyRepeatTimer), 1);
-    QCOMPARE(qTimerStopCounts.value(&volumeControl->keyRepeatTimer), 0);
-    QCOMPARE(volumeChangedSpy.count(), 0);
-    QCOMPARE(volumeKeyPressedSpy.count(), 0);
-
-    // Timeout in the release timer should stop the repeat
-    connect(this, SIGNAL(timeout()), &volumeControl->keyReleaseTimer, SIGNAL(timeout()));
-    emit timeout();
     QCOMPARE(qTimerStopCounts.value(&volumeControl->keyRepeatDelayTimer), 1);
     QCOMPARE(qTimerStopCounts.value(&volumeControl->keyRepeatTimer), 1);
+    QCOMPARE(volumeChangedSpy.count(), 0);
+    QCOMPARE(volumeKeyPressedSpy.count(), 0);
 }
 
 void Ut_VolumeControl::testAcquireKeys()
