@@ -108,6 +108,9 @@ private slots:
     //! Hides the event eater window.
     void hideEventEater();
 
+    //! Clear event eater if display is no longer dimmed
+    void handleDisplayStateChange(int displayState);
+
 signals:
     //! Emitted when the screen lock state changes
     void screenIsLocked(bool locked);
