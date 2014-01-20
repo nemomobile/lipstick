@@ -40,6 +40,7 @@ class ScreenLockStub : public StubBase {
   virtual void hideScreenLockAndEventEater();
   virtual void showEventEater();
   virtual void hideEventEater();
+  virtual void handleDisplayStateChange(int);
   virtual bool isScreenLocked();
   virtual bool eventFilter(QObject *, QEvent *event);
 }; 
@@ -130,6 +131,12 @@ void ScreenLockStub::hideEventEater() {
   stubMethodEntered("hideEventEater");
 }
 
+void ScreenLockStub::handleDisplayStateChange(int displayState){
+    QList<ParameterBase*> params;
+    params.append( new Parameter<int >(displayState));
+    stubMethodEntered("handleDisplayStateChange", params);
+}
+
 bool ScreenLockStub::isScreenLocked() {
   stubMethodEntered("isScreenLocked");
   return stubReturnValue<bool>("isScreenLocked");
@@ -209,6 +216,10 @@ void ScreenLock::showEventEater() {
 
 void ScreenLock::hideEventEater() {
   gScreenLockStub->hideEventEater();
+}
+
+void ScreenLock::handleDisplayStateChange(int displayState) {
+  gScreenLockStub->handleDisplayStateChange(displayState);
 }
 
 bool ScreenLock::isScreenLocked() const {
