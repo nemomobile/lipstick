@@ -320,6 +320,24 @@ void WindowPixmapItem::setRadius(qreal r)
     emit radiusChanged();
 }
 
+QSize WindowPixmapItem::windowSize() const
+{
+    if (!m_item || !m_item->surface()) {
+        return QSize();
+    }
+
+    return m_item->surface()->size();
+}
+
+void WindowPixmapItem::setWindowSize(const QSize &s)
+{
+    if (!m_item || !m_item->surface()) {
+        return;
+    }
+
+    m_item->surface()->requestSize(s);
+}
+
 QSGNode *WindowPixmapItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
 {
     SurfaceNode *node = static_cast<SurfaceNode *>(oldNode);
@@ -348,6 +366,10 @@ void WindowPixmapItem::geometryChanged(const QRectF &n, const QRectF &o)
 
 void WindowPixmapItem::updateItem()
 {
+    if (m_item && m_item->surface()) {
+        disconnect(m_item->surface(), SIGNAL(sizeChanged()), this, SIGNAL(windowSizeChanged()));
+    }
+
     LipstickCompositor *c = LipstickCompositor::instance();
     m_item = 0;
 
@@ -361,6 +383,7 @@ void WindowPixmapItem::updateItem()
         } else if (w->surface()) {
             m_item = w;
             delete m_shaderEffect; m_shaderEffect = 0;
+            connect(m_item->surface(), SIGNAL(sizeChanged()), this, SIGNAL(windowSizeChanged()));
         } else {
             if (!m_shaderEffect) {
                 m_shaderEffect = static_cast<QQuickItem *>(c->shaderEffectComponent()->create());

@@ -27,6 +27,7 @@ class LIPSTICK_EXPORT WindowPixmapItem : public QQuickItem
     Q_PROPERTY(int windowId READ windowId WRITE setWindowId NOTIFY windowIdChanged)
     Q_PROPERTY(bool opaque READ opaque WRITE setOpaque NOTIFY opaqueChanged)
     Q_PROPERTY(qreal radius READ radius WRITE setRadius NOTIFY radiusChanged)
+    Q_PROPERTY(QSize windowSize READ windowSize WRITE setWindowSize NOTIFY windowSizeChanged)
 
 public:
     WindowPixmapItem();
@@ -41,6 +42,9 @@ public:
     qreal radius() const;
     void setRadius(qreal);
 
+    QSize windowSize() const;
+    void setWindowSize(const QSize &size);
+
 protected:
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *);
     virtual void geometryChanged(const QRectF &, const QRectF &);
@@ -49,6 +53,7 @@ signals:
     void windowIdChanged();
     void opaqueChanged();
     void radiusChanged();
+    void windowSizeChanged();
 
 private:
     void updateItem();
