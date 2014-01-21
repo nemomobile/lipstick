@@ -284,7 +284,7 @@ void LauncherModel::setIconDirectories(QStringList newDirectories)
 void LauncherModel::savePositions()
 {
     _fileSystemWatcher.removePath(_launcherSettings.fileName());
-    _launcherSettings.clear();
+    _launcherSettings.remove("LauncherOrder");
     QList<LauncherItem *> *currentLauncherList = getList<LauncherItem>();
 
     int pos = 0;
