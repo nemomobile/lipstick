@@ -119,7 +119,6 @@ void DeviceLock::setStateAndSetupLockTimer()
 void DeviceLock::checkDisplayState(MeeGo::QmDisplayState::DisplayState state)
 {
     if (lockingDelay == 0 && state == MeeGo::QmDisplayState::DisplayState::Off
-            && qmLocks->getState(MeeGo::QmLocks::TouchAndKeyboard) == MeeGo::QmLocks::Locked
             && !isCallActive) {
         // Immediate locking enabled and the display is off and not in call: lock
         setState(Locked);
@@ -131,6 +130,7 @@ void DeviceLock::checkDisplayState(MeeGo::QmDisplayState::DisplayState state)
         if (lockingDelay*60 < tv_diff_in_s(&compareTime, &monoTime)) {
             setState(Locked);
         }
+        setupLockTimer();
     }
 }
 
