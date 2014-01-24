@@ -234,14 +234,6 @@ void LipstickCompositor::setFullscreenSurface(QWaylandSurface *surface)
 
     m_fullscreenSurface = surface;
 
-    const bool directRenderingSucceeded = setDirectRenderSurface(m_fullscreenSurface, openglContext());
-    if (surface && !directRenderingSucceeded)
-        qWarning() << Q_FUNC_INFO << "failed to set direct render surface";
-    if ((surface && directRenderingSucceeded) != m_directRenderingActive) {
-        m_directRenderingActive = surface && directRenderingSucceeded;
-        emit directRenderingActiveChanged();
-    }
-
     emit fullscreenSurfaceChanged();
 }
 
