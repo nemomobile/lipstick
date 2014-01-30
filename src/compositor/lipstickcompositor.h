@@ -43,6 +43,7 @@ class LIPSTICK_EXPORT LipstickCompositor : public QQuickWindow, public QWaylandC
     Q_PROPERTY(bool directRenderingActive READ directRenderingActive NOTIFY directRenderingActiveChanged)
     Q_PROPERTY(int topmostWindowId READ topmostWindowId WRITE setTopmostWindowId NOTIFY topmostWindowIdChanged)
     Q_PROPERTY(Qt::ScreenOrientation screenOrientation READ screenOrientation WRITE setScreenOrientation NOTIFY screenOrientationChanged)
+    Q_PROPERTY(Qt::ScreenOrientation sensorOrientation READ sensorOrientation NOTIFY sensorOrientationChanged)
     Q_PROPERTY(QObject* clipboard READ clipboard CONSTANT)
 
 public:
@@ -72,6 +73,8 @@ public:
 
     Qt::ScreenOrientation screenOrientation() const { return m_screenOrientation; }
     void setScreenOrientation(Qt::ScreenOrientation screenOrientation);
+
+    Qt::ScreenOrientation sensorOrientation() const { return m_sensorOrientation; }
 
     QObject *clipboard() const;
 
@@ -103,6 +106,7 @@ signals:
     void directRenderingActiveChanged();
     void topmostWindowIdChanged();
     void screenOrientationChanged();
+    void sensorOrientationChanged();
 
     void displayOn();
     void displayOff();
@@ -164,6 +168,7 @@ private:
     bool m_directRenderingActive;
     int m_topmostWindowId;
     Qt::ScreenOrientation m_screenOrientation;
+    Qt::ScreenOrientation m_sensorOrientation;
     MeeGo::QmDisplayState *m_displayState;
     QAtomicInt m_updateRequestPosted;
     QOrientationSensor* m_orientationSensor;
