@@ -95,6 +95,14 @@ void USBModeSelector::applyUSBMode(MeeGo::QmUSBMode::Mode mode)
         if (locks->getState(MeeGo::QmLocks::Device) == MeeGo::QmLocks::Locked) {
             // When the device lock is on and USB is connected, always pretend that the USB mode selection dialog is shown to unlock the touch screen lock
             emit dialogShown();
+
+            // Show a notification instead
+            NotificationManager *manager = NotificationManager::instance();
+            QVariantHash hints;
+            hints.insert(NotificationManager::HINT_CATEGORY, "x-nemo.device.locked");
+            //% "Unlock device first"
+            hints.insert(NotificationManager::HINT_PREVIEW_BODY, qtTrId("qtn_usb_device_locked"));
+            manager->Notify(qApp->applicationName(), 0, QString(), QString(), QString(), QStringList(), hints, -1);
         }
         break;
     case MeeGo::QmUSBMode::Ask:
