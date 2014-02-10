@@ -22,6 +22,7 @@
 #include <QWaylandCompositor>
 #include <QWaylandSurfaceItem>
 #include <QPointer>
+#include <QSettings>
 #include <qmdisplaystate.h>
 
 class WindowModel;
@@ -45,6 +46,7 @@ class LIPSTICK_EXPORT LipstickCompositor : public QQuickWindow, public QWaylandC
     Q_PROPERTY(Qt::ScreenOrientation screenOrientation READ screenOrientation WRITE setScreenOrientation NOTIFY screenOrientationChanged)
     Q_PROPERTY(Qt::ScreenOrientation sensorOrientation READ sensorOrientation NOTIFY sensorOrientationChanged)
     Q_PROPERTY(QObject* clipboard READ clipboard CONSTANT)
+    Q_PROPERTY(QVariant orientationLock READ orientationLock NOTIFY orientationLockChanged)
 
 public:
     LipstickCompositor();
@@ -75,6 +77,8 @@ public:
     void setScreenOrientation(Qt::ScreenOrientation screenOrientation);
 
     Qt::ScreenOrientation sensorOrientation() const { return m_sensorOrientation; }
+
+    QVariant orientationLock() const { return m_compositorSettings.value("Compositor/orientationLock", "dynamic"); }
 
     QObject *clipboard() const;
 
@@ -107,6 +111,7 @@ signals:
     void topmostWindowIdChanged();
     void screenOrientationChanged();
     void sensorOrientationChanged();
+    void orientationLockChanged();
 
     void displayOn();
     void displayOff();
@@ -173,6 +178,7 @@ private:
     QAtomicInt m_updateRequestPosted;
     QOrientationSensor* m_orientationSensor;
     QPointer<QMimeData> m_retainedSelection;
+    QSettings m_compositorSettings;
 };
 
 #endif // LIPSTICKCOMPOSITOR_H
