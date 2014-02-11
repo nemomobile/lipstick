@@ -40,7 +40,7 @@ LipstickCompositor::LipstickCompositor()
     if (m_instance) qFatal("LipstickCompositor: Only one compositor instance per process is supported");
     m_instance = this;
 
-    QObject::connect(this, SIGNAL(frameSwapped()), this, SLOT(windowSwapped()));
+    QObject::connect(this, SIGNAL(afterRendering()), this, SLOT(windowSwapped()), Qt::DirectConnection);
     QObject::connect(this, SIGNAL(beforeSynchronizing()), this, SLOT(clearUpdateRequest()));
     connect(m_displayState, SIGNAL(displayStateChanged(MeeGo::QmDisplayState::DisplayState)), this, SLOT(reactOnDisplayStateChanges(MeeGo::QmDisplayState::DisplayState)));
     QObject::connect(HomeApplication::instance(), SIGNAL(aboutToDestroy()), this, SLOT(homeApplicationAboutToDestroy()));
@@ -219,7 +219,11 @@ void LipstickCompositor::surfaceDamaged(const QRect &)
     if (!isVisible()) {
         // If the compositor is not visible, do not throttle.
         // make it conditional to QT_WAYLAND_COMPOSITOR_NO_THROTTLE?
+#if QT_VERSION >= QT_VERSION_CHECK(5,2,0)
+        sendFrameCallbacks(surfaces());
+#else
         frameFinished(0);
+#endif
     }
 }
 
@@ -381,7 +385,15 @@ void LipstickCompositor::surfaceLowered()
 
 void LipstickCompositor::windowSwapped()
 {
+#if QT_VERSION >= QT_VERSION_CHECK(5,2,0)
+    if (m_fullscreenSurface) {
+        sendFrameCallbacks(QList<QWaylandSurface *>() << m_fullscreenSurface);
+    } else {
+        sendFrameCallbacks(surfaces());
+    }
+#else
     frameFinished(m_fullscreenSurface);
+#endif
 }
 
 void LipstickCompositor::windowDestroyed()
