@@ -106,6 +106,10 @@ void ShutdownScreen::applyThermalState(MeeGo::QmThermal::ThermalState state)
         //% "Device is overheating. turn it off."
         createAndPublishNotification("x-nemo.battery.temperature", qtTrId("qtn_shut_high_temp_alert"));
         break;
+    case MeeGo::QmThermal::LowTemperatureWarning:
+        //% "Low temperature warning"
+        createAndPublishNotification("x-nemo.battery.temperature", qtTrId("qtn_shut_low_temp_warning"));
+        break;
     default:
         break;
     }
