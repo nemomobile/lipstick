@@ -40,7 +40,7 @@ LipstickCompositor::LipstickCompositor()
     if (m_instance) qFatal("LipstickCompositor: Only one compositor instance per process is supported");
     m_instance = this;
 
-    QObject::connect(this, SIGNAL(afterRendering()), this, SLOT(windowSwapped()), Qt::DirectConnection);
+    QObject::connect(this, SIGNAL(afterRendering()), this, SLOT(windowSwapped()));
     QObject::connect(this, SIGNAL(beforeSynchronizing()), this, SLOT(clearUpdateRequest()));
     connect(m_displayState, SIGNAL(displayStateChanged(MeeGo::QmDisplayState::DisplayState)), this, SLOT(reactOnDisplayStateChanges(MeeGo::QmDisplayState::DisplayState)));
     QObject::connect(HomeApplication::instance(), SIGNAL(aboutToDestroy()), this, SLOT(homeApplicationAboutToDestroy()));
