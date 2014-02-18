@@ -16,6 +16,7 @@
 #include <QGuiApplication>
 #include <QScreen>
 #include "homewindow.h"
+#include "lipsticksettings.h"
 #include <QQmlContext>
 #include "utilities/closeeventeater.h"
 #include "notifications/notificationmanager.h"
@@ -67,7 +68,7 @@ void NotificationPreviewPresenter::showNextNotification()
 
         if (locks->getState(MeeGo::QmLocks::TouchAndKeyboard) == MeeGo::QmLocks::Locked && displayState->get() == MeeGo::QmDisplayState::Off) {
             // Screen locked and off: don't show the notification but just remove it from the queue
-            emit notificationPresented(notification->property("id").toUInt());
+            emitNotificationPresentedIfAllowed(notification);
 
             setCurrentNotification(0);
 
@@ -79,7 +80,7 @@ void NotificationPreviewPresenter::showNextNotification()
                 window->show();
             }
 
-            emit notificationPresented(notification->property("id").toUInt());
+            emitNotificationPresentedIfAllowed(notification);
 
             setCurrentNotification(notification);
         }
@@ -109,7 +110,7 @@ void NotificationPreviewPresenter::updateNotification(uint id)
             }
         } else {
             // Remove updated notification only from the queue so that a currently visible notification won't suddenly disappear
-            emit notificationPresented(id);
+            emitNotificationPresentedIfAllowed(notification);
 
             removeNotification(id, true);
 
@@ -148,6 +149,7 @@ void NotificationPreviewPresenter::createWindowIfNecessary()
     window->setWindowTitle("Notification");
     window->setContextProperty("initialSize", QGuiApplication::primaryScreen()->size());
     window->setContextProperty("notificationPreviewPresenter", this);
+    window->setContextProperty("LipstickSettings", LipstickSettings::instance());
     window->setSource(QUrl("qrc:/qml/NotificationPreview.qml"));
     window->installEventFilter(new CloseEventEater(this));
 }
@@ -178,5 +180,20 @@ void NotificationPreviewPresenter::setCurrentNotification(LipstickNotification *
 
         currentNotification = notification;
         emit notificationChanged();
+    }
+}
+
+void NotificationPreviewPresenter::emitNotificationPresentedIfAllowed(LipstickNotification *notification)
+{
+    bool emitNotificationPresented = true;
+    if (window->rootObject() != 0 && window->rootObject()->metaObject()->indexOfMethod("shouldPlayFeedback(QVariant)") >= 0) {
+        QVariant returnedValue;
+        QVariant argument = qVariantFromValue(notification);
+        QMetaObject::invokeMethod(window->rootObject(), "shouldPlayFeedback", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, argument));
+        emitNotificationPresented = returnedValue.toBool();
+    }
+
+    if (emitNotificationPresented) {
+        emit notificationPresented(notification->property("id").toUInt());
     }
 }

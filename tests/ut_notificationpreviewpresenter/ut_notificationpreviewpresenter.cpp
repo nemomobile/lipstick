@@ -18,6 +18,7 @@
 #include <QQmlContext>
 #include <QScreen>
 #include "notificationmanager.h"
+#include "lipsticksettings.h"
 #include "ut_notificationpreviewpresenter.h"
 #include "notificationpreviewpresenter.h"
 #include "lipstickcompositor_stub.h"
@@ -86,6 +87,17 @@ QHash<HomeWindow *, QString> homeWindowCategories;
 void HomeWindow::setCategory(const QString &category)
 {
     homeWindowCategories[this] = category;
+}
+
+QQuickItem *homeWindowRootObject = 0;
+QQuickItem *HomeWindow::rootObject() const
+{
+    return homeWindowRootObject;
+}
+
+LipstickSettings *LipstickSettings::instance()
+{
+    return 0;
 }
 
 const char *NotificationManager::HINT_CATEGORY = "category";
@@ -187,6 +199,8 @@ void Ut_NotificationPreviewPresenter::cleanup()
     notificationManagerCloseNotificationIds.clear();
     gQmLocksStub->stubReset();
     gQmDisplayStateStub->stubReset();
+    delete homeWindowRootObject;
+    homeWindowRootObject = 0;
 }
 
 void Ut_NotificationPreviewPresenter::testSignalConnections()
@@ -553,6 +567,21 @@ void Ut_NotificationPreviewPresenter::testNotificationPreviewsDisabled()
     presenter.updateNotification(1);
 
     QCOMPARE(homeWindows.count(), showCount);
+}
+
+void Ut_NotificationPreviewPresenter::testEmitNotificationPresented()
+{
+    homeWindowRootObject = new TestItem();
+
+    NotificationPreviewPresenter presenter;
+    QSignalSpy presentedSpy(&presenter, SIGNAL(notificationPresented(uint)));
+
+    createNotification(1);
+    presenter.updateNotification(1);
+    QCOMPARE(presentedSpy.count(), 0);
+
+    presenter.updateNotification(1);
+    QCOMPARE(presentedSpy.count(), 0);
 }
 
 QTEST_MAIN(Ut_NotificationPreviewPresenter)
