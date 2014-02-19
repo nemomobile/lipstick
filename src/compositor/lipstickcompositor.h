@@ -88,6 +88,7 @@ public:
     Q_INVOKABLE void closeClientForWindowId(int);
     Q_INVOKABLE void clearKeyboardFocus();
     Q_INVOKABLE void setDisplayOff();
+    Q_INVOKABLE QVariant settingsValue(const QString &key, const QVariant &defaultValue = QVariant()) const { return m_compositorSettings.value("Compositor/" + key, defaultValue); }
 
     LipstickCompositorProcWindow *mapProcWindow(const QString &title, const QString &category, const QRect &);
 
