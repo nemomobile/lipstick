@@ -101,7 +101,9 @@ void BatteryNotifier::applyBatteryStatus(int, QBatteryInfo::BatteryStatus status
     case QBatteryInfo::BatteryFull:
         stopLowBatteryNotifier();
         removeNotification(QStringList() << "x-nemo.battery");
-        sendNotification(NotificationChargingComplete);
+        if (batteryInfo->chargingState(0) == QBatteryInfo::Charging || batteryInfo->chargingState(0) == QBatteryInfo::Full) {
+            sendNotification(NotificationChargingComplete);
+        }
         break;
 
     case QBatteryInfo::BatteryOk:
@@ -161,7 +163,9 @@ void BatteryNotifier::applyBatteryStatus(QBatteryInfo::LevelStatus status)
     case QBatteryInfo::LevelFull:
         stopLowBatteryNotifier();
         removeNotification(QStringList() << "x-nemo.battery");
-        sendNotification(NotificationChargingComplete);
+        if (batteryInfo->chargingState() == QBatteryInfo::Charging) {
+            sendNotification(NotificationChargingComplete);
+        }
         break;
 
     case QBatteryInfo::LevelOk:
