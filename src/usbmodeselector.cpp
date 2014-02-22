@@ -109,6 +109,7 @@ void USBModeSelector::applyUSBMode(MeeGo::QmUSBMode::Mode mode)
     case MeeGo::QmUSBMode::Developer:
     case MeeGo::QmUSBMode::Adb:
     case MeeGo::QmUSBMode::Diag:
+    case MeeGo::QmUSBMode::Host:
     case MeeGo::QmUSBMode::ConnectionSharing:
         // Hide the mode selection dialog and show a mode notification
         setWindowVisible(false);
@@ -159,6 +160,10 @@ void USBModeSelector::showNotification(MeeGo::QmUSBMode::Mode mode)
         category = "device.removed";
         //% "USB cable disconnected"
         body = qtTrId("qtn_usb_disconnected");
+        break;
+    case MeeGo::QmUSBMode::Host:
+        //% "USB switched to host mode (OTG)"
+        body = qtTrId("qtn_usb_host_mode_active");
         break;
     case MeeGo::QmUSBMode::ConnectionSharing:
         //% "USB tethering in use"
