@@ -33,10 +33,7 @@ class LipstickCompositorStub : public StubBase {
   virtual void setDisplayOff();
   virtual LipstickCompositorProcWindow * mapProcWindow(const QString &title, const QString &category, const QRect &);
   virtual QWaylandSurface * surfaceForId(int) const;
-  virtual bool event(QEvent *);
   virtual void surfaceAboutToBeDestroyed(QWaylandSurface *surface);
-  virtual void clearUpdateRequest();
-  virtual void maybePostUpdateRequest();
   virtual void surfaceMapped();
   virtual void surfaceUnmapped();
   virtual void surfaceSizeChanged();
@@ -183,25 +180,10 @@ QWaylandSurface * LipstickCompositorStub::surfaceForId(int id) const {
   return stubReturnValue<QWaylandSurface *>("surfaceForId");
 }
 
-bool LipstickCompositorStub::event(QEvent *e) {
-  QList<ParameterBase*> params;
-  params.append( new Parameter<QEvent * >(e));
-  stubMethodEntered("event",params);
-  return stubReturnValue<QEvent *>("event");
-}
-
 void LipstickCompositorStub::surfaceAboutToBeDestroyed(QWaylandSurface *surface) {
   QList<ParameterBase*> params;
   params.append( new Parameter<QWaylandSurface * >(surface));
   stubMethodEntered("surfaceAboutToBeDestroyed",params);
-}
-
-void LipstickCompositorStub::clearUpdateRequest() {
-  stubMethodEntered("clearUpdateRequest");
-}
-
-void LipstickCompositorStub::maybePostUpdateRequest() {
-  stubMethodEntered("maybePostUpdateRequest");
 }
 
 void LipstickCompositorStub::surfaceMapped() {
@@ -365,20 +347,8 @@ QWaylandSurface * LipstickCompositor::surfaceForId(int id) const {
   return gLipstickCompositorStub->surfaceForId(id);
 }
 
-bool LipstickCompositor::event(QEvent *e) {
-    return gLipstickCompositorStub->event(e);
-}
-
 void LipstickCompositor::surfaceAboutToBeDestroyed(QWaylandSurface *surface) {
   gLipstickCompositorStub->surfaceAboutToBeDestroyed(surface);
-}
-
-void LipstickCompositor::clearUpdateRequest() {
-    gLipstickCompositorStub->clearUpdateRequest();
-}
-
-void LipstickCompositor::maybePostUpdateRequest() {
-    gLipstickCompositorStub->maybePostUpdateRequest();
 }
 
 void LipstickCompositor::surfaceMapped() {

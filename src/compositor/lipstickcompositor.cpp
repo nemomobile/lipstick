@@ -41,7 +41,6 @@ LipstickCompositor::LipstickCompositor()
     m_instance = this;
 
     QObject::connect(this, SIGNAL(afterRendering()), this, SLOT(windowSwapped()));
-    QObject::connect(this, SIGNAL(beforeSynchronizing()), this, SLOT(clearUpdateRequest()));
     connect(m_displayState, SIGNAL(displayStateChanged(MeeGo::QmDisplayState::DisplayState)), this, SLOT(reactOnDisplayStateChanges(MeeGo::QmDisplayState::DisplayState)));
     QObject::connect(HomeApplication::instance(), SIGNAL(aboutToDestroy()), this, SLOT(homeApplicationAboutToDestroy()));
 
@@ -284,19 +283,6 @@ void LipstickCompositor::surfaceAboutToBeDestroyed(QWaylandSurface *surface)
     }
 }
 
-void LipstickCompositor::clearUpdateRequest()
-{
-    // Called from render thread
-    m_updateRequestPosted.store(0);
-}
-
-void LipstickCompositor::maybePostUpdateRequest()
-{
-    // Called from GUI thread
-    if (m_updateRequestPosted.testAndSetOrdered(0, 1))
-        qApp->postEvent(this, new QEvent(QEvent::User));
-}
-
 void LipstickCompositor::surfaceMapped()
 {
     QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
@@ -307,20 +293,14 @@ void LipstickCompositor::surfaceMapped()
     QVariantMap properties = surface->windowProperties();
     QString category = properties.value("CATEGORY").toString();
 
-    if (surface->surfaceItem()) {
-        // Always cause a repaint on surface mapped
-        maybePostUpdateRequest();
+    if (surface->surfaceItem())
         return;
-    }
 
     // The surface was mapped for the first time
     int id = m_nextWindowId++;
     LipstickCompositorWindow *item = new LipstickCompositorWindow(id, category, surface, contentItem());
     item->setSize(surface->size());
     QObject::connect(item, SIGNAL(destroyed(QObject*)), this, SLOT(windowDestroyed()));
-
-    // Whenever the item is damaged, cause a full repaint
-    QObject::connect(item, SIGNAL(textureChanged()), this, SLOT(maybePostUpdateRequest()));
     m_totalWindowCount++;
     m_mappedSurfaces.insert(id, item);
 
@@ -426,12 +406,8 @@ void LipstickCompositor::surfaceUnmapped(QWaylandSurface *surface)
         setFullscreenSurface(0);
 
     LipstickCompositorWindow *window = static_cast<LipstickCompositorWindow *>(surface->surfaceItem());
-    if (window) {
+    if (window)
         emit windowHidden(window);
-
-        // Always schedule an update
-        maybePostUpdateRequest();
-    }
 }
 
 void LipstickCompositor::surfaceUnmapped(LipstickCompositorProcWindow *item)
@@ -465,17 +441,6 @@ void LipstickCompositor::windowRemoved(int id)
 {
     for (int ii = 0; ii < m_windowModels.count(); ++ii)
         m_windowModels.at(ii)->remItem(id);
-}
-
-bool LipstickCompositor::event(QEvent *e)
-{
-    // Update will eventually trigger a beforeSynchronizing signal,
-    // clear the m_updateRequest there (what happens after synchronizing,
-    // needs to be updated)
-    if (e->type() == QEvent::User)
-        update();
-
-    return QQuickWindow::event(e);
 }
 
 QQmlComponent *LipstickCompositor::shaderEffectComponent()
