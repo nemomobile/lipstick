@@ -92,6 +92,7 @@ void LauncherModel::onFilesUpdated(const QStringList &added,
         const QStringList &modified, const QStringList &removed)
 {
     QMap<int, LauncherItem *> itemsWithPositions;
+    QStringList modded = modified;
 
     // First, remove all removed launcher items before adding new ones
     foreach (const QString &filename, removed) {
@@ -129,6 +130,9 @@ void LauncherModel::onFilesUpdated(const QStringList &added,
             } else {
                 // This "should not" happen...
                 qWarning() << "New file already in model:" << filename;
+                // Act as if this filename has been modified, so we can update
+                // it below (e.g. turn a temporary item into a permanent one)
+                modded << filename;
             }
         } else if (isIconFile(filename)) {
             // Icons has been added - find item and update its icon path
@@ -136,7 +140,7 @@ void LauncherModel::onFilesUpdated(const QStringList &added,
         }
     }
 
-    foreach (const QString &filename, modified) {
+    foreach (const QString &filename, modded) {
         if (isDesktopFile(filename)) {
             // Desktop file has been updated - update launcher
             LauncherItem *item = itemInModel(filename);
@@ -291,14 +295,30 @@ void LauncherModel::installStarted(const QString &packageName, const QString &la
         item = packageInModel(packageName);
     }
 
-    if (!item) {
-        Q_UNUSED(label);
-        Q_UNUSED(iconPath);
-        // TODO: Create new, temporary icon with label, icon and packagename
-        qDebug() << __func__ << "No item found:" << packageName << desktopFile;
-        return;
+    // Calling installStarted on an existing temporary icon should
+    // update the internal state of the temporary icon (and if the
+    // .desktop file exists, make the icon non-temporary).
+    if (item->isTemporary()) {
+        if (!label.isEmpty()) {
+            item->setCustomTitle(label);
+        }
+
+        if (!iconPath.isEmpty()) {
+            item->setIconFilename(iconPath);
+        }
+
+        if (!desktopFile.isEmpty()) {
+            item->setFilePath(desktopFile);
+        }
     }
 
+    if (!item) {
+        // Newly-installed package: Create temporary icon with label and icon
+        item = new LauncherItem(packageName, label, iconPath, desktopFile, this);
+        addItem(item);
+    }
+
+    item->setUpdatingProgress(0);
     item->setIsUpdating(true);
     item->setPackageName(packageName);
 }
@@ -307,8 +327,8 @@ void LauncherModel::installProgress(const QString &packageName, int progress)
 {
     LauncherItem *item = packageInModel(packageName);
     if (item) {
-        item->setIsUpdating(true);
         item->setUpdatingProgress(progress);
+        item->setIsUpdating(true);
     } else {
         qDebug() << "WARNING:" << __func__ << "package not found:" << packageName;
     }
@@ -319,11 +339,21 @@ void LauncherModel::installFinished(const QString &packageName)
     LauncherItem *item = packageInModel(packageName);
     if (item) {
         item->setIsUpdating(false);
-        // TODO: If this was a temporary icon, remove it
+        item->setUpdatingProgress(100);
+        if (item->isTemporary()) {
+            qDebug() << "Removing temporary item after install finished";
+            removeItem(item);
+        }
     } else {
         qDebug() << "WARNING:" << __func__ << "package not found in model:" << packageName;
         // XXX: Failure?
     }
+}
+
+void LauncherModel::requestLaunch(const QString &packageName)
+{
+    // Send launch request via D-Bus, so interested parties can act upon it
+    _launcherDBus.requestLaunch(packageName);
 }
 
 void LauncherModel::savePositions()

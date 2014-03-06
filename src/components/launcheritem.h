@@ -50,23 +50,27 @@ class LIPSTICK_EXPORT LauncherItem : public QObject
     Q_PROPERTY(bool isValid READ isValid NOTIFY itemChanged)
     Q_PROPERTY(bool isLaunching READ isLaunching WRITE setIsLaunching NOTIFY isLaunchingChanged)
     Q_PROPERTY(bool isUpdating READ isUpdating WRITE setIsUpdating NOTIFY isUpdatingChanged)
+    Q_PROPERTY(bool isTemporary READ isTemporary WRITE setIsTemporary NOTIFY isTemporaryChanged)
     Q_PROPERTY(QString packageName READ packageName WRITE setPackageName NOTIFY packageNameChanged)
     Q_PROPERTY(int updatingProgress READ updatingProgress WRITE setUpdatingProgress NOTIFY updatingProgressChanged)
 
     QSharedPointer<MDesktopEntry> _desktopEntry;
     bool _isLaunching;
     bool _isUpdating;
+    bool _isTemporary;
     QString _packageName;
     int _updatingProgress;
+    QString _customTitle;
     QString _customIconFilename;
     int _serial;
 
 public slots:
     void setIsLaunching(bool isLaunching = false);
-    void setIsUpdating(bool isUpdating);
 
 public:
     explicit LauncherItem(const QString &filePath = QString(), QObject *parent = 0);
+    explicit LauncherItem(const QString &packageName, const QString &label,
+            const QString &iconPath, const QString &desktopFile, QObject *parent);
     virtual ~LauncherItem();
 
     void setFilePath(const QString &filePath);
@@ -80,7 +84,6 @@ public:
     bool shouldDisplay() const;
     bool isValid() const;
     bool isLaunching() const;
-    bool isUpdating() const { return _isUpdating; }
     bool isStillValid();
 
     QString getOriginalIconId() const;
@@ -89,16 +92,25 @@ public:
 
     Q_INVOKABLE void launchApplication();
 
+    bool isUpdating() const { return _isUpdating; }
+    void setIsUpdating(bool isUpdating);
+
+    bool isTemporary() const { return _isTemporary; }
+    void setIsTemporary(bool isTemporary);
+
     QString packageName() const { return _packageName; }
     void setPackageName(QString packageName);
 
     int updatingProgress() const { return _updatingProgress; }
     void setUpdatingProgress(int updatingProgress);
 
+    void setCustomTitle(QString customTitle);
+
 signals:
     void itemChanged();
     void isLaunchingChanged();
     void isUpdatingChanged();
+    void isTemporaryChanged();
     void packageNameChanged();
     void updatingProgressChanged();
 };

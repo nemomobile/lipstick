@@ -61,6 +61,8 @@ public:
     void installProgress(const QString &packageName, int progress);
     void installFinished(const QString &packageName);
 
+    void requestLaunch(const QString &packageName);
+
 public slots:
     void savePositions();
 

@@ -28,12 +28,15 @@
 #endif
 
 #include "launcheritem.h"
+#include "launchermodel.h"
 
 LauncherItem::LauncherItem(const QString &filePath, QObject *parent)
     : QObject(parent)
     , _isLaunching(false)
     , _isUpdating(false)
+    , _isTemporary(false)
     , _packageName("")
+    , _customTitle("")
     , _customIconFilename("")
     , _serial(0)
 {
@@ -45,6 +48,22 @@ LauncherItem::LauncherItem(const QString &filePath, QObject *parent)
     // Launching animation will be disabled if the window of the launched app shows up
 }
 
+LauncherItem::LauncherItem(const QString &packageName, const QString &label,
+        const QString &iconPath, const QString &desktopFile, QObject *parent)
+    : QObject(parent)
+    , _isLaunching(false)
+    , _isUpdating(true)
+    , _isTemporary(true)
+    , _packageName(packageName)
+    , _customTitle(label)
+    , _customIconFilename(iconPath)
+    , _serial(0)
+{
+    if (!desktopFile.isEmpty()) {
+        setFilePath(desktopFile);
+    }
+}
+
 LauncherItem::~LauncherItem()
 {
 }
@@ -52,7 +71,13 @@ LauncherItem::~LauncherItem()
 void LauncherItem::setFilePath(const QString &filePath)
 {
     if (!filePath.isEmpty()) {
-        _desktopEntry = QSharedPointer<MDesktopEntry>(new MDesktopEntry(filePath));
+        if (QFile(filePath).exists()) {
+            _desktopEntry = QSharedPointer<MDesktopEntry>(new MDesktopEntry(filePath));
+            // The file has appeared - remove temporary flag
+            _isTemporary = false;
+        } else {
+            _desktopEntry.clear();
+        }
     } else {
         _desktopEntry.clear();
     }
@@ -72,6 +97,10 @@ QString LauncherItem::exec() const
 
 QString LauncherItem::title() const
 {
+    if (_isTemporary) {
+        return _customTitle;
+    }
+
     return !_desktopEntry.isNull() ? _desktopEntry->name() : QString();
 }
 
@@ -96,17 +125,21 @@ QStringList LauncherItem::desktopCategories() const
 
 QString LauncherItem::titleUnlocalized() const
 {
+    if (_isTemporary) {
+        return _customTitle;
+    }
+
     return !_desktopEntry.isNull() ? _desktopEntry->nameUnlocalized() : QString();
 }
 
 bool LauncherItem::shouldDisplay() const
 {
-    return !_desktopEntry.isNull() ? !_desktopEntry->noDisplay() : false;
+    return !_desktopEntry.isNull() ? !_desktopEntry->noDisplay() : _isTemporary;
 }
 
 bool LauncherItem::isValid() const
 {
-    return !_desktopEntry.isNull() ? _desktopEntry->isValid() : false;
+    return !_desktopEntry.isNull() ? _desktopEntry->isValid() : _isTemporary;
 }
 
 bool LauncherItem::isLaunching() const
@@ -130,8 +163,22 @@ void LauncherItem::setIsUpdating(bool isUpdating)
     }
 }
 
+void LauncherItem::setIsTemporary(bool isTemporary)
+{
+    if (_isTemporary != isTemporary) {
+        _isTemporary = isTemporary;
+        emit isTemporaryChanged();
+    }
+}
+
 void LauncherItem::launchApplication()
 {
+    if (_isUpdating) {
+        LauncherModel *model = static_cast<LauncherModel *>(parent());
+        model->requestLaunch(_packageName);
+        return;
+    }
+
     if (_desktopEntry.isNull())
         return;
 
@@ -169,6 +216,10 @@ void LauncherItem::launchApplication()
 
 bool LauncherItem::isStillValid()
 {
+    if (_isTemporary) {
+        return true;
+    }
+
     // Force a reload of _desktopEntry
     setFilePath(filePath());
     return isValid();
@@ -204,5 +255,13 @@ void LauncherItem::setUpdatingProgress(int updatingProgress)
     if (_updatingProgress != updatingProgress) {
         _updatingProgress = updatingProgress;
         emit updatingProgressChanged();
+    }
+}
+
+void LauncherItem::setCustomTitle(QString customTitle)
+{
+    if (_customTitle != customTitle) {
+        _customTitle = customTitle;
+        emit itemChanged();
     }
 }
