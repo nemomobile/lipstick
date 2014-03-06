@@ -32,6 +32,8 @@
 LauncherItem::LauncherItem(const QString &filePath, QObject *parent)
     : QObject(parent)
     , _isLaunching(false)
+    , _isUpdating(false)
+    , _packageName("")
     , _customIconFilename("")
     , _serial(0)
 {
@@ -120,6 +122,14 @@ void LauncherItem::setIsLaunching(bool isLaunching)
     }
 }
 
+void LauncherItem::setIsUpdating(bool isUpdating)
+{
+    if (_isUpdating != isUpdating) {
+        _isUpdating = isUpdating;
+        emit isUpdatingChanged();
+    }
+}
+
 void LauncherItem::launchApplication()
 {
     if (_desktopEntry.isNull())
@@ -179,4 +189,20 @@ void LauncherItem::setIconFilename(const QString &path)
 QString LauncherItem::iconFilename() const
 {
     return _customIconFilename;
+}
+
+void LauncherItem::setPackageName(QString packageName)
+{
+    if (_packageName != packageName) {
+        _packageName = packageName;
+        emit packageNameChanged();
+    }
+}
+
+void LauncherItem::setUpdatingProgress(int updatingProgress)
+{
+    if (_updatingProgress != updatingProgress) {
+        _updatingProgress = updatingProgress;
+        emit updatingProgressChanged();
+    }
 }

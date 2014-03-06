@@ -49,14 +49,21 @@ class LIPSTICK_EXPORT LauncherItem : public QObject
     Q_PROPERTY(bool shouldDisplay READ shouldDisplay NOTIFY itemChanged)
     Q_PROPERTY(bool isValid READ isValid NOTIFY itemChanged)
     Q_PROPERTY(bool isLaunching READ isLaunching WRITE setIsLaunching NOTIFY isLaunchingChanged)
+    Q_PROPERTY(bool isUpdating READ isUpdating WRITE setIsUpdating NOTIFY isUpdatingChanged)
+    Q_PROPERTY(QString packageName READ packageName WRITE setPackageName NOTIFY packageNameChanged)
+    Q_PROPERTY(int updatingProgress READ updatingProgress WRITE setUpdatingProgress NOTIFY updatingProgressChanged)
 
     QSharedPointer<MDesktopEntry> _desktopEntry;
     bool _isLaunching;
+    bool _isUpdating;
+    QString _packageName;
+    int _updatingProgress;
     QString _customIconFilename;
     int _serial;
 
 public slots:
     void setIsLaunching(bool isLaunching = false);
+    void setIsUpdating(bool isUpdating);
 
 public:
     explicit LauncherItem(const QString &filePath = QString(), QObject *parent = 0);
@@ -73,6 +80,7 @@ public:
     bool shouldDisplay() const;
     bool isValid() const;
     bool isLaunching() const;
+    bool isUpdating() const { return _isUpdating; }
     bool isStillValid();
 
     QString getOriginalIconId() const;
@@ -81,9 +89,18 @@ public:
 
     Q_INVOKABLE void launchApplication();
 
+    QString packageName() const { return _packageName; }
+    void setPackageName(QString packageName);
+
+    int updatingProgress() const { return _updatingProgress; }
+    void setUpdatingProgress(int updatingProgress);
+
 signals:
     void itemChanged();
     void isLaunchingChanged();
+    void isUpdatingChanged();
+    void packageNameChanged();
+    void updatingProgressChanged();
 };
 
 #endif // LAUNCHERITEM_H

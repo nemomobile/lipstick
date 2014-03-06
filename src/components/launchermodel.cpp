@@ -66,7 +66,8 @@ LauncherModel::LauncherModel(QObject *parent) :
     _fileSystemWatcher(),
     _launcherSettings("nemomobile", "lipstick"),
     _globalSettings("/usr/share/lipstick/lipstick.conf", QSettings::IniFormat),
-    _launcherMonitor(LAUNCHER_APPS_PATH, LAUNCHER_ICONS_PATH)
+    _launcherMonitor(LAUNCHER_APPS_PATH, LAUNCHER_ICONS_PATH),
+    _launcherDBus(this)
 {
     // Set up the monitor for icon and desktop file changes
     connect(&_launcherMonitor, SIGNAL(filesUpdated(const QStringList &, const QStringList &, const QStringList &)),
@@ -281,6 +282,50 @@ void LauncherModel::setIconDirectories(QStringList newDirectories)
     emit iconDirectoriesChanged();
 }
 
+void LauncherModel::installStarted(const QString &packageName, const QString &label,
+        const QString &iconPath, const QString &desktopFile)
+{
+    LauncherItem *item = itemInModel(desktopFile);
+
+    if (!item) {
+        item = packageInModel(packageName);
+    }
+
+    if (!item) {
+        Q_UNUSED(label);
+        Q_UNUSED(iconPath);
+        // TODO: Create new, temporary icon with label, icon and packagename
+        qDebug() << __func__ << "No item found:" << packageName << desktopFile;
+        return;
+    }
+
+    item->setIsUpdating(true);
+    item->setPackageName(packageName);
+}
+
+void LauncherModel::installProgress(const QString &packageName, int progress)
+{
+    LauncherItem *item = packageInModel(packageName);
+    if (item) {
+        item->setIsUpdating(true);
+        item->setUpdatingProgress(progress);
+    } else {
+        qDebug() << "WARNING:" << __func__ << "package not found:" << packageName;
+    }
+}
+
+void LauncherModel::installFinished(const QString &packageName)
+{
+    LauncherItem *item = packageInModel(packageName);
+    if (item) {
+        item->setIsUpdating(false);
+        // TODO: If this was a temporary icon, remove it
+    } else {
+        qDebug() << "WARNING:" << __func__ << "package not found in model:" << packageName;
+        // XXX: Failure?
+    }
+}
+
 void LauncherModel::savePositions()
 {
     _fileSystemWatcher.removePath(_launcherSettings.fileName());
@@ -301,6 +346,16 @@ LauncherItem *LauncherModel::itemInModel(const QString &path)
 {
     foreach (LauncherItem *item, *getList<LauncherItem>()) {
         if (item->filePath() == path) {
+            return item;
+        }
+    }
+    return 0;
+}
+
+LauncherItem *LauncherModel::packageInModel(const QString &packageName)
+{
+    foreach (LauncherItem *item, *getList<LauncherItem>()) {
+        if (item->packageName() == packageName) {
             return item;
         }
     }

@@ -25,6 +25,7 @@
 #include "qobjectlistmodel.h"
 #include "lipstickglobal.h"
 #include "launchermonitor.h"
+#include "launcherdbus.h"
 
 
 class LIPSTICK_EXPORT LauncherModel : public QObjectListModel
@@ -39,6 +40,7 @@ class LIPSTICK_EXPORT LauncherModel : public QObjectListModel
     QSettings _launcherSettings;
     QSettings _globalSettings;
     LauncherMonitor _launcherMonitor;
+    LauncherDBus _launcherDBus;
 
 private slots:
     void monitoredFileChanged(const QString &changedPath);
@@ -54,6 +56,11 @@ public:
     QStringList iconDirectories() const;
     void setIconDirectories(QStringList);
 
+    void installStarted(const QString &packageName, const QString &label,
+            const QString &iconPath, const QString &desktopFile);
+    void installProgress(const QString &packageName, int progress);
+    void installFinished(const QString &packageName);
+
 public slots:
     void savePositions();
 
@@ -65,6 +72,7 @@ private:
     void reorderItems(const QMap<int, LauncherItem *> &itemsWithPositions);
     void loadPositions();
     LauncherItem *itemInModel(const QString &path);
+    LauncherItem *packageInModel(const QString &packageName);
     QVariant launcherPos(const QString &path);
     LauncherItem *addItemIfValid(const QString &path, QMap<int, LauncherItem *> &itemsWithPositions);
     void updateItemsWithIcon(const QString &filename, bool existing);
