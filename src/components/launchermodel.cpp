@@ -318,7 +318,7 @@ void LauncherModel::installStarted(const QString &packageName, const QString &la
         addItem(item);
     }
 
-    item->setUpdatingProgress(0);
+    item->setUpdatingProgress(-1);
     item->setIsUpdating(true);
     item->setPackageName(packageName);
 }
@@ -339,7 +339,7 @@ void LauncherModel::installFinished(const QString &packageName)
     LauncherItem *item = packageInModel(packageName);
     if (item) {
         item->setIsUpdating(false);
-        item->setUpdatingProgress(100);
+        item->setUpdatingProgress(-1);
         if (item->isTemporary()) {
             qDebug() << "Removing temporary item after install finished";
             removeItem(item);
