@@ -21,13 +21,15 @@
 
 #include <QString>
 
+#include "lipstickdbus.h"
+
 class LauncherModel;
 
 class LauncherDBus : public QObject
 {
     Q_OBJECT
     Q_DISABLE_COPY(LauncherDBus)
-    Q_CLASSINFO("D-Bus Interface", "org.nemomobile.lipstick.LauncherModel")
+    Q_CLASSINFO("D-Bus Interface", LIPSTICK_DBUS_LAUNCHER_MODEL_INTERFACE)
 
 public:
     LauncherDBus(LauncherModel *model);

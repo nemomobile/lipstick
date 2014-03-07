@@ -31,6 +31,7 @@ PUBLICHEADERS += \
     homewindow.h \
     lipstickglobal.h \
     lipsticksettings.h \
+    lipstickdbus.h \
     components/launcheritem.h \
     components/launchermodel.h \
     components/launchermonitor.h \

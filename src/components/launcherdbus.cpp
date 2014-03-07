@@ -29,7 +29,9 @@ LauncherDBus::LauncherDBus(LauncherModel *model)
     , m_model(model)
 {
     QDBusConnection dbus = QDBusConnection::sessionBus();
-    dbus.registerObject("/LauncherModel", this, QDBusConnection::ExportAllSlots);
+    dbus.registerObject(LIPSTICK_DBUS_LAUNCHER_MODEL_PATH,
+            this, QDBusConnection::ExportAllSlots |
+            QDBusConnection::ExportAllSignals);
 }
 
 LauncherDBus::~LauncherDBus()
