@@ -57,7 +57,7 @@ public:
     void setIconDirectories(QStringList);
 
     void installStarted(const QString &packageName, const QString &label,
-            const QString &iconPath, const QString &desktopFile);
+            const QString &iconPath, QString desktopFile);
     void installProgress(const QString &packageName, int progress);
     void installFinished(const QString &packageName);
 
@@ -65,6 +65,7 @@ public:
 
 public slots:
     void savePositions();
+    void removeTemporaryLaunchers();
 
 signals:
     void directoriesChanged();

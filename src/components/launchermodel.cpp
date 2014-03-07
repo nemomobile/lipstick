@@ -32,6 +32,9 @@
 
 #define LAUNCHER_KEY_FOR_PATH(path) ("LauncherOrder/" + path)
 
+// Time in millseconds to wait before removing temporary launchers
+#define LAUNCHER_UPDATING_REMOVAL_HOLDBACK_MS 3000
+
 static inline bool isDesktopFile(const QString &filename)
 {
     return filename.startsWith(LAUNCHER_APPS_PATH) && filename.endsWith(".desktop");
@@ -286,9 +289,23 @@ void LauncherModel::setIconDirectories(QStringList newDirectories)
     emit iconDirectoriesChanged();
 }
 
-void LauncherModel::installStarted(const QString &packageName, const QString &label,
-        const QString &iconPath, const QString &desktopFile)
+static QString desktopFileFromPackageName(const QString &packageName)
 {
+    // Using the package name as base name for the desktop file is a good
+    // heuristic, and usually works fine.
+    return QString(LAUNCHER_APPS_PATH) + packageName + ".desktop";
+}
+
+void LauncherModel::installStarted(const QString &packageName, const QString &label,
+        const QString &iconPath, QString desktopFile)
+{
+    LAUNCHER_DEBUG("Installation started:" << packageName << label
+            << iconPath << desktopFile);
+
+    if (desktopFile.isEmpty()) {
+        desktopFile = desktopFileFromPackageName(packageName);
+    }
+
     LauncherItem *item = itemInModel(desktopFile);
 
     if (!item) {
@@ -325,28 +342,46 @@ void LauncherModel::installStarted(const QString &packageName, const QString &la
 
 void LauncherModel::installProgress(const QString &packageName, int progress)
 {
+    LAUNCHER_DEBUG("Installation progress:" << packageName << progress);
+
     LauncherItem *item = packageInModel(packageName);
-    if (item) {
-        item->setUpdatingProgress(progress);
-        item->setIsUpdating(true);
-    } else {
-        qDebug() << "WARNING:" << __func__ << "package not found:" << packageName;
+
+    if (!item) {
+        qWarning() << "Package not found in model:" << packageName;
     }
+
+    item->setUpdatingProgress(progress);
+    item->setIsUpdating(true);
 }
 
 void LauncherModel::installFinished(const QString &packageName)
 {
+    LAUNCHER_DEBUG("Installation finished:" << packageName);
+
     LauncherItem *item = packageInModel(packageName);
-    if (item) {
-        item->setIsUpdating(false);
-        item->setUpdatingProgress(-1);
-        if (item->isTemporary()) {
-            qDebug() << "Removing temporary item after install finished";
+
+    if (!item) {
+        qWarning() << "Package not found in model:" << packageName;
+        return;
+    }
+
+    item->setIsUpdating(false);
+    item->setUpdatingProgress(-1);
+    if (item->isTemporary()) {
+        // Schedule removal of temporary icons
+        QTimer::singleShot(LAUNCHER_UPDATING_REMOVAL_HOLDBACK_MS,
+                this, SLOT(removeTemporaryLaunchers()));
+    }
+}
+
+void LauncherModel::removeTemporaryLaunchers()
+{
+    foreach (LauncherItem *item, *getList<LauncherItem>()) {
+        if (item->isTemporary() && !item->isUpdating()) {
+            // Temporary item that is not updating at the moment
+            LAUNCHER_DEBUG("Removing temporary launcher");
             removeItem(item);
         }
-    } else {
-        qDebug() << "WARNING:" << __func__ << "package not found in model:" << packageName;
-        // XXX: Failure?
     }
 }
 
@@ -389,7 +424,9 @@ LauncherItem *LauncherModel::packageInModel(const QString &packageName)
             return item;
         }
     }
-    return 0;
+
+    // Fall back to trying to find the launcher via the .desktop file
+    return itemInModel(desktopFileFromPackageName(packageName));
 }
 
 QVariant LauncherModel::launcherPos(const QString &path)

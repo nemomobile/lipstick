@@ -45,19 +45,15 @@ void LauncherDBus::requestLaunch(QString packageName)
 
 void LauncherDBus::installStarted(QString packageName, QString label, QString iconPath, QString desktopFile)
 {
-    qDebug("installStarted: %s, %s, %s, %s", qPrintable(packageName),
-        qPrintable(label), qPrintable(iconPath), qPrintable(desktopFile));
     m_model->installStarted(packageName, label, iconPath, desktopFile);
 }
 
 void LauncherDBus::installProgress(QString packageName, int progress)
 {
-    qDebug("installProgress: %s, %d", qPrintable(packageName), progress);
     m_model->installProgress(packageName, progress);
 }
 
 void LauncherDBus::installFinished(QString packageName)
 {
-    qDebug("installFinished: %s", qPrintable(packageName));
     m_model->installFinished(packageName);
 }
