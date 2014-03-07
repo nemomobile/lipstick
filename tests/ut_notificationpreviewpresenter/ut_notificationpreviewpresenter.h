@@ -16,7 +16,15 @@
 #ifndef UT_NOTIFICATIONPREVIEWPRESENTER_H
 #define UT_NOTIFICATIONPREVIEWPRESENTER_H
 
-#include <QObject>
+#include <QQuickItem>
+
+class TestItem : public QQuickItem
+{
+    Q_OBJECT
+
+public slots:
+    bool shouldPlayFeedback(QVariant) { return false; }
+};
 
 class Ut_NotificationPreviewPresenter : public QObject
 {
@@ -40,6 +48,7 @@ private slots:
     void testCriticalNotificationIsClosedAfterShowing();
     void testNotificationPreviewsDisabled_data();
     void testNotificationPreviewsDisabled();
+    void testEmitNotificationPresented();
 };
 
 #endif

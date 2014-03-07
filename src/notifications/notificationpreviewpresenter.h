@@ -101,6 +101,9 @@ private:
     //! Sets the given notification as the current notification
     void setCurrentNotification(LipstickNotification *notification);
 
+    //! Asks the UI whether to emit the notification presented signal for the given notification
+    void emitNotificationPresentedIfAllowed(LipstickNotification *notification);
+
     //! The notification window
     HomeWindow *window;
 
