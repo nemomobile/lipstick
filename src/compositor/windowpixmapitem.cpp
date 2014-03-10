@@ -278,6 +278,8 @@ void WindowPixmapItem::setWindowId(int id)
         return;
     
     if (m_item) {
+        if (m_item->surface())
+            disconnect(m_item->surface(), SIGNAL(sizeChanged()), this, SIGNAL(windowSizeChanged()));
         m_item->imageRelease();
         m_item = 0;
     }
@@ -366,12 +368,8 @@ void WindowPixmapItem::geometryChanged(const QRectF &n, const QRectF &o)
 
 void WindowPixmapItem::updateItem()
 {
-    if (m_item && m_item->surface()) {
-        disconnect(m_item->surface(), SIGNAL(sizeChanged()), this, SIGNAL(windowSizeChanged()));
-    }
-
     LipstickCompositor *c = LipstickCompositor::instance();
-    m_item = 0;
+    Q_ASSERT(m_item == 0);
 
     if (c && m_id) {
         LipstickCompositorWindow *w = static_cast<LipstickCompositorWindow *>(c->windowForId(m_id));
