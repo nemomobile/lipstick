@@ -46,6 +46,7 @@ class LIPSTICK_EXPORT LauncherModel : public QObjectListModel
 
     QDBusServiceWatcher _dbusWatcher;
     QMap<QString, QString> _packageNameToDBusService;
+    QList<LauncherItem *> _temporaryLaunchers;
 
 private slots:
     void monitoredFileChanged(const QString &changedPath);
@@ -86,6 +87,8 @@ private:
     LauncherItem *addItemIfValid(const QString &path, QMap<int, LauncherItem *> &itemsWithPositions);
     void updateItemsWithIcon(const QString &filename, bool existing);
     void updateWatchedDBusServices();
+    void setTemporary(LauncherItem *item);
+    void unsetTemporary(LauncherItem *item);
 };
 
 #endif // LAUNCHERMODEL_H

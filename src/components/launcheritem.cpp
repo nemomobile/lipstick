@@ -53,8 +53,8 @@ LauncherItem::LauncherItem(const QString &packageName, const QString &label,
         const QString &iconPath, const QString &desktopFile, QObject *parent)
     : QObject(parent)
     , _isLaunching(false)
-    , _isUpdating(true)
-    , _isTemporary(true)
+    , _isUpdating(false)
+    , _isTemporary(false)
     , _packageName(packageName)
     , _updatingProgress(-1)
     , _customTitle(label)
@@ -75,8 +75,6 @@ void LauncherItem::setFilePath(const QString &filePath)
     if (!filePath.isEmpty()) {
         if (QFile(filePath).exists()) {
             _desktopEntry = QSharedPointer<MDesktopEntry>(new MDesktopEntry(filePath));
-            // The file has appeared - remove temporary flag
-            _isTemporary = false;
         } else {
             _desktopEntry.clear();
         }
