@@ -66,7 +66,8 @@ HEADERS += \
     homeapplicationadaptor.h \
     shutdownscreenadaptor.h \
     screenshotservice.h \
-    screenshotserviceadaptor.h
+    screenshotserviceadaptor.h \
+    notifications/thermalnotifier.h
 
 SOURCES += \
     homeapplication.cpp \
@@ -100,7 +101,8 @@ SOURCES += \
     devicelock/devicelockadaptor.cpp \
     devicelock/devicelock.cpp \
     screenshotservice.cpp \
-    screenshotserviceadaptor.cpp
+    screenshotserviceadaptor.cpp \
+    notifications/thermalnotifier.cpp
 
 CONFIG += link_pkgconfig mobility qt warn_on depend_includepath qmake_cache target_qt
 CONFIG -= link_prl
