@@ -315,7 +315,7 @@ void LauncherModel::installStarted(const QString &packageName, const QString &la
     // Calling installStarted on an existing temporary icon should
     // update the internal state of the temporary icon (and if the
     // .desktop file exists, make the icon non-temporary).
-    if (item->isTemporary()) {
+    if (item && item->isTemporary()) {
         if (!label.isEmpty()) {
             item->setCustomTitle(label);
         }
