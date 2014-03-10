@@ -18,6 +18,7 @@
 #define LAUNCHERDBUS_H
 
 #include <QObject>
+#include <QDBusContext>
 
 #include <QString>
 
@@ -25,7 +26,7 @@
 
 class LauncherModel;
 
-class LauncherDBus : public QObject
+class LauncherDBus : public QObject, protected QDBusContext
 {
     Q_OBJECT
     Q_DISABLE_COPY(LauncherDBus)

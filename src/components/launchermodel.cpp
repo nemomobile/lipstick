@@ -16,6 +16,7 @@
 
 #include <QDir>
 #include <QFileSystemWatcher>
+#include <QDBusConnection>
 #include <QDebug>
 #include <QFile>
 #include <QSettings>
@@ -70,7 +71,9 @@ LauncherModel::LauncherModel(QObject *parent) :
     _launcherSettings("nemomobile", "lipstick"),
     _globalSettings("/usr/share/lipstick/lipstick.conf", QSettings::IniFormat),
     _launcherMonitor(LAUNCHER_APPS_PATH, LAUNCHER_ICONS_PATH),
-    _launcherDBus(this)
+    _launcherDBus(this),
+    _dbusWatcher(this),
+    _packageNameToDBusService()
 {
     // Set up the monitor for icon and desktop file changes
     connect(&_launcherMonitor, SIGNAL(filesUpdated(const QStringList &, const QStringList &, const QStringList &)),
@@ -85,6 +88,13 @@ LauncherModel::LauncherModel(QObject *parent) :
     // Watch for changes to the item order settings file
     _fileSystemWatcher.addPath(_launcherSettings.fileName());
     connect(&_fileSystemWatcher, SIGNAL(fileChanged(QString)), this, SLOT(monitoredFileChanged(QString)));
+
+    // Used to watch for owner changes during installation progress
+    _dbusWatcher.setConnection(QDBusConnection::sessionBus());
+    _dbusWatcher.setWatchMode(QDBusServiceWatcher::WatchForUnregistration);
+
+    connect(&_dbusWatcher, SIGNAL(serviceUnregistered(const QString &)),
+            this, SLOT(onServiceUnregistered(const QString &)));
 }
 
 LauncherModel::~LauncherModel()
@@ -297,10 +307,15 @@ static QString desktopFileFromPackageName(const QString &packageName)
 }
 
 void LauncherModel::installStarted(const QString &packageName, const QString &label,
-        const QString &iconPath, QString desktopFile)
+        const QString &iconPath, QString desktopFile, const QString &serviceName)
 {
     LAUNCHER_DEBUG("Installation started:" << packageName << label
             << iconPath << desktopFile);
+
+    // Remember which service notified us about this package, so we can
+    // clean up existing updates when the service vanishes from D-Bus.
+    _packageNameToDBusService[packageName] = serviceName;
+    _dbusWatcher.addWatchedService(serviceName);
 
     if (desktopFile.isEmpty()) {
         desktopFile = desktopFileFromPackageName(packageName);
@@ -340,9 +355,16 @@ void LauncherModel::installStarted(const QString &packageName, const QString &la
     item->setPackageName(packageName);
 }
 
-void LauncherModel::installProgress(const QString &packageName, int progress)
+void LauncherModel::installProgress(const QString &packageName, int progress,
+        const QString &serviceName)
 {
     LAUNCHER_DEBUG("Installation progress:" << packageName << progress);
+
+    QString expectedServiceName = _packageNameToDBusService[packageName];
+    if (expectedServiceName != serviceName) {
+        qWarning() << "Got update from" << serviceName <<
+                      "but expected update from" << expectedServiceName;
+    }
 
     LauncherItem *item = packageInModel(packageName);
 
@@ -354,9 +376,19 @@ void LauncherModel::installProgress(const QString &packageName, int progress)
     item->setIsUpdating(true);
 }
 
-void LauncherModel::installFinished(const QString &packageName)
+void LauncherModel::installFinished(const QString &packageName,
+        const QString &serviceName)
 {
     LAUNCHER_DEBUG("Installation finished:" << packageName);
+
+    QString expectedServiceName = _packageNameToDBusService[packageName];
+    if (expectedServiceName != serviceName) {
+        qWarning() << "Got update from" << serviceName <<
+                      "but expected update from" << expectedServiceName;
+    }
+
+    _packageNameToDBusService.remove(packageName);
+    updateWatchedDBusServices();
 
     LauncherItem *item = packageInModel(packageName);
 
@@ -371,6 +403,38 @@ void LauncherModel::installFinished(const QString &packageName)
         // Schedule removal of temporary icons
         QTimer::singleShot(LAUNCHER_UPDATING_REMOVAL_HOLDBACK_MS,
                 this, SLOT(removeTemporaryLaunchers()));
+    }
+}
+
+void LauncherModel::updateWatchedDBusServices()
+{
+    QStringList requiredServices = _packageNameToDBusService.values();
+
+    foreach (const QString &service, _dbusWatcher.watchedServices()) {
+        if (!requiredServices.contains(service)) {
+            LAUNCHER_DEBUG("Don't need to watch service anymore:" << service);
+            _dbusWatcher.removeWatchedService(service);
+        }
+    }
+}
+
+void LauncherModel::onServiceUnregistered(const QString &serviceName)
+{
+    qWarning() << "Service" << serviceName << "vanished";
+    _dbusWatcher.removeWatchedService(serviceName);
+
+    QStringList packagesToRemove;
+    QMap<QString, QString>::iterator it;
+    for (it = _packageNameToDBusService.begin(); it != _packageNameToDBusService.end(); ++it) {
+        if (it.value() == serviceName) {
+            qWarning() << "Service" << serviceName << "was active for" << it.key();
+            packagesToRemove << it.key();
+        }
+    }
+
+    foreach (const QString &packageName, packagesToRemove) {
+        LAUNCHER_DEBUG("Fabricating installFinished for" << packageName);
+        installFinished(packageName, serviceName);
     }
 }
 

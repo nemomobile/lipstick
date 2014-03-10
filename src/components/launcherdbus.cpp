@@ -21,11 +21,13 @@
 #include "launchermodel.h"
 
 #include <QDBusConnection>
+#include <QDBusMessage>
 #include <QDebug>
 
 
 LauncherDBus::LauncherDBus(LauncherModel *model)
     : QObject(model)
+    , QDBusContext()
     , m_model(model)
 {
     QDBusConnection dbus = QDBusConnection::sessionBus();
@@ -45,15 +47,15 @@ void LauncherDBus::requestLaunch(QString packageName)
 
 void LauncherDBus::installStarted(QString packageName, QString label, QString iconPath, QString desktopFile)
 {
-    m_model->installStarted(packageName, label, iconPath, desktopFile);
+    m_model->installStarted(packageName, label, iconPath, desktopFile, message().service());
 }
 
 void LauncherDBus::installProgress(QString packageName, int progress)
 {
-    m_model->installProgress(packageName, progress);
+    m_model->installProgress(packageName, progress, message().service());
 }
 
 void LauncherDBus::installFinished(QString packageName)
 {
-    m_model->installFinished(packageName);
+    m_model->installFinished(packageName, message().service());
 }

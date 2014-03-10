@@ -20,6 +20,8 @@
 #include <QObject>
 #include <QSettings>
 #include <QFileSystemWatcher>
+#include <QDBusServiceWatcher>
+#include <QMap>
 
 #include "launcheritem.h"
 #include "qobjectlistmodel.h"
@@ -42,9 +44,13 @@ class LIPSTICK_EXPORT LauncherModel : public QObjectListModel
     LauncherMonitor _launcherMonitor;
     LauncherDBus _launcherDBus;
 
+    QDBusServiceWatcher _dbusWatcher;
+    QMap<QString, QString> _packageNameToDBusService;
+
 private slots:
     void monitoredFileChanged(const QString &changedPath);
     void onFilesUpdated(const QStringList &added, const QStringList &modified, const QStringList &removed);
+    void onServiceUnregistered(const QString &serviceName);
 
 public:
     explicit LauncherModel(QObject *parent = 0);
@@ -57,9 +63,9 @@ public:
     void setIconDirectories(QStringList);
 
     void installStarted(const QString &packageName, const QString &label,
-            const QString &iconPath, QString desktopFile);
-    void installProgress(const QString &packageName, int progress);
-    void installFinished(const QString &packageName);
+            const QString &iconPath, QString desktopFile, const QString &serviceName);
+    void installProgress(const QString &packageName, int progress, const QString &serviceName);
+    void installFinished(const QString &packageName, const QString &serviceName);
 
     void requestLaunch(const QString &packageName);
 
@@ -79,6 +85,7 @@ private:
     QVariant launcherPos(const QString &path);
     LauncherItem *addItemIfValid(const QString &path, QMap<int, LauncherItem *> &itemsWithPositions);
     void updateItemsWithIcon(const QString &filename, bool existing);
+    void updateWatchedDBusServices();
 };
 
 #endif // LAUNCHERMODEL_H
