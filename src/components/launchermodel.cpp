@@ -483,9 +483,14 @@ LauncherItem *LauncherModel::itemInModel(const QString &path)
 
 LauncherItem *LauncherModel::packageInModel(const QString &packageName)
 {
-    foreach (LauncherItem *item, *getList<LauncherItem>()) {
-        if (item->packageName() == packageName) {
-            return item;
+    QList<LauncherItem *> *list = getList<LauncherItem>();
+
+    QList<LauncherItem *>::const_iterator it = list->constEnd();
+    while (it != list->constBegin()) {
+        --it;
+
+        if ((*it)->packageName() == packageName) {
+            return *it;
         }
     }
 
