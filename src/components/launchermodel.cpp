@@ -338,10 +338,10 @@ static QString desktopFileFromPackageName(const QString &packageName)
     return QString(LAUNCHER_APPS_PATH) + packageName + ".desktop";
 }
 
-void LauncherModel::installStarted(const QString &packageName, const QString &label,
+void LauncherModel::updatingStarted(const QString &packageName, const QString &label,
         const QString &iconPath, QString desktopFile, const QString &serviceName)
 {
-    LAUNCHER_DEBUG("Installation started:" << packageName << label
+    LAUNCHER_DEBUG("Update started:" << packageName << label
             << iconPath << desktopFile);
 
     // Remember which service notified us about this package, so we can
@@ -359,7 +359,7 @@ void LauncherModel::installStarted(const QString &packageName, const QString &la
         item = packageInModel(packageName);
     }
 
-    // Calling installStarted on an existing temporary icon should
+    // Calling updatingStarted on an existing temporary icon should
     // update the internal state of the temporary icon (and if the
     // .desktop file exists, make the icon non-temporary).
     if (item && item->isTemporary()) {
@@ -393,10 +393,10 @@ void LauncherModel::installStarted(const QString &packageName, const QString &la
     item->setPackageName(packageName);
 }
 
-void LauncherModel::installProgress(const QString &packageName, int progress,
+void LauncherModel::updatingProgress(const QString &packageName, int progress,
         const QString &serviceName)
 {
-    LAUNCHER_DEBUG("Installation progress:" << packageName << progress);
+    LAUNCHER_DEBUG("Update progress:" << packageName << progress);
 
     QString expectedServiceName = _packageNameToDBusService[packageName];
     if (expectedServiceName != serviceName) {
@@ -414,10 +414,10 @@ void LauncherModel::installProgress(const QString &packageName, int progress,
     item->setIsUpdating(true);
 }
 
-void LauncherModel::installFinished(const QString &packageName,
+void LauncherModel::updatingFinished(const QString &packageName,
         const QString &serviceName)
 {
-    LAUNCHER_DEBUG("Installation finished:" << packageName);
+    LAUNCHER_DEBUG("Update finished:" << packageName);
 
     QString expectedServiceName = _packageNameToDBusService[packageName];
     if (expectedServiceName != serviceName) {
@@ -471,8 +471,8 @@ void LauncherModel::onServiceUnregistered(const QString &serviceName)
     }
 
     foreach (const QString &packageName, packagesToRemove) {
-        LAUNCHER_DEBUG("Fabricating installFinished for" << packageName);
-        installFinished(packageName, serviceName);
+        LAUNCHER_DEBUG("Fabricating updatingFinished for" << packageName);
+        updatingFinished(packageName, serviceName);
     }
 }
 

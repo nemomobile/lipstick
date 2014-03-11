@@ -42,20 +42,20 @@ LauncherDBus::~LauncherDBus()
 
 void LauncherDBus::requestLaunch(QString packageName)
 {
-    emit showInstallProgress(packageName);
+    emit showUpdatingProgress(packageName);
 }
 
-void LauncherDBus::installStarted(QString packageName, QString label, QString iconPath, QString desktopFile)
+void LauncherDBus::updatingStarted(QString packageName, QString label, QString iconPath, QString desktopFile)
 {
-    m_model->installStarted(packageName, label, iconPath, desktopFile, message().service());
+    m_model->updatingStarted(packageName, label, iconPath, desktopFile, message().service());
 }
 
-void LauncherDBus::installProgress(QString packageName, int progress)
+void LauncherDBus::updatingProgress(QString packageName, int progress)
 {
-    m_model->installProgress(packageName, progress, message().service());
+    m_model->updatingProgress(packageName, progress, message().service());
 }
 
-void LauncherDBus::installFinished(QString packageName)
+void LauncherDBus::updatingFinished(QString packageName)
 {
-    m_model->installFinished(packageName, message().service());
+    m_model->updatingFinished(packageName, message().service());
 }

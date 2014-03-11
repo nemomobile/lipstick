@@ -63,10 +63,10 @@ public:
     QStringList iconDirectories() const;
     void setIconDirectories(QStringList);
 
-    void installStarted(const QString &packageName, const QString &label,
+    void updatingStarted(const QString &packageName, const QString &label,
             const QString &iconPath, QString desktopFile, const QString &serviceName);
-    void installProgress(const QString &packageName, int progress, const QString &serviceName);
-    void installFinished(const QString &packageName, const QString &serviceName);
+    void updatingProgress(const QString &packageName, int progress, const QString &serviceName);
+    void updatingFinished(const QString &packageName, const QString &serviceName);
 
     void requestLaunch(const QString &packageName);
 

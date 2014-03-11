@@ -39,12 +39,12 @@ public:
     void requestLaunch(QString packageName);
 
 public slots:
-    void installStarted(QString packageName, QString label, QString iconPath, QString desktopFile);
-    void installProgress(QString packageName, int progress);
-    void installFinished(QString packageName);
+    void updatingStarted(QString packageName, QString label, QString iconPath, QString desktopFile);
+    void updatingProgress(QString packageName, int progress);
+    void updatingFinished(QString packageName);
 
 signals:
-    void showInstallProgress(QString packageName);
+    void showUpdatingProgress(QString packageName);
 
 private:
     LauncherModel *m_model;

@@ -14,7 +14,7 @@
  *
  * \section methods Methods
  *
- * \subsection installstarted installStarted(string packageName, string label, string iconPath, string desktopFile)
+ * \subsection updatingstarted updatingStarted(string packageName, string label, string iconPath, string desktopFile)
  *
  * Notifies Lipstick of a install/update/uninstall action that has just
  * started. Depending on the UI used, this should be visualized with a spinner
@@ -32,28 +32,28 @@
  *    the .desktop file that belongs to this package. Can be left empty, in which
  *    case Lipstick tries to determine the right filename from \c packageName.
  *
- * Between \c installStarted and \c installFinished, the launcher does not
+ * Between \c updatingStarted and \c updatingFinished, the launcher does not
  * react to taps in the usual way. Instead, a Signal is sent, so that interested
  * applications (e.g. a package manager) can show the progress in its window.
  *
- * \subsection installprogress installProgress(string packageName, int32 progress)
+ * \subsection updatingprogress updatingProgress(string packageName, int32 progress)
  *
  * Notifies Lipstick that the progress of a install/update/uninstall action that
- * has been previously started with \c installStarted has changed. Depending on
+ * has been previously started with \c updatingStarted has changed. Depending on
  * the UI used, this can be used to display a progress bar on the icon, or show
  * the installation progress as text label.
  *
- *  - \c packageName must be the package name, as in \c installStarted
+ *  - \c packageName must be the package name, as in \c updatingStarted
  *  - \c progress must be the progress value in percent, ranging from 0 to 100.
  *    If the progress is outside of this range, it is expected that the UI hides
  *    any previously-set progress and shows the progress as indeterminate.
  *
- * \subsection installfinished installFinished(string packageName)
+ * \subsection updatingfinished updatingFinished(string packageName)
  *
  * Notifies Lipstick that the install/update/uninstall action has finished, and
  * that the progress indicator can be removed from the icon again.
  *
- *  - \c packageName must be the package name, as in \c installStarted
+ *  - \c packageName must be the package name, as in \c updatingStarted
  *
  * \section signals Signals
  *
@@ -64,7 +64,7 @@
  * during the installation, and - when emitted - show the installation progress
  * of the given package to the user.
  *
- * \subsection showinstallprogress showInstallProgress(string packageName)
+ * \subsection showupdatingprogress showUpdatingProgress(string packageName)
  *
  * Emitted when the user taps on a launcher that is currently being updated.
  * The package manager is expected to open a view with the current install
@@ -75,6 +75,6 @@
  * uninstallation or upgrade, the package manager has to take care of launching
  * the app on behalf of Lipstick.
  *
- *  - \c packageName The package name, as passed in to \c installStarted
+ *  - \c packageName The package name, as passed in to \c updatingStarted
  *
  */
