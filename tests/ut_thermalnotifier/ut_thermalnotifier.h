@@ -36,7 +36,10 @@ private slots:
     void cleanupTestCase();
 
     // Test cases
+    void testConnections();
     void testThermalState();
+    void testDisplayStateOffDoesNothing();
+    void testDisplayStateOnAppliesThermalState();
 
 private:
     ThermalNotifier *thermalNotifier;

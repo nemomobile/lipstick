@@ -18,9 +18,12 @@
 
 ThermalNotifier::ThermalNotifier(QObject *parent) :
     QObject(parent),
-    thermalState(new MeeGo::QmThermal(this))
+    thermalState(new MeeGo::QmThermal(this)),
+    displayState(new MeeGo::QmDisplayState(this)),
+    thermalStateNotifiedWhileScreenIsOn(MeeGo::QmThermal::Normal)
 {
     connect(thermalState, SIGNAL(thermalChanged(MeeGo::QmThermal::ThermalState)), this, SLOT(applyThermalState(MeeGo::QmThermal::ThermalState)));
+    connect(displayState, SIGNAL(displayStateChanged(MeeGo::QmDisplayState::DisplayState)), this, SLOT(applyDisplayState(MeeGo::QmDisplayState::DisplayState)));
 }
 
 void ThermalNotifier::applyThermalState(MeeGo::QmThermal::ThermalState state)
@@ -40,6 +43,20 @@ void ThermalNotifier::applyThermalState(MeeGo::QmThermal::ThermalState state)
         break;
     default:
         break;
+    }
+
+    if (displayState->get() != MeeGo::QmDisplayState::Off) {
+        thermalStateNotifiedWhileScreenIsOn = state;
+    }
+}
+
+void ThermalNotifier::applyDisplayState(MeeGo::QmDisplayState::DisplayState state)
+{
+    if (state == MeeGo::QmDisplayState::On) {
+        MeeGo::QmThermal::ThermalState currentThermalState = thermalState->get();
+        if (thermalStateNotifiedWhileScreenIsOn != currentThermalState) {
+            applyThermalState(currentThermalState);
+        }
     }
 }
 

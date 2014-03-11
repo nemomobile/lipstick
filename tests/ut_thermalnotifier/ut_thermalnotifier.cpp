@@ -16,8 +16,10 @@
 #include <QtTest/QtTest>
 #include "thermalnotifier.h"
 #include "homeapplication.h"
-#include "ut_thermalnotifier.h"
+#include "qmdisplaystate_stub.h"
+#include "qmthermal_stub.h"
 #include "notificationmanager_stub.h"
+#include "ut_thermalnotifier.h"
 
 HomeApplication::~HomeApplication()
 {
@@ -53,12 +55,19 @@ void Ut_ThermalNotifier::init()
 
     gNotificationManagerStub->stubReset();
     gNotificationManagerStub->stubSetReturnValue("Notify", (uint)1);
+    gQmThermalStub->stubReset();
 }
 
 void Ut_ThermalNotifier::cleanup()
 {
     delete thermalNotifier;
     gNotificationManagerStub->stubReset();
+}
+
+void Ut_ThermalNotifier::testConnections()
+{
+    QCOMPARE(disconnect(thermalNotifier->thermalState, SIGNAL(thermalChanged(MeeGo::QmThermal::ThermalState)), thermalNotifier, SLOT(applyThermalState(MeeGo::QmThermal::ThermalState))), true);
+    QCOMPARE(disconnect(thermalNotifier->displayState, SIGNAL(displayStateChanged(MeeGo::QmDisplayState::DisplayState)), thermalNotifier, SLOT(applyDisplayState(MeeGo::QmDisplayState::DisplayState))), true);
 }
 
 void Ut_ThermalNotifier::testThermalState()
@@ -80,6 +89,38 @@ void Ut_ThermalNotifier::testThermalState()
     QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QVariantHash>(6).value(NotificationManager::HINT_CATEGORY).toString(), QString("x-nemo.battery.temperature"));
     QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QVariantHash>(6).value(NotificationManager::HINT_PREVIEW_BODY).toString(), qtTrId("qtn_shut_low_temp_warning"));
     QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QString>(2), QString());
+}
+
+void Ut_ThermalNotifier::testDisplayStateOffDoesNothing()
+{
+    gQmThermalStub->stubSetReturnValue("get", MeeGo::QmThermal::Warning);
+
+    thermalNotifier->applyDisplayState(MeeGo::QmDisplayState::Off);
+    QCOMPARE(gNotificationManagerStub->stubCallCount("Notify"), 0);
+
+    thermalNotifier->applyDisplayState(MeeGo::QmDisplayState::Dimmed);
+    QCOMPARE(gNotificationManagerStub->stubCallCount("Notify"), 0);
+
+    thermalNotifier->applyDisplayState(MeeGo::QmDisplayState::Unknown);
+    QCOMPARE(gNotificationManagerStub->stubCallCount("Notify"), 0);
+}
+
+void Ut_ThermalNotifier::testDisplayStateOnAppliesThermalState()
+{
+    gQmDisplayStateStub->stubSetReturnValue("get", MeeGo::QmDisplayState::On);
+    gQmThermalStub->stubSetReturnValue("get", MeeGo::QmThermal::Warning);
+
+    thermalNotifier->applyDisplayState(MeeGo::QmDisplayState::On);
+    QCOMPARE(gNotificationManagerStub->stubCallCount("Notify"), 1);
+
+    // The same thermal state should not get shown again
+    thermalNotifier->applyDisplayState(MeeGo::QmDisplayState::On);
+    QCOMPARE(gNotificationManagerStub->stubCallCount("Notify"), 1);
+
+    // The different thermal state should get shown
+    gQmThermalStub->stubSetReturnValue("get", MeeGo::QmThermal::Alert);
+    thermalNotifier->applyDisplayState(MeeGo::QmDisplayState::On);
+    QCOMPARE(gNotificationManagerStub->stubCallCount("Notify"), 2);
 }
 
 QTEST_MAIN (Ut_ThermalNotifier)
