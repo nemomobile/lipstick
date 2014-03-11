@@ -89,6 +89,7 @@ private:
     void updateWatchedDBusServices();
     void setTemporary(LauncherItem *item);
     void unsetTemporary(LauncherItem *item);
+    LauncherItem *temporaryItemToReplace();
 };
 
 #endif // LAUNCHERMODEL_H

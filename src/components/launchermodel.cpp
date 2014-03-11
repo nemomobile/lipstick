@@ -142,10 +142,11 @@ void LauncherModel::onFilesUpdated(const QStringList &added,
             // packaged (desktop file shares basename with packagename), but in some
             // cases, this is better than having the temporary and non-temporary in
             // place at the same time.
-            if (item == NULL && _temporaryLaunchers.length() == 1 &&
+            LauncherItem *tempItem = temporaryItemToReplace();
+            if (item == NULL && tempItem != NULL &&
                     isVisibleDesktopFile(filename)) {
                 // Replace the single temporary launcher with the newly-added icon
-                item = _temporaryLaunchers.first();
+                item = tempItem;
 
                 qWarning() << "Applying heuristics:" << filename <<
                     "is the launcher item for" << item->packageName();
@@ -591,4 +592,27 @@ void LauncherModel::unsetTemporary(LauncherItem *item)
         item->setIsTemporary(false);
         _temporaryLaunchers.removeOne(item);
     }
+}
+
+LauncherItem *LauncherModel::temporaryItemToReplace()
+{
+    LauncherItem *item = NULL;
+    if (_temporaryLaunchers.count() == 1) {
+        // Only one item. It must be this.
+        item = _temporaryLaunchers.first();
+    } else {
+        foreach(LauncherItem *tempItem, _temporaryLaunchers) {
+            if (!tempItem->isUpdating()) {
+                if (!item) {
+                    // Pick the finished item.
+                    item = tempItem;
+                } else {
+                    // Give up if many items have finished.
+                    item = NULL;
+                    break;
+                }
+            }
+        }
+    }
+    return item;
 }
