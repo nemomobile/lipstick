@@ -122,6 +122,7 @@ void LauncherModel::onFilesUpdated(const QStringList &added,
             LauncherItem *item = itemInModel(filename);
             if (item != NULL) {
                 LAUNCHER_DEBUG("Removing launcher item:" << filename);
+                unsetTemporary(item);
                 removeItem(item);
             }
         } else if (isIconFile(filename)) {
@@ -192,6 +193,7 @@ void LauncherModel::onFilesUpdated(const QStringList &added,
                 if (!isValid) {
                     // File has changed in such a way (e.g. Hidden=true) that
                     // it now should become invisible again
+                    unsetTemporary(item);
                     removeItem(item);
                 } else {
                     // File has been updated and is still valid; check if we
