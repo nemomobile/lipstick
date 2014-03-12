@@ -113,7 +113,7 @@ void LauncherModel::onFilesUpdated(const QStringList &added,
         const QStringList &modified, const QStringList &removed)
 {
     QMap<int, LauncherItem *> itemsWithPositions;
-    QStringList modded = modified;
+    QStringList modifiedAndNeedUpdating = modified;
 
     // First, remove all removed launcher items before adding new ones
     foreach (const QString &filename, removed) {
@@ -177,7 +177,7 @@ void LauncherModel::onFilesUpdated(const QStringList &added,
 
                 // Act as if this filename has been modified, so we can update
                 // it below (e.g. turn a temporary item into a permanent one)
-                modded << filename;
+                modifiedAndNeedUpdating << filename;
             }
         } else if (isIconFile(filename)) {
             // Icons has been added - find item and update its icon path
@@ -185,7 +185,7 @@ void LauncherModel::onFilesUpdated(const QStringList &added,
         }
     }
 
-    foreach (const QString &filename, modded) {
+    foreach (const QString &filename, modifiedAndNeedUpdating) {
         if (isDesktopFile(filename)) {
             // Desktop file has been updated - update launcher
             LauncherItem *item = itemInModel(filename);

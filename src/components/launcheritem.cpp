@@ -72,12 +72,8 @@ LauncherItem::~LauncherItem()
 
 void LauncherItem::setFilePath(const QString &filePath)
 {
-    if (!filePath.isEmpty()) {
-        if (QFile(filePath).exists()) {
-            _desktopEntry = QSharedPointer<MDesktopEntry>(new MDesktopEntry(filePath));
-        } else {
-            _desktopEntry.clear();
-        }
+    if (!filePath.isEmpty() && QFile(filePath).exists()) {
+        _desktopEntry = QSharedPointer<MDesktopEntry>(new MDesktopEntry(filePath));
     } else {
         _desktopEntry.clear();
     }
