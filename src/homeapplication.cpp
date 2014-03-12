@@ -29,6 +29,7 @@
 #include "notifications/notificationfeedbackplayer.h"
 #include "notifications/batterynotifier.h"
 #include "notifications/diskspacenotifier.h"
+#include "notifications/thermalnotifier.h"
 #include "screenlock/screenlock.h"
 #include "screenlock/screenlockadaptor.h"
 #include "devicelock/devicelock.h"
@@ -97,6 +98,7 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     volumeControl = new VolumeControl;
     new BatteryNotifier(this);
     new DiskSpaceNotifier(this);
+    new ThermalNotifier(this);
     usbModeSelector = new USBModeSelector(this);
     connect(usbModeSelector, SIGNAL(dialogShown()), screenLock, SLOT(unlockScreen()));
     shutdownScreen = new ShutdownScreen(this);

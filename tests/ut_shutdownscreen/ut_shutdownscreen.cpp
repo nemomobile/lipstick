@@ -128,29 +128,4 @@ void Ut_ShutdownScreen::testSystemState()
     QCOMPARE(spy.count(), 1);
 }
 
-
-void Ut_ShutdownScreen::testThermalState()
-{
-    shutdownScreen->applyThermalState(MeeGo::QmThermal::Warning);
-    QCOMPARE(qQuickViews.count(), 0);
-    QCOMPARE(gNotificationManagerStub->stubCallCount("Notify"), 1);
-    QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QVariantHash>(6).value(NotificationManager::HINT_CATEGORY).toString(), QString("x-nemo.battery.temperature"));
-    QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QVariantHash>(6).value(NotificationManager::HINT_PREVIEW_BODY).toString(), qtTrId("qtn_shut_high_temp_warning"));
-    QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QString>(2), QString());
-
-    shutdownScreen->applyThermalState(MeeGo::QmThermal::Alert);
-    QCOMPARE(qQuickViews.count(), 0);
-    QCOMPARE(gNotificationManagerStub->stubCallCount("Notify"), 2);
-    QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QVariantHash>(6).value(NotificationManager::HINT_CATEGORY).toString(), QString("x-nemo.battery.temperature"));
-    QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QVariantHash>(6).value(NotificationManager::HINT_PREVIEW_BODY).toString(), qtTrId("qtn_shut_high_temp_alert"));
-    QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QString>(2), QString());
-
-    shutdownScreen->applyThermalState(MeeGo::QmThermal::LowTemperatureWarning);
-    QCOMPARE(qQuickViews.count(), 0);
-    QCOMPARE(gNotificationManagerStub->stubCallCount("Notify"), 3);
-    QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QVariantHash>(6).value(NotificationManager::HINT_CATEGORY).toString(), QString("x-nemo.battery.temperature"));
-    QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QVariantHash>(6).value(NotificationManager::HINT_PREVIEW_BODY).toString(), qtTrId("qtn_shut_low_temp_warning"));
-    QCOMPARE(gNotificationManagerStub->stubLastCallTo("Notify").parameter<QString>(2), QString());
-}
-
 QTEST_MAIN (Ut_ShutdownScreen)

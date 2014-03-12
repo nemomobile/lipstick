@@ -14,6 +14,7 @@ SUBDIRS = \
           ut_notificationpreviewpresenter \
           ut_screenlock \
           ut_shutdownscreen \
+          ut_thermalnotifier \
           ut_usbmodeselector \
           ut_volumecontrol \
 

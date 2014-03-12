@@ -1,7 +1,6 @@
 /***************************************************************************
 **
-** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
-** Copyright (C) 2012 Jolla Ltd.
+** Copyright (C) 2012-2014 Jolla Ltd.
 ** Contact: Robin Burchell <robin.burchell@jollamobile.com>
 **
 ** This file is part of lipstick.
@@ -13,14 +12,14 @@
 ** of this file.
 **
 ****************************************************************************/
-#ifndef _UT_SHUTDOWNSCREEN_H
-#define _UT_SHUTDOWNSCREEN_H
+#ifndef _UT_THERMALNOTIFIER_H
+#define _UT_THERMALNOTIFIER_H
 
 #include <QObject>
 
-class ShutdownScreen;
+class ThermalNotifier;
 
-class Ut_ShutdownScreen : public QObject {
+class Ut_ThermalNotifier : public QObject {
     Q_OBJECT
 
 private slots:
@@ -38,10 +37,12 @@ private slots:
 
     // Test cases
     void testConnections();
-    void testSystemState();
+    void testThermalState();
+    void testDisplayStateOffDoesNothing();
+    void testDisplayStateOnAppliesThermalState();
 
 private:
-    ShutdownScreen *shutdownScreen;
+    ThermalNotifier *thermalNotifier;
 };
 
 #endif
