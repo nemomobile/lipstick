@@ -40,6 +40,8 @@ private slots:
     void testUpdateNotificationIsNotPossibleAfterRestart();
     void testNotificationPreviewsDisabled_data();
     void testNotificationPreviewsDisabled();
+    void testNotificationPriority_data();
+    void testNotificationPriority();
 
 private:
     NotificationFeedbackPlayer *player;

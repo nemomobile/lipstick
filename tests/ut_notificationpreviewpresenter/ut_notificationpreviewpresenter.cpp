@@ -20,10 +20,12 @@
 #include "notificationmanager.h"
 #include "ut_notificationpreviewpresenter.h"
 #include "notificationpreviewpresenter.h"
+#include "notificationfeedbackplayer_stub.h"
 #include "lipstickcompositor_stub.h"
 #include "closeeventeater_stub.h"
 #include "qmlocks_stub.h"
 #include "qmdisplaystate_stub.h"
+#include "lipsticksettings.h"
 
 Q_DECLARE_METATYPE(NotificationPreviewPresenter*)
 Q_DECLARE_METATYPE(LipstickNotification*)
@@ -86,6 +88,11 @@ QHash<HomeWindow *, QString> homeWindowCategories;
 void HomeWindow::setCategory(const QString &category)
 {
     homeWindowCategories[this] = category;
+}
+
+LipstickSettings *LipstickSettings::instance()
+{
+    return 0;
 }
 
 const char *NotificationManager::HINT_CATEGORY = "category";
@@ -194,6 +201,7 @@ void Ut_NotificationPreviewPresenter::testSignalConnections()
     NotificationPreviewPresenter presenter;
     QCOMPARE(disconnect(NotificationManager::instance(), SIGNAL(notificationModified(uint)), &presenter, SLOT(updateNotification(uint))), true);
     QCOMPARE(disconnect(NotificationManager::instance(), SIGNAL(notificationRemoved(uint)), &presenter, SLOT(removeNotification(uint))), true);
+    QCOMPARE(disconnect(&presenter, SIGNAL(notificationPresented(uint)), presenter.notificationFeedbackPlayer, SLOT(addNotification(uint))), true);
 }
 
 void Ut_NotificationPreviewPresenter::testAddNotificationWhenWindowNotOpen()
@@ -214,6 +222,8 @@ void Ut_NotificationPreviewPresenter::testAddNotificationWhenWindowNotOpen()
     QCOMPARE(homeWindowTitle[homeWindows.first()], QString("Notification"));
     QCOMPARE(homeWindowContextProperties[homeWindows.first()].value("initialSize").toSize(), QGuiApplication::primaryScreen()->size());
     QCOMPARE(homeWindowContextProperties[homeWindows.first()].value("notificationPreviewPresenter"), QVariant::fromValue(static_cast<QObject *>(&presenter)));
+    QCOMPARE(homeWindowContextProperties[homeWindows.first()].value("notificationFeedbackPlayer"), QVariant::fromValue(static_cast<QObject *>(presenter.notificationFeedbackPlayer)));
+    QCOMPARE(homeWindowContextProperties[homeWindows.first()].contains("LipstickSettings"), true);
     QCOMPARE(homeWindowCategories[homeWindows.first()], QString("notification"));
 
     // Check that the window was shown

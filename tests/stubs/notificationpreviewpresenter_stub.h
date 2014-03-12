@@ -15,6 +15,7 @@ class NotificationPreviewPresenterStub : public StubBase {
   virtual void showNextNotification();
   virtual void updateNotification(uint id);
   virtual void removeNotification(uint id, bool onlyFromQueue);
+  virtual void createWindowIfNecessary();
 }; 
 
 // 2. IMPLEMENT STUB
@@ -47,6 +48,10 @@ void NotificationPreviewPresenterStub::removeNotification(uint id, bool onlyFrom
   stubMethodEntered("removeNotification",params);
 }
 
+void NotificationPreviewPresenterStub::createWindowIfNecessary() {
+  stubMethodEntered("createWindowIfNecessary");
+}
+
 
 
 // 3. CREATE A STUB INSTANCE
@@ -77,6 +82,10 @@ void NotificationPreviewPresenter::updateNotification(uint id) {
 
 void NotificationPreviewPresenter::removeNotification(uint id, bool onlyFromQueue) {
   gNotificationPreviewPresenterStub->removeNotification(id, onlyFromQueue);
+}
+
+void NotificationPreviewPresenter::createWindowIfNecessary() {
+  gNotificationPreviewPresenterStub->createWindowIfNecessary();
 }
 
 

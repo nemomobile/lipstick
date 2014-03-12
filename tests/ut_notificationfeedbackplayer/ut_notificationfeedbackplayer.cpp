@@ -86,12 +86,15 @@ QList<uint> NotificationManager::notificationIds() const
     return notificationManagerNotification.keys();
 }
 
-LipstickNotification *createNotification(uint id, int urgency = 0)
+LipstickNotification *createNotification(uint id, int urgency = 0, QVariant priority = QVariant())
 {
     LipstickNotification *notification = new LipstickNotification;
     QVariantHash hints;
     hints.insert(NotificationManager::HINT_FEEDBACK, "feedback");
     hints.insert(NotificationManager::HINT_URGENCY, urgency);
+    if (priority.isValid()) {
+        hints.insert(NotificationManager::HINT_PRIORITY, priority);
+    }
     notification->setHints(hints);
     notificationManagerNotification.insert(id, notification);
     gNotificationPreviewPresenterStub->stubSetReturnValue("notification", notification);
@@ -131,6 +134,7 @@ void Ut_NotificationFeedbackPlayer::cleanup()
     delete presenter;
 
     gClientStub->stubReset();
+    gLipstickCompositorStub->stubSetReturnValue("surfaceForId", (QWaylandSurface *)0);
     gNotificationPreviewPresenterStub->stubReset();
 }
 
@@ -242,6 +246,35 @@ void Ut_NotificationFeedbackPlayer::testNotificationPreviewsDisabled()
     qWaylandSurfaceWindowProperties = windowProperties;
 
     createNotification(1, urgency);
+    player->addNotification(1);
+
+    QCOMPARE(gClientStub->stubCallCount("play"), playCount);
+}
+
+void Ut_NotificationFeedbackPlayer::testNotificationPriority_data()
+{
+    QTest::addColumn<int>("minimumPriority");
+    QTest::addColumn<int>("urgency");
+    QTest::addColumn<QVariant>("priority");
+    QTest::addColumn<int>("playCount");
+
+    QTest::newRow("Minimum priority 50, urgency 1, priority not defined") << 50 << 1 << QVariant() << 0;
+    QTest::newRow("Minimum priority 50, urgency 1, priority 49") << 50 << 1 << QVariant(49) << 0;
+    QTest::newRow("Minimum priority 50, urgency 1, priority 50") << 50 << 1 << QVariant(50) << 1;
+    QTest::newRow("Minimum priority 50, urgency 2, priority not defined") << 50 << 2 << QVariant() << 1;
+    QTest::newRow("Minimum priority 50, urgency 2, priority 49") << 50 << 2 << QVariant(49) << 1;
+    QTest::newRow("Minimum priority 50, urgency 2, priority 50") << 50 << 2 << QVariant(50) << 1;
+}
+
+void Ut_NotificationFeedbackPlayer::testNotificationPriority()
+{
+    QFETCH(int, minimumPriority);
+    QFETCH(int, urgency);
+    QFETCH(QVariant, priority);
+    QFETCH(int, playCount);
+
+    player->setMinimumPriority(minimumPriority);
+    createNotification(1, urgency, priority);
     player->addNotification(1);
 
     QCOMPARE(gClientStub->stubCallCount("play"), playCount);

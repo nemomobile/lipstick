@@ -17,10 +17,12 @@
 #include <QScreen>
 #include "homewindow.h"
 #include <QQmlContext>
+#include "lipsticksettings.h"
 #include "utilities/closeeventeater.h"
 #include "notifications/notificationmanager.h"
-#include "notificationpreviewpresenter.h"
+#include "notifications/notificationfeedbackplayer.h"
 #include "compositor/lipstickcompositor.h"
+#include "notificationpreviewpresenter.h"
 
 #include <qmdisplaystate.h>
 #include <qmlocks.h>
@@ -35,12 +37,16 @@ enum PreviewMode {
 NotificationPreviewPresenter::NotificationPreviewPresenter(QObject *parent) :
     QObject(parent),
     window(0),
-    currentNotification(0)
-    ,locks(new MeeGo::QmLocks(this)),
+    currentNotification(0),
+    notificationFeedbackPlayer(new NotificationFeedbackPlayer(this)),
+    locks(new MeeGo::QmLocks(this)),
     displayState(new MeeGo::QmDisplayState(this))
 {
     connect(NotificationManager::instance(), SIGNAL(notificationModified(uint)), this, SLOT(updateNotification(uint)));
     connect(NotificationManager::instance(), SIGNAL(notificationRemoved(uint)), this, SLOT(removeNotification(uint)));
+    connect(this, SIGNAL(notificationPresented(uint)), notificationFeedbackPlayer, SLOT(addNotification(uint)));
+
+    QTimer::singleShot(0, this, SLOT(createWindowIfNecessary()));
 }
 
 NotificationPreviewPresenter::~NotificationPreviewPresenter()
@@ -74,7 +80,6 @@ void NotificationPreviewPresenter::showNextNotification()
             showNextNotification();
         } else {
             // Show the notification window and the first queued notification in it
-            createWindowIfNecessary();
             if (!window->isVisible()) {
                 window->show();
             }
@@ -147,7 +152,9 @@ void NotificationPreviewPresenter::createWindowIfNecessary()
     window->setCategory(QLatin1String("notification"));
     window->setWindowTitle("Notification");
     window->setContextProperty("initialSize", QGuiApplication::primaryScreen()->size());
+    window->setContextProperty("LipstickSettings", LipstickSettings::instance());
     window->setContextProperty("notificationPreviewPresenter", this);
+    window->setContextProperty("notificationFeedbackPlayer", notificationFeedbackPlayer);
     window->setSource(QUrl("qrc:/qml/NotificationPreview.qml"));
     window->installEventFilter(new CloseEventEater(this));
 }
