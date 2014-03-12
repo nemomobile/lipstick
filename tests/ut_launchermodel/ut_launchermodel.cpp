@@ -19,20 +19,30 @@
 #include "ut_launchermodel.h"
 #include "mdesktopentry.h"
 
+class MDesktopEntryPrivate {
+public:
+    MDesktopEntryPrivate(const QString &fileName)
+        : m_fileName(fileName)
+    {
+    }
+
+    QString m_fileName;
+};
+
 MDesktopEntry::MDesktopEntry(const QString &fileName)
-    : d_ptr(NULL)
+    : d_ptr(new MDesktopEntryPrivate(fileName))
 {
-    Q_UNUSED(fileName)
 }
 
 MDesktopEntry::~MDesktopEntry()
 {
+    delete d_ptr;
 }
 
 QString
 MDesktopEntry::fileName() const
 {
-    return "/usr/share/applications/example.desktop";
+    return d_ptr->m_fileName;
 }
 
 QString
@@ -99,6 +109,10 @@ void QTimer::singleShot(int, const QObject *receiver, const char *member)
     QMetaObject::invokeMethod(const_cast<QObject *>(receiver), modifiedMember, Qt::DirectConnection);
 }
 
+bool QFile::exists() const
+{
+    return true;
+}
 
 void Ut_LauncherModel::init()
 {
@@ -112,6 +126,7 @@ void Ut_LauncherModel::cleanup()
 
 void Ut_LauncherModel::testUpdating()
 {
+    // Test if basic updating behavior works for a random package
     QVERIFY(launcherModel->packageInModel("somepackage") == NULL);
 
     launcherModel->updatingStarted("somepackage", "Some Package",
@@ -134,6 +149,44 @@ void Ut_LauncherModel::testUpdating()
     QVERIFY(item->updatingProgress() == 40);
 
     launcherModel->updatingFinished("somepackage", "org.example.caller");
+
+    QVERIFY(launcherModel->packageInModel("somepackage") == NULL);
+    QVERIFY(launcherModel->temporaryItemToReplace() == NULL);
+}
+
+void Ut_LauncherModel::testUpdatingFileAppears()
+{
+    // Test that starting an update with a non-existing item will add it to the
+    // launcher list, and that when the file appears during the updating phase,
+    // it will properly be transformed into a non-temporary launcher item and
+    // persist even after the updating phase has finished.
+    QVERIFY(launcherModel->packageInModel("somepackage") == NULL);
+
+    const QString DESKTOPFILE("/usr/share/applications/lipstick_ut_launchermodel.desktop");
+
+    launcherModel->updatingStarted("somepackage", "Some Package",
+            "/usr/share/pixmaps/example.png", DESKTOPFILE,
+            "org.example.caller");
+
+    auto item = launcherModel->packageInModel("somepackage");
+    QVERIFY(item != NULL);
+    QVERIFY(item->updatingProgress() == -1);
+    QVERIFY(item->isTemporary());
+    QVERIFY(launcherModel->temporaryItemToReplace() == item);
+
+    QVERIFY(launcherModel->itemInModel(DESKTOPFILE) == item);
+
+    QStringList added, modified, removed;
+    added << DESKTOPFILE;
+    launcherModel->onFilesUpdated(added, modified, removed);
+
+    QVERIFY(launcherModel->itemInModel(DESKTOPFILE) == item);
+    QVERIFY(!item->isTemporary());
+
+    launcherModel->updatingFinished("somepackage", "org.example.caller");
+
+    QVERIFY(launcherModel->itemInModel(DESKTOPFILE) == item);
+    QVERIFY(!item->isUpdating());
 
     QVERIFY(launcherModel->packageInModel("somepackage") == NULL);
     QVERIFY(launcherModel->temporaryItemToReplace() == NULL);

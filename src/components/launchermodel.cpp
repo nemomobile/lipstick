@@ -438,6 +438,7 @@ void LauncherModel::updatingFinished(const QString &packageName,
 
     item->setIsUpdating(false);
     item->setUpdatingProgress(-1);
+    item->setPackageName("");
     if (item->isTemporary()) {
         // Schedule removal of temporary icons
         QTimer::singleShot(LAUNCHER_UPDATING_REMOVAL_HOLDBACK_MS,

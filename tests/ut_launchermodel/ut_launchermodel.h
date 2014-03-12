@@ -28,6 +28,7 @@ private slots:
     void init();
     void cleanup();
     void testUpdating();
+    void testUpdatingFileAppears();
 
 private:
     LauncherModel *launcherModel;
