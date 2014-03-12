@@ -21,6 +21,7 @@
 
 class HomeWindow;
 class LipstickNotification;
+class NotificationFeedbackPlayer;
 
 namespace MeeGo {
 class QmLocks;
@@ -91,10 +92,10 @@ private slots:
      */
     void removeNotification(uint id, bool onlyFromQueue = false);
 
-private:
     //! Creates the notification window if it has not been created yet.
     void createWindowIfNecessary();
 
+private:
     //! Checks whether the given notification has a preview body and a preview summary.
     bool notificationShouldBeShown(LipstickNotification *notification);
 
@@ -109,6 +110,9 @@ private:
 
     //! Notification currently being shown
     LipstickNotification *currentNotification;
+
+    //! Player for notification feedbacks
+    NotificationFeedbackPlayer *notificationFeedbackPlayer;
 
     //! For getting information about the touch screen lock state
     MeeGo::QmLocks *locks;

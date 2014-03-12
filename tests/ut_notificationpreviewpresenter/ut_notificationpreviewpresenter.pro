@@ -14,6 +14,7 @@ SOURCES += \
 HEADERS += \
     ut_notificationpreviewpresenter.h \
     $$NOTIFICATIONSRCDIR/notificationpreviewpresenter.h \
+    $$NOTIFICATIONSRCDIR/notificationfeedbackplayer.h \
     $$NOTIFICATIONSRCDIR/notificationmanager.h \
     $$NOTIFICATIONSRCDIR/lipsticknotification.h \
     $$UTILITYSRCDIR/closeeventeater.h \

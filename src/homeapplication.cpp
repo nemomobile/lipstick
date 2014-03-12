@@ -26,7 +26,6 @@
 
 #include "notifications/notificationmanager.h"
 #include "notifications/notificationpreviewpresenter.h"
-#include "notifications/notificationfeedbackplayer.h"
 #include "notifications/batterynotifier.h"
 #include "notifications/diskspacenotifier.h"
 #include "screenlock/screenlock.h"
@@ -84,7 +83,7 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
 
     // Initialize the notification manager
     NotificationManager::instance();
-    new NotificationFeedbackPlayer(new NotificationPreviewPresenter(this));
+    new NotificationPreviewPresenter(this);
 
     // Create screen lock logic - not parented to "this" since destruction happens too late in that case
     screenLock = new ScreenLock;
