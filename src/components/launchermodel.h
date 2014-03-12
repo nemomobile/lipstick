@@ -90,6 +90,8 @@ private:
     void setTemporary(LauncherItem *item);
     void unsetTemporary(LauncherItem *item);
     LauncherItem *temporaryItemToReplace();
+
+    friend class Ut_LauncherModel;
 };
 
 #endif // LAUNCHERMODEL_H
