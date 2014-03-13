@@ -31,9 +31,11 @@ PUBLICHEADERS += \
     homewindow.h \
     lipstickglobal.h \
     lipsticksettings.h \
+    lipstickdbus.h \
     components/launcheritem.h \
     components/launchermodel.h \
     components/launchermonitor.h \
+    components/launcherdbus.h \
     notifications/notificationmanager.h \
     notifications/lipsticknotification.h \
     notifications/notificationlistmodel.h \
@@ -79,6 +81,7 @@ SOURCES += \
     components/launcheritem.cpp \
     components/launchermodel.cpp \
     components/launchermonitor.cpp \
+    components/launcherdbus.cpp \
     notifications/notificationmanager.cpp \
     notifications/notificationmanageradaptor.cpp \
     notifications/lipsticknotification.cpp \

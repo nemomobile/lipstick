@@ -5,6 +5,7 @@ SUBDIRS = \
           ut_closeeventeater \
           ut_devicelock \
           ut_diskspacenotifier \
+          ut_launchermodel \
           ut_lipsticksettings \
           ut_lowbatterynotifier \
           ut_lipsticknotification \

@@ -38,6 +38,7 @@
 #include "homeapplicationadaptor.h"
 #include "homewindow.h"
 #include "compositor/lipstickcompositor.h"
+#include "lipstickdbus.h"
 
 #include "volume/volumecontrol.h"
 #include "usbmodeselector.h"
@@ -57,6 +58,13 @@
 void HomeApplication::quitSignalHandler(int)
 {
     qApp->quit();
+}
+
+static void registerDBusObject(QDBusConnection &bus, const char *path, QObject *object)
+{
+    if (!bus.registerObject(path, object)) {
+        qWarning("Unable to register object at path %s: %s", path, bus.lastError().message().toUtf8().constData());
+    }
 }
 
 HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
@@ -106,39 +114,22 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
 
     // MCE and usb-moded expect services to be registered on the system bus
     QDBusConnection systemBus = QDBusConnection::systemBus();
-    static const char *SYSTEM_DBUS_SERVICE = "org.nemomobile.lipstick";
-    if (!systemBus.registerService(SYSTEM_DBUS_SERVICE)) {
-        qWarning("Unable to register D-Bus service %s: %s", SYSTEM_DBUS_SERVICE, systemBus.lastError().message().toUtf8().constData());
+    if (!systemBus.registerService(LIPSTICK_DBUS_SERVICE_NAME)) {
+        qWarning("Unable to register D-Bus service %s: %s", LIPSTICK_DBUS_SERVICE_NAME, systemBus.lastError().message().toUtf8().constData());
     }
 
     new HomeApplicationAdaptor(this);
-    static const char *LIPSTICK_DBUS_PATH = "/";
-    if (!systemBus.registerObject(LIPSTICK_DBUS_PATH, this)) {
-        qWarning("Unable to register lipstick object at path %s: %s", LIPSTICK_DBUS_PATH, systemBus.lastError().message().toUtf8().constData());
-    }
 
-    static const char *SCREENLOCK_DBUS_PATH = "/screenlock";
-    if (!systemBus.registerObject(SCREENLOCK_DBUS_PATH, screenLock)) {
-        qWarning("Unable to register screen lock object at path %s: %s", SCREENLOCK_DBUS_PATH, systemBus.lastError().message().toUtf8().constData());
-    }
-
-    static const char *DEVICELOCK_DBUS_PATH = "/devicelock";
-    if (!systemBus.registerObject(DEVICELOCK_DBUS_PATH, deviceLock)) {
-        qWarning("Unable to register device lock object at path %s: %s", DEVICELOCK_DBUS_PATH, systemBus.lastError().message().toUtf8().constData());
-    }
-
-    static const char *SHUTDOWN_DBUS_PATH = "/shutdown";
-    if (!systemBus.registerObject(SHUTDOWN_DBUS_PATH, shutdownScreen)) {
-        qWarning("Unable to register shutdown object at path %s: %s", SHUTDOWN_DBUS_PATH, systemBus.lastError().message().toUtf8().constData());
-    }
+    registerDBusObject(systemBus, LIPSTICK_DBUS_PATH, this);
+    registerDBusObject(systemBus, LIPSTICK_DBUS_SCREENLOCK_PATH, screenLock);
+    registerDBusObject(systemBus, LIPSTICK_DBUS_DEVICELOCK_PATH, deviceLock);
+    registerDBusObject(systemBus, LIPSTICK_DBUS_SHUTDOWN_PATH, shutdownScreen);
 
     ScreenshotService *screenshotService = new ScreenshotService(this);
     new ScreenshotServiceAdaptor(screenshotService);
     QDBusConnection sessionBus = QDBusConnection::sessionBus();
-    static const char *SCREENSHOT_DBUS_PATH = "/org/nemomobile/lipstick/screenshot";
-    if (!sessionBus.registerObject(SCREENSHOT_DBUS_PATH, screenshotService)) {
-        qWarning("Unable to register screenshot object at path %s: %s", SCREENSHOT_DBUS_PATH, sessionBus.lastError().message().toUtf8().constData());
-    }
+
+    registerDBusObject(sessionBus, LIPSTICK_DBUS_SCREENSHOT_PATH, screenshotService);
 
     connect(this, SIGNAL(homeReady()), this, SLOT(sendStartupNotifications()));
 }

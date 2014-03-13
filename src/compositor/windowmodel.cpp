@@ -17,6 +17,7 @@
 #include "lipstickcompositorwindow.h"
 #include "lipstickcompositor.h"
 #include "windowmodel.h"
+#include "lipstickdbus.h"
 
 WindowModel::WindowModel()
 : m_complete(false)
@@ -29,8 +30,9 @@ WindowModel::WindowModel()
     }
 
     QDBusConnection dbus = QDBusConnection::sessionBus();
-    dbus.registerObject("/WindowModel", this, QDBusConnection::ExportAllSlots);
-    dbus.registerService("org.nemomobile.lipstick");
+    dbus.registerObject(LIPSTICK_DBUS_WINDOW_MODEL_PATH,
+            this, QDBusConnection::ExportAllSlots);
+    dbus.registerService(LIPSTICK_DBUS_SERVICE_NAME);
 }
 
 WindowModel::~WindowModel()
