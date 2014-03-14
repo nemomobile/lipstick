@@ -63,7 +63,14 @@ void NotificationFeedbackPlayer::addNotification(uint id)
         // Play the feedback related to the notification if any
         QString feedback = notification->hints().value(NotificationManager::HINT_FEEDBACK).toString();
         if (!feedback.isEmpty()) {
-            idToEventId.insert(notification, ngfClient->play(feedback, QMap<QString, QVariant>()));
+            QMap<QString, QVariant> properties;
+            if (notification->body().isEmpty() && notification->summary().isEmpty()) {
+                properties.insert("media.leds", false);
+                properties.insert("media.audio", true);
+                properties.insert("media.vibra", true);
+                properties.insert("media.backlight", true);
+            }
+            idToEventId.insert(notification, ngfClient->play(feedback, properties));
         }
     }
 }
