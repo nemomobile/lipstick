@@ -372,7 +372,7 @@ void LipstickCompositor::windowSwapped()
         sendFrameCallbacks(surfaces());
     }
 #else
-    frameFinished(m_fullscreenSurface);
+    frameFinished(0);
 #endif
 }
 
