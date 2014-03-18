@@ -366,11 +366,7 @@ void LipstickCompositor::surfaceLowered()
 void LipstickCompositor::windowSwapped()
 {
 #if QT_VERSION >= QT_VERSION_CHECK(5,2,0)
-    if (m_fullscreenSurface) {
-        sendFrameCallbacks(QList<QWaylandSurface *>() << m_fullscreenSurface);
-    } else {
-        sendFrameCallbacks(surfaces());
-    }
+    sendFrameCallbacks(surfaces());
 #else
     frameFinished(0);
 #endif
