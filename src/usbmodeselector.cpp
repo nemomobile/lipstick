@@ -37,6 +37,7 @@ USBModeSelector::USBModeSelector(QObject *parent) :
 
     connect(usbMode, SIGNAL(modeChanged(MeeGo::QmUSBMode::Mode)), this, SLOT(applyUSBMode(MeeGo::QmUSBMode::Mode)));
     connect(usbMode, SIGNAL(error(const QString &)), this, SLOT(showError(const QString &)));
+    connect(usbMode, SIGNAL(supportedModesChanged(QList<MeeGo::QmUSBMode::Mode>)), this, SLOT(updateSupportedUSBModeList(QList<MeeGo::QmUSBMode::Mode>)));
 
     // Lazy initialize to improve startup time
     QTimer::singleShot(500, this, SLOT(applyCurrentUSBMode()));
@@ -44,11 +45,7 @@ USBModeSelector::USBModeSelector(QObject *parent) :
 
 void USBModeSelector::applyCurrentUSBMode()
 {
-    foreach (MeeGo::QmUSBMode::Mode supportedMode, usbMode->getSupportedModes()) {
-        supportedUSBModeList.append(supportedMode);
-    }
-    emit supportedUSBModesChanged();
-
+    updateSupportedUSBModeList(usbMode->getSupportedModes());
     applyUSBMode(usbMode->getMode());
 }
 
@@ -198,4 +195,13 @@ void USBModeSelector::showError(const QString &errorCode)
 void USBModeSelector::setUSBMode(int mode)
 {
     usbMode->setMode((MeeGo::QmUSBMode::Mode)mode);
+}
+
+void USBModeSelector::updateSupportedUSBModeList(const QList<MeeGo::QmUSBMode::Mode> &supportedModes)
+{
+    supportedUSBModeList.clear();
+    foreach (MeeGo::QmUSBMode::Mode supportedMode, supportedModes) {
+        supportedUSBModeList.append(supportedMode);
+    }
+    emit supportedUSBModesChanged();
 }

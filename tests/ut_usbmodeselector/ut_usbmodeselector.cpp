@@ -113,6 +113,7 @@ void Ut_USBModeSelector::cleanup()
 void Ut_USBModeSelector::testConnections()
 {
     QCOMPARE(disconnect(usbModeSelector->usbMode, SIGNAL(modeChanged(MeeGo::QmUSBMode::Mode)), usbModeSelector, SLOT(applyUSBMode(MeeGo::QmUSBMode::Mode))), true);
+    QCOMPARE(disconnect(usbModeSelector->usbMode, SIGNAL(supportedModesChanged(QList<MeeGo::QmUSBMode::Mode>)), usbModeSelector, SLOT(updateSupportedUSBModeList(QList<MeeGo::QmUSBMode::Mode>))), true);
 }
 
 Q_DECLARE_METATYPE(MeeGo::QmUSBMode::Mode)
@@ -249,6 +250,14 @@ void Ut_USBModeSelector::testSupportedUSBModes()
     QCOMPARE(usbModeSelector->supportedUSBModes().count(), testSupportedModes.count());
     for (int i = 0; i < testSupportedModes.count(); i++) {
         QCOMPARE(usbModeSelector->supportedUSBModes().at(i), (int)testSupportedModes.at(i));
+    }
+
+    QList<MeeGo::QmUSBMode::Mode> modeList;
+    modeList << MeeGo::QmUSBMode::MTP << MeeGo::QmUSBMode::Developer;
+    usbModeSelector->updateSupportedUSBModeList(modeList);
+    QCOMPARE(usbModeSelector->supportedUSBModes().count(), modeList.count());
+    for (int i = 0; i < modeList.count(); i++) {
+        QCOMPARE(usbModeSelector->supportedUSBModes().at(i), (int)modeList.at(i));
     }
 }
 
