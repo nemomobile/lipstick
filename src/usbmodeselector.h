@@ -94,6 +94,13 @@ private slots:
      */
     void applyCurrentUSBMode();
 
+    /*!
+     * Takes the given supported USB mode list into use and emits supportedUSBModesChanged().
+     *
+     * \param supportedModes a list of supported USB modes
+     */
+    void updateSupportedUSBModeList(const QList<MeeGo::QmUSBMode::Mode> &supportedModes);
+
 private:
     /*!
      * Shows a notification.
