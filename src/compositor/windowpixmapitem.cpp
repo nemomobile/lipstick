@@ -25,12 +25,18 @@ namespace {
 
 class SurfaceTextureState {
 public:
-    SurfaceTextureState() : m_texture(0) {}
+    SurfaceTextureState() : m_texture(0), m_xScale(1), m_yScale(1) {}
     void setTexture(QSGTexture *texture) { m_texture = texture; }
     QSGTexture *texture() const { return m_texture; }
+    void setXScale(float xScale) { m_xScale = xScale; }
+    float xScale() const { return m_xScale; }
+    void setYScale(float yScale) { m_yScale = yScale; }
+    float yScale() const { return m_yScale; }
 
 private:
     QSGTexture *m_texture;
+    float m_xScale;
+    float m_yScale;
 };
 
 class SurfaceTextureMaterial : public QSGSimpleMaterialShader<SurfaceTextureState>
@@ -40,8 +46,11 @@ public:
     QList<QByteArray> attributes() const;
     void updateState(const SurfaceTextureState *newState, const SurfaceTextureState *oldState);
 protected:
+    void initialize();
     const char *vertexShader() const;
     const char *fragmentShader() const;
+private:
+    int m_id_texScale;
 };
 
 class SurfaceNode : public QObject, public QSGGeometryNode
@@ -53,6 +62,8 @@ public:
     void setTextureProvider(QSGTextureProvider *);
     void setBlending(bool);
     void setRadius(qreal radius);
+    void setXScale(qreal xScale);
+    void setYScale(qreal yScale);
 
 private slots:
     void providerDestroyed();
@@ -85,6 +96,14 @@ void SurfaceTextureMaterial::updateState(const SurfaceTextureState *newState,
 {
     if (newState->texture())
         newState->texture()->bind();
+
+    program()->setUniformValue(m_id_texScale, newState->xScale(), newState->yScale());
+}
+
+void SurfaceTextureMaterial::initialize()
+{
+    QSGSimpleMaterialShader::initialize();
+    m_id_texScale = program()->uniformLocation("texScale");
 }
 
 const char *SurfaceTextureMaterial::vertexShader() const
@@ -93,8 +112,9 @@ const char *SurfaceTextureMaterial::vertexShader() const
            "attribute highp vec4 qt_VertexPosition;            \n"
            "attribute highp vec2 qt_VertexTexCoord;            \n"
            "varying highp vec2 qt_TexCoord;                    \n"
+           "uniform highp vec2 texScale;                       \n"
            "void main() {                                      \n"
-           "    qt_TexCoord = qt_VertexTexCoord;               \n"
+           "    qt_TexCoord = qt_VertexTexCoord * texScale;    \n"
            "    gl_Position = qt_Matrix * qt_VertexPosition;   \n"
            "}";
 }
@@ -243,6 +263,20 @@ void SurfaceNode::setTexture(QSGTexture *texture)
     markDirty(DirtyMaterial);
 }
 
+void SurfaceNode::setXScale(qreal xScale)
+{
+    m_material->state()->setXScale(xScale);
+
+    markDirty(DirtyMaterial);
+}
+
+void SurfaceNode::setYScale(qreal yScale)
+{
+    m_material->state()->setYScale(yScale);
+
+    markDirty(DirtyMaterial);
+}
+
 void SurfaceNode::textureChanged()
 {
     setTexture(m_provider->texture());
@@ -257,7 +291,7 @@ void SurfaceNode::providerDestroyed()
 }
 
 WindowPixmapItem::WindowPixmapItem()
-: m_item(0), m_shaderEffect(0), m_id(0), m_opaque(false), m_radius(0)
+: m_item(0), m_shaderEffect(0), m_id(0), m_opaque(false), m_radius(0), m_xScale(1), m_yScale(1)
 {
     setFlag(ItemHasContents);
 }
@@ -322,6 +356,38 @@ void WindowPixmapItem::setRadius(qreal r)
     emit radiusChanged();
 }
 
+qreal WindowPixmapItem::xScale() const
+{
+    return m_xScale;
+}
+
+void WindowPixmapItem::setXScale(qreal xScale)
+{
+    if (m_xScale == xScale)
+        return;
+
+    m_xScale = xScale;
+    if (m_item) update();
+
+    emit xScaleChanged();
+}
+
+qreal WindowPixmapItem::yScale() const
+{
+    return m_yScale;
+}
+
+void WindowPixmapItem::setYScale(qreal yScale)
+{
+    if (m_yScale == yScale)
+        return;
+
+    m_yScale = yScale;
+    if (m_item) update();
+
+    emit yScaleChanged();
+}
+
 QSize WindowPixmapItem::windowSize() const
 {
     if (!m_item || !m_item->surface()) {
@@ -355,6 +421,8 @@ QSGNode *WindowPixmapItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData
     node->setRect(QRectF(0, 0, width(), height()));
     node->setBlending(!m_opaque);
     node->setRadius(m_radius);
+    node->setXScale(m_xScale);
+    node->setYScale(m_yScale);
 
     return node;
 }
