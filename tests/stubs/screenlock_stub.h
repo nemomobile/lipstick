@@ -41,8 +41,11 @@ class ScreenLockStub : public StubBase {
   virtual void showEventEater();
   virtual void hideEventEater();
   virtual void handleDisplayStateChange(int);
+  virtual void handleLpmModeChange(const QString&);
   virtual bool isScreenLocked();
   virtual bool eventFilter(QObject *, QEvent *event);
+  virtual bool isLowPowerMode() const;
+  virtual void setLowPowerMode(bool lowPowerMode);
 }; 
 
 // 2. IMPLEMENT STUB
@@ -137,6 +140,12 @@ void ScreenLockStub::handleDisplayStateChange(int displayState){
     stubMethodEntered("handleDisplayStateChange", params);
 }
 
+void ScreenLockStub::handleLpmModeChange(const QString &state) {
+    QList<ParameterBase*> params;
+    params.append(new Parameter<QString>(state));
+    stubMethodEntered("handleLpmModeChange", params);
+}
+
 bool ScreenLockStub::isScreenLocked() {
   stubMethodEntered("isScreenLocked");
   return stubReturnValue<bool>("isScreenLocked");
@@ -150,6 +159,16 @@ bool ScreenLockStub::eventFilter(QObject *object, QEvent *event) {
   return stubReturnValue<bool>("eventFilter");
 }
 
+bool ScreenLockStub::isLowPowerMode() const {
+  stubMethodEntered("isLowPowerMode");
+  return stubReturnValue<bool>("isLowPowerMode");
+}
+
+void ScreenLockStub::setLowPowerMode(bool lowPowerMode) {
+  QList<ParameterBase *> params;
+  params.append(new Parameter<bool>(lowPowerMode));
+  stubMethodEntered("setLowPowerMode", params);
+}
 
 
 // 3. CREATE A STUB INSTANCE
@@ -222,6 +241,11 @@ void ScreenLock::handleDisplayStateChange(int displayState) {
   gScreenLockStub->handleDisplayStateChange(displayState);
 }
 
+void
+ScreenLock::handleLpmModeChange(const QString &enabled) {
+  gScreenLockStub->handleLpmModeChange(enabled);
+}
+
 bool ScreenLock::isScreenLocked() const {
   return gScreenLockStub->isScreenLocked();
 }
@@ -230,5 +254,12 @@ bool ScreenLock::eventFilter(QObject *object, QEvent *event) {
   return gScreenLockStub->eventFilter(object, event);
 }
 
+bool ScreenLock::isLowPowerMode() const {
+  return gScreenLockStub->isLowPowerMode();
+}
+
+void ScreenLock::setLowPowerMode(bool lowPowerMode) {
+  return gScreenLockStub->setLowPowerMode(lowPowerMode);
+}
 
 #endif
