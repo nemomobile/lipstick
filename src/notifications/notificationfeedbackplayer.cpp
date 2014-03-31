@@ -64,7 +64,7 @@ void NotificationFeedbackPlayer::addNotification(uint id)
         QString feedback = notification->hints().value(NotificationManager::HINT_FEEDBACK).toString();
         if (!feedback.isEmpty()) {
             QMap<QString, QVariant> properties;
-            if (notification->body().isEmpty() && notification->summary().isEmpty()) {
+            if (notification->hints().value(NotificationManager::HINT_LED_DISABLED_WITHOUT_BODY_AND_SUMMARY, true).toBool() && notification->body().isEmpty() && notification->summary().isEmpty()) {
                 properties.insert("media.leds", false);
                 properties.insert("media.audio", true);
                 properties.insert("media.vibra", true);

@@ -66,6 +66,7 @@ const char *NotificationManager::HINT_USER_CLOSEABLE = "x-nemo-user-closeable";
 const char *NotificationManager::HINT_FEEDBACK = "x-nemo-feedback";
 const char *NotificationManager::HINT_HIDDEN = "x-nemo-hidden";
 const char *NotificationManager::HINT_DISPLAY_ON = "x-nemo-display-on";
+const char *NotificationManager::HINT_LED_DISABLED_WITHOUT_BODY_AND_SUMMARY = "x-nemo-led-disabled-without-body-and-summary";
 
 NotificationManager *NotificationManager::instance_ = 0;
 

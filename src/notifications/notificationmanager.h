@@ -103,6 +103,9 @@ public:
     //! Nemo hint: Whether to turn the screen on when displaying preview
     static const char *HINT_DISPLAY_ON;
 
+    //! Nemo hint: Whether to disable LED feedbacks when there is no body and summary
+    static const char *HINT_LED_DISABLED_WITHOUT_BODY_AND_SUMMARY;
+
     //! Notifation closing reasons used in the NotificationClosed signal
     enum NotificationClosedReason {
         //! The notification expired.

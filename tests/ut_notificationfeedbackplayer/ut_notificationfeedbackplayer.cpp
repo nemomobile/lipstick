@@ -32,6 +32,7 @@ const char *NotificationManager::HINT_PREVIEW_SUMMARY = "x-nemo-preview-summary"
 const char *NotificationManager::HINT_FEEDBACK = "x-nemo-feedback";
 const char *NotificationManager::HINT_USER_REMOVABLE = "x-nemo-user-removable";
 const char *NotificationManager::HINT_DISPLAY_ON = "x-nemo-display-on";
+const char *NotificationManager::HINT_LED_DISABLED_WITHOUT_BODY_AND_SUMMARY = "x-nemo-led-disabled-without-body-and-summary";
 
 NotificationManager::NotificationManager(QObject *parent) : QObject(parent)
 {
@@ -275,13 +276,29 @@ void Ut_NotificationFeedbackPlayer::testNotificationPriority()
     QCOMPARE(gClientStub->stubCallCount("play"), playCount);
 }
 
+void Ut_NotificationFeedbackPlayer::testLEDDisabledWhenNoSummaryAndBody_data()
+{
+    QTest::addColumn<QVariant>("disableHint");
+    QTest::addColumn<bool>("mediaParametersDefined");
+
+    QTest::newRow("LED disabled without body and summary not defined") << QVariant() << true;
+    QTest::newRow("LED disabled without body and summary false") << QVariant(false) << false;
+    QTest::newRow("LED disabled without body and summary true") << QVariant(true) << true;
+}
+
 void Ut_NotificationFeedbackPlayer::testLEDDisabledWhenNoSummaryAndBody()
 {
+    QFETCH(QVariant, disableHint);
+    QFETCH(bool, mediaParametersDefined);
+
     LipstickNotification *notification1 = new LipstickNotification;
     LipstickNotification *notification2 = new LipstickNotification;
     LipstickNotification *notification3 = new LipstickNotification;
     QVariantHash hints;
     hints.insert(NotificationManager::HINT_FEEDBACK, "feedback");
+    if (disableHint.isValid()) {
+        hints.insert(NotificationManager::HINT_LED_DISABLED_WITHOUT_BODY_AND_SUMMARY, disableHint);
+    }
     notification1->setHints(hints);
     notification2->setHints(hints);
     notification3->setHints(hints);
@@ -293,11 +310,13 @@ void Ut_NotificationFeedbackPlayer::testLEDDisabledWhenNoSummaryAndBody()
 
     player->addNotification(1);
     QCOMPARE(gClientStub->stubCallCount("play"), 1);
-    QCOMPARE(gClientStub->stubLastCallTo("play").parameter<QVariantMap>(1).contains("media.leds"), true);
-    QCOMPARE(gClientStub->stubLastCallTo("play").parameter<QVariantMap>(1).value("media.leds").toBool(), false);
-    QCOMPARE(gClientStub->stubLastCallTo("play").parameter<QVariantMap>(1).value("media.audio").toBool(), true);
-    QCOMPARE(gClientStub->stubLastCallTo("play").parameter<QVariantMap>(1).value("media.vibra").toBool(), true);
-    QCOMPARE(gClientStub->stubLastCallTo("play").parameter<QVariantMap>(1).value("media.backlight").toBool(), true);
+    QCOMPARE(gClientStub->stubLastCallTo("play").parameter<QVariantMap>(1).contains("media.leds"), mediaParametersDefined);
+    if (mediaParametersDefined) {
+        QCOMPARE(gClientStub->stubLastCallTo("play").parameter<QVariantMap>(1).value("media.leds").toBool(), false);
+        QCOMPARE(gClientStub->stubLastCallTo("play").parameter<QVariantMap>(1).value("media.audio").toBool(), true);
+        QCOMPARE(gClientStub->stubLastCallTo("play").parameter<QVariantMap>(1).value("media.vibra").toBool(), true);
+        QCOMPARE(gClientStub->stubLastCallTo("play").parameter<QVariantMap>(1).value("media.backlight").toBool(), true);
+    }
 
     player->addNotification(2);
     QCOMPARE(gClientStub->stubCallCount("play"), 2);
