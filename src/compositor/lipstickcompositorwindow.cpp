@@ -25,7 +25,8 @@
 LipstickCompositorWindow::LipstickCompositorWindow(int windowId, const QString &category,
                                                    QWaylandSurface *surface, QQuickItem *parent)
 : QWaylandSurfaceItem(surface, parent), m_windowId(windowId), m_category(category), m_ref(0),
-  m_delayRemove(false), m_windowClosed(false), m_removePosted(false), m_mouseRegionValid(false)
+  m_delayRemove(false), m_windowClosed(false), m_removePosted(false), m_mouseRegionValid(false),
+  m_interceptingTouch(false)
 {
     setFlags(QQuickItem::ItemIsFocusScope | flags());
     refreshMouseRegion();
@@ -167,8 +168,33 @@ void LipstickCompositorWindow::refreshGrabbedKeys()
     }
 }
 
-bool LipstickCompositorWindow::eventFilter(QObject *, QEvent *event)
+bool LipstickCompositorWindow::eventFilter(QObject *obj, QEvent *event)
 {
+#if QT_VERSION >= 0x050202
+    if (obj == window()) {
+        switch (event->type()) {
+        case QEvent::TouchUpdate: {
+            QTouchEvent *te = static_cast<QTouchEvent *>(event);
+            // If we get press/release, don't intercept the event, but send it through QQuickWindow.
+            // These are sent through to QQuickWindow so that the integrity of the touch
+            // handling is maintained.
+            if (te->touchPointStates() & (Qt::TouchPointPressed | Qt::TouchPointReleased))
+                return false;
+            handleTouchEvent(static_cast<QTouchEvent *>(event));
+            return true;
+        }
+        case QEvent::TouchEnd: // Intentional fall through...
+        case QEvent::TouchCancel:
+            obj->removeEventFilter(this);
+            m_interceptingTouch = false;
+        default:
+            break;
+        }
+        return false;
+    }
+#else
+    Q_UNUSED(obj);
+#endif
     if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease) {
         QKeyEvent *ke = static_cast<QKeyEvent *>(event);
         QWaylandSurface *m_surface = surface();
@@ -245,29 +271,50 @@ void LipstickCompositorWindow::wheelEvent(QWheelEvent *event)
 
 void LipstickCompositorWindow::touchEvent(QTouchEvent *event)
 {
-    QWaylandSurface *m_surface = surface();
-    if (touchEventsEnabled() && m_surface) {
-        QList<QTouchEvent::TouchPoint> points = event->touchPoints();
-
-        if (m_mouseRegionValid && points.count() == 1 &&
-            event->touchPointStates() & Qt::TouchPointPressed &&
-            !m_mouseRegion.contains(points.at(0).pos().toPoint())) {
-            event->ignore();
-            return;
+    if (touchEventsEnabled() && surface()) {
+#if QT_VERSION >= 0x050202
+        static bool lipstick_touch_interception = qEnvironmentVariableIsEmpty("LIPSTICK_NO_TOUCH_INTERCEPTION");
+        if (!lipstick_touch_interception) {
+            handleTouchEvent(event);
+        } else if (event->type() == QEvent::TouchBegin) {
+            // On TouchBegin, start intercepting
+            if (!m_interceptingTouch) {
+                m_interceptingTouch = true;
+                window()->installEventFilter(this);
+            }
+            handleTouchEvent(event);
+        } else
+#endif
+        {
+            // We should get here for TouchEnd and any TouchUpdate which contains Press/Release.
+            handleTouchEvent(event);
         }
-
-        QWaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
-        event->accept();
-        if (inputDevice->mouseFocus() != m_surface) {
-            QPoint pointPos;
-            if (!points.isEmpty())
-                pointPos = points.at(0).pos().toPoint();
-            inputDevice->setMouseFocus(m_surface, pointPos, pointPos);
-        }
-        inputDevice->sendFullTouchEvent(event);
     } else {
         event->ignore();
     }
+}
+
+void LipstickCompositorWindow::handleTouchEvent(QTouchEvent *event)
+{
+    QList<QTouchEvent::TouchPoint> points = event->touchPoints();
+
+    if (m_mouseRegionValid && points.count() == 1 &&
+        event->touchPointStates() & Qt::TouchPointPressed &&
+        !m_mouseRegion.contains(points.at(0).pos().toPoint())) {
+        event->ignore();
+        return;
+    }
+
+    QWaylandSurface *m_surface = surface();
+    QWaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
+    event->accept();
+    if (inputDevice->mouseFocus() != m_surface) {
+        QPoint pointPos;
+        if (!points.isEmpty())
+            pointPos = points.at(0).pos().toPoint();
+        inputDevice->setMouseFocus(m_surface, pointPos, pointPos);
+    }
+    inputDevice->sendFullTouchEvent(event);
 }
 
 void LipstickCompositorWindow::handleTouchCancel()
