@@ -137,6 +137,7 @@ private slots:
     void homeApplicationAboutToDestroy();
     void setScreenOrientationFromSensor();
     void clipboardDataChanged();
+    void onVisibleChanged(bool visible);
 
 private:
     friend class LipstickCompositorWindow;

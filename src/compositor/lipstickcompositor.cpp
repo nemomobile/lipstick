@@ -40,6 +40,7 @@ LipstickCompositor::LipstickCompositor()
     if (m_instance) qFatal("LipstickCompositor: Only one compositor instance per process is supported");
     m_instance = this;
 
+    connect(this, SIGNAL(visibleChanged(bool)), this, SLOT(onVisibleChanged(bool)));
     QObject::connect(this, SIGNAL(afterRendering()), this, SLOT(windowSwapped()));
     connect(m_displayState, SIGNAL(displayStateChanged(MeeGo::QmDisplayState::DisplayState)), this, SLOT(reactOnDisplayStateChanges(MeeGo::QmDisplayState::DisplayState)));
     QObject::connect(HomeApplication::instance(), SIGNAL(aboutToDestroy()), this, SLOT(homeApplicationAboutToDestroy()));
@@ -79,6 +80,17 @@ void LipstickCompositor::homeApplicationAboutToDestroy()
 
 void LipstickCompositor::classBegin()
 {
+}
+
+void LipstickCompositor::onVisibleChanged(bool visible)
+{
+    if (!visible) {
+#if QT_VERSION >= QT_VERSION_CHECK(5,2,0)
+        sendFrameCallbacks(surfaces());
+#else
+        frameFinished(0);
+#endif
+    }
 }
 
 void LipstickCompositor::componentComplete()
