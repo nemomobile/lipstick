@@ -96,7 +96,11 @@ void LipstickCompositor::surfaceCreated(QWaylandSurface *surface)
     connect(surface, SIGNAL(windowPropertyChanged(QString,QVariant)), this, SLOT(windowPropertyChanged(QString)));
     connect(surface, SIGNAL(raiseRequested()), this, SLOT(surfaceRaised()));
     connect(surface, SIGNAL(lowerRequested()), this, SLOT(surfaceLowered()));
+#if QT_VERSION >= QT_VERSION_CHECK(5,2,0)
+    connect(surface, SIGNAL(damaged(QRegion)), this, SLOT(surfaceDamaged(QRegion)));
+#else
     connect(surface, SIGNAL(damaged(QRect)), this, SLOT(surfaceDamaged(QRect)));
+#endif
 }
 
 void LipstickCompositor::openUrl(WaylandClient *client, const QUrl &url)
@@ -213,7 +217,11 @@ void LipstickCompositor::setDisplayOff()
     m_displayState->set(MeeGo::QmDisplayState::Off);
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(5,2,0)
+void LipstickCompositor::surfaceDamaged(const QRegion &)
+#else
 void LipstickCompositor::surfaceDamaged(const QRect &)
+#endif
 {
     if (!isVisible()) {
         // If the compositor is not visible, do not throttle.

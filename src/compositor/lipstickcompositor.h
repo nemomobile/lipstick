@@ -128,7 +128,11 @@ private slots:
     void surfaceTitleChanged();
     void surfaceRaised();
     void surfaceLowered();
+#if QT_VERSION >= QT_VERSION_CHECK(5,2,0)
+    void surfaceDamaged(const QRegion &);
+#else
     void surfaceDamaged(const QRect &);
+#endif
     void windowSwapped();
     void windowDestroyed();
     void windowPropertyChanged(const QString &);
