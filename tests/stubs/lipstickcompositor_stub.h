@@ -51,6 +51,7 @@ class LipstickCompositorStub : public StubBase {
   virtual void reactOnDisplayStateChanges(MeeGo::QmDisplayState::DisplayState);
   virtual void setScreenOrientationFromSensor();
   virtual void clipboardDataChanged();
+  virtual void onVisibleChanged(bool visible);
 }; 
 
 // 2. IMPLEMENT STUB
@@ -256,6 +257,12 @@ void LipstickCompositorStub::clipboardDataChanged() {
   stubMethodEntered("clipboardDataChanged");
 }
 
+void LipstickCompositorStub::onVisibleChanged(bool v) {
+    QList<ParameterBase*> params;
+    params.append( new Parameter<bool>(v));
+    stubMethodEntered("onVisibleChanged", params);
+}
+
 // 3. CREATE A STUB INSTANCE
 LipstickCompositorStub gDefaultLipstickCompositorStub;
 LipstickCompositorStub* gLipstickCompositorStub = &gDefaultLipstickCompositorStub;
@@ -422,6 +429,10 @@ void LipstickCompositor::setScreenOrientationFromSensor() {
 
 void LipstickCompositor::clipboardDataChanged() {
   gLipstickCompositorStub->clipboardDataChanged();
+}
+
+void LipstickCompositor::onVisibleChanged(bool v) {
+  gLipstickCompositorStub->onVisibleChanged(v);
 }
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 2, 0)
