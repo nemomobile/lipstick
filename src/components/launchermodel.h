@@ -23,12 +23,12 @@
 #include <QDBusServiceWatcher>
 #include <QMap>
 
-#include "launcheritem.h"
 #include "qobjectlistmodel.h"
 #include "lipstickglobal.h"
 #include "launchermonitor.h"
 #include "launcherdbus.h"
 
+class LauncherItem;
 
 class LIPSTICK_EXPORT LauncherModel : public QObjectListModel
 {
@@ -37,6 +37,8 @@ class LIPSTICK_EXPORT LauncherModel : public QObjectListModel
 
     Q_PROPERTY(QStringList directories READ directories WRITE setDirectories NOTIFY directoriesChanged)
     Q_PROPERTY(QStringList iconDirectories READ iconDirectories WRITE setIconDirectories NOTIFY iconDirectoriesChanged)
+
+    Q_ENUMS(ItemType)
 
     QFileSystemWatcher _fileSystemWatcher;
     QSettings _launcherSettings;
@@ -57,6 +59,11 @@ public:
     explicit LauncherModel(QObject *parent = 0);
     virtual ~LauncherModel();
 
+    enum ItemType {
+        Application,
+        Folder
+    };
+
     QStringList directories() const;
     void setDirectories(QStringList);
 
@@ -69,6 +76,8 @@ public:
     void updatingFinished(const QString &packageName, const QString &serviceName);
 
     void requestLaunch(const QString &packageName);
+    LauncherItem *itemInModel(const QString &path);
+    int indexInModel(const QString &path);
 
 public slots:
     void savePositions();
@@ -81,7 +90,7 @@ signals:
 private:
     void reorderItems(const QMap<int, LauncherItem *> &itemsWithPositions);
     void loadPositions();
-    LauncherItem *itemInModel(const QString &path);
+    int findItem(const QString &path, LauncherItem **item);
     LauncherItem *packageInModel(const QString &packageName);
     QVariant launcherPos(const QString &path);
     LauncherItem *addItemIfValid(const QString &path, QMap<int, LauncherItem *> &itemsWithPositions);

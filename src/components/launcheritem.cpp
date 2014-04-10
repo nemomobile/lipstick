@@ -70,6 +70,11 @@ LauncherItem::~LauncherItem()
 {
 }
 
+LauncherModel::ItemType LauncherItem::type() const
+{
+    return LauncherModel::Application;
+}
+
 void LauncherItem::setFilePath(const QString &filePath)
 {
     if (!filePath.isEmpty() && QFile(filePath).exists()) {
@@ -84,6 +89,16 @@ void LauncherItem::setFilePath(const QString &filePath)
 QString LauncherItem::filePath() const
 {
     return !_desktopEntry.isNull() ? _desktopEntry->fileName() : QString();
+}
+
+QString LauncherItem::filename() const
+{
+    QString filename = filePath();
+    int sep = filename.lastIndexOf('/');
+    if (sep == -1)
+        return QString();
+
+    return filename.mid(sep+1);
 }
 
 QString LauncherItem::exec() const

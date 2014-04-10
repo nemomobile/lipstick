@@ -37,6 +37,7 @@ PUBLICHEADERS += \
     components/launcherwatchermodel.h \
     components/launchermonitor.h \
     components/launcherdbus.h \
+    components/launcherfoldermodel.h \
     notifications/notificationmanager.h \
     notifications/lipsticknotification.h \
     notifications/notificationlistmodel.h \
@@ -84,6 +85,7 @@ SOURCES += \
     components/launcherwatchermodel.cpp \
     components/launchermonitor.cpp \
     components/launcherdbus.cpp \
+    components/launcherfoldermodel.cpp \
     notifications/notificationmanager.cpp \
     notifications/notificationmanageradaptor.cpp \
     notifications/lipsticknotification.cpp \

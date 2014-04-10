@@ -43,7 +43,7 @@ public:
     void removeItem(QObject *item);
     void removeItem(int index);
     Q_INVOKABLE QObject* get(int index);
-    int indexOf(QObject *obj) const;
+    Q_INVOKABLE int indexOf(QObject *obj) const;
 
     template<typename T>
     QList<T*> *getList();
@@ -58,6 +58,7 @@ private slots:
 
 signals:
     void itemAdded(QObject *item);
+    void itemRemoved(QObject *item);
     void itemCountChanged();
 };
 

@@ -30,6 +30,7 @@
 #define LAUNCHER_DEBUG(things)
 #endif
 
+#include "launchermodel.h"
 #include "lipstickglobal.h"
 
 class MDesktopEntry;
@@ -39,6 +40,7 @@ class LIPSTICK_EXPORT LauncherItem : public QObject
     Q_OBJECT
     Q_DISABLE_COPY(LauncherItem)
 
+    Q_PROPERTY(LauncherModel::ItemType type READ type CONSTANT)
     Q_PROPERTY(QString filePath READ filePath WRITE setFilePath NOTIFY itemChanged)
     Q_PROPERTY(QString exec READ exec NOTIFY itemChanged)
     Q_PROPERTY(QString title READ title NOTIFY itemChanged)
@@ -73,8 +75,10 @@ public:
             const QString &iconPath, const QString &desktopFile, QObject *parent);
     virtual ~LauncherItem();
 
+    LauncherModel::ItemType type() const;
     void setFilePath(const QString &filePath);
     QString filePath() const;
+    QString filename() const;
     QString exec() const;
     QString title() const;
     QString entryType() const;

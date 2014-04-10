@@ -21,6 +21,7 @@
 #include <QFile>
 #include <QSettings>
 
+#include "launcheritem.h"
 #include "launchermodel.h"
 
 
@@ -514,14 +515,34 @@ void LauncherModel::savePositions()
     _fileSystemWatcher.addPath(_launcherSettings.fileName());
 }
 
-LauncherItem *LauncherModel::itemInModel(const QString &path)
+int LauncherModel::findItem(const QString &path, LauncherItem **item)
 {
-    foreach (LauncherItem *item, *getList<LauncherItem>()) {
-        if (item->filePath() == path) {
-            return item;
+    QList<LauncherItem*> *list = getList<LauncherItem>();
+    for (int i = 0; i < list->count(); ++i) {
+        LauncherItem *listItem = list->at(i);
+        if (listItem->filePath() == path || listItem->filename() == path) {
+            if (item)
+                *item = listItem;
+            return i;
         }
     }
-    return 0;
+
+    if (item)
+        *item = 0;
+
+    return -1;
+}
+
+LauncherItem *LauncherModel::itemInModel(const QString &path)
+{
+    LauncherItem *result = 0;
+    (void)findItem(path, &result);
+    return result;
+}
+
+int LauncherModel::indexInModel(const QString &path)
+{
+    return findItem(path, 0);
 }
 
 LauncherItem *LauncherModel::packageInModel(const QString &packageName)
