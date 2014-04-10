@@ -86,6 +86,7 @@ private:
     void tryRemove();
     void refreshMouseRegion();
     void refreshGrabbedKeys();
+    void handleTouchEvent(QTouchEvent *e);
 
     int m_windowId;
     QString m_category;
@@ -94,6 +95,7 @@ private:
     bool m_windowClosed:1;
     bool m_removePosted:1;
     bool m_mouseRegionValid:1;
+    bool m_interceptingTouch:1;
     QVariant m_data;
     QRegion m_mouseRegion;
     QList<int> m_grabbedKeys;
