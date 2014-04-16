@@ -144,8 +144,7 @@ void QObjectListModel::setList(QList<QObject *> *list)
 
 void QObjectListModel::reset()
 {
-    QAbstractListModel::reset();
-    emit itemCountChanged();
+    setList(new QList<QObject*>());
 }
 
 void QObjectListModel::move(int oldRow, int newRow)

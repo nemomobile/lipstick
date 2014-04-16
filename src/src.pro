@@ -34,6 +34,7 @@ PUBLICHEADERS += \
     lipstickdbus.h \
     components/launcheritem.h \
     components/launchermodel.h \
+    components/launcherwatchermodel.h \
     components/launchermonitor.h \
     components/launcherdbus.h \
     notifications/notificationmanager.h \
@@ -80,6 +81,7 @@ SOURCES += \
     utilities/closeeventeater.cpp \
     components/launcheritem.cpp \
     components/launchermodel.cpp \
+    components/launcherwatchermodel.cpp \
     components/launchermonitor.cpp \
     components/launcherdbus.cpp \
     notifications/notificationmanager.cpp \

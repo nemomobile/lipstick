@@ -19,6 +19,7 @@
 #include <QtQml>
 #include <components/launcheritem.h>
 #include <components/launchermodel.h>
+#include <components/launcherwatchermodel.h>
 #include <notifications/notificationpreviewpresenter.h>
 #include <notifications/notificationfeedbackplayer.h>
 #include <notifications/notificationlistmodel.h>
@@ -47,6 +48,7 @@ void LipstickPlugin::registerTypes(const char *uri)
     Q_UNUSED(uri);
 
     qmlRegisterType<LauncherModel>("org.nemomobile.lipstick", 0, 1, "LauncherModel");
+    qmlRegisterType<LauncherWatcherModel>("org.nemomobile.lipstick", 0, 1, "LauncherWatcherModel");
     qmlRegisterType<NotificationListModel>("org.nemomobile.lipstick", 0, 1, "NotificationListModel");
     qmlRegisterType<LipstickNotification>("org.nemomobile.lipstick", 0, 1, "Notification");
     qmlRegisterType<LauncherItem>("org.nemomobile.lipstick", 0, 1, "LauncherItem");
