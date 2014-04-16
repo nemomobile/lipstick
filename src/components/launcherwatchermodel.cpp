@@ -32,7 +32,7 @@ LauncherWatcherModel::~LauncherWatcherModel()
 
 void LauncherWatcherModel::monitoredFileChanged(const QString &changedPath)
 {
-    bool listModified(false);
+    bool listModified = false;
     if (!QFile(changedPath).exists()) {
         foreach (LauncherItem *item, *getList<LauncherItem>()) {
             if (item->filePath() == changedPath) {
@@ -57,11 +57,15 @@ QStringList LauncherWatcherModel::filePaths()
 
 void LauncherWatcherModel::setFilePaths(QStringList paths)
 {
+    QString oldPaths = filePaths().join(',');
     reset();
     foreach (QString path, paths) {
         addItemIfValid(path);
     }
-    emit filePathsChanged();
+    QString newPaths = filePaths().join(',');
+    if (newPaths != oldPaths) {
+        emit filePathsChanged();
+    }
 }
 
 void LauncherWatcherModel::addItemIfValid(const QString &path)
