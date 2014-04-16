@@ -494,6 +494,7 @@ void LipstickCompositor::reactOnDisplayStateChanges(MeeGo::QmDisplayState::Displ
     if (state == MeeGo::QmDisplayState::On) {
         emit displayOn();
     } else if (state == MeeGo::QmDisplayState::Off) {
+        QCoreApplication::postEvent(this, new QTouchEvent(QEvent::TouchCancel));
         emit displayOff();
     }
 }
