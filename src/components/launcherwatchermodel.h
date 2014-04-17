@@ -48,8 +48,6 @@ signals:
 
 private:
     void addItemIfValid(const QString &path);
-
-    //friend class Ut_LauncherWatcherModel;
 };
 
 #endif // LAUNCHERWATCHERMODEL_H

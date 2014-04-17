@@ -32,17 +32,14 @@ LauncherWatcherModel::~LauncherWatcherModel()
 
 void LauncherWatcherModel::monitoredFileChanged(const QString &changedPath)
 {
-    bool listModified = false;
     if (!QFile(changedPath).exists()) {
         foreach (LauncherItem *item, *getList<LauncherItem>()) {
             if (item->filePath() == changedPath) {
                 removeItem(item);
-                listModified = true;
+                emit filePathsChanged();
+                break;
             }
         }
-    }
-    if (listModified) {
-        emit filePathsChanged();
     }
 }
 
@@ -59,8 +56,14 @@ void LauncherWatcherModel::setFilePaths(QStringList paths)
 {
     QString oldPaths = filePaths().join(',');
     reset();
+    QStringList addedPaths;
     foreach (QString path, paths) {
-        addItemIfValid(path);
+        if (!addedPaths.contains(path)) {
+            addItemIfValid(path);
+            // we don't really care whether it was added or not,
+            // this is just for avoiding duplicates to be added
+            addedPaths.append(path);
+        }
     }
     QString newPaths = filePaths().join(',');
     if (newPaths != oldPaths) {
