@@ -38,6 +38,7 @@
 #include "homeapplicationadaptor.h"
 #include "homewindow.h"
 #include "compositor/lipstickcompositor.h"
+#include "compositor/lipstickcompositorwindow.h"
 #include "lipstickdbus.h"
 
 #include "volume/volumecontrol.h"
@@ -75,6 +76,7 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     , originalSigTermHandler(signal(SIGTERM, quitSignalHandler))
     , updatesEnabled(true)
     , homeReadySent(false)
+    , onUpdatesDisabledUnfocusedWindowId(0)
 {
     setApplicationName("Lipstick");
     // TODO: autogenerate this from tags
@@ -298,12 +300,26 @@ void HomeApplication::setUpdatesEnabled(bool enabled)
         updatesEnabled = enabled;
 
         if (!updatesEnabled) {
+            LipstickCompositorWindow *topmostWindow = qobject_cast<LipstickCompositorWindow *>(LipstickCompositor::instance()->windowForId(LipstickCompositor::instance()->topmostWindowId()));
+            if (topmostWindow != 0 && topmostWindow->hasFocus()) {
+                onUpdatesDisabledUnfocusedWindowId = topmostWindow->windowId();
+                LipstickCompositor::instance()->clearKeyboardFocus();
+            }
             LipstickCompositor::instance()->hide();
             QGuiApplication::platformNativeInterface()->nativeResourceForIntegration("DisplayOff");
         } else {
             QGuiApplication::platformNativeInterface()->nativeResourceForIntegration("DisplayOn");
             emit LipstickCompositor::instance()->displayAboutToBeOn();
             LipstickCompositor::instance()->showFullScreen();
+            if (onUpdatesDisabledUnfocusedWindowId > 0) {
+                if (!screenLock->isScreenLocked()) {
+                    LipstickCompositorWindow *topmostWindow = qobject_cast<LipstickCompositorWindow *>(LipstickCompositor::instance()->windowForId(LipstickCompositor::instance()->topmostWindowId()));
+                    if (topmostWindow != 0 && topmostWindow->windowId() == onUpdatesDisabledUnfocusedWindowId) {
+                        topmostWindow->takeFocus();
+                    }
+                }
+                onUpdatesDisabledUnfocusedWindowId = 0;
+            }
         }
     }
 }

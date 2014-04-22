@@ -177,6 +177,9 @@ private:
 
     //! Whether the home ready signal has been sent or not
     bool homeReadySent;
+
+    //! The id of the window unfocused on updatesDisabled
+    int onUpdatesDisabledUnfocusedWindowId;
 };
 
 #endif /* HOMEAPPLICATION_H_ */
