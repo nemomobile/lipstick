@@ -100,7 +100,9 @@ void LauncherMonitor::setIconDirectories(const QStringList &dirs)
         ++it;
     }
 
-    m_watcher.removePaths(m_iconFilesPaths);
+    if (!m_iconFilesPaths.isEmpty()) {
+        m_watcher.removePaths(m_iconFilesPaths);
+    }
 
     m_iconFilesPaths = dirs;
     m_watcher.addPaths(newPaths);
