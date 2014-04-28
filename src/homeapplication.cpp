@@ -49,13 +49,6 @@
 #include "screenshotservice.h"
 #include "screenshotserviceadaptor.h"
 
-// Define this if you'd like to see debug messages from the home app
-#ifdef DEBUG_HOME
-#define HOME_DEBUG(things) qDebug() << Q_FUNC_INFO << things
-#else
-#define HOME_DEBUG(things)
-#endif
-
 void HomeApplication::quitSignalHandler(int)
 {
     qApp->quit();
