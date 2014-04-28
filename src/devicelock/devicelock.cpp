@@ -185,8 +185,11 @@ bool DeviceLock::runPlugin(const QStringList &args)
         return false;
     }
 
+#ifdef DEBUG_DEVICELOCK
     qDebug() << process.readAllStandardOutput();
     qWarning() << process.readAllStandardError();
+#endif
+
     return process.exitCode() == 0;
 }
 
