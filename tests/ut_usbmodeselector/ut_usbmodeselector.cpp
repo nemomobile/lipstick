@@ -159,6 +159,7 @@ void Ut_USBModeSelector::testHideDialog_data()
     QTest::newRow("Developer") << MeeGo::QmUSBMode::Developer;
     QTest::newRow("Adb") << MeeGo::QmUSBMode::Adb;
     QTest::newRow("Diag") << MeeGo::QmUSBMode::Diag;
+    QTest::newRow("Host") << MeeGo::QmUSBMode::Host;
     QTest::newRow("Cellular connection sharing") << MeeGo::QmUSBMode::ConnectionSharing;
 }
 
@@ -186,6 +187,7 @@ void Ut_USBModeSelector::testUSBNotifications_data()
     QTest::newRow("MTP") << MeeGo::QmUSBMode::MTP << "device.added" << qtTrId("qtn_usb_mtp_active");
     QTest::newRow("Adb") << MeeGo::QmUSBMode::Adb << "device.added" << qtTrId("qtn_usb_adb_active");
     QTest::newRow("Diag") << MeeGo::QmUSBMode::Diag << "device.added" << qtTrId("qtn_usb_diag_active");
+    QTest::newRow("Host") << MeeGo::QmUSBMode::Diag << "device.added" << qtTrId("qtn_usb_host_mode_active");
     QTest::newRow("Cellular connection sharing") << MeeGo::QmUSBMode::ConnectionSharing << "device.added" << qtTrId("qtn_usb_connection_sharing_active");
 }
 
