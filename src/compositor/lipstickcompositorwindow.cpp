@@ -171,7 +171,7 @@ void LipstickCompositorWindow::refreshGrabbedKeys()
 bool LipstickCompositorWindow::eventFilter(QObject *obj, QEvent *event)
 {
 #if QT_VERSION >= 0x050202
-    if (obj == window()) {
+    if (obj == window() && m_interceptingTouch) {
         switch (event->type()) {
         case QEvent::TouchUpdate: {
             QTouchEvent *te = static_cast<QTouchEvent *>(event);
