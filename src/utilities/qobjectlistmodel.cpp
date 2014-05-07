@@ -106,6 +106,7 @@ void QObjectListModel::removeItem(QObject *item)
         _list->removeAt(index);
         disconnect(item, SIGNAL(destroyed()), this, SLOT(removeDestroyedItem()));
         endRemoveRows();
+        emit itemRemoved(item);
         emit itemCountChanged();
     }
 }
@@ -114,8 +115,9 @@ void QObjectListModel::removeItem(int index)
 {
     beginRemoveRows(QModelIndex(), index, index);
     disconnect(((QObject*)_list->at(index)), SIGNAL(destroyed()), this, SLOT(removeDestroyedItem()));
-    _list->removeAt(index);
+    QObject *item = _list->takeAt(index);
     endRemoveRows();
+    emit itemRemoved(item);
     emit itemCountChanged();
 }
 

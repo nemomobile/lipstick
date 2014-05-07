@@ -15,6 +15,7 @@
 
 #include <QtTest/QtTest>
 
+#include "launcheritem.h"
 #include "launchermodel.h"
 #include "ut_launchermodel.h"
 #include "mdesktopentry.h"
