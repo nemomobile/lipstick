@@ -28,7 +28,7 @@ class LIPSTICK_EXPORT LipstickSettings : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool lockscreenVisible READ lockscreenVisible WRITE setLockscreenVisible NOTIFY lockscreenVisibleChanged)
-    Q_PROPERTY(bool lowPowerMode READ lowPowerMode WRITE setLowPowerMode NOTIFY lowPowerModeChanged)
+    Q_PROPERTY(bool lowPowerMode READ lowPowerMode NOTIFY lowPowerModeChanged)
     Q_PROPERTY(QSize screenSize READ screenSize NOTIFY screenSizeChanged)
 
 public:
@@ -40,7 +40,6 @@ public:
     void setLockscreenVisible(bool lockscreenVisible);
 
     bool lowPowerMode() const;
-    void setLowPowerMode(bool lowPowerMode);
 
     QSize screenSize();
 

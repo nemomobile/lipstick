@@ -64,13 +64,6 @@ bool LipstickSettings::lowPowerMode() const
     return (screenLock && screenLock->isLowPowerMode());
 }
 
-void LipstickSettings::setLowPowerMode(bool lowPowerMode)
-{
-    if (screenLock && lowPowerMode != screenLock->isLowPowerMode()) {
-        screenLock->setLowPowerMode(lowPowerMode);
-    }
-}
-
 void LipstickSettings::lockScreen(bool immediate)
 {
     if (screenLock != 0 && (!screenLock->isScreenLocked() || immediate)) {
