@@ -19,6 +19,7 @@
 #include <QDBusPendingCall>
 #include <QTextStream>
 #include <QCursor>
+#include <QDebug>
 
 #include <mce/mode-names.h>
 #include <qmdisplaystate.h>
@@ -212,19 +213,16 @@ bool ScreenLock::isLowPowerMode() const
     return lowPowerMode;
 }
 
-void ScreenLock::setLowPowerMode(bool lowPowerMode)
-{
-    if (this->lowPowerMode != lowPowerMode) {
-        this->lowPowerMode = lowPowerMode;
-        emit lowPowerModeChanged();
-    }
-}
-
 void ScreenLock::handleLpmModeChange(const QString &state)
 {
-    if (state != "enabled" && state != "disabled") {
+    bool enabled = (state == "enabled");
+
+    if (enabled && state != "disabled") {
         qWarning() << "Invalid LPM state value from mce:" << state;
     }
 
-    setLowPowerMode(state == "enabled");
+    if (lowPowerMode != enabled) {
+        lowPowerMode = enabled;
+        emit lowPowerModeChanged();
+    }
 }

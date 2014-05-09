@@ -45,7 +45,6 @@ class ScreenLockStub : public StubBase {
   virtual bool isScreenLocked();
   virtual bool eventFilter(QObject *, QEvent *event);
   virtual bool isLowPowerMode() const;
-  virtual void setLowPowerMode(bool lowPowerMode);
 }; 
 
 // 2. IMPLEMENT STUB
@@ -164,12 +163,6 @@ bool ScreenLockStub::isLowPowerMode() const {
   return stubReturnValue<bool>("isLowPowerMode");
 }
 
-void ScreenLockStub::setLowPowerMode(bool lowPowerMode) {
-  QList<ParameterBase *> params;
-  params.append(new Parameter<bool>(lowPowerMode));
-  stubMethodEntered("setLowPowerMode", params);
-}
-
 
 // 3. CREATE A STUB INSTANCE
 ScreenLockStub gDefaultScreenLockStub;
@@ -256,10 +249,6 @@ bool ScreenLock::eventFilter(QObject *object, QEvent *event) {
 
 bool ScreenLock::isLowPowerMode() const {
   return gScreenLockStub->isLowPowerMode();
-}
-
-void ScreenLock::setLowPowerMode(bool lowPowerMode) {
-  return gScreenLockStub->setLowPowerMode(lowPowerMode);
 }
 
 #endif

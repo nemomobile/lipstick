@@ -76,11 +76,6 @@ public:
      */
     bool isLowPowerMode() const;
 
-    /*!
-     * Change the low power mode state
-     */
-    void setLowPowerMode(bool lowPowerMode);
-
     //! \reimp
     virtual bool eventFilter(QObject *, QEvent *event);
     //! \reimp_end
