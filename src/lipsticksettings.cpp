@@ -36,8 +36,11 @@ LipstickSettings *LipstickSettings::instance()
 
 void LipstickSettings::setScreenLock(ScreenLock *screenLock)
 {
+    // TODO: Disconnect from previous screenlock signals?
+
     this->screenLock = screenLock;
     connect(screenLock, SIGNAL(screenIsLocked(bool)), this, SIGNAL(lockscreenVisibleChanged()));
+    connect(screenLock, SIGNAL(lowPowerModeChanged()), this, SIGNAL(lowPowerModeChanged()));
 }
 
 bool LipstickSettings::lockscreenVisible() const
@@ -54,6 +57,11 @@ void LipstickSettings::setLockscreenVisible(bool lockscreenVisible)
             screenLock->unlockScreen();
         }
     }
+}
+
+bool LipstickSettings::lowPowerMode() const
+{
+    return (screenLock && screenLock->isLowPowerMode());
 }
 
 void LipstickSettings::lockScreen(bool immediate)

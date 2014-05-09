@@ -19,6 +19,7 @@
 #include <QDBusPendingCall>
 #include <QTextStream>
 #include <QCursor>
+#include <QDebug>
 
 #include <mce/mode-names.h>
 #include <qmdisplaystate.h>
@@ -32,7 +33,8 @@ ScreenLock::ScreenLock(QObject* parent) :
     callbackInterface(NULL),
     shuttingDown(false),
     lockscreenVisible(false),
-    eatEvents(false)
+    eatEvents(false),
+    lowPowerMode(false)
 {
     // No explicit API in tklock for disabling event eater. Monitor display
     // state changes, and remove event eater if display becomes undimmed.
@@ -41,6 +43,14 @@ ScreenLock::ScreenLock(QObject* parent) :
             this, &ScreenLock::handleDisplayStateChange);
 
     qApp->installEventFilter(this);
+
+    auto systemBus = QDBusConnection::systemBus();
+    systemBus.connect(QString(),
+            "/com/nokia/mce/signal",
+            "com.nokia.mce.signal",
+            "lpm_ui_mode_ind",
+            this,
+            SLOT(handleLpmModeChange(QString)));
 }
 
 ScreenLock::~ScreenLock()
@@ -80,7 +90,8 @@ int ScreenLock::tklock_open(const QString &service, const QString &path, const Q
         break;
 
     case TkLockEnableLowPowerMode:
-        // Enable low power mode and raise the lock screen window on top if it isn't already
+        // Raise the lock screen window on top if it isn't already
+        // (XXX: Low power mode is now handled via lpm_ui_mode_ind)
         QTimer::singleShot(0, this, SLOT(showLowPowerMode()));
         break;
 
@@ -195,4 +206,23 @@ bool ScreenLock::eventFilter(QObject *, QEvent *event)
     }
 
     return eat;
+}
+
+bool ScreenLock::isLowPowerMode() const
+{
+    return lowPowerMode;
+}
+
+void ScreenLock::handleLpmModeChange(const QString &state)
+{
+    bool enabled = (state == "enabled");
+
+    if (enabled && state != "disabled") {
+        qWarning() << "Invalid LPM state value from mce:" << state;
+    }
+
+    if (lowPowerMode != enabled) {
+        lowPowerMode = enabled;
+        emit lowPowerModeChanged();
+    }
 }

@@ -69,6 +69,13 @@ public:
      */
     bool isScreenLocked() const;
 
+    /*!
+     * Returns the low power mode state.
+     *
+     * \return \c true if the low power mode is on, \c false otherwise
+     */
+    bool isLowPowerMode() const;
+
     //! \reimp
     virtual bool eventFilter(QObject *, QEvent *event);
     //! \reimp_end
@@ -111,9 +118,15 @@ private slots:
     //! Clear event eater if display is no longer dimmed
     void handleDisplayStateChange(int displayState);
 
+    //! Handles LPM events coming from mce.
+    void handleLpmModeChange(const QString &state);
+
 signals:
     //! Emitted when the screen lock state changes
     void screenIsLocked(bool locked);
+
+    //! Emitted when the low power mode state changes
+    void lowPowerModeChanged();
 
 private:
     enum TkLockReply {
@@ -153,6 +166,9 @@ private:
 
     //! Whether events should be eaten or not
     bool eatEvents;
+
+    //! Whether the lockscreen should be shown as low power mode
+    bool lowPowerMode;
 
 #ifdef UNIT_TEST
     friend class Ut_ScreenLock;
