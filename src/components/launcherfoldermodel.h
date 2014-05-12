@@ -65,6 +65,7 @@ public:
     QString directoryFile() const;
     void loadDirectoryFile(const QString &filename);
     void saveDirectoryFile();
+    void clear();
 
 signals:
     void titleChanged();
@@ -128,6 +129,7 @@ private:
 
     LauncherModel *mLauncherModel;
     QTimer mSaveTimer;
+    bool mLoading;
 };
 
 #endif
