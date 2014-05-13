@@ -23,6 +23,7 @@
 #include "notifications/notificationfeedbackplayer.h"
 #include "compositor/lipstickcompositor.h"
 #include "notificationpreviewpresenter.h"
+#include "lipstickqmlpath.h"
 
 #include <qmdisplaystate.h>
 #include <qmlocks.h>
@@ -155,7 +156,7 @@ void NotificationPreviewPresenter::createWindowIfNecessary()
     window->setContextProperty("LipstickSettings", LipstickSettings::instance());
     window->setContextProperty("notificationPreviewPresenter", this);
     window->setContextProperty("notificationFeedbackPlayer", notificationFeedbackPlayer);
-    window->setSource(QUrl("qrc:/qml/NotificationPreview.qml"));
+    window->setSource(QmlPath::to("NotificationPreview.qml"));
     window->installEventFilter(new CloseEventEater(this));
 }
 

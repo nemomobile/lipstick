@@ -21,6 +21,7 @@
 #include <qmlocks.h>
 #include "notifications/notificationmanager.h"
 #include "usbmodeselector.h"
+#include "lipstickqmlpath.h"
 
 QMap<QString, QString> USBModeSelector::errorCodeToTranslationID;
 
@@ -61,7 +62,7 @@ void USBModeSelector::setWindowVisible(bool visible)
             window->setWindowTitle("USB Mode");
             window->setContextProperty("initialSize", QGuiApplication::primaryScreen()->size());
             window->setContextProperty("usbModeSelector", this);
-            window->setSource(QUrl("qrc:/qml/USBModeSelector.qml"));
+            window->setSource(QmlPath::to("USBModeSelector.qml"));
             window->installEventFilter(new CloseEventEater(this));
         }
 

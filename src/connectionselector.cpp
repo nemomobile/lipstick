@@ -23,6 +23,7 @@
 #include <QTimer>
 #include "utilities/closeeventeater.h"
 #include "connectionselector.h"
+#include "lipstickqmlpath.h"
 
 ConnectionSelector::ConnectionSelector(QObject *parent) :
     QObject(parent),
@@ -44,7 +45,7 @@ void ConnectionSelector::createWindow()
     window->setWindowTitle("Connection");
     window->setContextProperty("connectionSelector", this);
     window->setContextProperty("initialSize", QGuiApplication::primaryScreen()->size());
-    window->setSource(QUrl("qrc:/qml/ConnectionSelector.qml"));
+    window->setSource(QmlPath::to("ConnectionSelector.qml"));
     window->installEventFilter(new CloseEventEater(this));
 }
 

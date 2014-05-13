@@ -7,7 +7,7 @@ system(qdbusxml2cpp shutdownscreen.xml -a shutdownscreenadaptor -c ShutdownScree
 
 TEMPLATE = lib
 TARGET = lipstick-qt5
-VERSION = 0.22.24
+VERSION = 0.23.0
 
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x000000
 DEFINES += LIPSTICK_BUILD_LIBRARY VERSION=\\\"$$VERSION\\\"
@@ -32,6 +32,7 @@ PUBLICHEADERS += \
     lipstickglobal.h \
     lipsticksettings.h \
     lipstickdbus.h \
+    lipstickqmlpath.h \
     components/launcheritem.h \
     components/launchermodel.h \
     components/launcherwatchermodel.h \
@@ -65,6 +66,7 @@ HEADERS += \
     volume/volumecontrol.h \
     volume/pulseaudiocontrol.h \
     lipstickapi.h \
+    lipstickqmlpath.h \
     devicelock/devicelockadaptor.h \
     devicelock/devicelock.h \
     homeapplicationadaptor.h \
@@ -78,6 +80,7 @@ SOURCES += \
     homeapplicationadaptor.cpp \
     homewindow.cpp \
     lipsticksettings.cpp \
+    lipstickqmlpath.cpp \
     utilities/qobjectlistmodel.cpp \
     utilities/closeeventeater.cpp \
     components/launcheritem.cpp \
