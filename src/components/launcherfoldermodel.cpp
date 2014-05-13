@@ -244,6 +244,31 @@ void LauncherFolderItem::saveDirectoryFile()
     g_key_file_free(keyfile);
 }
 
+void LauncherFolderItem::clear()
+{
+    for (int i = 0; i < rowCount(); ++i) {
+        QObject *item = get(i);
+        LauncherItem *launcherItem = qobject_cast<LauncherItem*>(item);
+        LauncherFolderItem *folder = qobject_cast<LauncherFolderItem*>(item);
+
+        if (launcherItem) {
+            disconnect(item, SIGNAL(isTemporaryChanged()), this, SIGNAL(saveNeeded()));
+        } else if (folder) {
+            disconnect(item, SIGNAL(saveNeeded()), this, SIGNAL(saveNeeded()));
+        }
+
+        if (launcherItem || folder) {
+            disconnect(item, SIGNAL(isUpdatingChanged()), this, SIGNAL(isUpdatingChanged()));
+            disconnect(item, SIGNAL(updatingProgressChanged()), this, SIGNAL(updatingProgressChanged()));
+        }
+        if (folder) {
+            folder->clear();
+            folder->deleteLater();
+        }
+    }
+    reset();
+}
+
 void LauncherFolderItem::handleAdded(QObject *item)
 {
     const LauncherItem *launcherItem = qobject_cast<const LauncherItem*>(item);
@@ -303,7 +328,9 @@ void LauncherFolderItem::handleRemoved(QObject *item)
 LauncherFolderModel::LauncherFolderModel(QObject *parent)
     : LauncherFolderItem(parent)
     , mLauncherModel(new LauncherModel(this))
+    , mLoading(false)
 {
+    mSaveTimer.setSingleShot(true);
     connect(mLauncherModel, SIGNAL(itemRemoved(QObject*)),
             this, SLOT(appRemoved(QObject*)));
     connect(mLauncherModel, SIGNAL(itemAdded(QObject*)),
@@ -388,7 +415,8 @@ void LauncherFolderModel::import()
 
 void LauncherFolderModel::scheduleSave()
 {
-    mSaveTimer.start(FOLDER_MODEL_SAVE_TIMER_MS);
+    if (!mLoading)
+        mSaveTimer.start(FOLDER_MODEL_SAVE_TIMER_MS);
 }
 
 QString LauncherFolderModel::configDir()
@@ -438,18 +466,21 @@ void LauncherFolderModel::saveFolder(QXmlStreamWriter &xml, LauncherFolderItem *
 
 void LauncherFolderModel::load()
 {
-    QStack<LauncherFolderItem*> menus;
-    QString textData;
+    mLoading = true;
+    clear();
 
     QFile file(configFile());
     if (!file.open(QIODevice::ReadOnly)) {
         // We haven't saved a folder model yet - import all apps.
         import();
+        mLoading = false;
         return;
     }
 
     QVector<bool> loadedItems(mLauncherModel->itemCount());
     loadedItems.fill(false);
+    QStack<LauncherFolderItem*> menus;
+    QString textData;
     int loadedCount = 0;
 
     QXmlStreamReader xml(&file);
@@ -505,4 +536,6 @@ void LauncherFolderModel::load()
             addItem(mLauncherModel->get(i));
         }
     }
+
+    mLoading = false;
 }
