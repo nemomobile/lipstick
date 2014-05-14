@@ -25,6 +25,7 @@
 #include "utilities/closeeventeater.h"
 #include "pulseaudiocontrol.h"
 #include "volumecontrol.h"
+#include "lipstickqmlpath.h"
 
 VolumeControl::VolumeControl(QObject *parent) :
     QObject(parent),
@@ -90,7 +91,7 @@ void VolumeControl::setWindowVisible(bool visible)
             window->setWindowTitle("Volume");
             window->setContextProperty("initialSize", QGuiApplication::primaryScreen()->size());
             window->setContextProperty("volumeControl", this);
-            window->setSource(QUrl("qrc:/qml/VolumeControl.qml"));
+            window->setSource(QmlPath::to("VolumeControl.qml"));
             window->installEventFilter(new CloseEventEater(this));
         }
 

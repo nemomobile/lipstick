@@ -24,6 +24,7 @@
 #include "notifications/notificationmanager.h"
 #include "homeapplication.h"
 #include "shutdownscreen.h"
+#include "lipstickqmlpath.h"
 
 ShutdownScreen::ShutdownScreen(QObject *parent) :
     QObject(parent),
@@ -45,7 +46,7 @@ void ShutdownScreen::setWindowVisible(bool visible)
             window->setContextProperty("initialSize", QGuiApplication::primaryScreen()->size());
             window->setContextProperty("shutdownScreen", this);
             window->setContextProperty("shutdownMode", shutdownMode);
-            window->setSource(QUrl("qrc:/qml/ShutdownScreen.qml"));
+            window->setSource(QmlPath::to("ShutdownScreen.qml"));
             window->installEventFilter(new CloseEventEater(this));
         }
 

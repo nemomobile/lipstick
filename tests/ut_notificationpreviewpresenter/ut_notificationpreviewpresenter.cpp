@@ -25,6 +25,7 @@
 #include "closeeventeater_stub.h"
 #include "qmlocks_stub.h"
 #include "qmdisplaystate_stub.h"
+#include "lipstickqmlpath_stub.h"
 #include "lipsticksettings.h"
 
 Q_DECLARE_METATYPE(NotificationPreviewPresenter*)

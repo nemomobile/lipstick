@@ -24,6 +24,7 @@
 #include "notificationmanager_stub.h"
 #include "closeeventeater_stub.h"
 #include "homewindow.h"
+#include "lipstickqmlpath_stub.h"
 
 HomeWindow::HomeWindow()
 {

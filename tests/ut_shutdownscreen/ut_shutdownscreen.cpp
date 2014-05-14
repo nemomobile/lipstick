@@ -22,6 +22,7 @@
 #include "ut_shutdownscreen.h"
 #include "notificationmanager_stub.h"
 #include "closeeventeater_stub.h"
+#include "lipstickqmlpath_stub.h"
 
 QList<QQuickView *> qQuickViews;
 void QQuickView::setSource(const QUrl &)
