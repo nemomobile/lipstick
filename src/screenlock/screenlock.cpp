@@ -217,7 +217,7 @@ void ScreenLock::handleLpmModeChange(const QString &state)
 {
     bool enabled = (state == "enabled");
 
-    if (enabled && state != "disabled") {
+    if (!enabled && state != "disabled") {
         qWarning() << "Invalid LPM state value from mce:" << state;
     }
 
