@@ -36,6 +36,8 @@ public:
     void show();
     void hide();
     void showFullScreen();
+    void raise();
+    void lower();
 
     QQuickItem *rootObject() const;
     void setSource(const QUrl &);
