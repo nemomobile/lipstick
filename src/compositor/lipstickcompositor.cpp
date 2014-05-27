@@ -64,6 +64,9 @@ LipstickCompositor::LipstickCompositor()
 
 LipstickCompositor::~LipstickCompositor()
 {
+    // ~QWindow can a call into onVisibleChanged and QWaylandCompositor after we
+    // are destroyed, so disconnect it.
+    disconnect(this, SIGNAL(visibleChanged(bool)), this, SLOT(onVisibleChanged(bool)));
     delete m_shaderEffect;
 }
 
