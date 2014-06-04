@@ -39,13 +39,17 @@ public:
 
     void start();
     QStringList directories() const;
+    void setDirectories(const QStringList &dirs);
     QStringList iconDirectories() const;
     void setIconDirectories(const QStringList &dirs);
 
 signals:
     void filesUpdated(const QStringList &added, const QStringList &modified, const QStringList &removed);
 
-private: // fields
+private:
+    void setDirectories(const QStringList &newDirs, QStringList &targetDirs);
+
+    // fields
     QFileSystemWatcher m_watcher;
     QTimer m_holdbackTimer;
 
@@ -55,7 +59,7 @@ private: // fields
     QStringList m_modifiedFiles;
     QStringList m_removedFiles;
 
-    QString m_desktopFilesPath;
+    QStringList m_desktopFilesPaths;
     QStringList m_iconFilesPaths;
 
 private slots:

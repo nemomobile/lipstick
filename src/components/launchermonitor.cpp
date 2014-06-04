@@ -39,7 +39,6 @@ LauncherMonitor::LauncherMonitor(const QString &desktopFilesPath,
     , m_addedFiles()
     , m_modifiedFiles()
     , m_removedFiles()
-    , m_desktopFilesPath(desktopFilesPath)
 {
     m_holdbackTimer.setSingleShot(true);
 
@@ -51,14 +50,15 @@ LauncherMonitor::LauncherMonitor(const QString &desktopFilesPath,
             this, SLOT(onHoldbackTimerTimeout()));
 
     m_iconFilesPaths << iconFilesPath;
+    m_desktopFilesPaths << desktopFilesPath;
 
     m_watcher.addPaths(m_iconFilesPaths);
-    m_watcher.addPath(m_desktopFilesPath);
+    m_watcher.addPaths(m_desktopFilesPaths);
 
     // Force initial scan of directories
     // Scan the desktop files first, so that the launcher items are already
     // available by the time the icons will be processed
-    onDirectoryChanged(m_desktopFilesPath);
+    onDirectoryChanged(desktopFilesPath);
     onDirectoryChanged(iconFilesPath);
 }
 
@@ -76,10 +76,12 @@ void LauncherMonitor::start()
 
 QStringList LauncherMonitor::directories() const
 {
-    QStringList result;
-    // Right now, we only monitor one directory for .desktop files
-    result.append(m_desktopFilesPath);
-    return result;
+    return m_desktopFilesPaths;
+}
+
+void LauncherMonitor::setDirectories(const QStringList &dirs)
+{
+    setDirectories(dirs, m_desktopFilesPaths);
 }
 
 QStringList LauncherMonitor::iconDirectories() const
@@ -89,22 +91,27 @@ QStringList LauncherMonitor::iconDirectories() const
 
 void LauncherMonitor::setIconDirectories(const QStringList &dirs)
 {
+    setDirectories(dirs, m_iconFilesPaths);
+}
+
+void LauncherMonitor::setDirectories(const QStringList &newDirs, QStringList &targetDirs)
+{
     QStringList newPaths;
-    QStringList::ConstIterator it = dirs.begin();
-    while (it != dirs.end()) {
-        if (!m_iconFilesPaths.contains(*it)) {
+    QStringList::ConstIterator it = newDirs.begin();
+    while (it != newDirs.end()) {
+        if (!targetDirs.contains(*it)) {
             newPaths << *it;
         } else {
-            m_iconFilesPaths.removeAll(*it);
+            targetDirs.removeAll(*it);
         }
         ++it;
     }
 
-    if (!m_iconFilesPaths.isEmpty()) {
-        m_watcher.removePaths(m_iconFilesPaths);
+    if (!targetDirs.isEmpty()) {
+        m_watcher.removePaths(targetDirs);
     }
 
-    m_iconFilesPaths = dirs;
+    targetDirs = newDirs;
     m_watcher.addPaths(newPaths);
     foreach (QString path, newPaths)
         onDirectoryChanged(path);
