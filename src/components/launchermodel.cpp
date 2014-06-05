@@ -20,6 +20,7 @@
 #include <QDebug>
 #include <QFile>
 #include <QSettings>
+#include <QStandardPaths>
 
 #include "launcheritem.h"
 #include "launchermodel.h"
@@ -39,7 +40,9 @@
 
 static inline bool isDesktopFile(const QString &filename)
 {
-    return filename.startsWith(LAUNCHER_APPS_PATH) && filename.endsWith(".desktop");
+    return (filename.startsWith(LAUNCHER_APPS_PATH) ||
+            filename.startsWith(QStandardPaths::writableLocation(QStandardPaths::ApplicationsLocation)))
+            && filename.endsWith(".desktop");
 }
 
 static inline bool isIconFile(const QString &filename)
@@ -84,6 +87,14 @@ LauncherModel::LauncherModel(QObject *parent) :
     _packageNameToDBusService(),
     _temporaryLaunchers()
 {
+    QString userLocalAppsPath = QStandardPaths::writableLocation(QStandardPaths::ApplicationsLocation);
+    QDir userLocalLauncherDir(userLocalAppsPath);
+    if (!userLocalLauncherDir.exists()) {
+        userLocalLauncherDir.mkpath(userLocalAppsPath);
+    }
+
+    _launcherMonitor.setDirectories(QStringList() << LAUNCHER_APPS_PATH << userLocalAppsPath);
+
     // Set up the monitor for icon and desktop file changes
     connect(&_launcherMonitor, SIGNAL(filesUpdated(const QStringList &, const QStringList &, const QStringList &)),
             this, SLOT(onFilesUpdated(const QStringList &, const QStringList &, const QStringList &)));
