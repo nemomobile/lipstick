@@ -250,6 +250,22 @@ void HomeWindow::setGeometry(const QRect &g)
     }
 }
 
+void HomeWindow::raise()
+{
+    if (d->isWindow())
+        d->window->raise();
+    else if (d->compositorWindow)
+        LipstickCompositor::instance()->windowRaised(d->compositorWindow);
+}
+
+void HomeWindow::lower()
+{
+    if (d->isWindow())
+        d->window->lower();
+    else if (d->compositorWindow)
+        LipstickCompositor::instance()->windowLowered(d->compositorWindow);
+}
+
 QQmlEngine *HomeWindow::engine() const
 {
     return HomeApplication::instance()->engine();
