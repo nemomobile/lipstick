@@ -293,6 +293,7 @@ void HomeApplication::setUpdatesEnabled(bool enabled)
         updatesEnabled = enabled;
 
         if (!updatesEnabled) {
+            emit LipstickCompositor::instance()->displayAboutToBeOff();
             LipstickCompositorWindow *topmostWindow = qobject_cast<LipstickCompositorWindow *>(LipstickCompositor::instance()->windowForId(LipstickCompositor::instance()->topmostWindowId()));
             if (topmostWindow != 0 && topmostWindow->hasFocus()) {
                 onUpdatesDisabledUnfocusedWindowId = topmostWindow->windowId();

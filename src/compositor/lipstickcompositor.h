@@ -117,6 +117,7 @@ signals:
     void displayOn();
     void displayOff();
     void displayAboutToBeOn();
+    void displayAboutToBeOff();
 
 protected:
     virtual void surfaceAboutToBeDestroyed(QWaylandSurface *surface);
