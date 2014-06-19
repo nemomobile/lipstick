@@ -52,6 +52,7 @@ class LipstickCompositorStub : public StubBase {
   virtual void setScreenOrientationFromSensor();
   virtual void clipboardDataChanged();
   virtual void onVisibleChanged(bool visible);
+  virtual void startFrame();
 }; 
 
 // 2. IMPLEMENT STUB
@@ -263,6 +264,10 @@ void LipstickCompositorStub::onVisibleChanged(bool v) {
     stubMethodEntered("onVisibleChanged", params);
 }
 
+void LipstickCompositorStub::startFrame() {
+    stubMethodEntered("startFrame");
+}
+
 // 3. CREATE A STUB INSTANCE
 LipstickCompositorStub gDefaultLipstickCompositorStub;
 LipstickCompositorStub* gLipstickCompositorStub = &gDefaultLipstickCompositorStub;
@@ -433,6 +438,10 @@ void LipstickCompositor::clipboardDataChanged() {
 
 void LipstickCompositor::onVisibleChanged(bool v) {
   gLipstickCompositorStub->onVisibleChanged(v);
+}
+
+void LipstickCompositor::startFrame() {
+    gLipstickCompositorStub->startFrame();
 }
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 2, 0)

@@ -44,6 +44,7 @@ LipstickCompositor::LipstickCompositor()
     QObject::connect(this, SIGNAL(afterRendering()), this, SLOT(windowSwapped()));
     connect(m_displayState, SIGNAL(displayStateChanged(MeeGo::QmDisplayState::DisplayState)), this, SLOT(reactOnDisplayStateChanges(MeeGo::QmDisplayState::DisplayState)));
     QObject::connect(HomeApplication::instance(), SIGNAL(aboutToDestroy()), this, SLOT(homeApplicationAboutToDestroy()));
+    connect(this, &QQuickWindow::beforeSynchronizing, this, &LipstickCompositor::startFrame, Qt::DirectConnection);
 
     m_orientationSensor = new QOrientationSensor(this);
     QObject::connect(m_orientationSensor, SIGNAL(readingChanged()), this, SLOT(setScreenOrientationFromSensor()));
@@ -384,6 +385,13 @@ void LipstickCompositor::surfaceLowered()
     if (window) {
         emit windowLowered(window);
     }
+}
+
+void LipstickCompositor::startFrame()
+{
+#if QT_VERSION >= QT_VERSION_CHECK(5,2,0)
+    frameStarted();
+#endif
 }
 
 void LipstickCompositor::windowSwapped()
