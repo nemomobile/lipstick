@@ -17,6 +17,7 @@
 #define WINDOWPIXMAPITEM_H
 
 #include <QQuickItem>
+#include <QPointer>
 #include "lipstickglobal.h"
 
 class LipstickCompositor;
@@ -68,7 +69,7 @@ signals:
 private:
     void updateItem();
 
-    LipstickCompositorWindow *m_item;
+    QPointer<LipstickCompositorWindow> m_item;
     QQuickItem *m_shaderEffect;
     int m_id;
     bool m_opaque;
