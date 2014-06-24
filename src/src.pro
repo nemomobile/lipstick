@@ -7,7 +7,7 @@ system(qdbusxml2cpp shutdownscreen.xml -a shutdownscreenadaptor -c ShutdownScree
 
 TEMPLATE = lib
 TARGET = lipstick-qt5
-VERSION = 0.24.1
+VERSION = 0.24.1.1
 
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x000000
 DEFINES += LIPSTICK_BUILD_LIBRARY VERSION=\\\"$$VERSION\\\"
