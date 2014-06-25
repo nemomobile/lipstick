@@ -135,6 +135,7 @@ void Ut_VolumeControl::testConnections()
 {
     // Check that pulse audio and the volume bar are connected
     QCOMPARE(disconnect(volumeControl->pulseAudioControl, SIGNAL(volumeChanged(int,int)), volumeControl, SLOT(setVolume(int,int))), true);
+    QCOMPARE(disconnect(volumeControl->pulseAudioControl, SIGNAL(callActiveChanged(bool)), volumeControl, SLOT(handleCallActive(bool))), true);
 }
 
 void Ut_VolumeControl::testKeyRepeatSetup()
@@ -305,6 +306,22 @@ void Ut_VolumeControl::testMaximumVolume()
     QCOMPARE(volumeChangedSpy.count(), 1);
     QCOMPARE(maximumVolumeChangedSpy.count(), 1);
     QCOMPARE(volumeKeyPressedSpy.count(), 1);
+}
+
+void Ut_VolumeControl::testCallActive()
+{
+    QSignalSpy signalSpy(volumeControl, SIGNAL(callActiveChanged()));
+
+    volumeControl->handleCallActive(true);
+    QCOMPARE(signalSpy.count(), 1);
+    QCOMPARE(volumeControl->callActive(), true);
+
+    volumeControl->handleCallActive(true);
+    QCOMPARE(signalSpy.count(), 1);
+
+    volumeControl->handleCallActive(false);
+    QCOMPARE(signalSpy.count(), 2);
+    QCOMPARE(volumeControl->callActive(), false);
 }
 
 QTEST_MAIN(Ut_VolumeControl)

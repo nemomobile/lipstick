@@ -36,7 +36,8 @@ VolumeControl::VolumeControl(QObject *parent) :
     volume_(0),
     maximumVolume_(0),
     audioWarning(new MGConfItem("/desktop/nemo/audiowarning", this)),
-    safeVolume_(0)
+    safeVolume_(0),
+    callActive_(false)
 {
     hwKeyResource->setAlwaysReply();
     hwKeyResource->addResourceObject(new ResourcePolicy::ScaleButtonResource);
@@ -53,6 +54,7 @@ VolumeControl::VolumeControl(QObject *parent) :
     connect(pulseAudioControl, SIGNAL(volumeChanged(int,int)), this, SLOT(setVolume(int,int)));
     connect(pulseAudioControl, SIGNAL(highVolume(int)), SLOT(handleHighVolume(int)));
     connect(pulseAudioControl, SIGNAL(longListeningTime(int)), SLOT(handleLongListeningTime(int)));
+    connect(pulseAudioControl, SIGNAL(callActiveChanged(bool)), SLOT(handleCallActive(bool)));
     pulseAudioControl->update();
 
     qApp->installEventFilter(this);
@@ -120,6 +122,11 @@ void VolumeControl::setWarningAcknowledged(bool acknowledged)
     if (audioWarning->value(false).toBool() != acknowledged) {
         audioWarning->set(acknowledged);
     }
+}
+
+bool VolumeControl::callActive() const
+{
+    return callActive_;
 }
 
 void VolumeControl::setVolume(int volume, int maximumVolume)
@@ -226,6 +233,14 @@ void VolumeControl::handleLongListeningTime(int listeningTime)
     }
 
     emit showAudioWarning(listeningTime == 0);
+}
+
+void VolumeControl::handleCallActive(bool callActive)
+{
+    if (callActive_ != callActive) {
+        callActive_ = callActive;
+        emit callActiveChanged();
+    }
 }
 
 bool VolumeControl::eventFilter(QObject *, QEvent *event)

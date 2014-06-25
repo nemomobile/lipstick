@@ -42,6 +42,7 @@ private slots:
     void testAcquireKeys();
     void testReleaseKeys();
     void testMaximumVolume();
+    void testCallActive();
 
 private:
     VolumeControl *volumeControl;

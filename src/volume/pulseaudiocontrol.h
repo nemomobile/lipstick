@@ -58,6 +58,13 @@ signals:
      */
     void longListeningTime(int listeningTime);
 
+    /*!
+     * Sent when the call status has changed
+     *
+     * \param callActive \c true if a call is active, \c false otherwise
+     */
+    void callActiveChanged(bool callActive);
+
 public slots:
     /*!
      * Queries the PulseAudio daemon for the volume levels (current and maximum).

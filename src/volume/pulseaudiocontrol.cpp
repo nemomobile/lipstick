@@ -169,8 +169,8 @@ void PulseAudioControl::update()
 
 void PulseAudioControl::addSignalMatch()
 {
-    static const char *singnals []  = {"com.Meego.MainVolume2.StepsUpdated", "com.Meego.MainVolume2.NotifyHighVolume", "com.Meego.MainVolume2.NotifyListeningTime"};
-    for (int index = 0; index < 3; ++index) {
+    static const char *singnals []  = {"com.Meego.MainVolume2.StepsUpdated", "com.Meego.MainVolume2.NotifyHighVolume", "com.Meego.MainVolume2.NotifyListeningTime", "com.Meego.MainVolume2.CallStatus"};
+    for (int index = 0; index < 4; ++index) {
         DBusMessage *message = dbus_message_new_method_call(NULL, "/org/pulseaudio/core1", NULL, "ListenForSignal");
         if (message != NULL) {
             const char *signalPtr = singnals[index];
@@ -208,6 +208,12 @@ DBusHandlerResult PulseAudioControl::signalHandler(DBusConnection *, DBusMessage
 
         if (dbus_message_get_args(message, &error, DBUS_TYPE_UINT32, &listeningTime, DBUS_TYPE_INVALID)) {
             static_cast<PulseAudioControl*>(control)->longListeningTime(listeningTime);
+        }
+    } else if (dbus_message_has_member(message, "CallStatus")) {
+        const char *status;
+
+        if (dbus_message_get_args(message, &error, DBUS_TYPE_STRING, &status, DBUS_TYPE_INVALID)) {
+            emit static_cast<PulseAudioControl*>(control)->callActiveChanged(strcmp(status, "active") == 0);
         }
     }
 
