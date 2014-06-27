@@ -95,13 +95,6 @@ public:
      */
     bool homeActive() const;
 
-    /*!
-     * Sets user interface updates enabled or disables.
-     *
-     * \param enabled \c true if user interface updates should be enabled, \c false otherwise
-     */
-    void setUpdatesEnabled(bool enabled);
-
 signals:
     /*!
      * Emitted whenever the home active flag changes.
@@ -172,14 +165,8 @@ private:
     //! Login for showing the connection selector
     ConnectionSelector *connectionSelector;
 
-    //! Whether user interface updates should be enabled or not
-    bool updatesEnabled;
-
     //! Whether the home ready signal has been sent or not
     bool homeReadySent;
-
-    //! The id of the window unfocused on updatesDisabled
-    int onUpdatesDisabledUnfocusedWindowId;
 };
 
 #endif /* HOMEAPPLICATION_H_ */

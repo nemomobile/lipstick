@@ -1,7 +1,6 @@
 system(qdbusxml2cpp notifications/notificationmanager.xml -a notifications/notificationmanageradaptor -c NotificationManagerAdaptor -l NotificationManager -i notificationmanager.h)
 system(qdbusxml2cpp screenlock/screenlock.xml -a screenlock/screenlockadaptor -c ScreenLockAdaptor -l ScreenLock -i screenlock.h)
 system(qdbusxml2cpp devicelock/devicelock.xml -a devicelock/devicelockadaptor -c DeviceLockAdaptor -l DeviceLock -i devicelock.h)
-system(qdbusxml2cpp lipstick.xml -a homeapplicationadaptor -c HomeApplicationAdaptor -l HomeApplication -i homeapplication.h)
 system(qdbusxml2cpp screenshotservice.xml -a screenshotserviceadaptor -c ScreenshotServiceAdaptor -l ScreenshotService -i screenshotservice.h)
 system(qdbusxml2cpp shutdownscreen.xml -a shutdownscreenadaptor -c ShutdownScreenAdaptor -l ShutdownScreen -i shutdownscreen.h)
 
@@ -69,7 +68,6 @@ HEADERS += \
     lipstickqmlpath.h \
     devicelock/devicelockadaptor.h \
     devicelock/devicelock.h \
-    homeapplicationadaptor.h \
     shutdownscreenadaptor.h \
     screenshotservice.h \
     screenshotserviceadaptor.h \
@@ -77,7 +75,6 @@ HEADERS += \
 
 SOURCES += \
     homeapplication.cpp \
-    homeapplicationadaptor.cpp \
     homewindow.cpp \
     lipsticksettings.cpp \
     lipstickqmlpath.cpp \
