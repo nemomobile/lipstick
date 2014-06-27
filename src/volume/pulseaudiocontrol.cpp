@@ -169,11 +169,11 @@ void PulseAudioControl::update()
 
 void PulseAudioControl::addSignalMatch()
 {
-    static const char *singnals []  = {"com.Meego.MainVolume2.StepsUpdated", "com.Meego.MainVolume2.NotifyHighVolume", "com.Meego.MainVolume2.NotifyListeningTime", "com.Meego.MainVolume2.CallStatus"};
+    static const char *signalNames []  = {"com.Meego.MainVolume2.StepsUpdated", "com.Meego.MainVolume2.NotifyHighVolume", "com.Meego.MainVolume2.NotifyListeningTime", "com.Meego.MainVolume2.CallStatus"};
     for (int index = 0; index < 4; ++index) {
         DBusMessage *message = dbus_message_new_method_call(NULL, "/org/pulseaudio/core1", NULL, "ListenForSignal");
         if (message != NULL) {
-            const char *signalPtr = singnals[index];
+            const char *signalPtr = signalNames[index];
             char **emptyarray = { NULL };
             dbus_message_append_args(message, DBUS_TYPE_STRING, &signalPtr, DBUS_TYPE_ARRAY, DBUS_TYPE_OBJECT_PATH, &emptyarray, 0, DBUS_TYPE_INVALID);
             dbus_connection_send(dbusConnection, message, NULL);
