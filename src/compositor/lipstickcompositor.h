@@ -97,6 +97,8 @@ public:
 
     QWaylandSurface *surfaceForId(int) const;
 
+    void setUpdatesEnabled(bool enabled);
+
 signals:
     void windowAdded(QObject *window);
     void windowRemoved(QObject *window);
@@ -188,6 +190,8 @@ private:
     QPointer<QMimeData> m_retainedSelection;
     QSettings m_compositorSettings;
     MeeGo::QmDisplayState::DisplayState m_previousDisplayState;
+    bool m_updatesEnabled;
+    int m_onUpdatesDisabledUnfocusedWindowId;
 };
 
 #endif // LIPSTICKCOMPOSITOR_H

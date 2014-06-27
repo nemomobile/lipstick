@@ -3,7 +3,7 @@ liblipstick-qt5.*
 pkgconfig
 *.ts
 *.qm
-homeapplicationadaptor.*
+compositor/lipstickcompositoradaptor.*
 screenshotserviceadaptor.*
 shutdownscreenadaptor.*
 .moc

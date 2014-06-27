@@ -22,17 +22,20 @@
 #include <QtSensors/QOrientationSensor>
 #include <QClipboard>
 #include <QMimeData>
+#include <QtGui/qpa/qplatformnativeinterface.h>
 #include "homeapplication.h"
 #include "windowmodel.h"
 #include "lipstickcompositorprocwindow.h"
 #include "lipstickcompositor.h"
+#include "lipstickcompositoradaptor.h"
+#include "lipsticksettings.h"
 #include <qpa/qwindowsysteminterface.h>
 
 LipstickCompositor *LipstickCompositor::m_instance = 0;
 
 LipstickCompositor::LipstickCompositor()
 : QWaylandCompositor(this), m_totalWindowCount(0), m_nextWindowId(1), m_homeActive(true), m_shaderEffect(0),
-  m_fullscreenSurface(0), m_directRenderingActive(false), m_topmostWindowId(0), m_screenOrientation(Qt::PrimaryOrientation), m_sensorOrientation(Qt::PrimaryOrientation), m_displayState(new MeeGo::QmDisplayState(this)), m_retainedSelection(0), m_compositorSettings("nemomobile", "lipstick"), m_previousDisplayState(m_displayState->get())
+  m_fullscreenSurface(0), m_directRenderingActive(false), m_topmostWindowId(0), m_screenOrientation(Qt::PrimaryOrientation), m_sensorOrientation(Qt::PrimaryOrientation), m_displayState(new MeeGo::QmDisplayState(this)), m_retainedSelection(0), m_compositorSettings("nemomobile", "lipstick"), m_previousDisplayState(m_displayState->get()), m_updatesEnabled(true), m_onUpdatesDisabledUnfocusedWindowId(0)
 {
     setColor(Qt::black);
     setRetainedSelectionEnabled(true);
@@ -61,6 +64,16 @@ LipstickCompositor::LipstickCompositor()
     QDesktopServices::setUrlHandler("mailto", this, "openUrl");
 
     connect(QGuiApplication::clipboard(), SIGNAL(dataChanged()), SLOT(clipboardDataChanged()));
+
+    new LipstickCompositorAdaptor(this);
+
+    QDBusConnection systemBus = QDBusConnection::systemBus();
+    if (!systemBus.registerService("org.nemomobile.compositor")) {
+        qWarning("Unable to register D-Bus service org.nemomobile.compositor: %s", systemBus.lastError().message().toUtf8().constData());
+    }
+    if (!systemBus.registerObject("/", this)) {
+        qWarning("Unable to register object at path /: %s", systemBus.lastError().message().toUtf8().constData());
+    }
 }
 
 LipstickCompositor::~LipstickCompositor()
@@ -560,4 +573,35 @@ void LipstickCompositor::clipboardDataChanged()
     const QMimeData *mimeData = QGuiApplication::clipboard()->mimeData();
     if (mimeData && mimeData != m_retainedSelection)
         overrideSelection(const_cast<QMimeData *>(mimeData));
+}
+
+void LipstickCompositor::setUpdatesEnabled(bool enabled)
+{
+    if (m_updatesEnabled != enabled) {
+        m_updatesEnabled = enabled;
+
+        if (!m_updatesEnabled) {
+            emit displayAboutToBeOff();
+            LipstickCompositorWindow *topmostWindow = qobject_cast<LipstickCompositorWindow *>(windowForId(topmostWindowId()));
+            if (topmostWindow != 0 && topmostWindow->hasFocus()) {
+                m_onUpdatesDisabledUnfocusedWindowId = topmostWindow->windowId();
+                clearKeyboardFocus();
+            }
+            hide();
+            QGuiApplication::platformNativeInterface()->nativeResourceForIntegration("DisplayOff");
+        } else {
+            QGuiApplication::platformNativeInterface()->nativeResourceForIntegration("DisplayOn");
+            emit displayAboutToBeOn();
+            showFullScreen();
+            if (m_onUpdatesDisabledUnfocusedWindowId > 0) {
+                if (!LipstickSettings::instance()->lockscreenVisible()) {
+                    LipstickCompositorWindow *topmostWindow = qobject_cast<LipstickCompositorWindow *>(windowForId(topmostWindowId()));
+                    if (topmostWindow != 0 && topmostWindow->windowId() == m_onUpdatesDisabledUnfocusedWindowId) {
+                        topmostWindow->takeFocus();
+                    }
+                }
+                m_onUpdatesDisabledUnfocusedWindowId = 0;
+            }
+        }
+    }
 }

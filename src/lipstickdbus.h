@@ -30,7 +30,6 @@
 
 #define LIPSTICK_DBUS_WINDOW_MODEL_PATH "/WindowModel"
 
-#define LIPSTICK_DBUS_PATH "/"
 #define LIPSTICK_DBUS_SCREENLOCK_PATH "/screenlock"
 #define LIPSTICK_DBUS_DEVICELOCK_PATH "/devicelock"
 #define LIPSTICK_DBUS_SHUTDOWN_PATH "/shutdown"
