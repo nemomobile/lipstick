@@ -119,6 +119,12 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
 
     registerDBusObject(sessionBus, LIPSTICK_DBUS_SCREENSHOT_PATH, screenshotService);
 
+    // Setting up the context and engine things
+    qmlEngine->rootContext()->setContextProperty("initialSize", QGuiApplication::primaryScreen()->size());
+    qmlEngine->rootContext()->setContextProperty("lipstickSettings", LipstickSettings::instance());
+    qmlEngine->rootContext()->setContextProperty("LipstickSettings", LipstickSettings::instance());
+    qmlEngine->rootContext()->setContextProperty("deviceLock", deviceLock);
+
     connect(this, SIGNAL(homeReady()), this, SLOT(sendStartupNotifications()));
 }
 
@@ -259,12 +265,6 @@ HomeWindow *HomeApplication::mainWindowInstance()
     _mainWindowInstance = new HomeWindow();
     _mainWindowInstance->setGeometry(QRect(QPoint(), QGuiApplication::primaryScreen()->size()));
     _mainWindowInstance->setWindowTitle("Home");
-
-    // Setting up the context and engine things
-    _mainWindowInstance->setContextProperty("initialSize", QGuiApplication::primaryScreen()->size());
-    _mainWindowInstance->setContextProperty("LipstickSettings", LipstickSettings::instance());
-    _mainWindowInstance->setContextProperty("deviceLock", deviceLock);
-
     QObject::connect(_mainWindowInstance->engine(), SIGNAL(quit()), qApp, SLOT(quit()));
     QObject::connect(_mainWindowInstance, SIGNAL(visibleChanged(bool)), this, SLOT(connectFrameSwappedSignal(bool)));
 
