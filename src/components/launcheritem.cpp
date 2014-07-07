@@ -21,6 +21,8 @@
 #include <QDir>
 #include <QSettings>
 #include <QTimer>
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
 #include <mdesktopentry.h>
 
 #ifdef HAVE_CONTENTACTION
@@ -89,6 +91,25 @@ void LauncherItem::setFilePath(const QString &filePath)
 QString LauncherItem::filePath() const
 {
     return !_desktopEntry.isNull() ? _desktopEntry->fileName() : QString();
+}
+
+QString LauncherItem::fileID() const
+{
+    if (_desktopEntry.isNull()) {
+        return QString();
+    }
+
+    // Retrieve the file ID according to
+    // http://standards.freedesktop.org/desktop-entry-spec/latest/ape.html
+    QRegularExpression re(".*applications/(.*.desktop)");
+    QRegularExpressionMatch match = re.match(_desktopEntry->fileName());
+    if (!match.hasMatch()) {
+        return filename();
+    }
+
+    QString id = match.captured(1);
+    id.replace('/', '-');
+    return id;
 }
 
 QString LauncherItem::filename() const
