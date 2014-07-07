@@ -62,7 +62,7 @@ void USBModeSelector::setWindowVisible(bool visible)
             window->setWindowTitle("USB Mode");
             window->setContextProperty("initialSize", QGuiApplication::primaryScreen()->size());
             window->setContextProperty("usbModeSelector", this);
-            window->setSource(QmlPath::to("USBModeSelector.qml"));
+            window->setSource(QmlPath::to("connectivity/USBModeSelector.qml"));
             window->installEventFilter(new CloseEventEater(this));
         }
 
