@@ -112,6 +112,8 @@ public:
 
     void setCustomTitle(QString customTitle);
 
+    Q_INVOKABLE QString readValue(const QString &key) const;
+
 signals:
     void itemChanged();
     void isLaunchingChanged();

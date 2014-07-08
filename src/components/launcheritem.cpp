@@ -297,3 +297,11 @@ void LauncherItem::setCustomTitle(QString customTitle)
         emit itemChanged();
     }
 }
+
+QString LauncherItem::readValue(const QString &key) const
+{
+    if (_desktopEntry.isNull())
+        return QString();
+
+    return _desktopEntry->value("Desktop Entry", key);
+}
