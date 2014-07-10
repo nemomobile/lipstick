@@ -45,7 +45,7 @@ void ConnectionSelector::createWindow()
     window->setWindowTitle("Connection");
     window->setContextProperty("connectionSelector", this);
     window->setContextProperty("initialSize", QGuiApplication::primaryScreen()->size());
-    window->setSource(QmlPath::to("ConnectionSelector.qml"));
+    window->setSource(QmlPath::to("connectivity/ConnectionSelector.qml"));
     window->installEventFilter(new CloseEventEater(this));
 }
 

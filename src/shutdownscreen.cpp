@@ -46,7 +46,7 @@ void ShutdownScreen::setWindowVisible(bool visible)
             window->setContextProperty("initialSize", QGuiApplication::primaryScreen()->size());
             window->setContextProperty("shutdownScreen", this);
             window->setContextProperty("shutdownMode", shutdownMode);
-            window->setSource(QmlPath::to("ShutdownScreen.qml"));
+            window->setSource(QmlPath::to("system/ShutdownScreen.qml"));
             window->installEventFilter(new CloseEventEater(this));
         }
 

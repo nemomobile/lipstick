@@ -93,7 +93,7 @@ void VolumeControl::setWindowVisible(bool visible)
             window->setWindowTitle("Volume");
             window->setContextProperty("initialSize", QGuiApplication::primaryScreen()->size());
             window->setContextProperty("volumeControl", this);
-            window->setSource(QmlPath::to("VolumeControl.qml"));
+            window->setSource(QmlPath::to("volumecontrol/VolumeControl.qml"));
             window->installEventFilter(new CloseEventEater(this));
         }
 

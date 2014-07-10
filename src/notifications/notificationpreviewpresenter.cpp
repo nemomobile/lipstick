@@ -156,7 +156,7 @@ void NotificationPreviewPresenter::createWindowIfNecessary()
     window->setContextProperty("LipstickSettings", LipstickSettings::instance());
     window->setContextProperty("notificationPreviewPresenter", this);
     window->setContextProperty("notificationFeedbackPlayer", notificationFeedbackPlayer);
-    window->setSource(QmlPath::to("NotificationPreview.qml"));
+    window->setSource(QmlPath::to("notifications/NotificationPreview.qml"));
     window->installEventFilter(new CloseEventEater(this));
 }
 
