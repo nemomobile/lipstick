@@ -42,6 +42,7 @@ class LIPSTICK_EXPORT LauncherItem : public QObject
 
     Q_PROPERTY(LauncherModel::ItemType type READ type CONSTANT)
     Q_PROPERTY(QString filePath READ filePath WRITE setFilePath NOTIFY itemChanged)
+    Q_PROPERTY(QString fileID READ fileID NOTIFY itemChanged)
     Q_PROPERTY(QString exec READ exec NOTIFY itemChanged)
     Q_PROPERTY(QString title READ title NOTIFY itemChanged)
     Q_PROPERTY(QString entryType READ entryType NOTIFY itemChanged)
@@ -78,6 +79,7 @@ public:
     LauncherModel::ItemType type() const;
     void setFilePath(const QString &filePath);
     QString filePath() const;
+    QString fileID() const;
     QString filename() const;
     QString exec() const;
     QString title() const;
@@ -109,6 +111,8 @@ public:
     void setUpdatingProgress(int updatingProgress);
 
     void setCustomTitle(QString customTitle);
+
+    Q_INVOKABLE QString readValue(const QString &key) const;
 
 signals:
     void itemChanged();
