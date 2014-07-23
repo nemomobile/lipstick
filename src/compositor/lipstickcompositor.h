@@ -143,7 +143,7 @@ private slots:
     void windowSwapped();
     void windowDestroyed();
     void windowPropertyChanged(const QString &);
-    void openUrl(const QUrl &);
+    bool openUrl(const QUrl &);
     void reactOnDisplayStateChanges(MeeGo::QmDisplayState::DisplayState state);
     void homeApplicationAboutToDestroy();
     void setScreenOrientationFromSensor();
