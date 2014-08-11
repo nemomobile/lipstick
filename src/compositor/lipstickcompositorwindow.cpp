@@ -277,12 +277,12 @@ void LipstickCompositorWindow::touchEvent(QTouchEvent *event)
         if (!lipstick_touch_interception) {
             handleTouchEvent(event);
         } else if (event->type() == QEvent::TouchBegin) {
+            handleTouchEvent(event);
             // On TouchBegin, start intercepting
-            if (!m_interceptingTouch) {
+            if (event->isAccepted() && !m_interceptingTouch) {
                 m_interceptingTouch = true;
                 window()->installEventFilter(this);
             }
-            handleTouchEvent(event);
         } else
 #endif
         {
