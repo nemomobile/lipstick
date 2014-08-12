@@ -311,6 +311,7 @@ void WindowPixmapItem::setWindowId(int id)
     if (m_id == id)
         return;
     
+    QSize oldSize = windowSize();
     if (m_item) {
         if (m_item->surface())
             disconnect(m_item->surface(), SIGNAL(sizeChanged()), this, SIGNAL(windowSizeChanged()));
@@ -322,6 +323,8 @@ void WindowPixmapItem::setWindowId(int id)
     updateItem();
 
     emit windowIdChanged();
+    if (windowSize() != oldSize)
+        emit windowSizeChanged();
 }
 
 bool WindowPixmapItem::opaque() const
