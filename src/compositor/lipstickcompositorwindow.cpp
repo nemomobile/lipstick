@@ -272,23 +272,18 @@ void LipstickCompositorWindow::wheelEvent(QWheelEvent *event)
 void LipstickCompositorWindow::touchEvent(QTouchEvent *event)
 {
     if (touchEventsEnabled() && surface()) {
+        handleTouchEvent(event);
+
 #if QT_VERSION >= 0x050202
         static bool lipstick_touch_interception = qEnvironmentVariableIsEmpty("LIPSTICK_NO_TOUCH_INTERCEPTION");
-        if (!lipstick_touch_interception) {
-            handleTouchEvent(event);
-        } else if (event->type() == QEvent::TouchBegin) {
+        if (lipstick_touch_interception && event->type() == QEvent::TouchBegin) {
             // On TouchBegin, start intercepting
-            if (!m_interceptingTouch) {
+            if (event->isAccepted() && !m_interceptingTouch) {
                 m_interceptingTouch = true;
                 window()->installEventFilter(this);
             }
-            handleTouchEvent(event);
-        } else
-#endif
-        {
-            // We should get here for TouchEnd and any TouchUpdate which contains Press/Release.
-            handleTouchEvent(event);
         }
+#endif
     } else {
         event->ignore();
     }
