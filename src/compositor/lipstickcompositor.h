@@ -55,11 +55,11 @@ public:
 
     static LipstickCompositor *instance();
 
-    virtual void classBegin();
-    virtual void componentComplete();
-    virtual void surfaceCreated(QWaylandSurface *surface);
-    virtual void openUrl(WaylandClient *client, const QUrl &url);
-    virtual void retainedSelectionReceived(QMimeData *mimeData);
+    void classBegin() Q_DECL_OVERRIDE;
+    void componentComplete() Q_DECL_OVERRIDE;
+    void surfaceCreated(QWaylandSurface *surface) Q_DECL_OVERRIDE;
+    bool openUrl(WaylandClient *client, const QUrl &url) Q_DECL_OVERRIDE;
+    void retainedSelectionReceived(QMimeData *mimeData) Q_DECL_OVERRIDE;
 
     int windowCount() const;
     int ghostWindowCount() const;

@@ -132,10 +132,10 @@ void LipstickCompositor::surfaceCreated(QWaylandSurface *surface)
 #endif
 }
 
-void LipstickCompositor::openUrl(WaylandClient *client, const QUrl &url)
+bool LipstickCompositor::openUrl(WaylandClient *client, const QUrl &url)
 {
     Q_UNUSED(client)
-    openUrl(url);
+    return openUrl(url);
 }
 
 bool LipstickCompositor::openUrl(const QUrl &url)
