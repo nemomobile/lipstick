@@ -70,6 +70,7 @@ signals:
     void titleChanged();
     void delayRemoveChanged();
     void mouseRegionBoundsChanged();
+    void committed();
 
 private slots:
     void handleTouchCancel();

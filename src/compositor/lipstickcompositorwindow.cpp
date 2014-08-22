@@ -346,5 +346,6 @@ void LipstickCompositorWindow::connectSurfaceSignals()
     m_surfaceConnections.clear();
     if (surface()) {
         m_surfaceConnections << connect(surface(), SIGNAL(titleChanged()), SIGNAL(titleChanged()));
+        m_surfaceConnections << connect(surface(), &QWaylandSurface::committed, this, &LipstickCompositorWindow::committed);
     }
 }
