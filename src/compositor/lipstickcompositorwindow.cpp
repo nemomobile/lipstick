@@ -301,6 +301,10 @@ void LipstickCompositorWindow::handleTouchEvent(QTouchEvent *event)
     }
 
     QWaylandSurface *m_surface = surface();
+    if (!m_surface) {
+        event->ignore();
+        return;
+    }
     QWaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
     event->accept();
     if (inputDevice->mouseFocus() != m_surface) {
