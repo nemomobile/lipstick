@@ -21,11 +21,12 @@
 #include <qmdisplaystate.h>
 #include <sys/time.h>
 #include <QFileSystemWatcher>
+#include <QDBusContext>
 
 class MGConfItem;
 class QTimer;
 
-class DeviceLock : public QObject
+class DeviceLock : public QObject, protected QDBusContext
 {
     Q_OBJECT
     Q_ENUMS(LockState)
@@ -63,6 +64,7 @@ private slots:
 private:
     static bool runPlugin(const QStringList &args);
     void setupTimer();
+    bool isPrivileged();
 
     int lockingDelay;
     QFileSystemWatcher watcher;
