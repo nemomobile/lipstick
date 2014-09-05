@@ -4,7 +4,7 @@ VERSION = 0.1
 
 CONFIG += qt plugin link_pkgconfig
 QT += core gui qml quick compositor dbus
-PKGCONFIG += qmsystem2-qt5
+PKGCONFIG += qmsystem2-qt5 mlite5
 
 INSTALLS = target qmldirfile
 qmldirfile.files = qmldir
