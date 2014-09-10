@@ -1,6 +1,6 @@
 /***************************************************************************
 **
-** Copyright (C) 2013 Jolla Ltd.
+** Copyright (C) 2013, 2014 Jolla Ltd.
 ** Contact: Jonni Rainisto <jonni.rainisto@jollamobile.com>
 **
 ** This file is part of lipstick.
@@ -22,6 +22,9 @@
 #include <sys/time.h>
 #include <QDBusConnection>
 #include <QFile>
+#include <QFileInfo>
+#include <QDBusMessage>
+#include <QDBusConnectionInterface>
 
 namespace {
 const char * const settingsFile = "/usr/share/lipstick/devicelock/devicelock_settings.conf";
@@ -50,6 +53,7 @@ static int tv_diff_in_s(const struct timeval *tv1, const struct timeval *tv2)
 
 DeviceLock::DeviceLock(QObject * parent) :
     QObject(parent),
+    QDBusContext(),
     lockingDelay(-1),
     lockTimer(new QTimer(this)),
     qmActivity(new MeeGo::QmActivity(this)),
@@ -147,10 +151,14 @@ int DeviceLock::state() const
 void DeviceLock::setState(int state)
 {
     if (deviceLockState != (LockState)state) {
-        deviceLockState = (LockState)state;
-        emit stateChanged(state);
+        if (state == Locked || isPrivileged()) {
+            deviceLockState = (LockState)state;
+            emit stateChanged(state);
 
-        setupLockTimer();
+            setupLockTimer();
+        } else {
+            sendErrorReply(QDBusError::AccessDenied, QString("Caller is not in privileged group"));
+        }
     }
 }
 
@@ -200,4 +208,21 @@ void DeviceLock::readSettings()
     if (deviceLockState != Undefined) {
         setStateAndSetupLockTimer();
     }
+}
+
+bool DeviceLock::isPrivileged()
+{
+    pid_t pid = -1;
+    if (!calledFromDBus()) {
+        // Local function calls are always privileged
+        return true;
+    }
+    // Get the PID of the calling process
+    pid = connection().interface()->servicePid(message().service());
+    // The /proc/<pid> directory is owned by EUID:EGID of the process
+    QFileInfo info(QString("/proc/%1").arg(pid));
+    if (info.group() != "privileged" && info.group() != "disk" && info.owner() != "root") {
+        return false;
+    }
+    return true;
 }
