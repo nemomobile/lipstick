@@ -162,6 +162,7 @@ void LauncherModel::onFilesUpdated(const QStringList &added,
 
                 qWarning() << "Applying heuristics:" << filename <<
                     "is the launcher item for" << item->packageName();
+                item->setIconFilename("");
                 item->setFilePath(filename);
             }
 

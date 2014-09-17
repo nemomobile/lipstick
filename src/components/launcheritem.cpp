@@ -264,9 +264,13 @@ QString LauncherItem::getOriginalIconId() const
 
 void LauncherItem::setIconFilename(const QString &path)
 {
-    _customIconFilename = path;
-    _serial++;
-    emit itemChanged();
+    if (_customIconFilename != path) {
+        _customIconFilename = path;
+        if (!path.isEmpty()) {
+            _serial++;
+        }
+        emit itemChanged();
+    }
 }
 
 QString LauncherItem::iconFilename() const
