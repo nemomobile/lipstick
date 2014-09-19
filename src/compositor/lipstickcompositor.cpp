@@ -35,7 +35,8 @@ LipstickCompositor *LipstickCompositor::m_instance = 0;
 
 LipstickCompositor::LipstickCompositor()
 : QWaylandCompositor(this), m_totalWindowCount(0), m_nextWindowId(1), m_homeActive(true), m_shaderEffect(0),
-  m_fullscreenSurface(0), m_directRenderingActive(false), m_topmostWindowId(0), m_screenOrientation(Qt::PrimaryOrientation), m_sensorOrientation(Qt::PrimaryOrientation), m_displayState(new MeeGo::QmDisplayState(this)), m_retainedSelection(0), m_compositorSettings("nemomobile", "lipstick"), m_previousDisplayState(m_displayState->get()), m_updatesEnabled(true), m_onUpdatesDisabledUnfocusedWindowId(0)
+  m_fullscreenSurface(0), m_directRenderingActive(false), m_topmostWindowId(0), m_screenOrientation(Qt::PrimaryOrientation), m_sensorOrientation(Qt::PrimaryOrientation), m_displayState(new MeeGo::QmDisplayState(this)), m_retainedSelection(0), m_compositorSettings("nemomobile", "lipstick"), m_previousDisplayState(m_displayState->get()), m_updatesEnabled(true), m_onUpdatesDisabledUnfocusedWindowId(0),
+  m_displayOn(true)
 {
     setColor(Qt::black);
     setRetainedSelectionEnabled(true);
@@ -516,14 +517,22 @@ void LipstickCompositor::setScreenOrientation(Qt::ScreenOrientation screenOrient
 
 void LipstickCompositor::reactOnDisplayStateChanges(MeeGo::QmDisplayState::DisplayState state)
 {
+    int on = -1;
     if (state == MeeGo::QmDisplayState::On) {
         emit displayOn();
+        on = 1;
     } else if (state == MeeGo::QmDisplayState::Off) {
         QCoreApplication::postEvent(this, new QTouchEvent(QEvent::TouchCancel));
         emit displayOff();
+        on = 0;
     }
 
     bool changeInDimming = (state == MeeGo::QmDisplayState::Dimmed) != (m_previousDisplayState == MeeGo::QmDisplayState::Dimmed);
+
+    if (on != -1 && m_displayOn != on) {
+        m_displayOn = on;
+        emit displayIsOnChanged();
+    }
 
     m_previousDisplayState = state;
 

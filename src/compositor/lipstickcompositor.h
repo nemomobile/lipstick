@@ -48,6 +48,7 @@ class LIPSTICK_EXPORT LipstickCompositor : public QQuickWindow, public QWaylandC
     Q_PROPERTY(QObject* clipboard READ clipboard CONSTANT)
     Q_PROPERTY(QVariant orientationLock READ orientationLock NOTIFY orientationLockChanged)
     Q_PROPERTY(bool displayDimmed READ displayDimmed NOTIFY displayDimmedChanged)
+    Q_PROPERTY(bool displayIsOn READ displayIsOn NOTIFY displayIsOnChanged)
 
 public:
     LipstickCompositor();
@@ -82,6 +83,7 @@ public:
     QVariant orientationLock() const { return m_compositorSettings.value("Compositor/orientationLock"); }
 
     bool displayDimmed() const { return m_previousDisplayState == MeeGo::QmDisplayState::Dimmed; }
+    bool displayIsOn() const { return m_previousDisplayState == MeeGo::QmDisplayState::On; }
 
     QObject *clipboard() const;
 
@@ -124,6 +126,7 @@ signals:
     void displayOff();
     void displayAboutToBeOn();
     void displayAboutToBeOff();
+    void displayIsOnChanged();
 
 protected:
     virtual void surfaceAboutToBeDestroyed(QWaylandSurface *surface);
@@ -192,6 +195,7 @@ private:
     MeeGo::QmDisplayState::DisplayState m_previousDisplayState;
     bool m_updatesEnabled;
     int m_onUpdatesDisabledUnfocusedWindowId;
+    bool m_displayOn;
 };
 
 #endif // LIPSTICKCOMPOSITOR_H
