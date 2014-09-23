@@ -226,8 +226,9 @@ void VolumeControl::handleLongListeningTime(int listeningTime)
     setWarningAcknowledged(false);
     setWindowVisible(true);
 
-    int newVolume = qBound(0, volume_, warningAcknowledged() ? maximumVolume() : safeVolume());
+    int newVolume = qBound(0, volume_, listeningTime == 0 ? maximumVolume() : safeVolume());
     if (newVolume != volume_) {
+        volume_ = newVolume;
         pulseAudioControl->setVolume(volume_);
         emit volumeChanged();
     }
