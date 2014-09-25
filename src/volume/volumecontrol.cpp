@@ -208,17 +208,6 @@ void VolumeControl::handleHighVolume(int safeLevel)
         safeVolume_ = safeLevel;
         emit safeVolumeChanged();
     }
-
-    int newVolume = qBound(0, volume_, warningAcknowledged() ? maximumVolume() : safeVolume());
-    if (newVolume != volume_) {
-        pulseAudioControl->setVolume(volume_);
-        emit volumeChanged();
-    }
-
-    if (!warningAcknowledged() && safeVolume_ != 0 && volume_ >= safeVolume_) {
-        setWindowVisible(true);
-        emit showAudioWarning(false);
-    }
 }
 
 void VolumeControl::handleLongListeningTime(int listeningTime)
