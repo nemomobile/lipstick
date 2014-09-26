@@ -51,6 +51,7 @@ VolumeControl::VolumeControl(QObject *parent) :
     connect(&keyRepeatDelayTimer, SIGNAL(timeout()), &keyRepeatTimer, SLOT(start()));
     connect(&keyRepeatTimer, SIGNAL(timeout()), this, SLOT(changeVolume()));
 
+    setWarningAcknowledged(false);
     connect(pulseAudioControl, SIGNAL(volumeChanged(int,int)), this, SLOT(setVolume(int,int)));
     connect(pulseAudioControl, SIGNAL(highVolume(int)), SLOT(handleHighVolume(int)));
     connect(pulseAudioControl, SIGNAL(longListeningTime(int)), SLOT(handleLongListeningTime(int)));
@@ -180,7 +181,13 @@ void VolumeControl::acquireKeys()
 
 void VolumeControl::changeVolume()
 {
-    int newVolume = qBound(0, volume_ + volumeChange, warningAcknowledged() ? maximumVolume() : safeVolume());
+    int newVolume = qBound(0, volume_ + volumeChange, maximumVolume());
+
+    if (!warningAcknowledged() && safeVolume_ != 0 && newVolume > safeVolume_) {
+        emit showAudioWarning(false);
+        newVolume = safeVolume();
+    }
+
     if (newVolume != volume_) {
         volume_ = newVolume;
         pulseAudioControl->setVolume(volume_);
@@ -188,11 +195,6 @@ void VolumeControl::changeVolume()
     }
 
     setWindowVisible(true);
-
-    if (!warningAcknowledged() && safeVolume_ != 0 && volume_ >= safeVolume_) {
-        emit showAudioWarning(false);
-    }
-
     emit volumeKeyPressed();
 }
 
@@ -212,17 +214,25 @@ void VolumeControl::handleHighVolume(int safeLevel)
 
 void VolumeControl::handleLongListeningTime(int listeningTime)
 {
+    // Ignore initial listening time signal, which is sent the first time
+    // media audio starts playing after reboot.
+    if (listeningTime == 0)
+        return;
+
     setWarningAcknowledged(false);
     setWindowVisible(true);
 
-    int newVolume = qBound(0, volume_, listeningTime == 0 ? maximumVolume() : safeVolume());
+    // If safe volume step is not defined for this route (safeVolume() returns 0), use
+    // maximum volume as the upper bound, otherwise use safe volume step as the upper
+    // bound.
+    int newVolume = qBound(0, volume_, safeVolume() == 0 ? maximumVolume() : safeVolume());
     if (newVolume != volume_) {
         volume_ = newVolume;
         pulseAudioControl->setVolume(volume_);
         emit volumeChanged();
     }
 
-    emit showAudioWarning(listeningTime == 0);
+    emit showAudioWarning(false);
 }
 
 void VolumeControl::handleCallActive(bool callActive)
