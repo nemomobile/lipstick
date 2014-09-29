@@ -61,12 +61,12 @@ void HomeWindow::show()
 
 void HomeWindow::hide()
 {
-    homeWindowVisible[this] = false;
+    homeWindowVisible.remove(this);
 }
 
 bool HomeWindow::isVisible() const
 {
-    return homeWindowVisible[const_cast<HomeWindow *>(this)];
+    return homeWindowVisible.value(const_cast<HomeWindow *>(this));
 }
 
 QHash<HomeWindow *, QVariantMap> homeWindowContextProperties;
@@ -216,6 +216,8 @@ void Ut_NotificationPreviewPresenter::testAddNotificationWhenWindowNotOpen()
 
     // Check that the window is created when a notification is added
     LipstickNotification *notification = createNotification(1);
+    // The HomeWindow is created with a QTimer::singleShot(0, ...), wait for it
+    QTest::qWait(0);
     presenter.updateNotification(1);
     QCOMPARE(homeWindows.count(), 1);
 
@@ -301,6 +303,7 @@ void Ut_NotificationPreviewPresenter::testRemoveNotification()
     // Create two notifications
     createNotification(1);
     createNotification(2);
+    QTest::qWait(0);
     presenter.updateNotification(1);
     presenter.updateNotification(2);
 
@@ -359,6 +362,7 @@ void Ut_NotificationPreviewPresenter::testNotificationNotShownIfNoSummaryOrBody(
     hints.insert(NotificationManager::HINT_PREVIEW_BODY, previewBody);
     notification->setHints(hints);
     notificationManagerNotification.insert(1, notification);
+    QTest::qWait(0);
     presenter.updateNotification(1);
 
     // Check whether the expected notification is signaled onwards
@@ -410,6 +414,7 @@ void Ut_NotificationPreviewPresenter::testShowingOnlyCriticalNotifications()
     hints.insert(NotificationManager::HINT_URGENCY, 1);
     notification->setHints(hints);
     notificationManagerNotification.insert(1, notification);
+    QTest::qWait(0);
     QCOMPARE(homeWindowVisible.isEmpty(), true);
 
     // When the screen or device is locked and the urgency is not high enough, so the notification shouldn't be shown
@@ -440,6 +445,7 @@ void Ut_NotificationPreviewPresenter::testUpdateNotificationRemovesNotificationF
     // Create two notifications
     LipstickNotification *notification1 = createNotification(1);
     LipstickNotification *notification2 = createNotification(2);
+    QTest::qWait(0);
     presenter.updateNotification(1);
     presenter.updateNotification(2);
 
@@ -494,8 +500,9 @@ void Ut_NotificationPreviewPresenter::testNotificationNotShownIfTouchScreenIsLoc
     QSignalSpy presentedSpy(&presenter, SIGNAL(notificationPresented(uint)));
 
     createNotification(1, 2);
+    QTest::qWait(0);
     presenter.updateNotification(1);
-    QCOMPARE(homeWindows.count(), notifications);
+    QCOMPARE(homeWindowVisible.count(), notifications);
     QCOMPARE(changedSpy.count(), notifications);
     QCOMPARE(presentedSpy.count(), presentedCount);
 }
@@ -506,6 +513,7 @@ void Ut_NotificationPreviewPresenter::testCriticalNotificationIsClosedAfterShowi
     createNotification(1, 2);
     createNotification(2);
     createNotification(3);
+    QTest::qWait(0);
     presenter.updateNotification(1);
     presenter.updateNotification(2);
     presenter.updateNotification(3);
@@ -561,9 +569,10 @@ void Ut_NotificationPreviewPresenter::testNotificationPreviewsDisabled()
 
     NotificationPreviewPresenter presenter;
     createNotification(1, urgency);
+    QTest::qWait(0);
     presenter.updateNotification(1);
 
-    QCOMPARE(homeWindows.count(), showCount);
+    QCOMPARE(homeWindowVisible.count(), showCount);
 }
 
 QTEST_MAIN(Ut_NotificationPreviewPresenter)

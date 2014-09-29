@@ -25,6 +25,7 @@
 #include <QFileInfo>
 #include <QDBusMessage>
 #include <QDBusConnectionInterface>
+#include "homeapplication.h"
 
 namespace {
 const char * const settingsFile = "/usr/share/lipstick/devicelock/devicelock_settings.conf";
@@ -67,7 +68,7 @@ DeviceLock::DeviceLock(QObject * parent) :
     connect(qmActivity, SIGNAL(activityChanged(MeeGo::QmActivity::Activity)), this, SLOT(setStateAndSetupLockTimer()));
     connect(qmLocks, SIGNAL(stateChanged(MeeGo::QmLocks::Lock,MeeGo::QmLocks::State)), this, SLOT(setStateAndSetupLockTimer()));
     connect(qmDisplayState, SIGNAL(displayStateChanged(MeeGo::QmDisplayState::DisplayState)), this, SLOT(checkDisplayState(MeeGo::QmDisplayState::DisplayState)));
-    connect(qApp, SIGNAL(homeReady()), this, SLOT(init()));
+    connect(static_cast<HomeApplication *>(qApp), &HomeApplication::homeReady, this, &DeviceLock::init);
 
     QDBusConnection::systemBus().connect(QString(), "/com/nokia/mce/signal", "com.nokia.mce.signal", "sig_call_state_ind", this, SLOT(handleCallStateChange(QString, QString)));
 }
