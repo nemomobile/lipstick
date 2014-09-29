@@ -109,6 +109,12 @@ MDesktopEntry::value(const QString &group, const QString &key) const
     return QString();
 }
 
+bool
+MDesktopEntry::terminal() const
+{
+    return false;
+}
+
 void QTimer::singleShot(int, const QObject *receiver, const char *member)
 {
     // The "member" string is of form "1member()", so remove the trailing 1 and the ()

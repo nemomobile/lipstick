@@ -166,7 +166,7 @@ QString LauncherItem::titleUnlocalized() const
 
 bool LauncherItem::shouldDisplay() const
 {
-    return !_desktopEntry.isNull() ? !_desktopEntry->noDisplay() : _isTemporary;
+    return !_desktopEntry.isNull() ? !_desktopEntry->noDisplay() && !_desktopEntry->terminal() : _isTemporary;
 }
 
 bool LauncherItem::isValid() const
