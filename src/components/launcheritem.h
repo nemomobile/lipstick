@@ -50,6 +50,7 @@ class LIPSTICK_EXPORT LauncherItem : public QObject
     Q_PROPERTY(QStringList desktopCategories READ desktopCategories NOTIFY itemChanged)
     Q_PROPERTY(QString titleUnlocalized READ titleUnlocalized NOTIFY itemChanged)
     Q_PROPERTY(bool shouldDisplay READ shouldDisplay NOTIFY itemChanged)
+    Q_PROPERTY(bool isLink READ isLink NOTIFY itemChanged FINAL)
     Q_PROPERTY(bool isValid READ isValid NOTIFY itemChanged)
     Q_PROPERTY(bool isLaunching READ isLaunching WRITE setIsLaunching NOTIFY isLaunchingChanged)
     Q_PROPERTY(bool isUpdating READ isUpdating WRITE setIsUpdating NOTIFY isUpdatingChanged)
@@ -88,6 +89,7 @@ public:
     QStringList desktopCategories() const;
     QString titleUnlocalized() const;
     bool shouldDisplay() const;
+    bool isLink() const;
     bool isValid() const;
     bool isLaunching() const;
     bool isStillValid();

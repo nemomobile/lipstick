@@ -25,6 +25,8 @@
 #include <QRegularExpressionMatch>
 #include <mdesktopentry.h>
 
+#define LINK "Link"
+
 #ifdef HAVE_CONTENTACTION
 #include <contentaction.h>
 #endif
@@ -124,7 +126,17 @@ QString LauncherItem::filename() const
 
 QString LauncherItem::exec() const
 {
-    return !_desktopEntry.isNull() ? _desktopEntry->exec() : QString();
+    QString exec = !_desktopEntry.isNull() ? _desktopEntry->exec() : QString();
+    if (!exec.isEmpty()) {
+        return exec;
+    } else if (isLink()){
+#if defined(HAVE_CONTENTACTION)
+        ContentAction::Action action = ContentAction::Action::defaultActionForScheme(_desktopEntry->url());
+        exec = action.name();
+#endif
+        return exec;
+    }
+    return QString();
 }
 
 QString LauncherItem::title() const
@@ -167,6 +179,11 @@ QString LauncherItem::titleUnlocalized() const
 bool LauncherItem::shouldDisplay() const
 {
     return !_desktopEntry.isNull() ? !_desktopEntry->noDisplay() : _isTemporary;
+}
+
+bool LauncherItem::isLink() const
+{
+    return entryType() == LINK;
 }
 
 bool LauncherItem::isValid() const
