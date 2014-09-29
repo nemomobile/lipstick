@@ -22,7 +22,7 @@
 #include <QWaylandCompositor>
 #include <QWaylandSurfaceItem>
 #include <QPointer>
-#include <QSettings>
+#include <MGConfItem>
 #include <qmdisplaystate.h>
 
 class WindowModel;
@@ -79,7 +79,7 @@ public:
 
     Qt::ScreenOrientation sensorOrientation() const { return m_sensorOrientation; }
 
-    QVariant orientationLock() const { return m_compositorSettings.value("Compositor/orientationLock"); }
+    QVariant orientationLock() const { return m_orientationLock->value("dynamic"); }
 
     bool displayDimmed() const { return m_previousDisplayState == MeeGo::QmDisplayState::Dimmed; }
 
@@ -91,7 +91,8 @@ public:
     Q_INVOKABLE void closeClientForWindowId(int);
     Q_INVOKABLE void clearKeyboardFocus();
     Q_INVOKABLE void setDisplayOff();
-    Q_INVOKABLE QVariant settingsValue(const QString &key, const QVariant &defaultValue = QVariant()) const { return m_compositorSettings.value("Compositor/" + key, defaultValue); }
+    Q_INVOKABLE QVariant settingsValue(const QString &key, const QVariant &defaultValue = QVariant()) const
+        { return (key == "orientationLock") ? m_orientationLock->value(defaultValue) : MGConfItem("/lipstick/" + key).value(defaultValue); }
 
     LipstickCompositorProcWindow *mapProcWindow(const QString &title, const QString &category, const QRect &);
 
@@ -188,7 +189,7 @@ private:
     MeeGo::QmDisplayState *m_displayState;
     QOrientationSensor* m_orientationSensor;
     QPointer<QMimeData> m_retainedSelection;
-    QSettings m_compositorSettings;
+    MGConfItem *m_orientationLock;
     MeeGo::QmDisplayState::DisplayState m_previousDisplayState;
     bool m_updatesEnabled;
     int m_onUpdatesDisabledUnfocusedWindowId;

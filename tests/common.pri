@@ -15,6 +15,8 @@ TEMPLATE = app
 DEFINES += UNIT_TEST
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x000000
 CONFIG -= link_prl
+CONFIG += link_pkgconfig
+PKGCONFIG += mlite5
 
 QMAKE_CXXFLAGS += \
     -Werror \
