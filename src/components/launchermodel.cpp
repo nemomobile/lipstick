@@ -88,12 +88,20 @@ LauncherModel::LauncherModel(QObject *parent) :
     _temporaryLaunchers()
 {
     QString userLocalAppsPath = QStandardPaths::writableLocation(QStandardPaths::ApplicationsLocation);
+    QStringList localAppDirs;
+    localAppDirs << userLocalAppsPath;
     QDir userLocalLauncherDir(userLocalAppsPath);
     if (!userLocalLauncherDir.exists()) {
         userLocalLauncherDir.mkpath(userLocalAppsPath);
+    } else {
+        // Application specific subdirectories.
+        QStringList entries = userLocalLauncherDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+        foreach (const QString &dirName, entries) {
+            localAppDirs << QString("%1%2%3").arg(userLocalAppsPath, QDir::separator(), dirName);
+        }
     }
 
-    _launcherMonitor.setDirectories(QStringList() << LAUNCHER_APPS_PATH << userLocalAppsPath);
+    _launcherMonitor.setDirectories(QStringList() << LAUNCHER_APPS_PATH << localAppDirs);
 
     // Set up the monitor for icon and desktop file changes
     connect(&_launcherMonitor, SIGNAL(filesUpdated(const QStringList &, const QStringList &, const QStringList &)),
