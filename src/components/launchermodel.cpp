@@ -422,6 +422,7 @@ void LauncherModel::updatingProgress(const QString &packageName, int progress,
 
     if (!item) {
         qWarning() << "Package not found in model:" << packageName;
+        return;
     }
 
     item->setUpdatingProgress(progress);
