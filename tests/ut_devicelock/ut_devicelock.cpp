@@ -117,11 +117,12 @@ void Ut_DeviceLock::testInitialState()
     qProcessExitCode = 0;
     deviceLock = new DeviceLock();
 
-    QCOMPARE(deviceLock->state(), (int)DeviceLock::Unlocked);
+    QCOMPARE(deviceLock->state(), (int)DeviceLock::Undefined);
 
     delete deviceLock;
     qSettingsValue = "-1";
     deviceLock = new DeviceLock();
+    deviceLock->init();
 
     QCOMPARE(deviceLock->state(), (int)DeviceLock::Unlocked);
     QCOMPARE(qProcessStartProgram, qSettingsValue.toString());
@@ -130,12 +131,14 @@ void Ut_DeviceLock::testInitialState()
     delete deviceLock;
     qProcessWaitForFinished = true;
     deviceLock = new DeviceLock();
+    deviceLock->init();
 
     QCOMPARE(deviceLock->state(), (int)DeviceLock::Unlocked);
 
     delete deviceLock;
     qProcessExitCode = 1;
     deviceLock = new DeviceLock();
+    deviceLock->init();
 
     QCOMPARE(deviceLock->state(), (int)DeviceLock::Unlocked);
 }
@@ -232,7 +235,7 @@ void Ut_DeviceLock::testDisplayStateWhenDeviceScreenIsLocked_data()
     QTest::newRow("Automatic locking immediate, display off, screen locked")
             << 0 << MeeGo::QmDisplayState::DisplayState::Off << MeeGo::QmLocks::Locked << 1 << DeviceLock::Locked;
     QTest::newRow("Automatic locking immediate, display off, screen unlocked")
-            << 0 << MeeGo::QmDisplayState::DisplayState::Off << MeeGo::QmLocks::Unlocked << 1 << DeviceLock::Unlocked;
+            << 0 << MeeGo::QmDisplayState::DisplayState::Off << MeeGo::QmLocks::Unlocked << 1 << DeviceLock::Locked;
     QTest::newRow("Automatic locking in 5 minutes, display off, screen locked")
             << 5 << MeeGo::QmDisplayState::DisplayState::Off << MeeGo::QmLocks::Locked << 0 << DeviceLock::Unlocked;
     QTest::newRow("Automatic locking disabled, display off, screen locked")
