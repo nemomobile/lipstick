@@ -6,7 +6,7 @@ QMAKE_CXXFLAGS += `pkg-config --cflags-only-I qmsystem2-qt5`
 
 QT += dbus
 
-LIBS += -lrt -llipstick-qt5
+LIBS += -lrt -L $$SRCDIR -llipstick-qt5
 
 # unit test and unit
 SOURCES += \
