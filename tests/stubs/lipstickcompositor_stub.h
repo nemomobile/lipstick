@@ -33,7 +33,6 @@ class LipstickCompositorStub : public StubBase {
   virtual void setDisplayOff();
   virtual LipstickCompositorProcWindow * mapProcWindow(const QString &title, const QString &category, const QRect &);
   virtual QWaylandSurface * surfaceForId(int) const;
-  virtual void surfaceAboutToBeDestroyed(QWaylandSurface *surface);
   virtual void surfaceMapped();
   virtual void surfaceUnmapped();
   virtual void surfaceSizeChanged();
@@ -52,7 +51,8 @@ class LipstickCompositorStub : public StubBase {
   virtual void setScreenOrientationFromSensor();
   virtual void clipboardDataChanged();
   virtual void onVisibleChanged(bool visible);
-  virtual void startFrame();
+  virtual QWaylandSurfaceView *createView(QWaylandSurface *surf);
+  virtual void onSurfaceDying();
 }; 
 
 // 2. IMPLEMENT STUB
@@ -188,12 +188,6 @@ QWaylandSurface * LipstickCompositorStub::surfaceForId(int id) const {
   return stubReturnValue<QWaylandSurface *>("surfaceForId");
 }
 
-void LipstickCompositorStub::surfaceAboutToBeDestroyed(QWaylandSurface *surface) {
-  QList<ParameterBase*> params;
-  params.append( new Parameter<QWaylandSurface * >(surface));
-  stubMethodEntered("surfaceAboutToBeDestroyed",params);
-}
-
 void LipstickCompositorStub::surfaceMapped() {
   stubMethodEntered("surfaceMapped");
 }
@@ -216,6 +210,10 @@ void LipstickCompositorStub::surfaceRaised() {
 
 void LipstickCompositorStub::surfaceLowered() {
   stubMethodEntered("surfaceLowered");
+}
+
+void LipstickCompositorStub::onSurfaceDying() {
+    stubMethodEntered("onSurfaceDying");
 }
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
@@ -266,8 +264,12 @@ void LipstickCompositorStub::onVisibleChanged(bool v) {
     stubMethodEntered("onVisibleChanged", params);
 }
 
-void LipstickCompositorStub::startFrame() {
-    stubMethodEntered("startFrame");
+QWaylandSurfaceView *LipstickCompositorStub::createView(QWaylandSurface *surf)
+{
+    QList<ParameterBase*> params;
+    params.append( new Parameter<QWaylandSurface *>(surf));
+    stubMethodEntered("createView", params);
+    return stubReturnValue<QWaylandSurfaceView *>("createView");
 }
 
 // 3. CREATE A STUB INSTANCE
@@ -373,10 +375,6 @@ QWaylandSurface * LipstickCompositor::surfaceForId(int id) const {
   return gLipstickCompositorStub->surfaceForId(id);
 }
 
-void LipstickCompositor::surfaceAboutToBeDestroyed(QWaylandSurface *surface) {
-  gLipstickCompositorStub->surfaceAboutToBeDestroyed(surface);
-}
-
 void LipstickCompositor::surfaceMapped() {
   gLipstickCompositorStub->surfaceMapped();
 }
@@ -442,8 +440,12 @@ void LipstickCompositor::onVisibleChanged(bool v) {
   gLipstickCompositorStub->onVisibleChanged(v);
 }
 
-void LipstickCompositor::startFrame() {
-    gLipstickCompositorStub->startFrame();
+QWaylandSurfaceView *LipstickCompositor::createView(QWaylandSurface *surf) {
+  return gLipstickCompositorStub->createView(surf);
+}
+
+void LipstickCompositor::onSurfaceDying() {
+    gLipstickCompositorStub->onSurfaceDying();
 }
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 2, 0)

@@ -36,7 +36,7 @@ class LIPSTICK_EXPORT LipstickCompositorWindow : public QWaylandSurfaceItem
     Q_PROPERTY(QRect mouseRegionBounds READ mouseRegionBounds NOTIFY mouseRegionBoundsChanged)
 
 public:
-    LipstickCompositorWindow(int windowId, const QString &, QWaylandSurface *surface, QQuickItem *parent = 0);
+    LipstickCompositorWindow(int windowId, const QString &, QWaylandQuickSurface *surface, QQuickItem *parent = 0);
 
     QVariant userData() const;
     void setUserData(QVariant);
@@ -101,6 +101,7 @@ private:
     QRegion m_mouseRegion;
     QList<int> m_grabbedKeys;
     QList<QMetaObject::Connection> m_surfaceConnections;
+    bool m_mapped;
 };
 
 #endif // LIPSTICKCOMPOSITORWINDOW_H
