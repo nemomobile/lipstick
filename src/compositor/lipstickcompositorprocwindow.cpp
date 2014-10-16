@@ -28,6 +28,7 @@ LipstickCompositorProcWindow *LipstickCompositor::mapProcWindow(const QString &t
     QObject::connect(item, SIGNAL(destroyed(QObject*)), this, SLOT(windowDestroyed()));
     m_totalWindowCount++;
     m_mappedSurfaces.insert(id, item);
+    m_windows.insert(id, item);
 
     item->setPosition(g.topLeft());
     item->setTouchEventsEnabled(true);

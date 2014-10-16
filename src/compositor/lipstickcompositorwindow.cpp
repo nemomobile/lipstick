@@ -23,10 +23,10 @@
 #include "lipstickcompositorwindow.h"
 
 LipstickCompositorWindow::LipstickCompositorWindow(int windowId, const QString &category,
-                                                   QWaylandSurface *surface, QQuickItem *parent)
+                                                   QWaylandQuickSurface *surface, QQuickItem *parent)
 : QWaylandSurfaceItem(surface, parent), m_windowId(windowId), m_category(category), m_ref(0),
   m_delayRemove(false), m_windowClosed(false), m_removePosted(false), m_mouseRegionValid(false),
-  m_interceptingTouch(false)
+  m_interceptingTouch(false), m_mapped(false)
 {
     setFlags(QQuickItem::ItemIsFocusScope | flags());
     refreshMouseRegion();
@@ -35,8 +35,8 @@ LipstickCompositorWindow::LipstickCompositorWindow(int windowId, const QString &
     connect(this, SIGNAL(visibleChanged()), SLOT(handleTouchCancel()));
     connect(this, SIGNAL(enabledChanged()), SLOT(handleTouchCancel()));
     connect(this, SIGNAL(touchEventsEnabledChanged()), SLOT(handleTouchCancel()));
+    connect(this, &QWaylandSurfaceItem::surfaceDestroyed, this, &QObject::deleteLater);
 
-    connect(this, SIGNAL(surfaceChanged()), SLOT(connectSurfaceSignals()));
     connectSurfaceSignals();
 }
 
@@ -61,7 +61,8 @@ int LipstickCompositorWindow::windowId() const
 
 qint64 LipstickCompositorWindow::processId() const
 {
-    if (surface()) return surface()->processId();
+    if (surface())
+        return surface()->processId();
     else return 0;
 }
 
@@ -228,8 +229,8 @@ void LipstickCompositorWindow::mousePressEvent(QMouseEvent *event)
     QWaylandSurface *m_surface = surface();
     if (m_surface && (!m_mouseRegionValid || m_mouseRegion.contains(event->pos()))) {
         QWaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
-        if (inputDevice->mouseFocus() != m_surface)
-            inputDevice->setMouseFocus(m_surface, event->pos(), event->globalPos());
+        if (inputDevice->mouseFocus() != this)
+            inputDevice->setMouseFocus(this, event->pos(), event->globalPos());
         inputDevice->sendMousePressEvent(event->button(), event->pos(), event->globalPos());
     } else {
         event->ignore();
@@ -241,7 +242,7 @@ void LipstickCompositorWindow::mouseMoveEvent(QMouseEvent *event)
     QWaylandSurface *m_surface = surface();
     if (m_surface){
         QWaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
-        inputDevice->sendMouseMoveEvent(m_surface, event->pos(), event->globalPos());
+        inputDevice->sendMouseMoveEvent(this, event->pos(), event->globalPos());
     } else {
         event->ignore();
     }
@@ -307,11 +308,11 @@ void LipstickCompositorWindow::handleTouchEvent(QTouchEvent *event)
     }
     QWaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
     event->accept();
-    if (inputDevice->mouseFocus() != m_surface) {
+    if (inputDevice->mouseFocus() != this) {
         QPoint pointPos;
         if (!points.isEmpty())
             pointPos = points.at(0).pos().toPoint();
-        inputDevice->setMouseFocus(m_surface, pointPos, pointPos);
+        inputDevice->setMouseFocus(this, pointPos, pointPos);
     }
     inputDevice->sendFullTouchEvent(event);
 }
@@ -322,7 +323,7 @@ void LipstickCompositorWindow::handleTouchCancel()
     if (!m_surface)
         return;
     QWaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
-    if (inputDevice->mouseFocus() == m_surface &&
+    if (inputDevice->mouseFocus() == this &&
             (!isVisible() || !isEnabled() || !touchEventsEnabled())) {
         inputDevice->sendTouchCancelEvent();
         inputDevice->setMouseFocus(0, QPointF());
@@ -350,6 +351,6 @@ void LipstickCompositorWindow::connectSurfaceSignals()
     m_surfaceConnections.clear();
     if (surface()) {
         m_surfaceConnections << connect(surface(), SIGNAL(titleChanged()), SIGNAL(titleChanged()));
-        m_surfaceConnections << connect(surface(), &QWaylandSurface::committed, this, &LipstickCompositorWindow::committed);
+        m_surfaceConnections << connect(surface(), &QWaylandSurface::configure, this, &LipstickCompositorWindow::committed);
     }
 }

@@ -68,6 +68,7 @@ signals:
 
 private:
     void updateItem();
+    void surfaceDestroyed();
 
     QPointer<LipstickCompositorWindow> m_item;
     QQuickItem *m_shaderEffect;
