@@ -294,11 +294,13 @@ void LipstickCompositorWindow::handleTouchEvent(QTouchEvent *event)
 {
     QList<QTouchEvent::TouchPoint> points = event->touchPoints();
 
-    if (m_mouseRegionValid && points.count() == 1 &&
-        event->touchPointStates() & Qt::TouchPointPressed &&
-        !m_mouseRegion.contains(points.at(0).pos().toPoint())) {
-        event->ignore();
-        return;
+    if (m_mouseRegionValid && event->touchPointStates() & Qt::TouchPointPressed) {
+        foreach (const QTouchEvent::TouchPoint &p, points) {
+            if (!m_mouseRegion.contains(p.pos().toPoint())) {
+                event->ignore();
+                return;
+            }
+        }
     }
 
     QWaylandSurface *m_surface = surface();
