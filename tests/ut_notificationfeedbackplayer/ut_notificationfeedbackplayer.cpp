@@ -201,7 +201,7 @@ void Ut_NotificationFeedbackPlayer::testUpdateNotificationIsNotPossibleAfterRest
     QCOMPARE(gClientStub->stubCallCount("play"), 0);
 }
 
-QWaylandSurface *surface;
+QWaylandSurface *surface = (QWaylandSurface *)1;
 void Ut_NotificationFeedbackPlayer::testNotificationPreviewsDisabled_data()
 {
     QTest::addColumn<QWaylandSurface *>("surface");

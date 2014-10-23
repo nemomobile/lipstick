@@ -456,4 +456,8 @@ QWaylandCompositor::QWaylandCompositor(QWindow *, const char *, QWaylandComposit
 {
 }
 
+QWaylandQuickCompositor::QWaylandQuickCompositor(QQuickWindow *, const char *, QWaylandCompositor::ExtensionFlags)
+{
+}
+
 #endif

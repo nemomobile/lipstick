@@ -527,7 +527,7 @@ void Ut_NotificationPreviewPresenter::testCriticalNotificationIsClosedAfterShowi
     QCOMPARE(notificationManagerCloseNotificationIds.count(), 1);
 }
 
-QWaylandSurface *surface;
+QWaylandSurface *surface = (QWaylandSurface *)1;
 void Ut_NotificationPreviewPresenter::testNotificationPreviewsDisabled_data()
 {
     QTest::addColumn<QWaylandSurface *>("surface");
