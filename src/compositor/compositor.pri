@@ -13,6 +13,7 @@ PUBLICHEADERS += \
 HEADERS += \
     $$PWD/windowpixmapitem.h \
     $$PWD/windowproperty.h \
+    $$PWD/lipstickrecorder.h \
 
 SOURCES += \
     $$PWD/lipstickcompositor.cpp \
@@ -23,7 +24,10 @@ SOURCES += \
     $$PWD/windowpixmapitem.cpp \
     $$PWD/windowproperty.cpp \
     $$PWD/lipsticksurfaceinterface.cpp \
+    $$PWD/lipstickrecorder.cpp \
 
 DEFINES += QT_COMPOSITOR_QUICK
 
 QT += compositor
+
+WAYLANDSERVERSOURCES += ../protocol/lipstick-recorder.xml \

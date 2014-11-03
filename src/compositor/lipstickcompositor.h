@@ -29,6 +29,7 @@ class WindowModel;
 class LipstickCompositorWindow;
 class LipstickCompositorProcWindow;
 class QOrientationSensor;
+class LipstickRecorderManager;
 
 class LIPSTICK_EXPORT LipstickCompositor : public QQuickWindow, public QWaylandQuickCompositor,
                                            public QQmlParserStatus
@@ -166,6 +167,7 @@ private:
     void windowAdded(int);
     void windowRemoved(int);
     void windowDestroyed(LipstickCompositorWindow *item);
+    void readContent();
 
     QQmlComponent *shaderEffectComponent();
 
@@ -193,6 +195,7 @@ private:
     MeeGo::QmDisplayState::DisplayState m_previousDisplayState;
     bool m_updatesEnabled;
     int m_onUpdatesDisabledUnfocusedWindowId;
+    LipstickRecorderManager *m_recorder;
 };
 
 #endif // LIPSTICKCOMPOSITOR_H
