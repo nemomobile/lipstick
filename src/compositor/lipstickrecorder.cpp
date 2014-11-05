@@ -28,19 +28,26 @@ static uint32_t getTime()
 }
 
 static const QEvent::Type FrameEventType = (QEvent::Type)QEvent::registerEventType();
+static const QEvent::Type FailedEventType = (QEvent::Type)QEvent::registerEventType();
 
 class FrameEvent : public QEvent
 {
 public:
-    FrameEvent(int r, uint32_t t)
+    FrameEvent(uint32_t t)
         : QEvent(FrameEventType)
-        , result(r)
         , time(t)
-    {
-    }
-
-    int result;
+    { }
     uint32_t time;
+};
+
+class FailedEvent : public QEvent
+{
+public:
+    FailedEvent(int r)
+        : QEvent(FailedEventType)
+        , result(r)
+    { }
+    int result;
 };
 
 LipstickRecorderManager::LipstickRecorderManager()
@@ -68,13 +75,13 @@ void LipstickRecorderManager::recordFrame(QWindow *window)
         int height = wl_shm_buffer_get_height(buffer);
 
         if (width != window->width() || height != window->height()) {
-            qApp->postEvent(recorder, new FrameEvent(QtWaylandServer::lipstick_recorder::result_bad_buffer, time));
+            qApp->postEvent(recorder, new FailedEvent(QtWaylandServer::lipstick_recorder::result_bad_buffer));
             continue;
         }
 
         glPixelStorei(GL_PACK_ALIGNMENT, 1);
         glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-        qApp->postEvent(recorder, new FrameEvent(QtWaylandServer::lipstick_recorder::result_ok, time));
+        qApp->postEvent(recorder, new FrameEvent(time));
 
         m_requests.remove(window, recorder);
     }
@@ -123,12 +130,6 @@ LipstickRecorder::~LipstickRecorder()
     m_manager->remove(m_window, this);
 }
 
-void LipstickRecorder::sendFrame(int result, int time)
-{
-    send_frame(result, m_bufferResource, time);
-    m_bufferResource = Q_NULLPTR;
-}
-
 void LipstickRecorder::lipstick_recorder_destroy_resource(Resource *resource)
 {
     Q_UNUSED(resource)
@@ -152,7 +153,7 @@ void LipstickRecorder::lipstick_recorder_record_frame(Resource *resource, ::wl_r
         m_manager->requestFrame(m_window, this);
     } else {
         m_bufferResource = Q_NULLPTR;
-        send_frame(result_bad_buffer, buffer, getTime());
+        send_failed(result_bad_buffer, buffer);
     }
 }
 
@@ -160,9 +161,15 @@ bool LipstickRecorder::event(QEvent *e)
 {
     if (e->type() == FrameEventType) {
         FrameEvent *fe = static_cast<FrameEvent *>(e);
-        sendFrame(fe->result, fe->time);
-        wl_client_flush(client());
-        return true;
+        send_frame(m_bufferResource, fe->time, QtWaylandServer::lipstick_recorder::transform_y_inverted);
+    } else if (e->type() == FailedEventType) {
+        FailedEvent *fe = static_cast<FailedEvent *>(e);
+        send_failed(fe->result, m_bufferResource);
+    } else {
+        return QObject::event(e);
     }
-    return QObject::event(e);
+
+    m_bufferResource = Q_NULLPTR;
+    wl_client_flush(client());
+    return true;
 }

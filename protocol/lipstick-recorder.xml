@@ -51,15 +51,19 @@
                 record more frames.
 
                 The buffer must be a shm buffer, trying to use another
-                type of buffer will result in frame being sent with the
-                bad_buffer result.
+                type of buffer will result in failure to capture the
+                frame and the failed event will be sent.
             </description>
             <arg name="buffer" type="object" interface="wl_buffer"/>
         </request>
 
         <enum name="result">
-            <entry name="ok" value="1"/>
             <entry name="bad_buffer" value="2"/>
+        </enum>
+
+        <enum name="transform">
+            <entry name="normal" value="1"/>
+            <entry name="y_inverted" value="2"/>
         </enum>
 
         <event name="frame">
@@ -68,14 +72,21 @@
                 recorded, or in case an error happened. The client can
                 call record_frame again to record the next frame.
 
-                The value of the 'result' argument will be one of the
-                values of the 'result' enum.
                 'time' is the time the compositor recorded that frame,
                 in milliseconds, with an unspecified base.
             </description>
-            <arg name="result" type="int"/>
             <arg name="buffer" type="object" interface="wl_buffer"/>
             <arg name="time" type="uint"/>
+            <arg name="transform" type="int"/>
+        </event>
+
+        <event name="failed">
+            <description summary="the frame capture failed">
+                The value of the 'result' argument will be one of the
+                values of the 'result' enum.
+            </description>
+            <arg name="result" type="int"/>
+            <arg name="buffer" type="object" interface="wl_buffer"/>
         </event>
 
         <event name="cancelled">

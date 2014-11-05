@@ -56,7 +56,6 @@ public:
     LipstickRecorder(LipstickRecorderManager *manager, wl_client *client, quint32 id, QWindow *window);
     ~LipstickRecorder();
 
-    void sendFrame(int result, int time);
     wl_shm_buffer *buffer() const { return m_buffer; }
     wl_client *client() const { return m_client; }
 
