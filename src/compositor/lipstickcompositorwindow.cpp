@@ -26,7 +26,7 @@ LipstickCompositorWindow::LipstickCompositorWindow(int windowId, const QString &
                                                    QWaylandQuickSurface *surface, QQuickItem *parent)
 : QWaylandSurfaceItem(surface, parent), m_windowId(windowId), m_category(category), m_ref(0),
   m_delayRemove(false), m_windowClosed(false), m_removePosted(false), m_mouseRegionValid(false),
-  m_interceptingTouch(false), m_mapped(false)
+  m_interceptingTouch(false), m_mapped(false), m_unresponsive(false), m_pongTimeoutTimer(0)
 {
     setFlags(QQuickItem::ItemIsFocusScope | flags());
     refreshMouseRegion();
@@ -214,6 +214,11 @@ bool LipstickCompositorWindow::isInProcess() const
     return false;
 }
 
+bool LipstickCompositorWindow::unresponsive() const
+{
+    return m_unresponsive;
+}
+
 bool LipstickCompositorWindow::event(QEvent *e)
 {
     bool rv = QWaylandSurfaceItem::event(e);
@@ -222,6 +227,17 @@ bool LipstickCompositorWindow::event(QEvent *e)
         if (canRemove()) delete this;
     }
     return rv;
+}
+
+void LipstickCompositorWindow::timerEvent(QTimerEvent *event)
+{
+    if (event->timerId() == m_pongTimeoutTimer) {
+        Q_ASSERT(!m_unresponsive);
+
+        killTimer(m_pongTimeoutTimer);
+        m_unresponsive = true;
+        emit unresponsiveChanged();
+    }
 }
 
 void LipstickCompositorWindow::mousePressEvent(QMouseEvent *event)
@@ -317,6 +333,10 @@ void LipstickCompositorWindow::handleTouchEvent(QTouchEvent *event)
         inputDevice->setMouseFocus(this, pointPos, pointPos);
     }
     inputDevice->sendFullTouchEvent(event);
+
+    if (event->type() != QEvent::TouchUpdate && !m_pongTimeoutTimer) {
+        ping();
+    }
 }
 
 void LipstickCompositorWindow::handleTouchCancel()
@@ -339,6 +359,15 @@ void LipstickCompositorWindow::terminateProcess(int killTimeout)
     QTimer::singleShot(killTimeout, this, SLOT(killProcess()));
 }
 
+void LipstickCompositorWindow::ping()
+{
+    if (!m_pongTimeoutTimer && surface()) {
+        const int pongTimeout = 100; //ms
+        m_pongTimeoutTimer = startTimer(pongTimeout);
+        surface()->ping();
+    }
+}
+
 void LipstickCompositorWindow::killProcess()
 {
     kill(processId(), SIGKILL);
@@ -354,5 +383,21 @@ void LipstickCompositorWindow::connectSurfaceSignals()
     if (surface()) {
         m_surfaceConnections << connect(surface(), SIGNAL(titleChanged()), SIGNAL(titleChanged()));
         m_surfaceConnections << connect(surface(), &QWaylandSurface::configure, this, &LipstickCompositorWindow::committed);
+        m_surfaceConnections << connect(surface(), &QWaylandSurface::pong, this, &LipstickCompositorWindow::pong);
+    }
+}
+
+void LipstickCompositorWindow::pong()
+{
+    if (!m_unresponsive) {
+        Q_ASSERT(m_pongTimeoutTimer);
+        killTimer(m_pongTimeoutTimer);
+        m_pongTimeoutTimer = 0;
+    } else {
+        // timeout triggered before pong and
+        // timer has been killed in timerEvent
+        m_unresponsive = false;
+        m_pongTimeoutTimer = 0;
+        emit unresponsiveChanged();
     }
 }
