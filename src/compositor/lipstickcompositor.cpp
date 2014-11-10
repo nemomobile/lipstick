@@ -426,7 +426,7 @@ void LipstickCompositor::surfaceRaised()
     QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
     LipstickCompositorWindow *window = surfaceWindow(surface);
 
-    if (window) {
+    if (window && window->m_mapped) {
         emit windowRaised(window);
     }
 }
@@ -436,7 +436,7 @@ void LipstickCompositor::surfaceLowered()
     QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
     LipstickCompositorWindow *window = surfaceWindow(surface);
 
-    if (window) {
+    if (window && window->m_mapped) {
         emit windowLowered(window);
     }
 }
