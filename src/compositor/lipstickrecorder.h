@@ -27,6 +27,7 @@ struct wl_shm_buffer;
 struct wl_client;
 
 class QWindow;
+class QQuickWindow;
 class QEvent;
 class LipstickRecorder;
 
@@ -53,7 +54,7 @@ private:
 class LipstickRecorder : public QObject, public QtWaylandServer::lipstick_recorder
 {
 public:
-    LipstickRecorder(LipstickRecorderManager *manager, wl_client *client, quint32 id, QWindow *window);
+    LipstickRecorder(LipstickRecorderManager *manager, wl_client *client, quint32 id, QQuickWindow *window);
     ~LipstickRecorder();
 
     wl_shm_buffer *buffer() const { return m_buffer; }
@@ -64,13 +65,14 @@ protected:
     void lipstick_recorder_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
     void lipstick_recorder_destroy(Resource *resource) Q_DECL_OVERRIDE;
     void lipstick_recorder_record_frame(Resource *resource, ::wl_resource *buffer) Q_DECL_OVERRIDE;
+    void lipstick_recorder_repaint(Resource *resource) Q_DECL_OVERRIDE;
 
 private:
     LipstickRecorderManager *m_manager;
     wl_resource *m_bufferResource;
     wl_shm_buffer *m_buffer;
     wl_client *m_client;
-    QWindow *m_window;
+    QQuickWindow *m_window;
 };
 
 #endif

@@ -57,6 +57,19 @@
             <arg name="buffer" type="object" interface="wl_buffer"/>
         </request>
 
+        <request name="repaint">
+            <description summary="request the compositor to repaint asap">
+                Calling record_frame will not cause the compositor to
+                repaint, but it will wait instead for the first frame
+                the compositor draws due to some other external event
+                or internal change.
+                Calling this request after calling record_frame will
+                ask the compositor to redraw as soon at possible even
+                if it wouldn't otherwise.
+                If no frame was requested this request has no effect.
+            </description>
+        </request>
+
         <enum name="result">
             <entry name="bad_buffer" value="2"/>
         </enum>

@@ -116,7 +116,7 @@ void LipstickRecorderManager::lipstick_recorder_manager_create_recorder(Resource
 }
 
 
-LipstickRecorder::LipstickRecorder(LipstickRecorderManager *manager, wl_client *client, quint32 id, QWindow *window)
+LipstickRecorder::LipstickRecorder(LipstickRecorderManager *manager, wl_client *client, quint32 id, QQuickWindow *window)
                 : QtWaylandServer::lipstick_recorder(client, id, 1)
                 , m_manager(manager)
                 , m_bufferResource(Q_NULLPTR)
@@ -154,6 +154,14 @@ void LipstickRecorder::lipstick_recorder_record_frame(Resource *resource, ::wl_r
     } else {
         m_bufferResource = Q_NULLPTR;
         send_failed(result_bad_buffer, buffer);
+    }
+}
+
+void LipstickRecorder::lipstick_recorder_repaint(Resource *resource)
+{
+    Q_UNUSED(resource)
+    if (m_bufferResource) {
+        m_window->update();
     }
 }
 
