@@ -93,11 +93,14 @@ LipstickCompositor::~LipstickCompositor()
     // ~QWindow can a call into onVisibleChanged and QWaylandCompositor after we
     // are destroyed, so disconnect it.
     disconnect(this, SIGNAL(visibleChanged(bool)), this, SLOT(onVisibleChanged(bool)));
-    // Manually disconnect the items here to prevent memory corruption.
-    // They are deleted in the compositor's ~QObject(), but the windowDestroyed() slot uses
-    // m_windows which at that point is not usable anymore.
+
+    // When destroying LipstickCompositor ~QQuickWindow() is called after
+    // ~QWaylandQuickCompositor(), so changes to the items in the window may end
+    // up calling code such as LipstickCompositorWindow::handleTouchCancel(),
+    // which will try to use the compositor, at that point not usable anymore.
+    // So delete all the windows here.
     foreach (LipstickCompositorWindow *w, m_windows) {
-        disconnect(w, SIGNAL(destroyed(QObject*)), this, SLOT(windowDestroyed()));
+        delete w;
     }
     delete m_shaderEffect;
 }
