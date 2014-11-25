@@ -31,6 +31,7 @@
 #include "lipstickcompositoradaptor.h"
 #include "lipsticksettings.h"
 #include <qpa/qwindowsysteminterface.h>
+#include "alienmanager/alienmanager.h"
 
 LipstickCompositor *LipstickCompositor::m_instance = 0;
 
@@ -86,6 +87,8 @@ LipstickCompositor::LipstickCompositor()
     if (!systemBus.registerObject("/", this)) {
         qWarning("Unable to register object at path /: %s", systemBus.lastError().message().toUtf8().constData());
     }
+
+    addGlobalInterface(new AlienManagerGlobal);
 }
 
 LipstickCompositor::~LipstickCompositor()
