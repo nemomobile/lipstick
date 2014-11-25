@@ -18,6 +18,7 @@
 #include "lipstickcompositor.h"
 #include "aliensurface.h"
 #include "alienmanager.h"
+#include "lipsticksurfaceinterface.h"
 
 AlienSurface::AlienSurface(AlienClient *client, QWaylandSurface *surface, uint32_t version, uint32_t id, const QString &package)
             : QObject(client)
@@ -62,6 +63,9 @@ bool AlienSurface::runOperation(QWaylandSurfaceOp *op)
             sendConfigure(s.width(), s.height());
             return true;
         }
+        case LipstickOomScoreOp::Type:
+            m_client->send_oom_score(static_cast<LipstickOomScoreOp *>(op)->score());
+            return true;
         default:
             break;
     }
