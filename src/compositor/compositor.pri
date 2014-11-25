@@ -8,6 +8,7 @@ PUBLICHEADERS += \
     $$PWD/lipstickcompositorprocwindow.h \
     $$PWD/lipstickcompositoradaptor.h \
     $$PWD/windowmodel.h \
+    $$PWD/lipsticksurfaceinterface.h \
 
 HEADERS += \
     $$PWD/windowpixmapitem.h \
@@ -21,6 +22,7 @@ SOURCES += \
     $$PWD/windowmodel.cpp \
     $$PWD/windowpixmapitem.cpp \
     $$PWD/windowproperty.cpp \
+    $$PWD/lipsticksurfaceinterface.cpp \
 
 DEFINES += QT_COMPOSITOR_QUICK
 
