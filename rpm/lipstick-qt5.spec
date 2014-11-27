@@ -39,6 +39,7 @@ BuildRequires:  pkgconfig(ngf-qt5)
 BuildRequires:  pkgconfig(qmsystem2-qt5) >= 1.4.17
 BuildRequires:  pkgconfig(contextkit-statefs) >= 0.2.7
 BuildRequires:  pkgconfig(systemd)
+BuildRequires:  pkgconfig(wayland-server)
 BuildRequires:  qt5-qttools-linguist
 BuildRequires:  qt5-qtwayland-wayland_egl-devel >= 5.4.0
 BuildRequires:  doxygen
