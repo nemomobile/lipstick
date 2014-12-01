@@ -39,6 +39,7 @@ AlienSurface::AlienSurface(AlienClient *client, QWaylandSurface *surface, uint32
 
 AlienSurface::~AlienSurface()
 {
+    wl_resource_set_implementation(resource()->handle, nullptr, nullptr, nullptr);
     surface()->setMapped(false);
 }
 

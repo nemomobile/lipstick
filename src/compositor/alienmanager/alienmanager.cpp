@@ -42,6 +42,11 @@ AlienManager::AlienManager(wl_client *client, uint32_t version, uint32_t id, QOb
 {
 }
 
+AlienManager::~AlienManager()
+{
+    wl_resource_set_implementation(resource()->handle, nullptr, nullptr, nullptr);
+}
+
 void AlienManager::ping(uint32_t serial, QWaylandSurface *surface)
 {
     m_pings.insert(serial, surface);
@@ -79,6 +84,11 @@ AlienClient::AlienClient(AlienManager *mgr, wl_client *client, uint32_t version,
            , m_package(package)
            , m_manager(mgr)
 {
+}
+
+AlienClient::~AlienClient()
+{
+    wl_resource_set_implementation(resource()->handle, nullptr, nullptr, nullptr);
 }
 
 AlienManager *AlienClient::manager() const
