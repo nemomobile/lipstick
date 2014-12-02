@@ -37,6 +37,7 @@ class AlienManager : public QObject, public QtWaylandServer::alien_manager
 {
 public:
     AlienManager(wl_client *client, uint32_t version, uint32_t id, QObject *parent);
+    ~AlienManager();
 
     void ping(uint32_t serial, QWaylandSurface *surface);
 
@@ -54,6 +55,7 @@ class AlienClient : public QObject, public QtWaylandServer::alien_client
 {
 public:
     AlienClient(AlienManager *mgr, wl_client *client, uint32_t version, uint32_t id, const QString &package);
+    ~AlienClient();
 
     AlienManager *manager() const;
 
