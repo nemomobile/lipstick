@@ -114,7 +114,7 @@ void DeviceLock::setupLockTimer()
 
 void DeviceLock::setStateAndSetupLockTimer()
 {
-    if (lockingDelay < 0) {
+    if (lockingDelay < 0 && deviceLockState != Undefined) {
         // Locking disabled: unlock
         setState(Unlocked);
     }
