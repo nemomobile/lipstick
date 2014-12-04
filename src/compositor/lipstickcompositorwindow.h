@@ -37,6 +37,7 @@ class LIPSTICK_EXPORT LipstickCompositorWindow : public QWaylandSurfaceItem
 
 public:
     LipstickCompositorWindow(int windowId, const QString &, QWaylandQuickSurface *surface, QQuickItem *parent = 0);
+    ~LipstickCompositorWindow();
 
     QVariant userData() const;
     void setUserData(QVariant);

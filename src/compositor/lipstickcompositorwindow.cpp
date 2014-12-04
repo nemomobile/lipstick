@@ -40,6 +40,13 @@ LipstickCompositorWindow::LipstickCompositorWindow(int windowId, const QString &
     connectSurfaceSignals();
 }
 
+LipstickCompositorWindow::~LipstickCompositorWindow()
+{
+    // We don't want tryRemove() posting an event anymore, we're dying anyway
+    m_removePosted = true;
+    LipstickCompositor::instance()->windowDestroyed(this);
+}
+
 QVariant LipstickCompositorWindow::userData() const
 {
     return m_data;

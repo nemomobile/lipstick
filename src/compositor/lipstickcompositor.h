@@ -157,7 +157,7 @@ private:
     friend class WindowPixmapItem;
     friend class WindowProperty;
 
-    void surfaceUnmapped(LipstickCompositorProcWindow *item);
+    void surfaceUnmapped(LipstickCompositorWindow *item);
 
     int windowIdForLink(QWaylandSurface *, uint) const;
 
@@ -165,6 +165,7 @@ private:
 
     void windowAdded(int);
     void windowRemoved(int);
+    void windowDestroyed(LipstickCompositorWindow *item);
 
     QQmlComponent *shaderEffectComponent();
 
