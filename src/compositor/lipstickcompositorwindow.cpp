@@ -337,6 +337,8 @@ void LipstickCompositorWindow::handleTouchCancel()
         inputDevice->sendTouchCancelEvent();
         inputDevice->setMouseFocus(0, QPointF());
     }
+    window()->removeEventFilter(this);
+    m_interceptingTouch = false;
 }
 
 void LipstickCompositorWindow::terminateProcess(int killTimeout)
