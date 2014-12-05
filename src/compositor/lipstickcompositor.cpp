@@ -344,25 +344,17 @@ void LipstickCompositor::onSurfaceDying()
         setFullscreenSurface(0);
 
     if (item) {
-        int id = item->windowId();
-
-        int gc = ghostWindowCount();
-        m_mappedSurfaces.remove(item->windowId());
-        m_windows.remove(item->windowId());
-
-        emit windowCountChanged();
-        emit windowRemoved(item);
-
         item->m_windowClosed = true;
         item->tryRemove();
-
-        if (gc != ghostWindowCount())
-            emit ghostWindowCountChanged();
-
-        windowRemoved(id);
-
-        emit availableWinIdsChanged();
     }
+}
+
+void LipstickCompositor::windowDestroyed(LipstickCompositorWindow *item)
+{
+    int id = item->windowId();
+
+    m_windows.remove(id);
+    surfaceUnmapped(item);
 }
 
 void LipstickCompositor::surfaceMapped()
@@ -491,12 +483,14 @@ void LipstickCompositor::surfaceUnmapped(QWaylandSurface *surface)
         emit windowHidden(window);
 }
 
-void LipstickCompositor::surfaceUnmapped(LipstickCompositorProcWindow *item)
+void LipstickCompositor::surfaceUnmapped(LipstickCompositorWindow *item)
 {
     int id = item->windowId();
 
     int gc = ghostWindowCount();
-    m_mappedSurfaces.remove(item->windowId());
+    if (m_mappedSurfaces.remove(item->windowId()) == 0)
+        // It was unmapped already so nothing to do
+        return;
 
     emit windowCountChanged();
     emit windowRemoved(item);
