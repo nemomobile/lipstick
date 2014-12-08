@@ -97,14 +97,6 @@ LipstickCompositor::~LipstickCompositor()
     // are destroyed, so disconnect it.
     disconnect(this, SIGNAL(visibleChanged(bool)), this, SLOT(onVisibleChanged(bool)));
 
-    // When destroying LipstickCompositor ~QQuickWindow() is called after
-    // ~QWaylandQuickCompositor(), so changes to the items in the window may end
-    // up calling code such as LipstickCompositorWindow::handleTouchCancel(),
-    // which will try to use the compositor, at that point not usable anymore.
-    // So delete all the windows here.
-    foreach (LipstickCompositorWindow *w, m_windows) {
-        delete w;
-    }
     delete m_shaderEffect;
 }
 
@@ -115,6 +107,14 @@ LipstickCompositor *LipstickCompositor::instance()
 
 void LipstickCompositor::homeApplicationAboutToDestroy()
 {
+    // When destroying LipstickCompositor ~QQuickWindow() is called after
+    // ~QWaylandQuickCompositor(), so changes to the items in the window may end
+    // up calling code such as LipstickCompositorWindow::handleTouchCancel(),
+    // which will try to use the compositor, at that point not usable anymore.
+    // So delete all the windows here.
+    foreach (LipstickCompositorWindow *w, m_windows) {
+        delete w;
+    }
     m_instance = 0;
     delete this;
 }
