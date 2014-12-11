@@ -389,6 +389,11 @@ bool LauncherFolderModel::moveToFolder(QObject *item, LauncherFolderItem *folder
     return true;
 }
 
+LauncherItem *LauncherFolderModel::findItem(const QString &desktopFile) const
+{
+    return mLauncherModel->itemInModel(desktopFile);
+}
+
 // An app removed from system
 void LauncherFolderModel::appRemoved(QObject *item)
 {
