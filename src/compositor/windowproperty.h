@@ -53,7 +53,6 @@ private:
     int m_windowId;
     bool m_waitingRefProperty;
     void connectRef();
-    void disconnectRef();
     QString m_property;
     QPointer<QWaylandSurface> m_surface;
 };

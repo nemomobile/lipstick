@@ -54,8 +54,6 @@ void WindowProperty::setWindowId(int window)
         QObject::connect(m_surface, SIGNAL(destroyed(QObject *)),
                          this, SIGNAL(valueChanged()));
     }
-    
-    disconnectRef();
 
     emit windowIdChanged();
     emit valueChanged();
@@ -91,15 +89,6 @@ void WindowProperty::connectRef()
     }
 }
 
-void WindowProperty::disconnectRef()
-{
-    LipstickCompositor *c = LipstickCompositor::instance();
-    if (c && m_waitingRefProperty) {
-        m_waitingRefProperty = false;
-        QObject::disconnect(c, SIGNAL(availableWinIdsChanged()), this, SLOT(availableWinIdsChanged()));
-    }
-}
-
 QVariant WindowProperty::value()
 {
     if (!m_surface)
@@ -110,23 +99,15 @@ QVariant WindowProperty::value()
     if (rv.type() == QVariant::String && rv.toString().startsWith("__winref:")) {
         QString refId = rv.toString().mid(9);
         uint id = refId.toUInt();
+        connectRef();
 
         if (id) {
             int win = LipstickCompositor::instance()->windowIdForLink(m_surface, id);
-            if (win == 0)
-                connectRef();
-            else
-                disconnectRef();
-
             return QVariant(win);
         } else {
-            disconnectRef();
-
             return QVariant(0);
         }
     } else {
-        disconnectRef();
-
         return rv;
     }
 }
