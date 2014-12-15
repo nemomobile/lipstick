@@ -1,6 +1,6 @@
 /***************************************************************************
 **
-** Copyright (C) 2013 Jolla Ltd.
+** Copyright (C) 2013-2014 Jolla Ltd.
 ** Contact: Aaron Kennedy <aaron.kennedy@jollamobile.com>
 **
 ** This file is part of lipstick.
@@ -21,7 +21,10 @@
 LipstickApi::LipstickApi(QObject *parent)
 : QObject(parent)
 {
-    QObject::connect(HomeApplication::instance(), SIGNAL(homeActiveChanged()), this, SIGNAL(activeChanged()));
+    HomeApplication *homeApp = HomeApplication::instance();
+    if (homeApp) {
+        QObject::connect(homeApp, SIGNAL(homeActiveChanged()), this, SIGNAL(activeChanged()));
+    }
 }
 
 bool LipstickApi::active() const
