@@ -96,6 +96,15 @@ public:
     void setIconFilename(const QString &path);
     QString iconFilename() const;
 
+    /*
+     * Launch the application using the Exec line of the desktop file.
+     */
+    Q_INVOKABLE void execApplication();
+    /*
+     * Launch the application using various techniques depending on the
+     * properties defined in the desktop file such as DBus activation,
+     * falling back to executing the Exec line if no other way is available.
+     */
     Q_INVOKABLE void launchApplication();
 
     bool isUpdating() const { return _isUpdating; }
@@ -121,6 +130,9 @@ signals:
     void isTemporaryChanged();
     void packageNameChanged();
     void updatingProgressChanged();
+
+private:
+    void launchApplicationInternal(bool contentAction);
 };
 
 #endif // LAUNCHERITEM_H

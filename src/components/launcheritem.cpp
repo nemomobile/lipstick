@@ -203,8 +203,28 @@ void LauncherItem::setIsTemporary(bool isTemporary)
     }
 }
 
+void LauncherItem::execApplication()
+{
+    launchApplicationInternal(false);
+}
+
 void LauncherItem::launchApplication()
 {
+    launchApplicationInternal(
+#if defined(HAVE_CONTENTACTION)
+    true
+#else
+    false
+#endif
+    );
+}
+
+void LauncherItem::launchApplicationInternal(bool contentAction)
+{
+#if !defined(HAVE_CONTENTACTION)
+    Q_UNUSED(contentAction)
+#endif
+
     if (_isUpdating) {
         LauncherModel *model = static_cast<LauncherModel *>(parent());
         model->requestLaunch(_packageName);
@@ -215,30 +235,54 @@ void LauncherItem::launchApplication()
         return;
 
 #if defined(HAVE_CONTENTACTION)
-    LAUNCHER_DEBUG("launching content action for" << _desktopEntry->name());
-    ContentAction::Action action = ContentAction::Action::launcherAction(_desktopEntry, QStringList());
-    action.trigger();
-#else
-    LAUNCHER_DEBUG("launching exec line for" << _desktopEntry->name());
-
-    // Get the command text from the desktop entry
-    QString commandText = _desktopEntry->exec();
-
-    // Take care of the freedesktop standards things
-
-    commandText.replace(QRegExp("%k"), filePath());
-    commandText.replace(QRegExp("%c"), _desktopEntry->name());
-    commandText.remove(QRegExp("%[fFuU]"));
-
-    if (!_desktopEntry->icon().isEmpty())
-        commandText.replace(QRegExp("%i"), QString("--icon ") + _desktopEntry->icon());
-
-    // DETAILS: http://standards.freedesktop.org/desktop-entry-spec/latest/index.html
-    // DETAILS: http://standards.freedesktop.org/desktop-entry-spec/latest/ar01s06.html
-
-    // Launch the application
-    QProcess::startDetached(commandText);
+    if (contentAction) {
+        LAUNCHER_DEBUG("launching content action for" << _desktopEntry->name());
+        ContentAction::Action action = ContentAction::Action::launcherAction(_desktopEntry, QStringList());
+        action.trigger();
+    } else
 #endif
+    {
+        LAUNCHER_DEBUG("launching exec line for" << _desktopEntry->name());
+
+        // Get the command text from the desktop entry
+        QString commandText = _desktopEntry->exec();
+
+        // Take care of the freedesktop standards things
+
+        commandText.replace(QRegExp("%k"), filePath());
+        commandText.replace(QRegExp("%c"), _desktopEntry->name());
+        commandText.remove(QRegExp("%[fFuU]"));
+
+        if (!_desktopEntry->icon().isEmpty())
+            commandText.replace(QRegExp("%i"), QString("--icon ") + _desktopEntry->icon());
+
+        // DETAILS: http://standards.freedesktop.org/desktop-entry-spec/latest/index.html
+        // DETAILS: http://standards.freedesktop.org/desktop-entry-spec/latest/ar01s06.html
+
+        // Launch the application
+        if (fork() == 0) {
+            gid_t oldgid = getegid();
+            uid_t olduid = geteuid();
+            gid_t newgid = getgid();
+            uid_t newuid = getuid();
+
+            // Drop any additional priviledge we may have or refuse to start the app
+            if (oldgid != newgid) {
+                if (setregid(newgid, newgid) == -1 || setegid(oldgid) != -1 || getegid() == newgid)
+                    goto fail;
+            }
+
+            if (olduid != newuid) {
+                if (setreuid(newuid, newuid) == -1 || seteuid(olduid) != -1 || geteuid() != newuid)
+                    goto fail;
+            }
+            QProcess::startDetached(commandText);
+            exit(0);
+
+        fail:
+            qFatal("Cannot drop priviledges when starting \"%s\"", qPrintable(commandText));
+        }
+    }
 
     setIsLaunching(true);
 
