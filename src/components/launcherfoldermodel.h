@@ -29,6 +29,7 @@
 class LauncherModel;
 class QXmlStreamWriter;
 class MDesktopEntry;
+class LauncherItem;
 
 class LIPSTICK_EXPORT LauncherFolderItem : public QObjectListModel
 {
@@ -105,6 +106,7 @@ public:
     void setIconDirectories(QStringList);
 
     Q_INVOKABLE bool moveToFolder(QObject *item, LauncherFolderItem *folder, int index = -1);
+    Q_INVOKABLE LauncherItem *findItem(const QString &desktopFile) const;
 
     void import();
 
