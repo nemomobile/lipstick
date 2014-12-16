@@ -73,8 +73,10 @@ void LipstickRecorderManager::recordFrame(QWindow *window)
         pixels = static_cast<uchar *>(wl_shm_buffer_get_data(buffer));
         int width = wl_shm_buffer_get_width(buffer);
         int height = wl_shm_buffer_get_height(buffer);
+        int stride = wl_shm_buffer_get_stride(buffer);
+        int bpp = 4;
 
-        if (width != window->width() || height != window->height()) {
+        if (width < window->width() || height < window->height() || stride < window->width() * bpp) {
             qApp->postEvent(recorder, new FailedEvent(QtWaylandServer::lipstick_recorder::result_bad_buffer));
             continue;
         }
@@ -123,6 +125,7 @@ LipstickRecorder::LipstickRecorder(LipstickRecorderManager *manager, wl_client *
                 , m_client(client)
                 , m_window(window)
 {
+    send_setup(window->width(), window->height(), window->width() * 4, WL_SHM_FORMAT_RGBA8888);
 }
 
 LipstickRecorder::~LipstickRecorder()

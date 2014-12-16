@@ -79,6 +79,25 @@
             <entry name="y_inverted" value="2"/>
         </enum>
 
+        <event name="setup">
+            <description summary="notify the requirements for the frame buffers">
+                This event will be sent immediately after creation of the
+                lipstick_recorder object. The wl_buffers the client passes
+                to the frame request must be big enough to store an image
+                with the given width, height and format.
+                If they are not the compositor will send the failed event.
+                If this event is sent again later in the lifetime of the object
+                the pending frames will be cancelled.
+
+                The format will be one of the values as defined in the
+                wl_shm::format enum.
+            </description>
+            <arg name="width" type="int" description="width of the frame, in pixels"/>
+            <arg name="height" type="int" description="height of the frame, in pixels"/>
+            <arg name="stride" type="int" description="stride of the frame"/>
+            <arg name="format" type="int" desciption="format of the frame"/>
+        </event>
+
         <event name="frame">
             <description summary="notify a frame was recorded, or an error">
                 The compositor will send this event after a frame was
