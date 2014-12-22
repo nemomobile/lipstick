@@ -460,6 +460,15 @@ void LauncherModel::updatingFinished(const QString &packageName,
     }
 }
 
+void LauncherModel::notifyLaunching(const QString &desktopFile)
+{
+    LauncherItem *item = itemInModel(desktopFile);
+    if (item)
+        emit notifyLaunching(item);
+    else
+        qWarning("No launcher item found for \"%s\".", qPrintable(desktopFile));
+}
+
 void LauncherModel::updateWatchedDBusServices()
 {
     QStringList requiredServices = _packageNameToDBusService.values();

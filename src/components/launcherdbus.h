@@ -42,6 +42,7 @@ public slots:
     void updatingStarted(QString packageName, QString label, QString iconPath, QString desktopFile);
     void updatingProgress(QString packageName, int progress);
     void updatingFinished(QString packageName);
+    void notifyLaunching(const QString &desktopFile);
 
 signals:
     void showUpdatingProgress(QString packageName);

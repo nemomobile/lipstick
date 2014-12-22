@@ -58,3 +58,8 @@ void LauncherDBus::updatingFinished(QString packageName)
 {
     m_model->updatingFinished(packageName, message().service());
 }
+
+void LauncherDBus::notifyLaunching(const QString &desktopFile)
+{
+    m_model->notifyLaunching(desktopFile);
+}

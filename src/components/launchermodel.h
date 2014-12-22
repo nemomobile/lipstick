@@ -74,6 +74,7 @@ public:
             const QString &iconPath, QString desktopFile, const QString &serviceName);
     void updatingProgress(const QString &packageName, int progress, const QString &serviceName);
     void updatingFinished(const QString &packageName, const QString &serviceName);
+    void notifyLaunching(const QString &desktopFile);
 
     void requestLaunch(const QString &packageName);
     LauncherItem *itemInModel(const QString &path);
@@ -86,6 +87,7 @@ public slots:
 signals:
     void directoriesChanged();
     void iconDirectoriesChanged();
+    void notifyLaunching(LauncherItem *item);
 
 private:
     void reorderItems(const QMap<int, LauncherItem *> &itemsWithPositions);
