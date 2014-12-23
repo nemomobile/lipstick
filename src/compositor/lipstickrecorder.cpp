@@ -14,6 +14,7 @@
 ****************************************************************************/
 
 #include <sys/time.h>
+#include <grp.h>
 
 #include <QMutexLocker>
 
@@ -105,7 +106,15 @@ void LipstickRecorderManager::bind(wl_client *client, quint32 version, quint32 i
 {
     Q_UNUSED(version)
 
-    add(client, id, version);
+    Resource *res = add(client, id, version);
+
+    gid_t gid;
+    wl_client_get_credentials(client, Q_NULLPTR, Q_NULLPTR, &gid);
+    group *g = getgrgid(gid);
+    if (strcmp(g->gr_name, "privileged") != 0) {
+        wl_resource_post_error(res->handle, WL_DISPLAY_ERROR_INVALID_OBJECT, "Permission to bind lipstick_recorder_manager denied");
+        wl_resource_destroy(res->handle);
+    }
 }
 
 void LipstickRecorderManager::lipstick_recorder_manager_create_recorder(Resource *resource, uint32_t id, ::wl_resource *output)
