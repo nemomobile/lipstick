@@ -331,7 +331,7 @@ void WindowPixmapItem::setWindowId(int id)
 
 void WindowPixmapItem::surfaceDestroyed()
 {
-    delete this;
+    setWindowId(0);
 }
 
 bool WindowPixmapItem::opaque() const
