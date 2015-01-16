@@ -164,4 +164,38 @@ void Ut_NotificationListModel::testNotificationOrdering()
     QCOMPARE(model.get(0), &notification1);
 }
 
+void Ut_NotificationListModel::testRemoteActions()
+{
+    QStringList actions;
+    actions.append("default");
+    actions.append("Default Remote Action");
+    actions.append("alternate");
+    actions.append("Alternate Remote Action");
+    actions.append("invalid");
+    actions.append("Invalid Remote Action");
+    actions.append("also-invalid");
+    QVariantHash hints;
+    hints.insert(NotificationManager::HINT_REMOTE_ACTION_PREFIX + QStringLiteral("default"), "dbus-call-default-action");
+    hints.insert(NotificationManager::HINT_REMOTE_ACTION_ICON_PREFIX + QStringLiteral("default"), "icon-s-default");
+    hints.insert(NotificationManager::HINT_REMOTE_ACTION_PREFIX + QStringLiteral("alternate"), "dbus-call-alternate-action");
+    LipstickNotification notification("appName", 1, "appIcon", "summary", "body", actions, hints, 1);
+    gNotificationManagerStub->stubSetReturnValue("notificationIds", QList<uint>() << 1);
+    gNotificationManagerStub->stubSetReturnValue("notification", &notification);
+
+    NotificationListModel model;
+    QCOMPARE(model.itemCount(), 1);
+    LipstickNotification *modelNotification(qobject_cast<LipstickNotification *>(model.get(0)));
+    QCOMPARE(modelNotification, &notification);
+    QVariantList remoteActions(modelNotification->remoteActions());
+    QCOMPARE(remoteActions.count(), 2);
+    QVariantMap remoteAction(remoteActions.at(0).value<QVariantMap>());
+    QCOMPARE(remoteAction["name"].toString(), QStringLiteral("default"));
+    QCOMPARE(remoteAction["displayName"].toString(), QStringLiteral("Default Remote Action"));
+    QCOMPARE(remoteAction["icon"].toString(), QStringLiteral("icon-s-default"));
+    remoteAction = remoteActions.at(1).value<QVariantMap>();;
+    QCOMPARE(remoteAction["name"].toString(), QStringLiteral("alternate"));
+    QCOMPARE(remoteAction["displayName"].toString(), QStringLiteral("Alternate Remote Action"));
+    QCOMPARE(remoteAction["icon"].toString(), QString());
+}
+
 QTEST_MAIN(Ut_NotificationListModel)

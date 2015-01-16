@@ -46,6 +46,7 @@ class LIPSTICK_EXPORT LipstickNotification : public QObject
     Q_PROPERTY(int priority READ priority NOTIFY priorityChanged)
     Q_PROPERTY(QString category READ category NOTIFY categoryChanged)
     Q_PROPERTY(bool userRemovable READ isUserRemovable NOTIFY userRemovableChanged)
+    Q_PROPERTY(QVariantList remoteActions READ remoteActions CONSTANT)
 
 public:
     /*!
@@ -144,6 +145,8 @@ public:
 
     //! Returns the user removability of the notification
     bool isUserRemovable() const;
+
+    QVariantList remoteActions() const;
 
     //! \internal
     /*!
