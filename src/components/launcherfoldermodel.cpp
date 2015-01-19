@@ -335,6 +335,8 @@ LauncherFolderModel::LauncherFolderModel(QObject *parent)
             this, SLOT(appRemoved(QObject*)));
     connect(mLauncherModel, SIGNAL(itemAdded(QObject*)),
             this, SLOT(appAdded(QObject*)));
+    connect(mLauncherModel, (void (LauncherModel::*)(LauncherItem *))&LauncherModel::notifyLaunching,
+            this, &LauncherFolderModel::notifyLaunching);
     connect(&mSaveTimer, SIGNAL(timeout()), this, SLOT(save()));
 
     QDir config;

@@ -29,6 +29,7 @@
 class LauncherModel;
 class QXmlStreamWriter;
 class MDesktopEntry;
+class LauncherItem;
 
 class LIPSTICK_EXPORT LauncherFolderItem : public QObjectListModel
 {
@@ -117,6 +118,7 @@ public slots:
 signals:
     void directoriesChanged();
     void iconDirectoriesChanged();
+    void notifyLaunching(LauncherItem *item);
 
 private slots:
     void scheduleSave();
