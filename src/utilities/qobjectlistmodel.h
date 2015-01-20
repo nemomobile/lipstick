@@ -37,6 +37,7 @@ public:
     bool setData(const QModelIndex &index, const QVariant &value, int role);
     Q_INVOKABLE void reset();
     Q_INVOKABLE void move(int oldRow, int newRow);
+    Q_INVOKABLE void update(int row);
 
     void insertItem(int index, QObject *item);
     void addItem(QObject *item);

@@ -50,6 +50,8 @@ void NotificationListModel::updateNotification(uint id)
                 insertItem(expectedIndex, notification);
             } else if (index != expectedIndex) {
                 move(index, expectedIndex);
+            } else {
+                update(index);
             }
         } else if (index >= 0) {
             removeItem(notification);

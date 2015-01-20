@@ -161,3 +161,12 @@ void QObjectListModel::move(int oldRow, int newRow)
     _list->move(oldRow, newRow);
     endMoveRows();
 }
+
+void QObjectListModel::update(int row)
+{
+    if (row < 0 || row >= _list->count())
+        return;
+
+    const QModelIndex changeIndex(index(row, 0));
+    emit dataChanged(changeIndex, changeIndex);
+}
