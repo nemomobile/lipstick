@@ -142,22 +142,22 @@ int parseArguments(int argc, char *argv[])
             priority = atoi(optarg);
             break;
         case 'I':
-            icon = QString(optarg);
+            icon = QString::fromUtf8(optarg);
             break;
         case 'c':
-            category = QString(optarg);
+            category = QString::fromUtf8(optarg);
             break;
         case 'C':
             count = atoi(optarg);
             break;
         case 't':
-            timestamp = QString(optarg);
+            timestamp = QString::fromUtf8(optarg);
             break;
         case 'T':
             expireTimeout = atoi(optarg);
             break;
         case 'h': {
-            QStringList hintList = QString(optarg).split(' ');
+            QStringList hintList = QString::fromUtf8(optarg).split(' ');
             if (hintList.count() != 2) {
                 toolOperation = Undefined;
             } else {
@@ -166,7 +166,7 @@ int parseArguments(int argc, char *argv[])
             break;
             }
         case 'a': {
-            QStringList actionList = QString(optarg).split(' ');
+            QStringList actionList = QString::fromUtf8(optarg).split(' ');
             if (actionList.count() < 5) {
                 toolOperation = Undefined;
             } else {
@@ -195,7 +195,7 @@ int parseArguments(int argc, char *argv[])
             break;
             }
         case 'A':
-            appName = QString(optarg);
+            appName = QString::fromUtf8(optarg);
             break;
         case 'H':
             return usage(argv[0]);
@@ -234,16 +234,16 @@ int main(int argc, char *argv[])
         // Get the parameters for adding and updating notifications
         QString summary, body, previewSummary, previewBody;
         if (argc >= optind) {
-            summary = QString(argv[optind]);
+            summary = QString::fromUtf8(argv[optind]);
         }
         if (argc >= optind + 1) {
-            body = QString(argv[optind + 1]);
+            body = QString::fromUtf8(argv[optind + 1]);
         }
         if (argc >= optind + 2) {
-            previewSummary = QString(argv[optind + 2]);
+            previewSummary = QString::fromUtf8(argv[optind + 2]);
         }
         if (argc >= optind + 3) {
-            previewBody = QString(argv[optind + 3]);
+            previewBody = QString::fromUtf8(argv[optind + 3]);
         }
 
         // Add/update a notification
