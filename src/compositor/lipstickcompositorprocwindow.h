@@ -18,9 +18,12 @@
 
 #include "lipstickcompositorwindow.h"
 
+#include <QPointer>
+
 class LipstickCompositorProcWindow : public LipstickCompositorWindow
 {
     Q_OBJECT
+    Q_PROPERTY(QQuickItem *rootItem READ rootItem NOTIFY rootItemChanged)
 public:
     void hide();
 
@@ -29,11 +32,19 @@ public:
 
     virtual QString title() const;
     void setTitle(const QString &);
+
+    QQuickItem *rootItem();
+    void setRootItem(QQuickItem *item);
+
+signals:
+    void rootItemChanged();
+
 private:
     friend class LipstickCompositor;
     LipstickCompositorProcWindow(int windowId, const QString &, QQuickItem *parent = 0);
 
     QString m_title;
+    QPointer<QQuickItem> m_rootItem;
 };
 
 #endif // LIPSTICKCOMPOSITORPROCWINDOW_H

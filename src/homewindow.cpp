@@ -123,7 +123,10 @@ void HomeWindow::show()
         d->window->show();
     } else {
         d->compositorWindow = LipstickCompositor::instance()->mapProcWindow(d->title, d->category, d->geometry);
-        if (d->root) d->root->setParentItem(d->compositorWindow);
+        if (d->root) {
+            d->root->setParentItem(d->compositorWindow);
+            d->compositorWindow->setRootItem(d->root);
+        }
     }
 
     emit visibleChanged(d->isVisible);
@@ -155,7 +158,10 @@ void HomeWindow::showFullScreen()
         d->window->showFullScreen();
     } else {
         d->compositorWindow = LipstickCompositor::instance()->mapProcWindow(d->title, d->category, d->geometry);
-        if (d->root) d->root->setParentItem(d->compositorWindow);
+        if (d->root) {
+            d->root->setParentItem(d->compositorWindow);
+            d->compositorWindow->setRootItem(d->root);
+        }
     }
 
     emit visibleChanged(d->isVisible);
@@ -188,10 +194,12 @@ void HomeWindow::setSource(const QUrl &source)
     if (QQuickItem *item = qobject_cast<QQuickItem *>(o)) {
         d->root = item;
 
-        if (d->isWindow())
+        if (d->isWindow()) {
             item->setParentItem(d->window->contentItem());
-        else if (d->compositorWindow)
+        } else if (d->compositorWindow) {
+            d->compositorWindow->setRootItem(item);
             item->setParentItem(d->compositorWindow);
+        }
 
     } else {
         delete o;

@@ -76,3 +76,15 @@ void LipstickCompositorProcWindow::setTitle(const QString &t)
     titleChanged();
 }
 
+QQuickItem *LipstickCompositorProcWindow::rootItem()
+{
+    return m_rootItem.data();
+}
+
+void LipstickCompositorProcWindow::setRootItem(QQuickItem *item)
+{
+    if (m_rootItem != item) {
+        m_rootItem = item;
+        emit rootItemChanged();
+    }
+}
