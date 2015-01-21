@@ -653,10 +653,10 @@ void Ut_NotificationManager::testModifyingCategoryDefinitionUpdatesNotifications
     QCOMPARE(modifiedSpy.last().at(0).toUInt(), id2);
 
     // The preview summary and body should be removed for the notification in category "category2"
-    QCOMPARE(manager->notification(id1)->hints().value(NotificationManager::HINT_PREVIEW_BODY), QVariant("previewBody1"));
-    QCOMPARE(manager->notification(id1)->hints().value(NotificationManager::HINT_PREVIEW_SUMMARY), QVariant("previewSummary1"));
-    QCOMPARE(manager->notification(id2)->hints().contains(NotificationManager::HINT_PREVIEW_BODY), false);
-    QCOMPARE(manager->notification(id2)->hints().contains(NotificationManager::HINT_PREVIEW_SUMMARY), false);
+    QCOMPARE(manager->notification(id1)->previewBody(), QString("previewBody1"));
+    QCOMPARE(manager->notification(id1)->previewSummary(), QString("previewSummary1"));
+    QCOMPARE(manager->notification(id2)->previewBody(), QString());
+    QCOMPARE(manager->notification(id2)->previewSummary(), QString());
 }
 
 void Ut_NotificationManager::testUninstallingCategoryDefinitionRemovesNotifications()
@@ -846,8 +846,8 @@ void Ut_NotificationManager::testListingNotifications()
     QCOMPARE(notifications.at(1).body(), QString("body2"));
     QCOMPARE(notifications.at(0).actions(), QStringList() << "action1");
     QCOMPARE(notifications.at(1).actions(), QStringList() << "action2");
-    QCOMPARE(notifications.at(0).hints().value(NotificationManager::HINT_CATEGORY), QVariant("category1"));
-    QCOMPARE(notifications.at(1).hints().value(NotificationManager::HINT_CATEGORY), QVariant("category2"));
+    QCOMPARE(notifications.at(0).category(), QVariant("category1"));
+    QCOMPARE(notifications.at(1).category(), QVariant("category2"));
     QCOMPARE(notifications.at(0).expireTimeout(), 1);
     QCOMPARE(notifications.at(1).expireTimeout(), 2);
 
@@ -859,7 +859,7 @@ void Ut_NotificationManager::testListingNotifications()
     QCOMPARE(notifications.at(0).summary(), QString("summary3"));
     QCOMPARE(notifications.at(0).body(), QString("body3"));
     QCOMPARE(notifications.at(0).actions(), QStringList() << "action3");
-    QCOMPARE(notifications.at(0).hints().value(NotificationManager::HINT_CATEGORY), QVariant("category3"));
+    QCOMPARE(notifications.at(0).category(), QVariant("category3"));
     QCOMPARE(notifications.at(0).expireTimeout(), 3);
 #endif
 }

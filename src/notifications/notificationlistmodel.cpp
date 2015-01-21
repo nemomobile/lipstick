@@ -82,5 +82,7 @@ void NotificationListModel::removeNotification(uint id)
 
 bool NotificationListModel::notificationShouldBeShown(LipstickNotification *notification)
 {
-    return !notification->hints().value(NotificationManager::HINT_HIDDEN).toBool() && !(notification->body().isEmpty() && notification->summary().isEmpty()) && notification->hints().value(NotificationManager::HINT_URGENCY).toInt() < 2;
+    return !notification->hidden() &&
+           !(notification->body().isEmpty() && notification->summary().isEmpty()) &&
+           notification->urgency() < 2;
 }

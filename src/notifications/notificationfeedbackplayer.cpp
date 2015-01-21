@@ -96,8 +96,8 @@ bool NotificationFeedbackPlayer::isEnabled(LipstickNotification *notification)
         mode = surface->windowProperties().value("NOTIFICATION_PREVIEWS_DISABLED", uint(AllNotificationsEnabled)).toUInt();
     }
 
-    int urgency = notification->hints().value(NotificationManager::HINT_URGENCY).toInt();
-    int priority = notification->hints().value(NotificationManager::HINT_PRIORITY).toInt();
+    int urgency = notification->urgency();
+    int priority = notification->priority();
     return !(urgency < 2 && priority < minimumPriority_) && (mode == AllNotificationsEnabled || (mode == ApplicationNotificationsDisabled && urgency >= 2) || (mode == SystemNotificationsDisabled && urgency < 2));
 }
 
