@@ -70,6 +70,11 @@ int NotificationListModel::indexFor(LipstickNotification *notification)
     return itemCount();
 }
 
+void NotificationListModel::refreshModel()
+{
+    init();
+}
+
 void NotificationListModel::removeNotification(uint id)
 {
     removeItem(NotificationManager::instance()->notification(id));
