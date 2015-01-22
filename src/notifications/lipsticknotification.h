@@ -146,6 +146,9 @@ public:
     //! Returns the user removability of the notification
     bool isUserRemovable() const;
 
+    //! Returns true if the notification has been hidden to prevent further display
+    bool hidden() const;
+
     QVariantList remoteActions() const;
 
     //! \internal

@@ -227,6 +227,11 @@ bool LipstickNotification::isUserRemovable() const
     return hints_.value(NotificationManager::HINT_USER_REMOVABLE, QVariant(true)).toBool();
 }
 
+bool LipstickNotification::hidden() const
+{
+    return hints_.value(NotificationManager::HINT_HIDDEN, QVariant(false)).toBool();
+}
+
 QVariantList LipstickNotification::remoteActions() const
 {
     QVariantList rv;
