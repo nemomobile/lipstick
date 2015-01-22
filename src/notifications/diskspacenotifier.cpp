@@ -58,7 +58,7 @@ void DiskSpaceNotifier::handleDiskSpaceChange(const QString &path, int percentag
             manager->CloseNotification(notificationId);
         }
 
-        // Show a notification
+        // Show a system notification
         NotificationManager *manager = NotificationManager::instance();
         QVariantHash hints;
         hints.insert(NotificationManager::HINT_CATEGORY, "x-nemo.system.diskspace");
@@ -68,18 +68,19 @@ void DiskSpaceNotifier::handleDiskSpaceChange(const QString &path, int percentag
         // TODO go to some relevant place when clicking the notification
         notificationId = manager->Notify(qApp->applicationName(), 0, QString(), QString(), QString(), QStringList(), hints, -1);
 
-        bool publishPermanent = true;
+        bool nonSystemNotificationFound = false;
         NotificationList notifications = manager->GetNotifications(qApp->applicationName());
         foreach (LipstickNotification* notification, notifications.notifications()) {
-            if (notification->category() == "x-nemo.system.diskspace.permanent") {
-                publishPermanent = false;
+            if (notification->category() == "x-nemo.diskspace.low") {
+                nonSystemNotificationFound = true;
                 break;
             }
         }
-        if (publishPermanent) {
-            QVariantHash permanentHints;
-            permanentHints.insert(NotificationManager::HINT_CATEGORY, "x-nemo.system.diskspace.permanent");
-            manager->Notify(qApp->applicationName(), 0, QString(), diskLowText, QString(), QStringList(), permanentHints, -1);
+        if (!nonSystemNotificationFound) {
+            // Show a non-system notification
+            hints.clear();
+            hints.insert(NotificationManager::HINT_CATEGORY, "x-nemo.diskspace.low");
+            manager->Notify(qApp->applicationName(), 0, QString(), diskLowText, QString(), QStringList(), hints, -1);
         }
     }
 }

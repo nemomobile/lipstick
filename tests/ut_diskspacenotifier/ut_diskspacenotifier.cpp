@@ -96,7 +96,7 @@ void Ut_DiskSpaceNotifier::testNotifications_data()
     QTest::addColumn<int>("notificationsDestroyed");
 
     // The stub implementation of NotificationManager::GetNotifications returns an empty
-    // list, and thus the permanent disk space notifications are sometimes published twice.
+    // list, and thus the non-system disk space notifications are sometimes published twice.
     QTest::newRow("Disk space of / reached threshold but not 100%") << "/" << 90 << "/" << 99 << 2 << 0;
     QTest::newRow("Disk space of / reached threshold and then 100%") << "/" << 90 << "/" << 100 << 4 << 1;
     QTest::newRow("Disk space of / reached 100% twice") << "/" << 100 << "/" << 100 << 2 << 0;
