@@ -95,11 +95,13 @@ void Ut_DiskSpaceNotifier::testNotifications_data()
     QTest::addColumn<int>("notificationsCreated");
     QTest::addColumn<int>("notificationsDestroyed");
 
-    QTest::newRow("Disk space of / reached threshold but not 100%") << "/" << 90 << "/" << 99 << 1 << 0;
-    QTest::newRow("Disk space of / reached threshold and then 100%") << "/" << 90 << "/" << 100 << 2 << 1;
-    QTest::newRow("Disk space of / reached 100% twice") << "/" << 100 << "/" << 100 << 1 << 0;
-    QTest::newRow("Disk space of / and /home reached threshold") << "/" << 90 << "/home" << 90 << 2 << 1;
-    QTest::newRow("Disk space of /home and /home/user/MyDocs reached 100%") << "/home" << 100 << "/home/user/MyDocs" << 100 << 2 << 1;
+    // The stub implementation of NotificationManager::GetNotifications returns an empty
+    // list, and thus the permanent disk space notifications are sometimes published twice.
+    QTest::newRow("Disk space of / reached threshold but not 100%") << "/" << 90 << "/" << 99 << 2 << 0;
+    QTest::newRow("Disk space of / reached threshold and then 100%") << "/" << 90 << "/" << 100 << 4 << 1;
+    QTest::newRow("Disk space of / reached 100% twice") << "/" << 100 << "/" << 100 << 2 << 0;
+    QTest::newRow("Disk space of / and /home reached threshold") << "/" << 90 << "/home" << 90 << 4 << 1;
+    QTest::newRow("Disk space of /home and /home/user/MyDocs reached 100%") << "/home" << 100 << "/home/user/MyDocs" << 100 << 4 << 1;
 }
 
 void Ut_DiskSpaceNotifier::testNotifications()

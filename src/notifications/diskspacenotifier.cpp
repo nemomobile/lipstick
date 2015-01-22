@@ -63,9 +63,24 @@ void DiskSpaceNotifier::handleDiskSpaceChange(const QString &path, int percentag
         QVariantHash hints;
         hints.insert(NotificationManager::HINT_CATEGORY, "x-nemo.system.diskspace");
         //% "Getting low with storage. Please check."
-        hints.insert(NotificationManager::HINT_PREVIEW_BODY, qtTrId("qtn_memu_memlow_notification_src"));
+        QString diskLowText = qtTrId("qtn_memu_memlow_notification_src");
+        hints.insert(NotificationManager::HINT_PREVIEW_BODY, diskLowText);
         // TODO go to some relevant place when clicking the notification
         notificationId = manager->Notify(qApp->applicationName(), 0, QString(), QString(), QString(), QStringList(), hints, -1);
+
+        bool publishPermanent = true;
+        NotificationList notifications = manager->GetNotifications(qApp->applicationName());
+        foreach (LipstickNotification* notification, notifications.notifications()) {
+            if (notification->category() == "x-nemo.system.diskspace.permanent") {
+                publishPermanent = false;
+                break;
+            }
+        }
+        if (publishPermanent) {
+            QVariantHash permanentHints;
+            permanentHints.insert(NotificationManager::HINT_CATEGORY, "x-nemo.system.diskspace.permanent");
+            manager->Notify(qApp->applicationName(), 0, QString(), diskLowText, QString(), QStringList(), permanentHints, -1);
+        }
     }
 }
 
