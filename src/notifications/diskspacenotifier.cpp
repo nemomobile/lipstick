@@ -78,6 +78,9 @@ void DiskSpaceNotifier::handleDiskSpaceChange(const QString &path, int percentag
         }
         if (!nonSystemNotificationFound) {
             // Show a non-system notification
+            // TODO: Figure out if this could be combined with the system notification. Currently
+            //       the system notifications are deleted by NotificationPreviewPresenter class
+            //       after they've been displayed.
             hints.clear();
             hints.insert(NotificationManager::HINT_CATEGORY, "x-nemo.diskspace.low");
             manager->Notify(qApp->applicationName(), 0, QString(), diskLowText, QString(), QStringList(), hints, -1);
