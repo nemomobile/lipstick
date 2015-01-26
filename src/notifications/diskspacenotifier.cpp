@@ -58,14 +58,33 @@ void DiskSpaceNotifier::handleDiskSpaceChange(const QString &path, int percentag
             manager->CloseNotification(notificationId);
         }
 
-        // Show a notification
+        // Show a system notification
         NotificationManager *manager = NotificationManager::instance();
         QVariantHash hints;
         hints.insert(NotificationManager::HINT_CATEGORY, "x-nemo.system.diskspace");
         //% "Getting low with storage. Please check."
-        hints.insert(NotificationManager::HINT_PREVIEW_BODY, qtTrId("qtn_memu_memlow_notification_src"));
+        QString diskLowText = qtTrId("qtn_memu_memlow_notification_src");
+        hints.insert(NotificationManager::HINT_PREVIEW_BODY, diskLowText);
         // TODO go to some relevant place when clicking the notification
         notificationId = manager->Notify(qApp->applicationName(), 0, QString(), QString(), QString(), QStringList(), hints, -1);
+
+        bool nonSystemNotificationFound = false;
+        NotificationList notifications = manager->GetNotifications(qApp->applicationName());
+        foreach (LipstickNotification* notification, notifications.notifications()) {
+            if (notification->category() == "x-nemo.diskspace.low") {
+                nonSystemNotificationFound = true;
+                break;
+            }
+        }
+        if (!nonSystemNotificationFound) {
+            // Show a non-system notification
+            // TODO: Figure out if this could be combined with the system notification. Currently
+            //       the system notifications are deleted by NotificationPreviewPresenter class
+            //       after they've been displayed.
+            hints.clear();
+            hints.insert(NotificationManager::HINT_CATEGORY, "x-nemo.diskspace.low");
+            manager->Notify(qApp->applicationName(), 0, QString(), diskLowText, QString(), QStringList(), hints, -1);
+        }
     }
 }
 
