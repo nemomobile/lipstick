@@ -53,6 +53,7 @@ class LipstickCompositorStub : public StubBase {
   virtual void onVisibleChanged(bool visible);
   virtual QWaylandSurfaceView *createView(QWaylandSurface *surf);
   virtual void onSurfaceDying();
+  virtual void readContent();
 }; 
 
 // 2. IMPLEMENT STUB
@@ -214,6 +215,10 @@ void LipstickCompositorStub::surfaceLowered() {
 
 void LipstickCompositorStub::onSurfaceDying() {
     stubMethodEntered("onSurfaceDying");
+}
+
+void LipstickCompositorStub::readContent() {
+    stubMethodEntered("readContent");
 }
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
@@ -446,6 +451,10 @@ QWaylandSurfaceView *LipstickCompositor::createView(QWaylandSurface *surf) {
 
 void LipstickCompositor::onSurfaceDying() {
     gLipstickCompositorStub->onSurfaceDying();
+}
+
+void LipstickCompositor::readContent() {
+    gLipstickCompositorStub->readContent();
 }
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 2, 0)

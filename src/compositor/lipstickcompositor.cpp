@@ -30,6 +30,7 @@
 #include "lipstickcompositor.h"
 #include "lipstickcompositoradaptor.h"
 #include "lipsticksettings.h"
+#include "lipstickrecorder.h"
 #include <qpa/qwindowsysteminterface.h>
 #include "alienmanager/alienmanager.h"
 
@@ -61,6 +62,7 @@ LipstickCompositor::LipstickCompositor()
     QObject::connect(this, SIGNAL(afterRendering()), this, SLOT(windowSwapped()));
     connect(m_displayState, SIGNAL(displayStateChanged(MeeGo::QmDisplayState::DisplayState)), this, SLOT(reactOnDisplayStateChanges(MeeGo::QmDisplayState::DisplayState)));
     QObject::connect(HomeApplication::instance(), SIGNAL(aboutToDestroy()), this, SLOT(homeApplicationAboutToDestroy()));
+    connect(this, &QQuickWindow::afterRendering, this, &LipstickCompositor::readContent, Qt::DirectConnection);
 
     m_orientationSensor = new QOrientationSensor(this);
     QObject::connect(m_orientationSensor, SIGNAL(readingChanged()), this, SLOT(setScreenOrientationFromSensor()));
@@ -88,6 +90,8 @@ LipstickCompositor::LipstickCompositor()
         qWarning("Unable to register object at path /: %s", systemBus.lastError().message().toUtf8().constData());
     }
 
+    m_recorder = new LipstickRecorderManager;
+    addGlobalInterface(m_recorder);
     addGlobalInterface(new AlienManagerGlobal);
 }
 
@@ -639,4 +643,9 @@ void LipstickCompositor::setUpdatesEnabled(bool enabled)
             }
         }
     }
+}
+
+void LipstickCompositor::readContent()
+{
+    m_recorder->recordFrame(this);
 }
