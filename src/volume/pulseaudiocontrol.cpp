@@ -22,7 +22,7 @@
 #include <QDebug>
 
 #define DBUS_ERR_CHECK(err) \
-    if(dbus_error_is_set(&err)) \
+    if (dbus_error_is_set(&err)) \
     { \
         qWarning() << err.message; \
         dbus_error_free(&err); \
@@ -58,7 +58,8 @@ void PulseAudioControl::openConnection()
     char *pa_bus_address = getenv("PULSE_DBUS_SERVER");
     QByteArray addressArray;
     if (pa_bus_address == NULL) {
-        QDBusMessage message = QDBusMessage::createMethodCall("org.pulseaudio.Server", "/org/pulseaudio/server_lookup1", "org.freedesktop.DBus.Properties", "Get");
+        QDBusMessage message = QDBusMessage::createMethodCall("org.pulseaudio.Server", "/org/pulseaudio/server_lookup1",
+                                                              "org.freedesktop.DBus.Properties", "Get");
         message.setArguments(QVariantList() << "org.PulseAudio.ServerLookup1" << "Address");
         QDBusMessage reply = QDBusConnection::sessionBus().call(message);
         if (reply.type() == QDBusMessage::ReplyMessage && reply.arguments().count() > 0) {
@@ -163,20 +164,22 @@ void PulseAudioControl::update()
         setSteps(currentStep, stepCount);
     }
 
-    if(highVolumeStep != -1) {
+    if (highVolumeStep != -1) {
         emit highVolume(highVolumeStep);
     }
 }
 
 void PulseAudioControl::addSignalMatch()
 {
-    static const char *signalNames []  = {"com.Meego.MainVolume2.StepsUpdated", "com.Meego.MainVolume2.NotifyHighVolume", "com.Meego.MainVolume2.NotifyListeningTime", "com.Meego.MainVolume2.CallStatus"};
+    static const char *signalNames []  = {"com.Meego.MainVolume2.StepsUpdated", "com.Meego.MainVolume2.NotifyHighVolume",
+                                          "com.Meego.MainVolume2.NotifyListeningTime", "com.Meego.MainVolume2.CallStatus"};
     for (int index = 0; index < 4; ++index) {
         DBusMessage *message = dbus_message_new_method_call(NULL, "/org/pulseaudio/core1", NULL, "ListenForSignal");
         if (message != NULL) {
             const char *signalPtr = signalNames[index];
             char **emptyarray = { NULL };
-            dbus_message_append_args(message, DBUS_TYPE_STRING, &signalPtr, DBUS_TYPE_ARRAY, DBUS_TYPE_OBJECT_PATH, &emptyarray, 0, DBUS_TYPE_INVALID);
+            dbus_message_append_args(message, DBUS_TYPE_STRING, &signalPtr, DBUS_TYPE_ARRAY, DBUS_TYPE_OBJECT_PATH,
+                                     &emptyarray, 0, DBUS_TYPE_INVALID);
             dbus_connection_send(dbusConnection, message, NULL);
             dbus_message_unref(message);
         }
@@ -185,7 +188,7 @@ void PulseAudioControl::addSignalMatch()
 
 DBusHandlerResult PulseAudioControl::signalHandler(DBusConnection *, DBusMessage *message, void *control)
 {
-    if(!message)
+    if (!message)
         return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 
     DBusError error;
