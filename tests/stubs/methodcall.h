@@ -43,13 +43,11 @@ public:
     template <typename T>
     T parameter(int number) {
         if (number >= _params.count()) {
-            QString msg = QString("MethodCall::") + __func__ + ": method " + _name + " does not have parameter #" + QString::number(number) + ". Check your test code.";
-            qFatal(qPrintable(msg));
+            qFatal("MethodCall::%s: method %s does not have parameter #%d. Check your test code.", __func__, qPrintable(_name), number);
         }
         Parameter<T>* param = dynamic_cast<Parameter<T>* >(_params[number]);
         if (!param) {
-            QString msg = QString("MethodCall::") + __func__ + ": failed dynamic_cast, check that parameter type matches parameter number";
-            qFatal(qPrintable(msg));
+            qFatal("MethodCall::%s: failed dynamic_cast, check that parameter type matches parameter number", __func__);
         }
         return param->data;
     }
@@ -59,8 +57,7 @@ public:
         Parameter<T>* value = dynamic_cast<Parameter<T>*>(_returnValue);
 
         if (!value) {
-            QString msg = QString("MethodCall::") + __func__ + ": failed dynamic_cast, check that type matches return value";
-            qFatal(qPrintable(msg));
+            qFatal("MethodCall::%s: failed dynamic_cast, check that type matches return value", __func__);
         }
         return value->data;
     }
