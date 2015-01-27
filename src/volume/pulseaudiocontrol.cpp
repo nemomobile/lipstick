@@ -19,11 +19,12 @@
 #include <QDBusArgument>
 #include <dbus/dbus-glib-lowlevel.h>
 #include <QTimer>
+#include <QDebug>
 
 #define DBUS_ERR_CHECK(err) \
     if(dbus_error_is_set(&err)) \
     { \
-        qWarning(err.message); \
+        qWarning() << err.message; \
         dbus_error_free(&err); \
     }
 
