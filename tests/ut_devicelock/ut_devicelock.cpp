@@ -290,7 +290,7 @@ void Ut_DeviceLock::testStateOnAutomaticLockingAndTouchScreenLockState()
     QFETCH(MeeGo::QmLocks::State, touchScreenLockState);
     QFETCH(DeviceLock::LockState, deviceLockState);
 
-    deviceLock->setState(DeviceLock::Undefined);
+    deviceLock->setState(DeviceLock::Locked);
 
     deviceLock->lockingDelay = lockingDelayValue;
     gQmLocksStub->stubSetReturnValue("getState", touchScreenLockState);
