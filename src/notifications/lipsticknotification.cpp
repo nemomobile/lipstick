@@ -227,6 +227,36 @@ bool LipstickNotification::isUserRemovable() const
     return hints_.value(NotificationManager::HINT_USER_REMOVABLE, QVariant(true)).toBool();
 }
 
+QVariantList LipstickNotification::remoteActions() const
+{
+    QVariantList rv;
+
+    QStringList::const_iterator it = actions_.constBegin(), end = actions_.constEnd();
+    for ( ; it != end; ++it) {
+        const QString name(*it);
+        if (++it == end) {
+            break;
+        }
+
+        const QString displayName(*it);
+
+        if (!hints_.value(NotificationManager::HINT_REMOTE_ACTION_PREFIX + name).isNull()) {
+            const QString icon(hints_.value(NotificationManager::HINT_REMOTE_ACTION_ICON_PREFIX + name).toString());
+
+            QVariantMap vm;
+            vm.insert(QStringLiteral("name"), name);
+            vm.insert(QStringLiteral("displayName"), displayName);
+            if (!icon.isEmpty()) {
+                vm.insert(QStringLiteral("icon"), icon);
+            }
+
+            rv.append(vm);
+        }
+    }
+
+    return rv;
+}
+
 QDBusArgument &operator<<(QDBusArgument &argument, const LipstickNotification &notification)
 {
     argument.beginStructure();
