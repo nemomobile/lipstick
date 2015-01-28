@@ -13,6 +13,7 @@ SUBDIRS = \
           ut_notificationlistmodel \
           ut_notificationmanager \
           ut_notificationpreviewpresenter \
+          ut_qobjectlistmodel \
           ut_screenlock \
           ut_shutdownscreen \
           ut_thermalnotifier \

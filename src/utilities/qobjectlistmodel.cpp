@@ -15,6 +15,7 @@
 // Copyright (c) 2012, Timur Kristóf <venemo@fedoraproject.org>
 
 #include "qobjectlistmodel.h"
+#include "synchronizelists.h"
 #include <QDebug>
 
 QObjectListModel::QObjectListModel(QObject *parent, QList<QObject*> *list)
@@ -142,6 +143,67 @@ void QObjectListModel::setList(QList<QObject *> *list)
     endResetModel();
     emit itemCountChanged();
     delete oldList;
+}
+
+void QObjectListModel::synchronizeList(const QList<QObject *> &list)
+{
+    ::synchronizeList(this, *_list, list);
+
+    // Report addition/removals after synch completes, because a move may cause an
+    // item to be both removed and added transiently
+    foreach (QObject *item, _inserted) {
+        emit itemAdded(item);
+    }
+    foreach (QObject *item, _removed) {
+        emit itemRemoved(item);
+    }
+
+    if (!_inserted.isEmpty() || !_removed.isEmpty()) {
+        emit itemCountChanged();
+    }
+
+    _inserted.clear();
+    _removed.clear();
+}
+
+int QObjectListModel::insertRange(int index, int count, const QList<QObject *> &source, int sourceIndex)
+{
+    const int end = index + count - 1;
+    beginInsertRows(QModelIndex(), index, end);
+
+    for (int i = 0; i < count; ++i) {
+        QObject *item(source.at(sourceIndex + i));
+        _list->insert(index + i, item);
+        int removedIndex = _removed.indexOf(item);
+        if (removedIndex != -1) {
+            _removed.removeAt(removedIndex);
+        } else {
+            _inserted.append(item);
+        }
+    }
+
+    endInsertRows();
+    return end - index + 1;
+}
+
+int QObjectListModel::removeRange(int index, int count)
+{
+    const int end = index + count - 1;
+    beginRemoveRows(QModelIndex(), index, end);
+
+    for (int i = 0; i < count; ++i) {
+        QObject *item(_list->at(index));
+        int insertedIndex = _inserted.indexOf(item);
+        if (insertedIndex != -1) {
+            _inserted.removeAt(insertedIndex);
+        } else {
+            _removed.append(item);
+        }
+        _list->removeAt(index);
+    }
+
+    endRemoveRows();
+    return 0;
 }
 
 void QObjectListModel::reset()
