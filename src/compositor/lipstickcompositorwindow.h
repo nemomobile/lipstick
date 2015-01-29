@@ -34,6 +34,7 @@ class LIPSTICK_EXPORT LipstickCompositorWindow : public QWaylandSurfaceItem
     Q_PROPERTY(qint64 processId READ processId CONSTANT)
 
     Q_PROPERTY(QRect mouseRegionBounds READ mouseRegionBounds NOTIFY mouseRegionBoundsChanged)
+    Q_PROPERTY(bool unresponsive READ unresponsive NOTIFY unresponsiveChanged)
 
 public:
     LipstickCompositorWindow(int windowId, const QString &, QWaylandQuickSurface *surface, QQuickItem *parent = 0);
@@ -51,12 +52,14 @@ public:
     QString category() const;
     virtual QString title() const;
     virtual bool isInProcess() const;
+    bool unresponsive() const;
 
     QRect mouseRegionBounds() const;
 
     bool eventFilter(QObject *object, QEvent *event);
 
     Q_INVOKABLE void terminateProcess(int killTimeout);
+    Q_INVOKABLE void ping();
 
 protected:
     virtual bool event(QEvent *);
@@ -65,6 +68,7 @@ protected:
     virtual void mouseReleaseEvent(QMouseEvent *event);
     virtual void wheelEvent(QWheelEvent *event);
     virtual void touchEvent(QTouchEvent *event);
+    virtual void timerEvent(QTimerEvent *event);
 
 signals:
     void userDataChanged();
@@ -72,11 +76,13 @@ signals:
     void delayRemoveChanged();
     void mouseRegionBoundsChanged();
     void committed();
+    void unresponsiveChanged();
 
 private slots:
     void handleTouchCancel();
     void killProcess();
     void connectSurfaceSignals();
+    void pong();
 
 private:
     friend class LipstickCompositor;
@@ -98,11 +104,13 @@ private:
     bool m_removePosted:1;
     bool m_mouseRegionValid:1;
     bool m_interceptingTouch:1;
+    bool m_mapped:1;
+    bool m_unresponsive:1;
     QVariant m_data;
     QRegion m_mouseRegion;
     QList<int> m_grabbedKeys;
     QList<QMetaObject::Connection> m_surfaceConnections;
-    bool m_mapped;
+    int m_pongTimeoutTimer;
 };
 
 #endif // LIPSTICKCOMPOSITORWINDOW_H
