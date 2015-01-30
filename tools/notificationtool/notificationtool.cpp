@@ -157,11 +157,13 @@ int parseArguments(int argc, char *argv[])
             expireTimeout = atoi(optarg);
             break;
         case 'h': {
-            QStringList hintList = QString::fromUtf8(optarg).split(' ');
-            if (hintList.count() != 2) {
+            // Everything after the first space should be treated as the hint value
+            QString pair(QString::fromUtf8(optarg));
+            int index = pair.indexOf(' ');
+            if (index <= 0 || index == (pair.length() - 1)) {
                 toolOperation = Undefined;
             } else {
-                hints.append(qMakePair(hintList.at(0), hintList.at(1)));
+                hints.append(qMakePair(pair.left(index), pair.mid(index + 1)));
             }
             break;
             }
