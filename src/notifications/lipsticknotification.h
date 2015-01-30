@@ -29,13 +29,13 @@ class QDBusArgument;
 class LIPSTICK_EXPORT LipstickNotification : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString appName READ appName)
-    Q_PROPERTY(uint replacesId READ replacesId)
-    Q_PROPERTY(QString appIcon READ appIcon)
+    Q_PROPERTY(QString appName READ appName CONSTANT)
+    Q_PROPERTY(uint replacesId READ replacesId CONSTANT)
+    Q_PROPERTY(QString appIcon READ appIcon CONSTANT)
     Q_PROPERTY(QString summary READ summary NOTIFY summaryChanged)
     Q_PROPERTY(QString body READ body NOTIFY bodyChanged)
-    Q_PROPERTY(QStringList actions READ actions)
-    Q_PROPERTY(int expireTimeout READ expireTimeout)
+    Q_PROPERTY(QStringList actions READ actions CONSTANT)
+    Q_PROPERTY(int expireTimeout READ expireTimeout CONSTANT)
     Q_PROPERTY(QString icon READ icon NOTIFY iconChanged)
     Q_PROPERTY(QDateTime timestamp READ timestamp NOTIFY timestampChanged)
     Q_PROPERTY(QString previewIcon READ previewIcon NOTIFY previewIconChanged)
