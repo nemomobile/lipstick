@@ -329,6 +329,7 @@ QWaylandSurfaceView *LipstickCompositor::createView(QWaylandSurface *surface)
 
     int id = m_nextWindowId++;
     LipstickCompositorWindow *item = new LipstickCompositorWindow(id, category, static_cast<QWaylandQuickSurface *>(surface));
+    item->setParent(this);
     QObject::connect(item, SIGNAL(destroyed(QObject*)), this, SLOT(windowDestroyed()));
     m_windows.insert(item->windowId(), item);
     return item;
