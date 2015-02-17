@@ -27,6 +27,8 @@ class LIPSTICK_EXPORT QObjectListModel : public QAbstractListModel
     Q_PROPERTY(int itemCount READ itemCount NOTIFY itemCountChanged)
 
     QList<QObject*> *_list;
+    QList<QObject*> _inserted;
+    QList<QObject*> _removed;
 
 public:
     explicit QObjectListModel(QObject *parent = 0, QList<QObject*> *list = new QList<QObject*>());
@@ -37,6 +39,7 @@ public:
     bool setData(const QModelIndex &index, const QVariant &value, int role);
     Q_INVOKABLE void reset();
     Q_INVOKABLE void move(int oldRow, int newRow);
+    Q_INVOKABLE void update(int row);
 
     void insertItem(int index, QObject *item);
     void addItem(QObject *item);
@@ -52,6 +55,14 @@ public:
     template<typename T>
     void setList(QList<T*> *list);
     void setList(QList<QObject*> *list);
+
+    template<typename T>
+    void synchronizeList(const QList<T*> &list);
+    void synchronizeList(const QList<QObject*> &list);
+
+    // For synchronizeLists()
+    int insertRange(int index, int count, const QList<QObject *> &source, int sourceIndex);
+    int removeRange(int index, int count);
 
 private slots:
     void removeDestroyedItem();
@@ -72,6 +83,12 @@ template<typename T>
 void QObjectListModel::setList(QList<T*> *list)
 {
     setList(reinterpret_cast<QList<QObject *> *>(list));
+}
+
+template<typename T>
+void QObjectListModel::synchronizeList(const QList<T*> &list)
+{
+    synchronizeList(reinterpret_cast<const QList<QObject *> &>(list));
 }
 
 #endif // QOBJECTLISTMODEL_H

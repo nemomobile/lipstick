@@ -57,6 +57,8 @@ protected:
      */
     virtual int indexFor(LipstickNotification *notification);
 
+    void refreshModel();
+
 private:
     Q_DISABLE_COPY(NotificationListModel)
 

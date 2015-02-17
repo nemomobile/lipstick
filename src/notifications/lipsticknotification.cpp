@@ -13,9 +13,11 @@
 **
 ****************************************************************************/
 
-#include <QDBusArgument>
 #include "notificationmanager.h"
 #include "lipsticknotification.h"
+
+#include <QDBusArgument>
+#include <QtDebug>
 
 LipstickNotification::LipstickNotification(const QString &appName, uint replacesId, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expireTimeout, QObject *parent) :
     QObject(parent),
@@ -227,27 +229,59 @@ bool LipstickNotification::isUserRemovable() const
     return hints_.value(NotificationManager::HINT_USER_REMOVABLE, QVariant(true)).toBool();
 }
 
+bool LipstickNotification::hidden() const
+{
+    return hints_.value(NotificationManager::HINT_HIDDEN, QVariant(false)).toBool();
+}
+
 QVariantList LipstickNotification::remoteActions() const
 {
     QVariantList rv;
 
     QStringList::const_iterator it = actions_.constBegin(), end = actions_.constEnd();
-    for ( ; it != end; ++it) {
+    while (it != end) {
         const QString name(*it);
-        if (++it == end) {
-            break;
+        QString displayName;
+        if (++it != end) {
+            displayName = *it;
+            ++it;
         }
 
-        const QString displayName(*it);
-
-        if (!hints_.value(NotificationManager::HINT_REMOTE_ACTION_PREFIX + name).isNull()) {
+        const QString hint(hints_.value(NotificationManager::HINT_REMOTE_ACTION_PREFIX + name).toString());
+        if (!hint.isEmpty()) {
             const QString icon(hints_.value(NotificationManager::HINT_REMOTE_ACTION_ICON_PREFIX + name).toString());
 
             QVariantMap vm;
             vm.insert(QStringLiteral("name"), name);
-            vm.insert(QStringLiteral("displayName"), displayName);
+            if (!displayName.isEmpty()) {
+                vm.insert(QStringLiteral("displayName"), displayName);
+            }
             if (!icon.isEmpty()) {
                 vm.insert(QStringLiteral("icon"), icon);
+            }
+
+            // Extract the element of the DBus call
+            QStringList elements(hint.split(' ', QString::SkipEmptyParts));
+            if (elements.size() <= 3) {
+                qWarning() << "Unable to decode invalid remote action:" << hint;
+            } else {
+                int index = 0;
+                vm.insert(QStringLiteral("service"), elements.at(index++));
+                vm.insert(QStringLiteral("path"), elements.at(index++));
+                vm.insert(QStringLiteral("iface"), elements.at(index++));
+                vm.insert(QStringLiteral("method"), elements.at(index++));
+
+                QVariantList args;
+                while (index < elements.size()) {
+                    const QString &arg(elements.at(index++));
+                    const QByteArray buffer(QByteArray::fromBase64(arg.toUtf8()));
+
+                    QDataStream stream(buffer);
+                    QVariant var;
+                    stream >> var;
+                    args.append(var);
+                }
+                vm.insert(QStringLiteral("arguments"), args);
             }
 
             rv.append(vm);

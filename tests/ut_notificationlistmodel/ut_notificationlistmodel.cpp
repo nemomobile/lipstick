@@ -164,6 +164,34 @@ void Ut_NotificationListModel::testNotificationOrdering()
     QCOMPARE(model.get(0), &notification1);
 }
 
+void Ut_NotificationListModel::testNotificationUpdate()
+{
+    LipstickNotification notification("appName", 1, "appIcon", "summary", "body", QStringList() << "action", QVariantHash(), 1);
+    gNotificationManagerStub->stubSetReturnValue("notificationIds", QList<uint>() << 1);
+    gNotificationManagerStub->stubSetReturnValue("notification", &notification);
+
+    NotificationListModel model;
+    QCOMPARE(model.itemCount(), 1);
+    QCOMPARE(model.get(0)->property("replacesId").value<uint>(), 1u);
+
+    QSignalSpy dataChangedSpy(&model, SIGNAL(dataChanged(QModelIndex,QModelIndex)));
+    QCOMPARE(dataChangedSpy.count(), 0);
+
+    notification.setAppName("differentAppName");
+    model.updateNotification(1);
+    QCOMPARE(model.itemCount(), 1);
+    QCOMPARE(model.get(0)->property("replacesId").value<uint>(), 1u);
+
+    QCOMPARE(dataChangedSpy.count(), 1);
+    QCOMPARE(dataChangedSpy.at(0).count(), 2);
+    QCOMPARE(qvariant_cast<QModelIndex>(dataChangedSpy.at(0).at(0)).parent(), QModelIndex());
+    QCOMPARE(qvariant_cast<QModelIndex>(dataChangedSpy.at(0).at(0)).row(), 0);
+    QCOMPARE(qvariant_cast<QModelIndex>(dataChangedSpy.at(0).at(0)).column(), 0);
+    QCOMPARE(qvariant_cast<QModelIndex>(dataChangedSpy.at(0).at(1)).parent(), QModelIndex());
+    QCOMPARE(qvariant_cast<QModelIndex>(dataChangedSpy.at(0).at(1)).row(), 0);
+    QCOMPARE(qvariant_cast<QModelIndex>(dataChangedSpy.at(0).at(1)).column(), 0);
+}
+
 void Ut_NotificationListModel::testRemoteActions()
 {
     QStringList actions;

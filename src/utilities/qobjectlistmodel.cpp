@@ -15,6 +15,7 @@
 // Copyright (c) 2012, Timur Kristóf <venemo@fedoraproject.org>
 
 #include "qobjectlistmodel.h"
+#include "synchronizelists.h"
 #include <QDebug>
 
 QObjectListModel::QObjectListModel(QObject *parent, QList<QObject*> *list)
@@ -144,6 +145,67 @@ void QObjectListModel::setList(QList<QObject *> *list)
     delete oldList;
 }
 
+void QObjectListModel::synchronizeList(const QList<QObject *> &list)
+{
+    ::synchronizeList(this, *_list, list);
+
+    // Report addition/removals after synch completes, because a move may cause an
+    // item to be both removed and added transiently
+    foreach (QObject *item, _inserted) {
+        emit itemAdded(item);
+    }
+    foreach (QObject *item, _removed) {
+        emit itemRemoved(item);
+    }
+
+    if (!_inserted.isEmpty() || !_removed.isEmpty()) {
+        emit itemCountChanged();
+    }
+
+    _inserted.clear();
+    _removed.clear();
+}
+
+int QObjectListModel::insertRange(int index, int count, const QList<QObject *> &source, int sourceIndex)
+{
+    const int end = index + count - 1;
+    beginInsertRows(QModelIndex(), index, end);
+
+    for (int i = 0; i < count; ++i) {
+        QObject *item(source.at(sourceIndex + i));
+        _list->insert(index + i, item);
+        int removedIndex = _removed.indexOf(item);
+        if (removedIndex != -1) {
+            _removed.removeAt(removedIndex);
+        } else {
+            _inserted.append(item);
+        }
+    }
+
+    endInsertRows();
+    return end - index + 1;
+}
+
+int QObjectListModel::removeRange(int index, int count)
+{
+    const int end = index + count - 1;
+    beginRemoveRows(QModelIndex(), index, end);
+
+    for (int i = 0; i < count; ++i) {
+        QObject *item(_list->at(index));
+        int insertedIndex = _inserted.indexOf(item);
+        if (insertedIndex != -1) {
+            _inserted.removeAt(insertedIndex);
+        } else {
+            _removed.append(item);
+        }
+        _list->removeAt(index);
+    }
+
+    endRemoveRows();
+    return 0;
+}
+
 void QObjectListModel::reset()
 {
     setList(new QList<QObject*>());
@@ -160,4 +222,13 @@ void QObjectListModel::move(int oldRow, int newRow)
     beginMoveRows(QModelIndex(), oldRow, oldRow, QModelIndex(), (newRow > oldRow) ? (newRow + 1) : newRow);
     _list->move(oldRow, newRow);
     endMoveRows();
+}
+
+void QObjectListModel::update(int row)
+{
+    if (row < 0 || row >= _list->count())
+        return;
+
+    const QModelIndex changeIndex(index(row, 0));
+    emit dataChanged(changeIndex, changeIndex);
 }

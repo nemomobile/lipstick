@@ -50,6 +50,8 @@ void NotificationListModel::updateNotification(uint id)
                 insertItem(expectedIndex, notification);
             } else if (index != expectedIndex) {
                 move(index, expectedIndex);
+            } else {
+                update(index);
             }
         } else if (index >= 0) {
             removeItem(notification);
@@ -68,6 +70,11 @@ int NotificationListModel::indexFor(LipstickNotification *notification)
     return itemCount();
 }
 
+void NotificationListModel::refreshModel()
+{
+    init();
+}
+
 void NotificationListModel::removeNotification(uint id)
 {
     removeItem(NotificationManager::instance()->notification(id));
@@ -75,5 +82,7 @@ void NotificationListModel::removeNotification(uint id)
 
 bool NotificationListModel::notificationShouldBeShown(LipstickNotification *notification)
 {
-    return !notification->hints().value(NotificationManager::HINT_HIDDEN).toBool() && !(notification->body().isEmpty() && notification->summary().isEmpty()) && notification->hints().value(NotificationManager::HINT_URGENCY).toInt() < 2;
+    return !notification->hidden() &&
+           !(notification->body().isEmpty() && notification->summary().isEmpty()) &&
+           notification->urgency() < 2;
 }

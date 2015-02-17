@@ -119,7 +119,7 @@ void NotificationPreviewPresenter::updateNotification(uint id)
 
             removeNotification(id, true);
 
-            if (currentNotification != notification && notification->hints().value(NotificationManager::HINT_URGENCY).toInt() >= 2) {
+            if (currentNotification != notification && notification->urgency() >= 2) {
                 NotificationManager::instance()->CloseNotification(id);
             }
         }
@@ -163,9 +163,9 @@ void NotificationPreviewPresenter::createWindowIfNecessary()
 bool NotificationPreviewPresenter::notificationShouldBeShown(LipstickNotification *notification)
 {
     bool screenOrDeviceLocked = locks->getState(MeeGo::QmLocks::TouchAndKeyboard) == MeeGo::QmLocks::Locked || locks->getState(MeeGo::QmLocks::Device) == MeeGo::QmLocks::Locked;
-    bool notificationHidden = notification->hints().value(NotificationManager::HINT_HIDDEN).toBool();
+    bool notificationHidden = notification->hidden();
     bool notificationHasPreviewText = !(notification->previewBody().isEmpty() && notification->previewSummary().isEmpty());
-    int notificationIsCritical = notification->hints().value(NotificationManager::HINT_URGENCY).toInt() >= 2;
+    int notificationIsCritical = notification->urgency() >= 2;
 
     uint mode = AllNotificationsEnabled;
     QWaylandSurface *surface = LipstickCompositor::instance()->surfaceForId(LipstickCompositor::instance()->topmostWindowId());
@@ -180,7 +180,7 @@ bool NotificationPreviewPresenter::notificationShouldBeShown(LipstickNotificatio
 void NotificationPreviewPresenter::setCurrentNotification(LipstickNotification *notification)
 {
     if (currentNotification != notification) {
-        if (currentNotification != 0 && currentNotification->hints().value(NotificationManager::HINT_URGENCY).toInt() >= 2) {
+        if (currentNotification != 0 && currentNotification->urgency() >= 2) {
             NotificationManager::instance()->CloseNotification(currentNotification->property("id").toUInt());
         }
 

@@ -3,6 +3,7 @@ TARGET = ut_launchermodel
 
 INCLUDEPATH += $$COMPONENTSSRCDIR
 INCLUDEPATH += $$UTILITYSRCDIR
+INCLUDEPATH += $$3RDPARTYSRCDIR
 
 QMAKE_CXXFLAGS += `pkg-config --cflags-only-I mlite5`
 
@@ -24,5 +25,6 @@ HEADERS += \
     $$COMPONENTSSRCDIR/launcheritem.h \
     $$COMPONENTSSRCDIR/launcherdbus.h \
     $$UTILITYSRCDIR/qobjectlistmodel.h \
+    $$3RDPARTYSRCDIR/synchronizelists.h \
     /usr/include/mlite5/mdesktopentry.h \
 

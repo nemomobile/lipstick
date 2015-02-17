@@ -19,7 +19,7 @@ QMAKE_STRIP = echo
 OBJECTS_DIR = .obj
 MOC_DIR = .moc
 
-INCLUDEPATH += utilities components xtools
+INCLUDEPATH += utilities components xtools 3rdparty
 
 include(compositor/compositor.pri)
 include(compositor/alienmanager/alienmanager.pri)
@@ -55,6 +55,7 @@ dbus_policy.path = /etc/dbus-1/system.d
 
 HEADERS += \
     $$PUBLICHEADERS \
+    3rdparty/synchronizelists.h \
     notifications/notificationmanageradaptor.h \
     notifications/categorydefinitionstore.h \
     notifications/batterynotifier.h \

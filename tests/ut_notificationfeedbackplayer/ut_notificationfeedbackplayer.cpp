@@ -29,6 +29,7 @@ const char *NotificationManager::HINT_TIMESTAMP = "x-nemo-timestamp";
 const char *NotificationManager::HINT_PREVIEW_ICON = "x-nemo-preview-icon";
 const char *NotificationManager::HINT_PREVIEW_BODY = "x-nemo-preview-body";
 const char *NotificationManager::HINT_PREVIEW_SUMMARY = "x-nemo-preview-summary";
+const char *NotificationManager::HINT_HIDDEN = "x-nemo-hidden";
 const char *NotificationManager::HINT_REMOTE_ACTION_PREFIX = "x-nemo-remote-action-";
 const char *NotificationManager::HINT_REMOTE_ACTION_ICON_PREFIX = "x-nemo-remote-action-icon-";
 const char *NotificationManager::HINT_FEEDBACK = "x-nemo-feedback";

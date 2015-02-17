@@ -22,9 +22,14 @@
 #include <iomanip>
 #include <getopt.h>
 
+#ifndef qUtf8Printable
+#define qUtf8Printable(x) QString(x).toUtf8().constData()
+#endif
+
 // The operations for this tool
 enum ToolOperation {
     Undefined,
+    List,
     Add,
     Update,
     Remove
@@ -73,10 +78,11 @@ int usage(const char *program)
     std::cerr << "Manage notifications." << std::endl;
     std::cerr << std::endl;
     std::cerr << "Mandatory arguments to long options are mandatory for short options too." << std::endl;
-    std::cerr << "  -o, --operation=OPERATION  The operation (add/update/remove) to perform." << std::endl;
+    std::cerr << "  -o, --operation=OPERATION  The operation to perform - possible operations are:" << std::endl;
     std::cerr << "                             add - Adds a new notification." << std::endl;
     std::cerr << "                             update - Updates an existing notification." << std::endl;
     std::cerr << "                             remove - Removes an existing notification." << std::endl;
+    std::cerr << "                             list - Print a summary of existing notifications." << std::endl;
     std::cerr << "  -i, --id=ID                The notification ID to use when updating or removing a notification." << std::endl;
     std::cerr << "  -u, --urgency=NUMBER       The urgency to assign to the notification." << std::endl;
     std::cerr << "  -p, --priority=NUMBER      The priority to assign to the notification." << std::endl;
@@ -124,7 +130,9 @@ int parseArguments(int argc, char *argv[])
 
         switch (c) {
         case 'o':
-            if (strcmp(optarg, "add") == 0) {
+            if (strcmp(optarg, "list") == 0) {
+                toolOperation = List;
+            } else if (strcmp(optarg, "add") == 0) {
                 toolOperation = Add;
             } else if (strcmp(optarg, "update") == 0) {
                 toolOperation = Update;
@@ -157,11 +165,13 @@ int parseArguments(int argc, char *argv[])
             expireTimeout = atoi(optarg);
             break;
         case 'h': {
-            QStringList hintList = QString::fromUtf8(optarg).split(' ');
-            if (hintList.count() != 2) {
+            // Everything after the first space should be treated as the hint value
+            QString pair(QString::fromUtf8(optarg));
+            int index = pair.indexOf(' ');
+            if (index <= 0 || index == (pair.length() - 1)) {
                 toolOperation = Undefined;
             } else {
-                hints.append(qMakePair(hintList.at(0), hintList.at(1)));
+                hints.append(qMakePair(pair.left(index), pair.mid(index + 1)));
             }
             break;
             }
@@ -209,10 +219,16 @@ int parseArguments(int argc, char *argv[])
             (toolOperation == Add && argc < optind) ||
             (toolOperation == Add && id != 0) ||
             (toolOperation == Update && argc < optind) ||
-            (toolOperation == Update && id == 0)) {
+            (toolOperation == Update && id == 0) ||
+            (toolOperation == Remove && id == 0)) {
         return usage(argv[0]);
     }
     return 0;
+}
+
+static QString firstLine(const QString &str)
+{
+    return str.left(str.indexOf("\n"));
 }
 
 int main(int argc, char *argv[])
@@ -229,6 +245,18 @@ int main(int argc, char *argv[])
 
     // Execute the desired operation
     switch (toolOperation) {
+    case List: {
+        NotificationManager *mgr(NotificationManager::instance());
+        QList<uint> ids(mgr->notificationIds());
+        std::sort(ids.begin(), ids.end());
+        foreach (id, ids) {
+            const LipstickNotification *n(mgr->notification(id));
+            std::cout << "ID:" << n->replacesId() << "\t" << qUtf8Printable(n->appName())
+                                                  << "\t" << qUtf8Printable(n->summary())
+                                                  << "\t" << qUtf8Printable(firstLine(n->body())) << std::endl;
+        }
+        break;
+        }
     case Add:
     case Update: {
         // Get the parameters for adding and updating notifications
