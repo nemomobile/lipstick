@@ -19,3 +19,10 @@ SOURCES += \
     $$NOTIFICATIONSRCDIR/lipsticknotification.cpp \
     $$STUBSDIR/stubbase.cpp \
     ut_batterynotifier.cpp
+
+packagesExist(contextkit-statefs) {
+    DEFINES += HAVE_CONTEXTSUBSCRIBER
+    HEADERS += /usr/include/contextproperty.h
+} else {
+    warning("Contextsubscriber not found")
+}

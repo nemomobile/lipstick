@@ -26,6 +26,9 @@
 #include "lowbatterynotifier.h"
 #include "ut_lowbatterynotifier.h"
 
+static QSharedPointer<ContextPropertyStub> gContextPropertyStub =
+    getContextPropertyStub("Phone.Call");
+
 void QTimer::start()
 {
     id = 1;

@@ -17,6 +17,8 @@
 #define UT_BATTERYNOTIFIER_H
 
 #include <QObject>
+#include <QScopedPointer>
+#include "batterynotifier.h"
 
 class BatteryNotifier;
 
@@ -34,20 +36,18 @@ private slots:
     void testLowBatteryAlert();
     void testBatteryStateChanged();
     void testChargingStateChanged();
-    void testBatteryChargerEvent();
     void testPSMStateChanged();
     void testLowBatteryNotifierConnection();
     void testWhenChargingStopsThenNotificationRemoved();
     void testWhenChargingStopsWhenConnectedToWallChargerThenNotificationRemoved();
-    void testWhenChargingStopsMoreThanNSecondAfterBeingStartedThenNotificationNotRemoved();
-    void testWhenChargingStartsWhenRemoveChargerNotifiedThenNotificationRemoved();
     void testWhenChargingStopsAndBatteryIsLowNotifierIsCreated();
     void testWhenBatteryFullWhenChargingNotifiedThenNotificationRemoved();
     void testSetTouchScreenLockActive();
     void testWhenStateChargingLowBatteryNotificationRemoved();
 
 private:
-    BatteryNotifier *batteryNotifier;
+    void setNewStubState(QString const &, QString const &, QString const &);
+    QScopedPointer<BatteryNotifier> batteryNotifier;
 };
 
 #endif
