@@ -124,6 +124,7 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     qmlEngine->rootContext()->setContextProperty("lipstickSettings", LipstickSettings::instance());
     qmlEngine->rootContext()->setContextProperty("LipstickSettings", LipstickSettings::instance());
     qmlEngine->rootContext()->setContextProperty("deviceLock", deviceLock);
+    qmlEngine->rootContext()->setContextProperty("volumeControl", volumeControl);
 
     connect(this, SIGNAL(homeReady()), this, SLOT(sendStartupNotifications()));
 }

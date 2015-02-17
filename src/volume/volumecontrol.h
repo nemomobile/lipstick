@@ -40,7 +40,7 @@ namespace ResourcePolicy {
 class LIPSTICK_EXPORT VolumeControl : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(int volume READ volume NOTIFY volumeChanged)
+    Q_PROPERTY(int volume READ volume WRITE setVolume NOTIFY volumeChanged)
     Q_PROPERTY(int maximumVolume READ maximumVolume NOTIFY maximumVolumeChanged)
     Q_PROPERTY(int safeVolume READ safeVolume NOTIFY safeVolumeChanged)
     Q_PROPERTY(bool windowVisible READ windowVisible WRITE setWindowVisible NOTIFY windowVisibleChanged)
@@ -72,6 +72,11 @@ public:
      * \return the current volume
      */
     int volume() const;
+
+    /*!
+     * Sets the current volume to \a volume.
+     */
+    void setVolume(int volume);
 
     /*!
      * Returns the maximum volume.
