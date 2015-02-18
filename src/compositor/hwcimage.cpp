@@ -16,6 +16,9 @@
 #include "hwcimage.h"
 #include "hwcrenderstage.h"
 
+#include <QRunnable>
+#include <QThreadPool>
+
 #include <QQuickWindow>
 #include <QSGSimpleTextureNode>
 
@@ -24,16 +27,93 @@
 
 static void *hwcimage_eglbuffer_to_handle(EGLClientBuffer buffer);
 
+#define HWCIMAGE_LOAD_EVENT ((QEvent::Type) (QEvent::User + 1))
+
+class HwcImageLoadRequest : public QRunnable, public QEvent
+{
+public:
+    HwcImageLoadRequest()
+        : QEvent(HWCIMAGE_LOAD_EVENT)
+    {
+        setAutoDelete(false);
+    }
+
+    void execute() {
+        image = QImage(file).convertToFormat(QImage::Format_RGBX8888);
+        if (textureSize.width() > 0 && textureSize.height() > 0)
+            image = image.scaled(textureSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+
+        if (image.size().isValid()) {
+
+            QPainter p(&image);
+
+            // Apply overlay
+            if (overlay.isValid())
+                p.fillRect(image.rect(), overlay);
+
+            // Apply glass..
+            if (effect.contains(QStringLiteral("glass"))) {
+                QImage glass("//usr/share/themes/jolla-ambient/meegotouch/icons/graphic-shader-texture.png");
+                glass = glass.scaled(glass.width() * pixelRatio, glass.height() * pixelRatio,
+                                     Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+                p.save();
+                p.setOpacity(0.1);
+                p.fillRect(image.rect(), glass);
+                p.restore();
+            }
+        }
+    }
+
+    void run() {
+        execute();
+        mutex.lock();
+        if (hwcImage && hwcImage->m_pendingRequest == this) {
+            hwcImage->m_pendingRequest = 0;
+            QCoreApplication::postEvent(hwcImage, this);
+        } else {
+            setAutoDelete(true);
+        }
+        mutex.unlock();
+    }
+
+    QImage image;
+    QString file;
+    QString effect;
+    QColor overlay;
+    QSize textureSize;
+    qreal pixelRatio;
+
+    HwcImage *hwcImage;
+
+    static QMutex mutex;
+};
+
+QMutex HwcImageLoadRequest::mutex;
+
 HwcImage::HwcImage()
-    : m_status(Null)
-    , m_darkness(0)
+    : m_texture(0)
+    , m_pendingRequest(0)
+    , m_status(Null)
+    , m_asynchronous(true)
 {
     setFlag(ItemHasContents, true);
 }
 
 HwcImage::~HwcImage()
 {
+    HwcImageLoadRequest::mutex.lock();
+    if (m_pendingRequest)
+        m_pendingRequest->hwcImage = 0;
+    HwcImageLoadRequest::mutex.unlock();
+}
 
+void HwcImage::setAsynchronous(bool is)
+{
+    if (m_asynchronous == is)
+        return;
+    m_asynchronous = is;
+    emit asynchronousChanged(m_asynchronous);
+    polish();
 }
 
 void HwcImage::setSource(const QUrl &source)
@@ -41,45 +121,99 @@ void HwcImage::setSource(const QUrl &source)
 	if (source == m_source)
 		return;
 	m_source = source;
-    emit sourceChanged();
+    emit sourceChanged(m_source);
     polish();
 }
 
-void HwcImage::setDarkness(qreal darkness)
+void HwcImage::setOverlayColor(const QColor &color)
 {
-    qreal d = qBound<qreal>(0, darkness, 1);
-    if (m_darkness == d)
+    if (m_overlayColor == color)
         return;
-    m_darkness = d;
-    emit darknessChanged();
+    m_overlayColor = color;
+    emit overlayColorChanged(m_overlayColor);
     polish();
 }
 
+void HwcImage::setTextureSize(const QSize &size)
+{
+    if (m_textureSize == size)
+        return;
+    m_textureSize = size;
+    emit textureSizeChanged(m_textureSize);
+    polish();
+}
+
+void HwcImage::setEffect(const QString &effect)
+{
+    if (m_effect == effect)
+        return;
+    m_effect = effect;
+    emit effectChanged(m_effect);
+    polish();
+}
+
+void HwcImage::setPixelRatio(qreal ratio)
+{
+    if (m_pixelRatio == ratio)
+        return;
+    m_pixelRatio = ratio;
+    emit pixelRatioChanged(m_pixelRatio);
+    polish();
+}
 
 void HwcImage::updatePolish()
 {
     if (m_source.isEmpty())
         return;
-
     m_status = Loading;
-    emit statusChanged();
+    emit statusChanged(m_status);
 
-    QString file = m_source.toLocalFile();
-    m_image = QImage(file).convertToFormat(QImage::Format_RGBX8888);
-    setWidth(m_image.width());
-    setHeight(m_image.height());
-    if (m_image.size().isValid()) {
-        m_status = Ready;
-        QPainter p(&m_image);
-        p.fillRect(m_image.rect(), QColor::fromRgbF(0, 0, 0, m_darkness));
+    m_image = QImage();
+    HwcImageLoadRequest *req = new HwcImageLoadRequest();
+    req->hwcImage = this;
+    req->file = m_source.toLocalFile();
+    req->textureSize = m_textureSize;
+    req->effect = m_effect;
+    req->overlay = m_overlayColor;
+    req->pixelRatio = m_pixelRatio;
+
+    if (m_asynchronous) {
+        HwcImageLoadRequest::mutex.lock();
+        m_pendingRequest = req;
+        QThreadPool::globalInstance()->start(m_pendingRequest);
+        HwcImageLoadRequest::mutex.unlock();
     } else {
-        m_status = Error;
+        req->execute();
+        apply(req);
+        delete req;
     }
-    emit statusChanged();
+}
+
+void HwcImage::apply(HwcImageLoadRequest *req)
+{
+    m_image = req->image;
+    QSize s = m_image.size();
+    setSize(s);
+    m_status = s.isValid() ? Ready : Error;
+    emit statusChanged(m_status);
     update();
 }
 
-
+bool HwcImage::event(QEvent *e)
+{
+    if (e->type() == HWCIMAGE_LOAD_EVENT) {
+        HwcImageLoadRequest *req = static_cast<HwcImageLoadRequest *>(e);
+        if (m_source.toLocalFile() == req->file
+            && m_effect == req->effect
+            && m_textureSize == req->textureSize
+            && m_pixelRatio == req->pixelRatio
+            && m_overlayColor == req->overlay) {
+            apply(req);
+        }
+        return true;
+    }
+    return QQuickItem::event(e);
+}
 
 class HwcImageTexture : public QSGTexture
 {
@@ -114,7 +248,6 @@ public:
     ~HwcImageNode() { delete texture(); }
     void *handle() const {
         HwcImageTexture *t = static_cast<HwcImageTexture *>(texture());
-        qDebug() << "asking for handle from" << this << t << (t ? t->handle() : 0);
         return t ? t->handle() : 0;
     }
 };
@@ -194,7 +327,7 @@ QSGNode *HwcImage::updatePaintNode(QSGNode *old, UpdatePaintNodeData *)
 #define HYBRIS_PIXEL_FORMAT_RGB_888     3
 #define HYBRIS_PIXEL_FORMAT_BGRA_8888   5
 
-#define EGL_NATIVE_BUFFER_HYBRIS             0x3140
+#define EGL_NATIVE_BUFFER_HYBRIS        0x3140
 
 extern "C" {
     typedef EGLBoolean (EGLAPIENTRYP _eglHybrisCreateNativeBuffer)(EGLint width, EGLint height, EGLint usage, EGLint format, EGLint *stride, EGLClientBuffer *buffer);
