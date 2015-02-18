@@ -65,6 +65,7 @@ protected:
     virtual void mouseReleaseEvent(QMouseEvent *event);
     virtual void wheelEvent(QWheelEvent *event);
     virtual void touchEvent(QTouchEvent *event);
+    virtual void itemChange(QQuickItem::ItemChange change, const QQuickItem::ItemChangeData &data);
 
 signals:
     void userDataChanged();

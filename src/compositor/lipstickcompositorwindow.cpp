@@ -193,7 +193,6 @@ bool LipstickCompositorWindow::eventFilter(QObject *obj, QEvent *event)
         }
         case QEvent::TouchEnd: // Intentional fall through...
         case QEvent::TouchCancel:
-            obj->removeEventFilter(this);
             m_interceptingTouch = false;
         default:
             break;
@@ -288,13 +287,25 @@ void LipstickCompositorWindow::touchEvent(QTouchEvent *event)
             // On TouchBegin, start intercepting
             if (event->isAccepted() && !m_interceptingTouch) {
                 m_interceptingTouch = true;
-                window()->installEventFilter(this);
             }
         }
 #endif
     } else {
         event->ignore();
     }
+}
+
+void LipstickCompositorWindow::itemChange(QQuickItem::ItemChange change, const QQuickItem::ItemChangeData &data)
+{
+    if (change == ItemSceneChange) {
+        if (window())
+            window()->removeEventFilter(this);
+
+        if (data.window)
+            data.window->installEventFilter(this);
+    }
+
+    QWaylandSurfaceItem::itemChange(change, data);
 }
 
 void LipstickCompositorWindow::handleTouchEvent(QTouchEvent *event)
@@ -337,7 +348,6 @@ void LipstickCompositorWindow::handleTouchCancel()
         inputDevice->sendTouchCancelEvent();
         inputDevice->setMouseFocus(0, QPointF());
     }
-    window()->removeEventFilter(this);
     m_interceptingTouch = false;
 }
 
