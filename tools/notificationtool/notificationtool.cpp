@@ -63,7 +63,8 @@ int expireTimeout = -1;
 QString timestamp;
 
 // Actions for the notification
-QHash<QString, QString> actions;
+typedef QPair<QString, QString> StringPair;
+QHash<StringPair, QString> actions;
 
 // Hints for the notification
 QList<QPair<QString, QString> > hints;
@@ -91,7 +92,7 @@ int usage(const char *program)
     std::cerr << "  -C, --count=NUMBER         The number of items represented by the notification." << std::endl;
     std::cerr << "  -t, --timestamp=TIMESTAMP  Timestamp to use on a notification. Use ISO 8601 extended date format."<< std::endl;
     std::cerr << "  -T, --timeout=MILLISECONDS Expire timeout for the notification in milliseconds or -1 to use server defaults."<< std::endl;
-    std::cerr << "  -a, --action=ACTION        An action for the notification in \"ACTIONNAME DBUSSERVICE DBUSPATH DBUSINTERFACE METHOD [ARGUMENTS]...\" format."<< std::endl;
+    std::cerr << "  -a, --action=ACTION        An action for the notification in \"ACTIONNAME[;DISPLAYNAME] DBUSSERVICE DBUSPATH DBUSINTERFACE METHOD [ARGUMENTS]...\" format."<< std::endl;
     std::cerr << "  -h, --hint=HINT            A hint to add to the notification, in \"NAME VALUE\" format."<< std::endl;
     std::cerr << "  -A, --application=NAME     The name to use as identifying the application that owns the notification." << std::endl;
     std::cerr << "      --help                 display this help and exit" << std::endl;
@@ -181,6 +182,13 @@ int parseArguments(int argc, char *argv[])
                 toolOperation = Undefined;
             } else {
                 QString name = actionList.takeFirst();
+                QString displayName;
+                int index = name.indexOf(';');
+                if (index != -1) {
+                    displayName = name.mid(index + 1);
+                    name = name.left(index);
+                }
+
                 QString action;
                 action.append(actionList.takeFirst()).append(' ');
                 action.append(actionList.takeFirst()).append(' ');
@@ -200,7 +208,7 @@ int parseArguments(int argc, char *argv[])
                     action.append(buffer.buffer().toBase64().data());
                 }
 
-                actions.insert(name, action);
+                actions.insert(qMakePair(name, displayName), action);
             }
             break;
             }
@@ -293,9 +301,9 @@ int main(int argc, char *argv[])
             hintValues.insert(NotificationManager::HINT_TIMESTAMP, timestamp);
         }
         if (!actions.isEmpty()) {
-            foreach (const QString &name, actions.keys()) {
-                hintValues.insert(QString(NotificationManager::HINT_REMOTE_ACTION_PREFIX) + name, actions.value(name));
-                actionValues << name << QString();
+            foreach (const StringPair &name, actions.keys()) {
+                hintValues.insert(QString(NotificationManager::HINT_REMOTE_ACTION_PREFIX) + name.first, actions.value(name));
+                actionValues << name.first << name.second;
             }
         }
         if (!hints.isEmpty()) {
