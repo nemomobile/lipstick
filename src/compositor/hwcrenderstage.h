@@ -34,7 +34,7 @@ public:
 
     QRect bounds() const;
 
-    void update(void *handle);
+    void update(QSGGeometryNode *node, void *handle);
 
     void *handle() const { return m_buffer_handle; }
     bool isSubtreeBlocked() const { return m_blocked; }
@@ -47,7 +47,10 @@ public:
         m_y = y;
     }
 
+    QSGGeometryNode *contentNode() const { return m_contentNode; }
+
 private:
+    QSGGeometryNode *m_contentNode;
     void *m_buffer_handle;
     float m_x, m_y;
     bool m_blocked;

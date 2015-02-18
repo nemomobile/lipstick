@@ -35,8 +35,9 @@ class LIPSTICK_EXPORT HwcImage : public QQuickItem
     Q_PROPERTY(QColor overlayColor READ overlayColor WRITE setOverlayColor NOTIFY overlayColorChanged)
     Q_PROPERTY(qreal pixelRatio READ pixelRatio WRITE setPixelRatio NOTIFY pixelRatioChanged)
     Q_PROPERTY(QSize textureSize READ textureSize WRITE setTextureSize NOTIFY textureSizeChanged)
-    Q_PROPERTY(QString effect READ effect WRITE setEffect NOTIFY effectChanged);
-    Q_PROPERTY(bool asynchronous READ isAsynchronous WRITE setAsynchronous WRITE asynchronousChanged)
+    Q_PROPERTY(QString effect READ effect WRITE setEffect NOTIFY effectChanged)
+    Q_PROPERTY(QQuickItem *rotationHandler READ rotationHandler WRITE setRotationHandler NOTIFY rotationHandlerChanged)
+    Q_PROPERTY(bool asynchronous READ isAsynchronous WRITE setAsynchronous NOTIFY asynchronousChanged)
 
     Q_ENUMS(Status)
 
@@ -64,7 +65,10 @@ public:
     qreal pixelRatio() const { return m_pixelRatio; }
 
     void setAsynchronous(bool is);
-    bool isAsynchronous() const;
+    bool isAsynchronous() const { return m_asynchronous; }
+
+    void setRotationHandler(QQuickItem *rotationHandler);
+    QQuickItem *rotationHandler() const { return m_rotationHandler; }
 
 protected:
     bool event(QEvent *event);
@@ -73,23 +77,26 @@ protected:
 	QSGNode *updatePaintNode(QSGNode *node, UpdatePaintNodeData *data);
 
 signals:
-    void sourceChanged(const QUrl &url);
-    void statusChanged(Status s);
-    void overlayColorChanged(const QColor &color);
-    void textureSizeChanged(const QSize &size);
-    void effectChanged(const QString &effect);
-    void pixelRatioChanged(qreal pr);
-    void asynchronousChanged(bool async);
+    void sourceChanged();
+    void statusChanged();
+    void overlayColorChanged();
+    void textureSizeChanged();
+    void effectChanged();
+    void pixelRatioChanged();
+    void asynchronousChanged();
+    void rotationHandlerChanged();
+
+private slots:
+    void handlerRotationChanged();
 
 private:
     friend class HwcImageLoadRequest;
     void apply(HwcImageLoadRequest *);
+    QMatrix4x4 reverseTransform() const;
     HwcImageNode *updateActualPaintNode(QSGNode *node);
 
-    QSGTexture *m_texture;
-
     HwcImageLoadRequest *m_pendingRequest;
-
+    QQuickItem *m_rotationHandler;
 	QUrl m_source;
     QImage m_image;
     QSize m_textureSize;
@@ -97,6 +104,7 @@ private:
     Status m_status;
     QColor m_overlayColor;
     qreal m_pixelRatio;
+    qreal m_textureRotation;
     bool m_asynchronous;
 };
 

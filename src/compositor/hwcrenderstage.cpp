@@ -43,6 +43,7 @@ public:
 
 HwcNode::HwcNode()
     : QSGNode(QSG_HWC_NODE_TYPE)
+    , m_contentNode(0)
     , m_buffer_handle(0)
     , m_x(0)
     , m_y(0)
@@ -51,8 +52,9 @@ HwcNode::HwcNode()
     qsgnode_set_description(this, QStringLiteral("hwcnode"));
 }
 
-void HwcNode::update(void *handle)
+void HwcNode::update(QSGGeometryNode *node, void *handle)
 {
+    m_contentNode = node;
     m_buffer_handle = handle;
 }
 
@@ -66,9 +68,8 @@ void HwcNode::setBlocked(bool blocked)
 
 QRect HwcNode::bounds() const
 {
-    Q_ASSERT(firstChild());
-    Q_ASSERT(firstChild()->type() == QSGNode::GeometryNodeType);
-    QSGGeometry *g = static_cast<QSGGeometryNode *>(firstChild())->geometry();
+    Q_ASSERT(m_contentNode);
+    QSGGeometry *g = m_contentNode->geometry();
     QSGGeometry::TexturedPoint2D *v = g->vertexDataAsTexturedPoint2D();
     float x1 = v[0].x;        // v0--v2
     float y1 = v[0].y;        // |  / |
@@ -93,11 +94,8 @@ static inline void hwc_renderstage_check_node(QSGNode *node)
     static const QSGGeometry::Attribute *attributes = QSGGeometry::defaultAttributes_TexturedPoint2D().attributes;
 
     Q_ASSERT(node->type() == QSG_HWC_NODE_TYPE);
-
-    Q_ASSERT(node->firstChild());
-    Q_ASSERT(node->firstChild()->type() == QSGNode::GeometryNodeType);
-    QSGGeometryNode *gn = static_cast<QSGGeometryNode *>(node->firstChild());
-
+    QSGGeometryNode *gn = static_cast<HwcNode *>(node)->contentNode();
+    Q_ASSERT(gn);
     QSGGeometry *g = gn->geometry();
     Q_ASSERT(g->vertexCount() == 4);
     Q_ASSERT(g->indexCount() == 0);
@@ -212,7 +210,6 @@ bool HwcRenderStage::render()
                 m_layerList = hwc_renderstage_create_list(m_nodesToTry);
                 m_layerList->eglRenderingEnabled = !layersOnly;
                 if (LIPSTICK_LOG_HWC().isDebugEnabled()) {
-                    qDebug() << endl << endl << endl << endl << endl << endl << endl;
                     qCDebug(LIPSTICK_LOG_HWC, "HwcRenderStage::render(), scheduling new layer list (using GL)");
                     hwc_renderstage_dump_layerlist(m_layerList);
                 }
@@ -279,7 +276,6 @@ bool HwcRenderStage::swap()
     return false;
 }
 
-
 struct QMatrix4x4_Accessor
 {
     float m[4][4];
@@ -308,26 +304,28 @@ bool HwcRenderStage::checkSceneGraph(QSGNode *node)
 {
     if (node->type() == QSG_HWC_NODE_TYPE) {
 
-        // get x/y offset on screen and check for transformations...
+        HwcNode *hwcNode = static_cast<HwcNode *>(node);
         QQuickWindowPrivate *d = QQuickWindowPrivate::get(m_window);
         QSGRootNode *root = d->renderer->rootNode();
-        QSGNode *p = node->parent();
-        float x=0, y=0;
+        Q_ASSERT(hwcNode->contentNode()); // It shouldn't be in the tree otherwise...
+
+        // get x/y offset on screen and check for transformations...
+        QSGNode *p = hwcNode->contentNode()->parent();
+        QMatrix4x4 cm;
         while (p != root) {
             if (p->type() == QSGNode::TransformNodeType) {
                 QSGTransformNode *tn = static_cast<QSGTransformNode *>(p);
                 const QMatrix4x4 &m = tn->matrix();
-                if (!QMatrix4x4_Accessor::isTranslate(m))
-                    return true;
-                x += m(0, 3);
-                y += m(1, 3);
+                cm = m * cm;
             }
             p = p->parent();
         }
+        cm.optimize();
+        if (!QMatrix4x4_Accessor::isTranslate(cm))
+            return true;
 
-        HwcNode *hwcNode = static_cast<HwcNode *>(node);
         hwc_renderstage_check_node(hwcNode);
-        hwcNode->setPos(x, y);
+        hwcNode->setPos(cm(0, 3), cm(1, 3));
         m_nodesToTry << hwcNode;
 
         // HwcNodes have only the one child, which is whatever node that holds
