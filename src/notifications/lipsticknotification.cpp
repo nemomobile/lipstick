@@ -291,6 +291,11 @@ QVariantList LipstickNotification::remoteActions() const
     return rv;
 }
 
+QString LipstickNotification::origin() const
+{
+    return hints_.value(NotificationManager::HINT_ORIGIN).toString();
+}
+
 QDBusArgument &operator<<(QDBusArgument &argument, const LipstickNotification &notification)
 {
     argument.beginStructure();
