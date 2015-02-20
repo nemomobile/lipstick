@@ -234,8 +234,7 @@ bool LipstickCompositorWindow::event(QEvent *e)
 void LipstickCompositorWindow::mousePressEvent(QMouseEvent *event)
 {
     QWaylandSurface *m_surface = surface();
-    if (m_surface && (!m_mouseRegionValid || m_mouseRegion.contains(event->pos())) &&
-        m_surface->inputRegionContains(event->pos())) {
+    if (m_surface && (!m_mouseRegionValid || m_mouseRegion.contains(event->pos()))) {
         QWaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
         if (inputDevice->mouseFocus() != this)
             inputDevice->setMouseFocus(this, event->pos(), event->globalPos());
@@ -302,22 +301,20 @@ void LipstickCompositorWindow::handleTouchEvent(QTouchEvent *event)
 {
     QList<QTouchEvent::TouchPoint> points = event->touchPoints();
 
-    QWaylandSurface *m_surface = surface();
-    if (!m_surface) {
-        event->ignore();
-        return;
-    }
-
-    if (event->touchPointStates() & Qt::TouchPointPressed) {
+    if (m_mouseRegionValid && event->touchPointStates() & Qt::TouchPointPressed) {
         foreach (const QTouchEvent::TouchPoint &p, points) {
-            if ((m_mouseRegionValid && !m_mouseRegion.contains(p.pos().toPoint())) ||
-                !m_surface->inputRegionContains(p.pos().toPoint())) {
+            if (!m_mouseRegion.contains(p.pos().toPoint())) {
                 event->ignore();
                 return;
             }
         }
     }
 
+    QWaylandSurface *m_surface = surface();
+    if (!m_surface) {
+        event->ignore();
+        return;
+    }
     QWaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
     event->accept();
     if (inputDevice->mouseFocus() != this) {
