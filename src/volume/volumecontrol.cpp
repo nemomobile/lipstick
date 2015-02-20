@@ -74,6 +74,24 @@ int VolumeControl::volume() const
     return volume_;
 }
 
+void VolumeControl::setVolume(int volume)
+{
+    int newVolume = qBound(0, volume, maximumVolume());
+
+    if (!warningAcknowledged() && safeVolume_ != 0 && newVolume > safeVolume_) {
+        emit showAudioWarning(false);
+        newVolume = safeVolume();
+    }
+
+    if (newVolume != volume_) {
+        volume_ = volume;
+        pulseAudioControl->setVolume(volume_);
+        emit volumeChanged();
+    }
+
+    setWindowVisible(true);
+}
+
 int VolumeControl::maximumVolume() const
 {
     return maximumVolume_;
@@ -93,7 +111,6 @@ void VolumeControl::setWindowVisible(bool visible)
             window->setCategory(QLatin1String("notification"));
             window->setWindowTitle("Volume");
             window->setContextProperty("initialSize", QGuiApplication::primaryScreen()->size());
-            window->setContextProperty("volumeControl", this);
             window->setSource(QmlPath::to("volumecontrol/VolumeControl.qml"));
             window->installEventFilter(new CloseEventEater(this));
         }
@@ -181,20 +198,7 @@ void VolumeControl::acquireKeys()
 
 void VolumeControl::changeVolume()
 {
-    int newVolume = qBound(0, volume_ + volumeChange, maximumVolume());
-
-    if (!warningAcknowledged() && safeVolume_ != 0 && newVolume > safeVolume_) {
-        emit showAudioWarning(false);
-        newVolume = safeVolume();
-    }
-
-    if (newVolume != volume_) {
-        volume_ = newVolume;
-        pulseAudioControl->setVolume(volume_);
-        emit volumeChanged();
-    }
-
-    setWindowVisible(true);
+    setVolume(volume_ + volumeChange);
     emit volumeKeyPressed();
 }
 
