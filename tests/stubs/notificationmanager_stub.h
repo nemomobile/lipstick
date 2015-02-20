@@ -165,6 +165,7 @@ const char *NotificationManager::HINT_REMOTE_ACTION_ICON_PREFIX = "x-nemo-remote
 const char *NotificationManager::HINT_HIDDEN = "x-nemo-hidden";
 const char *NotificationManager::HINT_USER_REMOVABLE = "x-nemo-user-removable";
 const char *NotificationManager::HINT_LED_DISABLED_WITHOUT_BODY_AND_SUMMARY = "x-nemo-led-disabled-without-body-and-summary";
+const char *NotificationManager::HINT_ORIGIN = "x-nemo-origin";
 
 NotificationManager *NotificationManager::instance_ = 0;
 NotificationManager * NotificationManager::instance() {

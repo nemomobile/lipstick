@@ -109,6 +109,9 @@ public:
     //! Nemo hint: Whether to disable LED feedbacks when there is no body and summary
     static const char *HINT_LED_DISABLED_WITHOUT_BODY_AND_SUMMARY;
 
+    //! Nemo hint: Indicates the origin of the notification
+    static const char *HINT_ORIGIN;
+
     //! Notifation closing reasons used in the NotificationClosed signal
     enum NotificationClosedReason {
         //! The notification expired.
