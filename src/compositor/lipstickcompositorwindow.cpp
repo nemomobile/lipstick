@@ -365,3 +365,4 @@ void LipstickCompositorWindow::connectSurfaceSignals()
         m_surfaceConnections << connect(surface(), &QWaylandSurface::configure, this, &LipstickCompositorWindow::committed);
     }
 }
+

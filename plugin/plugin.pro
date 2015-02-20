@@ -12,7 +12,7 @@ qmldirfile.path = $$[QT_INSTALL_QML]/org/nemomobile/lipstick
 target.path = $$[QT_INSTALL_QML]/org/nemomobile/lipstick
 
 DEPENDPATH += "../src"
-INCLUDEPATH += "../src" "../src/utilities" "../src/xtools"
+INCLUDEPATH += "../src" "../src/utilities" "../src/xtools" "../src/compositor"
 LIBS += -L"../src" -llipstick-qt5
 
 HEADERS += \
