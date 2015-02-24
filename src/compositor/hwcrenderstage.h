@@ -66,11 +66,16 @@ public:
     bool render() Q_DECL_OVERRIDE;
     bool swap() Q_DECL_OVERRIDE;
 
+    void deleteOnBufferRelease(void *handle, QObject *resource);
+
     static void initialize(LipstickCompositor *lipstick);
     static bool isHwcEnabled() { return m_hwcEnabled; }
 
+    void bufferReleased(void *);
+
 private:
     bool checkSceneGraph(QSGNode *node);
+    void storeBuffer(void *handle);
 
     LipstickCompositor *m_lipstick;
     QQuickWindow *m_window;
@@ -79,6 +84,13 @@ private:
 
     QVector<HwcNode *> m_nodesInList;
     QVector<HwcNode *> m_nodesToTry;
+
+    struct BufferAndResource {
+        void *handle;
+        QObject *resource;
+    };
+    QVector<BufferAndResource> m_buffersInUse;
+    QMutex m_buffersInUseMutex;
 
     HwcInterface::LayerList *m_layerList;
 

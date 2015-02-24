@@ -156,9 +156,10 @@ static HwcInterface::LayerList *hwc_renderstage_create_list(const QVector<HwcNod
     return list;
 }
 
-static void hwc_renderstage_buffer_available(void *, void *)
+static void hwc_renderstage_buffer_available(void *handle, void *hwc)
 {
     // ignore for now.. We're only using this for static bg images atm..
+    static_cast<HwcRenderStage *>(hwc)->bufferReleased(handle);
 }
 
 static void hwc_renderstage_delete_list(HwcInterface::LayerList *list)
@@ -235,14 +236,17 @@ bool HwcRenderStage::render()
                     }
                 }
 
+                m_buffersInUseMutex.lock();
                 for (int i=0; i<m_nodesInList.size(); ++i) {
                     HwcInterface::Layer &l = m_layerList->layers[i];
                     if (l.accepted) {
                         l.handle = m_nodesInList.at(i)->handle();
+                        storeBuffer(l.handle);
                     } else {
                         l.handle = 0;
                     }
                 }
+                m_buffersInUseMutex.unlock();
 
                 if (!m_layerList->eglRenderingEnabled) {
                     // Our list is the only content, so skip SG render stage.
@@ -348,5 +352,43 @@ bool HwcRenderStage::checkSceneGraph(QSGNode *node)
     }
 
     return true;
+}
+
+void HwcRenderStage::storeBuffer(void *handle)
+{
+    // m_buffersInUseMutex must be locked during this call. See render()
+    foreach (const BufferAndResource &b, m_buffersInUse)
+        if (b.handle == handle)
+            return;
+    BufferAndResource b = { handle, 0 };
+    m_buffersInUse << b;
+}
+
+void HwcRenderStage::deleteOnBufferRelease(void *handle, QObject *resource)
+{
+    QMutexLocker locker(&m_buffersInUseMutex);
+
+    for (int i=0; i<m_buffersInUse.size(); ++i) {
+        BufferAndResource &b = m_buffersInUse[i];
+        if (b.handle == handle) {
+            b.resource = resource;
+            return;
+        }
+    }
+    delete resource;
+}
+
+void HwcRenderStage::bufferReleased(void *handle)
+{
+    QMutexLocker locker(&m_buffersInUseMutex);
+
+    for (int i=0; i<m_buffersInUse.size(); ++i) {
+        BufferAndResource &b = m_buffersInUse[i];
+        if (b.handle == handle) {
+            delete b.resource;
+            m_buffersInUse.remove(i);
+            return;
+        }
+    }
 }
 

@@ -291,9 +291,12 @@ bool HwcImage::event(QEvent *e)
 
 class HwcImageTexture : public QSGTexture
 {
+    Q_OBJECT
+
 public:
-    HwcImageTexture(EGLClientBuffer buffer, EGLImageKHR image, const QSize &size);
+    HwcImageTexture(EGLClientBuffer buffer, EGLImageKHR image, const QSize &size, HwcRenderStage *hwc);
     ~HwcImageTexture();
+    void release();
 
     int textureId() const { return m_id; }
     QSize textureSize() const { return m_size; }
@@ -301,19 +304,19 @@ public:
     bool hasMipmaps() const { return false; }
     void bind();
 
-    static QSGTexture *create(const QImage &image);
+    static QSGTexture *create(const QImage &image, QQuickWindow *window);
 
     void *handle() const { return hwcimage_eglbuffer_to_handle(m_buffer); }
 
 private:
     GLuint m_id;
+    HwcRenderStage *m_hwc;
     EGLClientBuffer m_buffer;
     EGLImageKHR m_image;
     QSize m_size;
     void *m_handle;
     bool m_bound;
 };
-
 
 class HwcImageNode : public QSGSimpleTextureNode
 {
@@ -324,11 +327,17 @@ public:
     }
     ~HwcImageNode() {
         qCDebug(LIPSTICK_LOG_HWC) << "HwcImageNode is gone...";
-        delete texture();
+        releaseTexture();
     }
     void *handle() const {
         HwcImageTexture *t = static_cast<HwcImageTexture *>(texture());
         return t ? t->handle() : 0;
+    }
+    void releaseTexture() {
+        if (HwcImageTexture *t = qobject_cast<HwcImageTexture *>(texture()))
+            t->release();
+        else
+            delete texture();
     }
 };
 
@@ -343,9 +352,8 @@ HwcImageNode *HwcImage::updateActualPaintNode(QSGNode *old)
     if (!tn)
         tn = new HwcImageNode();
     if (!tn->texture() || !m_image.isNull()) {
-        if (tn->texture())
-            delete tn->texture();
-        QSGTexture *t = HwcImageTexture::create(m_image);
+        tn->releaseTexture();
+        QSGTexture *t = HwcImageTexture::create(m_image, window());
         if (t)
             tn->setTexture(t);
         else
@@ -489,7 +497,7 @@ static bool hwcimage_is_enabled()
     return hybrisBuffers == 1 && HwcRenderStage::isHwcEnabled();
 }
 
-QSGTexture *HwcImageTexture::create(const QImage &image)
+QSGTexture *HwcImageTexture::create(const QImage &image, QQuickWindow *window)
 {
     hwcimage_initialize();
 
@@ -522,18 +530,24 @@ QSGTexture *HwcImageTexture::create(const QImage &image)
                                              buffer,
                                              0);
     Q_ASSERT(eglImage);
+    Q_ASSERT(QQuickWindowPrivate::get(window));
+    Q_ASSERT(QQuickWindowPrivate::get(window)->customRenderStage);
 
-    return new HwcImageTexture(buffer, eglImage, QSize(width, height));
-
+    return new HwcImageTexture(buffer,
+                               eglImage,
+                               QSize(width, height),
+                               static_cast<HwcRenderStage *>(QQuickWindowPrivate::get(window)->customRenderStage));
 }
 
 
-HwcImageTexture::HwcImageTexture(EGLClientBuffer buffer, EGLImageKHR image, const QSize &size)
-    : m_buffer(buffer)
+HwcImageTexture::HwcImageTexture(EGLClientBuffer buffer, EGLImageKHR image, const QSize &size, HwcRenderStage *hwc)
+    : m_hwc(hwc)
+    , m_buffer(buffer)
     , m_image(image)
     , m_size(size)
     , m_bound(false)
 {
+    Q_ASSERT(m_hwc);
     glGenTextures(1, &m_id);
     qCDebug(LIPSTICK_LOG_HWC,
             "HwcImageTexture(%p) created, size=(%d x %d), texId=%d, buffer=%p, image=%p",
@@ -542,7 +556,8 @@ HwcImageTexture::HwcImageTexture(EGLClientBuffer buffer, EGLImageKHR image, cons
 
 HwcImageTexture::~HwcImageTexture()
 {
-    glDeleteTextures(1, &m_id);
+    Q_ASSERT(m_id == 0); // Should have been deleted via release().
+
     eglDestroyImageKHR(eglGetDisplay(EGL_DEFAULT_DISPLAY), m_image);
     eglHybrisReleaseNativeBuffer(m_buffer);
     qCDebug(LIPSTICK_LOG_HWC,
@@ -558,6 +573,23 @@ void HwcImageTexture::bind()
         m_bound = true;
         glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, m_image);
     }
+}
+
+void HwcImageTexture::release()
+{
+    qCDebug(LIPSTICK_LOG_HWC,
+            "HwcImageTexture(%p) released, size=(%d x %d), texId=%d, buffer=%p, image=%p",
+            this, m_size.width(), m_size.height(), m_id, m_buffer, m_image);
+
+    // We're on the render thread, so delete the texture right away
+    Q_ASSERT(m_id);
+    glDeleteTextures(1, &m_id);
+    m_id = 0;
+
+    // Then tell the hwc render stage to clean it up when possible.
+    // Chances are the cleanup will happen on the GUI thread, but this
+    // is safe as the EGL resource can be deleted from any thread..
+    m_hwc->deleteOnBufferRelease(handle(), this);
 }
 
 
@@ -587,4 +619,6 @@ void *hwcimage_eglbuffer_to_handle(EGLClientBuffer buffer)
 {
     return ((ANativeWindowBuffer *) buffer)->handle;
 }
+
+#include "hwcimage.moc"
 
