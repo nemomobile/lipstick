@@ -1,7 +1,7 @@
 /***************************************************************************
 **
 ** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
-** Copyright (C) 2012 Jolla Ltd.
+** Copyright (C) 2012,2015 Jolla Ltd.
 ** Contact: Robin Burchell <robin.burchell@jollamobile.com>
 **
 ** This file is part of lipstick.
@@ -19,10 +19,11 @@
 #include <QObject>
 #include <QTimer>
 #include <QScopedPointer>
-#include <QBatteryInfo>
-#include <qmdevicemode.h>
+#include <QStringList>
+#include <QElapsedTimer>
 
 class LowBatteryNotifier;
+class ContextProperty;
 
 /*!
  * Implements the configuration and state for the battery, the power save mode.
@@ -43,7 +44,8 @@ public:
      */
     virtual ~BatteryNotifier();
 
-    typedef enum {
+
+    enum NotificationID {
         NotificationCharging,
         NotificationChargingComplete,
         NotificationRemoveCharger,
@@ -53,7 +55,38 @@ public:
         NotificationExitingPSM,
         NotificationLowBattery,
         NotificationNoEnoughPower
-    } NotificationID;
+    };
+    enum PropertyID {
+        PropertyFirst_ = 0,
+        PropertyLevel = PropertyFirst_,
+        PropertyState,
+        PropertyCharger,
+        PropertyLast_ = PropertyCharger
+    };
+
+    enum BatteryLevel {
+        BatteryNormal,
+        BatteryLow,
+        BatteryEmpty,
+        BatteryUnknown
+    };
+    enum ChargingState {
+        StateCharging,
+        StateDischarging,
+        StateIdle,
+        StateUnknown
+    };
+    enum ChargerType {
+        ChargerUnknown,
+        ChargerUsb,
+        ChargerWall,
+        ChargerNo
+    };
+
+    enum Mode {
+        ModeNormal,
+        ModePSM
+    };
 
 public slots:
     //! Initializes the battery status from the current values given by QBatteryInfo
@@ -70,28 +103,18 @@ public slots:
     void setTouchScreenLockActive(bool active);
 
 private slots:
-#if QT_VERSION < QT_VERSION_CHECK(5, 2, 0)
-    void applyBatteryStatus(int battery, QBatteryInfo::BatteryStatus status);
-    void applyChargingState(int battery, QBatteryInfo::ChargingState state);
-#else
-    void applyBatteryStatus(QBatteryInfo::LevelStatus status);
-    void applyChargingState(QBatteryInfo::ChargingState state);
-
-    // to somewhat mitigate the ifdef hell
-    void applyChargingState(int, QBatteryInfo::ChargingState state) { applyChargingState(state); }
-#endif
-    void applyChargerType(QBatteryInfo::ChargerType type);
-    void applyPSMState(MeeGo::QmDeviceMode::PSMState psmState);
+    void onPowerSaveModeChanged();
+    void onPropertyChanged();
+    void prepareNotification();
+    void checkIsChargingStarted();
 
 private:
     //! Sends a notification based on the notification ID
     void sendNotification(BatteryNotifier::NotificationID id);
 
-    //! Sends a notification
-    void sendNotification(const QString &category, const QString &text, const QString &icon = QString(""));
-
     //! Removes the current notification if its type is one listed in eventTypes
-    void removeNotification(const QStringList &categories);
+    typedef QSet<NotificationID> NotificationList;
+    void removeNotification(const NotificationList &);
 
     //! Starts the low battery notifier if not already started
     void startLowBatteryNotifier();
@@ -99,29 +122,55 @@ private:
     //! Stops the low battery notifier if not already stopped
     void stopLowBatteryNotifier();
 
+    BatteryLevel getLevel() const;
+    ChargingState getState() const;
+    ChargerType getCharger() const;
+
     //! Low battery notifier for getting notifications about low battery state
     LowBatteryNotifier *lowBatteryNotifier;
 
-    //! The current notification
-    uint notificationId;
-
-    //! The category of the current notification
-    QString notificationCategory;
+    struct QueuedNotification {
+        uint number;
+        NotificationID id;
+        qint64 time;
+    };
+    /*! There can be several queued notifications (e.g. psm and
+     *  charging one at the same time) and the only one should be
+     *  cancelled
+     */
+    QList<QueuedNotification> notifications;
 
     //! Timer for checking whether the current notification can be removed or not
-    QTimer notificationTimer;
+    QElapsedTimer timeline;
 
     //! Whether the touch screen lock is active or not
     bool touchScreenLockActive;
 
-    //! For getting battery state
-    QBatteryInfo *batteryInfo;
+    ContextProperty *batteryLevel;
+    ContextProperty *chargingState;
+    ContextProperty *chargerType;
 
-    //! For getting device mode
-    MeeGo::QmDeviceMode *qmDeviceMode;
+    //! To get device mode
+    ContextProperty *psm;
 
-    //! The current charger type
-    QBatteryInfo::ChargerType chargerType;
+    struct State {
+        BatteryLevel level;
+        ChargingState state;
+        ChargerType charger;
+    };
+    State lastState;
+    Mode mode;
+
+    /*! Notification is postponed by means of this timer to skip
+     *  frequent state changes during energy management state
+     *  changes
+     */
+    QTimer preNotificationTimer;
+
+    /*! used if charging is not signaled as started immediately after
+     *  charger is inserted to check is it finally started
+     */
+    QScopedPointer<QTimer> checkChargingTimer;
 
 #ifdef UNIT_TEST
     friend class Ut_BatteryNotifier;

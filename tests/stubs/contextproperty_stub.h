@@ -21,7 +21,7 @@ class ContextPropertyStub : public StubBase {
   virtual void waitForSubscription(bool block) const;
   virtual void ignoreCommander();
   virtual void setTypeCheck(bool typeCheck);
-}; 
+};
 
 // 2. IMPLEMENT STUB
 void ContextPropertyStub::ContextPropertyConstructor(const QString &key, QObject *parent) {
@@ -86,56 +86,77 @@ void ContextPropertyStub::setTypeCheck(bool typeCheck) {
 
 // 3. CREATE A STUB INSTANCE
 ContextPropertyStub gDefaultContextPropertyStub;
-ContextPropertyStub* gContextPropertyStub = &gDefaultContextPropertyStub;
+typedef QMap<QString, QSharedPointer<ContextPropertyStub> > ContextPropertyStubMap;
+static ContextPropertyStubMap stubs;
+QSharedPointer<ContextPropertyStub> getContextPropertyStub(QString const &name)
+{
+  ContextPropertyStubMap::iterator it = stubs.find(name);
+  if (it == stubs.end()) {
+    QSharedPointer<ContextPropertyStub> stub(new ContextPropertyStub());
+    it = stubs.insert(name, stub);
+  }
+  return *it;
+}
 
+class ContextPropertyPrivate
+{
+public:
+  ContextPropertyPrivate(QString const &k)
+    : key(k), stub(getContextPropertyStub(key))
+  {}
+  QString key;
+  QSharedPointer<ContextPropertyStub> stub;
+};
 
 // 4. CREATE A PROXY WHICH CALLS THE STUB
-ContextProperty::ContextProperty(const QString &key, QObject *parent) {
-  gContextPropertyStub->ContextPropertyConstructor(key, parent);
+ContextProperty::ContextProperty(const QString &key, QObject *parent)
+  : priv(new ContextPropertyPrivate(key))
+{
+  priv->stub->ContextPropertyConstructor(key, parent);
 }
 
 ContextProperty::~ContextProperty() {
-  gContextPropertyStub->ContextPropertyDestructor();
+  priv->stub->ContextPropertyDestructor();
 }
 
 QString ContextProperty::key() const {
-  return gContextPropertyStub->key();
+  return priv->key;
 }
 
 QVariant ContextProperty::value(const QVariant &def) const {
-  return gContextPropertyStub->value(def);
+  return priv->stub->value(def);
 }
 
 QVariant ContextProperty::value() const {
-  return gContextPropertyStub->value();
+  return priv->stub->value();
 }
 
 const ContextPropertyInfo * ContextProperty::info() const {
-  return gContextPropertyStub->info();
+  return priv->stub->info();
 }
 
 void ContextProperty::subscribe() const {
-  gContextPropertyStub->subscribe();
+  priv->stub->subscribe();
 }
 
 void ContextProperty::unsubscribe() const {
-  gContextPropertyStub->unsubscribe();
+  priv->stub->unsubscribe();
 }
 
 void ContextProperty::waitForSubscription() const {
-  gContextPropertyStub->waitForSubscription();
+  priv->stub->waitForSubscription();
 }
 
 void ContextProperty::waitForSubscription(bool block) const {
-  gContextPropertyStub->waitForSubscription(block);
+  priv->stub->waitForSubscription(block);
 }
 
 void ContextProperty::ignoreCommander() {
-  gContextPropertyStub->ignoreCommander();
+  // do nothing
 }
 
-void ContextProperty::setTypeCheck(bool typeCheck) {
-  gContextPropertyStub->setTypeCheck(typeCheck);
+void ContextProperty::setTypeCheck(bool) {
+  // do nothing
 }
 
 
