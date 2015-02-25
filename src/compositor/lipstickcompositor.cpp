@@ -303,8 +303,6 @@ void LipstickCompositor::setFullscreenSurface(QWaylandSurface *surface)
     if (surface == m_fullscreenSurface)
         return;
 
-    qDebug() << "Fullscreen Surface is: " << surface;
-
     // Prevent flicker when returning to composited mode
     if (!surface && m_fullscreenSurface) {
         foreach (QWaylandSurfaceView *view, m_fullscreenSurface->views())
