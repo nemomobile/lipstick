@@ -204,10 +204,18 @@ void HwcImage::setPixelRatio(qreal ratio)
     polish();
 }
 
+qreal hwcimage_get_rotation(QQuickItem *item)
+{
+    qreal rotation = fmod(item->rotation(), 360.0);
+    return rotation < 0 ? 360.0 + rotation : rotation;
+}
+
 void HwcImage::handlerRotationChanged()
 {
-    qreal rotation = m_rotationHandler->rotation();
-    if ((rotation == 0 || rotation == 90 || rotation == 180 || rotation == 270) && m_textureRotation != rotation)
+    qreal rotation = hwcimage_get_rotation(m_rotationHandler);
+    bool is90 = qFuzzyCompare(0.0, fmod(rotation, 90));
+    qCDebug(LIPSTICK_LOG_HWC, " - rotation changed: %6.3f, 90 degree=%s", rotation, is90 ? "yes" : "no");
+    if (is90 && m_textureRotation != rotation)
         polish();
 }
 
@@ -226,7 +234,7 @@ void HwcImage::updatePolish()
     req->effect = m_effect;
     req->overlay = m_overlayColor;
     req->pixelRatio = m_pixelRatio;
-    req->rotation = m_rotationHandler ? m_rotationHandler->rotation() : 0;
+    req->rotation = m_rotationHandler ? hwcimage_get_rotation(m_rotationHandler) : 0;
 
     qCDebug(LIPSTICK_LOG_HWC,
             "Scheduling HwcImage request, source=%s, (%d x %d), eff=%s, olay=%s, rot=%f, pr=%f, %s",

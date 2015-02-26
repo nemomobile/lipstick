@@ -280,12 +280,22 @@ bool HwcRenderStage::swap()
     return false;
 }
 
-struct QMatrix4x4_Accessor
+// We cannot use QMatrix4x4::optimize + translate bits or qFuzzyCompare because
+// matrices have a high degree of floating point error and we need to take that
+// into account when checking. Hence do a manual check using a fairly rough
+// threshold.
+static bool hwc_renderstage_isTranslate(const QMatrix4x4 &m)
 {
-    float m[4][4];
-    int flagBits;
-    static bool isTranslate(const QMatrix4x4 &m) { return ((const QMatrix4x4_Accessor &) m).flagBits <= 0x1; }
-};
+    #define M0(r,c) (qAbs(m(r,c)) < T)
+    #define M1(r,c) (qAbs(m(r,c) - 1) < T)
+    static const qreal T = 0.0001;
+    return M1(0,0) && M0(0,1) && M0(0,2)
+        && M0(1,0) && M1(1,1) && M0(1,2)
+        && M0(2,0) && M0(2,1) && M1(2,2) && M0(2,3)
+        && M0(3,0) && M0(3,1) && M0(3,2) && M1(3,3);
+    #undef M0
+    #undef M1
+}
 
 /*
     Iterates over the scene graph in a left-to-right depth first manner,
@@ -324,8 +334,8 @@ bool HwcRenderStage::checkSceneGraph(QSGNode *node)
             }
             p = p->parent();
         }
-        cm.optimize();
-        if (!QMatrix4x4_Accessor::isTranslate(cm))
+
+        if (!hwc_renderstage_isTranslate(cm))
             return true;
 
         hwc_renderstage_check_node(hwcNode);
