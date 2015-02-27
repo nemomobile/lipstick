@@ -221,8 +221,12 @@ void HwcImage::handlerRotationChanged()
 
 void HwcImage::updatePolish()
 {
-    if (m_source.isEmpty())
+    if (m_source.isEmpty()) {
+        // Trigger deletion of the sg node and texture in case the source has been
+        // removed.
+        update();
         return;
+    }
     m_status = Loading;
     emit statusChanged();
 
