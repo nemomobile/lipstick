@@ -44,7 +44,7 @@ public:
     }
 
     void execute() {
-        image = QImage(file).convertToFormat(QImage::Format_RGBX8888);
+        image = QImage(file).convertToFormat(QImage::Format_RGB32);
 
         if (rotation != 0) {
             QTransform xform;
@@ -521,7 +521,7 @@ QSGTexture *HwcImageTexture::create(const QImage &image, QQuickWindow *window)
     int height = image.height();
     int usage = HYBRIS_USAGE_SW_WRITE_RARELY | HYBRIS_USAGE_HW_TEXTURE | HYBRIS_USAGE_HW_COMPOSER;
     int stride = 0;
-    int format = HYBRIS_PIXEL_FORMAT_RGBA_8888;
+    int format = HYBRIS_PIXEL_FORMAT_BGRA_8888;
     char *data;
 
     eglHybrisCreateNativeBuffer(width, height, usage, format, &stride, &buffer);
