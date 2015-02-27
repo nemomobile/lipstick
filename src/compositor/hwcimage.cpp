@@ -44,7 +44,7 @@ public:
     }
 
     void execute() {
-        image = QImage(file).convertToFormat(QImage::Format_RGBX8888);
+        image = QImage(file).convertToFormat(QImage::Format_RGB32);
 
         if (rotation != 0) {
             QTransform xform;
@@ -75,6 +75,8 @@ public:
                 p.restore();
             }
         }
+
+        image  = image.convertToFormat(QImage::Format_RGBX8888);
     }
 
     void run() {
