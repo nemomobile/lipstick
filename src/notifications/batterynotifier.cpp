@@ -22,6 +22,19 @@
 #include "batterynotifier.h"
 #include <contextproperty.h>
 
+// timeout to check is charging being started
+//
+// TODO There should be some environment variable used by different
+// parties to share charging start-up timeouts
+//
+// - for usb cable - enough time for user to choose usb mode or
+// mode the be chosen automatically
+static int checkChargingStartedTimeoutUsb = 15 * 1000;
+
+// - for wall charger - just enough time for charging being started
+static int checkChargingStartedTimeoutWall = 3 * 1000;
+
+
 static inline QString propertyString(ContextProperty *p)
 {
     return p->value().toString().trimmed();
@@ -129,7 +142,12 @@ void BatteryNotifier::prepareNotification()
             // charger is inserted but battery is still discharging
             checkChargingTimer.reset(new QTimer());
             checkChargingTimer->setSingleShot(true);
-            checkChargingTimer->setInterval(3000); // check after empiric 3s
+            // unknown charger is also checked after wall charger
+            // timeout
+            int timeout = (newState.charger == ChargerUsb
+                           ? checkChargingStartedTimeoutUsb
+                           : checkChargingStartedTimeoutWall);
+            checkChargingTimer->setInterval(timeout);
             connect(checkChargingTimer.data(), SIGNAL(timeout()),
                     this, SLOT(checkIsChargingStarted()));
             checkChargingTimer->start();
