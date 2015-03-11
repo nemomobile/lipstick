@@ -29,6 +29,8 @@ class LIPSTICK_EXPORT WindowPixmapItem : public QQuickItem
     Q_PROPERTY(bool opaque READ opaque WRITE setOpaque NOTIFY opaqueChanged)
     Q_PROPERTY(qreal radius READ radius WRITE setRadius NOTIFY radiusChanged)
     Q_PROPERTY(QSize windowSize READ windowSize WRITE setWindowSize NOTIFY windowSizeChanged)
+    Q_PROPERTY(qreal xOffset READ xOffset WRITE setXOffset NOTIFY xOffsetChanged)
+    Q_PROPERTY(qreal yOffset READ yOffset WRITE setYOffset NOTIFY yOffsetChanged)
     Q_PROPERTY(qreal xScale READ xScale WRITE setXScale NOTIFY xScaleChanged)
     Q_PROPERTY(qreal yScale READ yScale WRITE setYScale NOTIFY yScaleChanged)
 
@@ -48,6 +50,12 @@ public:
     QSize windowSize() const;
     void setWindowSize(const QSize &size);
 
+    qreal xOffset() const;
+    void setXOffset(qreal);
+
+    qreal yOffset() const;
+    void setYOffset(qreal);
+
     qreal xScale() const;
     void setXScale(qreal);
 
@@ -63,6 +71,8 @@ signals:
     void opaqueChanged();
     void radiusChanged();
     void windowSizeChanged();
+    void xOffsetChanged();
+    void yOffsetChanged();
     void xScaleChanged();
     void yScaleChanged();
 
@@ -75,6 +85,8 @@ private:
     int m_id;
     bool m_opaque;
     qreal m_radius;
+    qreal m_xOffset;
+    qreal m_yOffset;
     qreal m_xScale;
     qreal m_yScale;
 };

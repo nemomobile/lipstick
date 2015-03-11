@@ -28,6 +28,10 @@ public:
     SurfaceTextureState() : m_texture(0), m_xScale(1), m_yScale(1) {}
     void setTexture(QSGTexture *texture) { m_texture = texture; }
     QSGTexture *texture() const { return m_texture; }
+    void setXOffset(float xOffset) { m_xOffset = xOffset; }
+    float xOffset() const { return m_xOffset; }
+    void setYOffset(float yOffset) { m_yOffset = yOffset; }
+    float yOffset() const { return m_yOffset; }
     void setXScale(float xScale) { m_xScale = xScale; }
     float xScale() const { return m_xScale; }
     void setYScale(float yScale) { m_yScale = yScale; }
@@ -35,6 +39,8 @@ public:
 
 private:
     QSGTexture *m_texture;
+    float m_xOffset;
+    float m_yOffset;
     float m_xScale;
     float m_yScale;
 };
@@ -50,6 +56,7 @@ protected:
     const char *vertexShader() const;
     const char *fragmentShader() const;
 private:
+    int m_id_texOffset;
     int m_id_texScale;
 };
 
@@ -62,6 +69,8 @@ public:
     void setTextureProvider(QSGTextureProvider *);
     void setBlending(bool);
     void setRadius(qreal radius);
+    void setXOffset(qreal xOffset);
+    void setYOffset(qreal yOffset);
     void setXScale(qreal xScale);
     void setYScale(qreal yScale);
 
@@ -97,12 +106,14 @@ void SurfaceTextureMaterial::updateState(const SurfaceTextureState *newState,
     if (newState->texture())
         newState->texture()->bind();
 
+    program()->setUniformValue(m_id_texOffset, newState->xOffset(), newState->yOffset());
     program()->setUniformValue(m_id_texScale, newState->xScale(), newState->yScale());
 }
 
 void SurfaceTextureMaterial::initialize()
 {
     QSGSimpleMaterialShader::initialize();
+    m_id_texOffset = program()->uniformLocation("texOffset");
     m_id_texScale = program()->uniformLocation("texScale");
 }
 
@@ -112,9 +123,10 @@ const char *SurfaceTextureMaterial::vertexShader() const
            "attribute highp vec4 qt_VertexPosition;            \n"
            "attribute highp vec2 qt_VertexTexCoord;            \n"
            "varying highp vec2 qt_TexCoord;                    \n"
+           "uniform highp vec2 texOffset;                      \n"
            "uniform highp vec2 texScale;                       \n"
            "void main() {                                      \n"
-           "    qt_TexCoord = qt_VertexTexCoord * texScale;    \n"
+           "    qt_TexCoord = qt_VertexTexCoord * texScale + texOffset;\n"
            "    gl_Position = qt_Matrix * qt_VertexPosition;   \n"
            "}";
 }
@@ -263,6 +275,20 @@ void SurfaceNode::setTexture(QSGTexture *texture)
     markDirty(DirtyMaterial);
 }
 
+void SurfaceNode::setXOffset(qreal offset)
+{
+    m_material->state()->setXOffset(offset);
+
+    markDirty(DirtyMaterial);
+}
+
+void SurfaceNode::setYOffset(qreal offset)
+{
+    m_material->state()->setYOffset(offset);
+
+    markDirty(DirtyMaterial);
+}
+
 void SurfaceNode::setXScale(qreal xScale)
 {
     m_material->state()->setXScale(xScale);
@@ -291,7 +317,8 @@ void SurfaceNode::providerDestroyed()
 }
 
 WindowPixmapItem::WindowPixmapItem()
-: m_item(0), m_shaderEffect(0), m_id(0), m_opaque(false), m_radius(0), m_xScale(1), m_yScale(1)
+: m_item(0), m_shaderEffect(0), m_id(0), m_opaque(false), m_radius(0), m_xOffset(0), m_yOffset(0)
+, m_xScale(1), m_yScale(1)
 {
     setFlag(ItemHasContents);
 }
@@ -366,6 +393,38 @@ void WindowPixmapItem::setRadius(qreal r)
     emit radiusChanged();
 }
 
+qreal WindowPixmapItem::xOffset() const
+{
+    return m_xOffset;
+}
+
+void WindowPixmapItem::setXOffset(qreal xOffset)
+{
+    if (m_xOffset == xOffset)
+        return;
+
+    m_xOffset = xOffset;
+    if (m_item) update();
+
+    emit xOffsetChanged();
+}
+
+qreal WindowPixmapItem::yOffset() const
+{
+    return m_yOffset;
+}
+
+void WindowPixmapItem::setYOffset(qreal yOffset)
+{
+    if (m_yOffset == yOffset)
+        return;
+
+    m_yOffset = yOffset;
+    if (m_item) update();
+
+    emit yOffsetChanged();
+}
+
 qreal WindowPixmapItem::xScale() const
 {
     return m_xScale;
@@ -431,6 +490,8 @@ QSGNode *WindowPixmapItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData
     node->setRect(QRectF(0, 0, width(), height()));
     node->setBlending(!m_opaque);
     node->setRadius(m_radius);
+    node->setXOffset(m_xOffset);
+    node->setYOffset(m_yOffset);
     node->setXScale(m_xScale);
     node->setYScale(m_yScale);
 
