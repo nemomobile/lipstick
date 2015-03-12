@@ -185,6 +185,7 @@ HwcRenderStage::HwcRenderStage(LipstickCompositor *lipstick, void *compositorHan
     : m_lipstick(lipstick)
     , m_window(lipstick)
     , m_hwc(reinterpret_cast<HwcInterface::Compositor *>(compositorHandle))
+    , m_hwcBypass(0)
     , m_scheduledLayerList(false)
 {
     m_hwc->setReleaseLayerListCallback(hwc_renderstage_delete_list);
@@ -200,6 +201,12 @@ bool HwcRenderStage::render()
 {
     QQuickWindowPrivate *d = QQuickWindowPrivate::get(m_window);
     if (d->renderer && d->renderer->rootNode()) {
+
+        if (m_hwcBypass.load()) {
+            disableHwc();
+            return false;;
+        }
+
         QSGRootNode *rootNode = d->renderer->rootNode();
         m_nodesToTry.clear();
         bool layersOnly = checkSceneGraph(rootNode);
@@ -280,6 +287,43 @@ bool HwcRenderStage::swap()
         return true;
     }
     return false;
+}
+
+// see disabledHwc docs below..
+void HwcRenderStage::setBypassHwc(bool bypass)
+{
+    m_hwcBypass = int(bypass);
+}
+
+/*
+    Called during the custom render stage's render if m_hwcBypass is set to true.
+    This is typically used during screenshotting to make sure all HWC content is
+    being rendered through textures.
+
+    A note about threading. The flag to disable this is a QAtomicInt. It will
+    be set before rendering and turned off once the result has been grabbed.
+    This is safe because if the m_hwcBypass is set while rendering of an
+    actual frame is about to happen, then we end up disabling HWC for that
+    frame which means it is a bit slower to draw, but it still comes out ok.
+
+    If we set the bypass flag during rendering of a frame, nothing will happen
+    until the next render pass which should be the actual pass to grab stuff.
+    In this pass it is set and HWC is disabled.
+
+    Once the bypass flag is unset, rendering will continue as normal and we'll
+    schedule a new layer list and should enter back into HWC composition mode
+    within a frame or two and all is back to normal.
+ */
+void HwcRenderStage::disableHwc()
+{
+    if (!m_layerList)
+        return;
+    qCDebug(LIPSTICK_LOG_HWC, "Hwc has been explicitly disabled");
+    foreach (HwcNode *n, m_nodesInList)
+        n->setBlocked(false);
+    m_nodesInList.clear();
+    m_nodesToTry.clear();
+    m_layerList = 0;
 }
 
 // We cannot use QMatrix4x4::optimize + translate bits or qFuzzyCompare because

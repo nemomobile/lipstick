@@ -74,17 +74,20 @@ public:
 
     void bufferReleased(void *);
 
+    void setBypassHwc(bool bypass);
+
 private:
     bool checkSceneGraph(QSGNode *node);
     void storeBuffer(void *handle);
+    void disableHwc();
 
     LipstickCompositor *m_lipstick;
     QQuickWindow *m_window;
 
     HwcInterface::Compositor *m_hwc;
-
     QVector<HwcNode *> m_nodesInList;
     QVector<HwcNode *> m_nodesToTry;
+    QAtomicInt m_hwcBypass;
 
     struct BufferAndResource {
         void *handle;
