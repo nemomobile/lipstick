@@ -204,10 +204,12 @@ bool HwcRenderStage::render()
         m_nodesToTry.clear();
         bool layersOnly = checkSceneGraph(rootNode);
 
-        if (m_nodesToTry.size()) {
+        bool isUsingLayersOnly = m_layerList && m_layerList == m_hwc->acceptedLayerList() && !m_layerList->eglRenderingEnabled;
+
+        if (m_nodesToTry.size() || (layersOnly != isUsingLayersOnly)) {
 
             // ### Also check for geometry changes here...
-            if (m_nodesInList != m_nodesToTry) {
+            if ((m_nodesInList != m_nodesToTry) || (layersOnly != isUsingLayersOnly)) {
                 m_layerList = hwc_renderstage_create_list(m_nodesToTry);
                 m_layerList->eglRenderingEnabled = !layersOnly;
                 if (LIPSTICK_LOG_HWC().isDebugEnabled()) {
@@ -353,7 +355,7 @@ bool HwcRenderStage::checkSceneGraph(QSGNode *node)
                || (node->type() == QSGNode::OpacityNodeType && static_cast<QSGOpacityNode *>(node)->opacity() < 1.0f)
                || node->type() == QSGNode::ClipNodeType
                || node->type() == QSGNode::RenderNodeType) {
-        return false;
+            return false;
     }
 
     for (QSGNode *child = node->firstChild(); child; child = child->nextSibling()) {
@@ -370,32 +372,41 @@ void HwcRenderStage::storeBuffer(void *handle)
     foreach (const BufferAndResource &b, m_buffersInUse)
         if (b.handle == handle)
             return;
-    BufferAndResource b = { handle, 0 };
+    BufferAndResource b;
+    b.callback = 0;
+    b.callbackData = 0;
+    b.handle = handle;
     m_buffersInUse << b;
 }
 
-void HwcRenderStage::deleteOnBufferRelease(void *handle, QObject *resource)
+void HwcRenderStage::signalOnBufferRelease(BufferReleaseCallback callback, void *handle, void *callbackData)
 {
     QMutexLocker locker(&m_buffersInUseMutex);
 
+    // Check if the buffer is in use and store for signalling later
     for (int i=0; i<m_buffersInUse.size(); ++i) {
         BufferAndResource &b = m_buffersInUse[i];
         if (b.handle == handle) {
-            b.resource = resource;
+            b.callbackData = callbackData;
+            b.callback = callback;
             return;
         }
     }
-    delete resource;
+
+    // Buffer is not in use so we can signal right away.
+    callback(handle, callbackData);
 }
 
 void HwcRenderStage::bufferReleased(void *handle)
 {
     QMutexLocker locker(&m_buffersInUseMutex);
 
+    // Look up the buffer in the "in use" list and signal present
     for (int i=0; i<m_buffersInUse.size(); ++i) {
         BufferAndResource &b = m_buffersInUse[i];
         if (b.handle == handle) {
-            delete b.resource;
+            if (b.callback)
+                b.callback(b.handle, b.callbackData);
             m_buffersInUse.remove(i);
             return;
         }

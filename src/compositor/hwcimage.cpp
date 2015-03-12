@@ -587,6 +587,11 @@ void HwcImageTexture::bind()
     }
 }
 
+void hwcimage_delete_texture(void *, void *callbackData)
+{
+    delete (QObject *) callbackData;
+}
+
 void HwcImageTexture::release()
 {
     qCDebug(LIPSTICK_LOG_HWC,
@@ -598,10 +603,10 @@ void HwcImageTexture::release()
     glDeleteTextures(1, &m_id);
     m_id = 0;
 
-    // Then tell the hwc render stage to clean it up when possible.
-    // Chances are the cleanup will happen on the GUI thread, but this
-    // is safe as the EGL resource can be deleted from any thread..
-    m_hwc->deleteOnBufferRelease(handle(), this);
+    // Register for a callback so we can delete ourselves when HWC is done
+    // with our buffer. Chances are the cleanup will happen on the HWC thread,
+    // but this is safe as the EGL resource can be deleted from any thread..
+    m_hwc->signalOnBufferRelease(hwcimage_delete_texture, handle(), this);
 }
 
 

@@ -66,7 +66,8 @@ public:
     bool render() Q_DECL_OVERRIDE;
     bool swap() Q_DECL_OVERRIDE;
 
-    void deleteOnBufferRelease(void *handle, QObject *resource);
+    typedef void (*BufferReleaseCallback)(void *bufferHandle, void *callbackData);
+    void signalOnBufferRelease(BufferReleaseCallback callback, void *handle, void *callbackData);
 
     static void initialize(LipstickCompositor *lipstick);
     static bool isHwcEnabled() { return m_hwcEnabled; }
@@ -87,7 +88,8 @@ private:
 
     struct BufferAndResource {
         void *handle;
-        QObject *resource;
+        BufferReleaseCallback callback;
+        void *callbackData;
     };
     QVector<BufferAndResource> m_buffersInUse;
     QMutex m_buffersInUseMutex;
