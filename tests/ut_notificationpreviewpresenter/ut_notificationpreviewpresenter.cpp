@@ -174,14 +174,15 @@ void NotificationManager::expire()
 {
 }
 
-LipstickNotification *createNotification(uint id, int urgency = 0)
+enum Urgency { Low = 0, Normal = 1, Critical = 2 };
+
+LipstickNotification *createNotification(uint id, Urgency urgency = Normal)
 {
-    LipstickNotification *notification = new LipstickNotification;
     QVariantHash hints;
     hints.insert(NotificationManager::HINT_PREVIEW_SUMMARY, "summary");
     hints.insert(NotificationManager::HINT_PREVIEW_BODY, "body");
-    hints.insert(NotificationManager::HINT_URGENCY, urgency);
-    notification->setHints(hints);
+    hints.insert(NotificationManager::HINT_URGENCY, static_cast<int>(urgency));
+    LipstickNotification *notification = new LipstickNotification("ut_notificationpreviewpresenter", id, "", "", "", QStringList(), hints, -1);
     notificationManagerNotification.insert(id, notification);
     return notification;
 }
@@ -370,11 +371,10 @@ void Ut_NotificationPreviewPresenter::testNotificationNotShownIfNoSummaryOrBody(
     QSignalSpy presentedSpy(&presenter, SIGNAL(notificationPresented(uint)));
 
     // Create notification
-    LipstickNotification *notification = new LipstickNotification;
     QVariantHash hints;
     hints.insert(NotificationManager::HINT_PREVIEW_SUMMARY, previewSummary);
     hints.insert(NotificationManager::HINT_PREVIEW_BODY, previewBody);
-    notification->setHints(hints);
+    LipstickNotification *notification = new LipstickNotification("ut_notificationpreviewpresenter", 1, "", "", "", QStringList(), hints, -1);
     notificationManagerNotification.insert(1, notification);
     QTest::qWait(0);
     presenter.updateNotification(1);
@@ -397,12 +397,11 @@ void Ut_NotificationPreviewPresenter::testNotificationNotShownIfHidden()
     QSignalSpy presentedSpy(&presenter, SIGNAL(notificationPresented(uint)));
 
     // Create notification
-    LipstickNotification *notification = new LipstickNotification;
     QVariantHash hints;
     hints.insert(NotificationManager::HINT_PREVIEW_SUMMARY, "previewSummary");
     hints.insert(NotificationManager::HINT_PREVIEW_BODY, "previewBody");
     hints.insert(NotificationManager::HINT_HIDDEN, true);
-    notification->setHints(hints);
+    LipstickNotification *notification = new LipstickNotification("ut_notificationpreviewpresenter", 1, "", "", "", QStringList(), hints, -1);
     notificationManagerNotification.insert(1, notification);
     presenter.updateNotification(1);
 
@@ -421,12 +420,11 @@ void Ut_NotificationPreviewPresenter::testShowingOnlyCriticalNotifications()
     QSignalSpy presentedSpy(&presenter, SIGNAL(notificationPresented(uint)));
 
     // Create normal urgency notification
-    LipstickNotification *notification = new LipstickNotification;
     QVariantHash hints;
     hints.insert(NotificationManager::HINT_PREVIEW_SUMMARY, "previewSummary");
     hints.insert(NotificationManager::HINT_PREVIEW_BODY, "previewBody");
     hints.insert(NotificationManager::HINT_URGENCY, 1);
-    notification->setHints(hints);
+    LipstickNotification *notification = new LipstickNotification("ut_notificationpreviewpresenter", 1, "", "", "", QStringList(), hints, -1);
     notificationManagerNotification.insert(1, notification);
     QTest::qWait(0);
     QCOMPARE(homeWindowVisible.isEmpty(), true);
@@ -513,7 +511,7 @@ void Ut_NotificationPreviewPresenter::testNotificationNotShownIfTouchScreenIsLoc
     QSignalSpy changedSpy(&presenter, SIGNAL(notificationChanged()));
     QSignalSpy presentedSpy(&presenter, SIGNAL(notificationPresented(uint)));
 
-    createNotification(1, 2);
+    createNotification(1, Critical);
     QTest::qWait(0);
     presenter.updateNotification(1);
     QCOMPARE(homeWindowVisible.count(), notifications);
@@ -524,7 +522,7 @@ void Ut_NotificationPreviewPresenter::testNotificationNotShownIfTouchScreenIsLoc
 void Ut_NotificationPreviewPresenter::testCriticalNotificationIsMarkedAfterShowing()
 {
     NotificationPreviewPresenter presenter;
-    createNotification(1, 2);
+    createNotification(1, Critical);
     createNotification(2);
     createNotification(3);
     QTest::qWait(0);
@@ -566,18 +564,18 @@ void Ut_NotificationPreviewPresenter::testNotificationPreviewsDisabled_data()
     applicationNotificationsDisabled.insert("NOTIFICATION_PREVIEWS_DISABLED", 1);
     systemNotificationsDisabled.insert("NOTIFICATION_PREVIEWS_DISABLED", 2);
     allNotificationsDisabled.insert("NOTIFICATION_PREVIEWS_DISABLED", 3);
-    QTest::newRow("No surface, application notification") << (QWaylandSurface *)0 << QVariantMap() << 1 << 1;
-    QTest::newRow("Surface, no properties, application notification") << surface << QVariantMap() << 1 << 1;
-    QTest::newRow("Surface, all notifications enabled, application notification") << surface << allNotificationsEnabled << 1 << 1;
-    QTest::newRow("Surface, application notifications disabled, application notification") << surface << applicationNotificationsDisabled << 1 << 0;
-    QTest::newRow("Surface, system notifications disabled, application notification") << surface << systemNotificationsDisabled << 1 << 1;
-    QTest::newRow("Surface, all notifications disabled, application notification") << surface << allNotificationsDisabled << 1 << 0;
-    QTest::newRow("No surface, system notification") << (QWaylandSurface *)0 << QVariantMap() << 2 << 1;
-    QTest::newRow("Surface, no properties, system notification") << surface << QVariantMap() << 2 << 1;
-    QTest::newRow("Surface, all notifications enabled, system notification") << surface << allNotificationsEnabled << 2 << 1;
-    QTest::newRow("Surface, application notifications disabled, system notification") << surface << applicationNotificationsDisabled << 2 << 1;
-    QTest::newRow("Surface, system notifications disabled, system notification") << surface << systemNotificationsDisabled << 2 << 0;
-    QTest::newRow("Surface, all notifications disabled, system notification") << surface << allNotificationsDisabled << 2 << 0;
+    QTest::newRow("No surface, application notification") << (QWaylandSurface *)0 << QVariantMap() << static_cast<int>(Normal) << 1;
+    QTest::newRow("Surface, no properties, application notification") << surface << QVariantMap() << static_cast<int>(Normal) << 1;
+    QTest::newRow("Surface, all notifications enabled, application notification") << surface << allNotificationsEnabled << static_cast<int>(Normal) << 1;
+    QTest::newRow("Surface, application notifications disabled, application notification") << surface << applicationNotificationsDisabled << static_cast<int>(Normal) << 0;
+    QTest::newRow("Surface, system notifications disabled, application notification") << surface << systemNotificationsDisabled << static_cast<int>(Normal) << 1;
+    QTest::newRow("Surface, all notifications disabled, application notification") << surface << allNotificationsDisabled << static_cast<int>(Normal) << 0;
+    QTest::newRow("No surface, system notification") << (QWaylandSurface *)0 << QVariantMap() << static_cast<int>(Critical) << 1;
+    QTest::newRow("Surface, no properties, system notification") << surface << QVariantMap() << static_cast<int>(Critical) << 1;
+    QTest::newRow("Surface, all notifications enabled, system notification") << surface << allNotificationsEnabled << static_cast<int>(Critical) << 1;
+    QTest::newRow("Surface, application notifications disabled, system notification") << surface << applicationNotificationsDisabled << static_cast<int>(Critical) << 1;
+    QTest::newRow("Surface, system notifications disabled, system notification") << surface << systemNotificationsDisabled << static_cast<int>(Critical) << 0;
+    QTest::newRow("Surface, all notifications disabled, system notification") << surface << allNotificationsDisabled << static_cast<int>(Critical) << 0;
 }
 
 void Ut_NotificationPreviewPresenter::testNotificationPreviewsDisabled()
@@ -591,7 +589,7 @@ void Ut_NotificationPreviewPresenter::testNotificationPreviewsDisabled()
     qWaylandSurfaceWindowProperties = windowProperties;
 
     NotificationPreviewPresenter presenter;
-    createNotification(1, urgency);
+    createNotification(1, static_cast<Urgency>(urgency));
     QTest::qWait(0);
     presenter.updateNotification(1);
 

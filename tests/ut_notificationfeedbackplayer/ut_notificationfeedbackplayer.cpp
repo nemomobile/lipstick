@@ -96,14 +96,13 @@ QList<uint> NotificationManager::notificationIds() const
 
 LipstickNotification *createNotification(uint id, int urgency = 0, QVariant priority = QVariant())
 {
-    LipstickNotification *notification = new LipstickNotification;
     QVariantHash hints;
     hints.insert(NotificationManager::HINT_FEEDBACK, "feedback");
     hints.insert(NotificationManager::HINT_URGENCY, urgency);
     if (priority.isValid()) {
         hints.insert(NotificationManager::HINT_PRIORITY, priority);
     }
-    notification->setHints(hints);
+    LipstickNotification *notification = new LipstickNotification("ut_notificationfeedbackplayer", id, "", "", "", QStringList(), hints, -1);
     notificationManagerNotification.insert(id, notification);
     return notification;
 }
@@ -299,19 +298,14 @@ void Ut_NotificationFeedbackPlayer::testLEDDisabledWhenNoSummaryAndBody()
     QFETCH(QVariant, disableHint);
     QFETCH(bool, mediaParametersDefined);
 
-    LipstickNotification *notification1 = new LipstickNotification;
-    LipstickNotification *notification2 = new LipstickNotification;
-    LipstickNotification *notification3 = new LipstickNotification;
     QVariantHash hints;
     hints.insert(NotificationManager::HINT_FEEDBACK, "feedback");
     if (disableHint.isValid()) {
         hints.insert(NotificationManager::HINT_LED_DISABLED_WITHOUT_BODY_AND_SUMMARY, disableHint);
     }
-    notification1->setHints(hints);
-    notification2->setHints(hints);
-    notification3->setHints(hints);
-    notification2->setSummary("summary");
-    notification3->setBody("body");
+    LipstickNotification *notification1 = new LipstickNotification("ut_notificationfeedbackplayer", 1, "", "", "", QStringList(), hints, -1);
+    LipstickNotification *notification2 = new LipstickNotification("ut_notificationfeedbackplayer", 2, "", "summary", "", QStringList(), hints, -1);
+    LipstickNotification *notification3 = new LipstickNotification("ut_notificationfeedbackplayer", 3, "", "", "body", QStringList(), hints, -1);
     notificationManagerNotification.insert(1, notification1);
     notificationManagerNotification.insert(2, notification2);
     notificationManagerNotification.insert(3, notification3);
