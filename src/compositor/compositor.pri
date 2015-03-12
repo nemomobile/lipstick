@@ -35,6 +35,6 @@ DEFINES += QT_COMPOSITOR_QUICK
 QT += compositor
 
 # needed for hardware compositor
-QT += quick-private gui-private core-private
+QT += quick-private gui-private core-private compositor-private
 
 WAYLANDSERVERSOURCES += ../protocol/lipstick-recorder.xml \

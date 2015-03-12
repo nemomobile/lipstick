@@ -17,7 +17,10 @@
 #define LIPSTICKCOMPOSITORWINDOW_H
 
 #include <QWaylandSurfaceItem>
+#include <QWaylandBufferRef>
 #include "lipstickglobal.h"
+
+class HwcNode;
 
 class LIPSTICK_EXPORT LipstickCompositorWindow : public QWaylandSurfaceItem
 {
@@ -58,6 +61,8 @@ public:
 
     Q_INVOKABLE void terminateProcess(int killTimeout);
 
+    QSGNode *updatePaintNode(QSGNode *old, UpdatePaintNodeData *);
+
 protected:
     void itemChange(ItemChange change, const ItemChangeData &data);
 
@@ -83,6 +88,7 @@ private slots:
 private:
     friend class LipstickCompositor;
     friend class WindowPixmapItem;
+    void updateNode(HwcNode *hwcNode, QSGNode *contentNode);
     void imageAddref();
     void imageRelease();
 
@@ -100,11 +106,12 @@ private:
     bool m_removePosted:1;
     bool m_mouseRegionValid:1;
     bool m_interceptingTouch:1;
+    bool m_mapped : 1;
     QVariant m_data;
     QRegion m_mouseRegion;
     QList<int> m_grabbedKeys;
     QList<QMetaObject::Connection> m_surfaceConnections;
-    bool m_mapped;
+    QWaylandBufferRef m_waylandBufferRef;
 };
 
 #endif // LIPSTICKCOMPOSITORWINDOW_H
