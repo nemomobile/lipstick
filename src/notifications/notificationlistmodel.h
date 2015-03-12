@@ -59,6 +59,8 @@ protected:
 
     void refreshModel();
 
+    void markAsDisplayed(uint id);
+
 private:
     Q_DISABLE_COPY(NotificationListModel)
 

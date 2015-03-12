@@ -48,6 +48,8 @@ private slots:
     void testListingNotifications();
     void testRemoveUserRemovableNotifications();
     void testRemoveRequested();
+    void testImmediateExpiration();
+    void testDelayedExpiration();
 
 signals:
     void actionInvoked(QString action);

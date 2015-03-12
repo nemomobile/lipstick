@@ -70,6 +70,10 @@ void NotificationManager::removeUserRemovableNotifications()
 {
 }
 
+void NotificationManager::expire()
+{
+}
+
 NotificationManager *notificationManagerInstance = 0;
 NotificationManager *NotificationManager::instance()
 {
