@@ -119,8 +119,8 @@ void NotificationPreviewPresenter::updateNotification(uint id)
 
             removeNotification(id, true);
 
-            if (currentNotification != notification && notification->urgency() >= 2) {
-                NotificationManager::instance()->CloseNotification(id);
+            if (currentNotification != notification) {
+                NotificationManager::instance()->MarkNotificationDisplayed(id);
             }
         }
     }
@@ -180,8 +180,8 @@ bool NotificationPreviewPresenter::notificationShouldBeShown(LipstickNotificatio
 void NotificationPreviewPresenter::setCurrentNotification(LipstickNotification *notification)
 {
     if (currentNotification != notification) {
-        if (currentNotification != 0 && currentNotification->urgency() >= 2) {
-            NotificationManager::instance()->CloseNotification(currentNotification->property("id").toUInt());
+        if (currentNotification) {
+            NotificationManager::instance()->MarkNotificationDisplayed(currentNotification->property("id").toUInt());
         }
 
         currentNotification = notification;

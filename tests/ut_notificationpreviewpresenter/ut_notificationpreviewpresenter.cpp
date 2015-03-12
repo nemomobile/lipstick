@@ -145,6 +145,12 @@ void NotificationManager::CloseNotification(uint id, NotificationClosedReason)
     notificationManagerCloseNotificationIds.append(id);
 }
 
+QList<uint> notificationManagerDisplayedNotificationIds;
+void NotificationManager::MarkNotificationDisplayed(uint id)
+{
+    notificationManagerDisplayedNotificationIds.append(id);
+}
+
 NotificationManager *notificationManagerInstance = 0;
 NotificationManager *NotificationManager::instance()
 {
@@ -200,6 +206,7 @@ void Ut_NotificationPreviewPresenter::cleanup()
     qDeleteAll(notificationManagerNotification);
     notificationManagerNotification.clear();
     notificationManagerCloseNotificationIds.clear();
+    notificationManagerDisplayedNotificationIds.clear();
     gQmLocksStub->stubReset();
     gQmDisplayStateStub->stubReset();
 }
@@ -514,7 +521,7 @@ void Ut_NotificationPreviewPresenter::testNotificationNotShownIfTouchScreenIsLoc
     QCOMPARE(presentedSpy.count(), presentedCount);
 }
 
-void Ut_NotificationPreviewPresenter::testCriticalNotificationIsClosedAfterShowing()
+void Ut_NotificationPreviewPresenter::testCriticalNotificationIsMarkedAfterShowing()
 {
     NotificationPreviewPresenter presenter;
     createNotification(1, 2);
@@ -524,14 +531,23 @@ void Ut_NotificationPreviewPresenter::testCriticalNotificationIsClosedAfterShowi
     presenter.updateNotification(1);
     presenter.updateNotification(2);
     presenter.updateNotification(3);
+    QCOMPARE(notificationManagerDisplayedNotificationIds.count(), 0);
     QCOMPARE(notificationManagerCloseNotificationIds.count(), 0);
 
     presenter.showNextNotification();
-    QCOMPARE(notificationManagerCloseNotificationIds.count(), 1);
-    QCOMPARE(notificationManagerCloseNotificationIds.at(0), (uint)1);
+    QCOMPARE(notificationManagerDisplayedNotificationIds.count(), 1);
+    QCOMPARE(notificationManagerDisplayedNotificationIds.at(0), (uint)1);
+    QCOMPARE(notificationManagerCloseNotificationIds.count(), 0);
 
     presenter.showNextNotification();
-    QCOMPARE(notificationManagerCloseNotificationIds.count(), 1);
+    QCOMPARE(notificationManagerDisplayedNotificationIds.count(), 2);
+    QCOMPARE(notificationManagerDisplayedNotificationIds.at(1), (uint)2);
+    QCOMPARE(notificationManagerCloseNotificationIds.count(), 0);
+
+    presenter.showNextNotification();
+    QCOMPARE(notificationManagerDisplayedNotificationIds.count(), 3);
+    QCOMPARE(notificationManagerDisplayedNotificationIds.at(2), (uint)3);
+    QCOMPARE(notificationManagerCloseNotificationIds.count(), 0);
 }
 
 QWaylandSurface *surface = (QWaylandSurface *)1;
