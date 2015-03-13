@@ -54,7 +54,7 @@ public:
      * \param category the category to check.
      * \return \c true if the category exists, \c false otherwise.
      */
-    bool categoryDefinitionExists(const QString &category);
+    bool categoryDefinitionExists(const QString &category) const;
 
     /*!
      * Returns all parameter keys for a given category definition. If the category doesn't
@@ -63,7 +63,7 @@ public:
      * \param category the category.
      * \sa categoryExists, contains, value
      */
-    QList<QString> allKeys(const QString &category);
+    QList<QString> allKeys(const QString &category) const;
 
     /*!
      * Check if a given parameter \a key exists in the the definition for \a category.
@@ -76,7 +76,7 @@ public:
      * \return \c true if the key exists in the category, \c false otherwise.
      * \sa categoryDefinitionExists, allKeys, value
      */
-    bool contains(const QString &category, const QString &key);
+    bool contains(const QString &category, const QString &key) const;
 
     /*!
      * Returns the value for the given parameter \a key in the definition for \a category.
@@ -88,7 +88,16 @@ public:
      * \return the value for the key in the category.
      * \sa categoryExists, allKeys, contains
      */
-    QString value(const QString &category, const QString &key);
+    QString value(const QString &category, const QString &key) const;
+
+    /*!
+     * Returns all parameters for a given category definition. If the category doesn't
+     * exist, an empty hash is returned.
+     *
+     * \param category the category.
+     * \sa categoryExists, allKeys, value
+     */
+    QHash<QString, QString> categoryParameters(const QString &category) const;
 
 private slots:
     //! Updates the list of available category definition files
@@ -131,10 +140,10 @@ private:
     mutable QStringList categoryDefinitionUsage;
 
     //! Load the data into our internal map
-    void loadSettings(const QString &category);
+    void loadSettings(const QString &category) const;
 
     //! Marks the category to be used recently
-    void categoryDefinitionAccessed(const QString &category);
+    void categoryDefinitionAccessed(const QString &category) const;
 
     //! File system watcher to notice changes in installed category definitions
     QFileSystemWatcher categoryDefinitionPathWatcher;

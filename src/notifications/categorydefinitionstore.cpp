@@ -80,7 +80,7 @@ void CategoryDefinitionStore::updateCategoryDefinitionFile(const QString &path)
     }
 }
 
-bool CategoryDefinitionStore::categoryDefinitionExists(const QString &category)
+bool CategoryDefinitionStore::categoryDefinitionExists(const QString &category) const
 {
     bool categoryFound = false;
 
@@ -97,7 +97,7 @@ bool CategoryDefinitionStore::categoryDefinitionExists(const QString &category)
     return categoryFound;
 }
 
-QList<QString> CategoryDefinitionStore::allKeys(const QString &category)
+QList<QString> CategoryDefinitionStore::allKeys(const QString &category) const
 {
     if (categoryDefinitionExists(category)) {
         return categoryDefinitions.value(category)->allKeys();
@@ -106,7 +106,7 @@ QList<QString> CategoryDefinitionStore::allKeys(const QString &category)
     return QList<QString>();
 }
 
-bool CategoryDefinitionStore::contains(const QString &category, const QString &key)
+bool CategoryDefinitionStore::contains(const QString &category, const QString &key) const
 {
     if (categoryDefinitionExists(category)) {
         return categoryDefinitions.value(category)->contains(key);
@@ -115,7 +115,7 @@ bool CategoryDefinitionStore::contains(const QString &category, const QString &k
     return false;
 }
 
-QString CategoryDefinitionStore::value(const QString &category, const QString &key)
+QString CategoryDefinitionStore::value(const QString &category, const QString &key) const
 {
     if (contains(category, key)) {
         return categoryDefinitions.value(category)->value(key).toString();
@@ -124,7 +124,21 @@ QString CategoryDefinitionStore::value(const QString &category, const QString &k
     return QString();
 }
 
-void CategoryDefinitionStore::loadSettings(const QString &category)
+QHash<QString, QString> CategoryDefinitionStore::categoryParameters(const QString &category) const
+{
+    QHash<QString, QString> rv;
+
+    if (categoryDefinitionExists(category)) {
+        const QSettings &categoryDefinitionSettings(*(categoryDefinitions.value(category)));
+        foreach (const QString &key, categoryDefinitionSettings.allKeys()) {
+            rv.insert(key, categoryDefinitionSettings.value(key).toString());
+        }
+    }
+
+    return rv;
+}
+
+void CategoryDefinitionStore::loadSettings(const QString &category) const
 {
     QFileInfo file(QString(categoryDefinitionsPath).append(category).append(FILE_EXTENSION));
     if (file.exists() && file.size() != 0 && file.size() <= FILE_MAX_SIZE) {
@@ -135,7 +149,7 @@ void CategoryDefinitionStore::loadSettings(const QString &category)
     }
 }
 
-void CategoryDefinitionStore::categoryDefinitionAccessed(const QString &category)
+void CategoryDefinitionStore::categoryDefinitionAccessed(const QString &category) const
 {
     // Mark the category definition as recently used by moving it to the beginning of the usage list
     categoryDefinitionUsage.removeAll(category);
