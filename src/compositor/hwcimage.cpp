@@ -434,7 +434,7 @@ QSGNode *HwcImage::updatePaintNode(QSGNode *old, UpdatePaintNodeData *)
     HwcImageNode *contentNode = updateActualPaintNode(0);
     if (contentNode) {
         qCDebug(LIPSTICK_LOG_HWC) << "HwcImage" << this << "creating new node";
-        HwcNode *hwcNode = new HwcNode();
+        HwcNode *hwcNode = new HwcNode(window());
         QSGTransformNode *xnode = new QSGTransformNode();
         xnode->setMatrix(reverseTransform());
         qsgnode_set_description(xnode, QStringLiteral("hwc-reverse-xform"));

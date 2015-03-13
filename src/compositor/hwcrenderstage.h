@@ -21,6 +21,7 @@
 Q_DECLARE_LOGGING_CATEGORY(LIPSTICK_LOG_HWC)
 
 class LipstickCompositor;
+class HwcRenderStage;
 
 namespace HwcInterface {
     class Compositor;
@@ -30,7 +31,8 @@ namespace HwcInterface {
 class HwcNode : public QSGNode
 {
 public:
-    HwcNode();
+    HwcNode(QQuickWindow *window);
+    ~HwcNode();
 
     QRect bounds() const;
 
@@ -50,6 +52,7 @@ public:
     QSGGeometryNode *contentNode() const { return m_contentNode; }
 
 private:
+    HwcRenderStage *m_renderStage;
     QSGGeometryNode *m_contentNode;
     void *m_buffer_handle;
     float m_x, m_y;
@@ -73,8 +76,8 @@ public:
     static bool isHwcEnabled() { return m_hwcEnabled; }
 
     void bufferReleased(void *);
-
     void setBypassHwc(bool bypass);
+    void hwcNodeDeleted(HwcNode *node);
 
 private:
     bool checkSceneGraph(QSGNode *node);

@@ -409,7 +409,7 @@ QSGNode *LipstickCompositorWindow::updatePaintNode(QSGNode *old, UpdatePaintNode
 
     QSGNode *contentNode = QWaylandSurfaceItem::updatePaintNode(0, data);
     if (contentNode) {
-        HwcNode *hwcNode = new HwcNode();
+        HwcNode *hwcNode = new HwcNode(window());
         hwcNode->appendChildNode(contentNode);
         updateNode(hwcNode, contentNode);
         return hwcNode;

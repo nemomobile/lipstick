@@ -41,7 +41,7 @@ public:
 // Any number above QSGNode::RenderNode will strictly do..
 #define QSG_HWC_NODE_TYPE ((QSGNode::NodeType) 1000)
 
-HwcNode::HwcNode()
+HwcNode::HwcNode(QQuickWindow *window)
     : QSGNode(QSG_HWC_NODE_TYPE)
     , m_contentNode(0)
     , m_buffer_handle(0)
@@ -50,6 +50,13 @@ HwcNode::HwcNode()
     , m_blocked(false)
 {
     qsgnode_set_description(this, QStringLiteral("hwcnode"));
+    m_renderStage = (HwcRenderStage *) QQuickWindowPrivate::get(window)->customRenderStage;
+    Q_ASSERT(m_renderStage);
+}
+
+HwcNode::~HwcNode()
+{
+    m_renderStage->hwcNodeDeleted(this);
 }
 
 void HwcNode::update(QSGGeometryNode *node, void *handle)
@@ -271,10 +278,7 @@ bool HwcRenderStage::render()
                     once = true;
                 }
             }
-            foreach (HwcNode *n, m_nodesInList)
-                n->setBlocked(false);
-            m_nodesInList.clear();
-            m_layerList = 0;
+            disableHwc();
         }
     }
     return false;
@@ -322,8 +326,19 @@ void HwcRenderStage::disableHwc()
     foreach (HwcNode *n, m_nodesInList)
         n->setBlocked(false);
     m_nodesInList.clear();
-    m_nodesToTry.clear();
     m_layerList = 0;
+}
+
+void HwcRenderStage::hwcNodeDeleted(HwcNode *node)
+{
+    for (int i=0; i<m_nodesInList.size(); ) {
+        if (m_nodesInList.at(i) == node) {
+            m_nodesInList.remove(i);
+        } else {
+            ++i;
+        }
+    }
+    disableHwc();
 }
 
 // We cannot use QMatrix4x4::optimize + translate bits or qFuzzyCompare because
