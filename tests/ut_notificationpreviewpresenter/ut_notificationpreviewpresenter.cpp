@@ -164,6 +164,10 @@ void NotificationManager::removeUserRemovableNotifications()
 {
 }
 
+void NotificationManager::expire()
+{
+}
+
 LipstickNotification *createNotification(uint id, int urgency = 0)
 {
     LipstickNotification *notification = new LipstickNotification;

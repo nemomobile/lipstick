@@ -30,6 +30,7 @@ class NotificationManagerStub : public StubBase {
   virtual QStringList GetCapabilities();
   virtual uint Notify(const QString &appName, uint replacesId, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expireTimeout);
   virtual void CloseNotification(uint id, NotificationManager::NotificationClosedReason closeReason);
+  virtual void MarkNotificationDisplayed(uint id);
   virtual QString GetServerInformation(QString &name, QString &vendor, QString &version);
   virtual NotificationList GetNotifications(const QString &appName);
   virtual void removeNotificationsWithCategory(const QString &category);
@@ -38,6 +39,7 @@ class NotificationManagerStub : public StubBase {
   virtual void invokeAction(const QString &action);
   virtual void removeNotificationIfUserRemovable(uint id);
   virtual void removeUserRemovableNotifications();
+  virtual void expire();
   virtual void NotificationManagerConstructor(QObject *parent);
   virtual void NotificationManagerDestructor();
 }; 
@@ -84,6 +86,12 @@ void NotificationManagerStub::CloseNotification(uint id, NotificationManager::No
   params.append( new Parameter<uint >(id));
   params.append( new Parameter<NotificationManager::NotificationClosedReason >(closeReason));
   stubMethodEntered("CloseNotification",params);
+}
+
+void NotificationManagerStub::MarkNotificationDisplayed(uint id) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<uint >(id));
+  stubMethodEntered("MarkNotificationDisplayed",params);
 }
 
 QString NotificationManagerStub::GetServerInformation(QString &name, QString &vendor, QString &version) {
@@ -133,6 +141,10 @@ void NotificationManagerStub::removeNotificationIfUserRemovable(uint id)
 
 void NotificationManagerStub::removeUserRemovableNotifications() {
   stubMethodEntered("removeUserRemovableNotifications");
+}
+
+void NotificationManagerStub::expire() {
+  stubMethodEntered("expire");
 }
 
 void NotificationManagerStub::NotificationManagerConstructor(QObject *parent) {
@@ -195,6 +207,10 @@ void NotificationManager::CloseNotification(uint id, NotificationClosedReason cl
   gNotificationManagerStub->CloseNotification(id, closeReason);
 }
 
+void NotificationManager::MarkNotificationDisplayed(uint id) {
+  gNotificationManagerStub->MarkNotificationDisplayed(id);
+}
+
 QString NotificationManager::GetServerInformation(QString &name, QString &vendor, QString &version) {
   return gNotificationManagerStub->GetServerInformation(name, vendor, version);
 }
@@ -225,6 +241,10 @@ void NotificationManager::removeNotificationIfUserRemovable(uint id) {
 
 void NotificationManager::removeUserRemovableNotifications() {
   gNotificationManagerStub->removeUserRemovableNotifications();
+}
+
+void NotificationManager::expire() {
+  gNotificationManagerStub->expire();
 }
 
 NotificationManager::NotificationManager(QObject *parent) {

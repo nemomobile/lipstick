@@ -22,6 +22,7 @@
 #include <QSqlTableModel>
 #include <mremoteaction.h>
 #include <sys/statfs.h>
+#include <limits>
 #include "categorydefinitionstore.h"
 #include "notificationmanageradaptor.h"
 #include "notificationmanager.h"
@@ -85,7 +86,8 @@ NotificationManager::NotificationManager(QObject *parent) :
     previousNotificationID(0),
     categoryDefinitionStore(new CategoryDefinitionStore(CATEGORY_DEFINITION_FILE_DIRECTORY, MAX_CATEGORY_DEFINITION_FILES, this)),
     database(new QSqlDatabase),
-    committed(true)
+    committed(true),
+    nextExpirationTime(0)
 {
     qDBusRegisterMetaType<QVariantHash>();
     qDBusRegisterMetaType<LipstickNotification>();
@@ -102,6 +104,9 @@ NotificationManager::NotificationManager(QObject *parent) :
     databaseCommitTimer.setInterval(10000);
     databaseCommitTimer.setSingleShot(true);
     connect(&databaseCommitTimer, SIGNAL(timeout()), this, SLOT(commit()));
+
+    expirationTimer.setSingleShot(true);
+    connect(&expirationTimer, SIGNAL(timeout()), this, SLOT(expire()));
 
     restoreNotifications();
 }
@@ -171,6 +176,7 @@ uint NotificationManager::Notify(const QString &appName, uint replacesId, const 
             execSQL(QString("DELETE FROM notifications WHERE id=?"), QVariantList() << id);
             execSQL(QString("DELETE FROM actions WHERE id=?"), QVariantList() << id);
             execSQL(QString("DELETE FROM hints WHERE id=?"), QVariantList() << id);
+            execSQL(QString("DELETE FROM expiration WHERE id=?"), QVariantList() << id);
         }
 
         // Add the notification, its actions and its hints to the database
@@ -201,12 +207,38 @@ void NotificationManager::CloseNotification(uint id, NotificationClosedReason cl
         execSQL(QString("DELETE FROM notifications WHERE id=?"), QVariantList() << id);
         execSQL(QString("DELETE FROM actions WHERE id=?"), QVariantList() << id);
         execSQL(QString("DELETE FROM hints WHERE id=?"), QVariantList() << id);
+        execSQL(QString("DELETE FROM expiration WHERE id=?"), QVariantList() << id);
 
         NOTIFICATIONS_DEBUG("REMOVE:" << id);
         emit notificationRemoved(id);
 
         // Mark the notification to be destroyed
         removedNotifications.insert(notifications.take(id));
+    }
+}
+
+void NotificationManager::MarkNotificationDisplayed(uint id)
+{
+    if (notifications.contains(id)) {
+        const LipstickNotification *notification = notifications.value(id);
+        const int timeout(notification->expireTimeout());
+        if (timeout == 0) {
+            // We can remove this notification immediately
+            CloseNotification(id, NotificationExpired);
+        } else if (timeout > 0) {
+            // Insert the timeout into the expiration table, or leave the existing value if already present
+            const qint64 currentTime(QDateTime::currentDateTimeUtc().toMSecsSinceEpoch());
+            const qint64 expireAt(currentTime + timeout);
+            execSQL(QString("INSERT OR IGNORE INTO expiration(id, expire_at) VALUES(?, ?)"), QVariantList() << id << expireAt);
+
+            if (nextExpirationTime == 0 || (expireAt < nextExpirationTime)) {
+                // This will be the next notification to expire - update the timer
+                nextExpirationTime = expireAt;
+                expirationTimer.start(timeout);
+            }
+
+            NOTIFICATIONS_DEBUG("DISPLAYED:" << id << "expiring in:" << timeout);
+        }
     }
 }
 
@@ -360,6 +392,7 @@ bool NotificationManager::checkTableValidity()
     bool recreateNotificationsTable = false;
     bool recreateActionsTable = false;
     bool recreateHintsTable = false;
+    bool recreateExpirationTable = false;
 
     {
         // Check that the notifications table schema is as expected
@@ -384,6 +417,12 @@ bool NotificationManager::checkTableValidity()
         recreateHintsTable = (hintsTableModel.fieldIndex("id") == -1 ||
                               hintsTableModel.fieldIndex("hint") == -1 ||
                               hintsTableModel.fieldIndex("value") == -1);
+
+        // Check that the expiration table schema is as expected
+        QSqlTableModel expirationTableModel(0, *database);
+        expirationTableModel.setTable("expiration");
+        recreateExpirationTable = (expirationTableModel.fieldIndex("id") == -1 ||
+                                   expirationTableModel.fieldIndex("expire_at") == -1);
     }
 
     if (recreateNotificationsTable) {
@@ -396,6 +435,10 @@ bool NotificationManager::checkTableValidity()
 
     if (recreateHintsTable) {
         result &= recreateTable("hints", "id INTEGER, hint TEXT, value TEXT, PRIMARY KEY(id, hint)");
+    }
+
+    if (recreateExpirationTable) {
+        result &= recreateTable("expiration", "id INTEGER PRIMARY KEY, expire_at INTEGER");
     }
 
     return result;
@@ -438,6 +481,22 @@ void NotificationManager::fetchData()
         hints[id].insert(hintsQuery.value(hintsTableHintFieldIndex).toString(), hintsQuery.value(hintsTableValueFieldIndex));
     }
 
+    // Gather expiration times for displayed notifications
+    QSqlQuery expirationQuery("SELECT * FROM expiration", *database);
+    QSqlRecord expirationRecord = expirationQuery.record();
+    int expirationTableIdFieldIndex = expirationRecord.indexOf("id");
+    int expirationTableExpireAtFieldIndex = expirationRecord.indexOf("expire_at");
+    QHash<uint, qint64> expireAt;
+    while (expirationQuery.next()) {
+        uint id = expirationQuery.value(expirationTableIdFieldIndex).toUInt();
+        expireAt.insert(id, expirationQuery.value(expirationTableExpireAtFieldIndex).value<qint64>());
+    }
+
+    const qint64 currentTime(QDateTime::currentDateTimeUtc().toMSecsSinceEpoch());
+    QList<uint> expiredIds;
+    qint64 nextTimeout = std::numeric_limits<qint64>::max();
+    bool unexpiredRemaining = false;
+
     // Create the notifications
     QSqlQuery notificationsQuery("SELECT * FROM notifications", *database);
     QSqlRecord notificationsRecord = notificationsQuery.record();
@@ -454,6 +513,19 @@ void NotificationManager::fetchData()
         QString summary = notificationsQuery.value(notificationsTableSummaryFieldIndex).toString();
         QString body = notificationsQuery.value(notificationsTableBodyFieldIndex).toString();
         int expireTimeout = notificationsQuery.value(notificationsTableExpireTimeoutFieldIndex).toInt();
+
+        if (expireAt.contains(id)) {
+            const qint64 expiry(expireAt.value(id));
+            if (expiry <= currentTime) {
+                NOTIFICATIONS_DEBUG("EXPIRED AT RESTORE:" << appName << appIcon << summary << body << actions[id] << hints[id] << expireTimeout << "->" << id);
+                expiredIds.append(id);
+                continue;
+            } else {
+                nextTimeout = qMin(expiry, nextTimeout);
+                unexpiredRemaining = true;
+            }
+        }
+
         LipstickNotification *notification = new LipstickNotification(appName, id, appIcon, summary, body, actions[id], hints[id], expireTimeout, this);
         connect(notification, SIGNAL(actionInvoked(QString)), this, SLOT(invokeAction(QString)), Qt::QueuedConnection);
         connect(notification, SIGNAL(removeRequested()), this, SLOT(removeNotificationIfUserRemovable()), Qt::QueuedConnection);
@@ -466,6 +538,16 @@ void NotificationManager::fetchData()
             // Use the highest notification ID found as the previous notification ID
             previousNotificationID = id;
         }
+    }
+
+    foreach (uint id, expiredIds) {
+        CloseNotification(id, NotificationExpired);
+    }
+
+    nextExpirationTime = unexpiredRemaining ? nextTimeout : 0;
+    if (nextExpirationTime) {
+        const qint64 nextTriggerInterval(nextExpirationTime - currentTime);
+        expirationTimer.start(static_cast<int>(std::min<qint64>(nextTriggerInterval, std::numeric_limits<int>::max())));
     }
 }
 
@@ -560,6 +642,40 @@ void NotificationManager::removeNotificationIfUserRemovable(uint id)
             // Mark the notification as hidden
             execSQL("INSERT INTO hints VALUES (?, ?, ?)", QVariantList() << id << HINT_HIDDEN << true);
         }
+    }
+}
+
+void NotificationManager::expire()
+{
+    const qint64 currentTime(QDateTime::currentDateTimeUtc().toMSecsSinceEpoch());
+    QList<uint> expiredIds;
+    qint64 nextTimeout = std::numeric_limits<qint64>::max();
+    bool unexpiredRemaining = false;
+
+    QSqlQuery expirationQuery("SELECT * FROM expiration", *database);
+    QSqlRecord expirationRecord = expirationQuery.record();
+    int expirationTableIdFieldIndex = expirationRecord.indexOf("id");
+    int expirationTableExpireAtFieldIndex = expirationRecord.indexOf("expire_at");
+    while (expirationQuery.next()) {
+        const uint id = expirationQuery.value(expirationTableIdFieldIndex).toUInt();
+        const qint64 expiry = expirationQuery.value(expirationTableExpireAtFieldIndex).value<qint64>();
+
+        if (expiry <= currentTime) {
+            expiredIds.append(id);
+        } else {
+            nextTimeout = qMin(expiry, nextTimeout);
+            unexpiredRemaining = true;
+        }
+    }
+
+    foreach (uint id, expiredIds) {
+        CloseNotification(id, NotificationExpired);
+    }
+
+    nextExpirationTime = unexpiredRemaining ? nextTimeout : 0;
+    if (nextExpirationTime) {
+        const qint64 nextTriggerInterval(nextExpirationTime - currentTime);
+        expirationTimer.start(static_cast<int>(std::min<qint64>(nextTriggerInterval, std::numeric_limits<int>::max())));
     }
 }
 

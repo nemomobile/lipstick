@@ -178,6 +178,14 @@ public:
     void CloseNotification(uint id, NotificationClosedReason closeReason = CloseNotificationCalled);
 
     /*!
+     * Mark the notification as displayed.  If the notification has an expiry timeout
+     * value defined, it will apply from when the notification is marked as displayed.
+     *
+     * \param id the ID of the notification to be closed
+     */
+    void MarkNotificationDisplayed(uint id);
+
+    /*!
      * This message returns the information on the server. Specifically, the server name, vendor,
      * and version number.
      *
@@ -271,6 +279,11 @@ private slots:
      * \param id the ID of the notification to be removed
      */
     void removeNotificationIfUserRemovable(uint id = 0);
+
+    /*!
+     * Expires any notifications whose expiration time has been reached.
+     */
+    void expire();
 
 private:
     /*!
@@ -383,6 +396,12 @@ private:
 
     //! Timer for triggering the commit of the current database transaction
     QTimer databaseCommitTimer;
+
+    //! Timer for triggering the expiration of displayed notifications
+    QTimer expirationTimer;
+
+    //! Next trigger time for the expirationTimer, relative to epoch
+    qint64 nextExpirationTime;
 
 #ifdef UNIT_TEST
     friend class Ut_NotificationManager;
