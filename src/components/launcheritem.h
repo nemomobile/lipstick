@@ -21,6 +21,7 @@
 #include <QObject>
 #include <QStringList>
 #include <QSharedPointer>
+#include <QBasicTimer>
 
 // Define this if you'd like to see debug messages from the launcher
 #ifdef DEBUG_LAUNCHER
@@ -58,6 +59,7 @@ class LIPSTICK_EXPORT LauncherItem : public QObject
     Q_PROPERTY(int updatingProgress READ updatingProgress WRITE setUpdatingProgress NOTIFY updatingProgressChanged)
 
     QSharedPointer<MDesktopEntry> _desktopEntry;
+    QBasicTimer _launchingTimeout;
     bool _isLaunching;
     bool _isUpdating;
     bool _isTemporary;
@@ -121,6 +123,9 @@ signals:
     void isTemporaryChanged();
     void packageNameChanged();
     void updatingProgressChanged();
+
+protected:
+    void timerEvent(QTimerEvent *event);
 };
 
 #endif // LAUNCHERITEM_H
