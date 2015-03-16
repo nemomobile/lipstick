@@ -67,9 +67,6 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     , originalSigTermHandler(signal(SIGTERM, quitSignalHandler))
     , homeReadySent(false)
 {
-    // TODO: autogenerate this from tags
-    setApplicationVersion(VERSION);
-
     QTranslator *engineeringEnglish = new QTranslator(this);
     engineeringEnglish->load("lipstick_eng_en", "/usr/share/translations");
     installTranslator(engineeringEnglish);
@@ -80,6 +77,7 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     // Set the application name, as used in notifications
     //% "System"
     setApplicationName(qtTrId("qtn_ap_lipstick"));
+    setApplicationVersion(VERSION);
 
     // Initialize the QML engine
     qmlEngine = new QQmlEngine(this);
