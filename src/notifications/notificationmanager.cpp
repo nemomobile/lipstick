@@ -222,10 +222,7 @@ void NotificationManager::MarkNotificationDisplayed(uint id)
     if (notifications.contains(id)) {
         const LipstickNotification *notification = notifications.value(id);
         const int timeout(notification->expireTimeout());
-        if (timeout == 0) {
-            // We can remove this notification immediately
-            CloseNotification(id, NotificationExpired);
-        } else if (timeout > 0) {
+        if (timeout > 0) {
             // Insert the timeout into the expiration table, or leave the existing value if already present
             const qint64 currentTime(QDateTime::currentDateTimeUtc().toMSecsSinceEpoch());
             const qint64 expireAt(currentTime + timeout);
