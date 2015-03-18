@@ -20,7 +20,7 @@
 #include <QFile>
 #include <QDir>
 #include <QSettings>
-#include <QTimer>
+#include <QTimerEvent>
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
 #include <mdesktopentry.h>
@@ -181,6 +181,12 @@ bool LauncherItem::isLaunching() const
 
 void LauncherItem::setIsLaunching(bool isLaunching)
 {
+    if (isLaunching) {
+        // This is a failsafe to allow launching again after 5 seconds in case the application crashes on startup and no window is ever created
+        _launchingTimeout.start(5000, this);
+    } else {
+        _launchingTimeout.stop();
+    }
     if (_isLaunching != isLaunching) {
         _isLaunching = isLaunching;
         emit this->isLaunchingChanged();
@@ -241,9 +247,6 @@ void LauncherItem::launchApplication()
 #endif
 
     setIsLaunching(true);
-
-    // This is a failsafe to allow launching again after 5 seconds in case the application crashes on startup and no window is ever created
-    QTimer::singleShot(5000, this, SLOT(setIsLaunching()));
 }
 
 bool LauncherItem::isStillValid()
@@ -308,4 +311,13 @@ QString LauncherItem::readValue(const QString &key) const
         return QString();
 
     return _desktopEntry->value("Desktop Entry", key);
+}
+
+void LauncherItem::timerEvent(QTimerEvent *event)
+{
+    if (event->timerId() == _launchingTimeout.timerId()) {
+        setIsLaunching(false);
+    } else {
+        QObject::timerEvent(event);
+    }
 }
