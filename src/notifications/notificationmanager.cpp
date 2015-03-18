@@ -287,7 +287,7 @@ uint NotificationManager::nextAvailableNotificationID()
 void NotificationManager::removeNotificationsWithCategory(const QString &category)
 {
     foreach(uint id, notifications.keys()) {
-        if (notifications[id]->hints().value("category").toString() == category) {
+        if (notifications[id]->hints().value(HINT_CATEGORY).toString() == category) {
             CloseNotification(id);
         }
     }
@@ -296,7 +296,7 @@ void NotificationManager::removeNotificationsWithCategory(const QString &categor
 void NotificationManager::updateNotificationsWithCategory(const QString &category)
 {
     foreach(uint id, notifications.keys()) {
-        if (notifications[id]->hints().value("category").toString() == category) {
+        if (notifications[id]->hints().value(HINT_CATEGORY).toString() == category) {
             // Remove the preview summary and body hints to avoid showing the preview banner again
             QVariantHash hints = notifications[id]->hints();
             hints.remove(HINT_PREVIEW_SUMMARY);
