@@ -986,29 +986,21 @@ void Ut_NotificationManager::testRemoveRequested()
 
 void Ut_NotificationManager::testImmediateExpiration()
 {
+    QVariantHash hints;
+    hints.insert(NotificationManager::HINT_TRANSIENT, "true");
+
     NotificationManager *manager = NotificationManager::instance();
-    uint id1 = manager->Notify("app1", 0, QString(), QString(), QString(), QStringList(), QVariantHash(), 0);
-
-    QHash<int, QVariant> expirationValues;
-    expirationValues.insert(0, id1);
-    expirationValues.insert(1, QDateTime::currentDateTimeUtc().toMSecsSinceEpoch());
-
-    qSqlQueryValues.clear();
-    qSqlQueryValues["SELECT * FROM expiration"].append(expirationValues);
+    uint id1 = manager->Notify("app1", 0, QString(), QString(), QString(), QStringList(), hints, 0);
 
     QSignalSpy removedSpy(manager, SIGNAL(notificationRemoved(uint)));
     QSignalSpy closedSpy(manager, SIGNAL(NotificationClosed(uint,uint)));
     manager->MarkNotificationDisplayed(id1);
     QCoreApplication::processEvents();
-    QCOMPARE(removedSpy.count(), 0);
-    QCOMPARE(closedSpy.count(), 0);
-    /* Not currently implemented:
     QCOMPARE(removedSpy.count(), 1);
     QCOMPARE(removedSpy.last().at(0).toUInt(), id1);
     QCOMPARE(closedSpy.count(), 1);
     QCOMPARE(closedSpy.last().at(0).toUInt(), id1);
     QCOMPARE(closedSpy.last().at(1).toUInt(), static_cast<uint>(NotificationManager::NotificationExpired));
-    */
 }
 
 void Ut_NotificationManager::testDelayedExpiration()
