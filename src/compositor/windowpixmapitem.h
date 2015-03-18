@@ -35,6 +35,7 @@ class LIPSTICK_EXPORT WindowPixmapItem : public QQuickItem
     Q_PROPERTY(qreal yOffset READ yOffset WRITE setYOffset NOTIFY yOffsetChanged)
     Q_PROPERTY(qreal xScale READ xScale WRITE setXScale NOTIFY xScaleChanged)
     Q_PROPERTY(qreal yScale READ yScale WRITE setYScale NOTIFY yScaleChanged)
+    Q_PROPERTY(bool surfaceDestroyed READ surfaceDestroyed NOTIFY surfaceDestroyedChanged)
 
 public:
     WindowPixmapItem();
@@ -64,6 +65,8 @@ public:
     qreal yScale() const;
     void setYScale(qreal);
 
+    bool surfaceDestroyed() const;
+
 protected:
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *);
     virtual void geometryChanged(const QRectF &, const QRectF &);
@@ -77,13 +80,13 @@ signals:
     void yOffsetChanged();
     void xScaleChanged();
     void yScaleChanged();
+    void surfaceDestroyedChanged();
 
 private:
     void updateItem();
-    void surfaceDestroyed();
     void configure(bool hasBuffer);
 
-    QPointer<LipstickCompositorWindow> m_item;
+    QScopedPointer<LipstickCompositorWindow> m_item;
     QQuickItem *m_shaderEffect;
     int m_id;
     bool m_opaque;

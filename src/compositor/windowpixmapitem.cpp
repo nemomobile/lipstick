@@ -355,12 +355,15 @@ void WindowPixmapItem::setWindowId(int id)
     if (m_item) {
         if (m_item->surface()) {
             disconnect(m_item->surface(), SIGNAL(sizeChanged()), this, SIGNAL(windowSizeChanged()));
-            disconnect(m_item.data(), &QWaylandSurfaceItem::surfaceDestroyed, this, &WindowPixmapItem::surfaceDestroyed);
+            disconnect(m_item.data(), &QWaylandSurfaceItem::surfaceDestroyed, this, &WindowPixmapItem::surfaceDestroyedChanged);
         }
+        bool wasDestroyed = !m_item->surface();
         m_item->imageRelease();
-        m_item = 0;
+        m_item.reset();
         delete m_unmapLock;
         m_unmapLock = 0;
+        if (wasDestroyed)
+            emit surfaceDestroyedChanged();
     }
 
     m_hasBuffer = false;
@@ -372,9 +375,9 @@ void WindowPixmapItem::setWindowId(int id)
         emit windowSizeChanged();
 }
 
-void WindowPixmapItem::surfaceDestroyed()
+bool WindowPixmapItem::surfaceDestroyed() const
 {
-    setWindowId(0);
+    return m_item && !m_item->surface();
 }
 
 bool WindowPixmapItem::opaque() const
@@ -626,11 +629,13 @@ void WindowPixmapItem::updateItem()
             m_shaderEffect = 0;
             return;
         } else if (w->surface()) {
-            m_item = w;
+            m_item.reset(new LipstickCompositorWindow(m_id, "", static_cast<QWaylandQuickSurface *>(w->surface())));
+            m_item->setDelayRemove(true);
+            m_item->imageAddref();
             delete m_shaderEffect; m_shaderEffect = 0;
             connect(m_item->surface(), SIGNAL(sizeChanged()), this, SIGNAL(windowSizeChanged()));
             connect(m_item->surface(), &QWaylandSurface::configure, this, &WindowPixmapItem::configure);
-            connect(m_item.data(), &QWaylandSurfaceItem::surfaceDestroyed, this, &WindowPixmapItem::surfaceDestroyed);
+            connect(m_item.data(), &QWaylandSurfaceItem::surfaceDestroyed, this, &WindowPixmapItem::surfaceDestroyedChanged);
             m_unmapLock = new QWaylandUnmapLock(m_item->surface());
         } else {
             if (!m_shaderEffect) {
@@ -641,9 +646,8 @@ void WindowPixmapItem::updateItem()
             }
 
             m_shaderEffect->setProperty("window", qVariantFromValue((QObject *)w));
+            w->imageAddref();
         }
-
-        w->imageAddref();
 
         update();
     }
