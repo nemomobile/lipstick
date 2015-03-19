@@ -28,6 +28,7 @@ class CategoryDefinitionStoreStub : public StubBase {
   virtual QList<QString> allKeys(const QString &category);
   virtual bool contains(const QString &category, const QString &key);
   virtual QString value(const QString &category, const QString &key);
+  virtual QHash<QString, QString> categoryParameters(const QString &category);
   virtual void updateCategoryDefinitionFileList();
   virtual void updateCategoryDefinitionFile(const QString &path);
 };
@@ -69,6 +70,13 @@ QString CategoryDefinitionStoreStub::value(const QString &category, const QStrin
   return stubReturnValue<QString>("value");
 }
 
+QHash<QString, QString> CategoryDefinitionStoreStub::categoryParameters(const QString &category) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<const QString & >(category));
+  stubMethodEntered("categoryParameters",params);
+  return stubReturnValue<QHash<QString, QString> >("categoryParameters");
+}
+
 void CategoryDefinitionStoreStub::updateCategoryDefinitionFileList() {
   stubMethodEntered("updateCategoryDefinitionFileList");
 }
@@ -91,20 +99,24 @@ CategoryDefinitionStore::CategoryDefinitionStore(const QString &categoryDefiniti
   gCategoryDefinitionStoreStub->CategoryDefinitionStoreConstructor(categoryDefinitionsPath, maxStoredCategoryDefinitions, parent);
 }
 
-bool CategoryDefinitionStore::categoryDefinitionExists(const QString &category) {
+bool CategoryDefinitionStore::categoryDefinitionExists(const QString &category) const {
   return gCategoryDefinitionStoreStub->categoryDefinitionExists(category);
 }
 
-QList<QString> CategoryDefinitionStore::allKeys(const QString &category) {
+QList<QString> CategoryDefinitionStore::allKeys(const QString &category) const {
   return gCategoryDefinitionStoreStub->allKeys(category);
 }
 
-bool CategoryDefinitionStore::contains(const QString &category, const QString &key) {
+bool CategoryDefinitionStore::contains(const QString &category, const QString &key) const {
   return gCategoryDefinitionStoreStub->contains(category, key);
 }
 
-QString CategoryDefinitionStore::value(const QString &category, const QString &key) {
+QString CategoryDefinitionStore::value(const QString &category, const QString &key) const {
   return gCategoryDefinitionStoreStub->value(category, key);
+}
+
+QHash<QString, QString> CategoryDefinitionStore::categoryParameters(const QString &category) const {
+  return gCategoryDefinitionStoreStub->categoryParameters(category);
 }
 
 void CategoryDefinitionStore::updateCategoryDefinitionFileList() {

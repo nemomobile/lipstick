@@ -307,12 +307,11 @@ private:
     uint nextAvailableNotificationID();
 
     /*!
-     * Applies a category definition to a notification's hints by inserting
-     * all key-value pairs in the category definition to the hints.
+     * Returns all key-value pairs in the requested category definition.
      *
-     * \param hints the notification hints to apply the category definition to
+     * \param hints the notification hints from which to determine the category definition to report
      */
-    void applyCategoryDefinition(QVariantHash &hints);
+    QHash<QString, QString> categoryDefinitionParameters(const QVariantHash &hints) const;
 
     /*!
      * Adds a timestamp to a notification's hints if there is no timestamp

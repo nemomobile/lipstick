@@ -127,6 +127,20 @@ void Ut_CategoryDefinitionStore::testCategoryDefinitionSettingsValues()
     QCOMPARE(store->contains("emailCategoryDefinition", "feedbackId"), true);
     QCOMPARE(store->value("emailCategoryDefinition", "feedbackId"), QString("sound-file-for-email"));
 
+    // Verify that categoryParameters returns all relevant data
+    QHash<QString, QString> parameters(store->categoryParameters("idontexist"));
+    QCOMPARE(parameters.count(), 0);
+
+    parameters = store->categoryParameters("smsCategoryDefinition");
+    QCOMPARE(parameters.count(), 2);
+    QCOMPARE(parameters.value("iconId"), QString("sms-icon"));
+    QCOMPARE(parameters.value("feedbackId"), QString("sound-file"));
+
+    parameters = store->categoryParameters("emailCategoryDefinition");
+    QCOMPARE(parameters.count(), 2);
+    QCOMPARE(parameters.value("iconId"), QString("email-icon"));
+    QCOMPARE(parameters.value("feedbackId"), QString("sound-file-for-email"));
+
     // Verify that category definitions work even if the maximum amount of types stored in memory is reached
     QCOMPARE(store->categoryDefinitionExists("chatCategoryDefinition"), true);
     QCOMPARE(store->allKeys("chatCategoryDefinition").count(), 2);
