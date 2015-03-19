@@ -20,6 +20,8 @@
 #include <QPointer>
 #include "lipstickglobal.h"
 
+class QWaylandUnmapLock;
+
 class LipstickCompositor;
 class LipstickCompositorWindow;
 class LIPSTICK_EXPORT WindowPixmapItem : public QQuickItem
@@ -69,6 +71,7 @@ signals:
 private:
     void updateItem();
     void surfaceDestroyed();
+    void configure(bool hasBuffer);
 
     QPointer<LipstickCompositorWindow> m_item;
     QQuickItem *m_shaderEffect;
@@ -77,6 +80,9 @@ private:
     qreal m_radius;
     qreal m_xScale;
     qreal m_yScale;
+    QWaylandUnmapLock *m_unmapLock;
+    bool m_hasBuffer;
+    QSGTextureProvider *m_textureProvider;
 };
 
 #endif // WINDOWPIXMAPITEM_H

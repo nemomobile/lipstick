@@ -16,6 +16,7 @@
 #include <QtCore/qmath.h>
 #include <QSGGeometryNode>
 #include <QSGSimpleMaterial>
+#include <QOpenGLFramebufferObject>
 #include <QWaylandSurfaceItem>
 #include "lipstickcompositorwindow.h"
 #include "lipstickcompositor.h"
@@ -58,12 +59,14 @@ class SurfaceNode : public QObject, public QSGGeometryNode
     Q_OBJECT
 public:
     SurfaceNode();
+    ~SurfaceNode();
     void setRect(const QRectF &);
-    void setTextureProvider(QSGTextureProvider *);
+    void setTextureProvider(QSGTextureProvider *, bool owned);
     void setBlending(bool);
     void setRadius(qreal radius);
     void setXScale(qreal xScale);
     void setYScale(qreal yScale);
+    void setUpdateTexture(bool upd);
 
 private slots:
     void providerDestroyed();
@@ -81,6 +84,7 @@ private:
     QSGTexture *m_texture;
     QSGGeometry m_geometry;
     QRectF m_textureRect;
+    bool m_providerOwned;
 };
 
 QList<QByteArray> SurfaceTextureMaterial::attributes() const
@@ -138,6 +142,12 @@ SurfaceNode::SurfaceNode()
     setMaterial(m_material);
 }
 
+SurfaceNode::~SurfaceNode()
+{
+    if (m_provider && m_providerOwned)
+        delete m_provider;
+}
+
 void SurfaceNode::setRect(const QRectF &r)
 {
     if (m_rect == r)
@@ -148,7 +158,7 @@ void SurfaceNode::setRect(const QRectF &r)
     updateGeometry();
 }
 
-void SurfaceNode::setTextureProvider(QSGTextureProvider *p)
+void SurfaceNode::setTextureProvider(QSGTextureProvider *p, bool owned)
 {
     if (p == m_provider)
         return;
@@ -160,11 +170,14 @@ void SurfaceNode::setTextureProvider(QSGTextureProvider *p)
     }
 
     m_provider = p;
+    m_providerOwned = owned;
 
-    QObject::connect(m_provider, SIGNAL(destroyed(QObject *)), this, SLOT(providerDestroyed()));
-    QObject::connect(m_provider, SIGNAL(textureChanged()), this, SLOT(textureChanged()));
+    if (m_provider) {
+        QObject::connect(m_provider, SIGNAL(destroyed(QObject *)), this, SLOT(providerDestroyed()));
+        QObject::connect(m_provider, SIGNAL(textureChanged()), this, SLOT(textureChanged()));
 
-    setTexture(m_provider->texture());
+        setTexture(m_provider->texture());
+    }
 }
 
 void SurfaceNode::updateGeometry()
@@ -292,6 +305,7 @@ void SurfaceNode::providerDestroyed()
 
 WindowPixmapItem::WindowPixmapItem()
 : m_item(0), m_shaderEffect(0), m_id(0), m_opaque(false), m_radius(0), m_xScale(1), m_yScale(1)
+, m_unmapLock(0), m_hasBuffer(false), m_textureProvider(0)
 {
     setFlag(ItemHasContents);
 }
@@ -319,8 +333,11 @@ void WindowPixmapItem::setWindowId(int id)
         }
         m_item->imageRelease();
         m_item = 0;
+        delete m_unmapLock;
+        m_unmapLock = 0;
     }
 
+    m_hasBuffer = false;
     m_id = id;
     updateItem();
 
@@ -421,13 +438,105 @@ QSGNode *WindowPixmapItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData
     SurfaceNode *node = static_cast<SurfaceNode *>(oldNode);
 
     if (m_item == 0) {
+        node->setTextureProvider(0, false);
         delete node;
         return 0;
     }
 
     if (!node) node = new SurfaceNode;
 
-    node->setTextureProvider(m_item->textureProvider());
+    class SnapshotTextureProvider : public QSGTextureProvider
+    {
+    public:
+        ~SnapshotTextureProvider()
+        {
+            delete fbo;
+            delete program;
+            delete t;
+        }
+        QSGTexture *texture() const Q_DECL_OVERRIDE
+        {
+            return t;
+        }
+        QSGTexture *t;
+        QOpenGLFramebufferObject *fbo;
+        QOpenGLShaderProgram *program;
+        int vertexLocation;
+        int textureLocation;
+    };
+
+    QSGTextureProvider *provider = m_item->textureProvider();
+    QSGTexture *texture = provider->texture();
+
+    if (!m_hasBuffer && texture) {
+        if (!m_textureProvider) {
+            SnapshotTextureProvider *prov = new SnapshotTextureProvider;
+            m_textureProvider = prov;
+
+            prov->fbo = 0;
+            prov->program = new QOpenGLShaderProgram;
+            prov->program->addShaderFromSourceCode(QOpenGLShader::Vertex,
+                "attribute highp vec4 vertex;\n"
+                "varying highp vec2 texPos;\n"
+                "void main(void) {\n"
+                "   texPos = vertex.xy;\n"
+                "   gl_Position = vec4(vertex.xy * 2.0 - 1.0, 0, 1);\n"
+                "}");
+            prov->program->addShaderFromSourceCode(QOpenGLShader::Fragment,
+                "uniform sampler2D texture;\n"
+                "varying highp vec2 texPos;\n"
+                "void main(void) {\n"
+                "   gl_FragColor = texture2D(texture, texPos);\n"
+                "}");
+            if (!prov->program->link())
+                qDebug() << prov->program->log();
+
+            prov->vertexLocation = prov->program->attributeLocation("vertex");
+            prov->textureLocation = prov->program->uniformLocation("texture");
+        }
+        provider = m_textureProvider;
+
+        if (m_unmapLock) {
+            SnapshotTextureProvider *prov = static_cast<SnapshotTextureProvider *>(provider);
+
+            if (!prov->fbo || prov->fbo->size() != QSize(width(), height())) {
+                delete prov->fbo;
+                prov->fbo = new QOpenGLFramebufferObject(width(), height());
+            }
+
+            prov->fbo->bind();
+            prov->program->bind();
+
+            texture->bind();
+
+            static GLfloat const triangleVertices[] = {
+                1.f, 0.f,
+                1.f, 1.f,
+                0.f, 0.f,
+                0.f, 1.f,
+            };
+            prov->program->enableAttributeArray(prov->vertexLocation);
+            prov->program->setAttributeArray(prov->vertexLocation, triangleVertices, 2);
+
+            glViewport(0, 0, width(), height());
+            glDisable(GL_BLEND);
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+            prov->program->release();
+
+            prov->t = window()->createTextureFromId(prov->fbo->texture(), prov->fbo->size(), 0);
+            prov->fbo->release();
+            delete m_unmapLock;
+            m_unmapLock = 0;
+            prov->program->disableAttributeArray(prov->vertexLocation);
+        }
+    } else if (!m_hasBuffer && m_textureProvider) {
+        provider = m_textureProvider;
+    }
+    // The else case here is no buffer and no screenshot, so no way to show a sane image.
+    // It should normally not happen, though.
+
+    node->setTextureProvider(provider, provider == m_textureProvider);
     node->setRect(QRectF(0, 0, width(), height()));
     node->setBlending(!m_opaque);
     node->setRadius(m_radius);
@@ -460,7 +569,9 @@ void WindowPixmapItem::updateItem()
             m_item = w;
             delete m_shaderEffect; m_shaderEffect = 0;
             connect(m_item->surface(), SIGNAL(sizeChanged()), this, SIGNAL(windowSizeChanged()));
+            connect(m_item->surface(), &QWaylandSurface::configure, this, &WindowPixmapItem::configure);
             connect(m_item.data(), &QWaylandSurfaceItem::surfaceDestroyed, this, &WindowPixmapItem::surfaceDestroyed);
+            m_unmapLock = new QWaylandUnmapLock(m_item->surface());
         } else {
             if (!m_shaderEffect) {
                 m_shaderEffect = static_cast<QQuickItem *>(c->shaderEffectComponent()->create());
@@ -473,6 +584,17 @@ void WindowPixmapItem::updateItem()
         }
 
         w->imageAddref();
+
+        update();
+    }
+}
+
+void WindowPixmapItem::configure(bool hasBuffer)
+{
+    if (hasBuffer != m_hasBuffer) {
+        m_hasBuffer = hasBuffer;
+        if (m_hasBuffer && !m_unmapLock)
+            m_unmapLock = new QWaylandUnmapLock(m_item->surface());
 
         update();
     }
