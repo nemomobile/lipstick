@@ -74,7 +74,7 @@ void NotificationPreviewPresenter::showNextNotification()
 
         if (locks->getState(MeeGo::QmLocks::TouchAndKeyboard) == MeeGo::QmLocks::Locked && displayState->get() == MeeGo::QmDisplayState::Off) {
             // Screen locked and off: don't show the notification but just remove it from the queue
-            emit notificationPresented(notification->property("id").toUInt());
+            emit notificationPresented(notification->replacesId());
 
             setCurrentNotification(0);
 
@@ -85,7 +85,7 @@ void NotificationPreviewPresenter::showNextNotification()
                 window->show();
             }
 
-            emit notificationPresented(notification->property("id").toUInt());
+            emit notificationPresented(notification->replacesId());
 
             setCurrentNotification(notification);
         }
@@ -102,7 +102,6 @@ void NotificationPreviewPresenter::updateNotification(uint id)
     LipstickNotification *notification = NotificationManager::instance()->notification(id);
 
     if (notification != 0) {
-        notification->setProperty("id", id);
         if (notificationShouldBeShown(notification)) {
             // Add the notification to the queue if not already there or the current notification
             if (currentNotification != notification && !notificationQueue.contains(notification)) {
@@ -119,8 +118,8 @@ void NotificationPreviewPresenter::updateNotification(uint id)
 
             removeNotification(id, true);
 
-            if (currentNotification != notification && notification->urgency() >= 2) {
-                NotificationManager::instance()->CloseNotification(id);
+            if (currentNotification != notification) {
+                NotificationManager::instance()->MarkNotificationDisplayed(id);
             }
         }
     }
@@ -180,8 +179,8 @@ bool NotificationPreviewPresenter::notificationShouldBeShown(LipstickNotificatio
 void NotificationPreviewPresenter::setCurrentNotification(LipstickNotification *notification)
 {
     if (currentNotification != notification) {
-        if (currentNotification != 0 && currentNotification->urgency() >= 2) {
-            NotificationManager::instance()->CloseNotification(currentNotification->property("id").toUInt());
+        if (currentNotification) {
+            NotificationManager::instance()->MarkNotificationDisplayed(currentNotification->replacesId());
         }
 
         currentNotification = notification;

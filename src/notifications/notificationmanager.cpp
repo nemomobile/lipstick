@@ -220,8 +220,9 @@ uint NotificationManager::Notify(const QString &appName, uint replacesId, const 
         foreach (const QString &action, actions) {
             execSQL("INSERT INTO actions VALUES (?, ?)", QVariantList() << id << action);
         }
-        foreach (const QString &hint, hints_.keys()) {
-            execSQL("INSERT INTO hints VALUES (?, ?, ?)", QVariantList() << id << hint << hints_.value(hint));
+        QVariantHash::const_iterator hit = hints_.constBegin(), hend = hints_.constEnd();
+        for ( ; hit != hend; ++hit) {
+            execSQL("INSERT INTO hints VALUES (?, ?, ?)", QVariantList() << id << hit.key() << hit.value());
         }
 
         NOTIFICATIONS_DEBUG("NOTIFY:" << appName_ << appIcon_ << summary_ << body_ << actions << hints_ << expireTimeout_ << "->" << id);
@@ -292,8 +293,9 @@ QString NotificationManager::GetServerInformation(QString &name, QString &vendor
 NotificationList NotificationManager::GetNotifications(const QString &appName)
 {
     QList<LipstickNotification *> notificationList;
-    foreach (uint id, notifications.keys()) {
-        LipstickNotification *notification = notifications.value(id);
+    QHash<uint, LipstickNotification *>::const_iterator it = notifications.constBegin(), end = notifications.constEnd();
+    for ( ; it != end; ++it) {
+        LipstickNotification *notification = it.value();
         if (notification->appName() == appName) {
             notificationList.append(notification);
         }
@@ -321,23 +323,31 @@ uint NotificationManager::nextAvailableNotificationID()
 
 void NotificationManager::removeNotificationsWithCategory(const QString &category)
 {
-    foreach(uint id, notifications.keys()) {
-        if (notifications[id]->hints().value(HINT_CATEGORY).toString() == category) {
-            CloseNotification(id);
+    QList<uint> ids;
+    QHash<uint, LipstickNotification *>::const_iterator it = notifications.constBegin(), end = notifications.constEnd();
+    for ( ; it != end; ++it) {
+        LipstickNotification *notification(it.value());
+        if (notification->category() == category) {
+            ids.append(it.key());
         }
+    }
+    foreach (uint id, ids) {
+        CloseNotification(id);
     }
 }
 
 void NotificationManager::updateNotificationsWithCategory(const QString &category)
 {
-    foreach(uint id, notifications.keys()) {
-        if (notifications[id]->hints().value(HINT_CATEGORY).toString() == category) {
+    QHash<uint, LipstickNotification *>::const_iterator it = notifications.constBegin(), end = notifications.constEnd();
+    for ( ; it != end; ++it) {
+        LipstickNotification *notification(it.value());
+        if (notification->category() == category) {
             // Remove the preview summary and body hints to avoid showing the preview banner again
-            QVariantHash hints = notifications[id]->hints();
+            QVariantHash hints = notification->hints();
             hints.remove(HINT_PREVIEW_SUMMARY);
             hints.remove(HINT_PREVIEW_BODY);
 
-            Notify(notifications[id]->appName(), id, notifications[id]->appIcon(), notifications[id]->summary(), notifications[id]->body(), notifications[id]->actions(), hints, notifications[id]->expireTimeout());
+            Notify(notification->appName(), it.key(), notification->appIcon(), notification->summary(), notification->body(), notification->actions(), hints, notification->expireTimeout());
         }
     }
 }
