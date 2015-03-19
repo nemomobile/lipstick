@@ -48,6 +48,7 @@ static const uint MINIMUM_FREE_SPACE_NEEDED_IN_KB = 1024;
 
 const char *NotificationManager::HINT_URGENCY = "urgency";
 const char *NotificationManager::HINT_CATEGORY = "category";
+const char *NotificationManager::HINT_TRANSIENT = "transient";
 const char *NotificationManager::HINT_DESKTOP_ENTRY = "desktop-entry";
 const char *NotificationManager::HINT_IMAGE_DATA = "image_data";
 const char *NotificationManager::HINT_SOUND_FILE = "sound-file";
@@ -221,23 +222,26 @@ void NotificationManager::MarkNotificationDisplayed(uint id)
 {
     if (notifications.contains(id)) {
         const LipstickNotification *notification = notifications.value(id);
-        const int timeout(notification->expireTimeout());
-        if (timeout == 0) {
-            // We can remove this notification immediately
+        if (notification->hints().value(HINT_TRANSIENT).toBool()) {
+            // Remove this notification immediately
             CloseNotification(id, NotificationExpired);
-        } else if (timeout > 0) {
-            // Insert the timeout into the expiration table, or leave the existing value if already present
-            const qint64 currentTime(QDateTime::currentDateTimeUtc().toMSecsSinceEpoch());
-            const qint64 expireAt(currentTime + timeout);
-            execSQL(QString("INSERT OR IGNORE INTO expiration(id, expire_at) VALUES(?, ?)"), QVariantList() << id << expireAt);
+            NOTIFICATIONS_DEBUG("REMOVED transient:" << id);
+        } else {
+            const int timeout(notification->expireTimeout());
+            if (timeout > 0) {
+                // Insert the timeout into the expiration table, or leave the existing value if already present
+                const qint64 currentTime(QDateTime::currentDateTimeUtc().toMSecsSinceEpoch());
+                const qint64 expireAt(currentTime + timeout);
+                execSQL(QString("INSERT OR IGNORE INTO expiration(id, expire_at) VALUES(?, ?)"), QVariantList() << id << expireAt);
 
-            if (nextExpirationTime == 0 || (expireAt < nextExpirationTime)) {
-                // This will be the next notification to expire - update the timer
-                nextExpirationTime = expireAt;
-                expirationTimer.start(timeout);
+                if (nextExpirationTime == 0 || (expireAt < nextExpirationTime)) {
+                    // This will be the next notification to expire - update the timer
+                    nextExpirationTime = expireAt;
+                    expirationTimer.start(timeout);
+                }
+
+                NOTIFICATIONS_DEBUG("DISPLAYED:" << id << "expiring in:" << timeout);
             }
-
-            NOTIFICATIONS_DEBUG("DISPLAYED:" << id << "expiring in:" << timeout);
         }
     }
 }
@@ -283,7 +287,7 @@ uint NotificationManager::nextAvailableNotificationID()
 void NotificationManager::removeNotificationsWithCategory(const QString &category)
 {
     foreach(uint id, notifications.keys()) {
-        if (notifications[id]->hints().value("category").toString() == category) {
+        if (notifications[id]->hints().value(HINT_CATEGORY).toString() == category) {
             CloseNotification(id);
         }
     }
@@ -292,7 +296,7 @@ void NotificationManager::removeNotificationsWithCategory(const QString &categor
 void NotificationManager::updateNotificationsWithCategory(const QString &category)
 {
     foreach(uint id, notifications.keys()) {
-        if (notifications[id]->hints().value("category").toString() == category) {
+        if (notifications[id]->hints().value(HINT_CATEGORY).toString() == category) {
             // Remove the preview summary and body hints to avoid showing the preview banner again
             QVariantHash hints = notifications[id]->hints();
             hints.remove(HINT_PREVIEW_SUMMARY);

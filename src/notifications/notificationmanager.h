@@ -46,6 +46,9 @@ public:
     //! Standard hint: The type of notification this is.
     static const char *HINT_CATEGORY;
 
+    //! Standard hint: If true, the notification should be removed after display.
+    static const char *HINT_TRANSIENT;
+
     //! Standard hint: This specifies the name of the desktop filename representing the calling program. This should be the same as the prefix used for the application's .desktop file. An example would be "rhythmbox" from "rhythmbox.desktop". This can be used by the daemon to retrieve the correct icon for the application, for logging purposes, etc. Not supported by this implementation.
     static const char *HINT_DESKTOP_ENTRY;
 
