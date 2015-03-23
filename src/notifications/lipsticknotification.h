@@ -48,6 +48,7 @@ class LIPSTICK_EXPORT LipstickNotification : public QObject
     Q_PROPERTY(bool userRemovable READ isUserRemovable NOTIFY userRemovableChanged)
     Q_PROPERTY(QVariantList remoteActions READ remoteActions CONSTANT)
     Q_PROPERTY(QString origin READ origin CONSTANT)
+    Q_PROPERTY(QString owner READ owner CONSTANT)
 
 public:
     /*!
@@ -155,6 +156,9 @@ public:
 
     //! Returns an indicator for the origin of the notification
     QString origin() const;
+
+    //! Returns an indicator for the notification owner
+    QString owner() const;
 
     //! \internal
     /*!

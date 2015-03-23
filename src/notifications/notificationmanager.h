@@ -116,6 +116,9 @@ public:
     //! Nemo hint: Indicates the origin of the notification
     static const char *HINT_ORIGIN;
 
+    //! Nemo hint: Indicates the identifer of the owner for notification
+    static const char *HINT_OWNER;
+
     //! Notifation closing reasons used in the NotificationClosed signal
     enum NotificationClosedReason {
         //! The notification expired.
@@ -203,10 +206,10 @@ public:
     /*!
      * Returns the notifications sent by a specified application.
      *
-     * \param appName the name of the application to get notifications for
+     * \param owner the identifier of the application to get notifications for
      * \return a list of notifications for the application
      */
-    NotificationList GetNotifications(const QString &appName);
+    NotificationList GetNotifications(const QString &owner);
 
 signals:
     /*!

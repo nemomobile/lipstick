@@ -75,6 +75,7 @@ const char *NotificationManager::HINT_HIDDEN = "x-nemo-hidden";
 const char *NotificationManager::HINT_DISPLAY_ON = "x-nemo-display-on";
 const char *NotificationManager::HINT_LED_DISABLED_WITHOUT_BODY_AND_SUMMARY = "x-nemo-led-disabled-without-body-and-summary";
 const char *NotificationManager::HINT_ORIGIN = "x-nemo-origin";
+const char *NotificationManager::HINT_OWNER = "x-nemo-owner";
 
 namespace {
 
@@ -356,13 +357,13 @@ QString NotificationManager::GetServerInformation(QString &name, QString &vendor
     return QString();
 }
 
-NotificationList NotificationManager::GetNotifications(const QString &appName)
+NotificationList NotificationManager::GetNotifications(const QString &owner)
 {
     QList<LipstickNotification *> notificationList;
     QHash<uint, LipstickNotification *>::const_iterator it = notifications.constBegin(), end = notifications.constEnd();
     for ( ; it != end; ++it) {
         LipstickNotification *notification = it.value();
-        if (notification->appName() == appName) {
+        if (notification->owner() == owner) {
             notificationList.append(notification);
         }
     }

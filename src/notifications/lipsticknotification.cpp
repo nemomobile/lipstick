@@ -296,6 +296,11 @@ QString LipstickNotification::origin() const
     return hints_.value(NotificationManager::HINT_ORIGIN).toString();
 }
 
+QString LipstickNotification::owner() const
+{
+    return hints_.value(NotificationManager::HINT_OWNER).toString();
+}
+
 QDBusArgument &operator<<(QDBusArgument &argument, const LipstickNotification &notification)
 {
     argument.beginStructure();
