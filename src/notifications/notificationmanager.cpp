@@ -21,6 +21,7 @@
 #include <QSqlRecord>
 #include <QSqlTableModel>
 #include <mremoteaction.h>
+#include <mdesktopentry.h>
 #include <sys/statfs.h>
 #include <limits>
 #include "categorydefinitionstore.h"
@@ -42,6 +43,9 @@ static const uint MAX_CATEGORY_DEFINITION_FILES = 100;
 
 //! Path of the privileged storage directory relative to the home directory
 static const char *PRIVILEGED_DATA_PATH= "/.local/share/system/privileged";
+
+//! Path to probe for desktop entries
+static const char *DESKTOP_ENTRY_PATH= "/usr/share/applications/";
 
 //! Minimum amount of disk space needed for the notification database in kilobytes
 static const uint MINIMUM_FREE_SPACE_NEEDED_IN_KB = 1024;
@@ -72,6 +76,50 @@ const char *NotificationManager::HINT_DISPLAY_ON = "x-nemo-display-on";
 const char *NotificationManager::HINT_LED_DISABLED_WITHOUT_BODY_AND_SUMMARY = "x-nemo-led-disabled-without-body-and-summary";
 const char *NotificationManager::HINT_ORIGIN = "x-nemo-origin";
 
+namespace {
+
+QPair<QString, QString> processProperties(uint pid)
+{
+    // Cache resolution of process name to properties:
+    static QHash<QString, QPair<QString, QString> > nameProperties;
+
+    QPair<QString, QString> rv;
+
+    if (pid > 1) {
+        const QString procFilename(QString::fromLatin1("/proc/%1/cmdline").arg(QString::number(pid)));
+        QFile procFile(procFilename);
+        if (procFile.open(QIODevice::ReadOnly)) {
+            const QByteArray cmdLine = procFile.readAll();
+            const QString processName = QString::fromUtf8(cmdLine.left(cmdLine.indexOf('\0')));
+            if (!processName.isEmpty()) {
+                const QString basename(QFileInfo(processName).fileName());
+                if (!basename.isEmpty()) {
+                    QHash<QString, QPair<QString, QString> >::iterator it = nameProperties.find(basename);
+                    if (it == nameProperties.end()) {
+                        // Look up the desktop entry for this process name
+                        MDesktopEntry desktopEntry(DESKTOP_ENTRY_PATH + basename + ".desktop");
+                        if (desktopEntry.isValid()) {
+                            it = nameProperties.insert(basename, qMakePair(desktopEntry.name(), desktopEntry.icon()));
+                        } else {
+                            qWarning() << "No desktop entry for process name:" << processName;
+                        }
+                    }
+                    if (it != nameProperties.end()) {
+                        rv.first = it->first;
+                        rv.second = it->second;
+                    }
+                }
+            }
+        } else {
+            qWarning() << "Unable to retrieve command line for pid:" << pid;
+        }
+    }
+
+    return rv;
+}
+
+}
+
 NotificationManager *NotificationManager::instance_ = 0;
 
 NotificationManager *NotificationManager::instance()
@@ -84,6 +132,7 @@ NotificationManager *NotificationManager::instance()
 
 NotificationManager::NotificationManager(QObject *parent) :
     QObject(parent),
+    QDBusContext(),
     previousNotificationID(0),
     categoryDefinitionStore(new CategoryDefinitionStore(CATEGORY_DEFINITION_FILE_DIRECTORY, MAX_CATEGORY_DEFINITION_FILES, this)),
     database(new QSqlDatabase),
@@ -188,6 +237,21 @@ uint NotificationManager::Notify(const QString &appName, uint replacesId, const 
                 }
             } else if (!hints_.contains(key)) {
                 hints_.insert(key, value);
+            }
+        }
+
+        if ((appName_.isEmpty() || appIcon_.isEmpty()) && calledFromDBus()) {
+            // Use the pid to try to provide these properties
+            const QString callerService(message().service());
+            const QDBusReply<uint> pidReply(connection().interface()->servicePid(callerService));
+            if (pidReply.isValid()) {
+                const QPair<QString, QString> properties(processProperties(pidReply.value()));
+                if (appName_.isEmpty() && !properties.first.isEmpty()) {
+                    appName_ = properties.first;
+                }
+                if (appIcon_.isEmpty() && !properties.second.isEmpty()) {
+                    appIcon_ = properties.second;
+                }
             }
         }
 

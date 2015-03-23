@@ -21,6 +21,7 @@
 #include <QObject>
 #include <QTimer>
 #include <QSet>
+#include <QDBusContext>
 
 class CategoryDefinitionStore;
 class QSqlDatabase;
@@ -35,7 +36,7 @@ class QSqlDatabase;
  * The service is registered as org.freedesktop.Notifications on the D-Bus
  * session bus in the path /org/freedesktop/Notifications.
  */
-class LIPSTICK_EXPORT NotificationManager : public QObject
+class LIPSTICK_EXPORT NotificationManager : public QObject, public QDBusContext
 {
     Q_OBJECT
 
