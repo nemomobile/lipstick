@@ -102,6 +102,8 @@ QPair<QString, QString> processProperties(uint pid)
                             it = nameProperties.insert(basename, qMakePair(desktopEntry.name(), desktopEntry.icon()));
                         } else {
                             qWarning() << "No desktop entry for process name:" << processName;
+                            // Fallback to the basename for application name
+                            it = nameProperties.insert(basename, qMakePair(basename, QString()));
                         }
                     }
                     if (it != nameProperties.end()) {
