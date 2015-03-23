@@ -32,7 +32,8 @@ enum ToolOperation {
     List,
     Add,
     Update,
-    Remove
+    Remove,
+    Purge
 };
 
 // The operation to perform
@@ -84,6 +85,7 @@ int usage(const char *program)
     std::cerr << "                             update - Updates an existing notification." << std::endl;
     std::cerr << "                             remove - Removes an existing notification." << std::endl;
     std::cerr << "                             list - Print a summary of existing notifications." << std::endl;
+    std::cerr << "                             purge - Remove all existing notifications." << std::endl;
     std::cerr << "  -i, --id=ID                The notification ID to use when updating or removing a notification." << std::endl;
     std::cerr << "  -u, --urgency=NUMBER       The urgency to assign to the notification." << std::endl;
     std::cerr << "  -p, --priority=NUMBER      The priority to assign to the notification." << std::endl;
@@ -98,7 +100,7 @@ int usage(const char *program)
     std::cerr << "      --help                 display this help and exit" << std::endl;
     std::cerr << std::endl;
     std::cerr << "A notification ID is mandatory when the operation is 'update' or 'remove'." << std::endl;
-    std::cerr << "All options other than -o and -i are ignored when the operation is 'remove'." << std::endl;
+    std::cerr << "All options other than -o and -i are ignored when the operation is 'remove' or 'purge'." << std::endl;
     return -1;
 }
 
@@ -139,6 +141,8 @@ int parseArguments(int argc, char *argv[])
                 toolOperation = Update;
             } else if (strcmp(optarg, "remove") == 0) {
                 toolOperation = Remove;
+            } else if (strcmp(optarg, "purge") == 0) {
+                toolOperation = Purge;
             }
             break;
         case 'i':
@@ -228,7 +232,8 @@ int parseArguments(int argc, char *argv[])
             (toolOperation == Add && id != 0) ||
             (toolOperation == Update && argc < optind) ||
             (toolOperation == Update && id == 0) ||
-            (toolOperation == Remove && id == 0)) {
+            (toolOperation == Remove && id == 0) ||
+            (toolOperation == Purge && id != 0)) {
         return usage(argv[0]);
     }
     return 0;
@@ -326,6 +331,11 @@ int main(int argc, char *argv[])
     }
     case Remove:
         if (id > 0) {
+            proxy.CloseNotification(id);
+        }
+        break;
+    case Purge:
+        foreach (uint id, NotificationManager::instance()->notificationIds()) {
             proxy.CloseNotification(id);
         }
         break;
