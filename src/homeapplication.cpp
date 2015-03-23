@@ -250,9 +250,6 @@ void HomeApplication::setCompositorPath(const QString &path)
             // install default incubation controller
             qmlEngine->setIncubationController(LipstickCompositor::instance()->incubationController());
         }
-
-        if (LipstickCompositor::instance())
-            LipstickCompositor::instance()->show();
     } else {
         qWarning() << "HomeApplication: Error creating compositor from" << path;
         qWarning() << component.errors();

@@ -49,6 +49,7 @@ class LIPSTICK_EXPORT LipstickCompositor : public QQuickWindow, public QWaylandQ
     Q_PROPERTY(QObject* clipboard READ clipboard CONSTANT)
     Q_PROPERTY(QVariant orientationLock READ orientationLock NOTIFY orientationLockChanged)
     Q_PROPERTY(bool displayDimmed READ displayDimmed NOTIFY displayDimmedChanged)
+    Q_PROPERTY(bool completed READ completed NOTIFY completedChanged)
 
 public:
     LipstickCompositor();
@@ -82,7 +83,7 @@ public:
 
     QVariant orientationLock() const { return m_orientationLock->value("dynamic"); }
 
-    bool displayDimmed() const { return m_previousDisplayState == MeeGo::QmDisplayState::Dimmed; }
+    bool displayDimmed() const { return m_currentDisplayState == MeeGo::QmDisplayState::Dimmed; }
 
     QObject *clipboard() const;
 
@@ -99,6 +100,8 @@ public:
     LipstickCompositorProcWindow *mapProcWindow(const QString &title, const QString &category, const QRect &, QQuickItem *rootItem);
 
     QWaylandSurface *surfaceForId(int) const;
+
+    bool completed();
 
     void setUpdatesEnabled(bool enabled);
     QWaylandSurfaceView *createView(QWaylandSurface *surf) Q_DECL_OVERRIDE;
@@ -129,6 +132,8 @@ signals:
     void displayAboutToBeOn();
     void displayAboutToBeOff();
 
+    void completedChanged();
+
 private slots:
     void surfaceMapped();
     void surfaceUnmapped();
@@ -151,6 +156,8 @@ private slots:
     void clipboardDataChanged();
     void onVisibleChanged(bool visible);
     void onSurfaceDying();
+
+    void initialize();
 
 private:
     friend class LipstickCompositorWindow;
@@ -193,8 +200,9 @@ private:
     QOrientationSensor* m_orientationSensor;
     QPointer<QMimeData> m_retainedSelection;
     MGConfItem *m_orientationLock;
-    MeeGo::QmDisplayState::DisplayState m_previousDisplayState;
+    MeeGo::QmDisplayState::DisplayState m_currentDisplayState;
     bool m_updatesEnabled;
+    bool m_completed;
     int m_onUpdatesDisabledUnfocusedWindowId;
     LipstickRecorderManager *m_recorder;
 };

@@ -40,8 +40,22 @@
 LipstickCompositor *LipstickCompositor::m_instance = 0;
 
 LipstickCompositor::LipstickCompositor()
-: QWaylandQuickCompositor(this), m_totalWindowCount(0), m_nextWindowId(1), m_homeActive(true), m_shaderEffect(0),
-  m_fullscreenSurface(0), m_directRenderingActive(false), m_topmostWindowId(0), m_screenOrientation(Qt::PrimaryOrientation), m_sensorOrientation(Qt::PrimaryOrientation), m_displayState(new MeeGo::QmDisplayState(this)), m_retainedSelection(0), m_previousDisplayState(m_displayState->get()), m_updatesEnabled(true), m_onUpdatesDisabledUnfocusedWindowId(0)
+    : QWaylandQuickCompositor(this)
+    , m_totalWindowCount(0)
+    , m_nextWindowId(1)
+    , m_homeActive(true)
+    , m_shaderEffect(0)
+    , m_fullscreenSurface(0)
+    , m_directRenderingActive(false)
+    , m_topmostWindowId(0)
+    , m_screenOrientation(Qt::PrimaryOrientation)
+    , m_sensorOrientation(Qt::PrimaryOrientation)
+    , m_displayState(0)
+    , m_retainedSelection(0)
+    , m_currentDisplayState(MeeGo::QmDisplayState::Unknown)
+    , m_updatesEnabled(true)
+    , m_completed(false)
+    , m_onUpdatesDisabledUnfocusedWindowId(0)
 {
     setColor(Qt::black);
     setRetainedSelectionEnabled(true);
@@ -63,7 +77,6 @@ LipstickCompositor::LipstickCompositor()
 
     connect(this, SIGNAL(visibleChanged(bool)), this, SLOT(onVisibleChanged(bool)));
     QObject::connect(this, SIGNAL(afterRendering()), this, SLOT(windowSwapped()));
-    connect(m_displayState, SIGNAL(displayStateChanged(MeeGo::QmDisplayState::DisplayState)), this, SLOT(reactOnDisplayStateChanges(MeeGo::QmDisplayState::DisplayState)));
     QObject::connect(HomeApplication::instance(), SIGNAL(aboutToDestroy()), this, SLOT(homeApplicationAboutToDestroy()));
     connect(this, &QQuickWindow::afterRendering, this, &LipstickCompositor::readContent, Qt::DirectConnection);
 
@@ -83,21 +96,14 @@ LipstickCompositor::LipstickCompositor()
 
     connect(QGuiApplication::clipboard(), SIGNAL(dataChanged()), SLOT(clipboardDataChanged()));
 
-    new LipstickCompositorAdaptor(this);
-
-    QDBusConnection systemBus = QDBusConnection::systemBus();
-    if (!systemBus.registerService("org.nemomobile.compositor")) {
-        qWarning("Unable to register D-Bus service org.nemomobile.compositor: %s", systemBus.lastError().message().toUtf8().constData());
-    }
-    if (!systemBus.registerObject("/", this)) {
-        qWarning("Unable to register object at path /: %s", systemBus.lastError().message().toUtf8().constData());
-    }
-
     m_recorder = new LipstickRecorderManager;
     addGlobalInterface(m_recorder);
     addGlobalInterface(new AlienManagerGlobal);
 
     HwcRenderStage::initialize(this);
+
+    setUpdatesEnabled(false);
+    QTimer::singleShot(0, this, SLOT(initialize()));
 }
 
 LipstickCompositor::~LipstickCompositor()
@@ -255,6 +261,11 @@ QWaylandSurface *LipstickCompositor::surfaceForId(int id) const
     return window?window->surface():0;
 }
 
+bool LipstickCompositor::completed()
+{
+    return m_completed;
+}
+
 int LipstickCompositor::windowIdForLink(QWaylandSurface *s, uint link) const
 {
     for (QHash<int, LipstickCompositorWindow *>::ConstIterator iter = m_windows.begin();
@@ -278,6 +289,11 @@ void LipstickCompositor::clearKeyboardFocus()
 
 void LipstickCompositor::setDisplayOff()
 {
+    if (!m_displayState) {
+        qWarning() << "No display";
+        return;
+    }
+
     m_displayState->set(MeeGo::QmDisplayState::Off);
 }
 
@@ -356,6 +372,24 @@ void LipstickCompositor::onSurfaceDying()
     if (item) {
         item->m_windowClosed = true;
         item->tryRemove();
+    }
+}
+
+void LipstickCompositor::initialize()
+{
+    m_displayState = new MeeGo::QmDisplayState(this);
+    MeeGo::QmDisplayState::DisplayState displayState = m_displayState->get();
+    reactOnDisplayStateChanges(displayState);
+    connect(m_displayState, SIGNAL(displayStateChanged(MeeGo::QmDisplayState::DisplayState)), this, SLOT(reactOnDisplayStateChanges(MeeGo::QmDisplayState::DisplayState)));
+
+    new LipstickCompositorAdaptor(this);
+
+    QDBusConnection systemBus = QDBusConnection::systemBus();
+    if (!systemBus.registerService("org.nemomobile.compositor")) {
+        qWarning("Unable to register D-Bus service org.nemomobile.compositor: %s", systemBus.lastError().message().toUtf8().constData());
+    }
+    if (!systemBus.registerObject("/", this)) {
+        qWarning("Unable to register object at path /: %s", systemBus.lastError().message().toUtf8().constData());
     }
 }
 
@@ -560,6 +594,10 @@ void LipstickCompositor::setScreenOrientation(Qt::ScreenOrientation screenOrient
 
 void LipstickCompositor::reactOnDisplayStateChanges(MeeGo::QmDisplayState::DisplayState state)
 {
+    if (m_currentDisplayState == state) {
+        return;
+    }
+
     if (state == MeeGo::QmDisplayState::On) {
         emit displayOn();
     } else if (state == MeeGo::QmDisplayState::Off) {
@@ -567,9 +605,9 @@ void LipstickCompositor::reactOnDisplayStateChanges(MeeGo::QmDisplayState::Displ
         emit displayOff();
     }
 
-    bool changeInDimming = (state == MeeGo::QmDisplayState::Dimmed) != (m_previousDisplayState == MeeGo::QmDisplayState::Dimmed);
+    bool changeInDimming = (state == MeeGo::QmDisplayState::Dimmed) != (m_currentDisplayState == MeeGo::QmDisplayState::Dimmed);
 
-    m_previousDisplayState = state;
+    m_currentDisplayState = state;
 
     if (changeInDimming) {
         emit displayDimmedChanged();
@@ -633,9 +671,13 @@ void LipstickCompositor::setUpdatesEnabled(bool enabled)
                 clearKeyboardFocus();
             }
             hide();
-            QGuiApplication::platformNativeInterface()->nativeResourceForIntegration("DisplayOff");
+            if (QWindow::handle()) {
+                QGuiApplication::platformNativeInterface()->nativeResourceForIntegration("DisplayOff");
+            }
         } else {
-            QGuiApplication::platformNativeInterface()->nativeResourceForIntegration("DisplayOn");
+            if (QWindow::handle()) {
+                QGuiApplication::platformNativeInterface()->nativeResourceForIntegration("DisplayOn");
+            }
             emit displayAboutToBeOn();
             showFullScreen();
             if (m_onUpdatesDisabledUnfocusedWindowId > 0) {
@@ -648,6 +690,11 @@ void LipstickCompositor::setUpdatesEnabled(bool enabled)
                 m_onUpdatesDisabledUnfocusedWindowId = 0;
             }
         }
+    }
+
+    if (m_updatesEnabled && !m_completed) {
+        m_completed = true;
+        emit completedChanged();
     }
 }
 
