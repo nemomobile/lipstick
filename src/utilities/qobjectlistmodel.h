@@ -43,6 +43,7 @@ public:
 
     void insertItem(int index, QObject *item);
     void addItem(QObject *item);
+    void addItems(const QList<QObject *> &items);
     void removeItem(QObject *item);
     void removeItem(int index);
     Q_INVOKABLE QObject* get(int index);

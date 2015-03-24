@@ -24,12 +24,16 @@ class LipstickNotification;
 class LIPSTICK_EXPORT NotificationListModel : public QObjectListModel
 {
     Q_OBJECT
+    Q_PROPERTY(bool populated READ populated NOTIFY populatedChanged)
 
 public:
     explicit NotificationListModel(QObject *parent = 0);
     virtual ~NotificationListModel();
 
+    bool populated() const;
+
 signals:
+    void populatedChanged(bool populated);
     void clearRequested();
 
 private slots:
@@ -63,6 +67,8 @@ protected:
 
 private:
     Q_DISABLE_COPY(NotificationListModel)
+
+    bool m_populated;
 
 #ifdef UNIT_TEST
     friend class Ut_NotificationListModel;

@@ -93,6 +93,24 @@ void QObjectListModel::addItem(QObject *item)
     insertItem(_list->count(), item);
 }
 
+void QObjectListModel::addItems(const QList<QObject *> &items)
+{
+    if (!items.isEmpty()) {
+        int index(_list->count());
+        beginInsertRows(QModelIndex(), index, (index + items.count() - 1));
+        foreach (QObject *item, items) {
+            _list->append(item);
+            connect(item, SIGNAL(destroyed()), this, SLOT(removeDestroyedItem()));
+        }
+        endInsertRows();
+
+        foreach (QObject *item, items) {
+            emit itemAdded(item);
+        }
+        emit itemCountChanged();
+    }
+}
+
 void QObjectListModel::removeDestroyedItem()
 {
     QObject *obj = QObject::sender();
