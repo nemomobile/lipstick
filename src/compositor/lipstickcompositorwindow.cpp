@@ -381,9 +381,22 @@ void LipstickCompositorWindow::connectSurfaceSignals()
     }
 }
 
-typedef EGLBoolean (EGLAPIENTRYP Ptr_eglHybrisGetHardwareBufferHandleWL)(EGLDisplay dpy, struct wl_resource *buffer, void **handle);
 static bool hwc_windowsurface_is_enabled();
-static Ptr_eglHybrisGetHardwareBufferHandleWL eglHybrisGetHardwareBufferHandleWL = 0;
+
+typedef EGLBoolean (EGLAPIENTRYP Ptr_eglHybrisAquireNativeBufferWL)(EGLDisplay dpy, struct wl_resource *wlBuffer, EGLClientBuffer *buffer);
+typedef EGLBoolean (EGLAPIENTRYP Ptr_eglHybrisNativeBufferHandle)(EGLDisplay dpy, EGLClientBuffer buffer, void **handle);
+typedef EGLBoolean (EGLAPIENTRYP Ptr_eglHybrisReleaseNativeBuffer)(EGLClientBuffer buffer);
+static Ptr_eglHybrisAquireNativeBufferWL eglHybrisAquireNativeBufferWL;
+static Ptr_eglHybrisNativeBufferHandle eglHybrisNativeBufferHandle;
+static Ptr_eglHybrisReleaseNativeBuffer eglHybrisReleaseNativeBuffer;
+
+class LipstickCompositorWindowHwcNode : public HwcNode
+{
+public:
+    LipstickCompositorWindowHwcNode(QQuickWindow *window) : HwcNode(window), eglBuffer(0) { }
+    ~LipstickCompositorWindowHwcNode();
+    EGLClientBuffer eglBuffer;
+};
 
 QSGNode *LipstickCompositorWindow::updatePaintNode(QSGNode *old, UpdatePaintNodeData *data)
 {
@@ -391,10 +404,9 @@ QSGNode *LipstickCompositorWindow::updatePaintNode(QSGNode *old, UpdatePaintNode
         return QWaylandSurfaceItem::updatePaintNode(old, data);
 
     if (old) {
-       HwcNode *hwcNode = static_cast<HwcNode *>(old);
+       LipstickCompositorWindowHwcNode *hwcNode = static_cast<LipstickCompositorWindowHwcNode *>(old);
         QSGNode *contentNode = QWaylandSurfaceItem::updatePaintNode(hwcNode->firstChild(), data);
         if (contentNode == 0) {
-            m_waylandBufferRef = QWaylandBufferRef();
             delete hwcNode;
             return 0;
         } else if (contentNode != hwcNode->firstChild()) {
@@ -409,7 +421,7 @@ QSGNode *LipstickCompositorWindow::updatePaintNode(QSGNode *old, UpdatePaintNode
 
     QSGNode *contentNode = QWaylandSurfaceItem::updatePaintNode(0, data);
     if (contentNode) {
-        HwcNode *hwcNode = new HwcNode(window());
+        LipstickCompositorWindowHwcNode *hwcNode = new LipstickCompositorWindowHwcNode(window());
         hwcNode->appendChildNode(contentNode);
         updateNode(hwcNode, contentNode);
         return hwcNode;
@@ -420,74 +432,91 @@ QSGNode *LipstickCompositorWindow::updatePaintNode(QSGNode *old, UpdatePaintNode
 
 static bool hwc_windowsurface_is_enabled()
 {
+    if (!HwcRenderStage::isHwcEnabled())
+        return false;
+
     static int checked = 0;
     if (!checked) {
-        if (strstr(eglQueryString(eglGetCurrentDisplay(), EGL_EXTENSIONS), "EGL_HYBRIS_WL_hardware_buffer_handle") != 0) {
-            eglHybrisGetHardwareBufferHandleWL = (Ptr_eglHybrisGetHardwareBufferHandleWL) eglGetProcAddress("eglHybrisGetHardwareBufferHandleWL");
-            checked = 1;
-            qDebug(LIPSTICK_LOG_HWC, "HWC found required extension 'EGL_HYBRIS_WL_hardware_buffer_handle'");
+        const char *aquireNativeBufferExtension = "EGL_HYBRIS_WL_aquire_native_buffer";
+        const char *nativeBuffer2Extensions = "EGL_HYBRIS_native_buffer2";
+        const char *extensions = eglQueryString(eglGetCurrentDisplay(), EGL_EXTENSIONS);
+
+        if (strstr(extensions, aquireNativeBufferExtension) != 0) {
+            eglHybrisAquireNativeBufferWL = (Ptr_eglHybrisAquireNativeBufferWL) eglGetProcAddress("eglHybrisAquireNativeBufferWL");
+            checked |= 0x1;
         } else {
-            checked = -1;
-            qDebug(LIPSTICK_LOG_HWC, "HWC is missing EGL extensions 'EGL_HYBRIS_WL_hardware_buffer_handle', window surfaces are disabled");
+            qCDebug(LIPSTICK_LOG_HWC, "Missing required EGL extension: '%s'", aquireNativeBufferExtension);
+        }
+        if (strstr(extensions, nativeBuffer2Extensions) != 0) {
+            eglHybrisNativeBufferHandle = (Ptr_eglHybrisNativeBufferHandle) eglGetProcAddress("eglHybrisNativeBufferHandle");
+            eglHybrisReleaseNativeBuffer = (Ptr_eglHybrisReleaseNativeBuffer) eglGetProcAddress("eglHybrisReleaseNativeBuffer");
+            checked |= 0x2;
+        } else {
+            qCDebug(LIPSTICK_LOG_HWC, "Missing required EGL extension: '%s'", nativeBuffer2Extensions);
         }
 
-        if (qgetenv("LIPSTICK_HARDWARE_COMPOSITOR_WINDOWSURFACES").isEmpty()) {
-            qDebug(LIPSTICK_LOG_HWC, "HWC disabled for window surfaces!");
-            checked = -2;
+        // If both extensions were found
+        if (checked == (0x1 | 0x2)) {
+            qCDebug(LIPSTICK_LOG_HWC, "HWC composition of window surfaces is enabled");
+        } else {
+            qCDebug(LIPSTICK_LOG_HWC, "HWC composition of window surfaces is disabled");
         }
+
     }
-    return checked > 0 && HwcRenderStage::isHwcEnabled();
+    return checked > 0;
 }
 
-class ReleaseEvent : public QEvent
+void hwc_windowsurface_release_native_buffer(void *, void *callbackData)
 {
-public:
-    ReleaseEvent() : QEvent((QEvent::Type) (QEvent::User + 1)) { }
-    ~ReleaseEvent() {
-        // qCDebug(LIPSTICK_LOG_HWC, " - ReleaseEvent destroyed, releaseEvent=%p", this);
-    }
-    LipstickCompositorWindow *window;
-    QWaylandBufferRef ref;
-};
-
-void hwc_windowsurface_post_releaseevent(void *, void *callbackData)
-{
-    ReleaseEvent *e = (ReleaseEvent *) callbackData;
-    // The sole purpose of posting the event is so that the destructor of the
-    // event gets run on the GUI thread, making sure the QWaylandBufferRef
-    // gets dereffed there and as a result, sends wl_release back to client.
-    QCoreApplication::postEvent(e->window, e);
+    eglHybrisReleaseNativeBuffer((EGLClientBuffer) callbackData);
 }
 
-void LipstickCompositorWindow::updateNode(HwcNode *hwcNode, QSGNode *contentNode)
+void LipstickCompositorWindow::updateNode(LipstickCompositorWindowHwcNode *hwcNode, QSGNode *contentNode)
 {
     struct QWlSurface_Accessor : public QtWayland::Surface {
-        QtWayland::SurfaceBuffer *surfaceBuffer() const { return m_buffer; }
         wl_resource *surfaceBufferHandle() const { return m_buffer ? m_buffer->waylandBufferHandle() : 0; }
     };
     Q_ASSERT(surface());
     Q_ASSERT(surface()->handle());
     QWlSurface_Accessor *s = static_cast<QWlSurface_Accessor *>(surface()->handle());
-    void *handle;
-    eglHybrisGetHardwareBufferHandleWL(eglGetCurrentDisplay(), s->surfaceBufferHandle(), &handle);
+
+    Q_ASSERT(s->mapped() || s->surfaceBufferHandle());
+    // Follow the unmaplock logic inside QtWayland. If a surface is still
+    // visible but has a null buffer attached, we retain the copy we have
+    // until further notice...
+    if (!s->surfaceBufferHandle() && s->mapped()) {
+        qCDebug(LIPSTICK_LOG_HWC, " - visible with attached 'null' buffer, retaining previous buffer, EGLClientBuffer=%p, gralloc=%p", hwcNode->eglBuffer, hwcNode->handle());
+        return;
+    }
+
+    EGLDisplay display = eglGetCurrentDisplay();
+    EGLClientBuffer eglBuffer = 0;
+    void *handle = 0;
+    eglHybrisAquireNativeBufferWL(display, s->surfaceBufferHandle(), &eglBuffer);
+    Q_ASSERT(eglBuffer);
+    eglHybrisNativeBufferHandle(eglGetCurrentDisplay(), eglBuffer, &handle);
+    Q_ASSERT(handle);
 
     // If we're taking a new buffer into use when there already was
     // one, set up the old to be removed.
     if (hwcNode->handle() && hwcNode->handle() != handle) {
-        ReleaseEvent *releaseEvent = new ReleaseEvent();
-        // qDebug(LIPSTICK_LOG_HWC, " - replacing existing buffer handle, old=%p, new=%p, releaseHandler=%p", hwcNode->handle(), handle, handler);
-        HwcRenderStage *hwc = static_cast<HwcRenderStage *>(QQuickWindowPrivate::get(window())->customRenderStage);
-        releaseEvent->window = this;
-        releaseEvent->ref = m_waylandBufferRef;
-        m_waylandBufferRef = QWaylandBufferRef(s->surfaceBuffer());
-        // qDebug(LIPSTICK_LOG_HWC, " - destroying texture");
-        hwc->signalOnBufferRelease(hwc_windowsurface_post_releaseevent, hwcNode->handle(), releaseEvent);
-    } else {
-        // qDebug(LIPSTICK_LOG_HWC, " - updating buffer handle, old=%p, new=%p", hwcNode->handle(), handle);
-        m_waylandBufferRef = QWaylandBufferRef(s->surfaceBuffer());
+        qDebug(LIPSTICK_LOG_HWC, " - releasing old buffer, EGLClientBuffer=%p, gralloc=%p", hwcNode->eglBuffer, hwcNode->handle());
+        Q_ASSERT(hwcNode->eglBuffer);
+        hwcNode->renderStage()->signalOnBufferRelease(hwc_windowsurface_release_native_buffer, hwcNode->handle(), hwcNode->eglBuffer);
     }
+    qDebug(LIPSTICK_LOG_HWC, " - setting buffers on HwcNode, EGLClientBuffer=%p, gralloc=%p", eglBuffer, handle);
+    hwcNode->eglBuffer = eglBuffer;
 
     Q_ASSERT(contentNode->type() == QSGNode::GeometryNodeType);
     hwcNode->update(static_cast<QSGGeometryNode *>(contentNode), handle);
+}
+
+
+
+LipstickCompositorWindowHwcNode::~LipstickCompositorWindowHwcNode()
+{
+    Q_ASSERT(handle());
+    Q_ASSERT(eglBuffer);
+    renderStage()->signalOnBufferRelease(hwc_windowsurface_release_native_buffer, handle(), eglBuffer);
 }
 

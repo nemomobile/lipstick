@@ -26,7 +26,6 @@
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 
-static void *hwcimage_eglbuffer_to_handle(EGLClientBuffer buffer);
 static bool hwcimage_is_enabled();
 
 #define HWCIMAGE_LOAD_EVENT ((QEvent::Type) (QEvent::User + 1))
@@ -325,7 +324,7 @@ public:
 
     static QSGTexture *create(const QImage &image, QQuickWindow *window);
 
-    void *handle() const { return hwcimage_eglbuffer_to_handle(m_buffer); }
+    void *handle() const;
 
 private:
     GLuint m_id;
@@ -470,20 +469,22 @@ extern "C" {
     typedef EGLBoolean (EGLAPIENTRYP _eglHybrisLockNativeBuffer)(EGLClientBuffer buffer, EGLint usage, EGLint l, EGLint t, EGLint w, EGLint h, void **vaddr);
     typedef EGLBoolean (EGLAPIENTRYP _eglHybrisUnlockNativeBuffer)(EGLClientBuffer buffer);
     typedef EGLBoolean (EGLAPIENTRYP _eglHybrisReleaseNativeBuffer)(EGLClientBuffer buffer);
+    typedef EGLBoolean (EGLAPIENTRYP _eglHybrisNativeBufferHandle)(EGLDisplay dpy, EGLClientBuffer buffer, void **handle);
 
     typedef void (EGLAPIENTRYP _glEGLImageTargetTexture2DOES)(GLenum target, EGLImageKHR image);
     typedef EGLImageKHR (EGLAPIENTRYP _eglCreateImageKHR)(EGLDisplay dpy, EGLContext ctx, EGLenum target, EGLClientBuffer buffer, const EGLint *attribs);
     typedef EGLBoolean (EGLAPIENTRYP _eglDestroyImageKHR)(EGLDisplay dpy, EGLImageKHR image);
 }
 
-_glEGLImageTargetTexture2DOES glEGLImageTargetTexture2DOES = 0;
-_eglCreateImageKHR eglCreateImageKHR = 0;
-_eglDestroyImageKHR eglDestroyImageKHR = 0;
+static _glEGLImageTargetTexture2DOES glEGLImageTargetTexture2DOES = 0;
+static _eglCreateImageKHR eglCreateImageKHR = 0;
+static _eglDestroyImageKHR eglDestroyImageKHR = 0;
 
-_eglHybrisCreateNativeBuffer eglHybrisCreateNativeBuffer = 0;
-_eglHybrisLockNativeBuffer eglHybrisLockNativeBuffer = 0;
-_eglHybrisUnlockNativeBuffer eglHybrisUnlockNativeBuffer = 0;
-_eglHybrisReleaseNativeBuffer eglHybrisReleaseNativeBuffer = 0;
+static _eglHybrisCreateNativeBuffer eglHybrisCreateNativeBuffer = 0;
+static _eglHybrisLockNativeBuffer eglHybrisLockNativeBuffer = 0;
+static _eglHybrisUnlockNativeBuffer eglHybrisUnlockNativeBuffer = 0;
+static _eglHybrisReleaseNativeBuffer eglHybrisReleaseNativeBuffer = 0;
+static _eglHybrisNativeBufferHandle eglHybrisNativeBufferHandle = 0;
 
 static void hwcimage_initialize()
 {
@@ -492,7 +493,6 @@ static void hwcimage_initialize()
         return;
     initialized = true;
 
-
     glEGLImageTargetTexture2DOES = (_glEGLImageTargetTexture2DOES) eglGetProcAddress("glEGLImageTargetTexture2DOES");
     eglCreateImageKHR = (_eglCreateImageKHR) eglGetProcAddress("eglCreateImageKHR");
     eglDestroyImageKHR = (_eglDestroyImageKHR) eglGetProcAddress("eglDestroyImageKHR");
@@ -500,6 +500,7 @@ static void hwcimage_initialize()
     eglHybrisLockNativeBuffer = (_eglHybrisLockNativeBuffer) eglGetProcAddress("eglHybrisLockNativeBuffer");
     eglHybrisUnlockNativeBuffer = (_eglHybrisUnlockNativeBuffer) eglGetProcAddress("eglHybrisUnlockNativeBuffer");
     eglHybrisReleaseNativeBuffer = (_eglHybrisReleaseNativeBuffer) eglGetProcAddress("eglHybrisReleaseNativeBuffer");
+    eglHybrisNativeBufferHandle = (_eglHybrisNativeBufferHandle) eglGetProcAddress("eglHybrisNativeBufferHandle");
 }
 
 static bool hwcimage_is_enabled()
@@ -508,7 +509,7 @@ static bool hwcimage_is_enabled()
     // need to do hwc layering of background images...
     static int hybrisBuffers = -1;
     if (hybrisBuffers < 0) {
-        if (strstr(eglQueryString(eglGetDisplay(EGL_DEFAULT_DISPLAY), EGL_EXTENSIONS), "EGL_HYBRIS_native_buffer") == 0)
+        if (strstr(eglQueryString(eglGetDisplay(EGL_DEFAULT_DISPLAY), EGL_EXTENSIONS), "EGL_HYBRIS_native_buffer2") == 0)
             hybrisBuffers = 0;
         else
             hybrisBuffers = 1;
@@ -616,33 +617,13 @@ void HwcImageTexture::release()
     m_hwc->signalOnBufferRelease(hwcimage_delete_texture, handle(), this);
 }
 
-
-// Memory layout of ANativeWindowBuffer from Android's /system/window.h which
-// is the structure that libhybris uses internally to represent the actual
-// EGLClientBuffer. We need this to extract the gralloc handle.
-struct android_native_base_t {
-    int magic;
-    int version;
-    void *reserved[4];
-    void (*incRef)(struct android_native_base_t* base);
-    void (*decRef)(struct android_native_base_t* base);
-};
-struct ANativeWindowBuffer {
-    android_native_base_t common;
-    int width;
-    int height;
-    int stride;
-    int format;
-    int usage;
-    void *reserved[2];
-    void *handle;
-    void *reserved_proc[8];
-};
-
-void *hwcimage_eglbuffer_to_handle(EGLClientBuffer buffer)
+void *HwcImageTexture::handle() const
 {
-    return ((ANativeWindowBuffer *) buffer)->handle;
+    void *h;
+    eglHybrisNativeBufferHandle(eglGetCurrentDisplay(), m_buffer, &h);
+    return h;
 }
+
 
 #include "hwcimage.moc"
 

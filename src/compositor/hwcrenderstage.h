@@ -50,6 +50,7 @@ public:
     }
 
     QSGGeometryNode *contentNode() const { return m_contentNode; }
+    HwcRenderStage *renderStage() const { return m_renderStage; }
 
 private:
     HwcRenderStage *m_renderStage;
@@ -78,6 +79,12 @@ public:
     void bufferReleased(void *);
     void setBypassHwc(bool bypass);
     void hwcNodeDeleted(HwcNode *node);
+    void invalidated();
+
+    // LipstickCompositorWindowHwcNode will post events to this object for the
+    // sole purpose of having them delivered on the GUI thread when the LCW
+    // instance might have been destroyed might have been destroyed. Keep this
+    // in mind if HwcRenderStage::event() ever gets implemented.
 
 private:
     bool checkSceneGraph(QSGNode *node);
@@ -91,6 +98,8 @@ private:
     QVector<HwcNode *> m_nodesInList;
     QVector<HwcNode *> m_nodesToTry;
     QAtomicInt m_hwcBypass;
+    QAtomicInt m_invalidated;
+    int m_invalidationCountdown; // R&W on render thread only
 
     struct BufferAndResource {
         void *handle;
@@ -100,7 +109,7 @@ private:
     QVector<BufferAndResource> m_buffersInUse;
     QMutex m_buffersInUseMutex;
 
-    HwcInterface::LayerList *m_layerList;
+    HwcInterface::LayerList *m_layerList; // R&W on render thread only
 
     bool m_scheduledLayerList;
 

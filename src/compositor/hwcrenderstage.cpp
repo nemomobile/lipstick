@@ -174,6 +174,11 @@ static void hwc_renderstage_delete_list(HwcInterface::LayerList *list)
     free(list);
 }
 
+static void hwc_renderstage_invalidate(void *hwc)
+{
+    static_cast<HwcRenderStage *>(hwc)->invalidated();
+}
+
 static void hwc_renderstage_dump_layerlist(HwcInterface::LayerList *list)
 {
     qCDebug(LIPSTICK_LOG_HWC, " - eglRenderingEnabled: %d", list->eglRenderingEnabled);
@@ -193,10 +198,13 @@ HwcRenderStage::HwcRenderStage(LipstickCompositor *lipstick, void *compositorHan
     , m_window(lipstick)
     , m_hwc(reinterpret_cast<HwcInterface::Compositor *>(compositorHandle))
     , m_hwcBypass(0)
+    , m_invalidated(0)
+    , m_invalidationCountdown(0)
     , m_scheduledLayerList(false)
 {
     m_hwc->setReleaseLayerListCallback(hwc_renderstage_delete_list);
     m_hwc->setBufferAvailableCallback(hwc_renderstage_buffer_available, this);
+    m_hwc->setInvalidateCallback(hwc_renderstage_invalidate, this);
 }
 
 HwcRenderStage::~HwcRenderStage()
@@ -209,6 +217,12 @@ bool HwcRenderStage::render()
     QQuickWindowPrivate *d = QQuickWindowPrivate::get(m_window);
     if (d->renderer && d->renderer->rootNode()) {
 
+        if (m_invalidated.testAndSetRelaxed(1, 0)) {
+            m_invalidationCountdown = 5;
+            disableHwc();
+            return false;
+        }
+
         if (m_hwcBypass.load()) {
             disableHwc();
             return false;;
@@ -220,10 +234,20 @@ bool HwcRenderStage::render()
 
         bool isUsingLayersOnly = m_layerList && m_layerList == m_hwc->acceptedLayerList() && !m_layerList->eglRenderingEnabled;
 
-        if (m_nodesToTry.size() || (layersOnly != isUsingLayersOnly)) {
+        if (m_nodesToTry.size()) {
 
-            // ### Also check for geometry changes here...
-            if ((m_nodesInList != m_nodesToTry) || (layersOnly != isUsingLayersOnly)) {
+            bool scheduleAgain = (m_nodesInList != m_nodesToTry) || (layersOnly != isUsingLayersOnly);
+
+            // After an invalidate, there will be a few frames where the HWC
+            // refuses our layer lists, so we need to keep trying to convince
+            // it.
+            if (m_invalidationCountdown > 0 && m_layerList != m_hwc->acceptedLayerList()) {
+                --m_invalidationCountdown;
+                qCDebug(LIPSTICK_LOG_HWC, "HwcRenderStage::render(): invalidation countdown: %d", m_invalidationCountdown);
+                scheduleAgain = true;
+            }
+
+            if (scheduleAgain) {
                 m_layerList = hwc_renderstage_create_list(m_nodesToTry);
                 m_layerList->eglRenderingEnabled = !layersOnly;
                 if (LIPSTICK_LOG_HWC().isDebugEnabled()) {
@@ -238,6 +262,7 @@ bool HwcRenderStage::render()
             }
 
             if (m_layerList && m_layerList == m_hwc->acceptedLayerList()) {
+                m_invalidationCountdown = 0;
                 if (m_scheduledLayerList) {
                     // newly accepted, toggle blocking in the scene graph...
                     if (LIPSTICK_LOG_HWC().isDebugEnabled()) {
@@ -322,7 +347,7 @@ void HwcRenderStage::disableHwc()
 {
     if (!m_layerList)
         return;
-    qCDebug(LIPSTICK_LOG_HWC, "Hwc has been explicitly disabled");
+    qCDebug(LIPSTICK_LOG_HWC, "Hwc was disabled...");
     foreach (HwcNode *n, m_nodesInList)
         n->setBlocked(false);
     m_nodesInList.clear();
@@ -472,5 +497,11 @@ void HwcRenderStage::bufferReleased(void *handle)
             return;
         }
     }
+}
+
+void HwcRenderStage::invalidated()
+{
+    m_invalidated = 1;
+    m_window->update();
 }
 

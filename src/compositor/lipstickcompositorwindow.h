@@ -20,7 +20,7 @@
 #include <QWaylandBufferRef>
 #include "lipstickglobal.h"
 
-class HwcNode;
+class LipstickCompositorWindowHwcNode;
 
 class LIPSTICK_EXPORT LipstickCompositorWindow : public QWaylandSurfaceItem
 {
@@ -88,7 +88,7 @@ private slots:
 private:
     friend class LipstickCompositor;
     friend class WindowPixmapItem;
-    void updateNode(HwcNode *hwcNode, QSGNode *contentNode);
+    void updateNode(LipstickCompositorWindowHwcNode *hwcNode, QSGNode *contentNode);
     void imageAddref();
     void imageRelease();
 
@@ -111,7 +111,6 @@ private:
     QRegion m_mouseRegion;
     QList<int> m_grabbedKeys;
     QList<QMetaObject::Connection> m_surfaceConnections;
-    QWaylandBufferRef m_waylandBufferRef;
 };
 
 #endif // LIPSTICKCOMPOSITORWINDOW_H

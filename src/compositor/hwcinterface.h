@@ -48,7 +48,7 @@
 // interface after changing it.
 //
 
-#define HWC_INTERFACE_STRING "hwcinterface v0.1"
+#define HWC_INTERFACE_STRING "hwcinterface v0.2"
 
 namespace HwcInterface
 {
@@ -65,11 +65,11 @@ namespace HwcInterface
         // The source rect, in pixels.
         int sx, sy, sw, sh;
 
-        // Set to true after the layer list has become active. Indicates
-        // that the layer will be handled by the hardware compositor.
-        // In a list of 4 layers where only 2 layers are supported, the back-most
-        // two layers will be accepted. This allows for composition of the front-most
-        // two in the EGL surface.
+        // Set to true after the layer list has become active. Indicates that
+        // the layer will be handled by the hardware compositor. In a list of
+        // 4 layers where only 2 layers are supported, the back-most two
+        // layers will be accepted. This allows for composition of the front-
+        // most two in the EGL surface.
         //
         // This value will be set by the hardware compositor when accepted.
         // Changing it from the client side will result in undefined behavior.
@@ -109,9 +109,12 @@ namespace HwcInterface
     public:
         virtual ~Compositor() {}
 
-        /* Can be called from any thread, will schedule a prepare() call on
-           HWC to check how feasible it is to perform the composition of these
-           layers. Each call MUST contain a uniqure pointer.
+        /*
+
+           Will be called by the EGL rendering thread, will schedule a
+           prepare() call on HWC to check how feasible it is to perform the
+           composition of these layers. Each call MUST contain a uniqure
+           pointer.
 
            Compositor takes ownership of the LayerList and will call the
            'ReleaseLayerListCallback' once the list is no longer in use.
@@ -124,16 +127,20 @@ namespace HwcInterface
            If a scheduled layer list is not accepted at all, for instance
            because all buffers try to use an unsupported feature, the
            'scheduledLayerList' will never become accepted.
+
          */
         virtual void scheduleLayerList(LayerList *list) = 0;
 
-        /* Will be called by the EGL rendering thread. By default this will be 0.
+        /*
+
+           Will be called by the EGL rendering thread. By default this will be 0.
            After a call to scheduleLayerList, the HWC thread will make a prepare()
            call to check the feasibility of compositing the layers. After this
            call has completed, the layer list will be accepted.
 
            An accepted layer list is only actually taken into use once a call
            to swapLayerList with this specific layer list is called.
+
           */
         virtual const LayerList *acceptedLayerList() const = 0;
 
@@ -148,6 +155,22 @@ namespace HwcInterface
 
         typedef void (*BufferAvailableCallback)(void *handle, void *data);
         virtual void setBufferAvailableCallback(BufferAvailableCallback, void *) = 0;
+
+        /*
+
+           The invalidation callback will be called when the hwc decides to
+           invalidate its surface list. This can happen, for instance, because
+           the HWC has gone into power saving mode and wants the composition
+           to be done using a single buffer.
+
+           The application must immediately schedule a new layer list and do
+           another render pass. The current layer list is immediately rejected.
+
+           This function will be called on Qt's GUI thread.
+
+         */
+        typedef void (*InvalidatedCallback)(void *data);
+        virtual void setInvalidateCallback(InvalidatedCallback, void *) = 0;
     };
 
 }; // end namespace
