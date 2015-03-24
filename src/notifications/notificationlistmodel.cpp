@@ -17,7 +17,8 @@
 #include "notificationlistmodel.h"
 
 NotificationListModel::NotificationListModel(QObject *parent) :
-    QObjectListModel(parent)
+    QObjectListModel(parent),
+    m_populated(false)
 {
     connect(NotificationManager::instance(), SIGNAL(notificationModified(uint)), this, SLOT(updateNotification(uint)));
     connect(NotificationManager::instance(), SIGNAL(notificationRemoved(uint)), this, SLOT(removeNotification(uint)));
@@ -30,11 +31,32 @@ NotificationListModel::~NotificationListModel()
 {
 }
 
+bool NotificationListModel::populated() const
+{
+    return m_populated;
+}
+
 void NotificationListModel::init()
 {
-    foreach(uint id, NotificationManager::instance()->notificationIds()) {
-        updateNotification(id);
+    if (m_populated) {
+        foreach(uint id, NotificationManager::instance()->notificationIds()) {
+            updateNotification(id);
+        }
+    } else {
+        QList<QObject *> initialNotifications;
+
+        foreach(uint id, NotificationManager::instance()->notificationIds()) {
+            LipstickNotification *notification = NotificationManager::instance()->notification(id);
+            if (notificationShouldBeShown(notification)) {
+                initialNotifications.append(notification);
+            }
+        }
+
+        addItems(initialNotifications);
     }
+
+    m_populated = true;
+    emit populatedChanged(m_populated);
 }
 
 void NotificationListModel::updateNotification(uint id)

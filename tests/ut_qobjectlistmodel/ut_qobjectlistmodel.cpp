@@ -93,8 +93,7 @@ void Ut_QObjectListModel::testInsertion()
     QSignalSpy countSpy(&model, SIGNAL(itemCountChanged()));
 
     model.addItem(objects->at(0));
-    model.addItem(objects->at(1));
-    model.addItem(objects->at(2));
+    model.addItems(QList<QObject *>() << objects->at(1) << objects->at(2));
 
     QCOMPARE(model.itemCount(), 3);
     QCOMPARE(::objectName(model.get(0)), QString("a"));
@@ -106,7 +105,7 @@ void Ut_QObjectListModel::testInsertion()
     QCOMPARE(addedSpy.at(1), QVariantList() << QVariant::fromValue(objects->at(1)));
     QCOMPARE(addedSpy.at(2), QVariantList() << QVariant::fromValue(objects->at(2)));
     QCOMPARE(removedSpy.count(), 0);
-    QCOMPARE(countSpy.count(), 3);
+    QCOMPARE(countSpy.count(), 2);
 
     addedSpy.clear();
     countSpy.clear();
@@ -140,9 +139,7 @@ void Ut_QObjectListModel::testRemoval()
     objects->append(makeObject("e"));
 
     QObjectListModel model(this);
-    foreach (QObject *object, *objects) {
-        model.addItem(object);
-    }
+    model.addItems(*objects);
 
     QCOMPARE(model.itemCount(), 5);
     QCOMPARE(::objectName(model.get(0)), QString("a"));
@@ -198,9 +195,7 @@ void Ut_QObjectListModel::testMove()
     objects->append(makeObject("e"));
 
     QObjectListModel model(this);
-    foreach (QObject *object, *objects) {
-        model.addItem(object);
-    }
+    model.addItems(*objects);
 
     QCOMPARE(model.itemCount(), 5);
     QCOMPARE(::objectName(model.get(0)), QString("a"));
@@ -245,9 +240,7 @@ void Ut_QObjectListModel::testUpdate()
     objects->append(makeObject("e"));
 
     QObjectListModel model(this);
-    foreach (QObject *object, *objects) {
-        model.addItem(object);
-    }
+    model.addItems(*objects);
 
     QCOMPARE(model.itemCount(), 5);
     QCOMPARE(::objectName(model.get(0)), QString("a"));

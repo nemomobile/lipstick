@@ -51,6 +51,7 @@ void Ut_NotificationListModel::testModelPopulatesOnConstruction()
     gNotificationManagerStub->stubSetReturnValue("notificationIds", QList<uint>() << 1);
     gNotificationManagerStub->stubSetReturnValue("notification", &notification);
     NotificationListModel model;
+    QCOMPARE(model.populated(), true);
     QCOMPARE(model.itemCount(), 1);
     QCOMPARE(model.get(0), &notification);
 }
@@ -127,6 +128,7 @@ void Ut_NotificationListModel::testNotificationRemoval()
     NotificationListModel model;
     model.removeNotification(1);
     QCOMPARE(model.itemCount(), 0);
+    QCOMPARE(model.populated(), true);
 }
 
 void Ut_NotificationListModel::testNotificationOrdering()
