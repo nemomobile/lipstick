@@ -579,8 +579,8 @@ HwcImageTexture::~HwcImageTexture()
 
 void HwcImageTexture::bind()
 {
-    updateBindOptions();
     glBindTexture(GL_TEXTURE_2D, m_id);
+    updateBindOptions(!m_bound);
     if (!m_bound) {
         m_bound = true;
         glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, m_image);
