@@ -21,6 +21,7 @@
 
 #include <QQuickWindow>
 #include <QSGSimpleTextureNode>
+#include <QFileInfo>
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
@@ -227,6 +228,12 @@ void HwcImage::updatePolish()
         update();
         return;
     }
+
+    if (!QFileInfo(m_source.toLocalFile()).exists()) {
+        qCDebug(LIPSTICK_LOG_HWC, "HwcImage: source file does not exist (%s)", qPrintable(m_source.toString()));
+        return;
+    }
+
     m_status = Loading;
     emit statusChanged();
 
