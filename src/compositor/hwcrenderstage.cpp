@@ -216,7 +216,7 @@ bool HwcRenderStage::render()
 
         QSGRootNode *rootNode = d->renderer->rootNode();
         m_nodesToTry.clear();
-        bool layersOnly = checkSceneGraph(rootNode);
+        bool layersOnly = checkSceneGraph(rootNode) && m_nodesToTry.size() > 0;
 
         bool isUsingLayersOnly = m_layerList && m_layerList == m_hwc->acceptedLayerList() && !m_layerList->eglRenderingEnabled;
 
