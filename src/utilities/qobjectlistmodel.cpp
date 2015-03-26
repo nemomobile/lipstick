@@ -130,6 +130,55 @@ void QObjectListModel::removeItem(QObject *item)
     }
 }
 
+void QObjectListModel::removeItems(const QList<QObject *> &items)
+{
+    QList<QPair<int, QObject *> > removals;
+    foreach (QObject *item, items) {
+        int index = _list->indexOf(item);
+        if (index != -1) {
+            removals.append(qMakePair(index, item));
+        }
+    }
+
+    if (!removals.isEmpty()) {
+        struct Comparator {
+            bool operator()(const QPair<int, QObject *> &lhs, const QPair<int, QObject *> &rhs) const {
+                return lhs.first < rhs.first;
+            }
+        } cmp;
+        std::sort(removals.begin(), removals.end(), cmp);
+
+        int count(removals.count());
+        while (count > 0) {
+            // Find any contiguous runs of removal indexes to be processed together
+            int last = count - 1;
+            int first = last;
+            while (first > 0 && removals.at(first - 1).first == (removals.at(first).first - 1)) {
+                --first;
+            }
+
+            beginRemoveRows(QModelIndex(), first, last);
+            while (last >= first) {
+                const QPair<int, QObject *> &removal(removals.at(last));
+                --last;
+
+                _list->removeAt(removal.first);
+                disconnect(removal.second, SIGNAL(destroyed()), this, SLOT(removeDestroyedItem()));
+            }
+            endRemoveRows();
+
+            count = first;
+        }
+
+        QList<QPair<int, QObject *> >::const_iterator it = removals.constBegin(), end = removals.constEnd();
+        for ( ; it != end; ++it) {
+            emit itemRemoved(it->second);
+        }
+
+        emit itemCountChanged();
+    }
+}
+
 void QObjectListModel::removeItem(int index)
 {
     beginRemoveRows(QModelIndex(), index, index);
