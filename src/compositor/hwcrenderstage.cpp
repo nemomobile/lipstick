@@ -327,6 +327,8 @@ void HwcRenderStage::disableHwc()
         n->setBlocked(false);
     m_nodesInList.clear();
     m_layerList = 0;
+    // Tell the HwcInterface that we're no longer going to use the old list.
+    m_hwc->scheduleLayerList(0);
 }
 
 void HwcRenderStage::hwcNodeDeleted(HwcNode *node)
