@@ -40,6 +40,7 @@ private slots:
     void init();
     void updateNotification(uint id);
     void removeNotification(uint id);
+    void removeNotifications(const QList<uint> &ids);
 
 protected:
     /*!

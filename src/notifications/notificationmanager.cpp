@@ -308,16 +308,45 @@ void NotificationManager::CloseNotification(uint id, NotificationClosedReason cl
         emit NotificationClosed(id, closeReason);
 
         // Remove the notification, its actions and its hints from database
-        execSQL(QString("DELETE FROM notifications WHERE id=?"), QVariantList() << id);
-        execSQL(QString("DELETE FROM actions WHERE id=?"), QVariantList() << id);
-        execSQL(QString("DELETE FROM hints WHERE id=?"), QVariantList() << id);
-        execSQL(QString("DELETE FROM expiration WHERE id=?"), QVariantList() << id);
+        const QVariantList params(QVariantList() << id);
+        execSQL(QString("DELETE FROM notifications WHERE id=?"), params);
+        execSQL(QString("DELETE FROM actions WHERE id=?"), params);
+        execSQL(QString("DELETE FROM hints WHERE id=?"), params);
+        execSQL(QString("DELETE FROM expiration WHERE id=?"), params);
 
         NOTIFICATIONS_DEBUG("REMOVE:" << id);
         emit notificationRemoved(id);
 
         // Mark the notification to be destroyed
         removedNotifications.insert(notifications.take(id));
+    }
+}
+
+void NotificationManager::CloseNotifications(const QList<uint> &ids, NotificationClosedReason closeReason)
+{
+    if (!ids.isEmpty()) {
+        foreach (uint id, ids) {
+            if (notifications.contains(id)) {
+                emit NotificationClosed(id, closeReason);
+
+                // Remove the notification, its actions and its hints from database
+                const QVariantList params(QVariantList() << id);
+                execSQL(QString("DELETE FROM notifications WHERE id=?"), params);
+                execSQL(QString("DELETE FROM actions WHERE id=?"), params);
+                execSQL(QString("DELETE FROM hints WHERE id=?"), params);
+                execSQL(QString("DELETE FROM expiration WHERE id=?"), params);
+            }
+        }
+
+        NOTIFICATIONS_DEBUG("REMOVE:" << ids);
+        emit notificationsRemoved(ids);
+
+        foreach (uint id, ids) {
+            emit notificationRemoved(id);
+
+            // Mark the notification to be destroyed
+            removedNotifications.insert(notifications.take(id));
+        }
     }
 }
 
@@ -398,9 +427,7 @@ void NotificationManager::removeNotificationsWithCategory(const QString &categor
             ids.append(it.key());
         }
     }
-    foreach (uint id, ids) {
-        CloseNotification(id);
-    }
+    CloseNotifications(ids);
 }
 
 void NotificationManager::updateNotificationsWithCategory(const QString &category)
@@ -650,9 +677,7 @@ void NotificationManager::fetchData()
         }
     }
 
-    foreach (uint id, expiredIds) {
-        CloseNotification(id, NotificationExpired);
-    }
+    CloseNotifications(expiredIds, NotificationExpired);
 
     nextExpirationTime = unexpiredRemaining ? nextTimeout : 0;
     if (nextExpirationTime) {
@@ -778,9 +803,7 @@ void NotificationManager::expire()
         }
     }
 
-    foreach (uint id, expiredIds) {
-        CloseNotification(id, NotificationExpired);
-    }
+    CloseNotifications(expiredIds, NotificationExpired);
 
     nextExpirationTime = unexpiredRemaining ? nextTimeout : 0;
     if (nextExpirationTime) {
@@ -791,6 +814,24 @@ void NotificationManager::expire()
 
 void NotificationManager::removeUserRemovableNotifications()
 {
+    QList<uint> closableNotifications;
+
+    // Find any closable notifications we can close as a batch
+    QHash<uint, LipstickNotification *>::const_iterator it = notifications.constBegin(), end = notifications.constEnd();
+    for ( ; it != end; ++it) {
+        LipstickNotification *notification(it.value());
+        QVariant userRemovable = notification->hints().value(HINT_USER_REMOVABLE);
+        if (!userRemovable.isValid() || userRemovable.toBool()) {
+            QVariant userCloseable = notification->hints().value(HINT_USER_CLOSEABLE);
+            if (!userCloseable.isValid() || userCloseable.toBool()) {
+                closableNotifications.append(it.key());
+            }
+        }
+    }
+
+    CloseNotifications(closableNotifications, NotificationDismissedByUser);
+
+    // Remove any remaining notifications
     foreach(uint id, notifications.keys()) {
         removeNotificationIfUserRemovable(id);
     }

@@ -22,6 +22,7 @@ NotificationListModel::NotificationListModel(QObject *parent) :
 {
     connect(NotificationManager::instance(), SIGNAL(notificationModified(uint)), this, SLOT(updateNotification(uint)));
     connect(NotificationManager::instance(), SIGNAL(notificationRemoved(uint)), this, SLOT(removeNotification(uint)));
+    connect(NotificationManager::instance(), SIGNAL(notificationsRemoved(const QList<uint> &)), this, SLOT(removeNotifications(const QList<uint> &)));
     connect(this, SIGNAL(clearRequested()), NotificationManager::instance(), SLOT(removeUserRemovableNotifications()));
 
     QTimer::singleShot(0, this, SLOT(init()));
@@ -104,7 +105,22 @@ void NotificationListModel::markAsDisplayed(uint id)
 
 void NotificationListModel::removeNotification(uint id)
 {
-    removeItem(NotificationManager::instance()->notification(id));
+    if (LipstickNotification *notification = NotificationManager::instance()->notification(id)) {
+        removeItem(notification);
+    }
+}
+
+void NotificationListModel::removeNotifications(const QList<uint> &ids)
+{
+    if (!ids.isEmpty()) {
+        QList<QObject *> items;
+        foreach (uint id, ids) {
+            if (LipstickNotification *notification = NotificationManager::instance()->notification(id)) {
+                items.append(notification);
+            }
+        }
+        removeItems(items);
+    }
 }
 
 bool NotificationListModel::notificationShouldBeShown(LipstickNotification *notification)

@@ -119,7 +119,7 @@ public:
     //! Nemo hint: Indicates the identifer of the owner for notification
     static const char *HINT_OWNER;
 
-    //! Notifation closing reasons used in the NotificationClosed signal
+    //! Notification closing reasons used in the NotificationClosed signal
     enum NotificationClosedReason {
         //! The notification expired.
         NotificationExpired = 1,
@@ -181,8 +181,18 @@ public:
      * The NotificationClosed signal is emitted by this method.
      *
      * \param id the ID of the notification to be closed
+     * \param closeReason the reason for the closure of this notification
      */
     void CloseNotification(uint id, NotificationClosedReason closeReason = CloseNotificationCalled);
+
+    /*!
+     * Causes all listed notifications to be forcefully closed and removed from the user's view.
+     * The NotificationClosed signal is emitted by this method for each closed notification.
+     *
+     * \param ids the IDs of the notifications to be closed
+     * \param closeReason the reason for the closure of these notifications
+     */
+    void CloseNotifications(const QList<uint> &ids, NotificationClosedReason closeReason = CloseNotificationCalled);
 
     /*!
      * Mark the notification as displayed.  If the notification has an expiry timeout
@@ -243,6 +253,13 @@ signals:
      * \param id the ID of the removed notification
      */
     void notificationRemoved(uint id);
+
+    /*!
+     * Emitted when a group of notifications is collectively removed.
+     *
+     * \param ids the IDs of the removed notifications
+     */
+    void notificationsRemoved(const QList<uint> &ids);
 
 public slots:
     /*!
