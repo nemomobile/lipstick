@@ -59,6 +59,8 @@ public:
     Q_INVOKABLE void terminateProcess(int killTimeout);
 
 protected:
+    void itemChange(ItemChange change, const ItemChangeData &data);
+
     virtual bool event(QEvent *);
     virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseMoveEvent(QMouseEvent *event);

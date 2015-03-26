@@ -221,6 +221,14 @@ bool LipstickCompositorWindow::isInProcess() const
     return false;
 }
 
+void LipstickCompositorWindow::itemChange(ItemChange change, const ItemChangeData &data)
+{
+    if (change == ItemSceneChange) {
+        handleTouchCancel();
+    }
+    QWaylandSurfaceItem::itemChange(change, data);
+}
+
 bool LipstickCompositorWindow::event(QEvent *e)
 {
     bool rv = QWaylandSurfaceItem::event(e);
@@ -337,7 +345,8 @@ void LipstickCompositorWindow::handleTouchCancel()
         inputDevice->sendTouchCancelEvent();
         inputDevice->setMouseFocus(0, QPointF());
     }
-    window()->removeEventFilter(this);
+    if (QWindow *w = window())
+        w->removeEventFilter(this);
     m_interceptingTouch = false;
 }
 
