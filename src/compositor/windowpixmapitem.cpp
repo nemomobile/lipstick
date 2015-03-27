@@ -329,9 +329,32 @@ void SurfaceNode::providerDestroyed()
 
 }
 
+
+class SnapshotTextureProvider : public QSGTextureProvider
+{
+public:
+    ~SnapshotTextureProvider()
+    {
+        delete fbo;
+        delete program;
+        delete t;
+    }
+    QSGTexture *texture() const Q_DECL_OVERRIDE
+    {
+        return t;
+    }
+    QSGTexture *t;
+    QOpenGLFramebufferObject *fbo;
+    QOpenGLShaderProgram *program;
+    int vertexLocation;
+    int textureLocation;
+};
+
+
 WindowPixmapItem::WindowPixmapItem()
 : m_item(0), m_shaderEffect(0), m_id(0), m_opaque(false), m_radius(0), m_xOffset(0), m_yOffset(0)
-, m_xScale(1), m_yScale(1), m_unmapLock(0), m_hasBuffer(false), m_textureProvider(0)
+, m_xScale(1), m_yScale(1), m_unmapLock(0), m_hasBuffer(false), m_surfaceDestroyed(false), m_haveSnapshot(false)
+, m_textureProvider(0)
 {
     setFlag(ItemHasContents);
 }
@@ -350,19 +373,24 @@ void WindowPixmapItem::setWindowId(int id)
 {
     if (m_id == id)
         return;
-    
+
     QSize oldSize = windowSize();
     if (m_item) {
         if (m_item->surface()) {
-            disconnect(m_item->surface(), SIGNAL(sizeChanged()), this, SIGNAL(windowSizeChanged()));
+            disconnect(m_item->surface(), &QWaylandSurface::sizeChanged, this, &WindowPixmapItem::handleWindowSizeChanged);
+            disconnect(m_item->surface(), &QWaylandSurface::configure, this, &WindowPixmapItem::configure);
             disconnect(m_item.data(), &QWaylandSurfaceItem::surfaceDestroyed, this, &WindowPixmapItem::surfaceDestroyed);
         }
-        m_item->imageRelease();
+        if (!m_surfaceDestroyed)
+            m_item->imageRelease();
+        m_item->setDelayRemove(false);
         m_item = 0;
         delete m_unmapLock;
         m_unmapLock = 0;
     }
 
+    m_surfaceDestroyed = false;
+    m_haveSnapshot = false;
     m_hasBuffer = false;
     m_id = id;
     updateItem();
@@ -374,7 +402,11 @@ void WindowPixmapItem::setWindowId(int id)
 
 void WindowPixmapItem::surfaceDestroyed()
 {
-    setWindowId(0);
+    m_surfaceDestroyed = true;
+    m_hasBuffer = false;
+    m_unmapLock = new QWaylandUnmapLock(m_item->surface());
+    m_item->imageRelease();
+    update();
 }
 
 bool WindowPixmapItem::opaque() const
@@ -452,7 +484,7 @@ void WindowPixmapItem::setXScale(qreal xScale)
         return;
 
     m_xScale = xScale;
-    if (m_item) update();
+    if (m_item || m_haveSnapshot) update();
 
     emit xScaleChanged();
 }
@@ -468,18 +500,14 @@ void WindowPixmapItem::setYScale(qreal yScale)
         return;
 
     m_yScale = yScale;
-    if (m_item) update();
+    if (m_item || m_haveSnapshot) update();
 
     emit yScaleChanged();
 }
 
 QSize WindowPixmapItem::windowSize() const
 {
-    if (!m_item || !m_item->surface()) {
-        return QSize();
-    }
-
-    return m_item->surface()->size();
+    return m_windowSize;
 }
 
 void WindowPixmapItem::setWindowSize(const QSize &s)
@@ -491,40 +519,36 @@ void WindowPixmapItem::setWindowSize(const QSize &s)
     m_item->surface()->requestSize(s);
 }
 
+void WindowPixmapItem::handleWindowSizeChanged()
+{
+    if (m_item->surface()->size().isValid()) {
+        // Window size is retained even when surface is destroyed. This allows snapshots to continue
+        // rendering correctly.
+        m_windowSize = m_item->surface()->size();
+        emit windowSizeChanged();
+    }
+}
+
 QSGNode *WindowPixmapItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
 {
     SurfaceNode *node = static_cast<SurfaceNode *>(oldNode);
 
-    if (m_item == 0) {
-        node->setTextureProvider(0, false);
+    if (m_item == 0 && !m_haveSnapshot) {
+        if (node)
+            node->setTextureProvider(0, false);
         delete node;
         return 0;
     }
 
-    if (!node) node = new SurfaceNode;
-
-    class SnapshotTextureProvider : public QSGTextureProvider
-    {
-    public:
-        ~SnapshotTextureProvider()
-        {
-            delete fbo;
-            delete program;
-            delete t;
+    QSGTextureProvider *provider = 0;
+    QSGTexture *texture = 0;
+    if (m_item) {
+        provider = m_item->textureProvider();
+        texture = provider->texture();
+        if (texture && !m_surfaceDestroyed) {
+            m_haveSnapshot = false;
         }
-        QSGTexture *texture() const Q_DECL_OVERRIDE
-        {
-            return t;
-        }
-        QSGTexture *t;
-        QOpenGLFramebufferObject *fbo;
-        QOpenGLShaderProgram *program;
-        int vertexLocation;
-        int textureLocation;
-    };
-
-    QSGTextureProvider *provider = m_item->textureProvider();
-    QSGTexture *texture = provider->texture();
+    }
 
     if (!m_hasBuffer && texture) {
         if (!m_textureProvider) {
@@ -587,12 +611,21 @@ QSGNode *WindowPixmapItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData
             delete m_unmapLock;
             m_unmapLock = 0;
             prov->program->disableAttributeArray(prov->vertexLocation);
+
+            m_haveSnapshot = true;
         }
     } else if (!m_hasBuffer && m_textureProvider) {
         provider = m_textureProvider;
+    } else if (!provider) {
+        if (node)
+            node->setTextureProvider(0, false);
+        delete node;
+        return 0;
     }
     // The else case here is no buffer and no screenshot, so no way to show a sane image.
     // It should normally not happen, though.
+
+    if (!node) node = new SurfaceNode;
 
     node->setTextureProvider(provider, provider == m_textureProvider);
     node->setRect(QRectF(0, 0, width(), height()));
@@ -602,6 +635,10 @@ QSGNode *WindowPixmapItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData
     node->setYOffset(m_yOffset);
     node->setXScale(m_xScale);
     node->setYScale(m_yScale);
+
+    if (m_surfaceDestroyed && m_item) {
+        m_item->setDelayRemove(false);
+    }
 
     return node;
 }
@@ -628,9 +665,11 @@ void WindowPixmapItem::updateItem()
         } else if (w->surface()) {
             m_item = w;
             delete m_shaderEffect; m_shaderEffect = 0;
-            connect(m_item->surface(), SIGNAL(sizeChanged()), this, SIGNAL(windowSizeChanged()));
+            m_item->setDelayRemove(true);
+            connect(m_item->surface(), &QWaylandSurface::sizeChanged, this, &WindowPixmapItem::handleWindowSizeChanged);
             connect(m_item->surface(), &QWaylandSurface::configure, this, &WindowPixmapItem::configure);
             connect(m_item.data(), &QWaylandSurfaceItem::surfaceDestroyed, this, &WindowPixmapItem::surfaceDestroyed);
+            m_windowSize = m_item->surface()->size();
             m_unmapLock = new QWaylandUnmapLock(m_item->surface());
         } else {
             if (!m_shaderEffect) {

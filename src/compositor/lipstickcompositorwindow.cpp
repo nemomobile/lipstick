@@ -84,6 +84,11 @@ void LipstickCompositorWindow::setDelayRemove(bool delay)
         return;
 
     m_delayRemove = delay;
+    if (m_delayRemove)
+        disconnect(this, &QWaylandSurfaceItem::surfaceDestroyed, this, &QObject::deleteLater);
+    else
+        connect(this, &QWaylandSurfaceItem::surfaceDestroyed, this, &QObject::deleteLater);
+
     emit delayRemoveChanged();
 
     tryRemove();
