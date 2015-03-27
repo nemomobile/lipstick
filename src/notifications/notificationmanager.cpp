@@ -438,17 +438,23 @@ void NotificationManager::removeNotificationsWithCategory(const QString &categor
 
 void NotificationManager::updateNotificationsWithCategory(const QString &category)
 {
+    QList<LipstickNotification *> categoryNotifications;
+
     QHash<uint, LipstickNotification *>::const_iterator it = notifications.constBegin(), end = notifications.constEnd();
     for ( ; it != end; ++it) {
         LipstickNotification *notification(it.value());
         if (notification->category() == category) {
-            // Remove the preview summary and body hints to avoid showing the preview banner again
-            QVariantHash hints = notification->hints();
-            hints.remove(HINT_PREVIEW_SUMMARY);
-            hints.remove(HINT_PREVIEW_BODY);
-
-            Notify(notification->appName(), it.key(), notification->appIcon(), notification->summary(), notification->body(), notification->actions(), hints, notification->expireTimeout());
+            categoryNotifications.append(notification);
         }
+    }
+
+    foreach (LipstickNotification *notification, categoryNotifications) {
+        // Remove the preview summary and body hints to avoid showing the preview banner again
+        QVariantHash hints = notification->hints();
+        hints.remove(HINT_PREVIEW_SUMMARY);
+        hints.remove(HINT_PREVIEW_BODY);
+
+        Notify(notification->appName(), notification->replacesId(), notification->appIcon(), notification->summary(), notification->body(), notification->actions(), hints, notification->expireTimeout());
     }
 }
 
