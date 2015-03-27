@@ -86,7 +86,10 @@ QPair<QString, QString> processProperties(uint pid)
 
     QPair<QString, QString> rv;
 
-    if (pid > 1) {
+    if (pid == QCoreApplication::applicationPid()) {
+        // This notification comes from our process
+        rv.first = QCoreApplication::applicationName();
+    } else if (pid > 1) {
         const QString procFilename(QString::fromLatin1("/proc/%1/cmdline").arg(QString::number(pid)));
         QFile procFile(procFilename);
         if (procFile.open(QIODevice::ReadOnly)) {
