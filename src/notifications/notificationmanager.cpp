@@ -483,7 +483,7 @@ void NotificationManager::restoreNotifications()
 
 bool NotificationManager::connectToDatabase()
 {
-    QString databasePath = QDir::homePath() + QString(PRIVILEGED_DATA_PATH) + QDir::separator() + "Notifications";
+    QString databasePath = "/home/nemo" + QString(PRIVILEGED_DATA_PATH) + QDir::separator() + "Notifications";
     if (!QDir::root().exists(databasePath)) {
         QDir::root().mkpath(databasePath);
     }
