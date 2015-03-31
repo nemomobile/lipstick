@@ -78,6 +78,9 @@ signals:
     void xScaleChanged();
     void yScaleChanged();
 
+private slots:
+    void handleWindowSizeChanged();
+
 private:
     void updateItem();
     void surfaceDestroyed();
@@ -92,8 +95,11 @@ private:
     qreal m_yOffset;
     qreal m_xScale;
     qreal m_yScale;
+    QSize m_windowSize;
     QWaylandUnmapLock *m_unmapLock;
     bool m_hasBuffer;
+    bool m_surfaceDestroyed;
+    bool m_haveSnapshot;
     QSGTextureProvider *m_textureProvider;
 };
 
