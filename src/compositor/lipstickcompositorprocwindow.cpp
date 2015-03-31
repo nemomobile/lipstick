@@ -20,11 +20,18 @@
 LipstickCompositorProcWindow *LipstickCompositor::mapProcWindow(const QString &title, const QString &category,
                                                                 const QRect &g)
 {
+    return mapProcWindow(title, category, g, 0);
+}
+
+LipstickCompositorProcWindow *LipstickCompositor::mapProcWindow(const QString &title, const QString &category,
+                                                                const QRect &g, QQuickItem *rootItem)
+{
     int id = m_nextWindowId++;
 
     LipstickCompositorProcWindow *item = new LipstickCompositorProcWindow(id, category, contentItem());
     item->setSize(g.size());
     item->setTitle(title);
+    item->setRootItem(rootItem);
     QObject::connect(item, SIGNAL(destroyed(QObject*)), this, SLOT(windowDestroyed()));
     m_totalWindowCount++;
     m_mappedSurfaces.insert(id, item);
