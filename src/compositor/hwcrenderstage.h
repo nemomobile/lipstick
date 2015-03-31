@@ -86,6 +86,7 @@ public:
     // instance might have been destroyed might have been destroyed. Keep this
     // in mind if HwcRenderStage::event() ever gets implemented.
 
+
 private:
     bool checkSceneGraph(QSGNode *node);
     void storeBuffer(void *handle);

@@ -169,8 +169,8 @@ namespace HwcInterface
            This function will be called on Qt's GUI thread.
 
          */
-        typedef void (*InvalidatedCallback)(void *data);
-        virtual void setInvalidateCallback(InvalidatedCallback, void *) = 0;
+        typedef void (*InvalidateCallback)(void *data);
+        virtual void setInvalidateCallback(InvalidateCallback, void *) = 0;
     };
 
 }; // end namespace

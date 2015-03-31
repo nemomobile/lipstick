@@ -505,16 +505,21 @@ static void hwcimage_initialize()
 
 static bool hwcimage_is_enabled()
 {
+    if (!HwcRenderStage::isHwcEnabled())
+        return false;
+
     // Check for availablility of EGL_HYBRIS_native_buffer support, which we
     // need to do hwc layering of background images...
     static int hybrisBuffers = -1;
     if (hybrisBuffers < 0) {
-        if (strstr(eglQueryString(eglGetDisplay(EGL_DEFAULT_DISPLAY), EGL_EXTENSIONS), "EGL_HYBRIS_native_buffer2") == 0)
+        if (strstr(eglQueryString(eglGetDisplay(EGL_DEFAULT_DISPLAY), EGL_EXTENSIONS), "EGL_HYBRIS_native_buffer2") == 0) {
+            qCDebug(LIPSTICK_LOG_HWC, "Missing required EGL extensions: 'EGL_HYBRIS_native_buffer2'");
             hybrisBuffers = 0;
-        else
+        } else {
             hybrisBuffers = 1;
+        }
     }
-    return hybrisBuffers == 1 && HwcRenderStage::isHwcEnabled();
+    return hybrisBuffers == 1;
 }
 
 QSGTexture *HwcImageTexture::create(const QImage &image, QQuickWindow *window)

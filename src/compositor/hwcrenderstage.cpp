@@ -347,7 +347,7 @@ void HwcRenderStage::disableHwc()
 {
     if (!m_layerList)
         return;
-    qCDebug(LIPSTICK_LOG_HWC, "Hwc was disabled...");
+    qCDebug(LIPSTICK_LOG_HWC, "hwc was turned off");
     foreach (HwcNode *n, m_nodesInList)
         n->setBlocked(false);
     m_nodesInList.clear();
