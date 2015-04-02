@@ -355,6 +355,7 @@ void WindowPixmapItem::setWindowId(int id)
     if (m_item) {
         if (m_item->surface()) {
             disconnect(m_item->surface(), SIGNAL(sizeChanged()), this, SIGNAL(windowSizeChanged()));
+            disconnect(m_item->surface(), &QWaylandSurface::configure, this, &WindowPixmapItem::configure);
             disconnect(m_item.data(), &QWaylandSurfaceItem::surfaceDestroyed, this, &WindowPixmapItem::surfaceDestroyed);
         }
         m_item->imageRelease();
