@@ -122,10 +122,9 @@ void HomeWindow::show()
     if (d->isWindow()) {
         d->window->show();
     } else {
-        d->compositorWindow = LipstickCompositor::instance()->mapProcWindow(d->title, d->category, d->geometry);
+        d->compositorWindow = LipstickCompositor::instance()->mapProcWindow(d->title, d->category, d->geometry, d->root);
         if (d->root) {
             d->root->setParentItem(d->compositorWindow);
-            d->compositorWindow->setRootItem(d->root);
         }
     }
 
@@ -157,10 +156,9 @@ void HomeWindow::showFullScreen()
     if (d->isWindow()) {
         d->window->showFullScreen();
     } else {
-        d->compositorWindow = LipstickCompositor::instance()->mapProcWindow(d->title, d->category, d->geometry);
+        d->compositorWindow = LipstickCompositor::instance()->mapProcWindow(d->title, d->category, d->geometry, d->root);
         if (d->root) {
             d->root->setParentItem(d->compositorWindow);
-            d->compositorWindow->setRootItem(d->root);
         }
     }
 
