@@ -595,6 +595,11 @@ QSGNode *WindowPixmapItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData
     // The else case here is no buffer and no screenshot, so no way to show a sane image.
     // It should normally not happen, though.
 
+    if (provider != m_textureProvider) {
+        delete m_textureProvider;
+        m_textureProvider = 0;
+    }
+
     node->setTextureProvider(provider, provider == m_textureProvider);
     node->setRect(QRectF(0, 0, width(), height()));
     node->setBlending(!m_opaque);
