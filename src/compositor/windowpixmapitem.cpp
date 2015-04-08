@@ -625,6 +625,11 @@ QSGNode *WindowPixmapItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData
     // The else case here is no buffer and no screenshot, so no way to show a sane image.
     // It should normally not happen, though.
 
+    if (provider != m_textureProvider) {
+        delete m_textureProvider;
+        m_textureProvider = 0;
+    }
+
     if (!node) node = new SurfaceNode;
 
     node->setTextureProvider(provider, provider == m_textureProvider);
