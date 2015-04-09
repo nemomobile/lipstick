@@ -52,39 +52,17 @@ void DiskSpaceNotifier::handleDiskSpaceChange(const QString &path, int percentag
     }
 
     if (notificationShouldBeVisible) {
-        if (notificationId != 0) {
-            // Destroy any previous notification
-            NotificationManager *manager = NotificationManager::instance();
-            manager->CloseNotification(notificationId);
-        }
+        //% "Getting low with storage. Please check."
+        const QString diskLowText = qtTrId("qtn_memu_memlow_notification_src");
 
         // Show a system notification
-        NotificationManager *manager = NotificationManager::instance();
         QVariantHash hints;
         hints.insert(NotificationManager::HINT_CATEGORY, "x-nemo.system.diskspace");
-        //% "Getting low with storage. Please check."
-        QString diskLowText = qtTrId("qtn_memu_memlow_notification_src");
         hints.insert(NotificationManager::HINT_PREVIEW_BODY, diskLowText);
-        // TODO go to some relevant place when clicking the notification
-        notificationId = manager->Notify(qApp->applicationName(), 0, QString(), QString(), QString(), QStringList(), hints, -1);
 
-        bool nonSystemNotificationFound = false;
-        NotificationList notifications = manager->GetNotifications(qApp->applicationName());
-        foreach (LipstickNotification* notification, notifications.notifications()) {
-            if (notification->category() == "x-nemo.diskspace.low") {
-                nonSystemNotificationFound = true;
-                break;
-            }
-        }
-        if (!nonSystemNotificationFound) {
-            // Show a non-system notification
-            // TODO: Figure out if this could be combined with the system notification. Currently
-            //       the system notifications are deleted by NotificationPreviewPresenter class
-            //       after they've been displayed.
-            hints.clear();
-            hints.insert(NotificationManager::HINT_CATEGORY, "x-nemo.diskspace.low");
-            manager->Notify(qApp->applicationName(), 0, QString(), diskLowText, QString(), QStringList(), hints, -1);
-        }
+        // TODO go to some relevant place when clicking the notification
+        NotificationManager *manager = NotificationManager::instance();
+        notificationId = manager->Notify(qApp->applicationName(), notificationId, QString(), QString(), diskLowText, QStringList(), hints, -1);
     }
 }
 
@@ -93,7 +71,7 @@ void DiskSpaceNotifier::removeDiskSpaceNotifications()
     NotificationManager *manager = NotificationManager::instance();
     foreach (uint id, manager->notificationIds()) {
         LipstickNotification *notification = NotificationManager::instance()->notification(id);
-        if (notification->appName() == qApp->applicationName() && notification->category() == "x-nemo.system.diskspace") {
+        if (notification->category() == "x-nemo.system.diskspace") {
             manager->CloseNotification(id);
         }
     }
