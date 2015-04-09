@@ -90,17 +90,6 @@ void Ut_NotificationListModel::testNotificationIsNotAddedIfNoSummaryOrBody()
     QCOMPARE(model.itemCount(), addItemCount);
 }
 
-void Ut_NotificationListModel::testNotificationIsNotAddedIfUrgencyIsCritical()
-{
-    QVariantHash hints;
-    hints.insert(NotificationManager::HINT_URGENCY, 2);
-    LipstickNotification notification("appName", 1, "appIcon", "summary", "body", QStringList() << "action", hints, 1);
-    gNotificationManagerStub->stubSetReturnValue("notificationIds", QList<uint>() << 1);
-    gNotificationManagerStub->stubSetReturnValue("notification", &notification);
-    NotificationListModel model;
-    QCOMPARE(model.itemCount(), 0);
-}
-
 void Ut_NotificationListModel::testNotificationIsNotAddedIfHidden()
 {
     QVariantHash hints;
