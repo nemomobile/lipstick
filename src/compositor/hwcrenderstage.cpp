@@ -41,7 +41,7 @@ public:
 // Any number above QSGNode::RenderNode will strictly do..
 #define QSG_HWC_NODE_TYPE ((QSGNode::NodeType) 1000)
 
-HwcNode::HwcNode()
+HwcNode::HwcNode(QQuickWindow *window)
     : QSGNode(QSG_HWC_NODE_TYPE)
     , m_contentNode(0)
     , m_buffer_handle(0)
@@ -50,6 +50,13 @@ HwcNode::HwcNode()
     , m_blocked(false)
 {
     qsgnode_set_description(this, QStringLiteral("hwcnode"));
+    m_renderStage = (HwcRenderStage *) QQuickWindowPrivate::get(window)->customRenderStage;
+    Q_ASSERT(m_renderStage);
+}
+
+HwcNode::~HwcNode()
+{
+    m_renderStage->hwcNodeDeleted(this);
 }
 
 void HwcNode::update(QSGGeometryNode *node, void *handle)
@@ -167,6 +174,11 @@ static void hwc_renderstage_delete_list(HwcInterface::LayerList *list)
     free(list);
 }
 
+static void hwc_renderstage_invalidate(void *hwc)
+{
+    static_cast<HwcRenderStage *>(hwc)->invalidated();
+}
+
 static void hwc_renderstage_dump_layerlist(HwcInterface::LayerList *list)
 {
     qCDebug(LIPSTICK_LOG_HWC, " - eglRenderingEnabled: %d", list->eglRenderingEnabled);
@@ -185,10 +197,14 @@ HwcRenderStage::HwcRenderStage(LipstickCompositor *lipstick, void *compositorHan
     : m_lipstick(lipstick)
     , m_window(lipstick)
     , m_hwc(reinterpret_cast<HwcInterface::Compositor *>(compositorHandle))
+    , m_hwcBypass(0)
+    , m_invalidated(0)
+    , m_invalidationCountdown(0)
     , m_scheduledLayerList(false)
 {
     m_hwc->setReleaseLayerListCallback(hwc_renderstage_delete_list);
     m_hwc->setBufferAvailableCallback(hwc_renderstage_buffer_available, this);
+    m_hwc->setInvalidateCallback(hwc_renderstage_invalidate, this);
 }
 
 HwcRenderStage::~HwcRenderStage()
@@ -200,14 +216,38 @@ bool HwcRenderStage::render()
 {
     QQuickWindowPrivate *d = QQuickWindowPrivate::get(m_window);
     if (d->renderer && d->renderer->rootNode()) {
+
+        if (m_invalidated.testAndSetRelaxed(1, 0)) {
+            m_invalidationCountdown = 5;
+            disableHwc();
+            return false;
+        }
+
+        if (m_hwcBypass.load()) {
+            disableHwc();
+            return false;;
+        }
+
         QSGRootNode *rootNode = d->renderer->rootNode();
         m_nodesToTry.clear();
-        bool layersOnly = checkSceneGraph(rootNode);
+        bool layersOnly = checkSceneGraph(rootNode) && m_nodesToTry.size() > 0;
+
+        bool isUsingLayersOnly = m_layerList && m_layerList == m_hwc->acceptedLayerList() && !m_layerList->eglRenderingEnabled;
 
         if (m_nodesToTry.size()) {
 
-            // ### Also check for geometry changes here...
-            if (m_nodesInList != m_nodesToTry) {
+            bool scheduleAgain = (m_nodesInList != m_nodesToTry) || (layersOnly != isUsingLayersOnly);
+
+            // After an invalidate, there will be a few frames where the HWC
+            // refuses our layer lists, so we need to keep trying to convince
+            // it.
+            if (m_invalidationCountdown > 0 && m_layerList != m_hwc->acceptedLayerList()) {
+                --m_invalidationCountdown;
+                qCDebug(LIPSTICK_LOG_HWC, "HwcRenderStage::render(): invalidation countdown: %d", m_invalidationCountdown);
+                scheduleAgain = true;
+            }
+
+            if (scheduleAgain) {
                 m_layerList = hwc_renderstage_create_list(m_nodesToTry);
                 m_layerList->eglRenderingEnabled = !layersOnly;
                 if (LIPSTICK_LOG_HWC().isDebugEnabled()) {
@@ -222,6 +262,7 @@ bool HwcRenderStage::render()
             }
 
             if (m_layerList && m_layerList == m_hwc->acceptedLayerList()) {
+                m_invalidationCountdown = 0;
                 if (m_scheduledLayerList) {
                     // newly accepted, toggle blocking in the scene graph...
                     if (LIPSTICK_LOG_HWC().isDebugEnabled()) {
@@ -262,10 +303,7 @@ bool HwcRenderStage::render()
                     once = true;
                 }
             }
-            foreach (HwcNode *n, m_nodesInList)
-                n->setBlocked(false);
-            m_nodesInList.clear();
-            m_layerList = 0;
+            disableHwc();
         }
     }
     return false;
@@ -278,6 +316,56 @@ bool HwcRenderStage::swap()
         return true;
     }
     return false;
+}
+
+// see disabledHwc docs below..
+void HwcRenderStage::setBypassHwc(bool bypass)
+{
+    m_hwcBypass = int(bypass);
+}
+
+/*
+    Called during the custom render stage's render if m_hwcBypass is set to true.
+    This is typically used during screenshotting to make sure all HWC content is
+    being rendered through textures.
+
+    A note about threading. The flag to disable this is a QAtomicInt. It will
+    be set before rendering and turned off once the result has been grabbed.
+    This is safe because if the m_hwcBypass is set while rendering of an
+    actual frame is about to happen, then we end up disabling HWC for that
+    frame which means it is a bit slower to draw, but it still comes out ok.
+
+    If we set the bypass flag during rendering of a frame, nothing will happen
+    until the next render pass which should be the actual pass to grab stuff.
+    In this pass it is set and HWC is disabled.
+
+    Once the bypass flag is unset, rendering will continue as normal and we'll
+    schedule a new layer list and should enter back into HWC composition mode
+    within a frame or two and all is back to normal.
+ */
+void HwcRenderStage::disableHwc()
+{
+    if (!m_layerList)
+        return;
+    qCDebug(LIPSTICK_LOG_HWC, "hwc was turned off");
+    foreach (HwcNode *n, m_nodesInList)
+        n->setBlocked(false);
+    m_nodesInList.clear();
+    m_layerList = 0;
+    // Tell the HwcInterface that we're no longer going to use the old list.
+    m_hwc->scheduleLayerList(0);
+}
+
+void HwcRenderStage::hwcNodeDeleted(HwcNode *node)
+{
+    for (int i=0; i<m_nodesInList.size(); ) {
+        if (m_nodesInList.at(i) == node) {
+            m_nodesInList.remove(i);
+        } else {
+            ++i;
+        }
+    }
+    disableHwc();
 }
 
 // We cannot use QMatrix4x4::optimize + translate bits or qFuzzyCompare because
@@ -353,7 +441,7 @@ bool HwcRenderStage::checkSceneGraph(QSGNode *node)
                || (node->type() == QSGNode::OpacityNodeType && static_cast<QSGOpacityNode *>(node)->opacity() < 1.0f)
                || node->type() == QSGNode::ClipNodeType
                || node->type() == QSGNode::RenderNodeType) {
-        return false;
+            return false;
     }
 
     for (QSGNode *child = node->firstChild(); child; child = child->nextSibling()) {
@@ -370,35 +458,50 @@ void HwcRenderStage::storeBuffer(void *handle)
     foreach (const BufferAndResource &b, m_buffersInUse)
         if (b.handle == handle)
             return;
-    BufferAndResource b = { handle, 0 };
+    BufferAndResource b;
+    b.callback = 0;
+    b.callbackData = 0;
+    b.handle = handle;
     m_buffersInUse << b;
 }
 
-void HwcRenderStage::deleteOnBufferRelease(void *handle, QObject *resource)
+void HwcRenderStage::signalOnBufferRelease(BufferReleaseCallback callback, void *handle, void *callbackData)
 {
     QMutexLocker locker(&m_buffersInUseMutex);
 
+    // Check if the buffer is in use and store for signalling later
     for (int i=0; i<m_buffersInUse.size(); ++i) {
         BufferAndResource &b = m_buffersInUse[i];
         if (b.handle == handle) {
-            b.resource = resource;
+            b.callbackData = callbackData;
+            b.callback = callback;
             return;
         }
     }
-    delete resource;
+
+    // Buffer is not in use so we can signal right away.
+    callback(handle, callbackData);
 }
 
 void HwcRenderStage::bufferReleased(void *handle)
 {
     QMutexLocker locker(&m_buffersInUseMutex);
 
+    // Look up the buffer in the "in use" list and signal present
     for (int i=0; i<m_buffersInUse.size(); ++i) {
         BufferAndResource &b = m_buffersInUse[i];
         if (b.handle == handle) {
-            delete b.resource;
+            if (b.callback)
+                b.callback(b.handle, b.callbackData);
             m_buffersInUse.remove(i);
             return;
         }
     }
+}
+
+void HwcRenderStage::invalidated()
+{
+    m_invalidated = 1;
+    m_window->update();
 }
 
