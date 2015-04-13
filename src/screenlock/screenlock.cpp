@@ -183,8 +183,10 @@ void ScreenLock::handleDisplayStateChange(int displayState)
 void ScreenLock::toggleScreenLockUI(bool toggle)
 {
     // TODO Make the view a lock screen view (title? stacking layer?)
-    lockscreenVisible = toggle;
-    emit screenIsLocked(toggle);
+    if (lockscreenVisible != toggle) {
+        lockscreenVisible = toggle;
+        emit screenIsLocked(toggle);
+    }
 }
 
 void ScreenLock::toggleEventEater(bool toggle)
