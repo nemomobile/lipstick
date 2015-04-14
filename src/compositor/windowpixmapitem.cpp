@@ -333,6 +333,7 @@ void SurfaceNode::providerDestroyed()
 class SnapshotTextureProvider : public QSGTextureProvider
 {
 public:
+    SnapshotTextureProvider() : t(0), fbo(0) {}
     ~SnapshotTextureProvider()
     {
         delete fbo;
@@ -555,7 +556,6 @@ QSGNode *WindowPixmapItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData
             SnapshotTextureProvider *prov = new SnapshotTextureProvider;
             m_textureProvider = prov;
 
-            prov->fbo = 0;
             prov->program = new QOpenGLShaderProgram;
             prov->program->addShaderFromSourceCode(QOpenGLShader::Vertex,
                 "attribute highp vec4 vertex;\n"
@@ -583,6 +583,8 @@ QSGNode *WindowPixmapItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData
 
             if (!prov->fbo || prov->fbo->size() != QSize(width(), height())) {
                 delete prov->fbo;
+                delete prov->t;
+                prov->t = 0;
                 prov->fbo = new QOpenGLFramebufferObject(width(), height());
             }
 
@@ -606,7 +608,10 @@ QSGNode *WindowPixmapItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData
 
             prov->program->release();
 
-            prov->t = window()->createTextureFromId(prov->fbo->texture(), prov->fbo->size(), 0);
+            if (!prov->t) {
+                prov->t = window()->createTextureFromId(prov->fbo->texture(), prov->fbo->size(), 0);
+                emit prov->textureChanged();
+            }
             prov->fbo->release();
             delete m_unmapLock;
             m_unmapLock = 0;
