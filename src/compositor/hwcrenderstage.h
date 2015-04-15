@@ -21,6 +21,7 @@
 Q_DECLARE_LOGGING_CATEGORY(LIPSTICK_LOG_HWC)
 
 class LipstickCompositor;
+class HwcRenderStage;
 
 namespace HwcInterface {
     class Compositor;
@@ -30,7 +31,8 @@ namespace HwcInterface {
 class HwcNode : public QSGNode
 {
 public:
-    HwcNode();
+    HwcNode(QQuickWindow *window);
+    ~HwcNode();
 
     QRect bounds() const;
 
@@ -48,8 +50,10 @@ public:
     }
 
     QSGGeometryNode *contentNode() const { return m_contentNode; }
+    HwcRenderStage *renderStage() const { return m_renderStage; }
 
 private:
+    HwcRenderStage *m_renderStage;
     QSGGeometryNode *m_contentNode;
     void *m_buffer_handle;
     float m_x, m_y;
@@ -66,33 +70,47 @@ public:
     bool render() Q_DECL_OVERRIDE;
     bool swap() Q_DECL_OVERRIDE;
 
-    void deleteOnBufferRelease(void *handle, QObject *resource);
+    typedef void (*BufferReleaseCallback)(void *bufferHandle, void *callbackData);
+    void signalOnBufferRelease(BufferReleaseCallback callback, void *handle, void *callbackData);
 
     static void initialize(LipstickCompositor *lipstick);
     static bool isHwcEnabled() { return m_hwcEnabled; }
 
     void bufferReleased(void *);
+    void setBypassHwc(bool bypass);
+    void hwcNodeDeleted(HwcNode *node);
+    void invalidated();
+
+    // LipstickCompositorWindowHwcNode will post events to this object for the
+    // sole purpose of having them delivered on the GUI thread when the LCW
+    // instance might have been destroyed might have been destroyed. Keep this
+    // in mind if HwcRenderStage::event() ever gets implemented.
+
 
 private:
     bool checkSceneGraph(QSGNode *node);
     void storeBuffer(void *handle);
+    void disableHwc();
 
     LipstickCompositor *m_lipstick;
     QQuickWindow *m_window;
 
     HwcInterface::Compositor *m_hwc;
-
     QVector<HwcNode *> m_nodesInList;
     QVector<HwcNode *> m_nodesToTry;
+    QAtomicInt m_hwcBypass;
+    QAtomicInt m_invalidated;
+    int m_invalidationCountdown; // R&W on render thread only
 
     struct BufferAndResource {
         void *handle;
-        QObject *resource;
+        BufferReleaseCallback callback;
+        void *callbackData;
     };
     QVector<BufferAndResource> m_buffersInUse;
     QMutex m_buffersInUseMutex;
 
-    HwcInterface::LayerList *m_layerList;
+    HwcInterface::LayerList *m_layerList; // R&W on render thread only
 
     bool m_scheduledLayerList;
 

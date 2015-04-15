@@ -17,6 +17,9 @@
 #include "lipstickcompositor.h"
 #include "screenshotservice.h"
 
+#include <private/qquickwindow_p.h>
+#include "hwcrenderstage.h"
+
 ScreenshotService::ScreenshotService(QObject *parent) :
     QObject(parent)
 {
@@ -25,6 +28,12 @@ ScreenshotService::ScreenshotService(QObject *parent) :
 void ScreenshotService::saveScreenshot(const QString &path)
 {
     if (LipstickCompositor::instance() != 0) {
+        QQuickWindowPrivate *wd = QQuickWindowPrivate::get(LipstickCompositor::instance());
+        HwcRenderStage *renderStage = (HwcRenderStage *) wd->customRenderStage;
+        if (renderStage)
+            renderStage->setBypassHwc(true);
         LipstickCompositor::instance()->grabWindow().save(path.isEmpty() ? (QStandardPaths::writableLocation(QStandardPaths::PicturesLocation) + "/" + QDateTime::currentDateTime().toString("yyyyMMddhhmmss") + ".png") : path);
+        if (renderStage)
+            renderStage->setBypassHwc(false);
     }
 }

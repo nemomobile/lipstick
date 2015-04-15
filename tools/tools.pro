@@ -1,2 +1,2 @@
 TEMPLATE = subdirs
-SUBDIRS += notificationtool screenshottool
+SUBDIRS += notificationtool screenshottool simple-compositor
