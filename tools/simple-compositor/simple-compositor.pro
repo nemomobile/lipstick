@@ -19,7 +19,10 @@ LIBS = -llipstick-qt5
 CONFIG += link_pkgconfig
 PKGCONFIG += mlite5 qmsystem2-qt5
 
-target.path += /usr/share/lipstick/simplecompositor
-target.files += simplecompositor.qml simplecompositor
+qmls.path += /usr/share/lipstick/simplecompositor
+qmls.files += simplecompositor.qml
 
-INSTALLS = target
+target.path += /usr/bin
+target.files += simplecompositor
+
+INSTALLS = target qmls

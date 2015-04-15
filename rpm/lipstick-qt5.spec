@@ -165,6 +165,7 @@ mkdir -p %{buildroot}/%{icondirectory}
 %defattr(-,root,root,-)
 %{_bindir}/notificationtool
 %{_bindir}/screenshottool
+%{_bindir}/simplecompositor
 # >> files tools
 # << files tools
 
