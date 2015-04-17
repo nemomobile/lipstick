@@ -220,7 +220,10 @@ bool LipstickCompositorWindow::eventFilter(QObject *obj, QEvent *event)
         QWaylandSurface *m_surface = surface();
         if (m_surface && m_grabbedKeys.contains(ke->key())) {
             QWaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
-            inputDevice->sendFullKeyEvent(m_surface, ke);
+            QWaylandSurface *old = inputDevice->keyboardFocus();
+            inputDevice->setKeyboardFocus(m_surface);
+            inputDevice->sendFullKeyEvent(ke);
+            inputDevice->setKeyboardFocus(old);
 
             return true;
         }
