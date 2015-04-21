@@ -88,7 +88,6 @@ private slots:
 private:
     friend class LipstickCompositor;
     friend class WindowPixmapItem;
-    void updateNode(LipstickCompositorWindowHwcNode *hwcNode, QSGNode *contentNode);
     void imageAddref();
     void imageRelease();
 
@@ -107,6 +106,7 @@ private:
     bool m_mouseRegionValid:1;
     bool m_interceptingTouch:1;
     bool m_mapped : 1;
+    bool m_noHardwareComposition: 1;
     QVariant m_data;
     QRegion m_mouseRegion;
     QList<int> m_grabbedKeys;
