@@ -37,6 +37,7 @@ class LIPSTICK_EXPORT LipstickCompositorWindow : public QWaylandSurfaceItem
     Q_PROPERTY(qint64 processId READ processId CONSTANT)
 
     Q_PROPERTY(QRect mouseRegionBounds READ mouseRegionBounds NOTIFY mouseRegionBoundsChanged)
+    Q_PROPERTY(bool focusOnTouch READ focusOnTouch WRITE setFocusOnTouch NOTIFY focusOnTouchChanged)
 
 public:
     LipstickCompositorWindow(int windowId, const QString &, QWaylandQuickSurface *surface, QQuickItem *parent = 0);
@@ -63,6 +64,10 @@ public:
 
     QSGNode *updatePaintNode(QSGNode *old, UpdatePaintNodeData *);
 
+    bool focusOnTouch() const;
+    void setFocusOnTouch(bool focusOnTouch);
+
+
 protected:
     void itemChange(ItemChange change, const ItemChangeData &data);
 
@@ -79,6 +84,7 @@ signals:
     void delayRemoveChanged();
     void mouseRegionBoundsChanged();
     void committed();
+    void focusOnTouchChanged();
 
 private slots:
     void handleTouchCancel();
@@ -107,6 +113,7 @@ private:
     bool m_interceptingTouch:1;
     bool m_mapped : 1;
     bool m_noHardwareComposition: 1;
+    bool m_focusOnTouch : 1;
     QVariant m_data;
     QRegion m_mouseRegion;
     QList<int> m_grabbedKeys;
