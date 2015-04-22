@@ -32,7 +32,8 @@ LipstickCompositorWindow::LipstickCompositorWindow(int windowId, const QString &
                                                    QWaylandQuickSurface *surface, QQuickItem *parent)
 : QWaylandSurfaceItem(surface, parent), m_windowId(windowId), m_category(category), m_ref(0),
   m_delayRemove(false), m_windowClosed(false), m_removePosted(false), m_mouseRegionValid(false),
-  m_interceptingTouch(false), m_mapped(false), m_noHardwareComposition(false)
+  m_interceptingTouch(false), m_mapped(false), m_noHardwareComposition(false),
+  m_focusOnTouch(false)
 {
     setFlags(QQuickItem::ItemIsFocusScope | flags());
     refreshMouseRegion();
@@ -255,8 +256,12 @@ void LipstickCompositorWindow::mousePressEvent(QMouseEvent *event)
     QWaylandSurface *m_surface = surface();
     if (m_surface && (!m_mouseRegionValid || m_mouseRegion.contains(event->pos()))) {
         QWaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
-        if (inputDevice->mouseFocus() != this)
+        if (inputDevice->mouseFocus() != this) {
             inputDevice->setMouseFocus(this, event->pos(), event->globalPos());
+            if (m_focusOnTouch && inputDevice->keyboardFocus() != m_surface) {
+                takeFocus();
+            }
+        }
         inputDevice->sendMousePressEvent(event->button(), event->pos(), event->globalPos());
     } else {
         event->ignore();
@@ -336,11 +341,16 @@ void LipstickCompositorWindow::handleTouchEvent(QTouchEvent *event)
     }
     QWaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
     event->accept();
+
     if (inputDevice->mouseFocus() != this) {
         QPoint pointPos;
         if (!points.isEmpty())
             pointPos = points.at(0).pos().toPoint();
         inputDevice->setMouseFocus(this, pointPos, pointPos);
+
+        if (m_focusOnTouch && inputDevice->keyboardFocus() != m_surface) {
+            takeFocus();
+        }
     }
     inputDevice->sendFullTouchEvent(event);
 }
@@ -472,6 +482,20 @@ QSGNode *LipstickCompositorWindow::updatePaintNode(QSGNode *old, UpdatePaintNode
 
     hwcNode->update(s, eglBuffer, hwcHandle, newContentNode);
     return hwcNode;
+}
+
+bool LipstickCompositorWindow::focusOnTouch() const
+{
+    return m_focusOnTouch;
+}
+
+void LipstickCompositorWindow::setFocusOnTouch(bool focusOnTouch)
+{
+    if (m_focusOnTouch == focusOnTouch)
+        return;
+
+    m_focusOnTouch = focusOnTouch;
+    emit focusOnTouchChanged();
 }
 
 static bool hwc_windowsurface_is_enabled()
