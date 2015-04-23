@@ -30,8 +30,6 @@
 #include "qmsystemstate.h"
 #include "qmsystemstate_p.h"
 
-#include "qmsysteminformation.h"
-
 #include <QDBusConnection>
 #include <QDBusMessage>
 #include <QDBusReply>
@@ -334,39 +332,6 @@ QmSystemState::RunState QmSystemState::getRunState() {
     }
 
     return RunState_Unknown;
-}
-
-QmSystemState::BootReason QmSystemState::getBootReason() {
-    QmSystemState::BootReason bootReason = BootReason_Unknown;
-
-    QmSystemInformation systemInformation;
-    QString reasonStr = systemInformation.valueForKey("/component/boot-reason");
-
-    if (reasonStr == BOOT_REASON_SWDG_TIMEOUT) {
-        bootReason = BootReason_SwdgTimeout;
-    } else if (reasonStr == BOOT_REASON_SEC_VIOLATION) {
-        bootReason = BootReason_SecViolation;
-    } else if (reasonStr == BOOT_REASON_32K_WDG_TIMEOUT) {
-        bootReason = BootReason_Wdg32kTimeout;
-    } else if (reasonStr == BOOT_REASON_POWER_ON_RESET) {
-        bootReason = BootReason_PowerOnReset;
-    } else if (reasonStr == BOOT_REASON_POWER_KEY) {
-        bootReason = BootReason_PowerKey;
-    } else if (reasonStr == BOOT_REASON_MBUS) {
-        bootReason = BootReason_MBus;
-    } else if (reasonStr == BOOT_REASON_CHARGER) {
-        bootReason = BootReason_Charger;
-    } else if (reasonStr == BOOT_REASON_USB) {
-        bootReason = BootReason_Usb;
-    } else if (reasonStr == BOOT_REASON_SW_RESET) {
-        bootReason = BootReason_SWReset;
-    } else if (reasonStr == BOOT_REASON_RTC_ALARM) {
-        bootReason = BootReason_RTCAlarm;
-    } else if (reasonStr == BOOT_REASON_NSU) {
-        bootReason = BootReason_NSU;
-    }
-
-    return bootReason;
 }
 
 unsigned int QmSystemState::getPowerOnTimeInSeconds() {

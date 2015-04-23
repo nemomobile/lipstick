@@ -56,7 +56,6 @@ class MEEGO_SYSTEM_EXPORT QmSystemState : public QObject
     Q_ENUMS(NextState)
     Q_ENUMS(StateIndication)
     Q_ENUMS(RunState)
-    Q_ENUMS(BootReason)
 
 public:
     //! States the user can set
@@ -90,22 +89,6 @@ public:
         RunState_Unknown
     };
 
-    enum BootReason
-    {
-        BootReason_Unknown = -1,
-        BootReason_SwdgTimeout = 0,    //!< Security watchdog timeout
-        BootReason_SecViolation,       //!< Security violation
-        BootReason_Wdg32kTimeout,      //!< 32k watchdog timeout
-        BootReason_PowerOnReset,       //!< Power on reset issued by the HW
-        BootReason_PowerKey,           //!< Power key pressed
-        BootReason_MBus,               //!< MBus
-        BootReason_Charger,            //!< Charger plugged in
-        BootReason_Usb,                //!< Usb charger plugged in
-        BootReason_SWReset,            //!< SW reset issued by the system
-        BootReason_RTCAlarm,           //!< Real Time Clock Alarm
-        BootReason_NSU                 //!< Software update
-    };
-
 public:
     /*!
      * @brief Constructor
@@ -130,12 +113,6 @@ public:
      * @return The current run state
      */
     RunState getRunState();
-
-    /*!
-     * @brief Gets the current boot reason.
-     * @return The current boot reason
-     */
-    BootReason getBootReason();
 
     /*!
      * @brief Gets the accumulated value of the power on counter in seconds, which represents the total time the device has been powered on.
