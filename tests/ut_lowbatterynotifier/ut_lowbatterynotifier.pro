@@ -1,6 +1,6 @@
 include(../common.pri)
 TARGET = ut_lowbatterynotifier
-INCLUDEPATH += $$NOTIFICATIONSRCDIR
+INCLUDEPATH += $$NOTIFICATIONSRCDIR ../../src/qmsystem2
 
 SOURCES += \
     ut_lowbatterynotifier.cpp \
@@ -10,6 +10,7 @@ SOURCES += \
 HEADERS += \
     ut_lowbatterynotifier.h \
     $$NOTIFICATIONSRCDIR/lowbatterynotifier.h \
+    ../../src/qmsystem2/qmdisplaystate.h \
 
 packagesExist(contextkit-statefs) {
     DEFINES += HAVE_CONTEXTSUBSCRIBER

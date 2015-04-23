@@ -1,7 +1,7 @@
 include(../common.pri)
 TARGET = ut_devicelock
 
-INCLUDEPATH += $$DEVICELOCKSRCDIR
+INCLUDEPATH += $$DEVICELOCKSRCDIR ../../src/qmsystem2
 
 QT += dbus
 

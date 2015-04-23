@@ -1,6 +1,6 @@
 include(../common.pri)
 TARGET = ut_usbmodeselector
-INCLUDEPATH += $$SRCDIR $$NOTIFICATIONSRCDIR $$UTILITYSRCDIR
+INCLUDEPATH += $$SRCDIR $$NOTIFICATIONSRCDIR $$UTILITYSRCDIR ../../src/qmsystem2
 QT += qml quick dbus
 
 # unit test and unit
@@ -15,5 +15,7 @@ HEADERS += \
     $$NOTIFICATIONSRCDIR/notificationmanager.h \
     $$NOTIFICATIONSRCDIR/lipsticknotification.h \
     $$UTILITYSRCDIR/closeeventeater.h \
+    ../../src/qmsystem2/qmlocks.h \
+    ../../src/qmsystem2/qmusbmode.h \
     ut_usbmodeselector.h \
     $$SRCDIR/homewindow.h \

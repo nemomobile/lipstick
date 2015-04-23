@@ -1,7 +1,7 @@
 include(../common.pri)
 TARGET = ut_batterynotifier
 CONFIG += link_pkgconfig
-INCLUDEPATH += $$NOTIFICATIONSRCDIR /usr/include/QtSystemInfo
+INCLUDEPATH += $$NOTIFICATIONSRCDIR /usr/include/QtSystemInfo ../../src/qmsystem2
 QT += dbus systeminfo
 
 HEADERS += \
@@ -9,6 +9,7 @@ HEADERS += \
     $$NOTIFICATIONSRCDIR/lowbatterynotifier.h \
     $$NOTIFICATIONSRCDIR/notificationmanager.h \
     $$NOTIFICATIONSRCDIR/lipsticknotification.h \
+    ../../src/qmsystem2/qmdisplaystate.h \
     $$STUBSDIR/stubbase.h \
     ut_batterynotifier.h
 
