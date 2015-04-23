@@ -3,7 +3,7 @@ TARGET = ut_notificationlistmodel
 INCLUDEPATH += $$NOTIFICATIONSRCDIR
 INCLUDEPATH += $$UTILITYSRCDIR
 INCLUDEPATH += $$3RDPARTYSRCDIR
-QT += sql dbus
+QT += sql dbus qml
 
 # unit test and unit
 SOURCES += \

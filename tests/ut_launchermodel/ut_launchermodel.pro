@@ -7,7 +7,7 @@ INCLUDEPATH += $$3RDPARTYSRCDIR
 
 QMAKE_CXXFLAGS += `pkg-config --cflags-only-I mlite5`
 
-QT += dbus
+QT += dbus qml
 
 SOURCES += \
     ut_launchermodel.cpp \
