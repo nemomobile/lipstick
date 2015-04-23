@@ -89,13 +89,8 @@ Q_SIGNALS:
     void activityChanged(MeeGo::QmActivity::Activity activity);
 
 protected:
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     void connectNotify(const QMetaMethod &signal);
     void disconnectNotify(const QMetaMethod &signal);
-#else
-    void connectNotify(const char *signal);
-    void disconnectNotify(const char *signal);
-#endif
 
 private:
     Q_DISABLE_COPY(QmActivity)

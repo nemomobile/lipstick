@@ -30,9 +30,7 @@
 #include <QDBusMessage>
 #include <QDBusReply>
 #include <QDBusInterface>
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #include <QMetaMethod>
-#endif
 
 #include <QDebug>
 
@@ -74,23 +72,14 @@ QmUSBMode::~QmUSBMode() {
     MEEGO_UNINITIALIZE(QmUSBMode);
 }
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 void QmUSBMode::connectNotify(const QMetaMethod &signal) {
-#else
-void QmUSBMode::connectNotify(const char *signal) {
-#endif
     MEEGO_PRIVATE(QmUSBMode)
 
     /* QObject::connect() needs to be thread-safe */
     QMutexLocker locker(&priv->connectMutex);
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     if (signal == QMetaMethod::fromSignal(&QmUSBMode::modeChanged) ||
         signal == QMetaMethod::fromSignal(&QmUSBMode::fileSystemWillUnmount)) {
-#else
-    if ((QLatin1String(signal) == QLatin1String(QMetaObject::normalizedSignature(SIGNAL(modeChanged(MeeGo::QmUSBMode::Mode))))) ||
-        (QLatin1String(signal) == QLatin1String(QMetaObject::normalizedSignature(SIGNAL(fileSystemWillUnmount(MeeGo::QmUSBMode::MountPath)))))) {
-#endif
         if (0 == priv->connectCount[SIGNAL_USB_MODE]) {
             QDBusConnection::systemBus().connect(USB_MODE_SERVICE,
                                                  USB_MODE_OBJECT,
@@ -100,11 +89,7 @@ void QmUSBMode::connectNotify(const char *signal) {
                                                  SLOT(modeChanged(const QString&)));
         }
         priv->connectCount[SIGNAL_USB_MODE]++;
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     } else if (signal == QMetaMethod::fromSignal(&QmUSBMode::error)) {
-#else
-    } else if (QLatin1String(signal) == QLatin1String(QMetaObject::normalizedSignature(SIGNAL(error(const QString&))))) {
-#endif
         if (0 == priv->connectCount[SIGNAL_USB_ERROR]) {
             QDBusConnection::systemBus().connect(USB_MODE_SERVICE,
                                                  USB_MODE_OBJECT,
@@ -114,11 +99,7 @@ void QmUSBMode::connectNotify(const char *signal) {
                                                  SLOT(didReceiveError(const QString&)));
         }
         priv->connectCount[SIGNAL_USB_ERROR]++;
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     } else if (signal == QMetaMethod::fromSignal(&QmUSBMode::supportedModesChanged)) {
-#else
-    } else if (QLatin1String(signal) == QLatin1String(QMetaObject::normalizedSignature(SIGNAL(supportedModesChanged(QList<MeeGo::QmUSBMode::Mode>))))) {
-#endif
         if (0 == priv->connectCount[SIGNAL_USB_SUPPORTED_MODES]) {
             QDBusConnection::systemBus().connect(USB_MODE_SERVICE,
                                                  USB_MODE_OBJECT,
@@ -131,23 +112,14 @@ void QmUSBMode::connectNotify(const char *signal) {
     }
 }
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 void QmUSBMode::disconnectNotify(const QMetaMethod &signal) {
-#else
-void QmUSBMode::disconnectNotify(const char *signal) {
-#endif
     MEEGO_PRIVATE(QmUSBMode)
 
     /* QObject::disconnect() needs to be thread-safe */
     QMutexLocker locker(&priv->connectMutex);
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     if (signal == QMetaMethod::fromSignal(&QmUSBMode::modeChanged) ||
         signal == QMetaMethod::fromSignal(&QmUSBMode::fileSystemWillUnmount)) {
-#else
-    if ((QLatin1String(signal) == QLatin1String(QMetaObject::normalizedSignature(SIGNAL(modeChanged(MeeGo::QmUSBMode::Mode))))) ||
-        (QLatin1String(signal) == QLatin1String(QMetaObject::normalizedSignature(SIGNAL(fileSystemWillUnmount(MeeGo::QmUSBMode::MountPath)))))) {
-#endif
         priv->connectCount[SIGNAL_USB_MODE]--;
 
         if (0 == priv->connectCount[SIGNAL_USB_MODE]) {
@@ -158,11 +130,7 @@ void QmUSBMode::disconnectNotify(const char *signal) {
                                                     priv,
                                                     SLOT(modeChanged(const QString&)));
         }
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     } else if (signal == QMetaMethod::fromSignal(&QmUSBMode::error)) {
-#else
-    } else if (QLatin1String(signal) == QLatin1String(QMetaObject::normalizedSignature(SIGNAL(error(const QString&))))) {
-#endif
         priv->connectCount[SIGNAL_USB_ERROR]--;
 
         if (0 == priv->connectCount[SIGNAL_USB_ERROR]) {
@@ -173,11 +141,7 @@ void QmUSBMode::disconnectNotify(const char *signal) {
                                                     priv,
                                                     SLOT(didReceiveError(const QString&)));
         }
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     } else if (signal == QMetaMethod::fromSignal(&QmUSBMode::supportedModesChanged)) {
-#else
-    } else if (QLatin1String(signal) == QLatin1String(QMetaObject::normalizedSignature(SIGNAL(supportedModesChanged(QList<MeeGo::QmUSBMode::Mode>))))) {
-#endif
         priv->connectCount[SIGNAL_USB_SUPPORTED_MODES]++;
 
         if (0 == priv->connectCount[SIGNAL_USB_SUPPORTED_MODES]) {

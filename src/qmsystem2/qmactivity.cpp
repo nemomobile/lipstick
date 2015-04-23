@@ -31,9 +31,7 @@
 #include <QDBusConnection>
 #include <QDBusMessage>
 #include <QDBusReply>
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #include <QMetaMethod>
-#endif
 
 namespace MeeGo {
 
@@ -54,21 +52,13 @@ QmActivity::~QmActivity() {
     MEEGO_UNINITIALIZE(QmActivity);
 }
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 void QmActivity::connectNotify(const QMetaMethod &signal) {
-#else
-void QmActivity::connectNotify(const char *signal) {
-#endif
     MEEGO_PRIVATE(QmActivity)
 
     /* QObject::connect() needs to be thread-safe */
     QMutexLocker locker(&priv->connectMutex);
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     if (signal == QMetaMethod::fromSignal(&QmActivity::activityChanged)) {
-#else
-    if (QLatin1String(signal) == QLatin1String(QMetaObject::normalizedSignature(SIGNAL(activityChanged(MeeGo::QmActivity::Activity))))) {
-#endif
         if (0 == priv->connectCount[SIGNAL_INACTIVITY]) {
             QDBusConnection::systemBus().connect(MCE_SERVICE,
                                                  MCE_SIGNAL_PATH,
@@ -80,21 +70,14 @@ void QmActivity::connectNotify(const char *signal) {
         priv->connectCount[SIGNAL_INACTIVITY]++;
     }
 }
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+
 void QmActivity::disconnectNotify(const QMetaMethod &signal) {
-#else
-void QmActivity::disconnectNotify(const char *signal) {
-#endif
     MEEGO_PRIVATE(QmActivity)
 
     /* QObject::disconnect() needs to be thread-safe */
     QMutexLocker locker(&priv->connectMutex);
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     if (signal == QMetaMethod::fromSignal(&QmActivity::activityChanged)) {
-#else
-    if (QLatin1String(signal) == QLatin1String(QMetaObject::normalizedSignature(SIGNAL(activityChanged(MeeGo::QmActivity::Activity))))) {
-#endif
         priv->connectCount[SIGNAL_INACTIVITY]--;
 
         if (0 == priv->connectCount[SIGNAL_INACTIVITY]) {

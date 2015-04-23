@@ -33,9 +33,7 @@
 #include <QDBusConnection>
 #include <QDBusMessage>
 #include <QDBusReply>
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #include <QMetaMethod>
-#endif
 
 #include <QFile>
 #include <QTextStream>
@@ -82,21 +80,13 @@ QmSystemState::~QmSystemState() {
     MEEGO_UNINITIALIZE(QmSystemState);
 }
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 void QmSystemState::connectNotify(const QMetaMethod &signal) {
-#else
-void QmSystemState::connectNotify(const char *signal) {
-#endif
     MEEGO_PRIVATE(QmSystemState)
 
     /* QObject::connect() needs to be thread-safe */
     QMutexLocker locker(&priv->connectMutex);
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     if (signal == QMetaMethod::fromSignal(&QmSystemState::systemStateChanged)) {
-#else
-    if (QLatin1String(signal) == QLatin1String(QMetaObject::normalizedSignature(SIGNAL(systemStateChanged(MeeGo::QmSystemState::StateIndication))))) {
-#endif
         if (0 == priv->connectCount[SIGNAL_SYSTEM_STATE]) {
             QDBusConnection::systemBus().connect(dsme_service,
                                                  dsme_sig_path,
@@ -133,21 +123,13 @@ void QmSystemState::connectNotify(const char *signal) {
     }
 }
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 void QmSystemState::disconnectNotify(const QMetaMethod &signal) {
-#else
-void QmSystemState::disconnectNotify(const char *signal) {
-#endif
     MEEGO_PRIVATE(QmSystemState)
 
     /* QObject::disconnect() needs to be thread-safe */
     QMutexLocker locker(&priv->connectMutex);
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     if (signal == QMetaMethod::fromSignal(&QmSystemState::systemStateChanged)) {
-#else
-    if (QLatin1String(signal) == QLatin1String(QMetaObject::normalizedSignature(SIGNAL(systemStateChanged(MeeGo::QmSystemState::StateIndication))))) {
-#endif
         priv->connectCount[SIGNAL_SYSTEM_STATE]--;
 
         if (0 == priv->connectCount[SIGNAL_SYSTEM_STATE]) {
