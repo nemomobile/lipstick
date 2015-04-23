@@ -70,14 +70,12 @@ void QmActivity::connectNotify(const char *signal) {
     if (QLatin1String(signal) == QLatin1String(QMetaObject::normalizedSignature(SIGNAL(activityChanged(MeeGo::QmActivity::Activity))))) {
 #endif
         if (0 == priv->connectCount[SIGNAL_INACTIVITY]) {
-            #if HAVE_MCE
-                QDBusConnection::systemBus().connect(MCE_SERVICE,
-                                                     MCE_SIGNAL_PATH,
-                                                     MCE_SIGNAL_IF,
-                                                     MCE_INACTIVITY_SIG,
-                                                     priv,
-                                                     SLOT(slotActivityChanged(bool)));
-            #endif
+            QDBusConnection::systemBus().connect(MCE_SERVICE,
+                                                 MCE_SIGNAL_PATH,
+                                                 MCE_SIGNAL_IF,
+                                                 MCE_INACTIVITY_SIG,
+                                                 priv,
+                                                 SLOT(slotActivityChanged(bool)));
         }
         priv->connectCount[SIGNAL_INACTIVITY]++;
     }
@@ -100,33 +98,29 @@ void QmActivity::disconnectNotify(const char *signal) {
         priv->connectCount[SIGNAL_INACTIVITY]--;
 
         if (0 == priv->connectCount[SIGNAL_INACTIVITY]) {
-            #if HAVE_MCE
-                QDBusConnection::systemBus().disconnect(MCE_SERVICE,
-                                                        MCE_SIGNAL_PATH,
-                                                        MCE_SIGNAL_IF,
-                                                        MCE_INACTIVITY_SIG,
-                                                        priv,
-                                                        SLOT(slotActivityChanged(bool)));
-            #endif
+            QDBusConnection::systemBus().disconnect(MCE_SERVICE,
+                                                    MCE_SIGNAL_PATH,
+                                                    MCE_SIGNAL_IF,
+                                                    MCE_INACTIVITY_SIG,
+                                                    priv,
+                                                    SLOT(slotActivityChanged(bool)));
         }
     }
 }
 
 QmActivity::Activity QmActivity::get() const {
     QmActivity::Activity status = Inactive;
-    #if HAVE_MCE
-        QDBusReply<bool> inactivityStatusReply = QDBusConnection::systemBus().call(
-                                                     QDBusMessage::createMethodCall(MCE_SERVICE, MCE_REQUEST_PATH, MCE_REQUEST_IF,
-                                                                                    MCE_INACTIVITY_STATUS_GET));
-        if (!inactivityStatusReply.isValid()) {
-            return status;
-        }
+    QDBusReply<bool> inactivityStatusReply = QDBusConnection::systemBus().call(
+                                                 QDBusMessage::createMethodCall(MCE_SERVICE, MCE_REQUEST_PATH, MCE_REQUEST_IF,
+                                                                                MCE_INACTIVITY_STATUS_GET));
+    if (!inactivityStatusReply.isValid()) {
+        return status;
+    }
 
-        bool inactivityStatus = inactivityStatusReply.value();
-        if (!inactivityStatus) {
-            status = Active;
-        }
-    #endif
+    bool inactivityStatus = inactivityStatusReply.value();
+    if (!inactivityStatus) {
+        status = Active;
+    }
     return status;
 }
 

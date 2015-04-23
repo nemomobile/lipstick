@@ -34,10 +34,8 @@
 
 #include <QMutex>
 
-#if HAVE_MCE
-    #include "mce/dbus-names.h"
-    #include "mce/mode-names.h"
-#endif
+#include "mce/dbus-names.h"
+#include "mce/mode-names.h"
 
 #define SIGNAL_INACTIVITY 0
 

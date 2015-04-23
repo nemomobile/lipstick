@@ -31,10 +31,8 @@
 
 #include <QMutex>
 
-#if HAVE_MCE
-    #include "mce/dbus-names.h"
-    #include "mce/mode-names.h"
-#endif
+#include "mce/dbus-names.h"
+#include "mce/mode-names.h"
 
 //Strings for MCE Conf keys.
 #define MCE_CONF_DISPLAY_DIR "/system/osso/dsm/display"
@@ -75,16 +73,12 @@ namespace MeeGo
     private Q_SLOTS:
 
         void slotDisplayStateChanged(const QString& state) {
-            #if HAVE_MCE
-                if (state == MCE_DISPLAY_OFF_STRING)
-                    emit displayStateChanged(QmDisplayState::Off);
-                else if (state == MCE_DISPLAY_DIM_STRING)
-                    emit displayStateChanged(QmDisplayState::Dimmed);
-                else if (state == MCE_DISPLAY_ON_STRING)
-                    emit displayStateChanged(QmDisplayState::On);
-            #else
-                Q_UNUSED(state);
-            #endif
+            if (state == MCE_DISPLAY_OFF_STRING)
+                emit displayStateChanged(QmDisplayState::Off);
+            else if (state == MCE_DISPLAY_DIM_STRING)
+                emit displayStateChanged(QmDisplayState::Dimmed);
+            else if (state == MCE_DISPLAY_ON_STRING)
+                emit displayStateChanged(QmDisplayState::On);
         }
     };
 }

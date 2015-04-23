@@ -36,10 +36,8 @@
 #include <QDBusReply>
 #include <QMutex>
 
-#if HAVE_MCE
-    #include "mce/dbus-names.h"
-    #include "mce/mode-names.h"
-#endif
+#include "mce/dbus-names.h"
+#include "mce/mode-names.h"
 
 #include "qmipcinterface_p.h"
 
@@ -73,10 +71,7 @@ namespace MeeGo
         QmLocksPrivate() :
             mceRequestIf(0),
             devlockIf(0) {
-            #if HAVE_MCE
-                mceRequestIf = new QmIPCInterface(MCE_SERVICE, MCE_REQUEST_PATH, MCE_REQUEST_IF);
-            #endif
-
+            mceRequestIf = new QmIPCInterface(MCE_SERVICE, MCE_REQUEST_PATH, MCE_REQUEST_IF);
             devlockIf = new QmIPCInterface(DEVLOCK_SERVICE, DEVLOCK_PATH, DEVLOCK_INTERFACE);
 
             connectCount[SIGNAL_LOCK_STATE] = 0;
@@ -92,31 +87,22 @@ namespace MeeGo
         }
 
         static QmLocks::State stringToState(const QString &state) {
-            #if HAVE_MCE
-                if (state == MCE_TK_LOCKED) {
-                    return QmLocks::Locked;
-                } else if (state == MCE_TK_UNLOCKED) {
-                    return QmLocks::Unlocked;
-                }
-            #else
-                Q_UNUSED(state);
-            #endif
+            if (state == MCE_TK_LOCKED) {
+                return QmLocks::Locked;
+            } else if (state == MCE_TK_UNLOCKED) {
+                return QmLocks::Unlocked;
+            }
             return QmLocks::Unknown;
         }
 
         static QString stateToString(QmLocks::Lock what, QmLocks::State state) {
-            #if HAVE_MCE
-                if (what == QmLocks::TouchAndKeyboard) {
-                    if (state == QmLocks::Locked) {
-                        return MCE_TK_LOCKED;
-                    } else if (state == QmLocks::Unlocked) {
-                        return MCE_TK_UNLOCKED;
-                    }
+            if (what == QmLocks::TouchAndKeyboard) {
+                if (state == QmLocks::Locked) {
+                    return MCE_TK_LOCKED;
+                } else if (state == QmLocks::Unlocked) {
+                    return MCE_TK_UNLOCKED;
                 }
-            #else
-                Q_UNUSED(what);
-                Q_UNUSED(state);
-            #endif
+            }
             return "";
         }
 
@@ -158,19 +144,17 @@ namespace MeeGo
                     }
                 }
             } else if (what == QmLocks::TouchAndKeyboard) {
-                #if HAVE_MCE
-                    if (async) {
-                        QDBusPendingCall pcall = mceRequestIf->asyncCall(MCE_TKLOCK_MODE_GET);
-                        QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(pcall, this);
-                        QObject::connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher*)),
-                                         this, SLOT(didReceiveTkLockState(QDBusPendingCallWatcher*)));
-                    } else {
-                        QDBusReply<QString> reply = mceRequestIf->call(MCE_TKLOCK_MODE_GET);
-                        if (reply.isValid()) {
-                            state = QmLocksPrivate::stringToState(reply.value());
-                        }
+                if (async) {
+                    QDBusPendingCall pcall = mceRequestIf->asyncCall(MCE_TKLOCK_MODE_GET);
+                    QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(pcall, this);
+                    QObject::connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher*)),
+                                     this, SLOT(didReceiveTkLockState(QDBusPendingCallWatcher*)));
+                } else {
+                    QDBusReply<QString> reply = mceRequestIf->call(MCE_TKLOCK_MODE_GET);
+                    if (reply.isValid()) {
+                        state = QmLocksPrivate::stringToState(reply.value());
                     }
-                #endif /* HAVE_MCE */
+                }
             }
             return state;
         }
@@ -181,12 +165,8 @@ namespace MeeGo
                 devlockIf->callAsynchronously(DEVLOCK_SET, stateToState(how));
                 success = true;
             } else if (what == QmLocks::TouchAndKeyboard) {
-                #if HAVE_MCE
-                    mceRequestIf->callAsynchronously(MCE_TKLOCK_MODE_CHANGE_REQ, QmLocksPrivate::stateToString(what, how));
-                    success = true;
-                #else
-                    Q_UNUSED(what);
-                #endif /* HAVE_MCE */
+                mceRequestIf->callAsynchronously(MCE_TKLOCK_MODE_CHANGE_REQ, QmLocksPrivate::stateToString(what, how));
+                success = true;
             }
             return success;
         }
@@ -212,14 +192,12 @@ namespace MeeGo
         }
 
         void didReceiveTkLockState(QDBusPendingCallWatcher *call) {
-            #if HAVE_MCE
-                QDBusPendingReply<QString> reply = *call;
-                if (reply.isError()) {
-                    return;
-                }
-                QString state = reply.argumentAt<0>();
-                emit stateChanged(QmLocks::TouchAndKeyboard, stringToState(state));
-            #endif
+            QDBusPendingReply<QString> reply = *call;
+            if (reply.isError()) {
+                return;
+            }
+            QString state = reply.argumentAt<0>();
+            emit stateChanged(QmLocks::TouchAndKeyboard, stringToState(state));
             call->deleteLater();
         }
 

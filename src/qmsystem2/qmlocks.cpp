@@ -67,14 +67,12 @@ void QmLocks::connectNotify(const char *signal) {
     if (QLatin1String(signal) == QLatin1String(QMetaObject::normalizedSignature(SIGNAL(stateChanged(MeeGo::QmLocks::Lock, MeeGo::QmLocks::State))))) {
 #endif
         if (0 == priv->connectCount[SIGNAL_LOCK_STATE]) {
-            #if HAVE_MCE
-                QDBusConnection::systemBus().connect(MCE_SERVICE,
-                                                     MCE_SIGNAL_PATH,
-                                                     MCE_SIGNAL_IF,
-                                                     MCE_TKLOCK_MODE_SIG,
-                                                     priv,
-                                                     SLOT(touchAndKeyboardStateChanged(const QString&)));
-            #endif
+            QDBusConnection::systemBus().connect(MCE_SERVICE,
+                                                 MCE_SIGNAL_PATH,
+                                                 MCE_SIGNAL_IF,
+                                                 MCE_TKLOCK_MODE_SIG,
+                                                 priv,
+                                                 SLOT(touchAndKeyboardStateChanged(const QString&)));
             QDBusConnection::systemBus().connect(DEVLOCK_SERVICE,
                                                  DEVLOCK_PATH,
                                                  DEVLOCK_INTERFACE,
@@ -103,14 +101,12 @@ void QmLocks::disconnectNotify(const char *signal) {
         priv->connectCount[SIGNAL_LOCK_STATE]--;
 
         if (0 == priv->connectCount[SIGNAL_LOCK_STATE]) {
-            #if HAVE_MCE
-                QDBusConnection::systemBus().disconnect(MCE_SERVICE,
-                                                        MCE_SIGNAL_PATH,
-                                                        MCE_SIGNAL_IF,
-                                                        MCE_TKLOCK_MODE_SIG,
-                                                        priv,
-                                                        SLOT(touchAndKeyboardStateChanged(const QString&)));
-            #endif
+            QDBusConnection::systemBus().disconnect(MCE_SERVICE,
+                                                    MCE_SIGNAL_PATH,
+                                                    MCE_SIGNAL_IF,
+                                                    MCE_TKLOCK_MODE_SIG,
+                                                    priv,
+                                                    SLOT(touchAndKeyboardStateChanged(const QString&)));
             QDBusConnection::sessionBus().disconnect(DEVLOCK_SERVICE,
                                                     DEVLOCK_PATH,
                                                     DEVLOCK_SERVICE,
