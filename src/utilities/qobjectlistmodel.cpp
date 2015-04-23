@@ -16,6 +16,7 @@
 
 #include "qobjectlistmodel.h"
 #include "synchronizelists.h"
+#include <QQmlEngine>
 #include <QDebug>
 
 QObjectListModel::QObjectListModel(QObject *parent, QList<QObject*> *list)
@@ -194,7 +195,9 @@ QObject* QObjectListModel::get(int index)
     if (index >= _list->count() || index < 0)
         return 0;
 
-    return _list->at(index);
+    QObject *obj(_list->at(index));
+    QQmlEngine::setObjectOwnership(obj, QQmlEngine::CppOwnership);
+    return obj;
 }
 
 QList<QObject*> *QObjectListModel::getList()
