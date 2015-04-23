@@ -5,13 +5,13 @@ TARGET = notificationtool
 
 QT += core dbus
 CONFIG += link_pkgconfig
-PKGCONFIG += mlite5
+PKGCONFIG += mlite5 dsme_dbus_if
 
 INSTALLS = target
 target.path = /usr/bin
 
 DEPENDPATH += "../../src"
-INCLUDEPATH += "../../src" "../../src/notifications"
+INCLUDEPATH += "../../src" "../../src/notifications" "../../src/qmsystem2"
 QMAKE_LIBDIR = ../../src
 LIBS = -llipstick-qt5
 
