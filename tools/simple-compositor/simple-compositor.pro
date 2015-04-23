@@ -17,7 +17,7 @@ QMAKE_LIBDIR = ../../src
 LIBS = -llipstick-qt5
 
 CONFIG += link_pkgconfig
-PKGCONFIG += mlite5 qmsystem2-qt5
+PKGCONFIG += mlite5
 
 qmls.path += /usr/share/lipstick/simplecompositor
 qmls.files += simplecompositor.qml

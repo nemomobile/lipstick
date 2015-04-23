@@ -1,9 +1,6 @@
 include(../common.pri)
 TARGET = ut_screenlock
 QT += dbus qml quick
-CONFIG += link_pkgconfig
-
-PKGCONFIG += qmsystem2-qt5
 
 INCLUDEPATH += $$SCREENLOCKSRCDIR $$UTILITYSRCDIR $$SRCDIR/xtools
 

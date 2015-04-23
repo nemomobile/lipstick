@@ -1,6 +1,6 @@
 include(../common.pri)
 TARGET = ut_notificationpreviewpresenter
-INCLUDEPATH += $$SRCDIR $$NOTIFICATIONSRCDIR $$UTILITYSRCDIR $$SRCDIR/compositor /usr/include/qmsystem2-qt5
+INCLUDEPATH += $$SRCDIR $$NOTIFICATIONSRCDIR $$UTILITYSRCDIR $$SRCDIR/compositor
 QT += qml quick dbus compositor
 
 # unit test and unit
@@ -19,6 +19,4 @@ HEADERS += \
     $$NOTIFICATIONSRCDIR/lipsticknotification.h \
     $$UTILITYSRCDIR/closeeventeater.h \
     $$COMPOSITORSRCDIR/lipstickcompositor.h \
-    /usr/include/qmsystem2-qt5/qmlocks.h \
-    /usr/include/qmsystem2-qt5/qmdisplaystate.h \
     $$SRCDIR/homewindow.h \

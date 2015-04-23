@@ -1,9 +1,7 @@
 include(../common.pri)
 TARGET = ut_shutdownscreen
-CONFIG += link_pkgconfig
 INCLUDEPATH += $$SRCDIR $$NOTIFICATIONSRCDIR $$UTILITYSRCDIR $$XTOOLSRCDIR
 QT += qml quick dbus
-PKGCONFIG += qmsystem2-qt5
 
 # unit test and unit
 SOURCES += \
