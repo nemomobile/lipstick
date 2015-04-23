@@ -2,6 +2,7 @@ include(../common.pri)
 TARGET = ut_qobjectlistmodel
 INCLUDEPATH += $$UTILITYSRCDIR
 INCLUDEPATH += $$3RDPARTYSRCDIR
+QT += qml
 
 # unit test and unit
 SOURCES += \
