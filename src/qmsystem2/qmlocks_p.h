@@ -128,32 +128,18 @@ namespace MeeGo
             }
         }
 
-        QmLocks::State getState(QmLocks::Lock what, bool async) {
+        QmLocks::State getState(QmLocks::Lock what) {
             QmLocks::State state = QmLocks::Unknown;
 
             if (what == QmLocks::Device) {
-                if (async) {
-                    QDBusPendingCall pcall = devlockIf->asyncCall(DEVLOCK_GET);
-                    QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(pcall, this);
-                    QObject::connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher*)),
-                                     this, SLOT(didReceiveDeviceLockState(QDBusPendingCallWatcher*)));
-                } else {
-                    QDBusReply<int> reply = devlockIf->call(DEVLOCK_GET);
-                    if (reply.isValid()) {
-                        state = QmLocksPrivate::stateToState(reply.value());
-                    }
+                QDBusReply<int> reply = devlockIf->call(DEVLOCK_GET);
+                if (reply.isValid()) {
+                    state = QmLocksPrivate::stateToState(reply.value());
                 }
             } else if (what == QmLocks::TouchAndKeyboard) {
-                if (async) {
-                    QDBusPendingCall pcall = mceRequestIf->asyncCall(MCE_TKLOCK_MODE_GET);
-                    QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(pcall, this);
-                    QObject::connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher*)),
-                                     this, SLOT(didReceiveTkLockState(QDBusPendingCallWatcher*)));
-                } else {
-                    QDBusReply<QString> reply = mceRequestIf->call(MCE_TKLOCK_MODE_GET);
-                    if (reply.isValid()) {
-                        state = QmLocksPrivate::stringToState(reply.value());
-                    }
+                QDBusReply<QString> reply = mceRequestIf->call(MCE_TKLOCK_MODE_GET);
+                if (reply.isValid()) {
+                    state = QmLocksPrivate::stringToState(reply.value());
                 }
             }
             return state;

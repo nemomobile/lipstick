@@ -90,23 +90,12 @@ public:
 
     /**
      * Gets the current lock state. Note: the method blocks until
-     * the lock state has been retrieved. For a non-blocking query, please
-     * see getStateAsync().
+     * the lock state has been retrieved.
      *
      * @param what Which lock state to request
      * @return Current lock state for @c what
      */
     QmLocks::State getState(QmLocks::Lock what) const;
-
-    /**
-     * Gets the current lock state. The method is non-blocking, so it
-     * initially returns the lock state QmLocks::Unknown. When the lock state
-     * has been retrieved, the stateChanged signal is emitted.
-     *
-     * @param what Which lock state to request
-     * @return Current lock state for @c what
-     */
-    QmLocks::State getStateAsync(QmLocks::Lock what) const;
 
     /**
      * Sets the current lock state. Note that this interface does not allow
@@ -117,23 +106,6 @@ public:
      * @return True if the lock state was requested, false otherwise
      */
     bool setState(QmLocks::Lock what, QmLocks::State how);
-
-    /**
-     * Sets the device autolock timeout. Device is automatically locked
-     * after the specified amount of inactivity.
-     * @credential mce::DeviceLockControl Resource token required to set the device lock timeout.
-     * @state Deprecated
-     * @param seconds Number of seconds of inactivity after which the device is automatically locked. Value <=0 disables autolock.
-     * @return True on success, false otherwise
-     */
-    bool setDeviceAutolockTime(int seconds);
-
-    /**
-     * Gets the device autolock timeout.
-     * @state Deprecated
-     * @return Timeout in seconds, value 0 means that autolock is not acticated, -1 is error
-     */
-    int getDeviceAutolockTime();
 
 Q_SIGNALS:
     /**

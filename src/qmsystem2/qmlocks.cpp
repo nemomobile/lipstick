@@ -102,26 +102,12 @@ void QmLocks::disconnectNotify(const QMetaMethod &signal) {
 
 QmLocks::State QmLocks::getState(QmLocks::Lock what) const {
 
-    return reinterpret_cast<QmLocksPrivate*>(priv_ptr)->getState(what, false);
-}
-
-QmLocks::State QmLocks::getStateAsync(QmLocks::Lock what) const {
-
-    return reinterpret_cast<QmLocksPrivate*>(priv_ptr)->getState(what, true);
+    return reinterpret_cast<QmLocksPrivate*>(priv_ptr)->getState(what);
 }
 
 bool QmLocks::setState(QmLocks::Lock what, QmLocks::State how) {
     MEEGO_PRIVATE(QmLocks)
     return priv->setState(what, how);
-}
-
-bool QmLocks::setDeviceAutolockTime(int seconds) {
-    Q_UNUSED(seconds);
-    return false;
-}
-
-int QmLocks::getDeviceAutolockTime() {
-    return -1;
 }
 
 } // namspace MeeGo
