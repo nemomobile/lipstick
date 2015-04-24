@@ -40,7 +40,7 @@
 LipstickCompositor *LipstickCompositor::m_instance = 0;
 
 LipstickCompositor::LipstickCompositor()
-    : QWaylandQuickCompositor(this)
+    : QWaylandQuickCompositor(this, 0, (QWaylandCompositor::ExtensionFlags)QWaylandCompositor::DefaultExtensions & ~QWaylandCompositor::QtKeyExtension)
     , m_totalWindowCount(0)
     , m_nextWindowId(1)
     , m_homeActive(true)
