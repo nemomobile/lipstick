@@ -85,6 +85,7 @@ private:
     void updateItem();
     void surfaceDestroyed();
     void configure(bool hasBuffer);
+    void cleanupOpenGL();
 
     QPointer<LipstickCompositorWindow> m_item;
     QQuickItem *m_shaderEffect;
@@ -101,6 +102,8 @@ private:
     bool m_surfaceDestroyed;
     bool m_haveSnapshot;
     QSGTextureProvider *m_textureProvider;
+
+    static struct SnapshotProgram *s_snapshotProgram;
 };
 
 #endif // WINDOWPIXMAPITEM_H

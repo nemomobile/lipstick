@@ -329,6 +329,14 @@ void SurfaceNode::providerDestroyed()
 
 }
 
+SnapshotProgram *WindowPixmapItem::s_snapshotProgram = 0;
+
+struct SnapshotProgram
+{
+    QOpenGLShaderProgram program;
+    int vertexLocation;
+    int textureLocation;
+};
 
 class SnapshotTextureProvider : public QSGTextureProvider
 {
@@ -337,7 +345,6 @@ public:
     ~SnapshotTextureProvider()
     {
         delete fbo;
-        delete program;
         delete t;
     }
     QSGTexture *texture() const Q_DECL_OVERRIDE
@@ -346,9 +353,6 @@ public:
     }
     QSGTexture *t;
     QOpenGLFramebufferObject *fbo;
-    QOpenGLShaderProgram *program;
-    int vertexLocation;
-    int textureLocation;
 };
 
 
@@ -556,25 +560,29 @@ QSGNode *WindowPixmapItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData
             SnapshotTextureProvider *prov = new SnapshotTextureProvider;
             m_textureProvider = prov;
 
-            prov->program = new QOpenGLShaderProgram;
-            prov->program->addShaderFromSourceCode(QOpenGLShader::Vertex,
-                "attribute highp vec4 vertex;\n"
-                "varying highp vec2 texPos;\n"
-                "void main(void) {\n"
-                "   texPos = vertex.xy;\n"
-                "   gl_Position = vec4(vertex.xy * 2.0 - 1.0, 0, 1);\n"
-                "}");
-            prov->program->addShaderFromSourceCode(QOpenGLShader::Fragment,
-                "uniform sampler2D texture;\n"
-                "varying highp vec2 texPos;\n"
-                "void main(void) {\n"
-                "   gl_FragColor = texture2D(texture, texPos);\n"
-                "}");
-            if (!prov->program->link())
-                qDebug() << prov->program->log();
+            if (!s_snapshotProgram) {
+                s_snapshotProgram = new SnapshotProgram;
+                s_snapshotProgram->program.addShaderFromSourceCode(QOpenGLShader::Vertex,
+                    "attribute highp vec4 vertex;\n"
+                    "varying highp vec2 texPos;\n"
+                    "void main(void) {\n"
+                    "   texPos = vertex.xy;\n"
+                    "   gl_Position = vec4(vertex.xy * 2.0 - 1.0, 0, 1);\n"
+                    "}");
+                s_snapshotProgram->program.addShaderFromSourceCode(QOpenGLShader::Fragment,
+                    "uniform sampler2D texture;\n"
+                    "varying highp vec2 texPos;\n"
+                    "void main(void) {\n"
+                    "   gl_FragColor = texture2D(texture, texPos);\n"
+                    "}");
+                if (!s_snapshotProgram->program.link())
+                    qDebug() << s_snapshotProgram->program.log();
 
-            prov->vertexLocation = prov->program->attributeLocation("vertex");
-            prov->textureLocation = prov->program->uniformLocation("texture");
+                s_snapshotProgram->vertexLocation = s_snapshotProgram->program.attributeLocation("vertex");
+                s_snapshotProgram->textureLocation = s_snapshotProgram->program.uniformLocation("texture");
+
+                connect(window(), &QQuickWindow::sceneGraphInvalidated, this, &WindowPixmapItem::cleanupOpenGL);
+            }
         }
         provider = m_textureProvider;
 
@@ -589,7 +597,7 @@ QSGNode *WindowPixmapItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData
             }
 
             prov->fbo->bind();
-            prov->program->bind();
+            s_snapshotProgram->program.bind();
 
             texture->bind();
 
@@ -599,14 +607,14 @@ QSGNode *WindowPixmapItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData
                 0.f, 0.f,
                 0.f, 1.f,
             };
-            prov->program->enableAttributeArray(prov->vertexLocation);
-            prov->program->setAttributeArray(prov->vertexLocation, triangleVertices, 2);
+            s_snapshotProgram->program.enableAttributeArray(s_snapshotProgram->vertexLocation);
+            s_snapshotProgram->program.setAttributeArray(s_snapshotProgram->vertexLocation, triangleVertices, 2);
 
             glViewport(0, 0, width(), height());
             glDisable(GL_BLEND);
             glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-            prov->program->release();
+            s_snapshotProgram->program.release();
 
             if (!prov->t) {
                 prov->t = window()->createTextureFromId(prov->fbo->texture(), prov->fbo->size(), 0);
@@ -615,7 +623,7 @@ QSGNode *WindowPixmapItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData
             prov->fbo->release();
             delete m_unmapLock;
             m_unmapLock = 0;
-            prov->program->disableAttributeArray(prov->vertexLocation);
+            s_snapshotProgram->program.disableAttributeArray(s_snapshotProgram->vertexLocation);
 
             m_haveSnapshot = true;
         }
@@ -707,6 +715,13 @@ void WindowPixmapItem::configure(bool hasBuffer)
 
         update();
     }
+}
+
+void WindowPixmapItem::cleanupOpenGL()
+{
+    disconnect(window(), &QQuickWindow::sceneGraphInvalidated, this, &WindowPixmapItem::cleanupOpenGL);
+    delete s_snapshotProgram;
+    s_snapshotProgram = 0;
 }
 
 #include "windowpixmapitem.moc"
