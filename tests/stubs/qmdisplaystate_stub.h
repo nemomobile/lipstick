@@ -34,17 +34,6 @@ class QmDisplayStateStub : public StubBase {
   virtual void QmDisplayStateDestructor();
   virtual MeeGo::QmDisplayState::DisplayState get() const;
   virtual bool set(MeeGo::QmDisplayState::DisplayState state);
-  virtual bool setBlankingPause(void);
-  virtual bool cancelBlankingPause(void);
-  virtual int getMaxDisplayBrightnessValue();
-  virtual int getDisplayBrightnessValue();
-  virtual int getDisplayBlankTimeout();
-  virtual int getDisplayDimTimeout();
-  virtual bool getBlankingWhenCharging();
-  virtual void setDisplayBrightnessValue(int brightness);
-  virtual void setDisplayBlankTimeout(int timeout);
-  virtual void setDisplayDimTimeout(int timeout);
-  virtual void setBlankingWhenCharging(bool blanking);
   virtual void connectNotify(const QMetaMethod &signal);
   virtual void disconnectNotify(const QMetaMethod &signal);
 }; 
@@ -67,65 +56,6 @@ bool QmDisplayStateStub::set(MeeGo::QmDisplayState::DisplayState state) {
   params.append( new Parameter<MeeGo::QmDisplayState::DisplayState >(state));
   stubMethodEntered("set",params);
   return stubReturnValue<bool>("set");
-}
-
-bool QmDisplayStateStub::setBlankingPause(void) {
-  stubMethodEntered("setBlankingPause");
-  return stubReturnValue<bool>("setBlankingPause");
-}
-
-bool QmDisplayStateStub::cancelBlankingPause(void) {
-  stubMethodEntered("cancelBlankingPause");
-  return stubReturnValue<bool>("cancelBlankingPause");
-}
-
-int QmDisplayStateStub::getMaxDisplayBrightnessValue() {
-  stubMethodEntered("getMaxDisplayBrightnessValue");
-  return stubReturnValue<int>("getMaxDisplayBrightnessValue");
-}
-
-int QmDisplayStateStub::getDisplayBrightnessValue() {
-  stubMethodEntered("getDisplayBrightnessValue");
-  return stubReturnValue<int>("getDisplayBrightnessValue");
-}
-
-int QmDisplayStateStub::getDisplayBlankTimeout() {
-  stubMethodEntered("getDisplayBlankTimeout");
-  return stubReturnValue<int>("getDisplayBlankTimeout");
-}
-
-int QmDisplayStateStub::getDisplayDimTimeout() {
-  stubMethodEntered("getDisplayDimTimeout");
-  return stubReturnValue<int>("getDisplayDimTimeout");
-}
-
-bool QmDisplayStateStub::getBlankingWhenCharging() {
-  stubMethodEntered("getBlankingWhenCharging");
-  return stubReturnValue<bool>("getBlankingWhenCharging");
-}
-
-void QmDisplayStateStub::setDisplayBrightnessValue(int brightness) {
-  QList<ParameterBase*> params;
-  params.append( new Parameter<int >(brightness));
-  stubMethodEntered("setDisplayBrightnessValue",params);
-}
-
-void QmDisplayStateStub::setDisplayBlankTimeout(int timeout) {
-  QList<ParameterBase*> params;
-  params.append( new Parameter<int >(timeout));
-  stubMethodEntered("setDisplayBlankTimeout",params);
-}
-
-void QmDisplayStateStub::setDisplayDimTimeout(int timeout) {
-  QList<ParameterBase*> params;
-  params.append( new Parameter<int >(timeout));
-  stubMethodEntered("setDisplayDimTimeout",params);
-}
-
-void QmDisplayStateStub::setBlankingWhenCharging(bool blanking) {
-  QList<ParameterBase*> params;
-  params.append( new Parameter<bool >(blanking));
-  stubMethodEntered("setBlankingWhenCharging",params);
 }
 
 void QmDisplayStateStub::connectNotify(const QMetaMethod &signal)
@@ -169,50 +99,6 @@ MeeGo::QmDisplayState::DisplayState QmDisplayState::get() const {
 
 bool QmDisplayState::set(DisplayState state) {
   return gQmDisplayStateStub->set(state);
-}
-
-bool QmDisplayState::setBlankingPause(void) {
-  return gQmDisplayStateStub->setBlankingPause();
-}
-
-bool QmDisplayState::cancelBlankingPause(void) {
-  return gQmDisplayStateStub->cancelBlankingPause();
-}
-
-int QmDisplayState::getMaxDisplayBrightnessValue() {
-  return gQmDisplayStateStub->getMaxDisplayBrightnessValue();
-}
-
-int QmDisplayState::getDisplayBrightnessValue() {
-  return gQmDisplayStateStub->getDisplayBrightnessValue();
-}
-
-int QmDisplayState::getDisplayBlankTimeout() {
-  return gQmDisplayStateStub->getDisplayBlankTimeout();
-}
-
-int QmDisplayState::getDisplayDimTimeout() {
-  return gQmDisplayStateStub->getDisplayDimTimeout();
-}
-
-bool QmDisplayState::getBlankingWhenCharging() {
-  return gQmDisplayStateStub->getBlankingWhenCharging();
-}
-
-void QmDisplayState::setDisplayBrightnessValue(int brightness) {
-  gQmDisplayStateStub->setDisplayBrightnessValue(brightness);
-}
-
-void QmDisplayState::setDisplayBlankTimeout(int timeout) {
-  gQmDisplayStateStub->setDisplayBlankTimeout(timeout);
-}
-
-void QmDisplayState::setDisplayDimTimeout(int timeout) {
-  gQmDisplayStateStub->setDisplayDimTimeout(timeout);
-}
-
-void QmDisplayState::setBlankingWhenCharging(bool blanking) {
-  gQmDisplayStateStub->setBlankingWhenCharging(blanking);
 }
 
 void QmDisplayState::connectNotify(const QMetaMethod &signal)
