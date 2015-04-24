@@ -47,7 +47,7 @@ class QmDisplayStatePrivate;
  * @class QmDisplayState
  * @brief QmDisplayState Provides information and actions on device display state.
  */
-class MEEGO_SYSTEM_EXPORT QmDisplayState : public QObject
+class QmDisplayState : public QObject
 {
     Q_OBJECT
     Q_ENUMS(DisplayState)

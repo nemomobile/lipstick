@@ -48,7 +48,7 @@ class QmActivityPrivate;
  * @details QmActivity offers a getter method as well as a changed signal
  * for the user activity state. The state is fetched from the mce daemon
  */
-class MEEGO_SYSTEM_EXPORT QmActivity : public QObject
+class QmActivity : public QObject
 {
     Q_OBJECT
     Q_ENUMS(Activity)

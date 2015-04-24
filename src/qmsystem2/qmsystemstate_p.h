@@ -30,7 +30,6 @@
 #include "qmsystemstate.h"
 #include "qmipcinterface_p.h"
 #include "dsme/dsme_dbus_if.h"
-#include "msystemdbus_p.h"
 
 #include <QMutex>
 
@@ -46,22 +45,14 @@ namespace MeeGo
 
     public:
         QmSystemStatePrivate() {
-            dsmeRequestIf = new QmIPCInterface(
-                           dsme_service,
-                           dsme_req_path,
-                           dsme_req_interface);
             connectCount[SIGNAL_SYSTEM_STATE] = 0;
         }
 
         ~QmSystemStatePrivate() {
-            if (dsmeRequestIf) {
-                delete dsmeRequestIf, dsmeRequestIf = 0;
-            }
         }
 
         QMutex connectMutex;
         size_t connectCount[1];
-        QmIPCInterface *dsmeRequestIf;
 
     Q_SIGNALS:
 
@@ -89,6 +80,7 @@ namespace MeeGo
         }
 
         void emitShutdownDenied(QString reqType, QString reason) {
+            // XXX: Move hardcoded strings somewere else
             if (reason == "usb") {
                 if (reqType == "shutdown") {
                     emit systemStateChanged(QmSystemState::ShutdownDeniedUSB);

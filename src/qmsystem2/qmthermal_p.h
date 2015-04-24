@@ -30,17 +30,18 @@
 #include "qmthermal.h"
 #include "qmipcinterface_p.h"
 
+#include <thermalmanager_dbus_if.h>
+
 #include <QMutex>
 
-#define SYS_THERMALMANAGER_SERVICE        "com.nokia.thermalmanager"
-#define SYS_THERMALMANAGER_INTERFACE      "com.nokia.thermalmanager"
-#define SYS_THERMALMANAGER_PATH           "/com/nokia/thermalmanager"
-#define SYS_THERMALMANAGER_STATE_GET      "get_thermal_state"
-#define SYS_THERMALMANAGER_STATE_SIG      "thermal_state_change_ind"
 #define NORMAL  "normal"
 #define ALERT   "alert"
 #define WARNING "warning"
 #define LOW_TEMP_WARNING "low-temp-warning"
+
+// TODO: use from thermalmanager_dbus_if: thermalmanager_thermal_status_low,
+// thermalmanager_thermal_status_normal, thermalmanager_thermal_status_warning,
+// thermalmanager_thermal_status_alert,thermalmanager_thermal_status_fatal
 
 #define SIGNAL_THERMAL_STATE 0
 
@@ -53,9 +54,9 @@ namespace MeeGo
 
     public:
         QmThermalPrivate() {
-            If = new QmIPCInterface(SYS_THERMALMANAGER_SERVICE,
-                                    SYS_THERMALMANAGER_PATH,
-                                    SYS_THERMALMANAGER_INTERFACE);
+            If = new QmIPCInterface(thermalmanager_service,
+                                    thermalmanager_path,
+                                    thermalmanager_interface);
 
             connectCount[SIGNAL_THERMAL_STATE] = 0;
         }

@@ -46,7 +46,7 @@ class QmLocksPrivate;
  *
  * @brief Provides information and actions on device locks.
  */
-class MEEGO_SYSTEM_EXPORT QmLocks : public QObject
+class QmLocks : public QObject
 {
     Q_OBJECT
     Q_ENUMS(Lock)

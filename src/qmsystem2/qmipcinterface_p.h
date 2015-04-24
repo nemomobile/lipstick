@@ -39,7 +39,7 @@
 
 namespace MeeGo {
 
-class MEEGO_SYSTEM_EXPORT QmIPCInterface : public QDBusAbstractInterface
+class QmIPCInterface : public QDBusAbstractInterface
 {
     Q_OBJECT
 

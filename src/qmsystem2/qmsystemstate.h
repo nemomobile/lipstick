@@ -50,22 +50,12 @@ class QmSystemStatePrivate;
  * @class QmSystemState
  * @brief QmSystemState provides information and actions on device state.
  */
-class MEEGO_SYSTEM_EXPORT QmSystemState : public QObject
+class QmSystemState : public QObject
 {
     Q_OBJECT
-    Q_ENUMS(NextState)
     Q_ENUMS(StateIndication)
-    Q_ENUMS(RunState)
 
 public:
-    //! States the user can set
-    enum NextState
-    {
-        Powerup = 0,        //!< Powerup from acting dead
-        Reboot,             //!< Reboot
-        ShuttingDown        //!< Shutdown
-    };
-
     //! State indication
     enum StateIndication
     {
@@ -77,18 +67,6 @@ public:
         ShutdownDeniedUSB   //!< Shutdown denied because USB is connected in mass storage mode
     };
 
-    enum RunState
-    {
-        RunState_User = 0,
-        RunState_ActDead,
-        RunState_Test,       //!< Similar to Local, but CMT tests are run differently
-        RunState_Local,      //!< Used when the device is mounted to a jig for R&D purposes
-        RunState_Malf,
-        RunState_Flash,
-        RunState_Shutdown,
-        RunState_Unknown
-    };
-
 public:
     /*!
      * @brief Constructor
@@ -96,29 +74,6 @@ public:
      */
     QmSystemState(QObject *parent = 0);
     ~QmSystemState();
-
-    /*!
-     * @brief Requests the system to move into state @c nextState.
-     * @description The system state change may not actually change when the function returns;
-     *              use the systemStateChanged(MeeGo::QmSystemState::StateIndication) signal
-     *              to track the system state changes.
-     * @credential dsme::DeviceStateControl Resource token required to set the device state (shutdown/reboot/powerup).
-     * @param nextState New state
-     * @return True if a valid state was requested, false otherwise
-     */
-    bool set(NextState nextState);
-
-    /*!
-     * @brief Gets the current run state.
-     * @return The current run state
-     */
-    RunState getRunState();
-
-    /*!
-     * @brief Gets the accumulated value of the power on counter in seconds, which represents the total time the device has been powered on.
-     * @return The total time in seconds the device has been powered on
-     */
-    unsigned int getPowerOnTimeInSeconds();
 
 Q_SIGNALS:
     /*!

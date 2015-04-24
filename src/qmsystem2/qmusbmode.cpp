@@ -38,13 +38,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#if HAVE_USB_MODED_DEV
-    #include <usb_moded-dbus.h>
-    #include <usb_moded-modes.h>
-#else
-    /* Use QmSystem D-Bus i/f declarations because usb-moded-dev is not available */
-    #include "msystemdbus_p.h"
-#endif
+#include <usb_moded-dbus.h>
+#include <usb_moded-modes.h>
 
 #define SIGNAL_USB_MODE 0
 #define SIGNAL_USB_ERROR 1

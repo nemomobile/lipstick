@@ -77,7 +77,6 @@ HEADERS += \
     screenshotservice.h \
     screenshotserviceadaptor.h \
     notifications/thermalnotifier.h \
-    qmsystem2/msystemdbus_p.h \
     qmsystem2/qmdisplaystate.h \
     qmsystem2/qmlocks.h \
     qmsystem2/qmsystemstate_p.h \

@@ -56,9 +56,9 @@ void QmThermal::connectNotify(const QMetaMethod &signal) {
     if (signal == QMetaMethod::fromSignal(&QmThermal::thermalChanged)) {
         if (0 == priv->connectCount[SIGNAL_THERMAL_STATE]) {
             QDBusConnection::systemBus().connect("",
-                                                 SYS_THERMALMANAGER_PATH,
-                                                 SYS_THERMALMANAGER_INTERFACE,
-                                                 SYS_THERMALMANAGER_STATE_SIG,
+                                                 thermalmanager_path,
+                                                 thermalmanager_interface,
+                                                 thermalmanager_state_change_ind,
                                                  priv,
                                                  SLOT(thermalStateChanged(const QString&)));
         }
@@ -77,9 +77,9 @@ void QmThermal::disconnectNotify(const QMetaMethod &signal) {
 
         if (0 == priv->connectCount[SIGNAL_THERMAL_STATE]) {
             QDBusConnection::systemBus().disconnect("",
-                                                    SYS_THERMALMANAGER_PATH,
-                                                    SYS_THERMALMANAGER_INTERFACE,
-                                                    SYS_THERMALMANAGER_STATE_SIG,
+                                                    thermalmanager_path,
+                                                    thermalmanager_interface,
+                                                    thermalmanager_state_change_ind,
                                                     priv,
                                                     SLOT(thermalStateChanged(const QString&)));
         }
@@ -91,7 +91,7 @@ QmThermal::ThermalState QmThermal::get() const {
     QString state;
     QList<QVariant> resp;
 
-    resp = priv->If->get(SYS_THERMALMANAGER_STATE_GET);
+    resp = priv->If->get(thermalmanager_get_thermal_state);
 
     if (resp.isEmpty()) {
         return Error;

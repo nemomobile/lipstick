@@ -34,14 +34,6 @@
 #define SYSTEM_GLOBAL_H
 #include <QtCore/qglobal.h>
 
-//MEEGO_SYSTEM_EXPORT
-#if defined(SYSTEM_LIBRARY)
-#  define MEEGO_SYSTEM_EXPORT Q_DECL_EXPORT
-#else
-#  define MEEGO_SYSTEM_EXPORT Q_DECL_IMPORT
-#endif
-
-
 //MEEGO MOBILITY SYSTEM PRIVATE IMPLEMENTATION
 #define MEEGO_DECLARE_PRIVATE(Class) \
         private: \
