@@ -34,14 +34,6 @@
 
 #include <QMutex>
 
-#define NORMAL  "normal"
-#define ALERT   "alert"
-#define WARNING "warning"
-#define LOW_TEMP_WARNING "low-temp-warning"
-
-// TODO: use from thermalmanager_dbus_if: thermalmanager_thermal_status_low,
-// thermalmanager_thermal_status_normal, thermalmanager_thermal_status_warning,
-// thermalmanager_thermal_status_alert,thermalmanager_thermal_status_fatal
 
 #define SIGNAL_THERMAL_STATE 0
 
@@ -70,13 +62,13 @@ namespace MeeGo
         static QmThermal::ThermalState stringToState(const QString& state) {
             QmThermal::ThermalState mState = QmThermal::Unknown;
 
-            if (state == NORMAL) {
+            if (state == thermalmanager_thermal_status_normal) {
                 mState = QmThermal::Normal;
-            } else if (state == WARNING) {
+            } else if (state == thermalmanager_thermal_status_warning) {
                 mState = QmThermal::Warning;
-            } else if (state == ALERT) {
+            } else if (state == thermalmanager_thermal_status_alert) {
                 mState = QmThermal::Alert;
-            } else if (state == LOW_TEMP_WARNING) {
+            } else if (state == thermalmanager_thermal_status_low) {
                 mState = QmThermal::LowTemperatureWarning;
             }
             return mState;
