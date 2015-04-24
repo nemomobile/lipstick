@@ -51,12 +51,9 @@ class QmUSBModePrivate;
  *
  * The USB state can be also set by calling setMode(QmUSBMode::Mode).
  *
- * Typically, the default mode is either set to QmUSBMode::OviSuite or QmUSBMode::MassStorage, which is then
+ * Typically, the default mode is either set to QmUSBMode::MassStorage, which is then
  * used when the USB cable is plugged in. The other option is to set the default mode to QmUSBMode::Ask,
- * listen for the QmUSBMode::ModeRequest mode, and then set the QmUSBMode::MassStorage or QmUSBMode::OviSuite mode.
- *
- * Switching the USB mode from QmUSBMode::MassStorage to QmUSBMode::OviSuite (and vice versa) is not supported
- * without re-plugging the USB cable.
+ * listen for the QmUSBMode::ModeRequest mode, and then set the QmUSBMode::MassStorage mode.
  */
 class QmUSBMode : public QObject
 {
@@ -75,7 +72,6 @@ public:
         Disconnected,     //!< Signaled when the USB cable is unplugged.
         MassStorage,      //!< Mass storage mode.
         ChargingOnly,     //!< Charging only mode.
-        OviSuite,         //!< Ovi suite mode. Requires an MTP (media transfer protocol) client on the USB host.
         ModeRequest,      //!< Signaled as an indication that the USB mode should be set with setMode(QmUSBMode::Mode).
         Ask,              //!< Waiting for the USB mode to be set with setMode(QmUSBMode::Mode).
         Undefined,        //!< Unknown/error.
@@ -104,14 +100,14 @@ public:
     /*!
      * @brief Sets the USB mode. Note that calling setMode is non-blocking, so the method returns immediately.
      * If the USB mode change succeeded, the modeChanged signal is emitted.
-     * @param mode The USB mode to be set. The OviSuite, MassStorage, ChargingOnly and SDK modes can be requested.
+     * @param mode The USB mode to be set. The MassStorage, ChargingOnly and SDK modes can be requested.
      * @return True if a valid mode was requested, false otherwise
      */
     bool setMode(QmUSBMode::Mode mode);
 
     /*!
      * @brief Sets the default USB mode.
-     * @param mode The new default USB mode. The OviSuite, MassStorage, ChargingOnly, Ask and SDK modes can be set
+     * @param mode The new default USB mode. The MassStorage, ChargingOnly, Ask and SDK modes can be set
      * @return True if successful, false otherwise
      */
     bool setDefaultMode(QmUSBMode::Mode mode);
@@ -162,7 +158,7 @@ Q_SIGNALS:
      * \li The USB cable is plugged in/unplugged (QmUSBMode::Connected, QmUSBMode::Disconnected)
      * \li USB mode change was denied (QmUSBMode::DataInUse)
      * \li No default USB mode is set and a USB cable is connected (QmUSBMode::ModeRequest)
-     * \li The USB mode was changed (QmUSBMode::MassStorage, QmUSBMode::ChargingOnly, QmUSBMode::OviSuite)
+     * \li The USB mode was changed (QmUSBMode::MassStorage, QmUSBMode::ChargingOnly)
      * \li An error occurred changing the USB Mode (QmUSBMode::Undefined)
      * @param mode The current mode.
      */
