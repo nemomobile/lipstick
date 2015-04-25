@@ -140,7 +140,7 @@ SOURCES += \
 
 CONFIG += link_pkgconfig mobility qt warn_on depend_includepath qmake_cache target_qt
 CONFIG -= link_prl
-PKGCONFIG += mlite5 mce dbus-1 dbus-glib-1 libresourceqt5 ngf-qt5 Qt5SystemInfo libsystemd-daemon contextkit-statefs dsme_dbus_if
+PKGCONFIG += mlite5 mce dbus-1 dbus-glib-1 libresourceqt5 ngf-qt5 Qt5SystemInfo libsystemd-daemon contextkit-statefs dsme_dbus_if thermalmanager_dbus_if usb_moded
 
 LIBS += -lrt
 

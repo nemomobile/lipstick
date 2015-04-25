@@ -4,7 +4,7 @@ VERSION = 0.1
 
 CONFIG += qt plugin link_pkgconfig
 QT += core gui qml quick compositor dbus
-PKGCONFIG += mlite5 dsme_dbus_if
+PKGCONFIG += mlite5 dsme_dbus_if thermalmanager_dbus_if usb_moded
 
 INSTALLS = target qmldirfile
 qmldirfile.files = qmldir

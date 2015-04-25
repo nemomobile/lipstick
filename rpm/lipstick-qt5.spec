@@ -33,6 +33,8 @@ BuildRequires:  pkgconfig(contentaction5)
 BuildRequires:  pkgconfig(mlite5) >= 0.0.6
 BuildRequires:  pkgconfig(mce) >= 1.12.2
 BuildRequires:  pkgconfig(dsme_dbus_if) >= 0.63.2
+BuildRequires:  pkgconfig(thermalmanager_dbus_if)
+BuildRequires:  pkgconfig(usb_moded)
 BuildRequires:  pkgconfig(dbus-1)
 BuildRequires:  pkgconfig(dbus-glib-1)
 BuildRequires:  pkgconfig(libresourceqt5)

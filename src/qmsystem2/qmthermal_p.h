@@ -30,7 +30,7 @@
 #include "qmthermal.h"
 #include "qmipcinterface_p.h"
 
-#include <thermalmanager_dbus_if.h>
+#include <dsme/thermalmanager_dbus_if.h>
 
 #include <QMutex>
 

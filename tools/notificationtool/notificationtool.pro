@@ -5,7 +5,7 @@ TARGET = notificationtool
 
 QT += core dbus
 CONFIG += link_pkgconfig
-PKGCONFIG += mlite5 dsme_dbus_if
+PKGCONFIG += mlite5 dsme_dbus_if thermalmanager_dbus_if usb_moded
 
 INSTALLS = target
 target.path = /usr/bin

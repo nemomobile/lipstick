@@ -75,7 +75,6 @@ public:
         ModeRequest,      //!< Signaled as an indication that the USB mode should be set with setMode(QmUSBMode::Mode).
         Ask,              //!< Waiting for the USB mode to be set with setMode(QmUSBMode::Mode).
         Undefined,        //!< Unknown/error.
-        SDK,              //!< Windows network mode. Allows USB networking on the device.
 	Developer,	  //!< Developer mode. Allows USB networking
 	MTP,		  //!< MTP mode. Allows for generic MTP
 	Adb,		  //!< adb mode. Allows Android Debug Bridge
@@ -100,14 +99,14 @@ public:
     /*!
      * @brief Sets the USB mode. Note that calling setMode is non-blocking, so the method returns immediately.
      * If the USB mode change succeeded, the modeChanged signal is emitted.
-     * @param mode The USB mode to be set. The MassStorage, ChargingOnly and SDK modes can be requested.
+     * @param mode The USB mode to be set. The MassStorage and ChargingOnly modes can be requested.
      * @return True if a valid mode was requested, false otherwise
      */
     bool setMode(QmUSBMode::Mode mode);
 
     /*!
      * @brief Sets the default USB mode.
-     * @param mode The new default USB mode. The MassStorage, ChargingOnly, Ask and SDK modes can be set
+     * @param mode The new default USB mode. The MassStorage, ChargingOnly and Ask modes can be set
      * @return True if successful, false otherwise
      */
     bool setDefaultMode(QmUSBMode::Mode mode);

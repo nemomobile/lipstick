@@ -17,7 +17,7 @@ QMAKE_LIBDIR = ../../src
 LIBS = -llipstick-qt5
 
 CONFIG += link_pkgconfig
-PKGCONFIG += mlite5 dsme_dbus_if
+PKGCONFIG += mlite5 dsme_dbus_if thermalmanager_dbus_if usb_moded
 
 qmls.path += /usr/share/lipstick/simplecompositor
 qmls.files += simplecompositor.qml

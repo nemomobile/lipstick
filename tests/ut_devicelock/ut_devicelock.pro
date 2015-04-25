@@ -17,3 +17,6 @@ SOURCES += \
 HEADERS += \
     ut_devicelock.h \
     $$DEVICELOCKSRCDIR/devicelock.h \
+    ../../src/qmsystem2/qmlocks.h \
+    ../../src/qmsystem2/qmactivity.h \
+    ../../src/qmsystem2/qmdisplaystate.h

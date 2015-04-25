@@ -154,7 +154,6 @@ void Ut_USBModeSelector::testHideDialog_data()
 
     QTest::newRow("Disconnected") << MeeGo::QmUSBMode::Disconnected;
     QTest::newRow("Mass Storage") << MeeGo::QmUSBMode::MassStorage;
-    QTest::newRow("SDK") << MeeGo::QmUSBMode::SDK;
     QTest::newRow("MTP") << MeeGo::QmUSBMode::MTP;
     QTest::newRow("Developer") << MeeGo::QmUSBMode::Developer;
     QTest::newRow("Adb") << MeeGo::QmUSBMode::Adb;
@@ -181,7 +180,6 @@ void Ut_USBModeSelector::testUSBNotifications_data()
 
     QTest::newRow("Disconnected") << MeeGo::QmUSBMode::Disconnected << "device.removed" << qtTrId("qtn_usb_disconnected");
     QTest::newRow("Mass Storage") << MeeGo::QmUSBMode::MassStorage << "device.added" << qtTrId("qtn_usb_storage_active");
-    QTest::newRow("SDK") << MeeGo::QmUSBMode::SDK << "device.added" << qtTrId("qtn_usb_sdk_active");
     QTest::newRow("Developer") << MeeGo::QmUSBMode::Developer << "device.added" << qtTrId("qtn_usb_sdk_active");
     QTest::newRow("MTP") << MeeGo::QmUSBMode::MTP << "device.added" << qtTrId("qtn_usb_mtp_active");
     QTest::newRow("Adb") << MeeGo::QmUSBMode::Adb << "device.added" << qtTrId("qtn_usb_adb_active");

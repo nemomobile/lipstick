@@ -183,8 +183,8 @@ QmUSBMode::Mode QmUSBMode::getMode() {
 bool QmUSBMode::setMode(QmUSBMode::Mode mode) {
     MEEGO_PRIVATE(QmUSBMode);
 
-    // The MassStorage, ChargingOnly and SDK modes can be requested
-    if (!(MassStorage == mode || ChargingOnly == mode || SDK == mode || Developer == mode || 
+    // The MassStorage and ChargingOnly modes can be requested
+    if (!(MassStorage == mode || ChargingOnly == mode || Developer == mode ||
          MTP == mode || Adb == mode || Diag == mode || Host == mode || ConnectionSharing == mode || Charger == mode)) {
         return false;
     }
@@ -205,7 +205,7 @@ bool QmUSBMode::setDefaultMode(QmUSBMode::Mode mode) {
     MEEGO_PRIVATE(QmUSBMode);
 
     // The MassStorage, ChargingOnly and Ask modes can be requested
-    if (!(MassStorage == mode || ChargingOnly == mode || SDK == mode || Developer == mode || 
+    if (!(MassStorage == mode || ChargingOnly == mode || Developer == mode ||
          MTP == mode || Adb == mode || Diag == mode || Host == mode || Ask == mode || ConnectionSharing == mode ||
          Charger == mode )) {
         return false;
@@ -295,8 +295,6 @@ QString QmUSBModePrivate::modeToString(QmUSBMode::Mode mode) {
         return MODE_UNDEFINED;
     case QmUSBMode::ModeRequest:
         return USB_CONNECTED_DIALOG_SHOW;
-    case QmUSBMode::SDK:
-        return MODE_WINDOWS_NET;
     case QmUSBMode::MTP:
 	return MODE_MTP;
     case QmUSBMode::Adb:
@@ -333,8 +331,6 @@ QmUSBMode::Mode QmUSBModePrivate::stringToMode(const QString &str) {
         return QmUSBMode::Undefined;
     } else if (str == USB_CONNECTED_DIALOG_SHOW) {
         return QmUSBMode::ModeRequest;
-    } else if (str == MODE_WINDOWS_NET) {
-        return QmUSBMode::SDK;
     } else if (str == MODE_MTP) {
 	return QmUSBMode::MTP;
     } else if (str == MODE_ADB) {

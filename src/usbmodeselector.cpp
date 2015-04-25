@@ -109,7 +109,6 @@ void USBModeSelector::applyUSBMode(MeeGo::QmUSBMode::Mode mode)
         break;
     case MeeGo::QmUSBMode::Disconnected:
     case MeeGo::QmUSBMode::MassStorage:
-    case MeeGo::QmUSBMode::SDK:
     case MeeGo::QmUSBMode::MTP:
     case MeeGo::QmUSBMode::Developer:
     case MeeGo::QmUSBMode::Adb:
@@ -140,7 +139,6 @@ void USBModeSelector::showNotification(MeeGo::QmUSBMode::Mode mode)
         //% "Mass storage in use"
         body = qtTrId("qtn_usb_storage_active");
         break;
-    case MeeGo::QmUSBMode::SDK:
     case MeeGo::QmUSBMode::Developer:
         //% "SDK mode in use"
         body = qtTrId("qtn_usb_sdk_active");

@@ -4,7 +4,7 @@ INCLUDEPATH += $$SRCDIR $$NOTIFICATIONSRCDIR $$UTILITYSRCDIR $$XTOOLSRCDIR ../..
 QT += qml quick dbus
 
 CONFIG += link_pkgconfig
-PKGCONFIG += dsme_dbus_if
+PKGCONFIG += dsme_dbus_if thermalmanager_dbus_if usb_moded
 
 # unit test and unit
 SOURCES += \
