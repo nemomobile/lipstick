@@ -117,38 +117,6 @@ public:
      */
     QmUSBMode::Mode getDefaultMode();
 
-    /*!
-     * @brief Mount path
-     */
-    enum MountPath {
-        /*!
-         * @brief Mount for user content.
-         *
-         * The document directory (/home/user/MyDocs) is available as a mount point
-         * depending on the USB mode:
-         * 1) If the USB cable has been unplugged, the document directory will be
-         *    available regardless of the chosen USB mode.
-         * 2) If the USB cable has been plugged in, the document directory will not be
-         *    available in the mass storage mode.
-         */
-        DocumentDirectoryMount = 0
-    };
-
-    /*!
-     * @brief Mount options
-     */
-    enum MountOption {
-        ReadOnlyMount  =  0x0000001, //!< Read only.
-        ReadWriteMount =  0x0000002  //!< Read/write.
-    };
-    Q_DECLARE_FLAGS(MountOptionFlags, MountOption)
-
-    /*!
-     * @brief Gets the status of a mount.
-     * @return The mount status as MountOptionFlags
-     */
-    QmUSBMode::MountOptionFlags mountStatus(QmUSBMode::MountPath mountPath);
-
 Q_SIGNALS:
 
     /*!
@@ -162,14 +130,6 @@ Q_SIGNALS:
      * @param mode The current mode.
      */
     void modeChanged(MeeGo::QmUSBMode::Mode mode);
-
-    /*!
-     * @brief This signal is emitted before a file system is being unmounted.
-     * Applications can use the signal as an indication that a certain mount path
-    *  will be unavailable soon.
-     * @param mountPath The mount which is going to be unmounted
-     */
-    void fileSystemWillUnmount(MeeGo::QmUSBMode::MountPath mountPath);
 
     /*!
      * @brief This signal is emitted if there was an error changing the USB mode.

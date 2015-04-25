@@ -51,7 +51,6 @@ QmUSBMode::QmUSBMode(QObject *parent) : QObject(parent) {
     MEEGO_INITIALIZE(QmUSBMode);
 
     connect(priv, SIGNAL(modeChanged(MeeGo::QmUSBMode::Mode)), this, SIGNAL(modeChanged(MeeGo::QmUSBMode::Mode)));
-    connect(priv, SIGNAL(fileSystemWillUnmount(MeeGo::QmUSBMode::MountPath)), this, SIGNAL(fileSystemWillUnmount(MeeGo::QmUSBMode::MountPath)));
     connect(priv, SIGNAL(error(const QString&)), this, SIGNAL(error(const QString&)));
     connect(priv, SIGNAL(supportedModesChanged(QList<MeeGo::QmUSBMode::Mode>)), this, SIGNAL(supportedModesChanged(QList<MeeGo::QmUSBMode::Mode>)));
 }
@@ -60,7 +59,6 @@ QmUSBMode::~QmUSBMode() {
     MEEGO_PRIVATE(QmUSBMode);
 
     disconnect(priv, SIGNAL(modeChanged(MeeGo::QmUSBMode::Mode)), this, SIGNAL(modeChanged(MeeGo::QmUSBMode::Mode)));
-    disconnect(priv, SIGNAL(fileSystemWillUnmount(MeeGo::QmUSBMode::MountPath)), this, SIGNAL(fileSystemWillUnmount(MeeGo::QmUSBMode::MountPath)));
     disconnect(priv, SIGNAL(error(const QString&)), this, SIGNAL(error(const QString&)));
     disconnect(priv, SIGNAL(supportedModesChanged(QList<MeeGo::QmUSBMode::Mode>)), this, SIGNAL(supportedModesChanged(QList<MeeGo::QmUSBMode::Mode>)));
 
@@ -73,8 +71,7 @@ void QmUSBMode::connectNotify(const QMetaMethod &signal) {
     /* QObject::connect() needs to be thread-safe */
     QMutexLocker locker(&priv->connectMutex);
 
-    if (signal == QMetaMethod::fromSignal(&QmUSBMode::modeChanged) ||
-        signal == QMetaMethod::fromSignal(&QmUSBMode::fileSystemWillUnmount)) {
+    if (signal == QMetaMethod::fromSignal(&QmUSBMode::modeChanged)) {
         if (0 == priv->connectCount[SIGNAL_USB_MODE]) {
             QDBusConnection::systemBus().connect(USB_MODE_SERVICE,
                                                  USB_MODE_OBJECT,
@@ -113,8 +110,7 @@ void QmUSBMode::disconnectNotify(const QMetaMethod &signal) {
     /* QObject::disconnect() needs to be thread-safe */
     QMutexLocker locker(&priv->connectMutex);
 
-    if (signal == QMetaMethod::fromSignal(&QmUSBMode::modeChanged) ||
-        signal == QMetaMethod::fromSignal(&QmUSBMode::fileSystemWillUnmount)) {
+    if (signal == QMetaMethod::fromSignal(&QmUSBMode::modeChanged)) {
         priv->connectCount[SIGNAL_USB_MODE]--;
 
         if (0 == priv->connectCount[SIGNAL_USB_MODE]) {
@@ -237,37 +233,6 @@ QmUSBMode::Mode QmUSBMode::getDefaultMode() {
     return priv->stringToMode(mode);
 }
 
-QmUSBMode::MountOptionFlags QmUSBMode::mountStatus(QmUSBMode::MountPath mountPath) {
-    QmUSBMode::MountOptionFlags mountOptions;
-    const char *path = "/home/user/MyDocs";
-    struct stat statbuf;
-
-    if (QmUSBMode::DocumentDirectoryMount != mountPath) {
-        /* We don't currently support other mount paths */
-        goto out;
-    }
-
-    memset(&statbuf, 0, sizeof statbuf);
-
-    if (0 != stat(path, &statbuf)) {
-        /* Path not available */
-        goto out;
-    }
-
-    if (S_ISDIR(statbuf.st_mode) && 0 == access(path, R_OK | W_OK)) {
-        mountOptions |= QmUSBMode::ReadWriteMount;
-        goto out;
-    }
-
-    if (S_ISDIR(statbuf.st_mode) && 0 == access(path, R_OK)) {
-        mountOptions |= QmUSBMode::ReadOnlyMount;
-        goto out;
-    }
-
-out:
-    return mountOptions;
-}
-
 // private class
 
 QmUSBModePrivate::QmUSBModePrivate(QObject *parent) : QObject(parent) {
@@ -356,8 +321,7 @@ void QmUSBModePrivate::didReceiveError(const QString &errorCode) {
 
 void QmUSBModePrivate::modeChanged(const QString &mode) {
     if (mode == USB_PRE_UNMOUNT) {
-        /* The pre-unmount signal only concerns MyDocs, for now */
-        emit fileSystemWillUnmount(QmUSBMode::DocumentDirectoryMount);
+        // XXX: USB_PRE_UNMOUNT is not handled in any way at the moment
     } else {
         emit modeChanged(stringToMode(mode));
     }

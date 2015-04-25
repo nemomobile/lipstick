@@ -54,7 +54,6 @@ public:
 
 Q_SIGNALS:
     void modeChanged(MeeGo::QmUSBMode::Mode mode);
-    void fileSystemWillUnmount(MeeGo::QmUSBMode::MountPath mountPath);
     void error(const QString &errorCode);
     void supportedModesChanged(QList<MeeGo::QmUSBMode::Mode> supportedModes);
 
