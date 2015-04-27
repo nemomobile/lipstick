@@ -627,7 +627,20 @@ void NotificationManager::fetchData()
     QHash<uint, QVariantHash> hints;
     while (hintsQuery.next()) {
         uint id = hintsQuery.value(hintsTableIdFieldIndex).toUInt();
-        hints[id].insert(hintsQuery.value(hintsTableHintFieldIndex).toString(), hintsQuery.value(hintsTableValueFieldIndex));
+        const QString hintName(hintsQuery.value(hintsTableHintFieldIndex).toString());
+        const QVariant hintValue(hintsQuery.value(hintsTableValueFieldIndex));
+
+        QVariant value;
+        if (hintName == HINT_TIMESTAMP) {
+            // Timestamps in the DB are already UTC but not marked as such, so they will
+            // be converted again unless specified to be UTC
+            QDateTime timestamp(QDateTime::fromString(hintValue.toString(), Qt::ISODate));
+            timestamp.setTimeSpec(Qt::UTC);
+            value = timestamp.toString(Qt::ISODate);
+        } else {
+            value = hintValue;
+        }
+        hints[id].insert(hintName, value);
     }
 
     // Gather expiration times for displayed notifications
