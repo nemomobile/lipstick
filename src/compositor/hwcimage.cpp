@@ -75,6 +75,8 @@ public:
                 p.restore();
             }
         }
+
+        image  = image.convertToFormat(QImage::Format_RGBX8888);
     }
 
     void run() {
