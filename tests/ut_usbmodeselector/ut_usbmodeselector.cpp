@@ -153,6 +153,7 @@ void Ut_USBModeSelector::testHideDialog_data()
     QTest::addColumn<MeeGo::QmUSBMode::Mode>("mode");
 
     QTest::newRow("Disconnected") << MeeGo::QmUSBMode::Disconnected;
+    QTest::newRow("PC Suite") << MeeGo::QmUSBMode::PCSuite;
     QTest::newRow("Mass Storage") << MeeGo::QmUSBMode::MassStorage;
     QTest::newRow("MTP") << MeeGo::QmUSBMode::MTP;
     QTest::newRow("Developer") << MeeGo::QmUSBMode::Developer;
@@ -179,6 +180,8 @@ void Ut_USBModeSelector::testUSBNotifications_data()
     QTest::addColumn<QString>("body");
 
     QTest::newRow("Disconnected") << MeeGo::QmUSBMode::Disconnected << "device.removed" << qtTrId("qtn_usb_disconnected");
+    QTest::newRow("PC Suite") << MeeGo::QmUSBMode::PCSuite << "device.added" << qtTrId("qtn_usb_sync_active");
+
     QTest::newRow("Mass Storage") << MeeGo::QmUSBMode::MassStorage << "device.added" << qtTrId("qtn_usb_storage_active");
     QTest::newRow("Developer") << MeeGo::QmUSBMode::Developer << "device.added" << qtTrId("qtn_usb_sdk_active");
     QTest::newRow("MTP") << MeeGo::QmUSBMode::MTP << "device.added" << qtTrId("qtn_usb_mtp_active");
@@ -245,7 +248,7 @@ void Ut_USBModeSelector::testSetUSBMode()
 void Ut_USBModeSelector::testSupportedUSBModes()
 {
     QSignalSpy spy(usbModeSelector, SIGNAL(supportedUSBModesChanged()));
-    testSupportedModes << MeeGo::QmUSBMode::MassStorage;
+    testSupportedModes << MeeGo::QmUSBMode::PCSuite << MeeGo::QmUSBMode::MassStorage;
     usbModeSelector->applyCurrentUSBMode();
     QCOMPARE(usbModeSelector->supportedUSBModes().count(), testSupportedModes.count());
     for (int i = 0; i < testSupportedModes.count(); i++) {

@@ -72,6 +72,7 @@ public:
         Disconnected,     //!< Signaled when the USB cable is unplugged.
         MassStorage,      //!< Mass storage mode.
         ChargingOnly,     //!< Charging only mode.
+        PCSuite,
         ModeRequest,      //!< Signaled as an indication that the USB mode should be set with setMode(QmUSBMode::Mode).
         Ask,              //!< Waiting for the USB mode to be set with setMode(QmUSBMode::Mode).
         Undefined,        //!< Unknown/error.
