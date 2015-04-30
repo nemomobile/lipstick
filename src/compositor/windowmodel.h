@@ -16,6 +16,7 @@
 #ifndef WINDOWMODEL_H
 #define WINDOWMODEL_H
 
+#include "lipstickdbus.h"
 #include "lipstickglobal.h"
 #include <QQmlParserStatus>
 #include <QAbstractListModel>
@@ -27,7 +28,7 @@ class LIPSTICK_EXPORT WindowModel : public QAbstractListModel,
 {
     Q_OBJECT
     Q_INTERFACES(QQmlParserStatus)
-
+    Q_CLASSINFO("D-Bus Interface", LIPSTICK_DBUS_WINDOW_MODEL_INTERFACE)
     Q_PROPERTY(int itemCount READ itemCount NOTIFY itemCountChanged)
 
 public:
