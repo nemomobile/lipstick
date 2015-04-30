@@ -29,6 +29,7 @@
 #define LIPSTICK_DBUS_LAUNCHER_MODEL_SHOW_UPDATING_PROGRESS "showUpdatingProgress"
 
 #define LIPSTICK_DBUS_WINDOW_MODEL_PATH "/WindowModel"
+#define LIPSTICK_DBUS_WINDOW_MODEL_INTERFACE "local.Lipstick.WindowModel"
 
 #define LIPSTICK_DBUS_SCREENLOCK_PATH "/screenlock"
 #define LIPSTICK_DBUS_DEVICELOCK_PATH "/devicelock"
