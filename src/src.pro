@@ -48,6 +48,13 @@ PUBLICHEADERS += \
     notifications/notificationpreviewpresenter.h \
     usbmodeselector.h \
     shutdownscreen.h \
+    qmsystem2/qmactivity.h \
+    qmsystem2/qmdisplaystate.h \
+    qmsystem2/qmlocks.h \
+    qmsystem2/qmsystemstate.h \
+    qmsystem2/qmthermal.h \
+    qmsystem2/qmusbmode.h \
+    qmsystem2/system_global.h \
     connectionselector.h
 
 INSTALLS += publicheaderfiles dbus_policy
