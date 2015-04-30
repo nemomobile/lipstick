@@ -17,7 +17,6 @@
 #include "lipstickcompositorwindow.h"
 #include "lipstickcompositor.h"
 #include "windowmodel.h"
-#include "lipstickdbus.h"
 
 WindowModel::WindowModel()
 : m_complete(false)
