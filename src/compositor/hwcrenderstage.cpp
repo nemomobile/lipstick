@@ -424,7 +424,7 @@ bool HwcRenderStage::checkSceneGraph(QSGNode *node)
         }
 
         if (!hwc_renderstage_isTranslate(cm))
-            return true;
+            return false;
 
         hwc_renderstage_check_node(hwcNode);
         hwcNode->setPos(cm(0, 3), cm(1, 3));
