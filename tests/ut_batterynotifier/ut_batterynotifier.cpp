@@ -18,7 +18,6 @@
 
 #include "lowbatterynotifier_stub.h"
 #include "notificationmanager_stub.h"
-#include "qmdevicemode_stub.h"
 #include "qmdisplaystate_stub.h"
 #include "batterynotifier.h"
 #include "ut_batterynotifier.h"

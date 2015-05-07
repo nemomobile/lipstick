@@ -12,12 +12,12 @@ QT += quick compositor
 SOURCES += main.cpp
 
 DEPENDPATH += ../../src
-INCLUDEPATH += ../../src ../../src/compositor
+INCLUDEPATH += ../../src ../../src/compositor ../../src/qmsystem2
 QMAKE_LIBDIR = ../../src
 LIBS = -llipstick-qt5
 
 CONFIG += link_pkgconfig
-PKGCONFIG += mlite5 qmsystem2-qt5
+PKGCONFIG += mlite5 dsme_dbus_if thermalmanager_dbus_if usb_moded
 
 qmls.path += /usr/share/lipstick/simplecompositor
 qmls.files += simplecompositor.qml

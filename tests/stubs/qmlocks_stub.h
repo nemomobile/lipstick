@@ -12,8 +12,6 @@ public:
     virtual void QmLocksDestructor();
     virtual MeeGo::QmLocks::State getState(MeeGo::QmLocks::Lock what) const;
     virtual bool setState(MeeGo::QmLocks::Lock what, MeeGo::QmLocks::State how);
-    virtual bool setDeviceAutolockTime(int seconds);
-    virtual int getDeviceAutolockTime();
     virtual void connectNotify(const QMetaMethod &signal);
     virtual void disconnectNotify(const QMetaMethod &signal);
 };
@@ -40,18 +38,6 @@ bool QmLocksStub::setState(MeeGo::QmLocks::Lock what, MeeGo::QmLocks::State how)
     params.append(new Parameter<MeeGo::QmLocks::State>(how));
     stubMethodEntered("setState", params);
     return stubReturnValue<bool>("setState");
-}
-
-bool QmLocksStub::setDeviceAutolockTime(int seconds) {
-    QList<ParameterBase*> params;
-    params.append(new Parameter<int>(seconds));
-    stubMethodEntered("setDeviceAutolockTime", params);
-    return stubReturnValue<bool>("setDeviceAutolockTime");
-}
-
-int QmLocksStub::getDeviceAutolockTime() {
-    stubMethodEntered("getDeviceAutolockTime");
-    return stubReturnValue<int>("getDeviceAutolockTime");
 }
 
 void QmLocksStub::connectNotify(const QMetaMethod &signal)
@@ -90,14 +76,6 @@ QmLocks::State QmLocks::getState(QmLocks::Lock what) const {
 
 bool QmLocks::setState(QmLocks::Lock what, QmLocks::State how) {
     return gQmLocksStub->setState(what, how);
-}
-
-bool QmLocks::setDeviceAutolockTime(int seconds) {
-    return gQmLocksStub->setDeviceAutolockTime(seconds);
-}
-
-int QmLocks::getDeviceAutolockTime() {
-    return gQmLocksStub->getDeviceAutolockTime();
 }
 
 void QmLocks::connectNotify(const QMetaMethod &signal)

@@ -108,9 +108,8 @@ void USBModeSelector::applyUSBMode(MeeGo::QmUSBMode::Mode mode)
         setWindowVisible(true);
         break;
     case MeeGo::QmUSBMode::Disconnected:
-    case MeeGo::QmUSBMode::OviSuite:
+    case MeeGo::QmUSBMode::PCSuite:
     case MeeGo::QmUSBMode::MassStorage:
-    case MeeGo::QmUSBMode::SDK:
     case MeeGo::QmUSBMode::MTP:
     case MeeGo::QmUSBMode::Developer:
     case MeeGo::QmUSBMode::Adb:
@@ -137,7 +136,7 @@ void USBModeSelector::showNotification(MeeGo::QmUSBMode::Mode mode)
     QString category = "device.added";
     QString body;
     switch (mode) {
-    case MeeGo::QmUSBMode::OviSuite:
+    case MeeGo::QmUSBMode::PCSuite:
         //% "Sync and connect in use"
         body = qtTrId("qtn_usb_sync_active");
         break;
@@ -145,7 +144,6 @@ void USBModeSelector::showNotification(MeeGo::QmUSBMode::Mode mode)
         //% "Mass storage in use"
         body = qtTrId("qtn_usb_storage_active");
         break;
-    case MeeGo::QmUSBMode::SDK:
     case MeeGo::QmUSBMode::Developer:
         //% "SDK mode in use"
         body = qtTrId("qtn_usb_sdk_active");
