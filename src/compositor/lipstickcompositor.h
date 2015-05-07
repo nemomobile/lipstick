@@ -50,6 +50,7 @@ class LIPSTICK_EXPORT LipstickCompositor : public QQuickWindow, public QWaylandQ
     Q_PROPERTY(QVariant orientationLock READ orientationLock NOTIFY orientationLockChanged)
     Q_PROPERTY(bool displayDimmed READ displayDimmed NOTIFY displayDimmedChanged)
     Q_PROPERTY(bool completed READ completed NOTIFY completedChanged)
+    Q_PROPERTY(QString keyboardLayout READ keyboardLayout WRITE setKeyboardLayout NOTIFY keyboardLayoutChanged)
 
 public:
     LipstickCompositor();
@@ -84,6 +85,9 @@ public:
     QVariant orientationLock() const { return m_orientationLock->value("dynamic"); }
 
     bool displayDimmed() const { return m_currentDisplayState == MeeGo::QmDisplayState::Dimmed; }
+
+    QString keyboardLayout() const;
+    void setKeyboardLayout(const QString &layout);
 
     QObject *clipboard() const;
 
@@ -126,6 +130,7 @@ signals:
     void sensorOrientationChanged();
     void orientationLockChanged();
     void displayDimmedChanged();
+    void keyboardLayoutChanged();
 
     void displayOn();
     void displayOff();
@@ -205,6 +210,7 @@ private:
     bool m_completed;
     int m_onUpdatesDisabledUnfocusedWindowId;
     LipstickRecorderManager *m_recorder;
+    QString m_keyboardLayout;
 };
 
 #endif // LIPSTICKCOMPOSITOR_H

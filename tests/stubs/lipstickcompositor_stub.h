@@ -476,6 +476,13 @@ bool LipstickCompositor::completed() {
     return gLipstickCompositorStub->completed();
 }
 
+void LipstickCompositor::setKeyboardLayout(const QString &) {
+}
+
+QString LipstickCompositor::keyboardLayout() const {
+    return QString();
+}
+
 #if QT_VERSION < QT_VERSION_CHECK(5, 2, 0)
 QWaylandCompositor::QWaylandCompositor(QWindow *, const char *)
 #else

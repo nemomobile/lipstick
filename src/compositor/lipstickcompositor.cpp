@@ -592,6 +592,20 @@ void LipstickCompositor::setScreenOrientation(Qt::ScreenOrientation screenOrient
     }
 }
 
+QString LipstickCompositor::keyboardLayout() const
+{
+    return m_keyboardLayout;
+}
+
+void LipstickCompositor::setKeyboardLayout(const QString &layout)
+{
+    if (layout != m_keyboardLayout) {
+        m_keyboardLayout = layout;
+        defaultInputDevice()->setKeymap(QWaylandKeymap(m_keyboardLayout));
+        emit keyboardLayoutChanged();
+    }
+}
+
 void LipstickCompositor::reactOnDisplayStateChanges(MeeGo::QmDisplayState::DisplayState state)
 {
     if (m_currentDisplayState == state) {
