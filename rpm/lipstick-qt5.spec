@@ -43,7 +43,7 @@ BuildRequires:  pkgconfig(contextkit-statefs) >= 0.2.7
 BuildRequires:  pkgconfig(systemd)
 BuildRequires:  pkgconfig(wayland-server)
 BuildRequires:  qt5-qttools-linguist
-BuildRequires:  qt5-qtwayland-wayland_egl-devel >= 5.4.0+git9
+BuildRequires:  qt5-qtwayland-wayland_egl-devel >= 5.4.0+git13
 BuildRequires:  doxygen
 Conflicts:   meegotouch-systemui < 1.5.7
 Obsoletes:   libnotificationsystem0
