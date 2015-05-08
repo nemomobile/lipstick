@@ -81,6 +81,7 @@ Summary:    Screenshot tool for lipstick
 License:    LGPLv2.1
 Group:      System/Libraries
 Requires:   %{name} = %{version}-%{release}
+Requires:   %{name}-tools = %{version}-%{release}
 Obsoletes:  lipstick-qt5-tools-ui
 Provides:   lipstick-qt5-tools-ui
 
