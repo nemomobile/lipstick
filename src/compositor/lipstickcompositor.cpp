@@ -413,11 +413,27 @@ void LipstickCompositor::surfaceMapped()
     if (item->m_mapped)
         return;
 
+    QWaylandSurface *transientParent = surface->transientParent();
+    if (transientParent) {
+        LipstickCompositorWindow *transientParentItem = surfaceWindow(transientParent);
+        if (transientParentItem) {
+            item->setParentItem(transientParentItem);
+            item->setX(surface->transientOffset().x());
+            item->setY(surface->transientOffset().y());
+        } else {
+            qWarning("Surface %s was mapped without visible transient parent", qPrintable(transientParent->className()));
+        }
+    }
+
     QVariantMap properties = surface->windowProperties();
 
     item->m_mapped = true;
     item->m_category = properties.value("CATEGORY").toString();
-    item->setParentItem(contentItem());
+
+    if (!item->parentItem()) {
+        // TODO why contentItem?
+        item->setParentItem(contentItem());
+    }
 
     item->setSize(surface->size());
     QObject::connect(surface, &QWaylandSurface::surfaceDestroyed, this, &LipstickCompositor::onSurfaceDying);
