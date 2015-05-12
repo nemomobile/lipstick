@@ -65,18 +65,23 @@ void NotificationListModel::updateNotification(uint id)
     LipstickNotification *notification = NotificationManager::instance()->notification(id);
 
     if (notification != 0) {
-        int index = indexOf(notification);
+        int currentIndex = indexOf(notification);
         if (notificationShouldBeShown(notification)) {
             // Place the notifications in the model latest first, moving existing notifications if necessary
-            int expectedIndex = indexFor(notification);
-            if (index < 0) {
-                insertItem(expectedIndex, notification);
-            } else if (index != expectedIndex) {
-                move(index, expectedIndex);
+            int newIndex = indexFor(notification);
+            if (currentIndex < 0) {
+                insertItem(newIndex, notification);
+            } else if (newIndex == currentIndex || newIndex == (currentIndex + 1)) {
+                // If the new index is the existing index + 1, there is no actual movement
+                update(currentIndex);
             } else {
-                update(index);
+                // QObjectListModel::move works like QList::move - the insertion is performed after the extraction
+                if (newIndex > currentIndex) {
+                    newIndex -= 1;
+                }
+                move(currentIndex, newIndex);
             }
-        } else if (index >= 0) {
+        } else if (currentIndex >= 0) {
             removeItem(notification);
         }
     }
@@ -86,8 +91,16 @@ int NotificationListModel::indexFor(LipstickNotification *notification)
 {
     for (int index = 0; index < itemCount(); index++) {
         LipstickNotification *notificationAtIndex = static_cast<LipstickNotification *>(get(index));
-        if (notificationAtIndex->timestamp() <= notification->timestamp()) {
+        if (notification->replacesId() == notificationAtIndex->replacesId()) {
+            continue;
+        }
+
+        if (notification->timestamp() > notificationAtIndex->timestamp()) {
             return index;
+        } else if (notification->timestamp() == notificationAtIndex->timestamp()) {
+            if (notification->replacesId() > notificationAtIndex->replacesId()) {
+                return index;
+            }
         }
     }
     return itemCount();
