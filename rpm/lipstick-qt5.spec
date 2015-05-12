@@ -89,6 +89,16 @@ Provides:   lipstick-qt5-tools-ui
 %description screenshot
 Screenshot tool for the lipstick package.
 
+%package simplecompositor
+Summary:    Lipstick Simple Compositor
+License:    LGPLv2.1
+Group:      System/Libraries
+Requires:   %{name} = %{version}-%{release}
+
+%description simplecompositor
+Debugging tool to debug the compositor logic without pulling in all of the
+homescreen and all the other app logic lipstick has.
+
 %package doc
 Summary:    Documentation for lipstick
 License:    LGPLv2.1
@@ -174,11 +184,16 @@ mkdir -p %{buildroot}/%{icondirectory}
 %files screenshot
 %defattr(-,root,root,-)
 %{_bindir}/screenshottool
-%{_bindir}/simplecompositor
 %{_datadir}/applications/screenshottool.desktop
-%{_datadir}/lipstick/simplecompositor/*
 # >> files screenshot
 # << files screenshot
+
+%files simplecompositor
+%defattr(-,root,root,-)
+%{_bindir}/simplecompositor
+%{_datadir}/lipstick/simplecompositor/*
+# >> files simplecompositor
+# << files simplecompositor
 
 %files doc
 %defattr(-,root,root,-)
