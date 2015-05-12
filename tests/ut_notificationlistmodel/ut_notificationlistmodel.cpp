@@ -127,8 +127,8 @@ void Ut_NotificationListModel::testNotificationOrdering()
     QVariantHash hints2;
     QVariantHash hints3;
     hints1.insert(NotificationManager::HINT_TIMESTAMP, QDateTime(QDate(2013, 1, 1), QTime(12, 34, 56)));
-    hints2.insert(NotificationManager::HINT_TIMESTAMP, QDateTime(QDate(2013, 1, 2), QTime(12, 34, 56)));
-    hints3.insert(NotificationManager::HINT_TIMESTAMP, QDateTime(QDate(2013, 1, 3), QTime(12, 34, 56)));
+    hints2.insert(NotificationManager::HINT_TIMESTAMP, QDateTime(QDate(2013, 1, 3), QTime(12, 34, 56)));
+    hints3.insert(NotificationManager::HINT_TIMESTAMP, QDateTime(QDate(2013, 1, 5), QTime(12, 34, 56)));
     LipstickNotification notification1("appName1", 1, "appIcon1", "summary1", "body1", QStringList() << "action1", hints1, 1);
     LipstickNotification notification2("appName2", 2, "appIcon2", "summary2", "body2", QStringList() << "action2", hints2, 1);
     LipstickNotification notification3("appName3", 3, "appIcon3", "summary3", "body3", QStringList() << "action3", hints3, 1);
@@ -143,7 +143,7 @@ void Ut_NotificationListModel::testNotificationOrdering()
     QCOMPARE(model.get(1), &notification2);
     QCOMPARE(model.get(2), &notification1);
 
-    hints1.insert(NotificationManager::HINT_TIMESTAMP, QDateTime(QDate(2013, 1, 4), QTime(12, 34, 56)));
+    hints1.insert(NotificationManager::HINT_TIMESTAMP, QDateTime(QDate(2013, 1, 7), QTime(12, 34, 56)));
     notification1.setHints(hints1);
     gNotificationManagerStub->stubSetReturnValue("notification", &notification1);
     model.updateNotification(1);
@@ -151,8 +151,13 @@ void Ut_NotificationListModel::testNotificationOrdering()
     QCOMPARE(model.get(1), &notification3);
     QCOMPARE(model.get(2), &notification2);
 
+    hints1.insert(NotificationManager::HINT_TIMESTAMP, QDateTime(QDate(2013, 1, 4), QTime(12, 34, 56)));
+    notification1.setHints(hints1);
+    gNotificationManagerStub->stubSetReturnValue("notification", &notification1);
     model.updateNotification(1);
-    QCOMPARE(model.get(0), &notification1);
+    QCOMPARE(model.get(0), &notification3);
+    QCOMPARE(model.get(1), &notification1);
+    QCOMPARE(model.get(2), &notification2);
 }
 
 void Ut_NotificationListModel::testNotificationUpdate()

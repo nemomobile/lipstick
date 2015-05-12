@@ -75,6 +75,10 @@ void NotificationListModel::updateNotification(uint id)
                 // If the new index is the existing index + 1, there is no actual movement
                 update(currentIndex);
             } else {
+                // QObjectListModel::move works like QList::move - the insertion is performed after the extraction
+                if (newIndex > currentIndex) {
+                    newIndex -= 1;
+                }
                 move(currentIndex, newIndex);
             }
         } else if (currentIndex >= 0) {
