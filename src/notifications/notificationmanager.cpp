@@ -676,12 +676,11 @@ void NotificationManager::fetchData()
         QString body = notificationsQuery.value(notificationsTableBodyFieldIndex).toString();
         int expireTimeout = notificationsQuery.value(notificationsTableExpireTimeoutFieldIndex).toInt();
 
+        bool expired = false;
         if (expireAt.contains(id)) {
             const qint64 expiry(expireAt.value(id));
             if (expiry <= currentTime) {
-                NOTIFICATIONS_DEBUG("EXPIRED AT RESTORE:" << appName << appIcon << summary << body << actions[id] << hints[id] << expireTimeout << "->" << id);
-                expiredIds.append(id);
-                continue;
+                expired = true;
             } else {
                 nextTimeout = qMin(expiry, nextTimeout);
                 unexpiredRemaining = true;
@@ -689,16 +688,22 @@ void NotificationManager::fetchData()
         }
 
         LipstickNotification *notification = new LipstickNotification(appName, id, appIcon, summary, body, actions[id], hints[id], expireTimeout, this);
-        connect(notification, SIGNAL(actionInvoked(QString)), this, SLOT(invokeAction(QString)), Qt::QueuedConnection);
-        connect(notification, SIGNAL(removeRequested()), this, SLOT(removeNotificationIfUserRemovable()), Qt::QueuedConnection);
         notifications.insert(id, notification);
-
-        NOTIFICATIONS_DEBUG("RESTORED:" << appName << appIcon << summary << body << actions[id] << hints[id] << expireTimeout << "->" << id);
-        emit notificationModified(id);
 
         if (id > previousNotificationID) {
             // Use the highest notification ID found as the previous notification ID
             previousNotificationID = id;
+        }
+
+        if (!expired) {
+            connect(notification, SIGNAL(actionInvoked(QString)), this, SLOT(invokeAction(QString)), Qt::QueuedConnection);
+            connect(notification, SIGNAL(removeRequested()), this, SLOT(removeNotificationIfUserRemovable()), Qt::QueuedConnection);
+
+            NOTIFICATIONS_DEBUG("RESTORED:" << appName << appIcon << summary << body << actions[id] << hints[id] << expireTimeout << "->" << id);
+            emit notificationModified(id);
+        } else {
+            NOTIFICATIONS_DEBUG("EXPIRED AT RESTORE:" << appName << appIcon << summary << body << actions[id] << hints[id] << expireTimeout << "->" << id);
+            expiredIds.append(id);
         }
     }
 
