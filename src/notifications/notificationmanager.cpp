@@ -543,7 +543,20 @@ bool NotificationManager::checkTableValidity()
     bool recreateHintsTable = false;
     bool recreateExpirationTable = false;
 
-    {
+    const int databaseVersion(schemaVersion());
+
+    if (databaseVersion == 0) {
+        // Unmodified database - remove any existing notifications, which might cause problems
+        qWarning() << "Removing obsolete notifications";
+        recreateNotificationsTable = true;
+        recreateActionsTable = true;
+        recreateHintsTable = true;
+        recreateExpirationTable = true;
+
+        if (!setSchemaVersion(1)) {
+            qWarning() << "Unable to set database schema version!";
+        }
+    } else {
         // Check that the notifications table schema is as expected
         QSqlTableModel notificationsTableModel(0, *database);
         notificationsTableModel.setTable("notifications");
@@ -588,6 +601,34 @@ bool NotificationManager::checkTableValidity()
 
     if (recreateExpirationTable) {
         result &= recreateTable("expiration", "id INTEGER PRIMARY KEY, expire_at INTEGER");
+    }
+
+    return result;
+}
+
+int NotificationManager::schemaVersion()
+{
+    int result = -1;
+
+    if (database->isOpen()) {
+        QSqlQuery query(*database);
+        if (query.exec("PRAGMA user_version") && query.next()) {
+            result = query.value(0).toInt();
+        }
+    }
+
+    return result;
+}
+
+bool NotificationManager::setSchemaVersion(int version)
+{
+    bool result = false;
+
+    if (database->isOpen()) {
+        QSqlQuery query(*database);
+        if (query.exec(QString::fromLatin1("PRAGMA user_version=%1").arg(version))) {
+            result = true;
+        }
     }
 
     return result;
@@ -714,6 +755,8 @@ void NotificationManager::fetchData()
         const qint64 nextTriggerInterval(nextExpirationTime - currentTime);
         expirationTimer.start(static_cast<int>(std::min<qint64>(nextTriggerInterval, std::numeric_limits<int>::max())));
     }
+
+    qWarning() << "Notifications restored:" << notifications.count();
 }
 
 void NotificationManager::commit()
