@@ -377,6 +377,21 @@ private:
     bool checkTableValidity();
 
     /*!
+     * Returns the schema version of the database.
+     *
+     * \return the version number the database schema is currently set to.
+     */
+    int schemaVersion();
+
+    /*!
+     * Sets the schema version of the database.
+     *
+     * \param version the version number to set the database schema to.
+     * \return \c true if the database is updated.
+     */
+    bool setSchemaVersion(int version);
+
+    /*!
      * Recreates a table in the database.
      *
      * \param tableName the name of the table to be created
