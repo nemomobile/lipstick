@@ -22,14 +22,17 @@
 #include <sys/time.h>
 #include <QFileSystemWatcher>
 #include <QDBusContext>
+#include "lipstickglobal.h"
 
 class MGConfItem;
 class QTimer;
 
-class DeviceLock : public QObject, protected QDBusContext
+class LIPSTICK_EXPORT DeviceLock : public QObject, protected QDBusContext
 {
     Q_OBJECT
+
     Q_ENUMS(LockState)
+    Q_ENUMS(ReturnValue)
     Q_PROPERTY(int state READ state WRITE setState NOTIFY stateChanged)
 
 public:
@@ -42,11 +45,20 @@ public:
         Undefined               /*!< Undefined - The state of the lock is unknown */
     };
 
+    /*!< note: encryption binary returns 0==OK and 1==Failed, switching is done in runPlugin for the QML */
+    enum ReturnValue
+    {
+        Failed = 0,             /*!< Failed - syscall returned with default error */
+        OK,                     /*!< OK - syscall returned without errors */
+        Expired,                /*!< Expired - lockcode creation date is over the settings limit */
+        InHistory               /*!< InHistory - lockcode was found in history file. */
+    };
+
     Q_INVOKABLE int state() const;
     Q_INVOKABLE void setState(int state);
 
-    Q_INVOKABLE bool checkCode(const QString &code);
-    Q_INVOKABLE bool setCode(const QString &oldCode, const QString &newCode);
+    Q_INVOKABLE int checkCode(const QString &code);
+    Q_INVOKABLE int setCode(const QString &oldCode, const QString &newCode);
     Q_INVOKABLE bool isSet();
 
 signals:
@@ -62,7 +74,7 @@ private slots:
     void readSettings();
 
 private:
-    static bool runPlugin(const QStringList &args);
+    static int runPlugin(const QStringList &args);
     void setupTimer();
     bool isPrivileged();
 

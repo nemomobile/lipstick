@@ -26,6 +26,7 @@
 #include <notifications/notificationlistmodel.h>
 #include <notifications/lipsticknotification.h>
 #include <volume/volumecontrol.h>
+#include <devicelock/devicelock.h>
 #include <usbmodeselector.h>
 #include <shutdownscreen.h>
 #include <compositor/lipstickcompositor.h>
@@ -63,6 +64,7 @@ void LipstickPlugin::registerTypes(const char *uri)
     qmlRegisterUncreatableType<VolumeControl>("org.nemomobile.lipstick", 0, 1, "VolumeControl", "This type is initialized by HomeApplication");
     qmlRegisterUncreatableType<USBModeSelector>("org.nemomobile.lipstick", 0, 1, "USBModeSelector", "This type is initialized by HomeApplication");
     qmlRegisterUncreatableType<ShutdownScreen>("org.nemomobile.lipstick", 0, 1, "ShutdownScreen", "This type is initialized by HomeApplication");
+    qmlRegisterUncreatableType<DeviceLock>("org.nemomobile.lipstick", 0, 1, "DeviceLock", "This type is initialized by HomeApplication");
 
     qmlRegisterType<LipstickCompositor>("org.nemomobile.lipstick", 0, 1, "Compositor");
     qmlRegisterUncreatableType<QWaylandSurface>("org.nemomobile.lipstick", 0, 1, "WaylandSurface", "This type is created by the compositor");

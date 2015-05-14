@@ -163,12 +163,12 @@ void DeviceLock::setState(int state)
     }
 }
 
-bool DeviceLock::checkCode(const QString &code)
+int DeviceLock::checkCode(const QString &code)
 {
     return runPlugin(QStringList() << "--check-code" << code);
 }
 
-bool DeviceLock::setCode(const QString &oldCode, const QString &newCode)
+int DeviceLock::setCode(const QString &oldCode, const QString &newCode)
 {
     return runPlugin(QStringList() << "--set-code" << oldCode << newCode);
 }
@@ -177,21 +177,21 @@ bool DeviceLock::isSet() {
     return runPlugin(QStringList() << "--is-set" << "lockcode");
 }
 
-bool DeviceLock::runPlugin(const QStringList &args)
+int DeviceLock::runPlugin(const QStringList &args)
 {
     QSettings settings("/usr/share/lipstick/devicelock/devicelock.conf", QSettings::IniFormat);
     QString pluginName = settings.value("DeviceLock/pluginName").toString();
 
     if (pluginName.isEmpty()) {
         qWarning("No plugin configuration set in /usr/share/lipstick/devicelock/devicelock.conf");
-        return false;
+        return Failed;
     }
 
     QProcess process;
     process.start(pluginName, args);
     if (!process.waitForFinished()) {
         qWarning("Plugin did not finish in time");
-        return false;
+        return Failed;
     }
 
 #ifdef DEBUG_DEVICELOCK
@@ -199,7 +199,9 @@ bool DeviceLock::runPlugin(const QStringList &args)
     qWarning() << process.readAllStandardError();
 #endif
 
-    return process.exitCode() == 0;
+    if (process.exitCode() == 0) return OK;
+    else if (process.exitCode() == 1) return Failed;
+    else return process.exitCode(); // special cases like Expired and InHistory
 }
 
 void DeviceLock::readSettings()
