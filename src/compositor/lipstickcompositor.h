@@ -22,6 +22,7 @@
 #include <QWaylandQuickCompositor>
 #include <QWaylandSurfaceItem>
 #include <QPointer>
+#include <QTimer>
 #include <MGConfItem>
 #include <qmdisplaystate.h>
 
@@ -110,6 +111,9 @@ public:
     void setUpdatesEnabled(bool enabled);
     QWaylandSurfaceView *createView(QWaylandSurface *surf) Q_DECL_OVERRIDE;
 
+protected:
+    void timerEvent(QTimerEvent *e) Q_DECL_OVERRIDE;
+
 signals:
     void windowAdded(QObject *window);
     void windowRemoved(QObject *window);
@@ -161,7 +165,6 @@ private slots:
     void clipboardDataChanged();
     void onVisibleChanged(bool visible);
     void onSurfaceDying();
-
     void initialize();
 
 private:
@@ -181,6 +184,7 @@ private:
     void windowRemoved(int);
     void windowDestroyed(LipstickCompositorWindow *item);
     void readContent();
+    void surfaceCommitted();
 
     QQmlComponent *shaderEffectComponent();
 
@@ -211,6 +215,7 @@ private:
     int m_onUpdatesDisabledUnfocusedWindowId;
     LipstickRecorderManager *m_recorder;
     QString m_keyboardLayout;
+    bool m_fakeRepaintTriggered;
 };
 
 #endif // LIPSTICKCOMPOSITOR_H
