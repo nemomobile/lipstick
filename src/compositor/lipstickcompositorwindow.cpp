@@ -258,7 +258,7 @@ void LipstickCompositorWindow::mousePressEvent(QMouseEvent *event)
 {
     QWaylandSurface *m_surface = surface();
     if (m_surface && (!m_mouseRegionValid || m_mouseRegion.contains(event->pos())) &&
-        m_surface->inputRegionContains(event->pos())) {
+        m_surface->inputRegionContains(event->pos()) && event->source() != Qt::MouseEventSynthesizedByQt) {
         QWaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
         if (inputDevice->mouseFocus() != this) {
             inputDevice->setMouseFocus(this, event->pos(), event->globalPos());
@@ -275,7 +275,7 @@ void LipstickCompositorWindow::mousePressEvent(QMouseEvent *event)
 void LipstickCompositorWindow::mouseMoveEvent(QMouseEvent *event)
 {
     QWaylandSurface *m_surface = surface();
-    if (m_surface){
+    if (m_surface && event->source() != Qt::MouseEventSynthesizedByQt) {
         QWaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
         inputDevice->sendMouseMoveEvent(this, event->pos(), event->globalPos());
     } else {
@@ -286,7 +286,7 @@ void LipstickCompositorWindow::mouseMoveEvent(QMouseEvent *event)
 void LipstickCompositorWindow::mouseReleaseEvent(QMouseEvent *event)
 {
     QWaylandSurface *m_surface = surface();
-    if (m_surface){
+    if (m_surface && event->source() != Qt::MouseEventSynthesizedByQt) {
         QWaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
         inputDevice->sendMouseReleaseEvent(event->button(), event->pos(), event->globalPos());
     } else {
