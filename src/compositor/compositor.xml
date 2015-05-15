@@ -4,5 +4,11 @@
     <method name="setUpdatesEnabled">
       <arg name="enabled" type="b" direction="in"/>
     </method>
+    <method name="privateTopmostWindowProcessId">
+      <arg name="pid" type="i" direction="out"/>
+    </method>
+    <signal name="privateTopmostWindowProcessIdChanged">
+      <arg name="pid" type="i"/>
+    </signal>
   </interface>
 </node>

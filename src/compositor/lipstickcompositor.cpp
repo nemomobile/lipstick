@@ -48,6 +48,7 @@ LipstickCompositor::LipstickCompositor()
     , m_fullscreenSurface(0)
     , m_directRenderingActive(false)
     , m_topmostWindowId(0)
+    , m_topmostWindowProcessId(0)
     , m_screenOrientation(Qt::PrimaryOrientation)
     , m_sensorOrientation(Qt::PrimaryOrientation)
     , m_displayState(0)
@@ -340,6 +341,17 @@ void LipstickCompositor::setTopmostWindowId(int id)
     if (id != m_topmostWindowId) {
         m_topmostWindowId = id;
         emit topmostWindowIdChanged();
+
+        int pid = -1;
+        QWaylandSurface *surface = surfaceForId(m_topmostWindowId);
+
+        if (surface)
+            pid = surface->processId();
+
+        if (m_topmostWindowProcessId != pid) {
+            m_topmostWindowProcessId = pid;
+            emit privateTopmostWindowProcessIdChanged(m_topmostWindowProcessId);
+        }
     }
 }
 
