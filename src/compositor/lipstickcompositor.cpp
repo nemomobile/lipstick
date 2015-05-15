@@ -56,6 +56,7 @@ LipstickCompositor::LipstickCompositor()
     , m_updatesEnabled(true)
     , m_completed(false)
     , m_onUpdatesDisabledUnfocusedWindowId(0)
+    , m_fakeRepaintTriggered(false)
 {
     setColor(Qt::black);
     setRetainedSelectionEnabled(true);
@@ -169,6 +170,7 @@ void LipstickCompositor::surfaceCreated(QWaylandSurface *surface)
 #else
     connect(surface, SIGNAL(damaged(QRect)), this, SLOT(surfaceDamaged(QRect)));
 #endif
+    connect(surface, &QWaylandSurface::redraw, this, &LipstickCompositor::surfaceCommitted);
 }
 
 bool LipstickCompositor::openUrl(WaylandClient *client, const QUrl &url)
@@ -738,8 +740,17 @@ void LipstickCompositor::readContent()
 
 void LipstickCompositor::timerEvent(QTimerEvent *e)
 {
-    stopRendering();
-    QDBusConnection::systemBus().send(m_displayOffReply);
+    if (isVisible()) {
+        stopRendering();
+        QDBusConnection::systemBus().send(m_displayOffReply);
+        // trigger frame callbacks which are pending already at this time
+        surfaceCommitted();
+    } else {
+        frameStarted();
+        sendFrameCallbacks(surfaces());
+        m_fakeRepaintTriggered = false;
+    }
+
     killTimer(e->timerId());
 }
 
@@ -748,5 +759,13 @@ void LipstickCompositor::stopRendering()
     hide();
     if (QWindow::handle()) {
         QGuiApplication::platformNativeInterface()->nativeResourceForIntegration("DisplayOff");
+    }
+}
+
+void LipstickCompositor::surfaceCommitted()
+{
+    if (!isVisible() && !m_fakeRepaintTriggered) {
+        startTimer(100);
+        m_fakeRepaintTriggered = true;
     }
 }
