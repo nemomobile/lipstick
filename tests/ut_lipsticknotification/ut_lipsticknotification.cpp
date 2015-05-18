@@ -44,6 +44,7 @@ void Ut_Notification::testGettersAndSetters()
     hints.insert(NotificationManager::HINT_PREVIEW_BODY, previewBody);
     hints.insert(NotificationManager::HINT_URGENCY, urgency);
     hints.insert(NotificationManager::HINT_CATEGORY, category);
+    hints.insert("x-nemo.testing.custom-hint-value", M_PI);
     int expireTimeout = 1;
 
     // Ensure that the constructor puts things in place
@@ -63,6 +64,10 @@ void Ut_Notification::testGettersAndSetters()
     QCOMPARE(notification.itemCount(), itemCount);
     QCOMPARE(notification.priority(), priority);
     QCOMPARE(notification.category(), category);
+    QVERIFY(notification.hintValues().count() > 0);
+    QVERIFY(notification.hintValues().contains("x-nemo.testing.custom-hint-value"));
+    QVERIFY(!notification.hintValues().contains(NotificationManager::HINT_CATEGORY));
+    QCOMPARE(notification.hintValues().value("x-nemo.testing.custom-hint-value").toDouble(), M_PI);
 
     appName = "appName2";
     appIcon = "appIcon2";

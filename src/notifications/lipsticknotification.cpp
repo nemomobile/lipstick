@@ -30,6 +30,7 @@ LipstickNotification::LipstickNotification(const QString &appName, uint replaces
     hints_(hints),
     expireTimeout_(expireTimeout)
 {
+    updateHintValues();
 }
 
 LipstickNotification::LipstickNotification(QObject *parent) :
@@ -50,6 +51,7 @@ LipstickNotification::LipstickNotification(const LipstickNotification &notificat
     hints_(notification.hints_),
     expireTimeout_(notification.expireTimeout_)
 {
+    updateHintValues();
 }
 
 QString LipstickNotification::appName() const
@@ -118,6 +120,11 @@ QVariantHash LipstickNotification::hints() const
     return hints_;
 }
 
+QVariantMap LipstickNotification::hintValues() const
+{
+    return hintValues_;
+}
+
 void LipstickNotification::setHints(const QVariantHash &hints)
 {
     QString oldIcon = icon();
@@ -131,6 +138,7 @@ void LipstickNotification::setHints(const QVariantHash &hints)
     QString oldCategory = category();
 
     hints_ = hints;
+    updateHintValues();
 
     if (oldIcon != icon()) {
         emit iconChanged();
@@ -167,6 +175,8 @@ void LipstickNotification::setHints(const QVariantHash &hints)
     if (oldCategory != category()) {
         emit categoryChanged();
     }
+
+    emit hintsChanged();
 }
 
 int LipstickNotification::expireTimeout() const
@@ -299,6 +309,34 @@ QString LipstickNotification::origin() const
 QString LipstickNotification::owner() const
 {
     return hints_.value(NotificationManager::HINT_OWNER).toString();
+}
+
+void LipstickNotification::updateHintValues()
+{
+    hintValues_.clear();
+
+    QVariantHash::const_iterator it = hints_.constBegin(), end = hints_.constEnd();
+    for ( ; it != end; ++it) {
+        // Filter out the hints that are represented by other properties
+        const QString &hint(it.key());
+        if (hint.compare(NotificationManager::HINT_ICON, Qt::CaseInsensitive) != 0 &&
+            hint.compare(NotificationManager::HINT_TIMESTAMP, Qt::CaseInsensitive) != 0 &&
+            hint.compare(NotificationManager::HINT_PREVIEW_ICON, Qt::CaseInsensitive) != 0 &&
+            hint.compare(NotificationManager::HINT_PREVIEW_SUMMARY, Qt::CaseInsensitive) != 0 &&
+            hint.compare(NotificationManager::HINT_PREVIEW_BODY, Qt::CaseInsensitive) != 0 &&
+            hint.compare(NotificationManager::HINT_URGENCY, Qt::CaseInsensitive) != 0 &&
+            hint.compare(NotificationManager::HINT_ITEM_COUNT, Qt::CaseInsensitive) != 0 &&
+            hint.compare(NotificationManager::HINT_PRIORITY, Qt::CaseInsensitive) != 0 &&
+            hint.compare(NotificationManager::HINT_CATEGORY, Qt::CaseInsensitive) != 0 &&
+            hint.compare(NotificationManager::HINT_USER_REMOVABLE, Qt::CaseInsensitive) != 0 &&
+            hint.compare(NotificationManager::HINT_HIDDEN, Qt::CaseInsensitive) != 0 &&
+            hint.compare(NotificationManager::HINT_ORIGIN, Qt::CaseInsensitive) != 0 &&
+            hint.compare(NotificationManager::HINT_OWNER, Qt::CaseInsensitive) != 0 &&
+            !hint.startsWith(NotificationManager::HINT_REMOTE_ACTION_PREFIX, Qt::CaseInsensitive) &&
+            !hint.startsWith(NotificationManager::HINT_REMOTE_ACTION_ICON_PREFIX, Qt::CaseInsensitive)) {
+            hintValues_.insert(hint, it.value());
+        }
+    }
 }
 
 QDBusArgument &operator<<(QDBusArgument &argument, const LipstickNotification &notification)
