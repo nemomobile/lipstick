@@ -35,6 +35,7 @@ class LIPSTICK_EXPORT LipstickNotification : public QObject
     Q_PROPERTY(QString summary READ summary NOTIFY summaryChanged)
     Q_PROPERTY(QString body READ body NOTIFY bodyChanged)
     Q_PROPERTY(QStringList actions READ actions CONSTANT)
+    Q_PROPERTY(QVariantMap hints READ hintValues NOTIFY hintsChanged)
     Q_PROPERTY(int expireTimeout READ expireTimeout CONSTANT)
     Q_PROPERTY(QString icon READ icon NOTIFY iconChanged)
     Q_PROPERTY(QDateTime timestamp READ timestamp NOTIFY timestampChanged)
@@ -108,6 +109,7 @@ public:
 
     //! Returns the hints for the notification
     QVariantHash hints() const;
+    QVariantMap hintValues() const;
 
     //! Sets the hints for the notification
     void setHints(const QVariantHash &hints);
@@ -191,6 +193,9 @@ signals:
     //! Sent when the body has been modified
     void bodyChanged();
 
+    //! Sent when the hints have been modified
+    void hintsChanged();
+
     //! Sent when the icon has been modified
     void iconChanged();
 
@@ -222,6 +227,8 @@ signals:
     void userRemovableChanged();
 
 private:
+    void updateHintValues();
+
     //! Name of the application sending the notification
     QString appName_;
 
@@ -242,6 +249,7 @@ private:
 
     //! Hints for the notification
     QVariantHash hints_;
+    QVariantMap hintValues_;
 
     //! Expiration timeout for the notification
     int expireTimeout_;
