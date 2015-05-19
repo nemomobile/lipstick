@@ -22,7 +22,7 @@
 #include <QWaylandQuickCompositor>
 #include <QWaylandSurfaceItem>
 #include <QPointer>
-#include <QTimer>
+#include <QElapsedTimer>
 #include <MGConfItem>
 #include <qmdisplaystate.h>
 
@@ -215,6 +215,7 @@ private:
     int m_onUpdatesDisabledUnfocusedWindowId;
     LipstickRecorderManager *m_recorder;
     QString m_keyboardLayout;
+    QElapsedTimer m_graceTimer;
     bool m_fakeRepaintTriggered;
 };
 
