@@ -100,13 +100,6 @@ public:
     void setWindowVisible(bool visible);
 
     /*!
-     * Returns whether the audio warning has been acknowledged by user.
-     *
-     * \return \c true if acknowledged \c false otherwise
-     */
-    bool warningAcknowledged() const;
-
-    /*!
      * Returns whether a call is active or not.
      *
      * \return \c true if a call is active, \c false otherwise
@@ -176,6 +169,9 @@ private slots:
 private:
     //! Stops any key repeat in progress
     void stopKeyRepeat();
+
+    //! Returns whether the audio warning has been acknowledged by user.
+    bool warningAcknowledged() const;
 
     //! The volume control window
     HomeWindow *window;
