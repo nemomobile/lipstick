@@ -60,13 +60,6 @@ public:
     virtual ~VolumeControl();
 
     /*!
-     * Returns the current mode.
-     *
-     * \return the current mode
-     */
-    QString volumeMode() const;
-
-    /*!
      * Returns the current volume.
      *
      * \return the current volume
@@ -125,9 +118,6 @@ public:
     //! \reimp_end
 
 signals:
-    //! Sent when the mode has changed.
-    void volumeModeChanged();
-
     //! Sent when the volume has changed.
     void volumeChanged();
 
