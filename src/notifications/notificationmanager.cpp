@@ -262,6 +262,12 @@ uint NotificationManager::Notify(const QString &appName, uint replacesId, const 
         } else if (appName_ == QStringLiteral("AndroidNotification")) {
             // This forwarded Android notification contains the real app name in the summary
             appName_ = summary_;
+
+            // The app icon should also be the nemo icon
+            const QString icon(hints_.value(HINT_ICON).toString());
+            if (icon.isEmpty()) {
+                hints_.insert(HINT_ICON, appIcon_);
+            }
         }
 
         if (replacesId == 0) {
