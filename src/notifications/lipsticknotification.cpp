@@ -181,8 +181,7 @@ void LipstickNotification::setExpireTimeout(int expireTimeout)
 
 QString LipstickNotification::icon() const
 {
-    const QString hintIcon(hints_.value(NotificationManager::HINT_ICON).toString());
-    return hintIcon.isEmpty() ? appIcon_ : hintIcon;
+    return hints_.value(NotificationManager::HINT_ICON).toString();
 }
 
 QDateTime LipstickNotification::timestamp() const
