@@ -35,7 +35,6 @@ extern "C"
  */
 
 bool acquireCalled = false;
-bool releaseCalled = false;
 
 namespace ResourcePolicy
 {
@@ -66,7 +65,6 @@ namespace ResourcePolicy
 
     bool ResourceSet::release()
     {
-        releaseCalled = true;
         return true;
     }
 
@@ -125,7 +123,6 @@ void Ut_VolumeControl::cleanup()
 {
     delete volumeControl;
     acquireCalled = false;
-    releaseCalled = false;
     qTimerStartCounts.clear();
     qTimerStopCounts.clear();
     disconnect(SIGNAL(timeout()));
@@ -273,14 +270,8 @@ void Ut_VolumeControl::testHwKeyEventWhenKeyReleaseIsInProgress()
 
 void Ut_VolumeControl::testAcquireKeys()
 {
-    volumeControl->acquireKeys();
+    // ctor should aqcuire
     QCOMPARE(acquireCalled, true);
-}
-
-void Ut_VolumeControl::testReleaseKeys()
-{
-    volumeControl->releaseKeys();
-    QCOMPARE(releaseCalled, true);
 }
 
 void Ut_VolumeControl::testMaximumVolume()

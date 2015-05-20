@@ -40,7 +40,6 @@ private slots:
     void testHwKeyEventWhenKeyRepeatIsInProgress();
     void testHwKeyEventWhenKeyReleaseIsInProgress();
     void testAcquireKeys();
-    void testReleaseKeys();
     void testMaximumVolume();
     void testCallActive();
 

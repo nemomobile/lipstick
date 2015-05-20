@@ -43,6 +43,7 @@ VolumeControl::VolumeControl(QObject *parent) :
     hwKeyResource->addResourceObject(new ResourcePolicy::ScaleButtonResource);
     connect(hwKeyResource, SIGNAL(resourcesGranted(QList<ResourcePolicy::ResourceType>)), this, SLOT(hwKeyResourceAcquired()));
     connect(hwKeyResource, SIGNAL(lostResources()), this, SLOT(hwKeyResourceLost()));
+    hwKeyResource->acquire();
 
     // Set up key repeat: initial delay and per-repeat delay
     keyRepeatDelayTimer.setSingleShot(true);
@@ -59,8 +60,6 @@ VolumeControl::VolumeControl(QObject *parent) :
     pulseAudioControl->update();
 
     qApp->installEventFilter(this);
-
-    acquireKeys();
 }
 
 VolumeControl::~VolumeControl()
@@ -183,17 +182,6 @@ void VolumeControl::hwKeyResourceLost()
 {
     hwKeysAcquired = false;
     stopKeyRepeat();
-}
-
-void VolumeControl::releaseKeys()
-{
-    hwKeyResource->release();
-    stopKeyRepeat();
-}
-
-void VolumeControl::acquireKeys()
-{
-    hwKeyResource->acquire();
 }
 
 void VolumeControl::changeVolume()

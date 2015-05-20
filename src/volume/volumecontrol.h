@@ -154,12 +154,6 @@ signals:
     void showAudioWarning(bool initial);
 
 public slots:
-    //! Acquires access to hardware keys
-    void acquireKeys();
-
-    //! Releases access to hardware keys
-    void releaseKeys();
-
     /*!
      * Sets the audio warning acknowledged.
      *
