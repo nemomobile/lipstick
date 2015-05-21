@@ -312,8 +312,9 @@ void Ut_NotificationManager::testDatabaseConnectionSucceedsAndTablesAreOk()
     QCOMPARE(qSqlDatabaseAddDatabaseType, QString("QSQLITE"));
     QCOMPARE(qSqlDatabaseDatabaseName, QDir::homePath() + "/.local/share/system/privileged/Notifications/notifications.db");
     QCOMPARE(qSqlDatabaseOpenCalledCount, 1);
-    QVERIFY(qSqlQueryExecQuery.count() > 0);
+    QVERIFY(qSqlQueryExecQuery.count() > 1);
     QCOMPARE(qSqlQueryExecQuery.at(0), QString("PRAGMA journal_mode=WAL"));
+    QCOMPARE(qSqlQueryExecQuery.at(1), QString("PRAGMA user_version"));
 }
 
 void Ut_NotificationManager::testDatabaseConnectionSucceedsAndTablesAreNotOk()
@@ -334,20 +335,21 @@ void Ut_NotificationManager::testDatabaseConnectionSucceedsAndTablesAreNotOk()
     QCOMPARE(qSqlDatabaseAddDatabaseType, QString("QSQLITE"));
     QCOMPARE(qSqlDatabaseDatabaseName, QDir::homePath() + "/.local/share/system/privileged/Notifications/notifications.db");
     QCOMPARE(qSqlDatabaseOpenCalledCount, 1);
-    QCOMPARE(qSqlQueryExecQuery.count(), 13);
+    QCOMPARE(qSqlQueryExecQuery.count(), 14);
     QCOMPARE(qSqlQueryExecQuery.at(0), QString("PRAGMA journal_mode=WAL"));
-    QCOMPARE(qSqlQueryExecQuery.at(1), QString("DROP TABLE notifications"));
-    QCOMPARE(qSqlQueryExecQuery.at(2), QString("CREATE TABLE notifications (id INTEGER PRIMARY KEY, app_name TEXT, app_icon TEXT, summary TEXT, body TEXT, expire_timeout INTEGER)"));
-    QCOMPARE(qSqlQueryExecQuery.at(3), QString("DROP TABLE actions"));
-    QCOMPARE(qSqlQueryExecQuery.at(4), QString("CREATE TABLE actions (id INTEGER, action TEXT, PRIMARY KEY(id, action))"));
-    QCOMPARE(qSqlQueryExecQuery.at(5), QString("DROP TABLE hints"));
-    QCOMPARE(qSqlQueryExecQuery.at(6), QString("CREATE TABLE hints (id INTEGER, hint TEXT, value TEXT, PRIMARY KEY(id, hint))"));
-    QCOMPARE(qSqlQueryExecQuery.at(7), QString("DROP TABLE expiration"));
-    QCOMPARE(qSqlQueryExecQuery.at(8), QString("CREATE TABLE expiration (id INTEGER PRIMARY KEY, expire_at INTEGER)"));
-    QCOMPARE(qSqlQueryExecQuery.at(9), QString("SELECT * FROM actions"));
-    QCOMPARE(qSqlQueryExecQuery.at(10), QString("SELECT * FROM hints"));
-    QCOMPARE(qSqlQueryExecQuery.at(11), QString("SELECT * FROM expiration"));
-    QCOMPARE(qSqlQueryExecQuery.at(12), QString("SELECT * FROM notifications"));
+    QCOMPARE(qSqlQueryExecQuery.at(1), QString("PRAGMA user_version"));
+    QCOMPARE(qSqlQueryExecQuery.at(2), QString("DROP TABLE notifications"));
+    QCOMPARE(qSqlQueryExecQuery.at(3), QString("CREATE TABLE notifications (id INTEGER PRIMARY KEY, app_name TEXT, app_icon TEXT, summary TEXT, body TEXT, expire_timeout INTEGER)"));
+    QCOMPARE(qSqlQueryExecQuery.at(4), QString("DROP TABLE actions"));
+    QCOMPARE(qSqlQueryExecQuery.at(5), QString("CREATE TABLE actions (id INTEGER, action TEXT, PRIMARY KEY(id, action))"));
+    QCOMPARE(qSqlQueryExecQuery.at(6), QString("DROP TABLE hints"));
+    QCOMPARE(qSqlQueryExecQuery.at(7), QString("CREATE TABLE hints (id INTEGER, hint TEXT, value TEXT, PRIMARY KEY(id, hint))"));
+    QCOMPARE(qSqlQueryExecQuery.at(8), QString("DROP TABLE expiration"));
+    QCOMPARE(qSqlQueryExecQuery.at(9), QString("CREATE TABLE expiration (id INTEGER PRIMARY KEY, expire_at INTEGER)"));
+    QCOMPARE(qSqlQueryExecQuery.at(10), QString("SELECT * FROM actions"));
+    QCOMPARE(qSqlQueryExecQuery.at(11), QString("SELECT * FROM hints"));
+    QCOMPARE(qSqlQueryExecQuery.at(12), QString("SELECT * FROM expiration"));
+    QCOMPARE(qSqlQueryExecQuery.at(13), QString("SELECT * FROM notifications"));
     QCOMPARE((bool)modelToTableName.values().contains("notifications"), true);
     QCOMPARE((bool)modelToTableName.values().contains("actions"), true);
     QCOMPARE((bool)modelToTableName.values().contains("hints"), true);
@@ -368,7 +370,7 @@ void Ut_NotificationManager::testFirstDatabaseConnectionFails()
     // Check that the old database is removed, the database opened twice and the database opened as expected on the second time
     QCOMPARE(qDirRemoveCalled, true);
     QCOMPARE(qSqlDatabaseOpenCalledCount, 2);
-    QCOMPARE(qSqlQueryExecQuery.count(), 5);
+    QCOMPARE(qSqlQueryExecQuery.count(), 6);
 }
 
 void Ut_NotificationManager::testNotEnoughDiskSpaceToOpenDatabase()

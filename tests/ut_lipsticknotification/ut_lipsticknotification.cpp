@@ -122,8 +122,8 @@ void Ut_Notification::testIcon_data()
 
     QTest::newRow("No app_icon, no hint") << QString() << QString() << QString();
     QTest::newRow("No app_icon, hint") << QString() << QString("hintIcon") << QString("hintIcon");
-    QTest::newRow("app_icon, no hint") << QString("appIcon") << QString() << QString("appIcon");
-    QTest::newRow("app_icon, hint") << QString("appIcon") << QString("hintIcon") << QString("appIcon");
+    QTest::newRow("app_icon, no hint") << QString("appIcon") << QString() << QString();
+    QTest::newRow("app_icon, hint") << QString("appIcon") << QString("hintIcon") << QString("hintIcon");
 }
 
 void Ut_Notification::testIcon()
@@ -135,11 +135,14 @@ void Ut_Notification::testIcon()
     QVariantHash hints;
     hints.insert(NotificationManager::HINT_ICON, hintIcon);
 
+    // The 'icon' properly used to fallback to appIcon if required; but no longer
     LipstickNotification notification1(QString(), 0, appIcon, QString(), QString(), QStringList(), hints, 0);
+    QCOMPARE(notification1.appIcon(), appIcon);
     QCOMPARE(notification1.icon(), icon);
     LipstickNotification notification2(QString(), 0, QString(), QString(), QString(), QStringList(), QVariantHash(), 0);
     notification2.setAppIcon(appIcon);
     notification2.setHints(hints);
+    QCOMPARE(notification2.appIcon(), appIcon);
     QCOMPARE(notification2.icon(), icon);
 }
 
