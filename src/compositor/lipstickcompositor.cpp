@@ -700,9 +700,12 @@ void LipstickCompositor::setUpdatesEnabled(bool enabled)
                 m_onUpdatesDisabledUnfocusedWindowId = topmostWindow->windowId();
                 clearKeyboardFocus();
             }
-            hide();
-            if (QWindow::handle()) {
-                QGuiApplication::platformNativeInterface()->nativeResourceForIntegration("DisplayOff");
+            if (calledFromDBus()) {
+                setDelayedReply(true);
+                m_displayOffReply = message().createReply();
+                startTimer(1000);
+            } else {
+                stopRendering();
             }
         } else {
             if (QWindow::handle()) {
@@ -731,4 +734,19 @@ void LipstickCompositor::setUpdatesEnabled(bool enabled)
 void LipstickCompositor::readContent()
 {
     m_recorder->recordFrame(this);
+}
+
+void LipstickCompositor::timerEvent(QTimerEvent *e)
+{
+    stopRendering();
+    QDBusConnection::systemBus().send(m_displayOffReply);
+    killTimer(e->timerId());
+}
+
+void LipstickCompositor::stopRendering()
+{
+    hide();
+    if (QWindow::handle()) {
+        QGuiApplication::platformNativeInterface()->nativeResourceForIntegration("DisplayOff");
+    }
 }
