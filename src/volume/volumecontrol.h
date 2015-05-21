@@ -114,8 +114,9 @@ signals:
     //! Sent when the volume has changed.
     void volumeChanged();
 
-    //! Sent when a volume key was pressed or a key repeat occurred.
-    void volumeKeyPressed();
+    //! Sent when a volume up/down key was pressed or released
+    void volumeKeyPressed(int key);
+    void volumeKeyReleased(int key);
 
     //! Sent when the maximum volume has changed.
     void maximumVolumeChanged();
@@ -154,9 +155,6 @@ private slots:
     //! An internal slot to handle the case when we lost the hardware volume keys resource
     void hwKeyResourceLost();
 
-    //! Changes the current volume by the amount set in volumeChange
-    void changeVolume();
-
     //! Used to capture safe volume level and reset it to safe when needed.
     void handleHighVolume(int safeLevel);
 
@@ -166,10 +164,9 @@ private slots:
     //! Used to show call active status
     void handleCallActive(bool callActive);
 
-private:
-    //! Stops any key repeat in progress
-    void stopKeyRepeat();
+    void createWindow();
 
+private:
     //! Returns whether the audio warning has been acknowledged by user.
     bool warningAcknowledged() const;
 
@@ -191,15 +188,6 @@ private:
     //! The maximum volume
     int maximumVolume_;
 
-    //! Volume change executed when calling changeVolume()
-    int volumeChange;
-
-    //! Timer for the key repeat delay
-    QTimer keyRepeatDelayTimer;
-
-    //! Timer for the key repeat
-    QTimer keyRepeatTimer;
-
     //! Stores audio warning acknowledgement state
     MGConfItem *audioWarning;
 
@@ -208,6 +196,9 @@ private:
 
     //! Call active status
     bool callActive_;
+
+    bool upPressed_;
+    bool downPressed_;
 
 #ifdef UNIT_TEST
     friend class Ut_VolumeControl;

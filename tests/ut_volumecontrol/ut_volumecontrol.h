@@ -24,21 +24,13 @@ class Ut_VolumeControl : public QObject
 {
 Q_OBJECT
 
-signals:
-    void timeout();
-
 private slots:
     void init();
     void cleanup();
     void initTestCase();
     void cleanupTestCase();
     void testConnections();
-    void testKeyRepeatSetup();
-    void testEventFilter_data();
     void testEventFilter();
-    void testHwKeyEventWhenKeyRepeatDelayIsInProgress();
-    void testHwKeyEventWhenKeyRepeatIsInProgress();
-    void testHwKeyEventWhenKeyReleaseIsInProgress();
     void testAcquireKeys();
     void testMaximumVolume();
     void testCallActive();
