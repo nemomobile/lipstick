@@ -1,7 +1,7 @@
 /***************************************************************************
 **
 ** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
-** Copyright (C) 2012 Jolla Ltd.
+** Copyright (C) 2012-2015 Jolla Ltd.
 ** Contact: Robin Burchell <robin.burchell@jollamobile.com>
 **
 ** This file is part of lipstick.
@@ -30,10 +30,33 @@ class QmLocks;
 class LIPSTICK_EXPORT USBModeSelector : public QObject
 {
     Q_OBJECT
+    Q_ENUMS(Mode)
     Q_PROPERTY(bool windowVisible READ windowVisible WRITE setWindowVisible NOTIFY windowVisibleChanged)
     Q_PROPERTY(QList<int> supportedUSBModes READ supportedUSBModes NOTIFY supportedUSBModesChanged)
 
 public:
+    enum Mode {
+        // States (from usb_moded-dbus.h)
+        Connected = MeeGo::QmUSBMode::Connected,
+        DataInUse = MeeGo::QmUSBMode::DataInUse,
+        Disconnected = MeeGo::QmUSBMode::Disconnected,
+        ModeRequest = MeeGo::QmUSBMode::ModeRequest,
+
+        // Modes (from usb_moded-modes.h)
+        MassStorage = MeeGo::QmUSBMode::MassStorage,
+        ChargingOnly = MeeGo::QmUSBMode::ChargingOnly,
+        PCSuite = MeeGo::QmUSBMode::PCSuite,
+        Ask = MeeGo::QmUSBMode::Ask,
+        Undefined = MeeGo::QmUSBMode::Undefined,
+        Developer = MeeGo::QmUSBMode::Developer,
+        MTP = MeeGo::QmUSBMode::MTP,
+        Adb = MeeGo::QmUSBMode::Adb,
+        Diag = MeeGo::QmUSBMode::Diag,
+        ConnectionSharing = MeeGo::QmUSBMode::ConnectionSharing,
+        Host = MeeGo::QmUSBMode::Host,
+        Charger = MeeGo::QmUSBMode::Charger
+    };
+
     explicit USBModeSelector(QObject *parent = 0);
     
     /*!
