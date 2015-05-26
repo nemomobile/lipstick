@@ -22,6 +22,7 @@
 #include <sys/time.h>
 #include <QFileSystemWatcher>
 #include <QDBusContext>
+#include <QDBusPendingCallWatcher>
 
 class MGConfItem;
 class QTimer;
@@ -31,6 +32,8 @@ class DeviceLock : public QObject, protected QDBusContext
     Q_OBJECT
     Q_ENUMS(LockState)
     Q_PROPERTY(int state READ state WRITE setState NOTIFY stateChanged)
+    Q_PROPERTY(bool blankingPause READ blankingPause NOTIFY blankingPauseChanged)
+    Q_PROPERTY(bool blankingInhibit READ blankingInhibit NOTIFY blankingInhibitChanged)
 
 public:
     DeviceLock(QObject *parent = 0);
@@ -48,9 +51,13 @@ public:
     Q_INVOKABLE bool checkCode(const QString &code);
     Q_INVOKABLE bool setCode(const QString &oldCode, const QString &newCode);
     Q_INVOKABLE bool isSet();
+    bool blankingPause() const;
+    bool blankingInhibit() const;
 
 signals:
     void stateChanged(int state);
+    void blankingPauseChanged();
+    void blankingInhibitChanged();
 
 private slots:
     void init();
@@ -59,7 +66,11 @@ private slots:
     void lock();
     void checkDisplayState(MeeGo::QmDisplayState::DisplayState state);
     void handleCallStateChange(const QString &state, const QString &ignored);
+    void handleBlankingPauseChange(const QString &state);
+    void handleBlankingInhibitChange(const QString &state);
     void readSettings();
+    void sendInhibitFinished(QDBusPendingCallWatcher *call);
+    void sendPauseFinished(QDBusPendingCallWatcher *call);
 
 private:
     static bool runPlugin(const QStringList &args);
@@ -74,6 +85,8 @@ private:
     MeeGo::QmDisplayState *qmDisplayState;
     LockState deviceLockState;
     bool isCallActive;
+    bool m_blankingPause;
+    bool m_blankingInhibit;
     struct timeval monoTime;
 
 #ifdef UNIT_TEST

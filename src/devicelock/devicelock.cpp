@@ -61,7 +61,9 @@ DeviceLock::DeviceLock(QObject * parent) :
     qmLocks(new MeeGo::QmLocks(this)),
     qmDisplayState(new MeeGo::QmDisplayState(this)),
     deviceLockState(Undefined),
-    isCallActive(false)
+    isCallActive(false),
+    m_blankingPause(false),
+    m_blankingInhibit(false)
 {
     monoTime.tv_sec = 0;
     connect(lockTimer, SIGNAL(timeout()), this, SLOT(lock()));
@@ -71,7 +73,42 @@ DeviceLock::DeviceLock(QObject * parent) :
     connect(static_cast<HomeApplication *>(qApp), &HomeApplication::homeReady, this, &DeviceLock::init);
 
     QDBusConnection::systemBus().connect(QString(), "/com/nokia/mce/signal", "com.nokia.mce.signal", "sig_call_state_ind", this, SLOT(handleCallStateChange(QString, QString)));
+    QDBusConnection::systemBus().connect(QString(), "/com/nokia/mce/signal", "com.nokia.mce.signal", "display_blanking_pause_ind", this, SLOT(handleBlankingPauseChange(QString)));
+    QDBusConnection::systemBus().connect(QString(), "/com/nokia/mce/signal", "com.nokia.mce.signal", "display_blanking_inhibit_ind", this, SLOT(handleBlankingInhibitChange(QString)));
+
+    QDBusMessage call = QDBusMessage::createMethodCall("com.nokia.mce", "/", "com.nokia.mce.request", "get_display_blanking_inhibit");
+    QDBusPendingCall reply = QDBusConnection::systemBus().asyncCall(call);
+    QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(reply, this);
+    connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher*)), SLOT(sendInhibitFinished(QDBusPendingCallWatcher*)));
+
+    QDBusMessage pauseCall = QDBusMessage::createMethodCall("com.nokia.mce", "/", "com.nokia.mce.request", "get_display_blanking_pause");
+    QDBusPendingCall pauseReply = QDBusConnection::systemBus().asyncCall(pauseCall);
+    QDBusPendingCallWatcher *pauseWatcher = new QDBusPendingCallWatcher(pauseReply, this);
+    connect(pauseWatcher, SIGNAL(finished(QDBusPendingCallWatcher*)), SLOT(sendPauseFinished(QDBusPendingCallWatcher*)));
 }
+
+void DeviceLock::sendInhibitFinished(QDBusPendingCallWatcher *call)
+{
+    QDBusPendingReply<QString> reply = *call;
+    if (reply.isError()) {
+        qCritical() << "Call to mce failed:" << reply.error();
+    } else {
+        handleBlankingInhibitChange(reply.value());
+    }
+    call->deleteLater();
+}
+
+void DeviceLock::sendPauseFinished(QDBusPendingCallWatcher *call)
+{
+    QDBusPendingReply<QString> reply = *call;
+    if (reply.isError()) {
+        qCritical() << "Call to mce failed:" << reply.error();
+    } else {
+        handleBlankingPauseChange(reply.value());
+    }
+    call->deleteLater();
+}
+
 
 void DeviceLock::handleCallStateChange(const QString &state, const QString &ignored)
 {
@@ -80,6 +117,23 @@ void DeviceLock::handleCallStateChange(const QString &state, const QString &igno
         isCallActive = true;
     } else {
         isCallActive = false;
+    }
+}
+
+void DeviceLock::handleBlankingPauseChange(const QString &state)
+{
+    bool blankingPause = (state == "active");
+    if (m_blankingPause != blankingPause ) {
+        m_blankingPause = blankingPause;
+        emit blankingPauseChanged();
+    }
+}
+void DeviceLock::handleBlankingInhibitChange(const QString &state)
+{
+    bool blankingInhibit = (state == "active");
+    if (m_blankingInhibit != blankingInhibit ) {
+        m_blankingInhibit = blankingInhibit;
+        emit blankingInhibitChanged();
     }
 }
 
@@ -147,6 +201,16 @@ void DeviceLock::lock()
 int DeviceLock::state() const
 {
     return deviceLockState;
+}
+
+bool  DeviceLock::blankingPause() const
+{
+    return m_blankingPause;
+}
+
+bool DeviceLock::blankingInhibit() const
+{
+    return m_blankingInhibit;
 }
 
 void DeviceLock::setState(int state)
