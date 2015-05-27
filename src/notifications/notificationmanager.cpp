@@ -24,6 +24,7 @@
 #include <mdesktopentry.h>
 #include <sys/statfs.h>
 #include <limits>
+#include "androidprioritystore.h"
 #include "categorydefinitionstore.h"
 #include "notificationmanageradaptor.h"
 #include "notificationmanager.h"
@@ -34,6 +35,9 @@
 #else
 #define NOTIFICATIONS_DEBUG(things)
 #endif
+
+//! The android priority store path
+static const char *ANDROID_PRIORITY_DEFINITION_PATH = "/usr/share/lipstick/androidnotificationpriorities";
 
 //! The category definitions directory
 static const char *CATEGORY_DEFINITION_FILE_DIRECTORY = "/usr/share/lipstick/notificationcategories";
@@ -141,6 +145,7 @@ NotificationManager::NotificationManager(QObject *parent) :
     QDBusContext(),
     previousNotificationID(0),
     categoryDefinitionStore(new CategoryDefinitionStore(CATEGORY_DEFINITION_FILE_DIRECTORY, MAX_CATEGORY_DEFINITION_FILES, this)),
+    androidPriorityStore(new AndroidPriorityStore(ANDROID_PRIORITY_DEFINITION_PATH, this)),
     database(new QSqlDatabase),
     committed(true),
     nextExpirationTime(0)
@@ -281,6 +286,13 @@ uint NotificationManager::Notify(const QString &appName, uint replacesId, const 
                 if (previewSummary.isEmpty()) {
                     hints_.insert(HINT_PREVIEW_SUMMARY, QStringLiteral(" "));
                 }
+            }
+
+            // See if this notification has elevated priority and feedback
+            AndroidPriorityStore::PriorityDetails priority(androidPriorityStore->appDetails(appName_));
+            hints_.insert(HINT_PRIORITY, priority.first);
+            if (!priority.second.isEmpty()) {
+                hints_.insert(HINT_FEEDBACK, priority.second);
             }
         }
 
