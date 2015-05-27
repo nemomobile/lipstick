@@ -60,13 +60,6 @@ public:
     virtual ~VolumeControl();
 
     /*!
-     * Returns the current mode.
-     *
-     * \return the current mode
-     */
-    QString volumeMode() const;
-
-    /*!
      * Returns the current volume.
      *
      * \return the current volume
@@ -107,13 +100,6 @@ public:
     void setWindowVisible(bool visible);
 
     /*!
-     * Returns whether the audio warning has been acknowledged by user.
-     *
-     * \return \c true if acknowledged \c false otherwise
-     */
-    bool warningAcknowledged() const;
-
-    /*!
      * Returns whether a call is active or not.
      *
      * \return \c true if a call is active, \c false otherwise
@@ -125,14 +111,12 @@ public:
     //! \reimp_end
 
 signals:
-    //! Sent when the mode has changed.
-    void volumeModeChanged();
-
     //! Sent when the volume has changed.
     void volumeChanged();
 
-    //! Sent when a volume key was pressed or a key repeat occurred.
-    void volumeKeyPressed();
+    //! Sent when a volume up/down key was pressed or released
+    void volumeKeyPressed(int key);
+    void volumeKeyReleased(int key);
 
     //! Sent when the maximum volume has changed.
     void maximumVolumeChanged();
@@ -154,12 +138,6 @@ signals:
     void showAudioWarning(bool initial);
 
 public slots:
-    //! Acquires access to hardware keys
-    void acquireKeys();
-
-    //! Releases access to hardware keys
-    void releaseKeys();
-
     /*!
      * Sets the audio warning acknowledged.
      *
@@ -177,9 +155,6 @@ private slots:
     //! An internal slot to handle the case when we lost the hardware volume keys resource
     void hwKeyResourceLost();
 
-    //! Changes the current volume by the amount set in volumeChange
-    void changeVolume();
-
     //! Used to capture safe volume level and reset it to safe when needed.
     void handleHighVolume(int safeLevel);
 
@@ -189,9 +164,11 @@ private slots:
     //! Used to show call active status
     void handleCallActive(bool callActive);
 
+    void createWindow();
+
 private:
-    //! Stops any key repeat in progress
-    void stopKeyRepeat();
+    //! Returns whether the audio warning has been acknowledged by user.
+    bool warningAcknowledged() const;
 
     //! The volume control window
     HomeWindow *window;
@@ -211,15 +188,6 @@ private:
     //! The maximum volume
     int maximumVolume_;
 
-    //! Volume change executed when calling changeVolume()
-    int volumeChange;
-
-    //! Timer for the key repeat delay
-    QTimer keyRepeatDelayTimer;
-
-    //! Timer for the key repeat
-    QTimer keyRepeatTimer;
-
     //! Stores audio warning acknowledgement state
     MGConfItem *audioWarning;
 
@@ -228,6 +196,9 @@ private:
 
     //! Call active status
     bool callActive_;
+
+    bool upPressed_;
+    bool downPressed_;
 
 #ifdef UNIT_TEST
     friend class Ut_VolumeControl;

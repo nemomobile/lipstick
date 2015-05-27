@@ -84,20 +84,13 @@ HEADERS += \
     screenshotservice.h \
     screenshotserviceadaptor.h \
     notifications/thermalnotifier.h \
-    qmsystem2/qmdisplaystate.h \
-    qmsystem2/qmlocks.h \
     qmsystem2/qmsystemstate_p.h \
-    qmsystem2/qmusbmode.h \
-    qmsystem2/qmactivity.h \
     qmsystem2/qmdisplaystate_p.h \
     qmsystem2/qmlocks_p.h \
-    qmsystem2/qmthermal.h \
     qmsystem2/qmusbmode_p.h \
     qmsystem2/qmactivity_p.h \
     qmsystem2/qmipcinterface_p.h \
-    qmsystem2/qmsystemstate.h \
     qmsystem2/qmthermal_p.h \
-    qmsystem2/system_global.h \
 
 
 SOURCES += \

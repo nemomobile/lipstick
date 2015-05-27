@@ -35,7 +35,6 @@ extern "C"
  */
 
 bool acquireCalled = false;
-bool releaseCalled = false;
 
 namespace ResourcePolicy
 {
@@ -66,7 +65,6 @@ namespace ResourcePolicy
 
     bool ResourceSet::release()
     {
-        releaseCalled = true;
         return true;
     }
 
@@ -79,20 +77,6 @@ namespace ResourcePolicy
 void QObject::installEventFilter(QObject *filterObj)
 {
     Q_UNUSED(filterObj)
-}
-
-QMap<QTimer *, int> qTimerStartCounts;
-void QTimer::start()
-{
-    id = 1;
-    qTimerStartCounts[this]++;
-}
-
-QMap<QTimer *, int> qTimerStopCounts;
-void QTimer::stop()
-{
-    id = -1;
-    qTimerStopCounts[this]++;
 }
 
 QHash<QWindow *, bool> qWindowVisible;
@@ -125,10 +109,6 @@ void Ut_VolumeControl::cleanup()
 {
     delete volumeControl;
     acquireCalled = false;
-    releaseCalled = false;
-    qTimerStartCounts.clear();
-    qTimerStopCounts.clear();
-    disconnect(SIGNAL(timeout()));
 }
 
 void Ut_VolumeControl::testConnections()
@@ -138,149 +118,56 @@ void Ut_VolumeControl::testConnections()
     QCOMPARE(disconnect(volumeControl->pulseAudioControl, SIGNAL(callActiveChanged(bool)), volumeControl, SLOT(handleCallActive(bool))), true);
 }
 
-void Ut_VolumeControl::testKeyRepeatSetup()
-{
-    QCOMPARE(volumeControl->keyRepeatDelayTimer.interval(), 600);
-    QCOMPARE(volumeControl->keyRepeatDelayTimer.isSingleShot(), true);
-    QCOMPARE(volumeControl->keyRepeatTimer.interval(), 75);
-    QCOMPARE(disconnect(&volumeControl->keyRepeatDelayTimer, SIGNAL(timeout()), &volumeControl->keyRepeatTimer, SLOT(start())), true);
-    QCOMPARE(disconnect(&volumeControl->keyRepeatTimer, SIGNAL(timeout()), volumeControl, SLOT(changeVolume())), true);
-}
-
 Q_DECLARE_METATYPE(Qt::Key)
 Q_DECLARE_METATYPE(QEvent::Type)
 
-void Ut_VolumeControl::testEventFilter_data()
-{
-    QTest::addColumn<bool>("hwKeysAcquired");
-    QTest::addColumn<Qt::Key>("key");
-    QTest::addColumn<QEvent::Type>("type");
-    QTest::addColumn<int>("volumeChangedCount");
-    QTest::addColumn<int>("volumeKeyPressedCount");
-    QTest::addColumn<int>("volume");
-    QTest::addColumn<bool>("keyRepeatDelayTimerActive");
-
-    QTest::newRow("Pressing 'volume up' should produce a '+1' change request and start the delay timer") << true << Qt::Key_VolumeUp << QEvent::KeyPress << 1 << 1 << 6 << true;
-    QTest::newRow("Pressing 'volume down' should produce a '-1' change request and start the delay timer") << true << Qt::Key_VolumeDown << QEvent::KeyPress << 1 << 1 << 4 << true;
-    QTest::newRow("Pressing any other key should produce no change request") << true << Qt::Key_Camera << QEvent::KeyPress << 0 << 0 << 0 << false;
-    QTest::newRow("Releasing a key should produce no change request") << true << Qt::Key_VolumeUp << QEvent::KeyRelease << 0 << 0 << 0 << false;
-    QTest::newRow("When keys are not acquired pressing should do nothing") << false << Qt::Key_VolumeUp << QEvent::KeyPress << 0 << 0 << 0 << false;
-}
-
 void Ut_VolumeControl::testEventFilter()
 {
-    QFETCH(bool, hwKeysAcquired);
-    QFETCH(Qt::Key, key);
-    QFETCH(QEvent::Type, type);
-    QFETCH(int, volumeChangedCount);
-    QFETCH(int, volumeKeyPressedCount);
-    QFETCH(int, volume);
-    QFETCH(bool, keyRepeatDelayTimerActive);
+    int pressCount = 0;
+    int releaseCount = 0;
+    QSignalSpy volumeKeyPressedSpy(volumeControl, SIGNAL(volumeKeyPressed(int)));
+    QSignalSpy volumeKeyReleasedSpy(volumeControl, SIGNAL(volumeKeyReleased(int)));
 
-    if (hwKeysAcquired) {
-        volumeControl->hwKeyResourceAcquired();
-    }
-
-    QSignalSpy volumeChangedSpy(volumeControl, SIGNAL(volumeChanged()));
-    QSignalSpy volumeKeyPressedSpy(volumeControl, SIGNAL(volumeKeyPressed()));
-    QKeyEvent event(type, key, 0);
+    // no reaction if resources not acquired
+    QKeyEvent event(QEvent::KeyPress, Qt::Key_VolumeUp, 0, QString(), false);
     volumeControl->eventFilter(0, &event);
+    QCOMPARE(volumeKeyPressedSpy.count(), pressCount);
+    QCOMPARE(volumeKeyReleasedSpy.count(), releaseCount);
 
-    QCOMPARE(volumeChangedSpy.count(), volumeChangedCount);
-    QCOMPARE(volumeKeyPressedSpy.count(), volumeKeyPressedCount);
-    if (volumeChangedCount > 0) {
-        QCOMPARE(volumeControl->volume(), volume);
-    }
-    QCOMPARE(qTimerStartCounts.value(&volumeControl->keyRepeatDelayTimer), keyRepeatDelayTimerActive ? 1 : 0);
-}
-
-void Ut_VolumeControl::testHwKeyEventWhenKeyRepeatDelayIsInProgress()
-{
     volumeControl->hwKeyResourceAcquired();
 
-    QSignalSpy volumeChangedSpy(volumeControl, SIGNAL(volumeChanged()));
-    QSignalSpy volumeKeyPressedSpy(volumeControl, SIGNAL(volumeKeyPressed()));
-
-    QKeyEvent upEvent(QEvent::KeyPress, Qt::Key_VolumeUp, 0);
-    volumeControl->eventFilter(0, &upEvent);
-    QCOMPARE(qTimerStartCounts.value(&volumeControl->keyRepeatDelayTimer), 1);
-    QCOMPARE(qTimerStartCounts.value(&volumeControl->keyRepeatTimer), 0);
-    QCOMPARE(volumeChangedSpy.count(), 1);
-    QCOMPARE(volumeKeyPressedSpy.count(), 1);
-
-    // Only the first press should cause the timer to be started and the volume change request to be made
-    QKeyEvent downEvent(QEvent::KeyPress, Qt::Key_VolumeUp, 0);
-    volumeControl->eventFilter(0, &downEvent);
-    QCOMPARE(qTimerStartCounts.value(&volumeControl->keyRepeatDelayTimer), 1);
-    QCOMPARE(qTimerStartCounts.value(&volumeControl->keyRepeatTimer), 0);
-    QCOMPARE(volumeChangedSpy.count(), 1);
-    QCOMPARE(volumeKeyPressedSpy.count(), 1);
-
-    // A key repeat should use the new volume change
-    volumeControl->changeVolume();
-    QCOMPARE(volumeChangedSpy.count(), 2);
-    QCOMPARE(volumeKeyPressedSpy.count(), 2);
-}
-
-void Ut_VolumeControl::testHwKeyEventWhenKeyRepeatIsInProgress()
-{
-    volumeControl->hwKeyResourceAcquired();
-
-    QSignalSpy volumeChangedSpy(volumeControl, SIGNAL(volumeChanged()));
-    QSignalSpy volumeKeyPressedSpy(volumeControl, SIGNAL(volumeKeyPressed()));
-
-    // Start the key repeat timer by causing a timeout in the key repeat delay timer
-    connect(this, SIGNAL(timeout()), &volumeControl->keyRepeatDelayTimer, SIGNAL(timeout()));
-    emit timeout();
-    // TODO figure out why the signal above won't do the trick on Qt5
-    volumeControl->keyRepeatTimer.start();
-    qApp->processEvents();
-    QCOMPARE(qTimerStartCounts.value(&volumeControl->keyRepeatTimer), 1);
-
-    // Further presses should not cause the timer to be started and the volume change request to be made
-    QKeyEvent event(QEvent::KeyPress, Qt::Key_VolumeDown, 0);
+    // normal press results in press signal
     volumeControl->eventFilter(0, &event);
-    QCOMPARE(qTimerStartCounts.value(&volumeControl->keyRepeatDelayTimer), 0);
-    QCOMPARE(qTimerStartCounts.value(&volumeControl->keyRepeatTimer), 1);
-    QCOMPARE(volumeChangedSpy.count(), 0);
-    QCOMPARE(volumeKeyPressedSpy.count(), 0);
-}
+    pressCount++;
+    QCOMPARE(volumeKeyPressedSpy.count(), pressCount);
+    QCOMPARE(volumeKeyReleasedSpy.count(), releaseCount);
 
-void Ut_VolumeControl::testHwKeyEventWhenKeyReleaseIsInProgress()
-{
-    volumeControl->hwKeyResourceAcquired();
-
-    QSignalSpy volumeChangedSpy(volumeControl, SIGNAL(volumeChanged()));
-    QSignalSpy volumeKeyPressedSpy(volumeControl, SIGNAL(volumeKeyPressed()));
-
-    // Start the key repeat timer by causing a timeout in the key repeat delay timer
-    connect(this, SIGNAL(timeout()), &volumeControl->keyRepeatDelayTimer, SIGNAL(timeout()));
-    emit timeout();
-    // TODO figure out why the signal above won't do the trick on Qt5
-    volumeControl->keyRepeatTimer.start();
-    disconnect(this, SIGNAL(timeout()), &volumeControl->keyRepeatDelayTimer, SIGNAL(timeout()));
-
-    // Key release should stop the repeat timer and the delay timer
-    QKeyEvent event(QEvent::KeyRelease, Qt::Key_VolumeDown, 0);
+    // autorepeat doesn't do anything
+    event = QKeyEvent(QEvent::KeyPress, Qt::Key_VolumeUp, 0, QString(), true);
     volumeControl->eventFilter(0, &event);
-    QCOMPARE(qTimerStartCounts.value(&volumeControl->keyRepeatDelayTimer), 0);
-    QCOMPARE(qTimerStartCounts.value(&volumeControl->keyRepeatTimer), 1);
-    QCOMPARE(qTimerStopCounts.value(&volumeControl->keyRepeatDelayTimer), 1);
-    QCOMPARE(qTimerStopCounts.value(&volumeControl->keyRepeatTimer), 1);
-    QCOMPARE(volumeChangedSpy.count(), 0);
-    QCOMPARE(volumeKeyPressedSpy.count(), 0);
+    QCOMPARE(volumeKeyPressedSpy.count(), pressCount);
+    QCOMPARE(volumeKeyReleasedSpy.count(), releaseCount);
+
+    // release results in release signal
+    event = QKeyEvent(QEvent::KeyRelease, Qt::Key_VolumeUp, 0, QString(), false);
+    volumeControl->eventFilter(0, &event);
+    releaseCount++;
+    QCOMPARE(volumeKeyPressedSpy.count(), pressCount);
+    QCOMPARE(volumeKeyReleasedSpy.count(), releaseCount);
+
+    // other keys don't do anything
+    event = QKeyEvent(QEvent::KeyPress, Qt::Key_Camera, 0, QString(), false);
+    volumeControl->eventFilter(0, &event);
+    event = QKeyEvent(QEvent::KeyRelease, Qt::Key_Camera, 0, QString(), false);
+    volumeControl->eventFilter(0, &event);
+    QCOMPARE(volumeKeyPressedSpy.count(), pressCount);
+    QCOMPARE(volumeKeyReleasedSpy.count(), releaseCount);
 }
 
 void Ut_VolumeControl::testAcquireKeys()
 {
-    volumeControl->acquireKeys();
+    // ctor should aqcuire
     QCOMPARE(acquireCalled, true);
-}
-
-void Ut_VolumeControl::testReleaseKeys()
-{
-    volumeControl->releaseKeys();
-    QCOMPARE(releaseCalled, true);
 }
 
 void Ut_VolumeControl::testMaximumVolume()
@@ -289,23 +176,20 @@ void Ut_VolumeControl::testMaximumVolume()
 
     QSignalSpy volumeChangedSpy(volumeControl, SIGNAL(volumeChanged()));
     QSignalSpy maximumVolumeChangedSpy(volumeControl, SIGNAL(maximumVolumeChanged()));
-    QSignalSpy volumeKeyPressedSpy(volumeControl, SIGNAL(volumeKeyPressed()));
 
     volumeControl->setVolume(2, 2);
     QCOMPARE(volumeChangedSpy.count(), 1);
     QCOMPARE(maximumVolumeChangedSpy.count(), 1);
-    QCOMPARE(volumeKeyPressedSpy.count(), 0);
 
     volumeControl->setVolume(2, 2);
     QCOMPARE(volumeChangedSpy.count(), 1);
     QCOMPARE(maximumVolumeChangedSpy.count(), 1);
-    QCOMPARE(volumeKeyPressedSpy.count(), 0);
 
-    QKeyEvent upEvent(QEvent::KeyPress, Qt::Key_VolumeUp, 0);
-    volumeControl->eventFilter(0, &upEvent);
+    // trying to set volume above maximum gets ignored
+    volumeControl->setVolume(3);
     QCOMPARE(volumeChangedSpy.count(), 1);
     QCOMPARE(maximumVolumeChangedSpy.count(), 1);
-    QCOMPARE(volumeKeyPressedSpy.count(), 1);
+    QCOMPARE(volumeControl->volume(), 2);
 }
 
 void Ut_VolumeControl::testCallActive()
