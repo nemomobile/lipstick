@@ -22,7 +22,6 @@ Requires:   mce >= 1.31.0
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
 BuildRequires:  pkgconfig(Qt5Core)
-BuildRequires:  pkgconfig(Qt5Gui)
 BuildRequires:  pkgconfig(Qt5Quick) >= 5.2.1
 BuildRequires:  pkgconfig(Qt5Xml)
 BuildRequires:  pkgconfig(Qt5Sql)
@@ -43,6 +42,7 @@ BuildRequires:  pkgconfig(contextkit-statefs) >= 0.2.7
 BuildRequires:  pkgconfig(systemd)
 BuildRequires:  pkgconfig(wayland-server)
 BuildRequires:  qt5-qttools-linguist
+BuildRequires:  qt5-qtgui-devel >= 5.2.1+git24
 BuildRequires:  qt5-qtwayland-wayland_egl-devel >= 5.4.0+git13
 BuildRequires:  doxygen
 Conflicts:   meegotouch-systemui < 1.5.7
