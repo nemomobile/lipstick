@@ -268,6 +268,20 @@ uint NotificationManager::Notify(const QString &appName, uint replacesId, const 
             if (icon.isEmpty()) {
                 hints_.insert(HINT_ICON, appIcon_);
             }
+
+            // If this notification includes a preview, ensure it has a non-empty body and summary
+            const QString previewSummary(hints_.value(HINT_PREVIEW_SUMMARY).toString());
+            const QString previewBody(hints_.value(HINT_PREVIEW_BODY).toString());
+            if (!previewSummary.isEmpty()) {
+                if (previewBody.isEmpty()) {
+                    hints_.insert(HINT_PREVIEW_BODY, QStringLiteral(" "));
+                }
+            }
+            if (!previewBody.isEmpty()) {
+                if (previewSummary.isEmpty()) {
+                    hints_.insert(HINT_PREVIEW_SUMMARY, QStringLiteral(" "));
+                }
+            }
         }
 
         if (replacesId == 0) {
