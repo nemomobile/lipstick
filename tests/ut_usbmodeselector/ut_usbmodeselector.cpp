@@ -1,7 +1,7 @@
 /***************************************************************************
 **
 ** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
-** Copyright (C) 2012 Jolla Ltd.
+** Copyright (C) 2012-2015 Jolla Ltd.
 ** Contact: Robin Burchell <robin.burchell@jollamobile.com>
 **
 ** This file is part of lipstick.
@@ -17,10 +17,10 @@
 #include <QQmlContext>
 #include <QScreen>
 #include <usbmodeselector.h>
+#include <qusbmoded.h>
 
 #include "ut_usbmodeselector.h"
 #include "qmlocks_stub.h"
-#include "qmusbmode_stub.h"
 #include "notificationmanager_stub.h"
 #include "closeeventeater_stub.h"
 #include "homewindow.h"
@@ -97,7 +97,7 @@ void Ut_USBModeSelector::cleanupTestCase()
 void Ut_USBModeSelector::init()
 {
     usbModeSelector = new USBModeSelector;
-    usbModeSelector->usbMode->setMode(MeeGo::QmUSBMode::Undefined);
+    usbModeSelector->usbMode->setCurrentMode(QUsbModed::Mode::Undefined);
 
     gNotificationManagerStub->stubReset();
     gNotificationManagerStub->stubSetReturnValue("Notify", (uint)1);
@@ -113,26 +113,24 @@ void Ut_USBModeSelector::cleanup()
 
 void Ut_USBModeSelector::testConnections()
 {
-    QCOMPARE(disconnect(usbModeSelector->usbMode, SIGNAL(modeChanged(MeeGo::QmUSBMode::Mode)), usbModeSelector, SLOT(applyUSBMode(MeeGo::QmUSBMode::Mode))), true);
-    QCOMPARE(disconnect(usbModeSelector->usbMode, SIGNAL(supportedModesChanged(QList<MeeGo::QmUSBMode::Mode>)), usbModeSelector, SLOT(updateSupportedUSBModeList(QList<MeeGo::QmUSBMode::Mode>))), true);
+    QCOMPARE(disconnect(usbModeSelector->usbMode, SIGNAL(currentModeChanged()), usbModeSelector, SLOT(applyCurrentUSBMode())), true);
+    QCOMPARE(disconnect(usbModeSelector->usbMode, SIGNAL(supportedModesChanged()), usbModeSelector, SIGNAL(supportedUSBModesChanged())), true);
 }
-
-Q_DECLARE_METATYPE(MeeGo::QmUSBMode::Mode)
 
 void Ut_USBModeSelector::testShowDialog_data()
 {
-    QTest::addColumn<MeeGo::QmUSBMode::Mode>("mode");
+    QTest::addColumn<QString>("mode");
 
-    QTest::newRow("Ask") << MeeGo::QmUSBMode::Ask;
-    QTest::newRow("Mode request") << MeeGo::QmUSBMode::ModeRequest;
+    QTest::newRow("Ask") << QUsbModed::Mode::Ask;
+    QTest::newRow("Mode request") << QUsbModed::Mode::ModeRequest;
 }
 
 void Ut_USBModeSelector::testShowDialog()
 {
-    QFETCH(MeeGo::QmUSBMode::Mode, mode);
+    QFETCH(QString, mode);
 
     QSignalSpy spy(usbModeSelector, SIGNAL(dialogShown()));
-    usbModeSelector->usbMode->setDefaultMode(mode);
+    usbModeSelector->usbMode->setConfigMode(mode);
     usbModeSelector->applyUSBMode(mode);
 
     QCOMPARE(homeWindows.count(), 1);
@@ -150,50 +148,50 @@ void Ut_USBModeSelector::testShowDialog()
 
 void Ut_USBModeSelector::testHideDialog_data()
 {
-    QTest::addColumn<MeeGo::QmUSBMode::Mode>("mode");
+    QTest::addColumn<QString>("mode");
 
-    QTest::newRow("Disconnected") << MeeGo::QmUSBMode::Disconnected;
-    QTest::newRow("PC Suite") << MeeGo::QmUSBMode::PCSuite;
-    QTest::newRow("Mass Storage") << MeeGo::QmUSBMode::MassStorage;
-    QTest::newRow("MTP") << MeeGo::QmUSBMode::MTP;
-    QTest::newRow("Developer") << MeeGo::QmUSBMode::Developer;
-    QTest::newRow("Adb") << MeeGo::QmUSBMode::Adb;
-    QTest::newRow("Diag") << MeeGo::QmUSBMode::Diag;
-    QTest::newRow("Host") << MeeGo::QmUSBMode::Host;
-    QTest::newRow("Cellular connection sharing") << MeeGo::QmUSBMode::ConnectionSharing;
+    QTest::newRow("Disconnected") << QUsbModed::Mode::Disconnected;
+    QTest::newRow("PC Suite") << QUsbModed::Mode::PCSuite;
+    QTest::newRow("Mass Storage") << QUsbModed::Mode::MassStorage;
+    QTest::newRow("MTP") << QUsbModed::Mode::MTP;
+    QTest::newRow("Developer") << QUsbModed::Mode::Developer;
+    QTest::newRow("Adb") << QUsbModed::Mode::Adb;
+    QTest::newRow("Diag") << QUsbModed::Mode::Diag;
+    QTest::newRow("Host") << QUsbModed::Mode::Host;
+    QTest::newRow("Cellular connection sharing") << QUsbModed::Mode::ConnectionSharing;
 }
 
 void Ut_USBModeSelector::testHideDialog()
 {
-    QFETCH(MeeGo::QmUSBMode::Mode, mode);
+    QFETCH(QString, mode);
 
-    usbModeSelector->usbMode->setDefaultMode(MeeGo::QmUSBMode::Ask);
-    usbModeSelector->applyUSBMode(MeeGo::QmUSBMode::Ask);
+    usbModeSelector->usbMode->setConfigMode(QUsbModed::Mode::Ask);
+    usbModeSelector->applyUSBMode(QUsbModed::Mode::Ask);
     usbModeSelector->applyUSBMode(mode);
     QCOMPARE(homeWindowVisible[homeWindows.first()], false);
 }
 
 void Ut_USBModeSelector::testUSBNotifications_data()
 {
-    QTest::addColumn<MeeGo::QmUSBMode::Mode>("mode");
+    QTest::addColumn<QString>("mode");
     QTest::addColumn<QString>("category");
     QTest::addColumn<QString>("body");
 
-    QTest::newRow("Disconnected") << MeeGo::QmUSBMode::Disconnected << "device.removed" << qtTrId("qtn_usb_disconnected");
-    QTest::newRow("PC Suite") << MeeGo::QmUSBMode::PCSuite << "device.added" << qtTrId("qtn_usb_sync_active");
+    QTest::newRow("Disconnected") << QUsbModed::Mode::Disconnected << "device.removed" << qtTrId("qtn_usb_disconnected");
+    QTest::newRow("PC Suite") << QUsbModed::Mode::PCSuite << "device.added" << qtTrId("qtn_usb_sync_active");
 
-    QTest::newRow("Mass Storage") << MeeGo::QmUSBMode::MassStorage << "device.added" << qtTrId("qtn_usb_storage_active");
-    QTest::newRow("Developer") << MeeGo::QmUSBMode::Developer << "device.added" << qtTrId("qtn_usb_sdk_active");
-    QTest::newRow("MTP") << MeeGo::QmUSBMode::MTP << "device.added" << qtTrId("qtn_usb_mtp_active");
-    QTest::newRow("Adb") << MeeGo::QmUSBMode::Adb << "device.added" << qtTrId("qtn_usb_adb_active");
-    QTest::newRow("Diag") << MeeGo::QmUSBMode::Diag << "device.added" << qtTrId("qtn_usb_diag_active");
-    QTest::newRow("Host") << MeeGo::QmUSBMode::Host << "device.added" << qtTrId("qtn_usb_host_mode_active");
-    QTest::newRow("Cellular connection sharing") << MeeGo::QmUSBMode::ConnectionSharing << "device.added" << qtTrId("qtn_usb_connection_sharing_active");
+    QTest::newRow("Mass Storage") << QUsbModed::Mode::MassStorage << "device.added" << qtTrId("qtn_usb_storage_active");
+    QTest::newRow("Developer") << QUsbModed::Mode::Developer << "device.added" << qtTrId("qtn_usb_sdk_active");
+    QTest::newRow("MTP") << QUsbModed::Mode::MTP << "device.added" << qtTrId("qtn_usb_mtp_active");
+    QTest::newRow("Adb") << QUsbModed::Mode::Adb << "device.added" << qtTrId("qtn_usb_adb_active");
+    QTest::newRow("Diag") << QUsbModed::Mode::Diag << "device.added" << qtTrId("qtn_usb_diag_active");
+    QTest::newRow("Host") << QUsbModed::Mode::Host << "device.added" << qtTrId("qtn_usb_host_mode_active");
+    QTest::newRow("Cellular connection sharing") << QUsbModed::Mode::ConnectionSharing << "device.added" << qtTrId("qtn_usb_connection_sharing_active");
 }
 
 void Ut_USBModeSelector::testUSBNotifications()
 {
-    QFETCH(MeeGo::QmUSBMode::Mode, mode);
+    QFETCH(QString, mode);
     QFETCH(QString, category);
     QFETCH(QString, body);
 
@@ -221,7 +219,7 @@ void Ut_USBModeSelector::testConnectingUSBWhenDeviceIsLockedEmitsDialogShown()
 
     QSignalSpy spy(usbModeSelector, SIGNAL(dialogShown()));
     gQmLocksStub->stubSetReturnValue("getState", deviceLocked);
-    usbModeSelector->applyUSBMode(MeeGo::QmUSBMode::Connected);
+    usbModeSelector->applyUSBMode(QUsbModed::Mode::Connected);
     QCOMPARE(spy.count(), dialogShownCount);
 }
 
@@ -241,29 +239,8 @@ void Ut_USBModeSelector::testShowError()
 
 void Ut_USBModeSelector::testSetUSBMode()
 {
-    usbModeSelector->setUSBMode(5);
-    QCOMPARE(testMode, (MeeGo::QmUSBMode::Mode)5);
-}
-
-void Ut_USBModeSelector::testSupportedUSBModes()
-{
-    QSignalSpy spy(usbModeSelector, SIGNAL(supportedUSBModesChanged()));
-    testSupportedModes << MeeGo::QmUSBMode::PCSuite << MeeGo::QmUSBMode::MassStorage;
-    usbModeSelector->applyCurrentUSBMode();
-    QCOMPARE(usbModeSelector->supportedUSBModes().count(), testSupportedModes.count());
-    for (int i = 0; i < testSupportedModes.count(); i++) {
-        QCOMPARE(usbModeSelector->supportedUSBModes().at(i), (int)testSupportedModes.at(i));
-    }
-    QCOMPARE(spy.count(), 1);
-
-    QList<MeeGo::QmUSBMode::Mode> modeList;
-    modeList << MeeGo::QmUSBMode::MTP << MeeGo::QmUSBMode::Developer;
-    usbModeSelector->updateSupportedUSBModeList(modeList);
-    QCOMPARE(usbModeSelector->supportedUSBModes().count(), modeList.count());
-    for (int i = 0; i < modeList.count(); i++) {
-        QCOMPARE(usbModeSelector->supportedUSBModes().at(i), (int)modeList.at(i));
-    }
-    QCOMPARE(spy.count(), 2);
+    usbModeSelector->setUSBMode(QUsbModed::Mode::Charging);
+    QCOMPARE(usbModeSelector->usbMode->currentMode(), QUsbModed::Mode::Charging);
 }
 
 QTEST_MAIN (Ut_USBModeSelector)

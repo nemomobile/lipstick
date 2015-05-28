@@ -18,10 +18,11 @@
 
 #include <QObject>
 #include <QMap>
-#include <qmusbmode.h>
+#include <QStringList>
 #include "lipstickglobal.h"
 
 class HomeWindow;
+class QUsbModed;
 
 namespace MeeGo {
 class QmLocks;
@@ -30,32 +31,10 @@ class QmLocks;
 class LIPSTICK_EXPORT USBModeSelector : public QObject
 {
     Q_OBJECT
-    Q_ENUMS(Mode)
     Q_PROPERTY(bool windowVisible READ windowVisible WRITE setWindowVisible NOTIFY windowVisibleChanged)
-    Q_PROPERTY(QList<int> supportedUSBModes READ supportedUSBModes NOTIFY supportedUSBModesChanged)
+    Q_PROPERTY(QStringList supportedUSBModes READ supportedUSBModes NOTIFY supportedUSBModesChanged)
 
 public:
-    enum Mode {
-        // States (from usb_moded-dbus.h)
-        Connected = MeeGo::QmUSBMode::Connected,
-        DataInUse = MeeGo::QmUSBMode::DataInUse,
-        Disconnected = MeeGo::QmUSBMode::Disconnected,
-        ModeRequest = MeeGo::QmUSBMode::ModeRequest,
-
-        // Modes (from usb_moded-modes.h)
-        MassStorage = MeeGo::QmUSBMode::MassStorage,
-        ChargingOnly = MeeGo::QmUSBMode::ChargingOnly,
-        PCSuite = MeeGo::QmUSBMode::PCSuite,
-        Ask = MeeGo::QmUSBMode::Ask,
-        Undefined = MeeGo::QmUSBMode::Undefined,
-        Developer = MeeGo::QmUSBMode::Developer,
-        MTP = MeeGo::QmUSBMode::MTP,
-        Adb = MeeGo::QmUSBMode::Adb,
-        Diag = MeeGo::QmUSBMode::Diag,
-        ConnectionSharing = MeeGo::QmUSBMode::ConnectionSharing,
-        Host = MeeGo::QmUSBMode::Host,
-        Charger = MeeGo::QmUSBMode::Charger
-    };
 
     explicit USBModeSelector(QObject *parent = 0);
     
@@ -78,14 +57,14 @@ public:
      *
      * \return a list of numbers of the supported USB modes
      */
-    QList<int> supportedUSBModes() const;
+    QStringList supportedUSBModes() const;
 
     /*!
      * Sets the USB mode to the given mode.
      *
      * \param mode the mode to set
      */
-    Q_INVOKABLE void setUSBMode(int mode);
+    Q_INVOKABLE void setUSBMode(QString mode);
 
 signals:
     //! Signaled when the USB mode dialog is shown.
@@ -103,7 +82,7 @@ private slots:
      *
      * \param mode the USB mode to show UI elements for
      */
-    void applyUSBMode(MeeGo::QmUSBMode::Mode mode);
+    void applyUSBMode(QString mode);
 
     /*!
      * Shows an error string matching the given error code, if any.
@@ -117,35 +96,28 @@ private slots:
      */
     void applyCurrentUSBMode();
 
-    /*!
-     * Takes the given supported USB mode list into use and emits supportedUSBModesChanged().
-     *
-     * \param supportedModes a list of supported USB modes
-     */
-    void updateSupportedUSBModeList(const QList<MeeGo::QmUSBMode::Mode> &supportedModes);
-
 private:
+
     /*!
      * Shows a notification.
      *
      * \param mode the USB mode for the notification
      */
-    void showNotification(MeeGo::QmUSBMode::Mode mode);
+    void showNotification(QString mode);
 
-    //! MeeGo::QmUSBMode::error() error code to translation ID mapping
+private:
+
+    //! Error code to translation ID mapping
     static QMap<QString, QString> errorCodeToTranslationID;
 
     //! The volume control window
     HomeWindow *window;
 
     //! For getting and setting the USB mode
-    MeeGo::QmUSBMode *usbMode;
+    QUsbModed *usbMode;
 
     //! For getting information about the device lock state
     MeeGo::QmLocks *locks;
-
-    //! A list of supported USB modes
-    QList<int> supportedUSBModeList;
 
 #ifdef UNIT_TEST
     friend class Ut_USBModeSelector;

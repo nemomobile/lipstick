@@ -1,7 +1,7 @@
 /***************************************************************************
 **
 ** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
-** Copyright (C) 2012 Jolla Ltd.
+** Copyright (C) 2012-2015 Jolla Ltd.
 ** Contact: Robin Burchell <robin.burchell@jollamobile.com>
 **
 ** This file is part of lipstick.
@@ -48,7 +48,6 @@ private slots:
     void testConnectingUSBWhenDeviceIsLockedEmitsDialogShown();
     void testShowError();
     void testSetUSBMode();
-    void testSupportedUSBModes();
 
 private:
     USBModeSelector *usbModeSelector;
