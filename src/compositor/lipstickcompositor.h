@@ -76,6 +76,7 @@ public:
 
     int topmostWindowId() const { return m_topmostWindowId; }
     void setTopmostWindowId(int id);
+    int privateTopmostWindowProcessId() const { return m_topmostWindowProcessId; }
 
     Qt::ScreenOrientation screenOrientation() const { return m_screenOrientation; }
     void setScreenOrientation(Qt::ScreenOrientation screenOrientation);
@@ -126,6 +127,7 @@ signals:
     void fullscreenSurfaceChanged();
     void directRenderingActiveChanged();
     void topmostWindowIdChanged();
+    void privateTopmostWindowProcessIdChanged(int pid);
     void screenOrientationChanged();
     void sensorOrientationChanged();
     void orientationLockChanged();
@@ -199,6 +201,7 @@ private:
     QWaylandSurface *m_fullscreenSurface;
     bool m_directRenderingActive;
     int m_topmostWindowId;
+    int m_topmostWindowProcessId;
     Qt::ScreenOrientation m_screenOrientation;
     Qt::ScreenOrientation m_sensorOrientation;
     MeeGo::QmDisplayState *m_displayState;
