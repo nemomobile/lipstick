@@ -18,5 +18,6 @@ HEADERS += \
     $$NOTIFICATIONSRCDIR/notificationmanager.h \
     $$NOTIFICATIONSRCDIR/lipsticknotification.h \
     $$NOTIFICATIONSRCDIR/notificationmanageradaptor.h \
-    $$NOTIFICATIONSRCDIR/categorydefinitionstore.h
+    $$NOTIFICATIONSRCDIR/categorydefinitionstore.h \
+    $$NOTIFICATIONSRCDIR/androidprioritystore.h
 

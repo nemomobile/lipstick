@@ -156,6 +156,7 @@ mkdir -p %{buildroot}/%{icondirectory}
 %{_libdir}/qt5/qml/org/nemomobile/lipstick/qmldir
 %{_datadir}/translations/lipstick_eng_en.qm
 %{_datadir}/lipstick/notificationcategories/*.conf
+%{_datadir}/lipstick/androidnotificationpriorities
 # >> files
 %dir %{icondirectory}
 # << files

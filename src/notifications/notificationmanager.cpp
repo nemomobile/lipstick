@@ -24,6 +24,7 @@
 #include <mdesktopentry.h>
 #include <sys/statfs.h>
 #include <limits>
+#include "androidprioritystore.h"
 #include "categorydefinitionstore.h"
 #include "notificationmanageradaptor.h"
 #include "notificationmanager.h"
@@ -34,6 +35,12 @@
 #else
 #define NOTIFICATIONS_DEBUG(things)
 #endif
+
+//! The android priority store path
+static const char *ANDROID_PRIORITY_DEFINITION_PATH = "/usr/share/lipstick/androidnotificationpriorities";
+
+//! The android bridge process name
+static const char *ANDROID_BRIDGE_PROCESS = "alien_bridge_server";
 
 //! The category definitions directory
 static const char *CATEGORY_DEFINITION_FILE_DIRECTORY = "/usr/share/lipstick/notificationcategories";
@@ -141,6 +148,7 @@ NotificationManager::NotificationManager(QObject *parent) :
     QDBusContext(),
     previousNotificationID(0),
     categoryDefinitionStore(new CategoryDefinitionStore(CATEGORY_DEFINITION_FILE_DIRECTORY, MAX_CATEGORY_DEFINITION_FILES, this)),
+    androidPriorityStore(new AndroidPriorityStore(ANDROID_PRIORITY_DEFINITION_PATH, this)),
     database(new QSqlDatabase),
     committed(true),
     nextExpirationTime(0)
@@ -246,23 +254,19 @@ uint NotificationManager::Notify(const QString &appName, uint replacesId, const 
             }
         }
 
-        if ((appName_.isEmpty() || appIcon_.isEmpty()) && calledFromDBus()) {
-            // Use the pid to try to provide these properties
+        QPair<QString, QString> pidProperties;
+        bool androidOrigin(false);
+        if (calledFromDBus()) {
+            // Look up the properties of the originating process
             const QString callerService(message().service());
             const QDBusReply<uint> pidReply(connection().interface()->servicePid(callerService));
             if (pidReply.isValid()) {
-                const QPair<QString, QString> properties(processProperties(pidReply.value()));
-                if (appName_.isEmpty() && !properties.first.isEmpty()) {
-                    appName_ = properties.first;
-                }
-                if (appIcon_.isEmpty() && !properties.second.isEmpty()) {
-                    appIcon_ = properties.second;
-                }
+                pidProperties = processProperties(pidReply.value());
+                androidOrigin = (pidProperties.first == QString::fromLatin1(ANDROID_BRIDGE_PROCESS));
             }
-        } else if (appName_ == QStringLiteral("AndroidNotification")) {
-            // This forwarded Android notification contains the real app name in the summary
-            appName_ = summary_;
+        }
 
+        if (androidOrigin) {
             // The app icon should also be the nemo icon
             const QString icon(hints_.value(HINT_ICON).toString());
             if (icon.isEmpty()) {
@@ -281,6 +285,20 @@ uint NotificationManager::Notify(const QString &appName, uint replacesId, const 
                 if (previewSummary.isEmpty()) {
                     hints_.insert(HINT_PREVIEW_SUMMARY, QStringLiteral(" "));
                 }
+            }
+
+            // See if this notification has elevated priority and feedback
+            AndroidPriorityStore::PriorityDetails priority(androidPriorityStore->appDetails(appName_));
+            hints_.insert(HINT_PRIORITY, priority.first);
+            if (!priority.second.isEmpty()) {
+                hints_.insert(HINT_FEEDBACK, priority.second);
+            }
+        } else {
+            if (appName_.isEmpty() && !pidProperties.first.isEmpty()) {
+                appName_ = pidProperties.first;
+            }
+            if (appIcon_.isEmpty() && !pidProperties.second.isEmpty()) {
+                appIcon_ = pidProperties.second;
             }
         }
 

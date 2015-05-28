@@ -18,6 +18,7 @@
 #include "notificationmanager.h"
 #include "notificationmanageradaptor_stub.h"
 #include "categorydefinitionstore_stub.h"
+#include "androidprioritystore_stub.h"
 #include <QSqlQuery>
 #include <QSqlTableModel>
 #include <QSqlRecord>

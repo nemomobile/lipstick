@@ -72,6 +72,7 @@ HEADERS += \
     notifications/lowbatterynotifier.h \
     notifications/diskspacenotifier.h \
     notifications/notificationfeedbackplayer.h \
+    notifications/androidprioritystore.h \
     screenlock/screenlock.h \
     screenlock/screenlockadaptor.h \
     volume/volumecontrol.h \
@@ -115,6 +116,7 @@ SOURCES += \
     notifications/batterynotifier.cpp \
     notifications/lowbatterynotifier.cpp \
     notifications/diskspacenotifier.cpp \
+    notifications/androidprioritystore.cpp \
     screenlock/screenlock.cpp \
     screenlock/screenlockadaptor.cpp \
     volume/volumecontrol.cpp \
@@ -212,5 +214,10 @@ engineering_english_install.CONFIG += no_check_exist
 
 QMAKE_EXTRA_TARGETS += ts engineering_english
 PRE_TARGETDEPS += ts engineering_english
+
+androidpriorities.files = androidnotificationpriorities
+androidpriorities.path = /usr/share/lipstick/
+
+INSTALLS += androidpriorities
 
 include(notificationcategories/notificationcategories.pri)
