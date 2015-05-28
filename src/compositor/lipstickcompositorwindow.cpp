@@ -38,6 +38,9 @@ LipstickCompositorWindow::LipstickCompositorWindow(int windowId, const QString &
     setFlags(QQuickItem::ItemIsFocusScope | flags());
     refreshMouseRegion();
 
+    // XXX: We don't want synthesized mouse events
+    setAcceptedMouseButtons(acceptedMouseButtons() & ~Qt::LeftButton);
+
     // Handle ungrab situations
     connect(this, SIGNAL(visibleChanged()), SLOT(handleTouchCancel()));
     connect(this, SIGNAL(enabledChanged()), SLOT(handleTouchCancel()));
@@ -335,7 +338,8 @@ void LipstickCompositorWindow::handleTouchEvent(QTouchEvent *event)
         return;
     }
 
-    if (event->touchPointStates() & Qt::TouchPointPressed) {
+    // Only check the input region on TouchBegin
+    if (event->type() == QEvent::TouchBegin) {
         foreach (const QTouchEvent::TouchPoint &p, points) {
             if ((m_mouseRegionValid && !m_mouseRegion.contains(p.pos().toPoint())) ||
                 !m_surface->inputRegionContains(p.pos().toPoint())) {
