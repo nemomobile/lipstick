@@ -334,14 +334,6 @@ private:
      */
     QHash<QString, QString> categoryDefinitionParameters(const QVariantHash &hints) const;
 
-    /*!
-     * Adds a timestamp to a notification's hints if there is no timestamp
-     * defined.
-     *
-     * \param hints the notification hints to add the timestamp to
-     */
-    void addTimestamp(QVariantHash &hints);
-
     //! Restores the notifications from a database on the disk
     void restoreNotifications();
 

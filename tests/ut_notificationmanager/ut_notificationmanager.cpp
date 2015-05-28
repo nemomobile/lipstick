@@ -568,7 +568,7 @@ void Ut_NotificationManager::testAddingNotification()
     QCOMPARE(qSqlQueryAddBindValue.at(hintBase + 2), QVariant("value"));
     QCOMPARE(qSqlQueryAddBindValue.at(timestampHintBase).toUInt(), id);
     QCOMPARE(qSqlQueryAddBindValue.at(timestampHintBase + 1), QVariant(NotificationManager::HINT_TIMESTAMP));
-    QCOMPARE(qSqlQueryAddBindValue.at(timestampHintBase + 2).type(), QVariant::DateTime);
+    QCOMPARE(qSqlQueryAddBindValue.at(timestampHintBase + 2).type(), QVariant::String);
     QCOMPARE(notification->appName(), QString("appName"));
     QCOMPARE(notification->appIcon(), QString("appIcon"));
     QCOMPARE(notification->summary(), QString("summary"));
@@ -577,7 +577,7 @@ void Ut_NotificationManager::testAddingNotification()
     QCOMPARE(notification->actions().at(0), QString("action"));
     QCOMPARE(notification->actions().at(1), QString("Action"));
     QCOMPARE(notification->hints().value("hint"), QVariant("value"));
-    QCOMPARE(notification->hints().value(NotificationManager::HINT_TIMESTAMP).type(), QVariant::DateTime);
+    QCOMPARE(notification->hints().value(NotificationManager::HINT_TIMESTAMP).type(), QVariant::String);
 }
 
 void Ut_NotificationManager::testUpdatingExistingNotification()
@@ -618,14 +618,14 @@ void Ut_NotificationManager::testUpdatingExistingNotification()
     QCOMPARE(qSqlQueryAddBindValue.at(11), QVariant("action"));
     QCOMPARE(qSqlQueryAddBindValue.at(12).toUInt(), id);
     QCOMPARE(qSqlQueryAddBindValue.at(13), QVariant(NotificationManager::HINT_TIMESTAMP));
-    QCOMPARE(qSqlQueryAddBindValue.at(14).type(), QVariant::DateTime);
+    QCOMPARE(qSqlQueryAddBindValue.at(14).type(), QVariant::String);
     QCOMPARE(notification->appName(), QString("newAppName"));
     QCOMPARE(notification->appIcon(), QString("newAppIcon"));
     QCOMPARE(notification->summary(), QString("newSummary"));
     QCOMPARE(notification->body(), QString("newBody"));
     QCOMPARE(notification->actions().count(), 1);
     QCOMPARE(notification->actions().at(0), QString("action"));
-    QCOMPARE(notification->hints().value(NotificationManager::HINT_TIMESTAMP).type(), QVariant::DateTime);
+    QCOMPARE(notification->hints().value(NotificationManager::HINT_TIMESTAMP).type(), QVariant::String);
 }
 
 void Ut_NotificationManager::testUpdatingInexistingNotification()
