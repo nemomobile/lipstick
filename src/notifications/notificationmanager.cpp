@@ -209,50 +209,52 @@ QStringList NotificationManager::GetCapabilities()
 
 uint NotificationManager::Notify(const QString &appName, uint replacesId, const QString &appIcon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expireTimeout)
 {
+    NOTIFICATIONS_DEBUG("NOTIFY:" << appName << replacesId << appIcon << summary << body << actions << hints << expireTimeout);
     uint id = replacesId != 0 ? replacesId : nextAvailableNotificationID();
 
     if (replacesId == 0 || notifications.contains(id)) {
-        QString appName_(appName);
-        QString appIcon_(appIcon);
-        QString summary_(summary);
-        QString body_(body);
         QVariantHash hints_(hints);
-        int expireTimeout_(expireTimeout);
 
-        // Ensure the hints contain a timestamp
-        addTimestamp(hints_);
-
-        // Apply a category definition, if any
-        const QHash<QString, QString> categoryParameters(categoryDefinitionParameters(hints_));
-        QHash<QString, QString>::const_iterator it = categoryParameters.constBegin(), end = categoryParameters.constEnd();
-        for ( ; it != end; ++it) {
-            const QString &key(it.key());
-            const QString &value(it.value());
-
-            if (key == QString("appName")) {
-                if (appName_.isEmpty()) {
-                    appName_ = value;
+        // Ensure the hints contain a timestamp, and convert to UTC if required
+        QString timestamp(hints_.value(HINT_TIMESTAMP).toString());
+        if (!timestamp.isEmpty()) {
+            QDateTime tsValue(QDateTime::fromString(timestamp, Qt::ISODate));
+            if (tsValue.isValid()) {
+                if (tsValue.timeSpec() != Qt::UTC) {
+                    tsValue = tsValue.toUTC();
                 }
-            } else if (key == QString("appIcon")) {
-                if (appIcon_ .isEmpty()) {
-                    appIcon_ = value;
-                }
-            } else if (key == QString("summary")) {
-                if (summary_ .isEmpty()) {
-                    summary_ = value;
-                }
-            } else if (key == QString("body")) {
-                if (body_.isEmpty()) {
-                    body_ = value;
-                }
-            } else if (key == QString("expireTimeout")) {
-                if (expireTimeout == -1) {
-                    expireTimeout_ = value.toInt();
-                }
-            } else if (!hints_.contains(key)) {
-                hints_.insert(key, value);
+                timestamp = tsValue.toString(Qt::ISODate);
+            } else {
+                timestamp = QString();
             }
         }
+        if (timestamp.isEmpty()) {
+            timestamp = QDateTime::currentDateTimeUtc().toString(Qt::ISODate);
+        }
+        hints_.insert(HINT_TIMESTAMP, timestamp);
+
+        LipstickNotification *notification = 0;
+        if (replacesId == 0) {
+            // Create a new notification
+            notification = new LipstickNotification(appName, id, appIcon, summary, body, actions, hints_, expireTimeout, this);
+            connect(notification, SIGNAL(actionInvoked(QString)), this, SLOT(invokeAction(QString)), Qt::QueuedConnection);
+            connect(notification, SIGNAL(removeRequested()), this, SLOT(removeNotificationIfUserRemovable()), Qt::QueuedConnection);
+            notifications.insert(id, notification);
+        } else {
+            // Only replace an existing notification if it really exists
+            notification = notifications.value(id);
+            notification->setAppName(appName);
+            notification->setAppIcon(appIcon);
+            notification->setSummary(summary);
+            notification->setBody(body);
+            notification->setActions(actions);
+            notification->setHints(hints_);
+            notification->setExpireTimeout(expireTimeout);
+        }
+
+        // Apply a category definition, if any
+        applyCategoryDefinition(notification);
+        hints_ = notification->hints();
 
         QPair<QString, QString> pidProperties;
         bool androidOrigin(false);
@@ -270,7 +272,7 @@ uint NotificationManager::Notify(const QString &appName, uint replacesId, const 
             // The app icon should also be the nemo icon
             const QString icon(hints_.value(HINT_ICON).toString());
             if (icon.isEmpty()) {
-                hints_.insert(HINT_ICON, appIcon_);
+                hints_.insert(HINT_ICON, appIcon);
             }
 
             // If this notification includes a preview, ensure it has a non-empty body and summary
@@ -288,56 +290,23 @@ uint NotificationManager::Notify(const QString &appName, uint replacesId, const 
             }
 
             // See if this notification has elevated priority and feedback
-            AndroidPriorityStore::PriorityDetails priority(androidPriorityStore->appDetails(appName_));
+            AndroidPriorityStore::PriorityDetails priority(androidPriorityStore->appDetails(appName));
             hints_.insert(HINT_PRIORITY, priority.first);
             if (!priority.second.isEmpty()) {
                 hints_.insert(HINT_FEEDBACK, priority.second);
             }
         } else {
-            if (appName_.isEmpty() && !pidProperties.first.isEmpty()) {
-                appName_ = pidProperties.first;
+            if (notification->appName().isEmpty() && !pidProperties.first.isEmpty()) {
+                notification->setAppName(pidProperties.first);
             }
-            if (appIcon_.isEmpty() && !pidProperties.second.isEmpty()) {
-                appIcon_ = pidProperties.second;
+            if (notification->appIcon().isEmpty() && !pidProperties.second.isEmpty()) {
+                notification->setAppIcon(pidProperties.second);
             }
         }
 
-        if (replacesId == 0) {
-            // Create a new notification
-            LipstickNotification *notification = new LipstickNotification(appName_, id, appIcon_, summary_, body_, actions, hints_, expireTimeout_, this);
-            connect(notification, SIGNAL(actionInvoked(QString)), this, SLOT(invokeAction(QString)), Qt::QueuedConnection);
-            connect(notification, SIGNAL(removeRequested()), this, SLOT(removeNotificationIfUserRemovable()), Qt::QueuedConnection);
-            notifications.insert(id, notification);
-        } else {
-            // Only replace an existing notification if it really exists
-            LipstickNotification *notification = notifications.value(id);
-            notification->setAppName(appName_);
-            notification->setAppIcon(appIcon_);
-            notification->setSummary(summary_);
-            notification->setBody(body_);
-            notification->setActions(actions);
-            notification->setHints(hints_);
-            notification->setExpireTimeout(expireTimeout_);
+        notification->setHints(hints_);
 
-            // Delete the existing notification from the database
-            execSQL(QString("DELETE FROM notifications WHERE id=?"), QVariantList() << id);
-            execSQL(QString("DELETE FROM actions WHERE id=?"), QVariantList() << id);
-            execSQL(QString("DELETE FROM hints WHERE id=?"), QVariantList() << id);
-            execSQL(QString("DELETE FROM expiration WHERE id=?"), QVariantList() << id);
-        }
-
-        // Add the notification, its actions and its hints to the database
-        execSQL("INSERT INTO notifications VALUES (?, ?, ?, ?, ?, ?)", QVariantList() << id << appName_ << appIcon_ << summary_ << body_ << expireTimeout_);
-        foreach (const QString &action, actions) {
-            execSQL("INSERT INTO actions VALUES (?, ?)", QVariantList() << id << action);
-        }
-        QVariantHash::const_iterator hit = hints_.constBegin(), hend = hints_.constEnd();
-        for ( ; hit != hend; ++hit) {
-            execSQL("INSERT INTO hints VALUES (?, ?, ?)", QVariantList() << id << hit.key() << hit.value());
-        }
-
-        NOTIFICATIONS_DEBUG("NOTIFY:" << appName_ << appIcon_ << summary_ << body_ << actions << hints_ << expireTimeout_ << "->" << id);
-        emit notificationModified(id);
+        publish(notification, replacesId);
     } else {
         // Return the ID 0 when trying to update a notification which doesn't exist
         id = 0;
@@ -491,8 +460,11 @@ void NotificationManager::updateNotificationsWithCategory(const QString &categor
         QVariantHash hints = notification->hints();
         hints.remove(HINT_PREVIEW_SUMMARY);
         hints.remove(HINT_PREVIEW_BODY);
+        notification->setHints(hints);
 
-        Notify(notification->appName(), notification->replacesId(), notification->appIcon(), notification->summary(), notification->body(), notification->actions(), hints, notification->expireTimeout());
+        // Update the category properties and re-publish
+        applyCategoryDefinition(notification);
+        publish(notification, notification->replacesId());
     }
 }
 
@@ -501,11 +473,79 @@ QHash<QString, QString> NotificationManager::categoryDefinitionParameters(const 
     return categoryDefinitionStore->categoryParameters(hints.value(HINT_CATEGORY).toString());
 }
 
-void NotificationManager::addTimestamp(QVariantHash &hints)
+void NotificationManager::applyCategoryDefinition(LipstickNotification *notification) const
 {
-    if (hints.value(HINT_TIMESTAMP).toString().isEmpty()) {
-        hints.insert(HINT_TIMESTAMP, QDateTime::currentDateTimeUtc());
+    QVariantHash hints = notification->hints();
+
+    // Apply a category definition, if any
+    const QHash<QString, QString> categoryParameters(categoryDefinitionParameters(hints));
+    QHash<QString, QString>::const_iterator it = categoryParameters.constBegin(), end = categoryParameters.constEnd();
+    for ( ; it != end; ++it) {
+        const QString &key(it.key());
+        const QString &value(it.value());
+
+        // TODO: this is wrong - in some cases we need to overwrite any existing value...
+        // What would get broken by doing this?
+        if (key == QString("appName")) {
+            if (notification->appName().isEmpty()) {
+                notification->setAppName(value);
+            }
+        } else if (key == QString("appIcon")) {
+            if (notification->appIcon().isEmpty()) {
+                notification->setAppIcon(value);
+            }
+        } else if (key == QString("summary")) {
+            if (notification->summary().isEmpty()) {
+                notification->setSummary(value);
+            }
+        } else if (key == QString("body")) {
+            if (notification->body().isEmpty()) {
+                notification->setBody(value);
+            }
+        } else if (key == QString("expireTimeout")) {
+            if (notification->expireTimeout() == -1) {
+                notification->setExpireTimeout(value.toInt());
+            }
+        } else if (!hints.contains(key)) {
+            hints.insert(key, value);
+        }
     }
+
+    notification->setHints(hints);
+}
+
+void NotificationManager::publish(const LipstickNotification *notification, uint replacesId)
+{
+    const uint id(notification->replacesId());
+    if (id == 0) {
+        qWarning() << "Cannot publish notification without ID!";
+        return;
+    } else if (replacesId != 0 && replacesId != id) {
+        qWarning() << "Cannot publish notification replacing independent ID!";
+        return;
+    }
+
+    if (replacesId != 0) {
+        // Delete the existing notification from the database
+        execSQL(QString("DELETE FROM notifications WHERE id=?"), QVariantList() << id);
+        execSQL(QString("DELETE FROM actions WHERE id=?"), QVariantList() << id);
+        execSQL(QString("DELETE FROM hints WHERE id=?"), QVariantList() << id);
+        execSQL(QString("DELETE FROM expiration WHERE id=?"), QVariantList() << id);
+    }
+
+    // Add the notification, its actions and its hints to the database
+    execSQL("INSERT INTO notifications VALUES (?, ?, ?, ?, ?, ?)", QVariantList() << id << notification->appName() << notification->appIcon() << notification->summary() << notification->body() << notification->expireTimeout());
+    foreach (const QString &action, notification->actions()) {
+        execSQL("INSERT INTO actions VALUES (?, ?)", QVariantList() << id << action);
+    }
+    const QVariantHash hints(notification->hints());
+    QVariantHash::const_iterator hit = hints.constBegin(), hend = hints.constEnd();
+    for ( ; hit != hend; ++hit) {
+        execSQL("INSERT INTO hints VALUES (?, ?, ?)", QVariantList() << id << hit.key() << hit.value());
+    }
+
+    NOTIFICATIONS_DEBUG("PUBLISH:" << notification->appName() << notification->appIcon() << notification->summary() << notification->body() << notification->actions() << notification->hints() << notification->expireTimeout() << "->" << id);
+    emit notificationModified(id);
 }
 
 void NotificationManager::restoreNotifications()

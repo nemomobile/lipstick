@@ -336,12 +336,14 @@ private:
     QHash<QString, QString> categoryDefinitionParameters(const QVariantHash &hints) const;
 
     /*!
-     * Adds a timestamp to a notification's hints if there is no timestamp
-     * defined.
-     *
-     * \param hints the notification hints to add the timestamp to
+     * Update a notification by applying the changes implied by the catgeory definition.
      */
-    void addTimestamp(QVariantHash &hints);
+    void applyCategoryDefinition(LipstickNotification *notification) const;
+
+    /*!
+     * Makes a notification known to the system, or updates its properties if already published.
+     */
+    void publish(const LipstickNotification *notification, uint replacesId);
 
     //! Restores the notifications from a database on the disk
     void restoreNotifications();
