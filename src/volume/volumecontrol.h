@@ -45,8 +45,18 @@ class LIPSTICK_EXPORT VolumeControl : public QObject
     Q_PROPERTY(int safeVolume READ safeVolume NOTIFY safeVolumeChanged)
     Q_PROPERTY(bool windowVisible READ windowVisible WRITE setWindowVisible NOTIFY windowVisibleChanged)
     Q_PROPERTY(bool callActive READ callActive NOTIFY callActiveChanged)
+    Q_PROPERTY(int mediaState READ mediaState NOTIFY mediaStateChanged)
+    Q_ENUMS(MediaState)
 
 public:
+    enum MediaState {
+        MediaStateUnknown,
+        MediaStateInactive,
+        MediaStateForeground,
+        MediaStateBackground,
+        MediaStateActive
+    };
+
     /*!
      * Creates a volume controller.
      *
@@ -106,6 +116,8 @@ public:
      */
     bool callActive() const;
 
+    int mediaState() const;
+
     //! \reimp
     virtual bool eventFilter(QObject *watched, QEvent *event);
     //! \reimp_end
@@ -129,6 +141,8 @@ signals:
 
     //! Sent when the call activity status has changed.
     void callActiveChanged();
+
+    void mediaStateChanged();
 
     /*!
      * Sent when high volume or long listening time warning should show to user.
@@ -163,6 +177,8 @@ private slots:
 
     //! Used to show call active status
     void handleCallActive(bool callActive);
+
+    void handleMediaStateChanged(const QString &state);
 
     void createWindow();
 
@@ -199,6 +215,8 @@ private:
 
     bool upPressed_;
     bool downPressed_;
+
+    int mediaState_;
 
 #ifdef UNIT_TEST
     friend class Ut_VolumeControl;

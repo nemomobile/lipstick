@@ -65,6 +65,8 @@ signals:
      */
     void callActiveChanged(bool callActive);
 
+    void mediaStateChanged(const QString &state);
+
 public slots:
     /*!
      * Queries the PulseAudio daemon for the volume levels (current and maximum).

@@ -114,6 +114,8 @@ void PulseAudioControl::update()
     }
 
     int currentStep = -1, stepCount = -1, highVolumeStep = -1;
+    QString mediaState;
+
     if (reply != NULL) {
         if (dbus_message_get_type(reply) == DBUS_MESSAGE_TYPE_METHOD_RETURN) {
             DBusMessageIter iter;
@@ -123,32 +125,40 @@ void PulseAudioControl::update()
                 DBusMessageIter dict_entry;
                 dbus_message_iter_recurse(&iter, &dict_entry);
 
-                // Recurse into the dict [ dict_entry (string, variant(int)) ]
+                // Recurse into the dict [ dict_entry (string, variant) ]
                 while (dbus_message_iter_get_arg_type(&dict_entry) != DBUS_TYPE_INVALID) {
                     DBusMessageIter in_dict;
-                    // Recurse into the dict_entry [ string, variant(int) ]
+                    // Recurse into the dict_entry [ string, variant ]
                     dbus_message_iter_recurse(&dict_entry, &in_dict);
                     {
-                        char *prop_name = NULL;
+                        const char *prop_name = NULL;
                         // Get the string value, "property name"
                         dbus_message_iter_get_basic(&in_dict, &prop_name);
 
                         dbus_message_iter_next(&in_dict);
 
                         DBusMessageIter variant;
-                        // Recurse into the variant [ variant(int) ]
+                        // Recurse into the variant [ variant ]
                         dbus_message_iter_recurse(&in_dict, &variant);
 
-                        quint32 value;
-                        // Get the variant value which is uint32
-                        dbus_message_iter_get_basic(&variant, &value);
+                        if (prop_name == NULL) {
+                        } else if (dbus_message_iter_get_arg_type(&variant) == DBUS_TYPE_UINT32) {
+                            quint32 value;
+                            dbus_message_iter_get_basic(&variant, &value);
 
-                        if (prop_name && strcmp(prop_name, "StepCount") == 0) {
-                            stepCount = value;
-                        } else if (prop_name && strcmp(prop_name, "CurrentStep") == 0) {
-                            currentStep = value;
-                        } else if (prop_name && strcmp(prop_name, "HighVolumeStep") == 0) {
-                            highVolumeStep = value;
+                            if (strcmp(prop_name, "StepCount") == 0) {
+                                stepCount = value;
+                            } else if (strcmp(prop_name, "CurrentStep") == 0) {
+                                currentStep = value;
+                            } else if (strcmp(prop_name, "HighVolumeStep") == 0) {
+                                highVolumeStep = value;
+                            }
+                        } else if (dbus_message_iter_get_arg_type(&variant) == DBUS_TYPE_STRING) {
+                            const char *value = NULL;
+                            dbus_message_iter_get_basic(&variant, &value);
+                            if (strcmp(prop_name, "MediaState") == 0) {
+                                mediaState = QString(value);
+                            }
                         }
                     }
 
@@ -167,13 +177,18 @@ void PulseAudioControl::update()
     if (highVolumeStep != -1) {
         emit highVolume(highVolumeStep);
     }
+
+    if (!mediaState.isEmpty()) {
+        emit mediaStateChanged(mediaState);
+    }
 }
 
 void PulseAudioControl::addSignalMatch()
 {
     static const char *signalNames []  = {"com.Meego.MainVolume2.StepsUpdated", "com.Meego.MainVolume2.NotifyHighVolume",
-                                          "com.Meego.MainVolume2.NotifyListeningTime", "com.Meego.MainVolume2.CallStatus"};
-    for (int index = 0; index < 4; ++index) {
+                                          "com.Meego.MainVolume2.NotifyListeningTime", "com.Meego.MainVolume2.CallStatus",
+                                          "com.Meego.MainVolume2.MediaStateChanged"};
+    for (int index = 0; index < 5; ++index) {
         DBusMessage *message = dbus_message_new_method_call(NULL, "/org/pulseaudio/core1", NULL, "ListenForSignal");
         if (message != NULL) {
             const char *signalPtr = signalNames[index];
@@ -218,6 +233,11 @@ DBusHandlerResult PulseAudioControl::signalHandler(DBusConnection *, DBusMessage
 
         if (dbus_message_get_args(message, &error, DBUS_TYPE_STRING, &status, DBUS_TYPE_INVALID)) {
             emit static_cast<PulseAudioControl*>(control)->callActiveChanged(strcmp(status, "active") == 0);
+        }
+    } else if (dbus_message_has_member(message, "MediaStateChanged")) {
+        const char *state;
+        if (dbus_message_get_args(message, &error, DBUS_TYPE_STRING, &state, DBUS_TYPE_INVALID)) {
+            emit static_cast<PulseAudioControl*>(control)->mediaStateChanged(QString(state));
         }
     }
 

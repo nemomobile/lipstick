@@ -37,7 +37,8 @@ VolumeControl::VolumeControl(QObject *parent) :
     maximumVolume_(0),
     audioWarning(new MGConfItem("/desktop/nemo/audiowarning", this)),
     safeVolume_(0),
-    callActive_(false)
+    callActive_(false),
+    mediaState_(MediaStateUnknown)
 {
     hwKeyResource->setAlwaysReply();
     hwKeyResource->addResourceObject(new ResourcePolicy::ScaleButtonResource);
@@ -50,6 +51,7 @@ VolumeControl::VolumeControl(QObject *parent) :
     connect(pulseAudioControl, SIGNAL(highVolume(int)), SLOT(handleHighVolume(int)));
     connect(pulseAudioControl, SIGNAL(longListeningTime(int)), SLOT(handleLongListeningTime(int)));
     connect(pulseAudioControl, SIGNAL(callActiveChanged(bool)), SLOT(handleCallActive(bool)));
+    connect(pulseAudioControl, SIGNAL(mediaStateChanged(QString)), SLOT(handleMediaStateChanged(QString)));
     pulseAudioControl->update();
 
     qApp->installEventFilter(this);
@@ -128,6 +130,11 @@ void VolumeControl::setWarningAcknowledged(bool acknowledged)
 bool VolumeControl::callActive() const
 {
     return callActive_;
+}
+
+int VolumeControl::mediaState() const
+{
+    return mediaState_;
 }
 
 void VolumeControl::setVolume(int volume, int maximumVolume)
@@ -211,6 +218,26 @@ void VolumeControl::handleCallActive(bool callActive)
     if (callActive_ != callActive) {
         callActive_ = callActive;
         emit callActiveChanged();
+    }
+}
+
+void VolumeControl::handleMediaStateChanged(const QString &state)
+{
+    int newValue = MediaStateUnknown;
+
+    if (state == "inactive") {
+        newValue = MediaStateInactive;
+    } else if (state == "foreground") {
+        newValue = MediaStateForeground;
+    } else if (state == "background") {
+        newValue = MediaStateBackground;
+    } else if (state == "active") {
+        newValue = MediaStateActive;
+    }
+
+    if (newValue != mediaState_) {
+        mediaState_ = newValue;
+        emit mediaStateChanged();
     }
 }
 
