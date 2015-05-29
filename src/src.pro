@@ -53,7 +53,6 @@ PUBLICHEADERS += \
     qmsystem2/qmlocks.h \
     qmsystem2/qmsystemstate.h \
     qmsystem2/qmthermal.h \
-    qmsystem2/qmusbmode.h \
     qmsystem2/system_global.h \
     connectionselector.h
 
@@ -88,7 +87,6 @@ HEADERS += \
     qmsystem2/qmsystemstate_p.h \
     qmsystem2/qmdisplaystate_p.h \
     qmsystem2/qmlocks_p.h \
-    qmsystem2/qmusbmode_p.h \
     qmsystem2/qmactivity_p.h \
     qmsystem2/qmipcinterface_p.h \
     qmsystem2/qmthermal_p.h \
@@ -137,12 +135,11 @@ SOURCES += \
     qmsystem2/qmlocks.cpp \
     qmsystem2/qmsystemstate.cpp \
     qmsystem2/qmthermal.cpp \
-    qmsystem2/qmusbmode.cpp \
     qmsystem2/qmipcinterface.cpp \
 
 CONFIG += link_pkgconfig mobility qt warn_on depend_includepath qmake_cache target_qt
 CONFIG -= link_prl
-PKGCONFIG += mlite5 mce dbus-1 dbus-glib-1 libresourceqt5 ngf-qt5 Qt5SystemInfo libsystemd-daemon contextkit-statefs dsme_dbus_if thermalmanager_dbus_if usb_moded
+PKGCONFIG += mlite5 mce dbus-1 dbus-glib-1 libresourceqt5 ngf-qt5 Qt5SystemInfo libsystemd-daemon contextkit-statefs dsme_dbus_if thermalmanager_dbus_if usb-moded-qt5
 
 LIBS += -lrt
 
