@@ -49,7 +49,7 @@ void NotificationListModel::init()
         foreach(uint id, NotificationManager::instance()->notificationIds()) {
             LipstickNotification *notification = NotificationManager::instance()->notification(id);
             if (notificationShouldBeShown(notification)) {
-                initialNotifications.append(notification);
+                insertItem(indexFor(notification), notification);
             }
         }
 
