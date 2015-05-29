@@ -7,6 +7,7 @@ PUBLICHEADERS += \
     $$PWD/lipstickcompositorwindow.h \
     $$PWD/lipstickcompositorprocwindow.h \
     $$PWD/lipstickcompositoradaptor.h \
+    $$PWD/lipstickkeymap.h \
     $$PWD/windowmodel.h \
     $$PWD/lipsticksurfaceinterface.h \
 
@@ -22,6 +23,7 @@ SOURCES += \
     $$PWD/lipstickcompositorwindow.cpp \
     $$PWD/lipstickcompositorprocwindow.cpp \
     $$PWD/lipstickcompositoradaptor.cpp \
+    $$PWD/lipstickkeymap.cpp \
     $$PWD/windowmodel.cpp \
     $$PWD/windowpixmapitem.cpp \
     $$PWD/windowproperty.cpp \

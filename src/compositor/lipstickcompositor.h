@@ -30,6 +30,7 @@ class LipstickCompositorWindow;
 class LipstickCompositorProcWindow;
 class QOrientationSensor;
 class LipstickRecorderManager;
+class LipstickKeymap;
 
 class LIPSTICK_EXPORT LipstickCompositor : public QQuickWindow, public QWaylandQuickCompositor,
                                            public QQmlParserStatus
@@ -46,11 +47,11 @@ class LIPSTICK_EXPORT LipstickCompositor : public QQuickWindow, public QWaylandQ
     Q_PROPERTY(int topmostWindowId READ topmostWindowId WRITE setTopmostWindowId NOTIFY topmostWindowIdChanged)
     Q_PROPERTY(Qt::ScreenOrientation screenOrientation READ screenOrientation WRITE setScreenOrientation NOTIFY screenOrientationChanged)
     Q_PROPERTY(Qt::ScreenOrientation sensorOrientation READ sensorOrientation NOTIFY sensorOrientationChanged)
+    Q_PROPERTY(LipstickKeymap *keymap READ keymap WRITE setKeymap NOTIFY keymapChanged)
     Q_PROPERTY(QObject* clipboard READ clipboard CONSTANT)
     Q_PROPERTY(QVariant orientationLock READ orientationLock NOTIFY orientationLockChanged)
     Q_PROPERTY(bool displayDimmed READ displayDimmed NOTIFY displayDimmedChanged)
     Q_PROPERTY(bool completed READ completed NOTIFY completedChanged)
-    Q_PROPERTY(QString keyboardLayout READ keyboardLayout WRITE setKeyboardLayout NOTIFY keyboardLayoutChanged)
 
 public:
     LipstickCompositor();
@@ -86,8 +87,8 @@ public:
 
     bool displayDimmed() const { return m_currentDisplayState == MeeGo::QmDisplayState::Dimmed; }
 
-    QString keyboardLayout() const;
-    void setKeyboardLayout(const QString &layout);
+    LipstickKeymap *keymap() const;
+    void setKeymap(LipstickKeymap *keymap);
 
     QObject *clipboard() const;
 
@@ -130,7 +131,8 @@ signals:
     void sensorOrientationChanged();
     void orientationLockChanged();
     void displayDimmedChanged();
-    void keyboardLayoutChanged();
+
+    void keymapChanged();
 
     void displayOn();
     void displayOff();
@@ -161,6 +163,7 @@ private slots:
     void clipboardDataChanged();
     void onVisibleChanged(bool visible);
     void onSurfaceDying();
+    void updateKeymap();
 
     void initialize();
 
@@ -210,7 +213,7 @@ private:
     bool m_completed;
     int m_onUpdatesDisabledUnfocusedWindowId;
     LipstickRecorderManager *m_recorder;
-    QString m_keyboardLayout;
+    LipstickKeymap *m_keymap;
 };
 
 #endif // LIPSTICKCOMPOSITOR_H
