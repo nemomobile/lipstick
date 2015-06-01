@@ -186,7 +186,7 @@ void PulseAudioControl::update()
 void PulseAudioControl::addSignalMatch()
 {
     static const char *signalNames []  = {"com.Meego.MainVolume2.StepsUpdated", "com.Meego.MainVolume2.NotifyHighVolume",
-                                          "com.Meego.MainVolume2.NotifyListeningTime", "com.Meego.MainVolume2.CallStatus",
+                                          "com.Meego.MainVolume2.NotifyListeningTime", "com.Meego.MainVolume2.CallStateChanged",
                                           "com.Meego.MainVolume2.MediaStateChanged"};
     for (int index = 0; index < 5; ++index) {
         DBusMessage *message = dbus_message_new_method_call(NULL, "/org/pulseaudio/core1", NULL, "ListenForSignal");
@@ -228,11 +228,11 @@ DBusHandlerResult PulseAudioControl::signalHandler(DBusConnection *, DBusMessage
         if (dbus_message_get_args(message, &error, DBUS_TYPE_UINT32, &listeningTime, DBUS_TYPE_INVALID)) {
             static_cast<PulseAudioControl*>(control)->longListeningTime(listeningTime);
         }
-    } else if (dbus_message_has_member(message, "CallStatus")) {
-        const char *status;
+    } else if (dbus_message_has_member(message, "CallStateChanged")) {
+        const char *state;
 
-        if (dbus_message_get_args(message, &error, DBUS_TYPE_STRING, &status, DBUS_TYPE_INVALID)) {
-            emit static_cast<PulseAudioControl*>(control)->callActiveChanged(strcmp(status, "active") == 0);
+        if (dbus_message_get_args(message, &error, DBUS_TYPE_STRING, &state, DBUS_TYPE_INVALID)) {
+            emit static_cast<PulseAudioControl*>(control)->callActiveChanged(strcmp(state, "active") == 0);
         }
     } else if (dbus_message_has_member(message, "MediaStateChanged")) {
         const char *state;
