@@ -56,6 +56,7 @@ class LipstickCompositorStub : public StubBase {
   virtual void readContent();
   virtual void initialize();
   virtual bool completed();
+  virtual void timerEvent(QTimerEvent *e);
 }; 
 
 // 2. IMPLEMENT STUB
@@ -230,6 +231,13 @@ void LipstickCompositorStub::initialize() {
 bool LipstickCompositorStub::completed() {
     stubMethodEntered("completed");
     return true;
+}
+
+void LipstickCompositorStub::timerEvent(QTimerEvent *e)
+{
+    QList<ParameterBase*> params;
+    params.append( new Parameter<QTimerEvent *>(e));
+    stubMethodEntered("timerEvent", params);
 }
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
@@ -474,6 +482,11 @@ void LipstickCompositor::initialize() {
 
 bool LipstickCompositor::completed() {
     return gLipstickCompositorStub->completed();
+}
+
+void LipstickCompositor::timerEvent(QTimerEvent *e)
+{
+    gLipstickCompositorStub->timerEvent(e);
 }
 
 void LipstickCompositor::setKeyboardLayout(const QString &) {
