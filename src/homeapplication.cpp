@@ -99,7 +99,6 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     new DiskSpaceNotifier(this);
     new ThermalNotifier(this);
     usbModeSelector = new USBModeSelector(this);
-    connect(usbModeSelector, SIGNAL(dialogShown()), screenLock, SLOT(unlockScreen()));
     shutdownScreen = new ShutdownScreen(this);
     new ShutdownScreenAdaptor(shutdownScreen);
     connectionSelector = new ConnectionSelector(this);
