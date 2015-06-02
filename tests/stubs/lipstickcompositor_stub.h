@@ -25,6 +25,9 @@ class LipstickCompositorStub : public StubBase {
   virtual void setFullscreenSurface(QWaylandSurface *surface);
   virtual void setTopmostWindowId(int id);
   virtual void setScreenOrientation(Qt::ScreenOrientation screenOrientation);
+  virtual LipstickKeymap *keymap() const;
+  virtual void setKeymap(LipstickKeymap *keymap);
+  virtual void updateKeymap();
   virtual QObject *clipboard() const;
   virtual bool debug() const;
   virtual QObject * windowForId(int) const;
@@ -51,6 +54,7 @@ class LipstickCompositorStub : public StubBase {
   virtual void setScreenOrientationFromSensor();
   virtual void clipboardDataChanged();
   virtual void onVisibleChanged(bool visible);
+  virtual void keymapChanged();
   virtual QWaylandSurfaceView *createView(QWaylandSurface *surf);
   virtual void onSurfaceDying();
   virtual void readContent();
@@ -142,6 +146,23 @@ void LipstickCompositorStub::setScreenOrientation(Qt::ScreenOrientation screenOr
   QList<ParameterBase*> params;
   params.append( new Parameter<Qt::ScreenOrientation >(screenOrientation));
   stubMethodEntered("setScreenOrientation",params);
+}
+
+LipstickKeymap *LipstickCompositorStub::keymap() const {
+  stubMethodEntered("keymap");
+  return stubReturnValue<LipstickKeymap *>("keymap");
+}
+
+void LipstickCompositorStub::setKeymap(LipstickKeymap *keymap)
+{
+  QList<ParameterBase*> params;
+  params.append( new Parameter<LipstickKeymap *>(keymap));
+  stubMethodEntered("setKeymap",params);
+}
+
+void LipstickCompositorStub::updateKeymap()
+{
+  stubMethodEntered("updateKeymap");
 }
 
 QObject *LipstickCompositorStub::clipboard() const {
@@ -280,6 +301,10 @@ void LipstickCompositorStub::onVisibleChanged(bool v) {
     stubMethodEntered("onVisibleChanged", params);
 }
 
+void LipstickCompositorStub::keymapChanged() {
+  stubMethodEntered("keymapChanged");
+}
+
 QWaylandSurfaceView *LipstickCompositorStub::createView(QWaylandSurface *surf)
 {
     QList<ParameterBase*> params;
@@ -357,6 +382,20 @@ void LipstickCompositor::setTopmostWindowId(int id) {
 
 void LipstickCompositor::setScreenOrientation(Qt::ScreenOrientation screenOrientation) {
   gLipstickCompositorStub->setScreenOrientation(screenOrientation);
+}
+
+LipstickKeymap *LipstickCompositor::keymap() const {
+  return gLipstickCompositorStub->keymap();
+}
+
+void LipstickCompositor::setKeymap(LipstickKeymap *keymap)
+{
+  gLipstickCompositorStub->setKeymap(keymap);
+}
+
+void LipstickCompositor::updateKeymap()
+{
+  gLipstickCompositorStub->updateKeymap();
 }
 
 QObject *LipstickCompositor::clipboard() const {
@@ -474,13 +513,6 @@ void LipstickCompositor::initialize() {
 
 bool LipstickCompositor::completed() {
     return gLipstickCompositorStub->completed();
-}
-
-void LipstickCompositor::setKeyboardLayout(const QString &) {
-}
-
-QString LipstickCompositor::keyboardLayout() const {
-    return QString();
 }
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 2, 0)

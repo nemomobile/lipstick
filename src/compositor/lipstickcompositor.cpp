@@ -29,6 +29,7 @@
 #include "lipstickcompositorprocwindow.h"
 #include "lipstickcompositor.h"
 #include "lipstickcompositoradaptor.h"
+#include "lipstickkeymap.h"
 #include "lipsticksettings.h"
 #include "lipstickrecorder.h"
 #include <qpa/qwindowsysteminterface.h>
@@ -57,6 +58,7 @@ LipstickCompositor::LipstickCompositor()
     , m_updatesEnabled(true)
     , m_completed(false)
     , m_onUpdatesDisabledUnfocusedWindowId(0)
+    , m_keymap(0)
 {
     setColor(Qt::black);
     setRetainedSelectionEnabled(true);
@@ -620,18 +622,46 @@ void LipstickCompositor::setScreenOrientation(Qt::ScreenOrientation screenOrient
     }
 }
 
-QString LipstickCompositor::keyboardLayout() const
+LipstickKeymap *LipstickCompositor::keymap() const
 {
-    return m_keyboardLayout;
+    return m_keymap;
 }
 
-void LipstickCompositor::setKeyboardLayout(const QString &layout)
+void LipstickCompositor::setKeymap(LipstickKeymap *keymap)
 {
-    if (layout != m_keyboardLayout) {
-        m_keyboardLayout = layout;
-        defaultInputDevice()->setKeymap(QWaylandKeymap(m_keyboardLayout));
-        emit keyboardLayoutChanged();
+    if (m_keymap == keymap)
+        return;
+
+    bool update = true;
+
+    if (m_keymap && keymap)
+        update = (*m_keymap != *keymap);
+
+    if (m_keymap)
+        disconnect(m_keymap, 0, this, 0);
+
+    m_keymap = keymap;
+
+    if (m_keymap) {
+        connect(m_keymap, &LipstickKeymap::rulesChanged, this, &LipstickCompositor::updateKeymap);
+        connect(m_keymap, &LipstickKeymap::modelChanged, this, &LipstickCompositor::updateKeymap);
+        connect(m_keymap, &LipstickKeymap::layoutChanged, this, &LipstickCompositor::updateKeymap);
+        connect(m_keymap, &LipstickKeymap::variantChanged, this, &LipstickCompositor::updateKeymap);
+        connect(m_keymap, &LipstickKeymap::optionsChanged, this, &LipstickCompositor::updateKeymap);
     }
+
+    if (update)
+        updateKeymap();
+
+    emit keymapChanged();
+}
+
+void LipstickCompositor::updateKeymap()
+{
+    if (m_keymap)
+        defaultInputDevice()->setKeymap(m_keymap->waylandKeymap());
+    else
+        defaultInputDevice()->setKeymap(QWaylandKeymap());
 }
 
 void LipstickCompositor::reactOnDisplayStateChanges(MeeGo::QmDisplayState::DisplayState state)
