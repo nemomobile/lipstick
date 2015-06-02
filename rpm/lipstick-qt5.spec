@@ -12,7 +12,7 @@ Name:       lipstick-qt5
 # << macros
 
 Summary:    QML toolkit for homescreen creation
-Version:    0.26.12
+Version:    0.27.20.2
 Release:    1
 Group:      System/Libraries
 License:    LGPLv2.1
@@ -43,7 +43,7 @@ BuildRequires:  pkgconfig(contextkit-statefs) >= 0.2.7
 BuildRequires:  pkgconfig(systemd)
 BuildRequires:  pkgconfig(wayland-server)
 BuildRequires:  qt5-qttools-linguist
-BuildRequires:  qt5-qtwayland-wayland_egl-devel >= 5.4.0+git13
+BuildRequires:  qt5-qtwayland-wayland_egl-devel >= 5.4.0+git13.1
 BuildRequires:  doxygen
 Conflicts:   meegotouch-systemui < 1.5.7
 Obsoletes:   libnotificationsystem0
