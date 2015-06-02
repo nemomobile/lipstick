@@ -107,9 +107,9 @@ QList<QByteArray> SurfaceTextureMaterial::attributes() const
 void SurfaceTextureMaterial::updateState(const SurfaceTextureState *newState,
                                          const SurfaceTextureState *)
 {
-    if (newState->texture())
-        newState->texture()->bind();
-
+    Q_ASSERT(newState->texture());
+    if (QSGTexture *tex = newState->texture())
+        tex->bind();
     program()->setUniformValue(m_id_texOffset, newState->xOffset(), newState->yOffset());
     program()->setUniformValue(m_id_texScale, newState->xScale(), newState->yScale());
 }
@@ -641,6 +641,15 @@ QSGNode *WindowPixmapItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData
     if (provider != m_textureProvider) {
         delete m_textureProvider;
         m_textureProvider = 0;
+    }
+
+    if (!provider->texture()) {
+        qWarning("WindowPixmapItem does not have a source texture, cover will be dropped..");
+        if (node) {
+            node->setTextureProvider(0, false);
+            delete node;
+        }
+        return 0;
     }
 
     if (!node) node = new SurfaceNode;
