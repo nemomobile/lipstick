@@ -311,6 +311,11 @@ QString LipstickNotification::owner() const
     return hints_.value(NotificationManager::HINT_OWNER).toString();
 }
 
+int LipstickNotification::maxContentLines() const
+{
+    return hints_.value(NotificationManager::HINT_MAX_CONTENT_LINES).toInt();
+}
+
 void LipstickNotification::updateHintValues()
 {
     hintValues_.clear();
@@ -332,6 +337,7 @@ void LipstickNotification::updateHintValues()
             hint.compare(NotificationManager::HINT_HIDDEN, Qt::CaseInsensitive) != 0 &&
             hint.compare(NotificationManager::HINT_ORIGIN, Qt::CaseInsensitive) != 0 &&
             hint.compare(NotificationManager::HINT_OWNER, Qt::CaseInsensitive) != 0 &&
+            hint.compare(NotificationManager::HINT_MAX_CONTENT_LINES, Qt::CaseInsensitive) != 0 &&
             !hint.startsWith(NotificationManager::HINT_REMOTE_ACTION_PREFIX, Qt::CaseInsensitive) &&
             !hint.startsWith(NotificationManager::HINT_REMOTE_ACTION_ICON_PREFIX, Qt::CaseInsensitive)) {
             hintValues_.insert(hint, it.value());

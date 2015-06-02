@@ -180,6 +180,7 @@ const char *NotificationManager::HINT_USER_REMOVABLE = "x-nemo-user-removable";
 const char *NotificationManager::HINT_LED_DISABLED_WITHOUT_BODY_AND_SUMMARY = "x-nemo-led-disabled-without-body-and-summary";
 const char *NotificationManager::HINT_ORIGIN = "x-nemo-origin";
 const char *NotificationManager::HINT_OWNER = "x-nemo-owner";
+const char *NotificationManager::HINT_MAX_CONTENT_LINES = "x-nemo-max-content-lines";
 
 NotificationManager *NotificationManager::instance_ = 0;
 NotificationManager * NotificationManager::instance() {
