@@ -30,7 +30,7 @@
 
 LipstickCompositorWindow::LipstickCompositorWindow(int windowId, const QString &category,
                                                    QWaylandQuickSurface *surface, QQuickItem *parent)
-: QWaylandSurfaceItem(surface, parent), m_windowId(windowId), m_category(category), m_ref(0),
+: QWaylandSurfaceItem(surface, parent), m_windowId(windowId), m_category(category),
   m_delayRemove(false), m_windowClosed(false), m_removePosted(false), m_mouseRegionValid(false),
   m_interceptingTouch(false), m_mapped(false), m_noHardwareComposition(false),
   m_focusOnTouch(false)
@@ -113,21 +113,24 @@ QString LipstickCompositorWindow::title() const
     return QString();
 }
 
-void LipstickCompositorWindow::imageAddref()
+void LipstickCompositorWindow::imageAddref(QQuickItem *item)
 {
-    ++m_ref;
+    Q_ASSERT(!m_refs.contains(item));
+    m_refs << item;
 }
 
-void LipstickCompositorWindow::imageRelease()
+void LipstickCompositorWindow::imageRelease(QQuickItem *item)
 {
-    Q_ASSERT(m_ref);
-    --m_ref;
+    Q_ASSERT(m_refs.contains(item));
+    m_refs.remove(m_refs.indexOf(item));
+    Q_ASSERT(!m_refs.contains(item));
+
     tryRemove();
 }
 
 bool LipstickCompositorWindow::canRemove() const
 {
-    return m_windowClosed && !m_delayRemove && m_ref == 0;
+    return m_windowClosed && !m_delayRemove && m_refs.size() == 0;
 }
 
 void LipstickCompositorWindow::tryRemove()
@@ -428,6 +431,14 @@ public:
     QWaylandBufferRef waylandBuffer;
 };
 
+static bool lcw_checkForVisibleReferences(const QVector<QQuickItem *> &refs)
+{
+    foreach (QQuickItem *i, refs)
+        if (i->opacity() > 0 && i->isVisible())
+            return true;
+    return false;
+}
+
 
 QSGNode *LipstickCompositorWindow::updatePaintNode(QSGNode *old, UpdatePaintNodeData *data)
 {
@@ -435,6 +446,21 @@ QSGNode *LipstickCompositorWindow::updatePaintNode(QSGNode *old, UpdatePaintNode
         return QWaylandSurfaceItem::updatePaintNode(old, data);
 
     qCDebug(LIPSTICK_LOG_HWC, "LipstickCompositorWindow(%p)::updatePaintNode(), old=%p", this, old);
+
+    // If we have visible references, then the texture is being used in a
+    // WindowPixmapItem. The hwc logic below would interfere with that, such
+    // as texture being destroyed too early so we just use the standard node
+    // in this case (and disable HWC which is anyways not needed). Similarily,
+    // if we are in 'fallback' mode and there are no more references, we want
+    // to switch to the hwc path
+    bool haveRefs = lcw_checkForVisibleReferences(m_refs);
+    int wantedNodeType = haveRefs ? QSG_HWC_NODE_TYPE : QSGNode::GeometryNodeType;
+    if (old && old->type() == wantedNodeType) {
+        delete old;
+        old = 0;
+    }
+    if (haveRefs)
+        return QWaylandSurfaceItem::updatePaintNode(old, data);
 
     // No surface, abort..
     if (!surface() || !surface()->handle()) {

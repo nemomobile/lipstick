@@ -38,9 +38,6 @@ public:
     void *buffer;
 };
 
-// Any number above QSGNode::RenderNode will strictly do..
-#define QSG_HWC_NODE_TYPE ((QSGNode::NodeType) 1000)
-
 HwcNode::HwcNode(QQuickWindow *window)
     : QSGNode(QSG_HWC_NODE_TYPE)
     , m_contentNode(0)

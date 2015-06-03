@@ -60,6 +60,9 @@ private:
     bool m_blocked;
 };
 
+// Any number above QSGNode::RenderNode will strictly do..
+#define QSG_HWC_NODE_TYPE ((QSGNode::NodeType) 1000)
+
 class HwcRenderStage : public QObject, public QQuickCustomRenderStage
 {
     Q_OBJECT

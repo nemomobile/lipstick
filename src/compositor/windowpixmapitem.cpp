@@ -387,7 +387,7 @@ void WindowPixmapItem::setWindowId(int id)
             disconnect(m_item.data(), &QWaylandSurfaceItem::surfaceDestroyed, this, &WindowPixmapItem::surfaceDestroyed);
         }
         if (!m_surfaceDestroyed)
-            m_item->imageRelease();
+            m_item->imageRelease(this);
         m_item->setDelayRemove(false);
         m_item = 0;
         delete m_unmapLock;
@@ -410,7 +410,7 @@ void WindowPixmapItem::surfaceDestroyed()
     m_surfaceDestroyed = true;
     m_hasBuffer = false;
     m_unmapLock = new QWaylandUnmapLock(m_item->surface());
-    m_item->imageRelease();
+    m_item->imageRelease(this);
     update();
 }
 
@@ -709,7 +709,7 @@ void WindowPixmapItem::updateItem()
             m_shaderEffect->setProperty("window", qVariantFromValue((QObject *)w));
         }
 
-        w->imageAddref();
+        w->imageAddref(this);
 
         update();
     }
