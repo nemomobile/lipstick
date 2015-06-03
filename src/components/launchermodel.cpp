@@ -385,8 +385,13 @@ void LauncherModel::updatingStarted(const QString &packageName, const QString &l
             item->setIconFilename(iconPath);
         }
 
-        if (!desktopFile.isEmpty()) {
+        if (!desktopFile.isEmpty() && isDesktopFile(desktopFile)) {
+            // Only update the .desktop file name if we actually consider
+            // it a .desktop file in the paths we monitor for changes (JB#29427)
             item->setFilePath(desktopFile);
+            // XXX: Changing the .desktop file path might hide the icon;
+            // we don't handle this here, but expect onFilesUpdated() to be
+            // called with the correct file names via the filesystem monitor
         }
 
         if (QFile(desktopFile).exists()) {
