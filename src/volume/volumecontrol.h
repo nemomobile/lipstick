@@ -43,6 +43,7 @@ class LIPSTICK_EXPORT VolumeControl : public QObject
     Q_PROPERTY(int volume READ volume WRITE setVolume NOTIFY volumeChanged)
     Q_PROPERTY(int maximumVolume READ maximumVolume NOTIFY maximumVolumeChanged)
     Q_PROPERTY(int safeVolume READ safeVolume NOTIFY safeVolumeChanged)
+    Q_PROPERTY(int restrictedVolume READ restrictedVolume NOTIFY restrictedVolumeChanged)
     Q_PROPERTY(bool windowVisible READ windowVisible WRITE setWindowVisible NOTIFY windowVisibleChanged)
     Q_PROPERTY(bool callActive READ callActive NOTIFY callActiveChanged)
     Q_PROPERTY(int mediaState READ mediaState NOTIFY mediaStateChanged)
@@ -96,6 +97,15 @@ public:
     int safeVolume() const;
 
     /*!
+     * Returns the maximum volume that the system will allow. If the user has not acknowleged the
+     * safe volume warning \l safeVolume() will be returned otherwise \l maximumVolume() will be
+     * returned.
+     *
+     * \return the restricted volume
+     */
+    int restrictedVolume() const;
+
+    /*!
      * Returns whether the volume window is visible or not.
      *
      * \return \c true if the volume window is visible, \c false otherwise
@@ -135,6 +145,9 @@ signals:
 
     //! Sent when the safe volume has changed.
     void safeVolumeChanged();
+
+    //! Sent when the restricted volume has changed.
+    void restrictedVolumeChanged();
 
     //! Sent when the visibility of the volume window has changed.
     void windowVisibleChanged();
