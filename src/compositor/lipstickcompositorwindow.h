@@ -94,8 +94,8 @@ private slots:
 private:
     friend class LipstickCompositor;
     friend class WindowPixmapItem;
-    void imageAddref();
-    void imageRelease();
+    void imageAddref(QQuickItem *item);
+    void imageRelease(QQuickItem *item);
 
     bool canRemove() const;
     void tryRemove();
@@ -105,7 +105,6 @@ private:
 
     int m_windowId;
     QString m_category;
-    int m_ref;
     bool m_delayRemove:1;
     bool m_windowClosed:1;
     bool m_removePosted:1;
@@ -118,6 +117,7 @@ private:
     QRegion m_mouseRegion;
     QList<int> m_grabbedKeys;
     QList<QMetaObject::Connection> m_surfaceConnections;
+    QVector<QQuickItem *> m_refs;
 };
 
 #endif // LIPSTICKCOMPOSITORWINDOW_H
