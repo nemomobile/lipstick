@@ -20,6 +20,7 @@
 
 namespace {
 
+const int InteractiveAndroidPriority = 120;
 const int ElevatedAndroidPriority = 100;
 const int StandardAndroidPriority = 50;
 
@@ -59,7 +60,11 @@ AndroidPriorityStore::PriorityDetails AndroidPriorityStore::appDetails(const QSt
 {
     QHash<QString, QString>::const_iterator it = priorityDefinitions.constFind(appName);
     if (it != priorityDefinitions.constEnd()) {
-        return qMakePair(ElevatedAndroidPriority, it.value());
+        const QString &feedback(it.value());
+        if (!feedback.isEmpty() && feedback != QStringLiteral("email")) {
+            return qMakePair(InteractiveAndroidPriority, feedback);
+        }
+        return qMakePair(ElevatedAndroidPriority, feedback);
     }
 
     return qMakePair(StandardAndroidPriority, QString());
