@@ -47,6 +47,8 @@ VolumeControl::VolumeControl(QObject *parent) :
     hwKeyResource->acquire();
 
     setWarningAcknowledged(false);
+    connect(audioWarning, SIGNAL(valueChanged()), this, SIGNAL(restrictedVolumeChanged()));
+    connect(this, SIGNAL(maximumVolumeChanged()), this, SIGNAL(restrictedVolumeChanged()));
     connect(pulseAudioControl, SIGNAL(volumeChanged(int,int)), this, SLOT(setVolume(int,int)));
     connect(pulseAudioControl, SIGNAL(highVolume(int)), SLOT(handleHighVolume(int)));
     connect(pulseAudioControl, SIGNAL(longListeningTime(int)), SLOT(handleLongListeningTime(int)));
@@ -95,6 +97,11 @@ int VolumeControl::maximumVolume() const
 int VolumeControl::safeVolume() const
 {
     return safeVolume_ == 0 ? maximumVolume() : safeVolume_;
+}
+
+int VolumeControl::restrictedVolume() const
+{
+    return !warningAcknowledged() ? safeVolume() : maximumVolume();
 }
 
 void VolumeControl::setWindowVisible(bool visible)
