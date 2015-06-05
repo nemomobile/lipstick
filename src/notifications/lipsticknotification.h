@@ -50,6 +50,7 @@ class LIPSTICK_EXPORT LipstickNotification : public QObject
     Q_PROPERTY(QVariantList remoteActions READ remoteActions CONSTANT)
     Q_PROPERTY(QString origin READ origin CONSTANT)
     Q_PROPERTY(QString owner READ owner CONSTANT)
+    Q_PROPERTY(int maxContentLines READ maxContentLines CONSTANT)
 
 public:
     /*!
@@ -161,6 +162,9 @@ public:
 
     //! Returns an indicator for the notification owner
     QString owner() const;
+
+    //! Returns the maximum number of content lines requested for display
+    int maxContentLines() const;
 
     //! \internal
     /*!

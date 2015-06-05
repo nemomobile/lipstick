@@ -112,6 +112,7 @@ const char *NotificationManager::HINT_USER_REMOVABLE = "x-nemo-user-removable";
 const char *NotificationManager::HINT_DISPLAY_ON = "x-nemo-display-on";
 const char *NotificationManager::HINT_ORIGIN = "x-nemo-origin";
 const char *NotificationManager::HINT_OWNER = "x-nemo-owner";
+const char *NotificationManager::HINT_MAX_CONTENT_LINES = "x-nemo-max-content-lines";
 
 NotificationManager::NotificationManager(QObject *parent) : QObject(parent)
 {
