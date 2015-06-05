@@ -15,13 +15,11 @@
 
 #include <NgfClient>
 #include <QWaylandSurface>
-#include <QDBusMessage>
-#include <QDBusConnection>
-#include <QDBusPendingCall>
-#include <mce/dbus-names.h>
 #include "lipstickcompositor.h"
 #include "notificationmanager.h"
 #include "notificationfeedbackplayer.h"
+
+namespace {
 
 enum PreviewMode {
     AllNotificationsEnabled = 0,
@@ -29,6 +27,8 @@ enum PreviewMode {
     SystemNotificationsDisabled,
     AllNotificationsDisabled
 };
+
+}
 
 NotificationFeedbackPlayer::NotificationFeedbackPlayer(QObject *parent) :
     QObject(parent),
@@ -54,12 +54,6 @@ void NotificationFeedbackPlayer::addNotification(uint id)
     LipstickNotification *notification = NotificationManager::instance()->notification(id);
 
     if (notification != 0 && !idToEventId.contains(notification) && isEnabled(notification)) {
-        // Ask mce to turn the screen on if requested
-        if (notification->hints().value(NotificationManager::HINT_DISPLAY_ON).toBool()) {
-            QDBusMessage msg = QDBusMessage::createMethodCall(MCE_SERVICE, MCE_REQUEST_PATH, MCE_REQUEST_IF, MCE_DISPLAY_ON_REQ);
-            QDBusConnection::systemBus().asyncCall(msg);
-        }
-
         // Play the feedback related to the notification if any
         QString feedback = notification->hints().value(NotificationManager::HINT_FEEDBACK).toString();
         if (!feedback.isEmpty()) {
@@ -98,7 +92,12 @@ bool NotificationFeedbackPlayer::isEnabled(LipstickNotification *notification)
 
     int urgency = notification->urgency();
     int priority = notification->priority();
-    return !(urgency < 2 && priority < minimumPriority_) && (mode == AllNotificationsEnabled || (mode == ApplicationNotificationsDisabled && urgency >= 2) || (mode == SystemNotificationsDisabled && urgency < 2));
+    int notificationIsCritical = urgency >= 2 || notification->hints().value(NotificationManager::HINT_DISPLAY_ON).toBool();
+
+    return !(urgency < 2 && priority < minimumPriority_) &&
+           (mode == AllNotificationsEnabled ||
+            (mode == ApplicationNotificationsDisabled && notificationIsCritical) ||
+            (mode == SystemNotificationsDisabled && urgency < 2));
 }
 
 int NotificationFeedbackPlayer::minimumPriority() const
