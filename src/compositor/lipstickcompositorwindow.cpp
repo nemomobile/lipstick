@@ -382,14 +382,19 @@ void LipstickCompositorWindow::handleTouchCancel()
 
 void LipstickCompositorWindow::terminateProcess(int killTimeout)
 {
-    kill(processId(), SIGTERM);
-
-    QTimer::singleShot(killTimeout, this, SLOT(killProcess()));
+    pid_t pid = processId();
+    if (pid > 0) {
+        kill(pid, SIGTERM);
+        QTimer::singleShot(killTimeout, this, SLOT(killProcess()));
+    }
 }
 
 void LipstickCompositorWindow::killProcess()
 {
-    kill(processId(), SIGKILL);
+    pid_t pid = processId();
+    if (pid > 0) {
+        kill(pid, SIGKILL);
+    }
 }
 
 void LipstickCompositorWindow::connectSurfaceSignals()
