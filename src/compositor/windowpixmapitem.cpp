@@ -643,6 +643,10 @@ QSGNode *WindowPixmapItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData
         m_textureProvider = 0;
     }
 
+    if (m_surfaceDestroyed && m_item) {
+        m_item->setDelayRemove(false);
+    }
+
     if (!provider->texture()) {
         qWarning("WindowPixmapItem does not have a source texture, cover will be dropped..");
         if (node) {
@@ -662,10 +666,6 @@ QSGNode *WindowPixmapItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData
     node->setYOffset(m_yOffset);
     node->setXScale(m_xScale);
     node->setYScale(m_yScale);
-
-    if (m_surfaceDestroyed && m_item) {
-        m_item->setDelayRemove(false);
-    }
 
     return node;
 }
