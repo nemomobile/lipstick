@@ -54,6 +54,12 @@ public:
 
         if (textureSize.width() > 0 && textureSize.height() > 0)
             image = image.scaled(textureSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+        else if (maxTextureSize > 0) {
+            if (image.width() > maxTextureSize || image.height() > maxTextureSize) {
+                qreal s = maxTextureSize / (qreal) qMax(image.width(), image.height());
+                image = image.scaled(image.size() * s, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+            }
+        }
 
         if (image.size().isValid()) {
 
@@ -96,6 +102,7 @@ public:
     QSize textureSize;
     qreal pixelRatio;
     qreal rotation;
+    int maxTextureSize;
 
     HwcImage *hwcImage;
 
@@ -177,6 +184,15 @@ void HwcImage::setOverlayColor(const QColor &color)
     polish();
 }
 
+void HwcImage::setMaxTextureSize(int size)
+{
+    if (m_maxTextureSize == size)
+        return;
+    m_maxTextureSize = size;
+    emit maxTextureSizeChanged();
+    polish();
+}
+
 void HwcImage::setTextureSize(const QSize &size)
 {
     if (m_textureSize == size)
@@ -245,6 +261,10 @@ void HwcImage::updatePolish()
     req->overlay = m_overlayColor;
     req->pixelRatio = m_pixelRatio;
     req->rotation = m_rotationHandler ? hwcimage_get_rotation(m_rotationHandler) : 0;
+    req->maxTextureSize = m_maxTextureSize;
+
+    if (m_maxTextureSize > 0 && m_textureSize.width() > 0 && m_textureSize.height() > 0)
+        qWarning() << "HwcImage: both 'textureSize' and 'maxTextureSize' are set; 'textureSize' will take presedence" << this;
 
     qCDebug(LIPSTICK_LOG_HWC,
             "Scheduling HwcImage request, source=%s, (%d x %d), eff=%s, olay=%s, rot=%f, pr=%f, %s",

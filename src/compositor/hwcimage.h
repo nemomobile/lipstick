@@ -35,6 +35,7 @@ class LIPSTICK_EXPORT HwcImage : public QQuickItem
     Q_PROPERTY(QColor overlayColor READ overlayColor WRITE setOverlayColor NOTIFY overlayColorChanged)
     Q_PROPERTY(qreal pixelRatio READ pixelRatio WRITE setPixelRatio NOTIFY pixelRatioChanged)
     Q_PROPERTY(QSize textureSize READ textureSize WRITE setTextureSize NOTIFY textureSizeChanged)
+    Q_PROPERTY(int maxTextureSize READ maxTextureSize WRITE setMaxTextureSize NOTIFY maxTextureSizeChanged)
     Q_PROPERTY(QString effect READ effect WRITE setEffect NOTIFY effectChanged)
     Q_PROPERTY(QQuickItem *rotationHandler READ rotationHandler WRITE setRotationHandler NOTIFY rotationHandlerChanged)
     Q_PROPERTY(bool asynchronous READ isAsynchronous WRITE setAsynchronous NOTIFY asynchronousChanged)
@@ -54,6 +55,9 @@ public:
     QColor overlayColor() const { return m_overlayColor; }
 
     Status status() const { return m_status; }
+
+    void setMaxTextureSize(int size);
+    int maxTextureSize() const { return m_maxTextureSize; }
 
     void setTextureSize(const QSize &size);
     QSize textureSize() const { return m_textureSize; }
@@ -85,6 +89,7 @@ signals:
     void pixelRatioChanged();
     void asynchronousChanged();
     void rotationHandlerChanged();
+    void maxTextureSizeChanged();
 
 private slots:
     void handlerRotationChanged();
@@ -105,6 +110,7 @@ private:
     QColor m_overlayColor;
     qreal m_pixelRatio;
     qreal m_textureRotation;
+    int m_maxTextureSize;
     bool m_asynchronous;
 };
 
