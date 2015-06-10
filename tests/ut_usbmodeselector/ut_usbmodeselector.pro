@@ -19,6 +19,7 @@ HEADERS += \
     $$NOTIFICATIONSRCDIR/lipsticknotification.h \
     $$UTILITYSRCDIR/closeeventeater.h \
     $$USBMODEDQTINCLUDEDIR/qusbmoded.h \
+    $$USBMODEDQTINCLUDEDIR/qusbmode.h \
     ../../src/qmsystem2/qmlocks.h \
     ut_usbmodeselector.h \
     $$SRCDIR/homewindow.h \
