@@ -37,24 +37,29 @@
 #include "usb_moded-modes.h"
 
 // States (from usb_moded-dbus.h)
-const QString QUsbModed::Mode::Connected(USB_CONNECTED);
-const QString QUsbModed::Mode::DataInUse(DATA_IN_USE);
-const QString QUsbModed::Mode::Disconnected(USB_DISCONNECTED);
-const QString QUsbModed::Mode::ModeRequest(USB_CONNECTED_DIALOG_SHOW);
+const QString QUsbMode::Mode::Connected(USB_CONNECTED);
+const QString QUsbMode::Mode::DataInUse(DATA_IN_USE);
+const QString QUsbMode::Mode::Disconnected(USB_DISCONNECTED);
+const QString QUsbMode::Mode::ModeRequest(USB_CONNECTED_DIALOG_SHOW);
 
 // Modes (from usb_moded-modes.h)
-const QString QUsbModed::Mode::Undefined(MODE_UNDEFINED);
-const QString QUsbModed::Mode::Ask(MODE_ASK);
-const QString QUsbModed::Mode::MassStorage(MODE_MASS_STORAGE);
-const QString QUsbModed::Mode::Developer(MODE_DEVELOPER);
-const QString QUsbModed::Mode::MTP(MODE_MTP);
-const QString QUsbModed::Mode::Host(MODE_HOST);
-const QString QUsbModed::Mode::ConnectionSharing(MODE_CONNECTION_SHARING);
-const QString QUsbModed::Mode::Diag(MODE_DIAG);
-const QString QUsbModed::Mode::Adb(MODE_ADB);
-const QString QUsbModed::Mode::PCSuite(MODE_PC_SUITE);
-const QString QUsbModed::Mode::Charging(MODE_CHARGING);
-const QString QUsbModed::Mode::Charger(MODE_CHARGER);
+const QString QUsbMode::Mode::Undefined(MODE_UNDEFINED);
+const QString QUsbMode::Mode::Ask(MODE_ASK);
+const QString QUsbMode::Mode::MassStorage(MODE_MASS_STORAGE);
+const QString QUsbMode::Mode::Developer(MODE_DEVELOPER);
+const QString QUsbMode::Mode::MTP(MODE_MTP);
+const QString QUsbMode::Mode::Host(MODE_HOST);
+const QString QUsbMode::Mode::ConnectionSharing(MODE_CONNECTION_SHARING);
+const QString QUsbMode::Mode::Diag(MODE_DIAG);
+const QString QUsbMode::Mode::Adb(MODE_ADB);
+const QString QUsbMode::Mode::PCSuite(MODE_PC_SUITE);
+const QString QUsbMode::Mode::Charging(MODE_CHARGING);
+const QString QUsbMode::Mode::Charger(MODE_CHARGER);
+
+QUsbMode::QUsbMode(QObject* aParent) :
+    QObject(aParent)
+{
+}
 
 class QUsbModed::Private
 {
@@ -73,7 +78,7 @@ public:
 };
 
 QUsbModed::QUsbModed(QObject* aParent) :
-    QObject(aParent),
+    QUsbMode(aParent),
     iPrivate(new Private)
 {
 }
