@@ -5,7 +5,7 @@ Name:       lipstick-qt5
 %define icondirectory %{_datadir}/icons/hicolor/86x86/apps
 
 Summary:    QML toolkit for homescreen creation
-Version:    0.27.35
+Version:    0.27.45
 Release:    1
 Group:      System/Libraries
 License:    LGPLv2.1
@@ -35,7 +35,7 @@ BuildRequires:  pkgconfig(ngf-qt5)
 BuildRequires:  pkgconfig(contextkit-statefs) >= 0.2.7
 BuildRequires:  pkgconfig(systemd)
 BuildRequires:  pkgconfig(wayland-server)
-BuildRequires:  pkgconfig(usb-moded-qt5)
+BuildRequires:  pkgconfig(usb-moded-qt5) >= 1.1
 BuildRequires:  qt5-qttools-linguist
 BuildRequires:  qt5-qtgui-devel >= 5.2.1+git24
 BuildRequires:  qt5-qtwayland-wayland_egl-devel >= 5.4.0+git16
