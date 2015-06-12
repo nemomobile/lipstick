@@ -158,7 +158,7 @@ void QObjectListModel::removeItems(const QList<QObject *> &items)
                 --first;
             }
 
-            beginRemoveRows(QModelIndex(), first, last);
+            beginRemoveRows(QModelIndex(), removals.at(first).first, removals.at(last).first);
             while (last >= first) {
                 const QPair<int, QObject *> &removal(removals.at(last));
                 --last;
