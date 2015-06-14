@@ -51,6 +51,9 @@ public:
     //! Standard hint: If true, the notification should be removed after display.
     static const char *HINT_TRANSIENT;
 
+    //! Standard hint: If true, the notification should not be removed after activation.
+    static const char *HINT_RESIDENT;
+
     //! Nemo hint: Icon of the notification. Allows the icon to be set using a category definition file without specifying it in the Notify() call.
     static const char *HINT_ICON;
 

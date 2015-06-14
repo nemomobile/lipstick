@@ -60,6 +60,7 @@ static const uint MINIMUM_FREE_SPACE_NEEDED_IN_KB = 1024;
 const char *NotificationManager::HINT_URGENCY = "urgency";
 const char *NotificationManager::HINT_CATEGORY = "category";
 const char *NotificationManager::HINT_TRANSIENT = "transient";
+const char *NotificationManager::HINT_RESIDENT = "resident";
 const char *NotificationManager::HINT_ICON = "x-nemo-icon";
 const char *NotificationManager::HINT_ITEM_COUNT = "x-nemo-item-count";
 const char *NotificationManager::HINT_PRIORITY = "x-nemo-priority";
@@ -896,7 +897,11 @@ void NotificationManager::invokeAction(const QString &action)
                 }
             }
 
-            removeNotificationIfUserRemovable(id);
+            // Unless marked as resident, we should remove the notification now
+            const QVariant resident(notification->hints().value(HINT_RESIDENT));
+            if (!resident.isValid() || resident.toBool() == false) {
+                removeNotificationIfUserRemovable(id);
+            }
         }
     }
 }
