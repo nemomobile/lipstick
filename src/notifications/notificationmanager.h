@@ -51,24 +51,6 @@ public:
     //! Standard hint: If true, the notification should be removed after display.
     static const char *HINT_TRANSIENT;
 
-    //! Standard hint: This specifies the name of the desktop filename representing the calling program. This should be the same as the prefix used for the application's .desktop file. An example would be "rhythmbox" from "rhythmbox.desktop". This can be used by the daemon to retrieve the correct icon for the application, for logging purposes, etc. Not supported by this implementation.
-    static const char *HINT_DESKTOP_ENTRY;
-
-    //! Standard hint: This is a raw data image format which describes the width, height, rowstride, has alpha, bits per sample, channels and image data respectively. We use this value if the icon field is left blank. Not supported by this implementation.
-    static const char *HINT_IMAGE_DATA;
-
-    //! Standard hint: The path to a sound file to play when the notification pops up. Not supported by this implementation.
-    static const char *HINT_SOUND_FILE;
-
-    //! Standard hint: Causes the server to suppress playing any sounds, if it has that ability. This is usually set when the client itself is going to play its own sound. Not supported by this implementation.
-    static const char *HINT_SUPPRESS_SOUND;
-
-    //! Standard hint: Specifies the X location on the screen that the notification should point to. The "y" hint must also be specified. Not supported by this implementation.
-    static const char *HINT_X;
-
-    //! Standard hint: Specifies the Y location on the screen that the notification should point to. The "x" hint must also be specified. Not supported by this implementation.
-    static const char *HINT_Y;
-
     //! Nemo hint: Icon of the notification. Allows the icon to be set using a category definition file without specifying it in the Notify() call.
     static const char *HINT_ICON;
 
