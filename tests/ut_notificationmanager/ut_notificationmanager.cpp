@@ -513,9 +513,10 @@ void Ut_NotificationManager::testCapabilities()
 {
     // Check the supported capabilities includes all the Nemo hints
     QStringList capabilities = NotificationManager::instance()->GetCapabilities();
-    QCOMPARE(capabilities.count(), 13);
+    QCOMPARE(capabilities.count(), 14);
     QCOMPARE((bool)capabilities.contains("body"), true);
     QCOMPARE((bool)capabilities.contains("actions"), true);
+    QCOMPARE((bool)capabilities.contains("persistence"), true);
     QCOMPARE((bool)capabilities.contains(NotificationManager::HINT_ICON), true);
     QCOMPARE((bool)capabilities.contains(NotificationManager::HINT_ITEM_COUNT), true);
     QCOMPARE((bool)capabilities.contains(NotificationManager::HINT_TIMESTAMP), true);

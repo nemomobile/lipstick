@@ -190,6 +190,7 @@ QStringList NotificationManager::GetCapabilities()
 {
     return QStringList() << "body"
                          << "actions"
+                         << "persistence"
                          << HINT_ICON
                          << HINT_ITEM_COUNT
                          << HINT_TIMESTAMP
