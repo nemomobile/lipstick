@@ -178,7 +178,9 @@ void LipstickCompositorWindow::refreshGrabbedKeys()
 
         if (m_grabbedKeys.isEmpty() && !grabbedKeys.isEmpty()) {
             qApp->installEventFilter(this);
-        } else if (!m_grabbedKeys.isEmpty() && grabbedKeys.isEmpty()) {
+        } else if (!m_grabbedKeys.isEmpty() && grabbedKeys.isEmpty() && m_pressedGrabbedKeys.keys.isEmpty()) {
+            // we don't remove the event filter if m_pressedGrabbedKeys.keys contains still some key.
+            // we wait the key release for that.
             qApp->removeEventFilter(this);
         }
 
@@ -221,13 +223,25 @@ bool LipstickCompositorWindow::eventFilter(QObject *obj, QEvent *event)
     if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease) {
         QKeyEvent *ke = static_cast<QKeyEvent *>(event);
         QWaylandSurface *m_surface = surface();
-        if (m_surface && m_grabbedKeys.contains(ke->key())) {
+        if (m_surface && (m_grabbedKeys.contains(ke->key()) || m_pressedGrabbedKeys.keys.contains(ke->key())) && !ke->isAutoRepeat()) {
             QWaylandInputDevice *inputDevice = m_surface->compositor()->defaultInputDevice();
-            QWaylandSurface *old = inputDevice->keyboardFocus();
-            inputDevice->setKeyboardFocus(m_surface);
+            if (event->type() == QEvent::KeyPress) {
+                if (m_pressedGrabbedKeys.keys.isEmpty()) {
+                    QWaylandSurface *old = inputDevice->keyboardFocus();
+                    m_pressedGrabbedKeys.oldFocus = old;
+                    inputDevice->setKeyboardFocus(m_surface);
+                }
+                m_pressedGrabbedKeys.keys << ke->key();
+            }
             inputDevice->sendFullKeyEvent(ke);
-            inputDevice->setKeyboardFocus(old);
-
+            if (event->type() == QEvent::KeyRelease) {
+                m_pressedGrabbedKeys.keys.removeOne(ke->key());
+                if (m_pressedGrabbedKeys.keys.isEmpty()) {
+                    inputDevice->setKeyboardFocus(m_pressedGrabbedKeys.oldFocus);
+                    if (m_grabbedKeys.isEmpty())
+                        qApp->removeEventFilter(this);
+                }
+            }
             return true;
         }
     }

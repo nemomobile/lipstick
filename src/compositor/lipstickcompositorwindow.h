@@ -116,6 +116,10 @@ private:
     QVariant m_data;
     QRegion m_mouseRegion;
     QList<int> m_grabbedKeys;
+    struct {
+        QWaylandSurface *oldFocus;
+        QList<int> keys;
+    } m_pressedGrabbedKeys;
     QList<QMetaObject::Connection> m_surfaceConnections;
     QVector<QQuickItem *> m_refs;
 };
