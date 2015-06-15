@@ -191,7 +191,11 @@ void LipstickNotification::setExpireTimeout(int expireTimeout)
 
 QString LipstickNotification::icon() const
 {
-    return hints_.value(NotificationManager::HINT_ICON).toString();
+    QString rv(hints_.value(NotificationManager::HINT_ICON).toString());
+    if (rv.isEmpty()) {
+        rv = hints_.value(NotificationManager::HINT_IMAGE_PATH).toString();
+    }
+    return rv;
 }
 
 QDateTime LipstickNotification::timestamp() const
@@ -325,6 +329,7 @@ void LipstickNotification::updateHintValues()
         // Filter out the hints that are represented by other properties
         const QString &hint(it.key());
         if (hint.compare(NotificationManager::HINT_ICON, Qt::CaseInsensitive) != 0 &&
+            hint.compare(NotificationManager::HINT_IMAGE_PATH, Qt::CaseInsensitive) != 0 &&
             hint.compare(NotificationManager::HINT_TIMESTAMP, Qt::CaseInsensitive) != 0 &&
             hint.compare(NotificationManager::HINT_PREVIEW_ICON, Qt::CaseInsensitive) != 0 &&
             hint.compare(NotificationManager::HINT_PREVIEW_SUMMARY, Qt::CaseInsensitive) != 0 &&

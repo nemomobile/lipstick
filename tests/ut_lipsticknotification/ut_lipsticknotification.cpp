@@ -122,22 +122,46 @@ void Ut_Notification::testIcon_data()
 {
     QTest::addColumn<QString>("appIcon");
     QTest::addColumn<QString>("hintIcon");
+    QTest::addColumn<QString>("imagePath");
     QTest::addColumn<QString>("icon");
 
-    QTest::newRow("No app_icon, no hint") << QString() << QString() << QString();
-    QTest::newRow("No app_icon, hint") << QString() << QString("hintIcon") << QString("hintIcon");
-    QTest::newRow("app_icon, no hint") << QString("appIcon") << QString() << QString();
-    QTest::newRow("app_icon, hint") << QString("appIcon") << QString("hintIcon") << QString("hintIcon");
+    QTest::newRow("No app_icon, no hint, no imagePath")
+        << QString() << QString() << QString()
+        << QString();
+    QTest::newRow("No app_icon, hint, no imagePath")
+        << QString() << QString("hintIcon") << QString()
+        << QString("hintIcon");
+    QTest::newRow("No app_icon, hint, imagePath")
+        << QString() << QString("hintIcon") << QString("imagePath")
+        << QString("hintIcon");
+    QTest::newRow("No app_icon, no hint, imagePath")
+        << QString() << QString() << QString("imagePath")
+        << QString("imagePath");
+    QTest::newRow("app_icon, hint, no imagePath")
+        << QString("appIcon") << QString("hintIcon") << QString()
+        << QString("hintIcon");
+    QTest::newRow("app_icon, hint, imagePath")
+        << QString("appIcon") << QString("hintIcon") << QString("imagePath")
+        << QString("hintIcon");
+    QTest::newRow("app_icon, no hint, imagePath")
+        << QString("appIcon") << QString() << QString("imagePath")
+        << QString("imagePath");
 }
 
 void Ut_Notification::testIcon()
 {
     QFETCH(QString, appIcon);
     QFETCH(QString, hintIcon);
+    QFETCH(QString, imagePath);
     QFETCH(QString, icon);
 
     QVariantHash hints;
-    hints.insert(NotificationManager::HINT_ICON, hintIcon);
+    if (!hintIcon.isEmpty()) {
+        hints.insert(NotificationManager::HINT_ICON, hintIcon);
+    }
+    if (!imagePath.isEmpty()) {
+        hints.insert(NotificationManager::HINT_IMAGE_PATH, imagePath);
+    }
 
     // The 'icon' properly used to fallback to appIcon if required; but no longer
     LipstickNotification notification1(QString(), 0, appIcon, QString(), QString(), QStringList(), hints, 0);

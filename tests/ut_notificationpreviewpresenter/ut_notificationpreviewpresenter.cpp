@@ -98,6 +98,7 @@ LipstickSettings *LipstickSettings::instance()
 
 const char *NotificationManager::HINT_CATEGORY = "category";
 const char *NotificationManager::HINT_URGENCY = "urgency";
+const char *NotificationManager::HINT_IMAGE_PATH = "image-path";
 const char *NotificationManager::HINT_ICON = "x-nemo-icon";
 const char *NotificationManager::HINT_ITEM_COUNT = "x-nemo-item-count";
 const char *NotificationManager::HINT_PRIORITY = "x-nemo-priority";
