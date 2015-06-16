@@ -358,7 +358,7 @@ public:
 
 WindowPixmapItem::WindowPixmapItem()
 : m_item(0), m_shaderEffect(0), m_id(0), m_opaque(false), m_radius(0), m_xOffset(0), m_yOffset(0)
-, m_xScale(1), m_yScale(1), m_unmapLock(0), m_hasBuffer(false), m_surfaceDestroyed(false), m_haveSnapshot(false)
+, m_xScale(1), m_yScale(1), m_unmapLock(0), m_hasBuffer(false), m_hasPixmap(false), m_surfaceDestroyed(false), m_haveSnapshot(false)
 , m_textureProvider(0)
 {
     setFlag(ItemHasContents);
@@ -381,6 +381,7 @@ void WindowPixmapItem::setWindowId(int id)
 
     QSize oldSize = windowSize();
     if (m_item) {
+        disconnect(m_item.data(), &QObject::destroyed, this, &WindowPixmapItem::itemDestroyed);
         if (m_item->surface()) {
             disconnect(m_item->surface(), &QWaylandSurface::sizeChanged, this, &WindowPixmapItem::handleWindowSizeChanged);
             disconnect(m_item->surface(), &QWaylandSurface::configure, this, &WindowPixmapItem::configure);
@@ -412,6 +413,11 @@ void WindowPixmapItem::surfaceDestroyed()
     m_unmapLock = new QWaylandUnmapLock(m_item->surface());
     m_item->imageRelease(this);
     update();
+}
+
+bool WindowPixmapItem::hasPixmap() const
+{
+    return m_hasPixmap;
 }
 
 bool WindowPixmapItem::opaque() const
@@ -531,6 +537,15 @@ void WindowPixmapItem::handleWindowSizeChanged()
         // rendering correctly.
         m_windowSize = m_item->surface()->size();
         emit windowSizeChanged();
+    }
+}
+
+void WindowPixmapItem::itemDestroyed(QObject *)
+{
+    m_item = 0;
+    if (!m_haveSnapshot) {
+        m_hasPixmap = false;
+        emit hasPixmapChanged();
     }
 }
 
@@ -688,6 +703,10 @@ void WindowPixmapItem::updateItem()
         if (!w) {
             delete m_shaderEffect;
             m_shaderEffect = 0;
+            if (m_hasPixmap && !m_haveSnapshot) {
+                m_hasPixmap = false;
+                emit hasPixmapChanged();
+            }
             return;
         } else if (w->surface()) {
             m_item = w;
@@ -696,6 +715,7 @@ void WindowPixmapItem::updateItem()
             connect(m_item->surface(), &QWaylandSurface::sizeChanged, this, &WindowPixmapItem::handleWindowSizeChanged);
             connect(m_item->surface(), &QWaylandSurface::configure, this, &WindowPixmapItem::configure);
             connect(m_item.data(), &QWaylandSurfaceItem::surfaceDestroyed, this, &WindowPixmapItem::surfaceDestroyed);
+            connect(m_item.data(), &QObject::destroyed, this, &WindowPixmapItem::itemDestroyed);
             m_windowSize = m_item->surface()->size();
             m_unmapLock = new QWaylandUnmapLock(m_item->surface());
         } else {
@@ -712,6 +732,12 @@ void WindowPixmapItem::updateItem()
         w->imageAddref(this);
 
         update();
+    }
+
+    const bool hadPixmap = m_hasPixmap;
+    m_hasPixmap = m_item || m_haveSnapshot;
+    if (m_hasPixmap != hadPixmap) {
+        emit hasPixmapChanged();
     }
 }
 

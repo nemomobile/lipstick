@@ -28,6 +28,7 @@ class LIPSTICK_EXPORT WindowPixmapItem : public QQuickItem
 {
     Q_OBJECT
     Q_PROPERTY(int windowId READ windowId WRITE setWindowId NOTIFY windowIdChanged)
+    Q_PROPERTY(bool hasPixmap READ hasPixmap NOTIFY hasPixmapChanged)
     Q_PROPERTY(bool opaque READ opaque WRITE setOpaque NOTIFY opaqueChanged)
     Q_PROPERTY(qreal radius READ radius WRITE setRadius NOTIFY radiusChanged)
     Q_PROPERTY(QSize windowSize READ windowSize WRITE setWindowSize NOTIFY windowSizeChanged)
@@ -42,6 +43,8 @@ public:
 
     int windowId() const;
     void setWindowId(int);
+
+    bool hasPixmap() const;
 
     bool opaque() const;
     void setOpaque(bool);
@@ -70,6 +73,7 @@ protected:
 
 signals:
     void windowIdChanged();
+    void hasPixmapChanged();
     void opaqueChanged();
     void radiusChanged();
     void windowSizeChanged();
@@ -80,6 +84,7 @@ signals:
 
 private slots:
     void handleWindowSizeChanged();
+    void itemDestroyed(QObject *);
 
 private:
     void updateItem();
@@ -99,6 +104,7 @@ private:
     QSize m_windowSize;
     QWaylandUnmapLock *m_unmapLock;
     bool m_hasBuffer;
+    bool m_hasPixmap;
     bool m_surfaceDestroyed;
     bool m_haveSnapshot;
     QSGTextureProvider *m_textureProvider;
