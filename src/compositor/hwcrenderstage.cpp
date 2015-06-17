@@ -198,16 +198,37 @@ HwcRenderStage::HwcRenderStage(LipstickCompositor *lipstick, void *compositorHan
     , m_invalidated(0)
     , m_invalidationCountdown(0)
     , m_scheduledLayerList(false)
+    , m_invalidateTimer(0)
 {
     m_hwc->setReleaseLayerListCallback(hwc_renderstage_delete_list);
     m_hwc->setBufferAvailableCallback(hwc_renderstage_buffer_available, this);
     m_hwc->setInvalidateCallback(hwc_renderstage_invalidate, this);
+    connect(m_window, &QQuickWindow::frameSwapped, this, &HwcRenderStage::onFrameSwapped);
 }
 
 HwcRenderStage::~HwcRenderStage()
 {
 }
 
+void HwcRenderStage::onFrameSwapped()
+{
+    if (m_invalidateTimer > 0) {
+        killTimer(m_invalidateTimer);
+        m_invalidateTimer = 0;
+    }
+    // If we're currently in 'layer mode', disable that in a while..
+    if (m_hwc->acceptedLayerList())
+        m_invalidateTimer = startTimer(1000);
+}
+
+void HwcRenderStage::timerEvent(QTimerEvent *timerEvent)
+{
+    if (timerEvent->timerId() == m_invalidateTimer) {
+        killTimer(m_invalidateTimer);
+        m_invalidateTimer = 0;
+        invalidated();
+    }
+}
 
 bool HwcRenderStage::render()
 {
@@ -344,7 +365,7 @@ void HwcRenderStage::disableHwc()
 {
     if (!m_layerList)
         return;
-    qCDebug(LIPSTICK_LOG_HWC, "hwc was turned off");
+    qCDebug(LIPSTICK_LOG_HWC, "HwcRenderStage: Hwc has been disabled, using only GL");
     foreach (HwcNode *n, m_nodesInList)
         n->setBlocked(false);
     m_nodesInList.clear();
