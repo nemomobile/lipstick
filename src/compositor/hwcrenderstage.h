@@ -84,11 +84,15 @@ public:
     void hwcNodeDeleted(HwcNode *node);
     void invalidated();
 
+    void timerEvent(QTimerEvent *e);
+
     // LipstickCompositorWindowHwcNode will post events to this object for the
     // sole purpose of having them delivered on the GUI thread when the LCW
     // instance might have been destroyed might have been destroyed. Keep this
     // in mind if HwcRenderStage::event() ever gets implemented.
 
+public slots:
+    void onFrameSwapped();
 
 private:
     bool checkSceneGraph(QSGNode *node);
@@ -116,6 +120,8 @@ private:
     HwcInterface::LayerList *m_layerList; // R&W on render thread only
 
     bool m_scheduledLayerList;
+
+    int m_invalidateTimer;
 
     static bool m_hwcEnabled;
 };
