@@ -34,7 +34,8 @@ ScreenLock::ScreenLock(QObject* parent) :
     shuttingDown(false),
     lockscreenVisible(false),
     eatEvents(false),
-    lowPowerMode(false)
+    lowPowerMode(false),
+    mceBlankingPolicy("default")
 {
     // No explicit API in tklock for disabling event eater. Monitor display
     // state changes, and remove event eater if display becomes undimmed.
@@ -51,6 +52,12 @@ ScreenLock::ScreenLock(QObject* parent) :
             "lpm_ui_mode_ind",
             this,
             SLOT(handleLpmModeChange(QString)));
+    systemBus.connect(QString(),
+            "/com/nokia/mce/signal",
+            "com.nokia.mce.signal",
+            "display_blanking_policy_ind",
+            this,
+            SLOT(handleBlankingPolicyChange(QString)));
 }
 
 ScreenLock::~ScreenLock()
@@ -215,6 +222,11 @@ bool ScreenLock::isLowPowerMode() const
     return lowPowerMode;
 }
 
+QString ScreenLock::blankingPolicy() const
+{
+    return mceBlankingPolicy;
+}
+
 void ScreenLock::handleLpmModeChange(const QString &state)
 {
     bool enabled = (state == "enabled");
@@ -226,5 +238,13 @@ void ScreenLock::handleLpmModeChange(const QString &state)
     if (lowPowerMode != enabled) {
         lowPowerMode = enabled;
         emit lowPowerModeChanged();
+    }
+}
+
+void ScreenLock::handleBlankingPolicyChange(const QString &policy)
+{
+    if (mceBlankingPolicy != policy) {
+        mceBlankingPolicy = policy;
+        emit blankingPolicyChanged(mceBlankingPolicy);
     }
 }

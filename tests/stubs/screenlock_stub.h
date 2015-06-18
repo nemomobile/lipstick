@@ -42,9 +42,11 @@ class ScreenLockStub : public StubBase {
   virtual void hideEventEater();
   virtual void handleDisplayStateChange(int);
   virtual void handleLpmModeChange(const QString&);
+  virtual void handleBlankingPolicyChange(const QString&);
   virtual bool isScreenLocked();
   virtual bool eventFilter(QObject *, QEvent *event);
   virtual bool isLowPowerMode() const;
+  virtual QString blankingPolicy() const;
 }; 
 
 // 2. IMPLEMENT STUB
@@ -145,6 +147,12 @@ void ScreenLockStub::handleLpmModeChange(const QString &state) {
     stubMethodEntered("handleLpmModeChange", params);
 }
 
+void ScreenLockStub::handleBlankingPolicyChange(const QString &state) {
+    QList<ParameterBase*> params;
+    params.append(new Parameter<QString>(state));
+    stubMethodEntered("handleBlankingPolicyChange", params);
+}
+
 bool ScreenLockStub::isScreenLocked() {
   stubMethodEntered("isScreenLocked");
   return stubReturnValue<bool>("isScreenLocked");
@@ -163,6 +171,10 @@ bool ScreenLockStub::isLowPowerMode() const {
   return stubReturnValue<bool>("isLowPowerMode");
 }
 
+QString ScreenLockStub::blankingPolicy() const {
+    stubMethodEntered("blankingPolicy");
+    return stubReturnValue<QString>("blankingPolicy");
+}
 
 // 3. CREATE A STUB INSTANCE
 ScreenLockStub gDefaultScreenLockStub;
@@ -239,6 +251,10 @@ ScreenLock::handleLpmModeChange(const QString &enabled) {
   gScreenLockStub->handleLpmModeChange(enabled);
 }
 
+void ScreenLock::handleBlankingPolicyChange(const QString &policy) {
+    gScreenLockStub->handleBlankingPolicyChange(policy);
+}
+
 bool ScreenLock::isScreenLocked() const {
   return gScreenLockStub->isScreenLocked();
 }
@@ -249,6 +265,10 @@ bool ScreenLock::eventFilter(QObject *object, QEvent *event) {
 
 bool ScreenLock::isLowPowerMode() const {
   return gScreenLockStub->isLowPowerMode();
+}
+
+QString ScreenLock::blankingPolicy() const {
+  return gScreenLockStub->blankingPolicy();
 }
 
 #endif
