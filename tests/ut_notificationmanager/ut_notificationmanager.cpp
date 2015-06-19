@@ -543,13 +543,14 @@ void Ut_NotificationManager::testAddingNotification()
     QCOMPARE(disconnect(notification, SIGNAL(actionInvoked(QString)), manager, SLOT(invokeAction(QString))), true);
     QCOMPARE(spy.count(), 1);
     QCOMPARE(spy.last().at(0).toUInt(), id);
-    QCOMPARE(qSqlQueryPrepare.count(), 5);
+    QCOMPARE(qSqlQueryPrepare.count(), 6);
     QCOMPARE(qSqlQueryPrepare.at(0), QString("INSERT INTO notifications VALUES (?, ?, ?, ?, ?, ?)"));
     QCOMPARE(qSqlQueryPrepare.at(1), QString("INSERT INTO actions VALUES (?, ?)"));
     QCOMPARE(qSqlQueryPrepare.at(2), QString("INSERT INTO actions VALUES (?, ?)"));
     QCOMPARE(qSqlQueryPrepare.at(3), QString("INSERT INTO hints VALUES (?, ?, ?)"));
     QCOMPARE(qSqlQueryPrepare.at(4), QString("INSERT INTO hints VALUES (?, ?, ?)"));
-    QCOMPARE(qSqlQueryAddBindValue.count(), 16);
+    QCOMPARE(qSqlQueryPrepare.at(5), QString("INSERT INTO hints VALUES (?, ?, ?)"));
+    QCOMPARE(qSqlQueryAddBindValue.count(), 19);
     QCOMPARE(qSqlQueryAddBindValue.at(0).toUInt(), id);
     QCOMPARE(qSqlQueryAddBindValue.at(1), QVariant("appName"));
     QCOMPARE(qSqlQueryAddBindValue.at(2), QVariant("appIcon"));
@@ -560,18 +561,22 @@ void Ut_NotificationManager::testAddingNotification()
     QCOMPARE(qSqlQueryAddBindValue.at(7), QVariant("action"));
     QCOMPARE(qSqlQueryAddBindValue.at(8).toUInt(), id);
     QCOMPARE(qSqlQueryAddBindValue.at(9), QVariant("Action"));
-    int hintBase = 10;
-    int timestampHintBase = 13;
-    if (qSqlQueryAddBindValue.at(11) != QVariant("hint")) {
-        hintBase = 13;
-        timestampHintBase = 10;
+    QStringList keys(QStringList() << "hint" << NotificationManager::HINT_TIMESTAMP << NotificationManager::HINT_PRIORITY);
+    for (int i = 10; i <= 16; i += 3) {
+        QCOMPARE(qSqlQueryAddBindValue.at(i).toUInt(), id);
+        QString key(qSqlQueryAddBindValue.at(i + 1).toString());
+        if (key == "hint") {
+            QCOMPARE(qSqlQueryAddBindValue.at(i + 2), QVariant("value"));
+            keys.removeAll(key);
+        } else if (key == NotificationManager::HINT_TIMESTAMP) {
+            QCOMPARE(qSqlQueryAddBindValue.at(i + 2).type(), QVariant::String);
+            keys.removeAll(key);
+        } else if (key == NotificationManager::HINT_PRIORITY) {
+            QCOMPARE(qSqlQueryAddBindValue.at(i + 2).type(), QVariant::Int);
+            keys.removeAll(key);
+        }
     }
-    QCOMPARE(qSqlQueryAddBindValue.at(hintBase).toUInt(), id);
-    QCOMPARE(qSqlQueryAddBindValue.at(hintBase + 1), QVariant("hint"));
-    QCOMPARE(qSqlQueryAddBindValue.at(hintBase + 2), QVariant("value"));
-    QCOMPARE(qSqlQueryAddBindValue.at(timestampHintBase).toUInt(), id);
-    QCOMPARE(qSqlQueryAddBindValue.at(timestampHintBase + 1), QVariant(NotificationManager::HINT_TIMESTAMP));
-    QCOMPARE(qSqlQueryAddBindValue.at(timestampHintBase + 2).type(), QVariant::String);
+    QCOMPARE(keys.count(), 0);
     QCOMPARE(notification->appName(), QString("appName"));
     QCOMPARE(notification->appIcon(), QString("appIcon"));
     QCOMPARE(notification->summary(), QString("summary"));
@@ -598,7 +603,7 @@ void Ut_NotificationManager::testUpdatingExistingNotification()
     QCOMPARE(disconnect(notification, SIGNAL(actionInvoked(QString)), manager, SLOT(invokeAction(QString))), true);
     QCOMPARE(spy.count(), 1);
     QCOMPARE(spy.last().at(0).toUInt(), id);
-    QCOMPARE(qSqlQueryPrepare.count(), 7);
+    QCOMPARE(qSqlQueryPrepare.count(), 8);
     QCOMPARE(qSqlQueryPrepare.at(0), QString("DELETE FROM notifications WHERE id=?"));
     QCOMPARE(qSqlQueryPrepare.at(1), QString("DELETE FROM actions WHERE id=?"));
     QCOMPARE(qSqlQueryPrepare.at(2), QString("DELETE FROM hints WHERE id=?"));
@@ -606,7 +611,8 @@ void Ut_NotificationManager::testUpdatingExistingNotification()
     QCOMPARE(qSqlQueryPrepare.at(4), QString("INSERT INTO notifications VALUES (?, ?, ?, ?, ?, ?)"));
     QCOMPARE(qSqlQueryPrepare.at(5), QString("INSERT INTO actions VALUES (?, ?)"));
     QCOMPARE(qSqlQueryPrepare.at(6), QString("INSERT INTO hints VALUES (?, ?, ?)"));
-    QCOMPARE(qSqlQueryAddBindValue.count(), 15);
+    QCOMPARE(qSqlQueryPrepare.at(7), QString("INSERT INTO hints VALUES (?, ?, ?)"));
+    QCOMPARE(qSqlQueryAddBindValue.count(), 18);
     QCOMPARE(qSqlQueryAddBindValue.at(0).toUInt(), id);
     QCOMPARE(qSqlQueryAddBindValue.at(1).toUInt(), id);
     QCOMPARE(qSqlQueryAddBindValue.at(2).toUInt(), id);
@@ -619,9 +625,19 @@ void Ut_NotificationManager::testUpdatingExistingNotification()
     QCOMPARE(qSqlQueryAddBindValue.at(9).toInt(), 2);
     QCOMPARE(qSqlQueryAddBindValue.at(10).toUInt(), id);
     QCOMPARE(qSqlQueryAddBindValue.at(11), QVariant("action"));
-    QCOMPARE(qSqlQueryAddBindValue.at(12).toUInt(), id);
-    QCOMPARE(qSqlQueryAddBindValue.at(13), QVariant(NotificationManager::HINT_TIMESTAMP));
-    QCOMPARE(qSqlQueryAddBindValue.at(14).type(), QVariant::String);
+    QStringList keys(QStringList() << NotificationManager::HINT_TIMESTAMP << NotificationManager::HINT_PRIORITY);
+    for (int i = 12; i <= 15; i += 3) {
+        QCOMPARE(qSqlQueryAddBindValue.at(i).toUInt(), id);
+        QString key(qSqlQueryAddBindValue.at(i + 1).toString());
+        if (key == NotificationManager::HINT_TIMESTAMP) {
+            QCOMPARE(qSqlQueryAddBindValue.at(i + 2).type(), QVariant::String);
+            keys.removeAll(key);
+        } else if (key == NotificationManager::HINT_PRIORITY) {
+            QCOMPARE(qSqlQueryAddBindValue.at(i + 2).type(), QVariant::Int);
+            keys.removeAll(key);
+        }
+    }
+    QCOMPARE(keys.count(), 0);
     QCOMPARE(notification->appName(), QString("newAppName"));
     QCOMPARE(notification->appIcon(), QString("newAppIcon"));
     QCOMPARE(notification->summary(), QString("newSummary"));
