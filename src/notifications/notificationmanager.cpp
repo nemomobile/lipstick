@@ -83,6 +83,8 @@ const char *NotificationManager::HINT_MAX_CONTENT_LINES = "x-nemo-max-content-li
 
 namespace {
 
+const int DefaultNotificationPriority = 50;
+
 QPair<QString, QString> processProperties(uint pid)
 {
     // Cache resolution of process name to properties:
@@ -300,6 +302,11 @@ uint NotificationManager::Notify(const QString &appName, uint replacesId, const 
             }
             if (notification->appIcon().isEmpty() && !pidProperties.second.isEmpty()) {
                 notification->setAppIcon(pidProperties.second);
+            }
+
+            // Unspecified priority should result in medium priority to permit low priorities
+            if (!hints_.contains(HINT_PRIORITY)) {
+                hints_.insert(HINT_PRIORITY, DefaultNotificationPriority);
             }
         }
 

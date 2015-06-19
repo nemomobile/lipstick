@@ -82,7 +82,7 @@
  *   - The service supports the following Nemo specific hints:
  *       - \c x-nemo-icon: icon ID or path for the notification. This may be a file:// URL, else if the string begins with a / it's interpreted to be an absolute path. Otherwise it's interpreted to be an icon ID, in which case the icon with the given ID is fetched from the theme. This hint is deprecated in favor of the standard \c image-path hint.
  *       - \c x-nemo-item-count: the number of items represented by this notification. For example, a single notification can represent four missed calls by setting the count to 4.
- *       - \c x-nemo-priority: the priority of the notification as an integer. Priorities can be used by UI implementations to present notifications in a specific order, for example.
+ *       - \c x-nemo-priority: the priority of the notification as an integer. Priorities can be used by UI implementations to present notifications in a specific order, for example. If not specified, the priority level will be allocated 50.
  *       - \c x-nemo-timestamp: the timestamp for the notification. Should be set to the time when the event the notification is related to has occurred, not when the notification itself was sent.
  *       - \c x-nemo-preview-icon: icon ID or path to use in the preview banner for the notification, if any.
  *       - \c x-nemo-preview-body: body text to be shown in the preview banner for the notification, if any.
