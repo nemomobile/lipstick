@@ -76,6 +76,14 @@ public:
      */
     bool isLowPowerMode() const;
 
+    /*!
+     * Returns the blanking policy state
+     *
+     * \return The blanking policy, which is one of notification, alarm
+     * call, linger, or default
+     */
+    QString blankingPolicy() const;
+
     //! \reimp
     virtual bool eventFilter(QObject *, QEvent *event);
     //! \reimp_end
@@ -121,12 +129,18 @@ private slots:
     //! Handles LPM events coming from mce.
     void handleLpmModeChange(const QString &state);
 
+    //! Handles blanking policy change signals from mce
+    void handleBlankingPolicyChange(const QString &policy);
+
 signals:
     //! Emitted when the screen lock state changes
     void screenIsLocked(bool locked);
 
     //! Emitted when the low power mode state changes
     void lowPowerModeChanged();
+
+    //! Emitted when the display blanking policy changes
+    void  blankingPolicyChanged(const QString &policy);
 
 private:
     enum TkLockReply {
@@ -169,6 +183,9 @@ private:
 
     //! Whether the lockscreen should be shown as low power mode
     bool lowPowerMode;
+
+    //! The current blanking policy obtained from mce
+    QString mceBlankingPolicy;
 
 #ifdef UNIT_TEST
     friend class Ut_ScreenLock;

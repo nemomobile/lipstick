@@ -41,6 +41,7 @@ void LipstickSettings::setScreenLock(ScreenLock *screenLock)
     this->screenLock = screenLock;
     connect(screenLock, SIGNAL(screenIsLocked(bool)), this, SIGNAL(lockscreenVisibleChanged()));
     connect(screenLock, SIGNAL(lowPowerModeChanged()), this, SIGNAL(lowPowerModeChanged()));
+    connect(screenLock, SIGNAL(blankingPolicyChanged(QString)), this, SIGNAL(blankingPolicyChanged()));
 }
 
 bool LipstickSettings::lockscreenVisible() const
@@ -74,5 +75,14 @@ void LipstickSettings::lockScreen(bool immediate)
 QSize LipstickSettings::screenSize()
 {
     return QGuiApplication::primaryScreen()->size();
+}
+
+QString LipstickSettings::blankingPolicy()
+{
+    if (screenLock) {
+        return screenLock->blankingPolicy();
+    }
+
+    return "default";
 }
 
