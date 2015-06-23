@@ -396,7 +396,6 @@ void WindowPixmapItem::setWindowId(int id)
     }
 
     m_surfaceDestroyed = false;
-    m_haveSnapshot = false;
     m_hasBuffer = false;
     m_id = id;
     updateItem();
