@@ -211,8 +211,23 @@ uint NotificationManager::Notify(const QString &appName, uint replacesId, const 
         QVariantHash hints_(hints);
         int expireTimeout_(expireTimeout);
 
-        // Ensure the hints contain a timestamp
-        addTimestamp(hints_);
+        // Ensure the hints contain a timestamp, and convert to UTC if required
+        QString timestamp(hints_.value(HINT_TIMESTAMP).toString());
+        if (!timestamp.isEmpty()) {
+            QDateTime tsValue(QDateTime::fromString(timestamp, Qt::ISODate));
+            if (tsValue.isValid()) {
+                if (tsValue.timeSpec() != Qt::UTC) {
+                    tsValue = tsValue.toUTC();
+                }
+                timestamp = tsValue.toString(Qt::ISODate);
+            } else {
+                timestamp = QString();
+            }
+        }
+        if (timestamp.isEmpty()) {
+            timestamp = QDateTime::currentDateTimeUtc().toString(Qt::ISODate);
+        }
+        hints_.insert(HINT_TIMESTAMP, timestamp);
 
         // Apply a category definition, if any
         const QHash<QString, QString> categoryParameters(categoryDefinitionParameters(hints_));
@@ -481,13 +496,6 @@ void NotificationManager::updateNotificationsWithCategory(const QString &categor
 QHash<QString, QString> NotificationManager::categoryDefinitionParameters(const QVariantHash &hints) const
 {
     return categoryDefinitionStore->categoryParameters(hints.value(HINT_CATEGORY).toString());
-}
-
-void NotificationManager::addTimestamp(QVariantHash &hints)
-{
-    if (hints.value(HINT_TIMESTAMP).toString().isEmpty()) {
-        hints.insert(HINT_TIMESTAMP, QDateTime::currentDateTimeUtc());
-    }
 }
 
 void NotificationManager::restoreNotifications()
