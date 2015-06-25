@@ -95,7 +95,7 @@
  *       - \c x-nemo-feedback: a token used to generate a pre-defined feedback event when the notification preview is displayed
  *       - \c x-nemo-display-on: if true, the display will be turned on when required for the duration of the notification preview
  *       - \c x-nemo-led-disabled-without-body-and-summary: if false, a notification may invoke a feedback event even with empty body and summary properties
- *       - \c x-nemo-hidden: if true, the notification is not displayed
+ *       - \c x-nemo-hidden: if true, the notification is not displayed and does not cause any feedback to be invoked
  *
  * \section howto How to use notifications in various use cases
  *
