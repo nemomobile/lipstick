@@ -84,6 +84,9 @@ void NotificationFeedbackPlayer::removeNotification(uint id)
 
 bool NotificationFeedbackPlayer::isEnabled(LipstickNotification *notification)
 {
+    if (notification->hidden())
+        return false;
+
     uint mode = AllNotificationsEnabled;
     QWaylandSurface *surface = LipstickCompositor::instance()->surfaceForId(LipstickCompositor::instance()->topmostWindowId());
     if (surface != 0) {
