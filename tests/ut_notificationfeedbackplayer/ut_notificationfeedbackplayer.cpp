@@ -179,6 +179,19 @@ void Ut_NotificationFeedbackPlayer::testWithoutFeedbackId()
     QCOMPARE(gClientStub->stubCallCount("play"), 0);
 }
 
+void Ut_NotificationFeedbackPlayer::testHiddenNotification()
+{
+    // Create a notification
+    LipstickNotification *notification = createNotification(1);
+    QVariantHash hints(notification->hints());
+    hints.insert(NotificationManager::HINT_HIDDEN, true);
+    notification->setHints(hints);
+    player->addNotification(1);
+
+    // Check that NGFAdapter::play() was not called for the feedback
+    QCOMPARE(gClientStub->stubCallCount("play"), 0);
+}
+
 void Ut_NotificationFeedbackPlayer::testUpdateNotificationIsNotPossible()
 {
     // Create a notification

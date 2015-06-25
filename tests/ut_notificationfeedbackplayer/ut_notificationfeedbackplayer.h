@@ -35,6 +35,7 @@ private slots:
     // Test that feedback is played and stopped
     void testAddAndRemoveNotification();
     void testWithoutFeedbackId();
+    void testHiddenNotification();
     void testUpdateNotificationIsNotPossible();
     void testUpdateNotificationIsNotPossibleAfterRestart();
     void testNotificationPreviewsDisabled_data();
