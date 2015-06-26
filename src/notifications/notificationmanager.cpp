@@ -296,6 +296,8 @@ uint NotificationManager::Notify(const QString &appName, uint replacesId, const 
             hints_.insert(HINT_PRIORITY, priority.first);
             if (!priority.second.isEmpty()) {
                 hints_.insert(HINT_FEEDBACK, priority.second);
+                // Also turn the display on if required
+                hints_.insert(HINT_DISPLAY_ON, true);
             }
         } else {
             if (notification->appName().isEmpty() && !pidProperties.first.isEmpty()) {
