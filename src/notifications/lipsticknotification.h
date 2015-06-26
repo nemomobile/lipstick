@@ -166,6 +166,9 @@ public:
     //! Returns the maximum number of content lines requested for display
     int maxContentLines() const;
 
+    //! Returns true if the notification has been restored since it was last modified
+    bool restored() const;
+
     //! \internal
     /*!
      * Creates a copy of an existing representation of a notification.

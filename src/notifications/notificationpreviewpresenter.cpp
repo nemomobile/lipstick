@@ -181,7 +181,7 @@ void NotificationPreviewPresenter::createWindowIfNecessary()
 
 bool NotificationPreviewPresenter::notificationShouldBeShown(LipstickNotification *notification)
 {
-    if (notification->hidden() || (notification->previewBody().isEmpty() && notification->previewSummary().isEmpty()))
+    if (notification->hidden() || notification->restored() || (notification->previewBody().isEmpty() && notification->previewSummary().isEmpty()))
         return false;
 
     bool screenOrDeviceLocked = locks->getState(MeeGo::QmLocks::TouchAndKeyboard) == MeeGo::QmLocks::Locked || locks->getState(MeeGo::QmLocks::Device) == MeeGo::QmLocks::Locked;

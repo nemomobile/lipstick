@@ -80,6 +80,7 @@ const char *NotificationManager::HINT_LED_DISABLED_WITHOUT_BODY_AND_SUMMARY = "x
 const char *NotificationManager::HINT_ORIGIN = "x-nemo-origin";
 const char *NotificationManager::HINT_OWNER = "x-nemo-owner";
 const char *NotificationManager::HINT_MAX_CONTENT_LINES = "x-nemo-max-content-lines";
+const char *NotificationManager::HINT_RESTORED = "x-nemo-restored";
 
 namespace {
 
@@ -462,10 +463,9 @@ void NotificationManager::updateNotificationsWithCategory(const QString &categor
     }
 
     foreach (LipstickNotification *notification, categoryNotifications) {
-        // Remove the preview summary and body hints to avoid showing the preview banner again
+        // Mark the notification as restored to avoid showing the preview banner again
         QVariantHash hints = notification->hints();
-        hints.remove(HINT_PREVIEW_SUMMARY);
-        hints.remove(HINT_PREVIEW_BODY);
+        hints.insert(HINT_RESTORED, true);
         notification->setHints(hints);
 
         // Update the category properties and re-publish
@@ -811,6 +811,9 @@ void NotificationManager::fetchData()
                 unexpiredRemaining = true;
             }
         }
+
+        // Mark this notification as restored
+        hints[id].insert(HINT_RESTORED, true);
 
         LipstickNotification *notification = new LipstickNotification(appName, id, appIcon, summary, body, actions[id], hints[id], expireTimeout, this);
         notifications.insert(id, notification);

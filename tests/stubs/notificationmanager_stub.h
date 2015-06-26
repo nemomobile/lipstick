@@ -183,6 +183,7 @@ const char *NotificationManager::HINT_LED_DISABLED_WITHOUT_BODY_AND_SUMMARY = "x
 const char *NotificationManager::HINT_ORIGIN = "x-nemo-origin";
 const char *NotificationManager::HINT_OWNER = "x-nemo-owner";
 const char *NotificationManager::HINT_MAX_CONTENT_LINES = "x-nemo-max-content-lines";
+const char *NotificationManager::HINT_RESTORED = "x-nemo-restored";
 
 NotificationManager *NotificationManager::instance_ = 0;
 NotificationManager * NotificationManager::instance() {
