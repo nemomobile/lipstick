@@ -114,6 +114,7 @@ const char *NotificationManager::HINT_DISPLAY_ON = "x-nemo-display-on";
 const char *NotificationManager::HINT_ORIGIN = "x-nemo-origin";
 const char *NotificationManager::HINT_OWNER = "x-nemo-owner";
 const char *NotificationManager::HINT_MAX_CONTENT_LINES = "x-nemo-max-content-lines";
+const char *NotificationManager::HINT_RESTORED = "x-nemo-restored";
 
 NotificationManager::NotificationManager(QObject *parent) : QObject(parent)
 {
@@ -405,6 +406,29 @@ void Ut_NotificationPreviewPresenter::testNotificationNotShownIfHidden()
     hints.insert(NotificationManager::HINT_PREVIEW_SUMMARY, "previewSummary");
     hints.insert(NotificationManager::HINT_PREVIEW_BODY, "previewBody");
     hints.insert(NotificationManager::HINT_HIDDEN, true);
+    LipstickNotification *notification = new LipstickNotification("ut_notificationpreviewpresenter", 1, "", "", "", QStringList(), hints, -1);
+    notificationManagerNotification.insert(1, notification);
+    presenter.updateNotification(1);
+
+    QCOMPARE(changedSpy.count(), 0);
+    QCOMPARE(homeWindowVisible.isEmpty(), true);
+
+    // The notification should be considered presented
+    QCOMPARE(presentedSpy.count(), 1);
+    QCOMPARE(presentedSpy.last().at(0).toUInt(), (uint)1);
+}
+
+void Ut_NotificationPreviewPresenter::testNotificationNotShownIfRestored()
+{
+    NotificationPreviewPresenter presenter;
+    QSignalSpy changedSpy(&presenter, SIGNAL(notificationChanged()));
+    QSignalSpy presentedSpy(&presenter, SIGNAL(notificationPresented(uint)));
+
+    // Create notification
+    QVariantHash hints;
+    hints.insert(NotificationManager::HINT_PREVIEW_SUMMARY, "previewSummary");
+    hints.insert(NotificationManager::HINT_PREVIEW_BODY, "previewBody");
+    hints.insert(NotificationManager::HINT_RESTORED, true);
     LipstickNotification *notification = new LipstickNotification("ut_notificationpreviewpresenter", 1, "", "", "", QStringList(), hints, -1);
     notificationManagerNotification.insert(1, notification);
     presenter.updateNotification(1);

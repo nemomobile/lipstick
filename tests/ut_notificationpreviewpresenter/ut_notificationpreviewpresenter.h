@@ -33,6 +33,7 @@ private slots:
     void testNotificationNotShownIfNoSummaryOrBody_data();
     void testNotificationNotShownIfNoSummaryOrBody();
     void testNotificationNotShownIfHidden();
+    void testNotificationNotShownIfRestored();
     void testShowingOnlyCriticalNotifications();
     void testUpdateNotificationRemovesNotificationFromQueueIfNotShowable();
     void testNotificationNotShownIfTouchScreenIsLockedAndDisplayIsOff_data();

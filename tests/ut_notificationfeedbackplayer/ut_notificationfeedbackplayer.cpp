@@ -40,6 +40,7 @@ const char *NotificationManager::HINT_LED_DISABLED_WITHOUT_BODY_AND_SUMMARY = "x
 const char *NotificationManager::HINT_ORIGIN = "x-nemo-origin";
 const char *NotificationManager::HINT_OWNER = "x-nemo-owner";
 const char *NotificationManager::HINT_MAX_CONTENT_LINES = "x-nemo-max-content-lines";
+const char *NotificationManager::HINT_RESTORED = "x-nemo-restored";
 
 NotificationManager::NotificationManager(QObject *parent) : QObject(parent)
 {
@@ -192,30 +193,66 @@ void Ut_NotificationFeedbackPlayer::testHiddenNotification()
     QCOMPARE(gClientStub->stubCallCount("play"), 0);
 }
 
-void Ut_NotificationFeedbackPlayer::testUpdateNotificationIsNotPossible()
+void Ut_NotificationFeedbackPlayer::testUpdateNotification()
 {
+    gClientStub->stubSetReturnValue("play", (quint32)1);
+
     // Create a notification
     LipstickNotification *notification = createNotification(1);
     player->addNotification(1);
 
+    // Check that NGFAdapter::play() was called for the feedback
+    QCOMPARE(gClientStub->stubCallCount("play"), 1);
+    QCOMPARE(gClientStub->stubLastCallTo("play").parameter<QString>(0), QString("feedback"));
+
     // Update the notification
-    QVariantHash hints;
-    hints.insert(NotificationManager::HINT_FEEDBACK, "feedback2");
+    player->addNotification(1);
+
+    // Check that NGFAdapter::stop() was called for the notification
+    QCOMPARE(gClientStub->stubCallCount("stop"), 1);
+    QCOMPARE(gClientStub->stubLastCallTo("stop").parameter<quint32>(0), (quint32)1);
+
+    // Check that NGFAdapter::play() was called again for the feedback
+    QCOMPARE(gClientStub->stubCallCount("play"), 2);
+    QCOMPARE(gClientStub->stubLastCallTo("play").parameter<QString>(0), QString("feedback"));
+
+    // Change the feedback and update
+    QVariantHash hints(notification->hints());
+    hints.insert(NotificationManager::HINT_FEEDBACK, "foldback");
     notification->setHints(hints);
     player->addNotification(1);
 
-    // Check that NGFAdapter::play() was only called for the first feedback
-    QCOMPARE(gClientStub->stubCallCount("play"), 1);
-    QCOMPARE(gClientStub->stubLastCallTo("play").parameter<QString>(0), QString("feedback"));
+    // Check that NGFAdapter::stop() was called again
+    QCOMPARE(gClientStub->stubCallCount("stop"), 2);
+    QCOMPARE(gClientStub->stubLastCallTo("stop").parameter<quint32>(0), (quint32)1);
+
+    // Check that NGFAdapter::play() was called again
+    QCOMPARE(gClientStub->stubCallCount("play"), 3);
+    QCOMPARE(gClientStub->stubLastCallTo("play").parameter<QString>(0), QString("foldback"));
+
+    // Remove the feedback and update
+    hints = notification->hints();
+    hints.remove(NotificationManager::HINT_FEEDBACK);
+    notification->setHints(hints);
+    player->addNotification(1);
+
+    // Check that NGFAdapter::stop() was called again
+    QCOMPARE(gClientStub->stubCallCount("stop"), 3);
+    QCOMPARE(gClientStub->stubLastCallTo("stop").parameter<quint32>(0), (quint32)1);
+
+    // Check that NGFAdapter::play() was not called again
+    QCOMPARE(gClientStub->stubCallCount("play"), 3);
 }
 
-void Ut_NotificationFeedbackPlayer::testUpdateNotificationIsNotPossibleAfterRestart()
+void Ut_NotificationFeedbackPlayer::testUpdateNotificationAfterRestart()
 {
-    delete player;
-
     // Create a notification
-    createNotification(1);
-    player = new NotificationFeedbackPlayer();
+    LipstickNotification *notification = createNotification(1);
+
+    // Mark the notification as restored from storage
+    QVariantHash hints;
+    hints.insert(NotificationManager::HINT_RESTORED, true);
+    notification->setHints(hints);
 
     // Update the notification
     player->addNotification(1);

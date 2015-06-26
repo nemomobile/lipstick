@@ -493,6 +493,7 @@ void Ut_NotificationManager::testNotificationsAreRestoredOnConstruction()
         QCOMPARE(notification->body(), notificationValuesById.value(id).value(4).toString());
         QCOMPARE(notification->expireTimeout(), notificationValuesById.value(id).value(5).toInt());
         QCOMPARE(notification->actions(), notificationActionsById.value(id));
+        QCOMPARE(notification->restored(), true);
 
         typedef QPair<QString, QVariant> HintData;
         foreach (const HintData &hint, notificationHintsById.value(id)) {
@@ -586,6 +587,7 @@ void Ut_NotificationManager::testAddingNotification()
     QCOMPARE(notification->actions().at(1), QString("Action"));
     QCOMPARE(notification->hints().value("hint"), QVariant("value"));
     QCOMPARE(notification->hints().value(NotificationManager::HINT_TIMESTAMP).type(), QVariant::String);
+    QCOMPARE(notification->restored(), false);
 }
 
 void Ut_NotificationManager::testUpdatingExistingNotification()
@@ -732,11 +734,9 @@ void Ut_NotificationManager::testModifyingCategoryDefinitionUpdatesNotifications
     QCOMPARE(modifiedSpy.count(), 1);
     QCOMPARE(modifiedSpy.last().at(0).toUInt(), id2);
 
-    // The preview summary and body should be removed for the notification in category "category2"
-    QCOMPARE(manager->notification(id1)->previewBody(), QString("previewBody1"));
-    QCOMPARE(manager->notification(id1)->previewSummary(), QString("previewSummary1"));
-    QCOMPARE(manager->notification(id2)->previewBody(), QString());
-    QCOMPARE(manager->notification(id2)->previewSummary(), QString());
+    // The updated notifications should be marked as restored until modified
+    QCOMPARE(manager->notification(id1)->restored(), false);
+    QCOMPARE(manager->notification(id2)->restored(), true);
 }
 
 void Ut_NotificationManager::testUninstallingCategoryDefinitionRemovesNotifications()

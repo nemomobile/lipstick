@@ -320,6 +320,11 @@ int LipstickNotification::maxContentLines() const
     return hints_.value(NotificationManager::HINT_MAX_CONTENT_LINES).toInt();
 }
 
+bool LipstickNotification::restored() const
+{
+    return hints_.value(NotificationManager::HINT_RESTORED).toBool();
+}
+
 void LipstickNotification::updateHintValues()
 {
     hintValues_.clear();
