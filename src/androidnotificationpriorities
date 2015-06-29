@@ -1,10 +1,10 @@
-Skype;chat
-WhatsApp;chat
-Facebook Messenger;chat
-WeChat;chat
+Skype;chat,chat_exists
+WhatsApp;chat,chat_exists
+Facebook Messenger;chat,chat_exists
+WeChat;chat,chat_exists
 Twitter messages
-Telegram;chat
-Snapchat;chat
-vk.com;chat
-kik;chat
-viber;chat
+Telegram;chat,chat_exists
+Snapchat;chat,chat_exists
+vk.com;chat,chat_exists
+kik;chat,chat_exists
+viber;chat,chat_exists
