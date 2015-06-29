@@ -180,6 +180,39 @@ void Ut_NotificationFeedbackPlayer::testWithoutFeedbackId()
     QCOMPARE(gClientStub->stubCallCount("play"), 0);
 }
 
+void Ut_NotificationFeedbackPlayer::testMultipleFeedbackIds()
+{
+    gClientStub->stubSetReturnValueList("play", QList<quint32>() << 1 << 2);
+
+    // Create a notification
+    LipstickNotification *notification = createNotification(1);
+    QVariantHash hints(notification->hints());
+    hints.insert(NotificationManager::HINT_FEEDBACK, "feedback,foldback");
+    notification->setHints(hints);
+    player->addNotification(1);
+
+    // Check that NGFAdapter::play() was called for both feedback events
+    QCOMPARE(gClientStub->stubCallsTo("play").count(), 2);
+    QSet<QString> events;
+    events.insert(gClientStub->stubCallsTo("play").at(0)->parameter<QString>(0));
+    events.insert(gClientStub->stubCallsTo("play").at(1)->parameter<QString>(0));
+    QCOMPARE(events, QSet<QString>() << QString("feedback") << QString("foldback"));
+
+    QCOMPARE(gClientStub->stubCallsTo("stop").count(), 0);
+
+    // Remove the notification
+    player->removeNotification(1);
+
+    QCOMPARE(gClientStub->stubCallsTo("play").count(), 2);
+
+    // Check that NGFAdapter::stop() was called for the events
+    QCOMPARE(gClientStub->stubCallsTo("stop").count(), 2);
+    QSet<quint32> eventIds;
+    eventIds.insert(gClientStub->stubCallsTo("stop").at(0)->parameter<quint32>(0));
+    eventIds.insert(gClientStub->stubCallsTo("stop").at(1)->parameter<quint32>(0));
+    QCOMPARE(eventIds, QSet<quint32>() << 1 << 2);
+}
+
 void Ut_NotificationFeedbackPlayer::testHiddenNotification()
 {
     // Create a notification

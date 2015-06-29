@@ -82,7 +82,7 @@ private:
     Ngf::Client *ngfClient;
 
     //! A mapping between notification IDs and NGF play IDs.
-    QHash<LipstickNotification *, uint> idToEventId;
+    QMultiHash<LipstickNotification *, uint> idToEventId;
 
     //! The minimum priority of notifications for which a feedback should be played
     int minimumPriority_;
