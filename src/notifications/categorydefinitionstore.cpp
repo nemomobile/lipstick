@@ -118,7 +118,12 @@ bool CategoryDefinitionStore::contains(const QString &category, const QString &k
 QString CategoryDefinitionStore::value(const QString &category, const QString &key) const
 {
     if (contains(category, key)) {
-        return categoryDefinitions.value(category)->value(key).toString();
+        const QVariant &value(categoryDefinitions.value(category)->value(key));
+        if (value.canConvert<QStringList>()) {
+            return value.toStringList().join(QStringLiteral(","));
+        } else {
+            return value.toString();
+        }
     }
 
     return QString();
@@ -131,7 +136,12 @@ QHash<QString, QString> CategoryDefinitionStore::categoryParameters(const QStrin
     if (categoryDefinitionExists(category)) {
         const QSettings &categoryDefinitionSettings(*(categoryDefinitions.value(category)));
         foreach (const QString &key, categoryDefinitionSettings.allKeys()) {
-            rv.insert(key, categoryDefinitionSettings.value(key).toString());
+            const QVariant &value(categoryDefinitionSettings.value(key));
+            if (value.canConvert<QStringList>()) {
+                rv.insert(key, value.toStringList().join(QStringLiteral(",")));
+            } else {
+                rv.insert(key, value.toString());
+            }
         }
     }
 
