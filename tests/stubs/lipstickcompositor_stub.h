@@ -24,6 +24,7 @@ class LipstickCompositorStub : public StubBase {
   virtual void setHomeActive(bool);
   virtual void setFullscreenSurface(QWaylandSurface *surface);
   virtual void setTopmostWindowId(int id);
+  virtual void setTopmostWindowOrientation(Qt::ScreenOrientation topmostWindowOrientation);
   virtual void setScreenOrientation(Qt::ScreenOrientation screenOrientation);
   virtual LipstickKeymap *keymap() const;
   virtual void setKeymap(LipstickKeymap *keymap);
@@ -141,6 +142,12 @@ void LipstickCompositorStub::setTopmostWindowId(int id) {
   QList<ParameterBase*> params;
   params.append( new Parameter<int >(id));
   stubMethodEntered("setTopmostWindowId",params);
+}
+
+void LipstickCompositorStub::setTopmostWindowOrientation(Qt::ScreenOrientation topmostWindowOrientation) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<Qt::ScreenOrientation >(topmostWindowOrientation));
+  stubMethodEntered("setTopmostWindowOrientation",params);
 }
 
 void LipstickCompositorStub::setScreenOrientation(Qt::ScreenOrientation screenOrientation) {
@@ -386,6 +393,10 @@ void LipstickCompositor::setFullscreenSurface(QWaylandSurface *surface) {
 
 void LipstickCompositor::setTopmostWindowId(int id) {
   gLipstickCompositorStub->setTopmostWindowId(id);
+}
+
+void LipstickCompositor::setTopmostWindowOrientation(Qt::ScreenOrientation topmostWindowOrientation) {
+  gLipstickCompositorStub->setTopmostWindowOrientation(topmostWindowOrientation);
 }
 
 void LipstickCompositor::setScreenOrientation(Qt::ScreenOrientation screenOrientation) {

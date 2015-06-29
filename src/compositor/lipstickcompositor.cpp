@@ -50,6 +50,7 @@ LipstickCompositor::LipstickCompositor()
     , m_directRenderingActive(false)
     , m_topmostWindowId(0)
     , m_topmostWindowProcessId(0)
+    , m_topmostWindowOrientation(Qt::PrimaryOrientation)
     , m_screenOrientation(Qt::PrimaryOrientation)
     , m_sensorOrientation(Qt::PrimaryOrientation)
     , m_displayState(0)
@@ -608,6 +609,14 @@ QQmlComponent *LipstickCompositor::shaderEffectComponent()
         m_shaderEffect->setData(qml_source, QUrl());
     }
     return m_shaderEffect;
+}
+
+void LipstickCompositor::setTopmostWindowOrientation(Qt::ScreenOrientation topmostWindowOrientation)
+{
+    if (m_topmostWindowOrientation != topmostWindowOrientation) {
+        m_topmostWindowOrientation = topmostWindowOrientation;
+        emit topmostWindowOrientationChanged();
+    }
 }
 
 void LipstickCompositor::setScreenOrientation(Qt::ScreenOrientation screenOrientation)

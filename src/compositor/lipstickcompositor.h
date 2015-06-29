@@ -46,6 +46,7 @@ class LIPSTICK_EXPORT LipstickCompositor : public QQuickWindow, public QWaylandQ
     Q_PROPERTY(QWaylandSurface* fullscreenSurface READ fullscreenSurface WRITE setFullscreenSurface NOTIFY fullscreenSurfaceChanged)
     Q_PROPERTY(bool directRenderingActive READ directRenderingActive NOTIFY directRenderingActiveChanged)
     Q_PROPERTY(int topmostWindowId READ topmostWindowId WRITE setTopmostWindowId NOTIFY topmostWindowIdChanged)
+    Q_PROPERTY(Qt::ScreenOrientation topmostWindowOrientation READ topmostWindowOrientation WRITE setTopmostWindowOrientation NOTIFY topmostWindowOrientationChanged)
     Q_PROPERTY(Qt::ScreenOrientation screenOrientation READ screenOrientation WRITE setScreenOrientation NOTIFY screenOrientationChanged)
     Q_PROPERTY(Qt::ScreenOrientation sensorOrientation READ sensorOrientation NOTIFY sensorOrientationChanged)
     Q_PROPERTY(LipstickKeymap *keymap READ keymap WRITE setKeymap NOTIFY keymapChanged)
@@ -79,6 +80,9 @@ public:
     int topmostWindowId() const { return m_topmostWindowId; }
     void setTopmostWindowId(int id);
     int privateTopmostWindowProcessId() const { return m_topmostWindowProcessId; }
+
+    Qt::ScreenOrientation topmostWindowOrientation() const { return m_topmostWindowOrientation; }
+    void setTopmostWindowOrientation(Qt::ScreenOrientation topmostWindowOrientation);
 
     Qt::ScreenOrientation screenOrientation() const { return m_screenOrientation; }
     void setScreenOrientation(Qt::ScreenOrientation screenOrientation);
@@ -133,6 +137,7 @@ signals:
     void directRenderingActiveChanged();
     void topmostWindowIdChanged();
     void privateTopmostWindowProcessIdChanged(int pid);
+    void topmostWindowOrientationChanged();
     void screenOrientationChanged();
     void sensorOrientationChanged();
     void orientationLockChanged();
@@ -209,6 +214,7 @@ private:
     bool m_directRenderingActive;
     int m_topmostWindowId;
     int m_topmostWindowProcessId;
+    Qt::ScreenOrientation m_topmostWindowOrientation;
     Qt::ScreenOrientation m_screenOrientation;
     Qt::ScreenOrientation m_sensorOrientation;
     MeeGo::QmDisplayState *m_displayState;
