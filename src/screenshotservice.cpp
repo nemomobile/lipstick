@@ -12,13 +12,17 @@
 ** of this file.
 **
 ****************************************************************************/
-#include <QStandardPaths>
-#include <QDateTime>
+#include "hwcrenderstage.h"
 #include "lipstickcompositor.h"
 #include "screenshotservice.h"
 
+#include <QDateTime>
+#include <QGuiApplication>
+#include <QImage>
+#include <QScreen>
+#include <QStandardPaths>
+#include <QTransform>
 #include <private/qquickwindow_p.h>
-#include "hwcrenderstage.h"
 
 ScreenshotService::ScreenshotService(QObject *parent) :
     QObject(parent)
@@ -27,12 +31,23 @@ ScreenshotService::ScreenshotService(QObject *parent) :
 
 void ScreenshotService::saveScreenshot(const QString &path)
 {
-    if (LipstickCompositor::instance() != 0) {
-        QQuickWindowPrivate *wd = QQuickWindowPrivate::get(LipstickCompositor::instance());
+    if (LipstickCompositor *compositor = LipstickCompositor::instance()) {
+        QQuickWindowPrivate *wd = QQuickWindowPrivate::get(compositor);
         HwcRenderStage *renderStage = (HwcRenderStage *) wd->customRenderStage;
         if (renderStage)
             renderStage->setBypassHwc(true);
-        LipstickCompositor::instance()->grabWindow().save(path.isEmpty() ? (QStandardPaths::writableLocation(QStandardPaths::PicturesLocation) + "/" + QDateTime::currentDateTime().toString("yyyyMMddhhmmss") + ".png") : path);
+
+        QImage grab(compositor->grabWindow());
+
+        int rotation(QGuiApplication::primaryScreen()->angleBetween(Qt::PrimaryOrientation, compositor->topmostWindowOrientation()));
+        if (rotation != 0) {
+            QTransform xform;
+            xform.rotate(rotation);
+            grab = grab.transformed(xform, Qt::SmoothTransformation);
+        }
+
+        grab.save(path.isEmpty() ? (QStandardPaths::writableLocation(QStandardPaths::PicturesLocation) + "/" + QDateTime::currentDateTime().toString("yyyyMMddhhmmss") + ".png") : path);
+
         if (renderStage)
             renderStage->setBypassHwc(false);
     }
