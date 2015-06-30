@@ -42,6 +42,9 @@ public:
     bool isSubtreeBlocked() const { return m_blocked; }
     void setBlocked(bool b);
 
+    void setForcedGLRendering(bool f) { m_forceGLRendering = f; }
+    bool forcedGLRendering() const { return m_forceGLRendering; }
+
     float x() const { return m_x; }
     float y() const { return m_y; }
     void setPos(float x, float y) {
@@ -57,7 +60,8 @@ private:
     QSGGeometryNode *m_contentNode;
     void *m_buffer_handle;
     float m_x, m_y;
-    bool m_blocked;
+    bool m_blocked : 1;
+    bool m_forceGLRendering : 1;
 };
 
 // Any number above QSGNode::RenderNode will strictly do..

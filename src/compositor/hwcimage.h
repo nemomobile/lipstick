@@ -19,6 +19,7 @@
 #include <QUrl>
 #include <QImage>
 #include <QQuickItem>
+#include <QPointer>
 
 #include "lipstickglobal.h"
 
@@ -93,6 +94,8 @@ signals:
 
 private slots:
     void handlerRotationChanged();
+    void onWindowChange();
+    void onSync();
 
 private:
     friend class HwcImageLoadRequest;
@@ -101,6 +104,7 @@ private:
     HwcImageNode *updateActualPaintNode(QSGNode *node);
 
     HwcImageLoadRequest *m_pendingRequest;
+    QPointer<QQuickWindow> m_window;
     QQuickItem *m_rotationHandler;
 	QUrl m_source;
     QImage m_image;
@@ -111,7 +115,9 @@ private:
     qreal m_pixelRatio;
     qreal m_textureRotation;
     int m_maxTextureSize;
-    bool m_asynchronous;
+    bool m_asynchronous : 1;
+    bool m_usedInEffect : 1;
+    bool m_updateImage : 1;
 };
 
 #endif
