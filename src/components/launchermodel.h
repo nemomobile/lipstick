@@ -90,12 +90,12 @@ signals:
     void notifyLaunching(LauncherItem *item);
 
 private:
-    void reorderItems(const QMap<int, LauncherItem *> &itemsWithPositions);
+    void reorderItems();
     void loadPositions();
     int findItem(const QString &path, LauncherItem **item);
     LauncherItem *packageInModel(const QString &packageName);
     QVariant launcherPos(const QString &path);
-    LauncherItem *addItemIfValid(const QString &path, QMap<int, LauncherItem *> &itemsWithPositions);
+    LauncherItem *addItemIfValid(const QString &path);
     void updateItemsWithIcon(const QString &filename, bool existing);
     void updateWatchedDBusServices();
     void setTemporary(LauncherItem *item);

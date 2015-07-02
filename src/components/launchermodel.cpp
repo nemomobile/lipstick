@@ -124,7 +124,6 @@ LauncherModel::~LauncherModel()
 void LauncherModel::onFilesUpdated(const QStringList &added,
         const QStringList &modified, const QStringList &removed)
 {
-    QMap<int, LauncherItem *> itemsWithPositions;
     QStringList modifiedAndNeedUpdating = modified;
 
     // First, remove all removed launcher items before adding new ones
@@ -168,7 +167,7 @@ void LauncherModel::onFilesUpdated(const QStringList &added,
 
             if (item == NULL) {
                 LAUNCHER_DEBUG("Trying to add launcher item:" << filename);
-                item = addItemIfValid(filename, itemsWithPositions);
+                item = addItemIfValid(filename);
 
                 if (item != NULL) {
                     // Try to look up an already-installed icon in the icons directory
@@ -226,7 +225,7 @@ void LauncherModel::onFilesUpdated(const QStringList &added,
             } else {
                 // No item yet (maybe it had Hidden=true before), try to see if
                 // we should show the item now
-                addItemIfValid(filename, itemsWithPositions);
+                addItemIfValid(filename);
             }
         } else if (isIconFile(filename)) {
             // Icons has been updated - find item and update its icon path
@@ -234,7 +233,7 @@ void LauncherModel::onFilesUpdated(const QStringList &added,
         }
     }
 
-    reorderItems(itemsWithPositions);
+    reorderItems();
     savePositions();
 }
 
@@ -275,9 +274,14 @@ void LauncherModel::monitoredFileChanged(const QString &changedPath)
 
 void LauncherModel::loadPositions()
 {
-    QMap<int, LauncherItem *> itemsWithPositions;
-
     _launcherSettings.sync();
+    reorderItems();
+}
+
+void LauncherModel::reorderItems()
+{
+    QMap<int, LauncherItem *> itemsWithPositions;
+    QMap<QString, LauncherItem *> itemsWithoutPositions;
 
     QList<LauncherItem *> *currentLauncherList = getList<LauncherItem>();
     foreach (LauncherItem *item, *currentLauncherList) {
@@ -286,20 +290,31 @@ void LauncherModel::loadPositions()
         if (pos.isValid()) {
             int gridPos = pos.toInt();
             itemsWithPositions.insert(gridPos, item);
+        } else {
+            itemsWithoutPositions.insert(item->title(), item);
         }
     }
 
-    reorderItems(itemsWithPositions);
-}
+    QList<LauncherItem *> reordered;
+    {
+        // Order the positioned items into contiguous order
+        QMap<int, LauncherItem *>::const_iterator it = itemsWithPositions.constBegin(), end = itemsWithPositions.constEnd();
+        for ( ; it != end; ++it) {
+            LAUNCHER_DEBUG("Planned move of" << it.value()->title() << "to" << reordered.count());
+            reordered.append(it.value());
+        }
+    }
+    {
+        // Append the un-positioned items in sorted-by-title order
+        QMap<QString, LauncherItem *>::const_iterator it = itemsWithoutPositions.constBegin(), end = itemsWithoutPositions.constEnd();
+        for ( ; it != end; ++it) {
+            LAUNCHER_DEBUG("Planned move of" << it.value()->title() << "to" << reordered.count());
+            reordered.append(it.value());
+        }
+    }
 
-void LauncherModel::reorderItems(const QMap<int, LauncherItem *> &itemsWithPositions)
-{
-    // QMap is key-ordered, the int here is the desired position in the launcher we want the item to appear
-    // so, we'll iterate from the lowest desired position to the highest, and move the items there.
-    for (QMap<int, LauncherItem *>::ConstIterator it = itemsWithPositions.constBegin();
-         it != itemsWithPositions.constEnd(); ++it) {
-        LauncherItem *item = it.value();
-        int gridPos = it.key();
+    for (int gridPos = 0; gridPos < reordered.count(); ++gridPos) {
+        LauncherItem *item = reordered.at(gridPos);
         LAUNCHER_DEBUG("Moving" << item->filePath() << "to" << gridPos);
 
         if (gridPos < 0 || gridPos >= itemCount()) {
@@ -603,7 +618,7 @@ QVariant LauncherModel::launcherPos(const QString &path)
     return _globalSettings.value(key);
 }
 
-LauncherItem *LauncherModel::addItemIfValid(const QString &path, QMap<int, LauncherItem *> &itemsWithPositions)
+LauncherItem *LauncherModel::addItemIfValid(const QString &path)
 {
     LAUNCHER_DEBUG("Creating LauncherItem for desktop entry" << path);
     LauncherItem *item = new LauncherItem(path, this);
@@ -612,14 +627,6 @@ LauncherItem *LauncherModel::addItemIfValid(const QString &path, QMap<int, Launc
     bool shouldDisplay = item->shouldDisplay();
     if (isValid && shouldDisplay) {
         addItem(item);
-
-        QVariant pos = launcherPos(item->filePath());
-
-        if (pos.isValid()) {
-            int gridPos = pos.toInt();
-            itemsWithPositions.insert(gridPos, item);
-            LAUNCHER_DEBUG("Planned move of" << item->filePath() << "to" << gridPos);
-        }
     } else {
         LAUNCHER_DEBUG("Item" << path << (!isValid ? "is not valid" : "should not be displayed"));
         delete item;
