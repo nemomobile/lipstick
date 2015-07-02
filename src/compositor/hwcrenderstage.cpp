@@ -45,6 +45,7 @@ HwcNode::HwcNode(QQuickWindow *window)
     , m_x(0)
     , m_y(0)
     , m_blocked(false)
+    , m_forceGLRendering(false)
 {
     qsgnode_set_description(this, QStringLiteral("hwcnode"));
     m_renderStage = (HwcRenderStage *) QQuickWindowPrivate::get(window)->customRenderStage;
@@ -425,6 +426,9 @@ bool HwcRenderStage::checkSceneGraph(QSGNode *node)
     if (node->type() == QSG_HWC_NODE_TYPE) {
 
         HwcNode *hwcNode = static_cast<HwcNode *>(node);
+        if (hwcNode->forcedGLRendering())
+            return false;
+
         QQuickWindowPrivate *d = QQuickWindowPrivate::get(m_window);
         QSGRootNode *root = d->renderer->rootNode();
         Q_ASSERT(hwcNode->contentNode()); // It shouldn't be in the tree otherwise...

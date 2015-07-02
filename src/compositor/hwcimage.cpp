@@ -23,6 +23,8 @@
 #include <QSGSimpleTextureNode>
 #include <QFileInfo>
 
+#include <private/qquickitem_p.h>
+
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 
@@ -117,8 +119,11 @@ HwcImage::HwcImage()
     , m_status(Null)
     , m_textureRotation(0)
     , m_asynchronous(true)
+    , m_usedInEffect(false)
+    , m_updateImage(false)
 {
     setFlag(ItemHasContents, true);
+    connect(this, &QQuickItem::windowChanged, this, &HwcImage::onWindowChange);
 }
 
 HwcImage::~HwcImage()
@@ -297,6 +302,7 @@ void HwcImage::apply(HwcImageLoadRequest *req)
     m_status = s.isValid() ? Ready : Error;
     emit statusChanged();
     m_textureRotation = req->rotation;
+    m_updateImage = true;
     update();
 }
 
@@ -325,6 +331,34 @@ bool HwcImage::event(QEvent *e)
         return true;
     }
     return QQuickItem::event(e);
+}
+
+void HwcImage::onWindowChange()
+{
+    if (m_window)
+        disconnect(m_window.data(), &QQuickWindow::beforeSynchronizing, this, &HwcImage::onSync);
+    m_window = window();
+    if (m_window)
+        connect(m_window.data(), &QQuickWindow::beforeSynchronizing, this, &HwcImage::onSync, Qt::DirectConnection);
+}
+
+void HwcImage::onSync()
+{
+    bool used = false;
+    QQuickItem *item = this;
+    while (item) {
+        QQuickItemPrivate *d = QQuickItemPrivate::get(item);
+        if (d->extra.isAllocated() && d->extra->effectRefCount > 0) {
+            used = true;
+            break;
+        }
+        item = item->parentItem();
+    }
+
+    if (used != m_usedInEffect) {
+        m_usedInEffect = used;
+        update();
+    }
 }
 
 class HwcImageTexture : public QSGTexture
@@ -381,7 +415,7 @@ public:
 
 HwcImageNode *HwcImage::updateActualPaintNode(QSGNode *old)
 {
-    if (m_image.isNull() || width() <= 0 || height() <= 0) {
+    if ((m_updateImage && m_image.isNull()) || width() <= 0 || height() <= 0) {
         delete old;
         return 0;
     }
@@ -389,7 +423,8 @@ HwcImageNode *HwcImage::updateActualPaintNode(QSGNode *old)
     HwcImageNode *tn = static_cast<HwcImageNode *>(old);
     if (!tn)
         tn = new HwcImageNode();
-    if (!tn->texture() || !m_image.isNull()) {
+
+    if (m_updateImage) {
         tn->releaseTexture();
         QSGTexture *t = HwcImageTexture::create(m_image, window());
         if (t)
@@ -397,6 +432,7 @@ HwcImageNode *HwcImage::updateActualPaintNode(QSGNode *old)
         else
             tn->setTexture(window()->createTextureFromImage(m_image));
         m_image = QImage();
+        m_updateImage = false;
     }
     tn->setRect(0, 0, width(), height());
     return tn;
@@ -418,8 +454,10 @@ QMatrix4x4 HwcImage::reverseTransform() const
     return m;
 }
 
+
 QSGNode *HwcImage::updatePaintNode(QSGNode *old, UpdatePaintNodeData *)
 {
+
     if (!hwcimage_is_enabled()) {
         qCDebug(LIPSTICK_LOG_HWC) << "HwcImage" << this << "updating paint node without HWC support";
         return updateActualPaintNode(old);
@@ -439,9 +477,11 @@ QSGNode *HwcImage::updatePaintNode(QSGNode *old, UpdatePaintNodeData *)
            |
         HwcImageNode        <- The texture node which gets rendered as a fallback.
      */
+    HwcNode *hwcNode = 0;
+
     if (old) {
         qCDebug(LIPSTICK_LOG_HWC) << "HwcImage" << this << "updating paint existing node";
-        HwcNode *hwcNode = static_cast<HwcNode *>(old);
+        hwcNode = static_cast<HwcNode *>(old);
         HwcImageNode *contentNode = updateActualPaintNode(hwcNode->firstChild()->firstChild());
         if (contentNode == 0) {
             delete hwcNode;
@@ -454,23 +494,23 @@ QSGNode *HwcImage::updatePaintNode(QSGNode *old, UpdatePaintNodeData *)
         }
         static_cast<QSGTransformNode *>(hwcNode->firstChild())->setMatrix(reverseTransform());
         hwcNode->update(contentNode, contentNode->handle());
-        return hwcNode;
-    }
-
-    HwcImageNode *contentNode = updateActualPaintNode(0);
-    if (contentNode) {
+    } else if (HwcImageNode *contentNode = updateActualPaintNode(0)) {
         qCDebug(LIPSTICK_LOG_HWC) << "HwcImage" << this << "creating new node";
-        HwcNode *hwcNode = new HwcNode(window());
+        hwcNode = new HwcNode(window());
         QSGTransformNode *xnode = new QSGTransformNode();
         xnode->setMatrix(reverseTransform());
         qsgnode_set_description(xnode, QStringLiteral("hwc-reverse-xform"));
         xnode->appendChildNode(contentNode);
         hwcNode->appendChildNode(xnode);
         hwcNode->update(contentNode, contentNode->handle());
-        return hwcNode;
+    } else {
+        return 0;
     }
 
-    return 0;
+    if (hwcNode)
+        hwcNode->setForcedGLRendering(m_usedInEffect);
+
+    return hwcNode;
 }
 
 
