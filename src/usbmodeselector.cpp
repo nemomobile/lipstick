@@ -94,13 +94,15 @@ void USBModeSelector::applyUSBMode(QString mode)
             // When the device lock is on and USB is connected, always pretend that the USB mode selection dialog is shown to unlock the touch screen lock
             emit dialogShown();
 
-            // Show a notification instead
-            NotificationManager *manager = NotificationManager::instance();
-            QVariantHash hints;
-            hints.insert(NotificationManager::HINT_CATEGORY, "x-nemo.device.locked");
-            //% "Unlock device first"
-            hints.insert(NotificationManager::HINT_PREVIEW_BODY, qtTrId("qtn_usb_device_locked"));
-            manager->Notify(qApp->applicationName(), 0, QString(), QString(), QString(), QStringList(), hints, -1);
+            if (usbMode->configMode() != QUsbModed::Mode::Charging) {
+                // Show a notification instead if configured USB mode is not charging only.
+                NotificationManager *manager = NotificationManager::instance();
+                QVariantHash hints;
+                hints.insert(NotificationManager::HINT_CATEGORY, "x-nemo.device.locked");
+                //% "Unlock device first"
+                hints.insert(NotificationManager::HINT_PREVIEW_BODY, qtTrId("qtn_usb_device_locked"));
+                manager->Notify(qApp->applicationName(), 0, QString(), QString(), QString(), QStringList(), hints, -1);
+            }
         }
     } else if (mode == QUsbModed::Mode::Ask ||
                mode == QUsbModed::Mode::ModeRequest) {
