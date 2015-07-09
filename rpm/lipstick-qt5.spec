@@ -104,6 +104,15 @@ BuildArch:  noarch
 %description doc
 Documentation for the lipstick package.
 
+%package notification-doc
+Summary:    Documentation for lipstick notification services
+License:    LGPLv2.1
+Group:      Documentation
+BuildArch:  noarch
+
+%description notification-doc
+Documentation for the lipstick notification services.
+
 %package ts-devel
 Summary:    Translation files for lipstick
 License:    LGPLv2.1
@@ -171,6 +180,10 @@ mkdir -p %{buildroot}/%{icondirectory}
 %files doc
 %defattr(-,root,root,-)
 %{_datadir}/doc/lipstick/*
+
+%files notification-doc
+%defattr(-,root,root,-)
+%{_datadir}/doc/lipstick-notification/*
 
 %files ts-devel
 %defattr(-,root,root,-)
