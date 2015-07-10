@@ -76,6 +76,8 @@ signals:
     //! Sent when the supported USB modes have changed.
     void supportedUSBModesChanged();
 
+    void showUnlockScreen();
+
 private slots:
     /*!
      * Shows the USB dialog/banners based on the given USB mode.
