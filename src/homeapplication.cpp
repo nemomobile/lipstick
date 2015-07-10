@@ -86,6 +86,9 @@ HomeApplication::HomeApplication(int &argc, char **argv, const QString &qmlPath)
     NotificationManager::instance();
     new NotificationPreviewPresenter(this);
 
+    // Export screen size / geometry as dconf keys
+    LipstickSettings::instance()->exportScreenSize();
+
     // Create screen lock logic - not parented to "this" since destruction happens too late in that case
     screenLock = new ScreenLock;
     LipstickSettings::instance()->setScreenLock(screenLock);
