@@ -240,8 +240,11 @@ void HomeApplication::setCompositorPath(const QString &path)
     QObject *compositor = component.beginCreate(qmlEngine->rootContext());
     if (compositor) {
         compositor->setParent(this);
-        if (LipstickCompositor::instance())
+        if (LipstickCompositor::instance()) {
             LipstickCompositor::instance()->setGeometry(QRect(QPoint(0, 0), QGuiApplication::primaryScreen()->size()));
+            connect(usbModeSelector, SIGNAL(showUnlockScreen()),
+                    LipstickCompositor::instance(), SIGNAL(showUnlockScreen()));
+        }
 
         component.completeCreate();
 

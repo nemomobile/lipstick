@@ -102,6 +102,7 @@ void USBModeSelector::applyUSBMode(QString mode)
                 //% "Unlock device first"
                 hints.insert(NotificationManager::HINT_PREVIEW_BODY, qtTrId("qtn_usb_device_locked"));
                 manager->Notify(qApp->applicationName(), 0, QString(), QString(), QString(), QStringList(), hints, -1);
+                emit showUnlockScreen();
             }
         }
     } else if (mode == QUsbModed::Mode::Ask ||
