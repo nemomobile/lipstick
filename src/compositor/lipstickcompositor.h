@@ -152,6 +152,8 @@ signals:
 
     void completedChanged();
 
+    void showUnlockScreen();
+
 private slots:
     void surfaceMapped();
     void surfaceUnmapped();
