@@ -18,6 +18,9 @@
 #define LIPSTICKPLUGIN_H
 
 #include <QQmlExtensionPlugin>
+#include <QQmlParserStatus>
+#include <components/launchermodel.h>
+#include <components/launcherfoldermodel.h>
 
 class Q_DECL_EXPORT LipstickPlugin : public QQmlExtensionPlugin
 {
@@ -29,5 +32,34 @@ public:
     void registerTypes(const char *uri);
     
 };
+
+class LauncherModelType : public LauncherModel, public QQmlParserStatus
+{
+    Q_OBJECT
+    Q_INTERFACES(QQmlParserStatus)
+public:
+    explicit LauncherModelType(QObject *parent = 0)
+        : LauncherModel(DeferInitialization, parent)
+    {
+    }
+
+    void classBegin() {}
+    void componentComplete() { initialize(); }
+};
+
+class LauncherFolderModelType : public LauncherFolderModel, public QQmlParserStatus
+{
+    Q_OBJECT
+    Q_INTERFACES(QQmlParserStatus)
+public:
+    explicit LauncherFolderModelType(QObject *parent = 0)
+        : LauncherFolderModel(DeferInitialization, parent)
+    {
+    }
+
+    void classBegin() {}
+    void componentComplete() { initialize(); }
+};
+
 
 #endif // LIPSTICKPLUGIN_H

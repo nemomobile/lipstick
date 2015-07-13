@@ -37,18 +37,23 @@ class LIPSTICK_EXPORT LauncherModel : public QObjectListModel
 
     Q_PROPERTY(QStringList directories READ directories WRITE setDirectories NOTIFY directoriesChanged)
     Q_PROPERTY(QStringList iconDirectories READ iconDirectories WRITE setIconDirectories NOTIFY iconDirectoriesChanged)
+    Q_PROPERTY(QString scope READ scope WRITE setScope NOTIFY scopeChanged)
 
     Q_ENUMS(ItemType)
 
+    QStringList _directories;
+    QStringList _iconDirectories;
     QFileSystemWatcher _fileSystemWatcher;
     QSettings _launcherSettings;
     QSettings _globalSettings;
     LauncherMonitor _launcherMonitor;
-    LauncherDBus _launcherDBus;
+    QString _scope;
+    QString _launcherOrderPrefix;
 
     QDBusServiceWatcher _dbusWatcher;
     QMap<QString, QString> _packageNameToDBusService;
     QList<LauncherItem *> _temporaryLaunchers;
+    bool _initialized;
 
 private slots:
     void monitoredFileChanged(const QString &changedPath);
@@ -70,6 +75,9 @@ public:
     QStringList iconDirectories() const;
     void setIconDirectories(QStringList);
 
+    QString scope() const;
+    void setScope(const QString &scope);
+
     void updatingStarted(const QString &packageName, const QString &label,
             const QString &iconPath, QString desktopFile, const QString &serviceName);
     void updatingProgress(const QString &packageName, int progress, const QString &serviceName);
@@ -87,7 +95,17 @@ public slots:
 signals:
     void directoriesChanged();
     void iconDirectoriesChanged();
+    void scopeChanged();
     void notifyLaunching(LauncherItem *item);
+
+protected:
+    enum InitializationMode {
+        DeferInitialization
+    };
+
+    explicit LauncherModel(InitializationMode, QObject *parent = 0);
+
+    void initialize();
 
 private:
     void reorderItems();

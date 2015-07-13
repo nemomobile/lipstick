@@ -33,6 +33,7 @@ class LauncherMonitor : public QObject
     Q_DISABLE_COPY(LauncherMonitor)
 
 public:
+    LauncherMonitor();
     LauncherMonitor(const QString &desktopFilesPath,
             const QString &iconFilesPath);
     ~LauncherMonitor();
@@ -47,6 +48,7 @@ signals:
     void filesUpdated(const QStringList &added, const QStringList &modified, const QStringList &removed);
 
 private:
+    void initialize();
     void setDirectories(const QStringList &newDirs, QStringList &targetDirs);
 
     // fields
