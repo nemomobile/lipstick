@@ -414,7 +414,7 @@ NotificationList NotificationManager::GetNotifications(const QString &owner)
     QHash<uint, LipstickNotification *>::const_iterator it = notifications.constBegin(), end = notifications.constEnd();
     for ( ; it != end; ++it) {
         LipstickNotification *notification = it.value();
-        if (notification->owner() == owner) {
+        if (notification && notification->owner() == owner) {
             notificationList.append(notification);
         }
     }
@@ -445,7 +445,7 @@ void NotificationManager::removeNotificationsWithCategory(const QString &categor
     QHash<uint, LipstickNotification *>::const_iterator it = notifications.constBegin(), end = notifications.constEnd();
     for ( ; it != end; ++it) {
         LipstickNotification *notification(it.value());
-        if (notification->category() == category) {
+        if (notification && notification->category() == category) {
             ids.append(it.key());
         }
     }
@@ -459,7 +459,7 @@ void NotificationManager::updateNotificationsWithCategory(const QString &categor
     QHash<uint, LipstickNotification *>::const_iterator it = notifications.constBegin(), end = notifications.constEnd();
     for ( ; it != end; ++it) {
         LipstickNotification *notification(it.value());
-        if (notification->category() == category) {
+        if (notification && notification->category() == category) {
             categoryNotifications.append(notification);
         }
     }
@@ -929,19 +929,21 @@ void NotificationManager::removeNotificationIfUserRemovable(uint id)
     }
 
     LipstickNotification *notification = notifications[id];
-    QVariant userRemovable = notification->hints().value(HINT_USER_REMOVABLE);
-    if (!userRemovable.isValid() || userRemovable.toBool()) {
-        // The notification should be removed if user removability is not defined (defaults to true) or is set to true
-        QVariant userCloseable = notification->hints().value(HINT_USER_CLOSEABLE);
-        if (!userCloseable.isValid() || userCloseable.toBool()) {
-            // The notification should be closed if user closeability is not defined (defaults to true) or is set to true
-            CloseNotification(id, NotificationDismissedByUser);
-        } else {
-            // Uncloseable notifications should be only removed
-            emit notificationRemoved(id);
+    if (notification) {
+        QVariant userRemovable = notification->hints().value(HINT_USER_REMOVABLE);
+        if (!userRemovable.isValid() || userRemovable.toBool()) {
+            // The notification should be removed if user removability is not defined (defaults to true) or is set to true
+            QVariant userCloseable = notification->hints().value(HINT_USER_CLOSEABLE);
+            if (!userCloseable.isValid() || userCloseable.toBool()) {
+                // The notification should be closed if user closeability is not defined (defaults to true) or is set to true
+                CloseNotification(id, NotificationDismissedByUser);
+            } else {
+                // Uncloseable notifications should be only removed
+                emit notificationRemoved(id);
 
-            // Mark the notification as hidden
-            execSQL("INSERT INTO hints VALUES (?, ?, ?)", QVariantList() << id << HINT_HIDDEN << true);
+                // Mark the notification as hidden
+                execSQL("INSERT INTO hints VALUES (?, ?, ?)", QVariantList() << id << HINT_HIDDEN << true);
+            }
         }
     }
 }
@@ -986,11 +988,13 @@ void NotificationManager::removeUserRemovableNotifications()
     QHash<uint, LipstickNotification *>::const_iterator it = notifications.constBegin(), end = notifications.constEnd();
     for ( ; it != end; ++it) {
         LipstickNotification *notification(it.value());
-        QVariant userRemovable = notification->hints().value(HINT_USER_REMOVABLE);
-        if (!userRemovable.isValid() || userRemovable.toBool()) {
-            QVariant userCloseable = notification->hints().value(HINT_USER_CLOSEABLE);
-            if (!userCloseable.isValid() || userCloseable.toBool()) {
-                closableNotifications.append(it.key());
+        if (notification) {
+            QVariant userRemovable = notification->hints().value(HINT_USER_REMOVABLE);
+            if (!userRemovable.isValid() || userRemovable.toBool()) {
+                QVariant userCloseable = notification->hints().value(HINT_USER_CLOSEABLE);
+                if (!userCloseable.isValid() || userCloseable.toBool()) {
+                    closableNotifications.append(it.key());
+                }
             }
         }
     }
