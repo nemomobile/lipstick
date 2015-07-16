@@ -928,7 +928,11 @@ void NotificationManager::removeNotificationIfUserRemovable(uint id)
         }
     }
 
-    LipstickNotification *notification = notifications[id];
+    LipstickNotification *notification = notifications.value(id);
+    if (!notification) {
+        return;
+    }
+
     QVariant userRemovable = notification->hints().value(HINT_USER_REMOVABLE);
     if (!userRemovable.isValid() || userRemovable.toBool()) {
         // The notification should be removed if user removability is not defined (defaults to true) or is set to true
