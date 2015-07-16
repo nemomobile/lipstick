@@ -346,24 +346,28 @@ void NotificationManager::CloseNotification(uint id, NotificationClosedReason cl
 
 void NotificationManager::CloseNotifications(const QList<uint> &ids, NotificationClosedReason closeReason)
 {
-    if (!ids.isEmpty()) {
-        foreach (uint id, ids) {
-            if (notifications.contains(id)) {
-                emit NotificationClosed(id, closeReason);
+    QSet<uint> uniqueIds = QSet<uint>::fromList(ids);
+    QList<uint> removedIds;
 
-                // Remove the notification, its actions and its hints from database
-                const QVariantList params(QVariantList() << id);
-                execSQL(QString("DELETE FROM notifications WHERE id=?"), params);
-                execSQL(QString("DELETE FROM actions WHERE id=?"), params);
-                execSQL(QString("DELETE FROM hints WHERE id=?"), params);
-                execSQL(QString("DELETE FROM expiration WHERE id=?"), params);
-            }
+    foreach (uint id, uniqueIds) {
+        if (notifications.contains(id)) {
+            removedIds.append(id);
+            emit NotificationClosed(id, closeReason);
+
+            // Remove the notification, its actions and its hints from database
+            const QVariantList params(QVariantList() << id);
+            execSQL(QString("DELETE FROM notifications WHERE id=?"), params);
+            execSQL(QString("DELETE FROM actions WHERE id=?"), params);
+            execSQL(QString("DELETE FROM hints WHERE id=?"), params);
+            execSQL(QString("DELETE FROM expiration WHERE id=?"), params);
         }
+    }
 
-        NOTIFICATIONS_DEBUG("REMOVE:" << ids);
-        emit notificationsRemoved(ids);
+    if (!removedIds.isEmpty()) {
+        NOTIFICATIONS_DEBUG("REMOVE:" << removedIds);
+        emit notificationsRemoved(removedIds);
 
-        foreach (uint id, ids) {
+        foreach (uint id, removedIds) {
             emit notificationRemoved(id);
 
             // Mark the notification to be destroyed
