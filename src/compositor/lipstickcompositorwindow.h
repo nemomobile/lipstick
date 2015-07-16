@@ -85,6 +85,7 @@ signals:
     void mouseRegionBoundsChanged();
     void committed();
     void focusOnTouchChanged();
+    void aboutToBeDestroyed();
 
 private slots:
     void handleTouchCancel();

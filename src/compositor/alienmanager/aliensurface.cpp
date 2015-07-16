@@ -16,6 +16,7 @@
 #include <QtCompositor/QWaylandSurface>
 
 #include "lipstickcompositor.h"
+#include "lipstickcompositorwindow.h"
 #include "aliensurface.h"
 #include "alienmanager.h"
 #include "lipsticksurfaceinterface.h"
@@ -81,6 +82,13 @@ void AlienSurface::alien_surface_destroy_resource(Resource *resource)
 
 void AlienSurface::alien_surface_destroy(Resource *resource)
 {
+    wl_resource_destroy(resource->handle);
+}
+
+void AlienSurface::alien_surface_close(Resource *resource)
+{
+    if (LipstickCompositorWindow *window = LipstickCompositor::instance()->surfaceWindow(surface()))
+        emit window->aboutToBeDestroyed();
     wl_resource_destroy(resource->handle);
 }
 
