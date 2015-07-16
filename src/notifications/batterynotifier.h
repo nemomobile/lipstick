@@ -160,6 +160,11 @@ private:
     };
     State lastState;
     Mode mode;
+    enum ChargingCompletion {
+        NeedsCharging,
+        FullyCharged
+    };
+    ChargingCompletion chargingCompletion;
 
     /*! Notification is postponed by means of this timer to skip
      *  frequent state changes during energy management state
