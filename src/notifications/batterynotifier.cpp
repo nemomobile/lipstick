@@ -49,7 +49,8 @@ BatteryNotifier::BatteryNotifier(QObject *parent) :
     chargerType(new ContextProperty("Battery.ChargerType", this)),
     psm(new ContextProperty("System.PowerSaveMode", this)),
     lastState({BatteryUnknown, StateUnknown, ChargerNo}),
-    mode(ModeNormal)
+    mode(ModeNormal),
+    chargingCompletion(NeedsCharging)
 {
     connect(batteryLevel, SIGNAL(valueChanged()), this, SLOT(onPropertyChanged()));
     connect(chargingState, SIGNAL(valueChanged()), this, SLOT(onPropertyChanged()));
@@ -98,14 +99,18 @@ void BatteryNotifier::prepareNotification()
     if (isStateChanged) {
         if (newState.state == StateIdle) {
             stopLowBatteryNotifier();
-            toRemove << NotificationCharging;
-            toSend << NotificationChargingComplete;
+            if (chargingCompletion == NeedsCharging) {
+                toRemove << NotificationCharging;
+                toSend << NotificationChargingComplete;
+            }
         } else if (newState.state == StateCharging) {
             stopLowBatteryNotifier();
             toRemove << NotificationRemoveCharger
                      << NotificationChargingComplete
                      << NotificationLowBattery;
-            toSend << NotificationCharging;
+            if (chargingCompletion == NeedsCharging) {
+                toSend << NotificationCharging;
+            }
         } else {
             toRemove << NotificationChargingComplete
                      << NotificationRemoveCharger
@@ -151,6 +156,13 @@ void BatteryNotifier::prepareNotification()
             connect(checkChargingTimer.data(), SIGNAL(timeout()),
                     this, SLOT(checkIsChargingStarted()));
             checkChargingTimer->start();
+        }
+    }
+    if (isStateChanged) {
+        if (!isAnyChargingState) {
+            chargingCompletion = NeedsCharging;
+        } else if (newState.state == StateIdle) {
+            chargingCompletion = FullyCharged;
         }
     }
 
