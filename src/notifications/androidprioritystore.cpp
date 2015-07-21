@@ -24,6 +24,22 @@ const int InteractiveAndroidPriority = 120;
 const int ElevatedAndroidPriority = 100;
 const int StandardAndroidPriority = 50;
 
+AndroidPriorityStore::PriorityDetails detailsForFeedback(const QString &feedback)
+{
+    if (!feedback.isEmpty()) {
+        QSet<QString> tokens(feedback.split(",", QString::SkipEmptyParts).toSet());
+
+        // If the only feedback tokens are for email, this is a medium-priority notification
+        tokens.remove(QStringLiteral("email"));
+        tokens.remove(QStringLiteral("email_exists"));
+        if (!tokens.isEmpty()) {
+            // This is a top-priority notification
+            return qMakePair(InteractiveAndroidPriority, feedback);
+        }
+    }
+    return qMakePair(ElevatedAndroidPriority, feedback);
+}
+
 }
 
 AndroidPriorityStore::AndroidPriorityStore(const QString &path, QObject *parent)
@@ -60,13 +76,18 @@ AndroidPriorityStore::PriorityDetails AndroidPriorityStore::appDetails(const QSt
 {
     QHash<QString, QString>::const_iterator it = priorityDefinitions.constFind(appName);
     if (it != priorityDefinitions.constEnd()) {
-        const QString &feedback(it.value());
-        if (!feedback.isEmpty() && feedback != QStringLiteral("email")) {
-            return qMakePair(InteractiveAndroidPriority, feedback);
-        }
-        return qMakePair(ElevatedAndroidPriority, feedback);
+        return detailsForFeedback(it.value());
     }
+    return qMakePair(StandardAndroidPriority, QString());
+}
 
+AndroidPriorityStore::PriorityDetails AndroidPriorityStore::packageDetails(const QString &packageName) const
+{
+    const QString key(QStringLiteral("package:") + packageName);
+    QHash<QString, QString>::const_iterator it = priorityDefinitions.constFind(key);
+    if (it != priorityDefinitions.constEnd()) {
+        return detailsForFeedback(it.value());
+    }
     return qMakePair(StandardAndroidPriority, QString());
 }
 

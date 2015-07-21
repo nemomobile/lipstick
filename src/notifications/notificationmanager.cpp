@@ -78,6 +78,7 @@ const char *NotificationManager::HINT_HIDDEN = "x-nemo-hidden";
 const char *NotificationManager::HINT_DISPLAY_ON = "x-nemo-display-on";
 const char *NotificationManager::HINT_LED_DISABLED_WITHOUT_BODY_AND_SUMMARY = "x-nemo-led-disabled-without-body-and-summary";
 const char *NotificationManager::HINT_ORIGIN = "x-nemo-origin";
+const char *NotificationManager::HINT_ORIGIN_PACKAGE = "x-nemo-origin-package";
 const char *NotificationManager::HINT_OWNER = "x-nemo-owner";
 const char *NotificationManager::HINT_MAX_CONTENT_LINES = "x-nemo-max-content-lines";
 const char *NotificationManager::HINT_RESTORED = "x-nemo-restored";
@@ -292,7 +293,13 @@ uint NotificationManager::Notify(const QString &appName, uint replacesId, const 
             }
 
             // See if this notification has elevated priority and feedback
-            AndroidPriorityStore::PriorityDetails priority(androidPriorityStore->appDetails(appName));
+            AndroidPriorityStore::PriorityDetails priority;
+            const QString packageName(hints_.value(HINT_ORIGIN_PACKAGE).toString());
+            if (!packageName.isEmpty()) {
+                priority = androidPriorityStore->packageDetails(packageName);
+            } else {
+                priority = androidPriorityStore->appDetails(appName);
+            }
             hints_.insert(HINT_PRIORITY, priority.first);
             if (!priority.second.isEmpty()) {
                 hints_.insert(HINT_FEEDBACK, priority.second);
