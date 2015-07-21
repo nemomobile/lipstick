@@ -41,6 +41,13 @@ public:
      */
     PriorityDetails appDetails(const QString &appName) const;
 
+    /*!
+     * Returns the priority information defined for the given Android package name.
+     *
+     * \param packageName The name of the Android package to return priority information for.
+     */
+    PriorityDetails packageDetails(const QString &packageName) const;
+
 private:
     QHash<QString, QString> priorityDefinitions;
 };

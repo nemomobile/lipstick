@@ -105,6 +105,9 @@ public:
     //! Nemo hint: Indicates the origin of the notification
     static const char *HINT_ORIGIN;
 
+    //! Nemo hint: Indicates the Android package name from which this notification originates
+    static const char *HINT_ORIGIN_PACKAGE;
+
     //! Nemo hint: Indicates the identifer of the owner for notification
     static const char *HINT_OWNER;
 

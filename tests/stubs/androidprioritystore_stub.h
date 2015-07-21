@@ -24,6 +24,7 @@ class AndroidPriorityStoreStub : public StubBase {
   public:
   virtual void AndroidPriorityStoreStubConstructor(const QString &path, QObject *parent);
   virtual AndroidPriorityStore::PriorityDetails appDetails(const QString &appName) const;
+  virtual AndroidPriorityStore::PriorityDetails packageDetails(const QString &packageName) const;
 };
 
 // 2. IMPLEMENT STUB
@@ -39,6 +40,13 @@ AndroidPriorityStore::PriorityDetails AndroidPriorityStoreStub::appDetails(const
   return stubReturnValue<AndroidPriorityStore::PriorityDetails >("appDetails");
 }
 
+AndroidPriorityStore::PriorityDetails AndroidPriorityStoreStub::packageDetails(const QString &packageName) const {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<const QString & >(packageName));
+  stubMethodEntered("packageDetails",params);
+  return stubReturnValue<AndroidPriorityStore::PriorityDetails >("packageDetails");
+}
+
 // 3. CREATE A STUB INSTANCE
 AndroidPriorityStoreStub gDefaultAndroidPriorityStoreStub;
 AndroidPriorityStoreStub* gAndroidPriorityStoreStub = &gDefaultAndroidPriorityStoreStub;
@@ -51,6 +59,10 @@ AndroidPriorityStore::AndroidPriorityStore(const QString &path, QObject *parent)
 
 AndroidPriorityStore::PriorityDetails AndroidPriorityStore::appDetails(const QString &appName) const {
   return gAndroidPriorityStoreStub->appDetails(appName);
+}
+
+AndroidPriorityStore::PriorityDetails AndroidPriorityStore::packageDetails(const QString &appName) const {
+  return gAndroidPriorityStoreStub->packageDetails(appName);
 }
 
 #endif
