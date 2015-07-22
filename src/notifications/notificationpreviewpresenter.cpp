@@ -60,7 +60,7 @@ NotificationPreviewPresenter::NotificationPreviewPresenter(QObject *parent) :
     locks(new MeeGo::QmLocks(this)),
     displayState(new MeeGo::QmDisplayState(this))
 {
-    connect(NotificationManager::instance(), SIGNAL(notificationModified(uint)), this, SLOT(updateNotification(uint)));
+    connect(NotificationManager::instance(), SIGNAL(notificationAdded(uint)), this, SLOT(updateNotification(uint)));
     connect(NotificationManager::instance(), SIGNAL(notificationRemoved(uint)), this, SLOT(removeNotification(uint)));
     connect(this, SIGNAL(notificationPresented(uint)), notificationFeedbackPlayer, SLOT(addNotification(uint)));
 
