@@ -565,6 +565,9 @@ void NotificationManager::publish(const LipstickNotification *notification, uint
 
     NOTIFICATIONS_DEBUG("PUBLISH:" << notification->appName() << notification->appIcon() << notification->summary() << notification->body() << notification->actions() << notification->hints() << notification->expireTimeout() << "->" << id);
     emit notificationModified(id);
+    if (replacesId == 0) {
+        emit notificationAdded(id);
+    }
 }
 
 void NotificationManager::restoreNotifications()
