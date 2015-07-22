@@ -239,6 +239,13 @@ signals:
     void ActionInvoked(uint id, const QString &actionKey);
 
     /*!
+     * Emitted when a notification is added.
+     *
+     * \param id the ID of the added notification
+     */
+    void notificationAdded(uint id);
+
+    /*!
      * Emitted when a notification is modified (added or updated).
      *
      * \param id the ID of the modified notification

@@ -536,14 +536,17 @@ void Ut_NotificationManager::testAddingNotification()
     NotificationManager *manager = NotificationManager::instance();
 
     // Check that notifications are inserted to a database, a timestamp is added and a signal about them are sent
-    QSignalSpy spy(manager, SIGNAL(notificationModified(uint)));
+    QSignalSpy modifiedSpy(manager, SIGNAL(notificationModified(uint)));
+    QSignalSpy addedSpy(manager, SIGNAL(notificationAdded(uint)));
     QVariantHash hints;
     hints.insert("hint", "value");
     uint id = manager->Notify("appName", 0, "appIcon", "summary", "body", QStringList() << "action" << "Action", hints, 1);
     LipstickNotification *notification = manager->notification(id);
     QCOMPARE(disconnect(notification, SIGNAL(actionInvoked(QString)), manager, SLOT(invokeAction(QString))), true);
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.last().at(0).toUInt(), id);
+    QCOMPARE(modifiedSpy.count(), 1);
+    QCOMPARE(modifiedSpy.last().at(0).toUInt(), id);
+    QCOMPARE(addedSpy.count(), 1);
+    QCOMPARE(addedSpy.last().at(0).toUInt(), id);
     QCOMPARE(qSqlQueryPrepare.count(), 6);
     QCOMPARE(qSqlQueryPrepare.at(0), QString("INSERT INTO notifications VALUES (?, ?, ?, ?, ?, ?)"));
     QCOMPARE(qSqlQueryPrepare.at(1), QString("INSERT INTO actions VALUES (?, ?)"));
@@ -598,13 +601,15 @@ void Ut_NotificationManager::testUpdatingExistingNotification()
     qSqlQueryPrepare.clear();
     qSqlQueryAddBindValue.clear();
 
-    QSignalSpy spy(manager, SIGNAL(notificationModified(uint)));
+    QSignalSpy modifiedSpy(manager, SIGNAL(notificationModified(uint)));
+    QSignalSpy addedSpy(manager, SIGNAL(notificationAdded(uint)));
     uint newId = manager->Notify("newAppName", id, "newAppIcon", "newSummary", "newBody", QStringList() << "action", QVariantHash(), 2);
     QCOMPARE(newId, id);
     LipstickNotification *notification = manager->notification(id);
     QCOMPARE(disconnect(notification, SIGNAL(actionInvoked(QString)), manager, SLOT(invokeAction(QString))), true);
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.last().at(0).toUInt(), id);
+    QCOMPARE(modifiedSpy.count(), 1);
+    QCOMPARE(modifiedSpy.last().at(0).toUInt(), id);
+    QCOMPARE(addedSpy.count(), 0);
     QCOMPARE(qSqlQueryPrepare.count(), 8);
     QCOMPARE(qSqlQueryPrepare.at(0), QString("DELETE FROM notifications WHERE id=?"));
     QCOMPARE(qSqlQueryPrepare.at(1), QString("DELETE FROM actions WHERE id=?"));
@@ -652,10 +657,12 @@ void Ut_NotificationManager::testUpdatingExistingNotification()
 void Ut_NotificationManager::testUpdatingInexistingNotification()
 {
     NotificationManager *manager = NotificationManager::instance();
-    QSignalSpy spy(manager, SIGNAL(notificationModified(uint)));
+    QSignalSpy modifiedSpy(manager, SIGNAL(notificationModified(uint)));
+    QSignalSpy addedSpy(manager, SIGNAL(notificationAdded(uint)));
     uint id = manager->Notify("appName", 1, "appIcon", "summary", "body", QStringList(), QVariantHash(), 1);
     QCOMPARE(id, (uint)0);
-    QCOMPARE(spy.count(), 0);
+    QCOMPARE(modifiedSpy.count(), 0);
+    QCOMPARE(addedSpy.count(), 0);
     QCOMPARE(qSqlQueryPrepare.count(), 0);
 }
 

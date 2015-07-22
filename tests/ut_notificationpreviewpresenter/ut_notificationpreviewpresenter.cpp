@@ -220,7 +220,7 @@ void Ut_NotificationPreviewPresenter::cleanup()
 void Ut_NotificationPreviewPresenter::testSignalConnections()
 {
     NotificationPreviewPresenter presenter;
-    QCOMPARE(disconnect(NotificationManager::instance(), SIGNAL(notificationModified(uint)), &presenter, SLOT(updateNotification(uint))), true);
+    QCOMPARE(disconnect(NotificationManager::instance(), SIGNAL(notificationAdded(uint)), &presenter, SLOT(updateNotification(uint))), true);
     QCOMPARE(disconnect(NotificationManager::instance(), SIGNAL(notificationRemoved(uint)), &presenter, SLOT(removeNotification(uint))), true);
     QCOMPARE(disconnect(&presenter, SIGNAL(notificationPresented(uint)), presenter.notificationFeedbackPlayer, SLOT(addNotification(uint))), true);
 }
