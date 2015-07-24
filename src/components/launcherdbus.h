@@ -33,10 +33,13 @@ class LauncherDBus : public QObject, protected QDBusContext
     Q_CLASSINFO("D-Bus Interface", LIPSTICK_DBUS_LAUNCHER_MODEL_INTERFACE)
 
 public:
-    LauncherDBus(LauncherModel *model);
+    LauncherDBus(LauncherModel *model = 0);
     ~LauncherDBus();
 
     void requestLaunch(QString packageName);
+
+    void registerModel(LauncherModel *model);
+    void deregisterModel(LauncherModel *model);
 
 public slots:
     void updatingStarted(QString packageName, QString label, QString iconPath, QString desktopFile);
@@ -48,7 +51,7 @@ signals:
     void showUpdatingProgress(QString packageName);
 
 private:
-    LauncherModel *m_model;
+    QList<LauncherModel *> m_models;
 };
 
 #endif // LAUNCHERDBUS_H

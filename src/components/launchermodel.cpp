@@ -33,16 +33,19 @@
 // will fail and newly-installed icons will not be detected
 #define LAUNCHER_ICONS_PATH "/usr/share/icons/hicolor/86x86/apps/"
 
-#define LAUNCHER_KEY_FOR_PATH(path) ("LauncherOrder/" + path)
-
 // Time in millseconds to wait before removing temporary launchers
 #define LAUNCHER_UPDATING_REMOVAL_HOLDBACK_MS 3000
 
-static inline bool isDesktopFile(const QString &filename)
+static inline bool isDesktopFile(const QStringList &applicationPaths, const QString &filename)
 {
-    return (filename.startsWith(LAUNCHER_APPS_PATH) ||
-            filename.startsWith(QStandardPaths::writableLocation(QStandardPaths::ApplicationsLocation)))
-            && filename.endsWith(".desktop");
+    if (!filename.endsWith(QStringLiteral(".desktop"))) {
+        return false;
+    } else foreach (const QString &path, applicationPaths) {
+        if (filename.startsWith(path)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 static inline bool isIconFile(const QString &filename)
@@ -76,16 +79,7 @@ static inline bool isVisibleDesktopFile(const QString &filename)
     return item.isValid() && item.shouldDisplay();
 }
 
-LauncherModel::LauncherModel(QObject *parent) :
-    QObjectListModel(parent),
-    _fileSystemWatcher(),
-    _launcherSettings("nemomobile", "lipstick"),
-    _globalSettings("/usr/share/lipstick/lipstick.conf", QSettings::IniFormat),
-    _launcherMonitor(LAUNCHER_APPS_PATH, LAUNCHER_ICONS_PATH),
-    _launcherDBus(this),
-    _dbusWatcher(this),
-    _packageNameToDBusService(),
-    _temporaryLaunchers()
+static QStringList defaultDirectories()
 {
     QString userLocalAppsPath = QStandardPaths::writableLocation(QStandardPaths::ApplicationsLocation);
     QDir userLocalLauncherDir(userLocalAppsPath);
@@ -93,7 +87,56 @@ LauncherModel::LauncherModel(QObject *parent) :
         userLocalLauncherDir.mkpath(userLocalAppsPath);
     }
 
-    _launcherMonitor.setDirectories(QStringList() << LAUNCHER_APPS_PATH << userLocalAppsPath);
+    return QStringList() << QStringLiteral(LAUNCHER_APPS_PATH) << userLocalAppsPath;
+}
+
+Q_GLOBAL_STATIC(LauncherDBus, _launcherDBus);
+
+LauncherModel::LauncherModel(QObject *parent) :
+    QObjectListModel(parent),
+    _directories(defaultDirectories()),
+    _iconDirectories(LAUNCHER_ICONS_PATH),
+    _fileSystemWatcher(),
+    _launcherSettings("nemomobile", "lipstick"),
+    _globalSettings("/usr/share/lipstick/lipstick.conf", QSettings::IniFormat),
+    _launcherOrderPrefix(QStringLiteral("LauncherOrder/")),
+    _dbusWatcher(this),
+    _packageNameToDBusService(),
+    _temporaryLaunchers(),
+    _initialized(false)
+{
+    initialize();
+}
+
+LauncherModel::LauncherModel(InitializationMode, QObject *parent) :
+    QObjectListModel(parent),
+    _directories(defaultDirectories()),
+    _iconDirectories(LAUNCHER_ICONS_PATH),
+    _fileSystemWatcher(),
+    _launcherSettings("nemomobile", "lipstick"),
+    _globalSettings("/usr/share/lipstick/lipstick.conf", QSettings::IniFormat),
+    _launcherOrderPrefix(QStringLiteral("LauncherOrder/")),
+    _dbusWatcher(this),
+    _packageNameToDBusService(),
+    _temporaryLaunchers(),
+    _initialized(false)
+{
+}
+
+void LauncherModel::initialize()
+{
+    if (_initialized)
+        return;
+    _initialized = true;
+
+    _launcherDBus()->registerModel(this);
+
+    QStringList iconDirectories = _iconDirectories;
+    if (!iconDirectories.contains(LAUNCHER_ICONS_PATH))
+        iconDirectories << LAUNCHER_ICONS_PATH;
+
+    _launcherMonitor.setDirectories(_directories);
+    _launcherMonitor.setIconDirectories(iconDirectories);
 
     // Set up the monitor for icon and desktop file changes
     connect(&_launcherMonitor, SIGNAL(filesUpdated(const QStringList &, const QStringList &, const QStringList &)),
@@ -119,6 +162,7 @@ LauncherModel::LauncherModel(QObject *parent) :
 
 LauncherModel::~LauncherModel()
 {
+    _launcherDBus()->deregisterModel(this);
 }
 
 void LauncherModel::onFilesUpdated(const QStringList &added,
@@ -128,7 +172,7 @@ void LauncherModel::onFilesUpdated(const QStringList &added,
 
     // First, remove all removed launcher items before adding new ones
     foreach (const QString &filename, removed) {
-        if (isDesktopFile(filename)) {
+        if (isDesktopFile(_directories, filename)) {
             // Desktop file has been removed - remove launcher
             LauncherItem *item = itemInModel(filename);
             if (item != NULL) {
@@ -143,7 +187,7 @@ void LauncherModel::onFilesUpdated(const QStringList &added,
     }
 
     foreach (const QString &filename, added) {
-        if (isDesktopFile(filename)) {
+        if (isDesktopFile(_directories, filename)) {
             // New desktop file appeared - add launcher
             LauncherItem *item = itemInModel(filename);
 
@@ -198,7 +242,7 @@ void LauncherModel::onFilesUpdated(const QStringList &added,
     }
 
     foreach (const QString &filename, modifiedAndNeedUpdating) {
-        if (isDesktopFile(filename)) {
+        if (isDesktopFile(_directories, filename)) {
             // Desktop file has been updated - update launcher
             LauncherItem *item = itemInModel(filename);
             if (item != NULL) {
@@ -336,35 +380,88 @@ void LauncherModel::reorderItems()
 
 QStringList LauncherModel::directories() const
 {
-    return _launcherMonitor.directories();
+    return _directories;
+}
+
+static QStringList suffixDirectories(const QStringList &directories)
+{
+    QStringList copy = directories;
+    for (int i = 0; i < directories.count(); ++i) {
+        if (!directories.at(i).endsWith(QLatin1Char('/'))) {
+            copy.replace(i, directories.at(i) + QLatin1Char('/'));
+        }
+    }
+    return copy;
 }
 
 void LauncherModel::setDirectories(QStringList newDirectories)
 {
-    Q_UNUSED(newDirectories);
-    qWarning() << "Changing the directories of desktop files to watch not supported";
-    // TODO: Maybe add support for this to LauncherMonitor and call from here
-    //emit this->directoriesChanged();
+    newDirectories = suffixDirectories(newDirectories);
+
+    if (_directories != newDirectories) {
+        _directories = newDirectories;
+        emit directoriesChanged();
+
+        if (_initialized) {
+            _launcherMonitor.setDirectories(_directories);
+        }
+    }
 }
 
 QStringList LauncherModel::iconDirectories() const
 {
-    return _launcherMonitor.iconDirectories();
+    return _iconDirectories;
 }
 
 void LauncherModel::setIconDirectories(QStringList newDirectories)
 {
-    if (!newDirectories.contains(LAUNCHER_ICONS_PATH))
-        newDirectories << LAUNCHER_ICONS_PATH;
-    _launcherMonitor.setIconDirectories(newDirectories);
-    emit iconDirectoriesChanged();
+    newDirectories = suffixDirectories(newDirectories);
+
+    if (_iconDirectories != newDirectories) {
+        _iconDirectories = newDirectories;
+        emit iconDirectoriesChanged();
+
+        if (_initialized) {
+            newDirectories = _iconDirectories;
+            if (!newDirectories.contains(LAUNCHER_ICONS_PATH))
+                newDirectories << LAUNCHER_ICONS_PATH;
+            _launcherMonitor.setIconDirectories(newDirectories);
+        }
+    }
 }
 
-static QString desktopFileFromPackageName(const QString &packageName)
+QString LauncherModel::scope() const
+{
+    return _scope;
+}
+
+void LauncherModel::setScope(const QString &scope)
+{
+    if (_scope != scope) {
+        _scope = scope;
+        _launcherOrderPrefix = !_scope.isEmpty()
+                ? scope + QStringLiteral("/LauncherOrder/")
+                : QStringLiteral("LauncherOrder/");
+        emit scopeChanged();
+
+        if (_initialized) {
+            loadPositions();
+        }
+    }
+}
+
+static QString desktopFileFromPackageName(const QStringList &directories, const QString &packageName)
 {
     // Using the package name as base name for the desktop file is a good
     // heuristic, and usually works fine.
-    return QString(LAUNCHER_APPS_PATH) + packageName + ".desktop";
+    foreach (const QString &directory, directories) {
+        QString desktopFile = directory + packageName + QStringLiteral(".desktop");
+        if (QFile::exists(desktopFile)) {
+            return desktopFile;
+        }
+    }
+
+    return QStringLiteral(LAUNCHER_APPS_PATH) + packageName + QStringLiteral(".desktop");
 }
 
 void LauncherModel::updatingStarted(const QString &packageName, const QString &label,
@@ -379,7 +476,7 @@ void LauncherModel::updatingStarted(const QString &packageName, const QString &l
     _dbusWatcher.addWatchedService(serviceName);
 
     if (desktopFile.isEmpty()) {
-        desktopFile = desktopFileFromPackageName(packageName);
+        desktopFile = desktopFileFromPackageName(_directories, packageName);
     }
 
     LauncherItem *item = itemInModel(desktopFile);
@@ -400,7 +497,7 @@ void LauncherModel::updatingStarted(const QString &packageName, const QString &l
             item->setIconFilename(iconPath);
         }
 
-        if (!desktopFile.isEmpty() && isDesktopFile(desktopFile)) {
+        if (!desktopFile.isEmpty() && isDesktopFile(_directories, desktopFile)) {
             // Only update the .desktop file name if we actually consider
             // it a .desktop file in the paths we monitor for changes (JB#29427)
             item->setFilePath(desktopFile);
@@ -415,16 +512,18 @@ void LauncherModel::updatingStarted(const QString &packageName, const QString &l
         }
     }
 
-    if (!item) {
+    if (!item && isDesktopFile(_directories, desktopFile)) {
         // Newly-installed package: Create temporary icon with label and icon
         item = new LauncherItem(packageName, label, iconPath, desktopFile, this);
         setTemporary(item);
         addItem(item);
     }
 
-    item->setUpdatingProgress(-1);
-    item->setIsUpdating(true);
-    item->setPackageName(packageName);
+    if (item) {
+        item->setUpdatingProgress(-1);
+        item->setIsUpdating(true);
+        item->setPackageName(packageName);
+    }
 }
 
 void LauncherModel::updatingProgress(const QString &packageName, int progress,
@@ -466,7 +565,9 @@ void LauncherModel::updatingFinished(const QString &packageName,
     LauncherItem *item = packageInModel(packageName);
 
     if (!item) {
-        qWarning() << "Package not found in model:" << packageName;
+        if (_directories.contains(LAUNCHER_APPS_PATH)) {
+            qWarning() << "Package not found in model:" << packageName;
+        }
         return;
     }
 
@@ -540,18 +641,19 @@ void LauncherModel::removeTemporaryLaunchers()
 void LauncherModel::requestLaunch(const QString &packageName)
 {
     // Send launch request via D-Bus, so interested parties can act upon it
-    _launcherDBus.requestLaunch(packageName);
+    _launcherDBus()->requestLaunch(packageName);
 }
 
 void LauncherModel::savePositions()
 {
     _fileSystemWatcher.removePath(_launcherSettings.fileName());
-    _launcherSettings.remove("LauncherOrder");
+
+    _launcherSettings.remove(_launcherOrderPrefix.left(_launcherOrderPrefix.count() - 1));
     QList<LauncherItem *> *currentLauncherList = getList<LauncherItem>();
 
     int pos = 0;
     foreach (LauncherItem *item, *currentLauncherList) {
-        _launcherSettings.setValue(LAUNCHER_KEY_FOR_PATH(item->filePath()), pos);
+        _launcherSettings.setValue(_launcherOrderPrefix + item->filePath(), pos);
         ++pos;
     }
 
@@ -603,12 +705,12 @@ LauncherItem *LauncherModel::packageInModel(const QString &packageName)
     }
 
     // Fall back to trying to find the launcher via the .desktop file
-    return itemInModel(desktopFileFromPackageName(packageName));
+    return itemInModel(desktopFileFromPackageName(_directories, packageName));
 }
 
 QVariant LauncherModel::launcherPos(const QString &path)
 {
-    QString key = LAUNCHER_KEY_FOR_PATH(path);
+    QString key = _launcherOrderPrefix + path;
 
     if (_launcherSettings.contains(key)) {
         return _launcherSettings.value(key);

@@ -89,15 +89,19 @@ private:
     QPointer<LauncherFolderItem> mParentFolder;
 };
 
-
+class DeferredLauncherModel;
 class LIPSTICK_EXPORT LauncherFolderModel : public LauncherFolderItem
 {
     Q_OBJECT
+    Q_PROPERTY(QString scope READ scope WRITE setScope NOTIFY scopeChanged)
     Q_PROPERTY(QStringList directories READ directories WRITE setDirectories NOTIFY directoriesChanged)
     Q_PROPERTY(QStringList iconDirectories READ iconDirectories WRITE setIconDirectories NOTIFY iconDirectoriesChanged)
 
 public:
     LauncherFolderModel(QObject *parent = 0);
+
+    QString scope() const;
+    void setScope(const QString &scope);
 
     QStringList directories() const;
     void setDirectories(QStringList);
@@ -116,9 +120,19 @@ public slots:
     void save();
 
 signals:
+    void scopeChanged();
     void directoriesChanged();
     void iconDirectoriesChanged();
     void notifyLaunching(LauncherItem *item);
+
+protected:
+    enum InitializationMode {
+        DeferInitialization
+    };
+
+    explicit LauncherFolderModel(InitializationMode, QObject *parent = 0);
+
+    void initialize();
 
 private slots:
     void scheduleSave();
@@ -127,11 +141,11 @@ private slots:
 
 private:
     void saveFolder(QXmlStreamWriter &xml, LauncherFolderItem *folder);
-    static QString configDir();
 
-    LauncherModel *mLauncherModel;
+    DeferredLauncherModel *mLauncherModel;
     QTimer mSaveTimer;
     bool mLoading;
+    bool mInitialized;
 };
 
 #endif

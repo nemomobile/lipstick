@@ -34,6 +34,16 @@ static const QString CONFIG_FOLDER_SUBDIRECTORY("/lipstick/");
 static const QString CONFIG_MENU_FILENAME("applications.menu");
 static const QString DEFAULT_ICON_ID("icon-launcher-folder-01");
 
+static QString configDir()
+{
+    return QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + CONFIG_FOLDER_SUBDIRECTORY;
+}
+
+static QString absoluteConfigPath(const QString &fileName)
+{
+    return configDir() + fileName;
+}
+
 // This is modeled after the freedesktop.org menu files http://standards.freedesktop.org/menu-spec/latest/
 // but handles only the basic elements, i.e. no merging, filtering, layout, etc. is supported.
 
@@ -188,8 +198,7 @@ void LauncherFolderItem::loadDirectoryFile(const QString &filename)
 {
     mDirectoryFile = filename;
     if (!mDirectoryFile.startsWith('/')) {
-        QFileInfo fi(LauncherFolderModel::configFile());
-        mDirectoryFile = fi.absoluteDir().absoluteFilePath(mDirectoryFile);
+        mDirectoryFile = absoluteConfigPath(mDirectoryFile);
     }
 
     GKeyFile *keyfile = g_key_file_new();
@@ -212,8 +221,7 @@ void LauncherFolderItem::saveDirectoryFile()
 {
     QScopedPointer<QFile> dirFile;
     if (mDirectoryFile.isEmpty()) {
-        QFileInfo fi(LauncherFolderModel::configFile());
-        QTemporaryFile *tempFile = new QTemporaryFile(fi.absoluteDir().absoluteFilePath("FolderXXXXXX.directory"));
+        QTemporaryFile *tempFile = new QTemporaryFile(absoluteConfigPath("FolderXXXXXX.directory"));
         dirFile.reset(tempFile);
         tempFile->open();
         tempFile->setAutoRemove(false);
@@ -323,13 +331,49 @@ void LauncherFolderItem::handleRemoved(QObject *item)
     emit saveNeeded();
 }
 
+class DeferredLauncherModel : public LauncherModel
+{
+public:
+    explicit DeferredLauncherModel(QObject *parent = 0)
+        : LauncherModel(DeferInitialization, parent)
+    {
+    }
+
+    using LauncherModel::initialize;
+};
+
 //============
 
 LauncherFolderModel::LauncherFolderModel(QObject *parent)
     : LauncherFolderItem(parent)
-    , mLauncherModel(new LauncherModel(this))
+    , mLauncherModel(new DeferredLauncherModel(this))
     , mLoading(false)
+    , mInitialized(false)
 {
+    connect(mLauncherModel, &LauncherModel::directoriesChanged, this, &LauncherFolderModel::directoriesChanged);
+    connect(mLauncherModel, &LauncherModel::iconDirectoriesChanged, this, &LauncherFolderModel::iconDirectoriesChanged);
+
+    initialize();
+}
+
+LauncherFolderModel::LauncherFolderModel(InitializationMode, QObject *parent)
+    : LauncherFolderItem(parent)
+    , mLauncherModel(new DeferredLauncherModel(this))
+    , mLoading(false)
+    , mInitialized(false)
+{
+    connect(mLauncherModel, &LauncherModel::directoriesChanged, this, &LauncherFolderModel::directoriesChanged);
+    connect(mLauncherModel, &LauncherModel::iconDirectoriesChanged, this, &LauncherFolderModel::iconDirectoriesChanged);
+}
+
+void LauncherFolderModel::initialize()
+{
+    if (mInitialized)
+        return;
+    mInitialized = true;
+
+    mLauncherModel->initialize();
+
     mSaveTimer.setSingleShot(true);
     connect(mLauncherModel, SIGNAL(itemRemoved(QObject*)),
             this, SLOT(appRemoved(QObject*)));
@@ -345,6 +389,23 @@ LauncherFolderModel::LauncherFolderModel(QObject *parent)
     load();
 
     connect(this, SIGNAL(saveNeeded()), this, SLOT(scheduleSave()));
+}
+
+QString LauncherFolderModel::scope() const
+{
+    return mLauncherModel->scope();
+}
+
+void LauncherFolderModel::setScope(const QString &scope)
+{
+    if (mLauncherModel->scope() != scope) {
+        mLauncherModel->setScope(scope);
+        emit scopeChanged();
+
+        if (mInitialized) {
+            load();
+        }
+    }
 }
 
 QStringList LauncherFolderModel::directories() const
@@ -421,20 +482,22 @@ void LauncherFolderModel::scheduleSave()
         mSaveTimer.start(FOLDER_MODEL_SAVE_TIMER_MS);
 }
 
-QString LauncherFolderModel::configDir()
-{
-    return QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + CONFIG_FOLDER_SUBDIRECTORY;
-}
-
 QString LauncherFolderModel::configFile()
 {
     return configDir() + CONFIG_MENU_FILENAME;
 }
 
+static QString configurationFileForScope(const QString &scope)
+{
+    return !scope.isEmpty()
+            ? configDir() + scope + QStringLiteral(".menu")
+            : LauncherFolderModel::configFile();
+}
+
 void LauncherFolderModel::save()
 {
     mSaveTimer.stop();
-    QFile file(configFile());
+    QFile file(configurationFileForScope(mLauncherModel->scope()));
     if (!file.open(QIODevice::WriteOnly)) {
         qWarning() << "Failed to save apps menu" << configFile();
         return;
@@ -471,7 +534,7 @@ void LauncherFolderModel::load()
     mLoading = true;
     clear();
 
-    QFile file(configFile());
+    QFile file(configurationFileForScope(mLauncherModel->scope()));
     if (!file.open(QIODevice::ReadOnly)) {
         // We haven't saved a folder model yet - import all apps.
         import();

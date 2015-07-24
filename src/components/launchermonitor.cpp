@@ -29,6 +29,17 @@
  **/
 #define LAUNCHER_MONITOR_HOLDBACK_TIMEOUT_MS 2000
 
+LauncherMonitor::LauncherMonitor()
+    : QObject()
+    , m_watcher()
+    , m_holdbackTimer()
+    , m_knownFiles()
+    , m_addedFiles()
+    , m_modifiedFiles()
+    , m_removedFiles()
+{
+    initialize();
+}
 
 LauncherMonitor::LauncherMonitor(const QString &desktopFilesPath,
         const QString &iconFilesPath)
@@ -40,14 +51,7 @@ LauncherMonitor::LauncherMonitor(const QString &desktopFilesPath,
     , m_modifiedFiles()
     , m_removedFiles()
 {
-    m_holdbackTimer.setSingleShot(true);
-
-    QObject::connect(&m_watcher, SIGNAL(directoryChanged(const QString &)),
-            this, SLOT(onDirectoryChanged(const QString &)));
-    QObject::connect(&m_watcher, SIGNAL(fileChanged(const QString &)),
-            this, SLOT(onFileChanged(const QString &)));
-    QObject::connect(&m_holdbackTimer, SIGNAL(timeout()),
-            this, SLOT(onHoldbackTimerTimeout()));
+    initialize();
 
     m_iconFilesPaths << iconFilesPath;
     m_desktopFilesPaths << desktopFilesPath;
@@ -60,6 +64,18 @@ LauncherMonitor::LauncherMonitor(const QString &desktopFilesPath,
     // available by the time the icons will be processed
     onDirectoryChanged(desktopFilesPath);
     onDirectoryChanged(iconFilesPath);
+}
+
+void LauncherMonitor::initialize()
+{
+    m_holdbackTimer.setSingleShot(true);
+
+    QObject::connect(&m_watcher, SIGNAL(directoryChanged(const QString &)),
+            this, SLOT(onDirectoryChanged(const QString &)));
+    QObject::connect(&m_watcher, SIGNAL(fileChanged(const QString &)),
+            this, SLOT(onFileChanged(const QString &)));
+    QObject::connect(&m_holdbackTimer, SIGNAL(timeout()),
+            this, SLOT(onHoldbackTimerTimeout()));
 }
 
 LauncherMonitor::~LauncherMonitor()
