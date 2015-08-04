@@ -472,13 +472,17 @@ QSGNode *LipstickCompositorWindow::updatePaintNode(QSGNode *old, UpdatePaintNode
     // in this case (and disable HWC which is anyways not needed). Similarily,
     // if we are in 'fallback' mode and there are no more references, we want
     // to switch to the hwc path
+    // Added to this logic, we have the case of a window surface suddenly
+    // appearing with a shm buffer. We then need to switch to normal
+    // composition.
     bool haveRefs = lcw_checkForVisibleReferences(m_refs);
-    int wantedNodeType = haveRefs ? QSG_HWC_NODE_TYPE : QSGNode::GeometryNodeType;
+    bool hwBuffer = surface() && surface()->type() == QWaylandSurface::Texture;
+    int wantedNodeType = haveRefs && hwBuffer ? QSG_HWC_NODE_TYPE : QSGNode::GeometryNodeType;
     if (old && old->type() == wantedNodeType) {
         delete old;
         old = 0;
     }
-    if (haveRefs)
+    if (haveRefs || !hwBuffer)
         return QWaylandSurfaceItem::updatePaintNode(old, data);
 
     // No surface, abort..
