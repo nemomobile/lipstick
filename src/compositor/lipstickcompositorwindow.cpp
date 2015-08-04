@@ -477,8 +477,8 @@ QSGNode *LipstickCompositorWindow::updatePaintNode(QSGNode *old, UpdatePaintNode
     // composition.
     bool haveRefs = lcw_checkForVisibleReferences(m_refs);
     bool hwBuffer = surface() && surface()->type() == QWaylandSurface::Texture;
-    int wantedNodeType = haveRefs && hwBuffer ? QSG_HWC_NODE_TYPE : QSGNode::GeometryNodeType;
-    if (old && old->type() == wantedNodeType) {
+    int wantedNodeType = !haveRefs && hwBuffer ? QSG_HWC_NODE_TYPE : QSGNode::GeometryNodeType;
+    if (old && old->type() != wantedNodeType) {
         delete old;
         old = 0;
     }
