@@ -16,6 +16,47 @@
 #include "notificationmanager.h"
 #include "notificationlistmodel.h"
 
+namespace {
+
+int compare(const LipstickNotification &lhs, const LipstickNotification &rhs)
+{
+    const QDateTime lhsTimestamp(lhs.timestamp()), rhsTimestamp(rhs.timestamp());
+    if (lhsTimestamp < rhsTimestamp) {
+        return -1;
+    }
+    if (rhsTimestamp < lhsTimestamp) {
+        return 1;
+    }
+    return 0;
+}
+
+bool operator<(const LipstickNotification &lhs, const LipstickNotification &rhs)
+{
+    int timestampComparison(compare(lhs, rhs));
+    if (timestampComparison > 0) {
+        // Later notifications sort first
+        return true;
+    } else if (timestampComparison == 0) {
+        // For matching timestamps, sort the higher ID first
+        if (lhs.replacesId() > rhs.replacesId()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool compareNotifications(const QObject *lhs, const QObject *rhs)
+{
+    return *(static_cast<const LipstickNotification *>(lhs)) < *(static_cast<const LipstickNotification *>(rhs));
+}
+
+void sortNotifications(QList<QObject *> &notifications)
+{
+    std::sort(notifications.begin(), notifications.end(), compareNotifications);
+}
+
+}
+
 NotificationListModel::NotificationListModel(QObject *parent) :
     QObjectListModel(parent),
     m_populated(false)
@@ -49,10 +90,11 @@ void NotificationListModel::init()
         foreach(uint id, NotificationManager::instance()->notificationIds()) {
             LipstickNotification *notification = NotificationManager::instance()->notification(id);
             if (notificationShouldBeShown(notification)) {
-                insertItem(indexFor(notification), notification);
+                initialNotifications.append(notification);
             }
         }
 
+        sortNotifications(initialNotifications);
         addItems(initialNotifications);
     }
 
@@ -94,13 +136,8 @@ int NotificationListModel::indexFor(LipstickNotification *notification)
         if (notification->replacesId() == notificationAtIndex->replacesId()) {
             continue;
         }
-
-        if (notification->timestamp() > notificationAtIndex->timestamp()) {
+        if (*notification < *notificationAtIndex) {
             return index;
-        } else if (notification->timestamp() == notificationAtIndex->timestamp()) {
-            if (notification->replacesId() > notificationAtIndex->replacesId()) {
-                return index;
-            }
         }
     }
     return itemCount();
