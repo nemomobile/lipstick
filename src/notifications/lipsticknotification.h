@@ -170,6 +170,8 @@ public:
     bool restored() const;
 
     //! \internal
+    quint64 internalTimestamp() const;
+
     /*!
      * Creates a copy of an existing representation of a notification.
      * This constructor should only be used for populating the notification
@@ -260,6 +262,10 @@ private:
 
     //! Expiration timeout for the notification
     int expireTimeout_;
+
+    // Cached values for speeding up comparisons:
+    int priority_;
+    quint64 timestamp_;
 };
 
 Q_DECLARE_METATYPE(LipstickNotification)

@@ -20,7 +20,7 @@ namespace {
 
 int compare(const LipstickNotification &lhs, const LipstickNotification &rhs)
 {
-    const QDateTime lhsTimestamp(lhs.timestamp()), rhsTimestamp(rhs.timestamp());
+    const quint64 lhsTimestamp(lhs.internalTimestamp()), rhsTimestamp(rhs.internalTimestamp());
     if (lhsTimestamp < rhsTimestamp) {
         return -1;
     }

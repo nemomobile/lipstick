@@ -28,7 +28,9 @@ LipstickNotification::LipstickNotification(const QString &appName, uint replaces
     body_(body),
     actions_(actions),
     hints_(hints),
-    expireTimeout_(expireTimeout)
+    expireTimeout_(expireTimeout),
+    priority_(hints.value(NotificationManager::HINT_PRIORITY).toInt()),
+    timestamp_(hints.value(NotificationManager::HINT_TIMESTAMP).toDateTime().toMSecsSinceEpoch())
 {
     updateHintValues();
 }
@@ -36,7 +38,9 @@ LipstickNotification::LipstickNotification(const QString &appName, uint replaces
 LipstickNotification::LipstickNotification(QObject *parent) :
     QObject(parent),
     replacesId_(0),
-    expireTimeout_(-1)
+    expireTimeout_(-1),
+    priority_(0),
+    timestamp_(0)
 {
 }
 
@@ -49,9 +53,11 @@ LipstickNotification::LipstickNotification(const LipstickNotification &notificat
     body_(notification.body_),
     actions_(notification.actions_),
     hints_(notification.hints_),
-    expireTimeout_(notification.expireTimeout_)
+    hintValues_(notification.hintValues_),
+    expireTimeout_(notification.expireTimeout_),
+    priority_(notification.priority_),
+    timestamp_(notification.timestamp_)
 {
-    updateHintValues();
 }
 
 QString LipstickNotification::appName() const
@@ -128,13 +134,13 @@ QVariantMap LipstickNotification::hintValues() const
 void LipstickNotification::setHints(const QVariantHash &hints)
 {
     QString oldIcon = icon();
-    QDateTime oldTimestamp = timestamp();
+    quint64 oldTimestamp = timestamp_;
     QString oldPreviewIcon = previewIcon();
     QString oldPreviewSummary = previewSummary();
     QString oldPreviewBody = previewBody();
     int oldUrgency = urgency();
     int oldItemCount = itemCount();
-    int oldPriority = priority();
+    int oldPriority = priority_;
     QString oldCategory = category();
 
     hints_ = hints;
@@ -144,7 +150,8 @@ void LipstickNotification::setHints(const QVariantHash &hints)
         emit iconChanged();
     }
 
-    if (oldTimestamp != timestamp()) {
+    timestamp_ = hints_.value(NotificationManager::HINT_TIMESTAMP).toDateTime().toMSecsSinceEpoch();
+    if (oldTimestamp != timestamp_) {
         emit timestampChanged();
     }
 
@@ -168,7 +175,8 @@ void LipstickNotification::setHints(const QVariantHash &hints)
         emit itemCountChanged();
     }
 
-    if (oldPriority != priority()) {
+    priority_ = hints_.value(NotificationManager::HINT_PRIORITY).toInt();
+    if (oldPriority != priority_) {
         emit priorityChanged();
     }
 
@@ -200,7 +208,7 @@ QString LipstickNotification::icon() const
 
 QDateTime LipstickNotification::timestamp() const
 {
-    return hints_.value(NotificationManager::HINT_TIMESTAMP).toDateTime();
+    return QDateTime::fromMSecsSinceEpoch(timestamp_);
 }
 
 QString LipstickNotification::previewIcon() const
@@ -230,7 +238,7 @@ int LipstickNotification::itemCount() const
 
 int LipstickNotification::priority() const
 {
-    return hints_.value(NotificationManager::HINT_PRIORITY).toInt();
+    return priority_;
 }
 
 QString LipstickNotification::category() const
@@ -325,6 +333,11 @@ bool LipstickNotification::restored() const
     return hints_.value(NotificationManager::HINT_RESTORED).toBool();
 }
 
+quint64 LipstickNotification::internalTimestamp() const
+{
+    return timestamp_;
+}
+
 void LipstickNotification::updateHintValues()
 {
     hintValues_.clear();
@@ -382,6 +395,11 @@ const QDBusArgument &operator>>(const QDBusArgument &argument, LipstickNotificat
     argument >> notification.hints_;
     argument >> notification.expireTimeout_;
     argument.endStructure();
+
+    notification.priority_ = notification.hints_.value(NotificationManager::HINT_PRIORITY).toInt();
+    notification.timestamp_ = notification.hints_.value(NotificationManager::HINT_TIMESTAMP).toDateTime().toMSecsSinceEpoch();
+    notification.updateHintValues();
+
     return argument;
 }
 
