@@ -54,35 +54,52 @@ QStringList LauncherWatcherModel::filePaths()
 
 void LauncherWatcherModel::setFilePaths(QStringList paths)
 {
-    QString oldPaths = filePaths().join(',');
-    reset();
-    QStringList addedPaths;
-    foreach (QString path, paths) {
-        if (!addedPaths.contains(path)) {
-            addItemIfValid(path);
-            // we don't really care whether it was added or not,
-            // this is just for avoiding duplicates to be added
-            addedPaths.append(path);
+    const QStringList oldPaths = filePaths();
+
+    int insertIndex = 0;
+    for (int i = 0; i < paths.count(); ++i) {
+        const QString path = paths.at(i);
+        bool duplicate = false;
+        for (int j = 0; j < i; ++j) {
+            if ((duplicate = paths.at(j) == path)) {
+                break;
+            }
         }
-    }
-    QString newPaths = filePaths().join(',');
-    if (newPaths != oldPaths) {
-        emit filePathsChanged();
-    }
-}
+        if (duplicate) {
+            continue;
+        }
 
-void LauncherWatcherModel::addItemIfValid(const QString &path)
-{
-    LAUNCHER_DEBUG("Creating LauncherItem for desktop entry" << path);
-    LauncherItem *item = new LauncherItem(path, this);
+        int removeIndex = -1;
+        for (int j = insertIndex; j < itemCount(); ++j) {
+            if (static_cast<LauncherItem *>(get(j))->filePath() == path) {
+                removeIndex = j;
+                break;
+            }
+        }
 
-    bool isValid = item->isValid();
-    if (isValid) {
-        addItem(item);
-        _fileSystemWatcher.addPath(path);
-    } else {
-        LAUNCHER_DEBUG("Item" << path << "is not valid");
+        if (removeIndex > insertIndex) {
+            move(removeIndex, insertIndex);
+        } else if (removeIndex != insertIndex) {
+            LauncherItem *item = new LauncherItem(path, this);
+            if (item->isValid()) {
+                insertItem(insertIndex, item);
+                _fileSystemWatcher.addPath(path);
+            } else {
+                delete item;
+                continue;
+            }
+        }
+        ++insertIndex;
+    }
+
+    while (insertIndex < itemCount()) {
+        LauncherItem *item = static_cast<LauncherItem *>(get(insertIndex));
+        _fileSystemWatcher.removePath(item->filePath());
+        removeItem(insertIndex);
         delete item;
-        item = NULL;
+    }
+
+    if (filePaths() != oldPaths) {
+        emit filePathsChanged();
     }
 }
