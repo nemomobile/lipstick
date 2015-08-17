@@ -83,6 +83,9 @@ const char *NotificationManager::HINT_OWNER = "x-nemo-owner";
 const char *NotificationManager::HINT_MAX_CONTENT_LINES = "x-nemo-max-content-lines";
 const char *NotificationManager::HINT_RESTORED = "x-nemo-restored";
 
+// Exported for unit test:
+int MaxNotificationRestoreCount = 1000;
+
 namespace {
 
 const int DefaultNotificationPriority = 50;
@@ -132,19 +135,25 @@ QPair<QString, QString> processProperties(uint pid)
     return rv;
 }
 
+bool notificationReverseOrder(const LipstickNotification *lhs, const LipstickNotification *rhs)
+{
+    // Sort least significant notifications first
+    return *rhs < *lhs;
+}
+
 }
 
 NotificationManager *NotificationManager::instance_ = 0;
 
-NotificationManager *NotificationManager::instance()
+NotificationManager *NotificationManager::instance(bool owner)
 {
     if (instance_ == 0) {
-        instance_ = new NotificationManager(qApp);
+        instance_ = new NotificationManager(qApp, owner);
     }
     return instance_;
 }
 
-NotificationManager::NotificationManager(QObject *parent) :
+NotificationManager::NotificationManager(QObject *parent, bool owner) :
     QObject(parent),
     QDBusContext(),
     previousNotificationID(0),
@@ -154,26 +163,28 @@ NotificationManager::NotificationManager(QObject *parent) :
     committed(true),
     nextExpirationTime(0)
 {
-    qDBusRegisterMetaType<QVariantHash>();
-    qDBusRegisterMetaType<LipstickNotification>();
-    qDBusRegisterMetaType<NotificationList>();
+    if (owner) {
+        qDBusRegisterMetaType<QVariantHash>();
+        qDBusRegisterMetaType<LipstickNotification>();
+        qDBusRegisterMetaType<NotificationList>();
 
-    new NotificationManagerAdaptor(this);
-    QDBusConnection::sessionBus().registerService("org.freedesktop.Notifications");
-    QDBusConnection::sessionBus().registerObject("/org/freedesktop/Notifications", this);
+        new NotificationManagerAdaptor(this);
+        QDBusConnection::sessionBus().registerService("org.freedesktop.Notifications");
+        QDBusConnection::sessionBus().registerObject("/org/freedesktop/Notifications", this);
 
-    connect(categoryDefinitionStore, SIGNAL(categoryDefinitionUninstalled(QString)), this, SLOT(removeNotificationsWithCategory(QString)));
-    connect(categoryDefinitionStore, SIGNAL(categoryDefinitionModified(QString)), this, SLOT(updateNotificationsWithCategory(QString)));
+        connect(categoryDefinitionStore, SIGNAL(categoryDefinitionUninstalled(QString)), this, SLOT(removeNotificationsWithCategory(QString)));
+        connect(categoryDefinitionStore, SIGNAL(categoryDefinitionModified(QString)), this, SLOT(updateNotificationsWithCategory(QString)));
 
-    // Commit the modifications to the database 10 seconds after the last modification so that writing to disk doesn't affect user experience
-    databaseCommitTimer.setInterval(10000);
-    databaseCommitTimer.setSingleShot(true);
-    connect(&databaseCommitTimer, SIGNAL(timeout()), this, SLOT(commit()));
+        // Commit the modifications to the database 10 seconds after the last modification so that writing to disk doesn't affect user experience
+        databaseCommitTimer.setInterval(10000);
+        databaseCommitTimer.setSingleShot(true);
+        connect(&databaseCommitTimer, SIGNAL(timeout()), this, SLOT(commit()));
 
-    expirationTimer.setSingleShot(true);
-    connect(&expirationTimer, SIGNAL(timeout()), this, SLOT(expire()));
+        expirationTimer.setSingleShot(true);
+        connect(&expirationTimer, SIGNAL(timeout()), this, SLOT(expire()));
+    }
 
-    restoreNotifications();
+    restoreNotifications(owner);
 }
 
 NotificationManager::~NotificationManager()
@@ -570,11 +581,11 @@ void NotificationManager::publish(const LipstickNotification *notification, uint
     }
 }
 
-void NotificationManager::restoreNotifications()
+void NotificationManager::restoreNotifications(bool update)
 {
     if (connectToDatabase()) {
         if (checkTableValidity()) {
-            fetchData();
+            fetchData(update);
         } else {
             database->close();
         }
@@ -746,7 +757,7 @@ bool NotificationManager::recreateTable(const QString &tableName, const QString 
     return result;
 }
 
-void NotificationManager::fetchData()
+void NotificationManager::fetchData(bool update)
 {
     // Gather actions for each notification
     QSqlQuery actionsQuery("SELECT * FROM actions", *database);
@@ -755,7 +766,7 @@ void NotificationManager::fetchData()
     int actionsTableActionFieldIndex = actionsRecord.indexOf("action");
     QHash<uint, QStringList> actions;
     while (actionsQuery.next()) {
-        uint id = actionsQuery.value(actionsTableIdFieldIndex).toUInt();
+        const uint id = actionsQuery.value(actionsTableIdFieldIndex).toUInt();
         actions[id].append(actionsQuery.value(actionsTableActionFieldIndex).toString());
     }
 
@@ -767,7 +778,7 @@ void NotificationManager::fetchData()
     int hintsTableValueFieldIndex = hintsRecord.indexOf("value");
     QHash<uint, QVariantHash> hints;
     while (hintsQuery.next()) {
-        uint id = hintsQuery.value(hintsTableIdFieldIndex).toUInt();
+        const uint id = hintsQuery.value(hintsTableIdFieldIndex).toUInt();
         const QString hintName(hintsQuery.value(hintsTableHintFieldIndex).toString());
         const QVariant hintValue(hintsQuery.value(hintsTableValueFieldIndex));
 
@@ -791,11 +802,12 @@ void NotificationManager::fetchData()
     int expirationTableExpireAtFieldIndex = expirationRecord.indexOf("expire_at");
     QHash<uint, qint64> expireAt;
     while (expirationQuery.next()) {
-        uint id = expirationQuery.value(expirationTableIdFieldIndex).toUInt();
+        const uint id = expirationQuery.value(expirationTableIdFieldIndex).toUInt();
         expireAt.insert(id, expirationQuery.value(expirationTableExpireAtFieldIndex).value<qint64>());
     }
 
     const qint64 currentTime(QDateTime::currentDateTimeUtc().toMSecsSinceEpoch());
+    QList<LipstickNotification *> activeNotifications;
     QList<uint> expiredIds;
     qint64 nextTimeout = std::numeric_limits<qint64>::max();
     bool unexpiredRemaining = false;
@@ -810,7 +822,7 @@ void NotificationManager::fetchData()
     int notificationsTableBodyFieldIndex = notificationsRecord.indexOf("body");
     int notificationsTableExpireTimeoutFieldIndex = notificationsRecord.indexOf("expire_timeout");
     while (notificationsQuery.next()) {
-        uint id = notificationsQuery.value(notificationsTableIdFieldIndex).toUInt();
+        const uint id = notificationsQuery.value(notificationsTableIdFieldIndex).toUInt();
         QString appName = notificationsQuery.value(notificationsTableAppNameFieldIndex).toString();
         QString appIcon = notificationsQuery.value(notificationsTableAppIconFieldIndex).toString();
         QString summary = notificationsQuery.value(notificationsTableSummaryFieldIndex).toString();
@@ -818,7 +830,7 @@ void NotificationManager::fetchData()
         int expireTimeout = notificationsQuery.value(notificationsTableExpireTimeoutFieldIndex).toInt();
 
         bool expired = false;
-        if (expireAt.contains(id)) {
+        if (update && expireAt.contains(id)) {
             const qint64 expiry(expireAt.value(id));
             if (expiry <= currentTime) {
                 expired = true;
@@ -840,26 +852,54 @@ void NotificationManager::fetchData()
         }
 
         if (!expired) {
-            connect(notification, SIGNAL(actionInvoked(QString)), this, SLOT(invokeAction(QString)), Qt::QueuedConnection);
-            connect(notification, SIGNAL(removeRequested()), this, SLOT(removeNotificationIfUserRemovable()), Qt::QueuedConnection);
-
-            NOTIFICATIONS_DEBUG("RESTORED:" << appName << appIcon << summary << body << actions[id] << hints[id] << expireTimeout << "->" << id);
-            emit notificationModified(id);
+            activeNotifications.append(notification);
         } else {
             NOTIFICATIONS_DEBUG("EXPIRED AT RESTORE:" << appName << appIcon << summary << body << actions[id] << hints[id] << expireTimeout << "->" << id);
             expiredIds.append(id);
         }
     }
 
-    CloseNotifications(expiredIds, NotificationExpired);
+    int cullCount(activeNotifications.count() - MaxNotificationRestoreCount);
+    if (update && cullCount > 0) {
+        // Cull the least relevant notifications from this set
+        std::sort(activeNotifications.begin(), activeNotifications.end(), notificationReverseOrder);
 
-    nextExpirationTime = unexpiredRemaining ? nextTimeout : 0;
-    if (nextExpirationTime) {
-        const qint64 nextTriggerInterval(nextExpirationTime - currentTime);
-        expirationTimer.start(static_cast<int>(std::min<qint64>(nextTriggerInterval, std::numeric_limits<int>::max())));
+        foreach (LipstickNotification *n, activeNotifications) {
+            const QVariant userRemovable = n->hints().value(HINT_USER_REMOVABLE);
+            if (!userRemovable.isValid() || userRemovable.toBool()) {
+                const uint id = n->replacesId();
+                NOTIFICATIONS_DEBUG("CULLED AT RESTORE:" << n->appName() << n->appIcon() << n->summary() << n->body() << actions[id] << hints[id] << n->expireTimeout() << "->" << id);
+                expiredIds.append(id);
+
+                if (--cullCount == 0) {
+                    break;
+                }
+            }
+        }
     }
 
-    qWarning() << "Notifications restored:" << notifications.count();
+    if (update) {
+        CloseNotifications(expiredIds, NotificationExpired);
+
+        nextExpirationTime = unexpiredRemaining ? nextTimeout : 0;
+        if (nextExpirationTime) {
+            const qint64 nextTriggerInterval(nextExpirationTime - currentTime);
+            expirationTimer.start(static_cast<int>(std::min<qint64>(nextTriggerInterval, std::numeric_limits<int>::max())));
+        }
+    }
+
+    foreach (LipstickNotification *n, notifications) {
+        const uint id = n->replacesId();
+        connect(n, SIGNAL(actionInvoked(QString)), this, SLOT(invokeAction(QString)), Qt::QueuedConnection);
+        connect(n, SIGNAL(removeRequested()), this, SLOT(removeNotificationIfUserRemovable()), Qt::QueuedConnection);
+
+        NOTIFICATIONS_DEBUG("RESTORED:" << n->appName() << n->appIcon() << n->summary() << n->body() << actions[id] << hints[id] << n->expireTimeout() << "->" << id);
+        emit notificationModified(id);
+    }
+
+    if (update) {
+        qWarning() << "Notifications restored:" << notifications.count();
+    }
 }
 
 void NotificationManager::commit()

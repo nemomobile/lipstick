@@ -24,7 +24,7 @@
 class NotificationManagerStub : public StubBase {
   public:
    enum NotificationClosedReason { NotificationExpired=1, NotificationDismissedByUser, CloseNotificationCalled } ;
-  virtual NotificationManager * instance();
+  virtual NotificationManager * instance(bool owner = true);
   virtual LipstickNotification * notification(uint id) const;
   virtual QList<uint> notificationIds() const;
   virtual QStringList GetCapabilities();
@@ -40,13 +40,15 @@ class NotificationManagerStub : public StubBase {
   virtual void removeNotificationIfUserRemovable(uint id);
   virtual void removeUserRemovableNotifications();
   virtual void expire();
-  virtual void NotificationManagerConstructor(QObject *parent);
+  virtual void NotificationManagerConstructor(QObject *parent, bool owner);
   virtual void NotificationManagerDestructor();
 }; 
 
 // 2. IMPLEMENT STUB
-NotificationManager * NotificationManagerStub::instance() {
-  stubMethodEntered("instance");
+NotificationManager * NotificationManagerStub::instance(bool owner) {
+  QList<ParameterBase*> params;
+  params.append( new Parameter<bool >(owner));
+  stubMethodEntered("instance",params);
   return stubReturnValue<NotificationManager *>("instance");
 }
 
@@ -147,9 +149,9 @@ void NotificationManagerStub::expire() {
   stubMethodEntered("expire");
 }
 
-void NotificationManagerStub::NotificationManagerConstructor(QObject *parent) {
+void NotificationManagerStub::NotificationManagerConstructor(QObject *parent, bool owner) {
   Q_UNUSED(parent);
-
+  Q_UNUSED(owner);
 }
 void NotificationManagerStub::NotificationManagerDestructor() {
 
@@ -186,9 +188,9 @@ const char *NotificationManager::HINT_MAX_CONTENT_LINES = "x-nemo-max-content-li
 const char *NotificationManager::HINT_RESTORED = "x-nemo-restored";
 
 NotificationManager *NotificationManager::instance_ = 0;
-NotificationManager * NotificationManager::instance() {
+NotificationManager * NotificationManager::instance(bool owner) {
   if (instance_ == 0) {
-    instance_ = new NotificationManager;
+    instance_ = new NotificationManager(qApp, owner);
   }
   return instance_;
 }
@@ -253,8 +255,8 @@ void NotificationManager::expire() {
   gNotificationManagerStub->expire();
 }
 
-NotificationManager::NotificationManager(QObject *parent) {
-  gNotificationManagerStub->NotificationManagerConstructor(parent);
+NotificationManager::NotificationManager(QObject *parent, bool owner) {
+  gNotificationManagerStub->NotificationManagerConstructor(parent, owner);
 }
 
 NotificationManager::~NotificationManager() {

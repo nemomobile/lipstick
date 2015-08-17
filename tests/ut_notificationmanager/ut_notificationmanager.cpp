@@ -383,13 +383,20 @@ void Ut_NotificationManager::testNotEnoughDiskSpaceToOpenDatabase()
     QCOMPARE(qSqlDatabaseOpenCalledCount, 0);
 }
 
+extern int MaxNotificationRestoreCount;
+
 void Ut_NotificationManager::testNotificationsAreRestoredOnConstruction()
 {
+    const int oldValue = MaxNotificationRestoreCount;
+    MaxNotificationRestoreCount = 2;
+
     // Make the database return two notifications with different values
     QHash<int, QVariant> notification1Values;
     QHash<int, QVariant> notification2Values;
     // Also include a notification which has expired
     QHash<int, QVariant> notification3Values;
+    // Include a notification which will be excluded by the max restore count
+    QHash<int, QVariant> notification4Values;
     notification1Values.insert(0, 1);
     notification1Values.insert(1, "appName1");
     notification1Values.insert(2, "appIcon1");
@@ -408,8 +415,14 @@ void Ut_NotificationManager::testNotificationsAreRestoredOnConstruction()
     notification3Values.insert(3, "summary3");
     notification3Values.insert(4, "body3");
     notification3Values.insert(5, 3);
+    notification4Values.insert(0, 4);
+    notification4Values.insert(1, "appName4");
+    notification4Values.insert(2, "appIcon4");
+    notification4Values.insert(3, "summary4");
+    notification4Values.insert(4, "body4");
+    notification4Values.insert(5, 4);
     QList<QHash<int, QVariant> > notificationValues;
-    notificationValues << notification1Values << notification2Values << notification3Values;
+    notificationValues << notification1Values << notification2Values << notification3Values << notification4Values;
     qSqlQueryValues["SELECT * FROM notifications"].append(notificationValues);
     QHash<uint, QHash<int, QVariant> > notificationValuesById;
     notificationValuesById.insert(1, notification1Values);
@@ -440,36 +453,46 @@ void Ut_NotificationManager::testNotificationsAreRestoredOnConstruction()
     notificationActionsById.insert(1, QStringList() << "action1" << "Action 1");
     notificationActionsById.insert(2, QStringList() << "action2" << "Action 2");
 
+    const QDateTime timestamp(QDateTime::currentDateTimeUtc());
+    const QDateTime earlyTimestamp(QDateTime::currentDateTimeUtc().addSecs(-1));
     QHash<int, QVariant> notification1Hint1;
     QHash<int, QVariant> notification1Hint2;
     QHash<int, QVariant> notification2Hint1;
     QHash<int, QVariant> notification2Hint2;
     QHash<int, QVariant> notification3Hint1;
     QHash<int, QVariant> notification3Hint2;
+    QHash<int, QVariant> notification4Hint1;
+    QHash<int, QVariant> notification4Hint2;
     notification1Hint1.insert(0, 1);
-    notification1Hint1.insert(1, "hint1-1");
-    notification1Hint1.insert(2, "value1-1");
+    notification1Hint1.insert(1, "hint1");
+    notification1Hint1.insert(2, "value1");
     notification1Hint2.insert(0, 1);
-    notification1Hint2.insert(1, "hint1-2");
-    notification1Hint2.insert(2, "value1-2");
+    notification1Hint2.insert(1, "x-nemo-timestamp");
+    notification1Hint2.insert(2, timestamp);
     notification2Hint1.insert(0, 2);
-    notification2Hint1.insert(1, "hint2-1");
-    notification2Hint1.insert(2, "value2-1");
+    notification2Hint1.insert(1, "hint2");
+    notification2Hint1.insert(2, "value2");
     notification2Hint2.insert(0, 2);
-    notification2Hint2.insert(1, "hint2-2");
-    notification2Hint2.insert(2, "value2-2");
+    notification2Hint2.insert(1, "x-nemo-timestamp");
+    notification2Hint2.insert(2, timestamp);
     notification3Hint1.insert(0, 3);
-    notification3Hint1.insert(1, "hint3-1");
-    notification3Hint1.insert(2, "value3-1");
+    notification3Hint1.insert(1, "hint3");
+    notification3Hint1.insert(2, "value3");
     notification3Hint2.insert(0, 3);
-    notification3Hint2.insert(1, "hint3-2");
-    notification3Hint2.insert(2, "value3-2");
+    notification3Hint2.insert(1, "x-nemo-timestamp");
+    notification3Hint2.insert(2, timestamp);
+    notification4Hint1.insert(0, 4);
+    notification4Hint1.insert(1, "hint4");
+    notification4Hint1.insert(2, "value4");
+    notification4Hint2.insert(0, 4);
+    notification4Hint2.insert(1, "x-nemo-timestamp");
+    notification4Hint2.insert(2, earlyTimestamp);
     QList<QHash<int, QVariant> > notificationHints;
-    notificationHints << notification1Hint1 << notification1Hint2 << notification2Hint1 << notification2Hint2 << notification3Hint1 << notification3Hint2;
+    notificationHints << notification1Hint1 << notification1Hint2 << notification2Hint1 << notification2Hint2 << notification3Hint1 << notification3Hint2 << notification4Hint1 << notification4Hint2;
     qSqlQueryValues["SELECT * FROM hints"].append(notificationHints);
     QHash<uint, QList<QPair<QString, QVariant> > > notificationHintsById;
-    notificationHintsById.insert(1, QList<QPair<QString, QVariant> >() << qMakePair(QString("hint1-1"), QVariant("value1-1")) << qMakePair(QString("hint1-2"), QVariant("value1-2")));
-    notificationHintsById.insert(2, QList<QPair<QString, QVariant> >() << qMakePair(QString("hint2-1"), QVariant("value2-1")) << qMakePair(QString("hint2-2"), QVariant("value2-2")));
+    notificationHintsById.insert(1, QList<QPair<QString, QVariant> >() << qMakePair(QString("hint1"), QVariant("value1")) << qMakePair(QString("x-nemo-timestamp"), QVariant(timestamp)));
+    notificationHintsById.insert(2, QList<QPair<QString, QVariant> >() << qMakePair(QString("hint2"), QVariant("value2")) << qMakePair(QString("x-nemo-timestamp"), QVariant(timestamp)));
 
     QHash<int, QVariant> notification3Expiration;
     notification3Expiration.insert(0, 3);
@@ -482,8 +505,11 @@ void Ut_NotificationManager::testNotificationsAreRestoredOnConstruction()
     NotificationManager *manager = NotificationManager::instance();
     QList<uint> ids = manager->notificationIds();
     QCOMPARE(ids.count(), notificationValuesById.count());
+    QCOMPARE(ids.toSet(), notificationValuesById.keys().toSet());
     // The expired notification should not be reported
     QCOMPARE(ids.contains(3), false);
+    // The excess notification should not be reported
+    QCOMPARE(ids.contains(4), false);
     foreach (uint id, notificationValuesById.keys()) {
         QCOMPARE(id, notificationValuesById.value(id).value(0).toUInt());
         LipstickNotification *notification = manager->notification(id);
@@ -500,6 +526,8 @@ void Ut_NotificationManager::testNotificationsAreRestoredOnConstruction()
             QCOMPARE(notification->hints().value(hint.first), hint.second);
         }
     }
+
+    MaxNotificationRestoreCount = oldValue;
 }
 
 void Ut_NotificationManager::testDatabaseCommitIsDoneOnDestruction()

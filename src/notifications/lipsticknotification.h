@@ -268,6 +268,9 @@ private:
     quint64 timestamp_;
 };
 
+// Order notifications by descending priority then timestamp:
+bool operator<(const LipstickNotification &lhs, const LipstickNotification &rhs);
+
 Q_DECLARE_METATYPE(LipstickNotification)
 
 class LIPSTICK_EXPORT NotificationList

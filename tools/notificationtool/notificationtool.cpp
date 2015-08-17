@@ -259,7 +259,7 @@ int main(int argc, char *argv[])
     // Execute the desired operation
     switch (toolOperation) {
     case List: {
-        NotificationManager *mgr(NotificationManager::instance());
+        NotificationManager *mgr(NotificationManager::instance(false));
         QList<uint> ids(mgr->notificationIds());
         std::sort(ids.begin(), ids.end());
         foreach (id, ids) {
@@ -335,7 +335,7 @@ int main(int argc, char *argv[])
         }
         break;
     case Purge:
-        foreach (uint id, NotificationManager::instance()->notificationIds()) {
+        foreach (uint id, NotificationManager::instance(false)->notificationIds()) {
             proxy.CloseNotification(id);
         }
         break;
