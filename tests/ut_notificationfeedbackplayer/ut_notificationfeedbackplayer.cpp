@@ -42,8 +42,9 @@ const char *NotificationManager::HINT_OWNER = "x-nemo-owner";
 const char *NotificationManager::HINT_MAX_CONTENT_LINES = "x-nemo-max-content-lines";
 const char *NotificationManager::HINT_RESTORED = "x-nemo-restored";
 
-NotificationManager::NotificationManager(QObject *parent) : QObject(parent)
+NotificationManager::NotificationManager(QObject *parent, bool owner) : QObject(parent)
 {
+    Q_UNUSED(owner)
 }
 
 NotificationManager::~NotificationManager()
@@ -79,10 +80,10 @@ void NotificationManager::expire()
 }
 
 NotificationManager *notificationManagerInstance = 0;
-NotificationManager *NotificationManager::instance()
+NotificationManager *NotificationManager::instance(bool owner)
 {
     if (notificationManagerInstance == 0) {
-        notificationManagerInstance = new NotificationManager;
+        notificationManagerInstance = new NotificationManager(qApp, owner);
     }
     return notificationManagerInstance;
 }

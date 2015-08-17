@@ -145,15 +145,15 @@ bool notificationReverseOrder(const LipstickNotification *lhs, const LipstickNot
 
 NotificationManager *NotificationManager::instance_ = 0;
 
-NotificationManager *NotificationManager::instance()
+NotificationManager *NotificationManager::instance(bool owner)
 {
     if (instance_ == 0) {
-        instance_ = new NotificationManager(qApp);
+        instance_ = new NotificationManager(qApp, owner);
     }
     return instance_;
 }
 
-NotificationManager::NotificationManager(QObject *parent) :
+NotificationManager::NotificationManager(QObject *parent, bool owner) :
     QObject(parent),
     QDBusContext(),
     previousNotificationID(0),
@@ -163,26 +163,28 @@ NotificationManager::NotificationManager(QObject *parent) :
     committed(true),
     nextExpirationTime(0)
 {
-    qDBusRegisterMetaType<QVariantHash>();
-    qDBusRegisterMetaType<LipstickNotification>();
-    qDBusRegisterMetaType<NotificationList>();
+    if (owner) {
+        qDBusRegisterMetaType<QVariantHash>();
+        qDBusRegisterMetaType<LipstickNotification>();
+        qDBusRegisterMetaType<NotificationList>();
 
-    new NotificationManagerAdaptor(this);
-    QDBusConnection::sessionBus().registerService("org.freedesktop.Notifications");
-    QDBusConnection::sessionBus().registerObject("/org/freedesktop/Notifications", this);
+        new NotificationManagerAdaptor(this);
+        QDBusConnection::sessionBus().registerService("org.freedesktop.Notifications");
+        QDBusConnection::sessionBus().registerObject("/org/freedesktop/Notifications", this);
 
-    connect(categoryDefinitionStore, SIGNAL(categoryDefinitionUninstalled(QString)), this, SLOT(removeNotificationsWithCategory(QString)));
-    connect(categoryDefinitionStore, SIGNAL(categoryDefinitionModified(QString)), this, SLOT(updateNotificationsWithCategory(QString)));
+        connect(categoryDefinitionStore, SIGNAL(categoryDefinitionUninstalled(QString)), this, SLOT(removeNotificationsWithCategory(QString)));
+        connect(categoryDefinitionStore, SIGNAL(categoryDefinitionModified(QString)), this, SLOT(updateNotificationsWithCategory(QString)));
 
-    // Commit the modifications to the database 10 seconds after the last modification so that writing to disk doesn't affect user experience
-    databaseCommitTimer.setInterval(10000);
-    databaseCommitTimer.setSingleShot(true);
-    connect(&databaseCommitTimer, SIGNAL(timeout()), this, SLOT(commit()));
+        // Commit the modifications to the database 10 seconds after the last modification so that writing to disk doesn't affect user experience
+        databaseCommitTimer.setInterval(10000);
+        databaseCommitTimer.setSingleShot(true);
+        connect(&databaseCommitTimer, SIGNAL(timeout()), this, SLOT(commit()));
 
-    expirationTimer.setSingleShot(true);
-    connect(&expirationTimer, SIGNAL(timeout()), this, SLOT(expire()));
+        expirationTimer.setSingleShot(true);
+        connect(&expirationTimer, SIGNAL(timeout()), this, SLOT(expire()));
+    }
 
-    restoreNotifications();
+    restoreNotifications(owner);
 }
 
 NotificationManager::~NotificationManager()
@@ -579,11 +581,11 @@ void NotificationManager::publish(const LipstickNotification *notification, uint
     }
 }
 
-void NotificationManager::restoreNotifications()
+void NotificationManager::restoreNotifications(bool update)
 {
     if (connectToDatabase()) {
         if (checkTableValidity()) {
-            fetchData();
+            fetchData(update);
         } else {
             database->close();
         }
@@ -755,7 +757,7 @@ bool NotificationManager::recreateTable(const QString &tableName, const QString 
     return result;
 }
 
-void NotificationManager::fetchData()
+void NotificationManager::fetchData(bool update)
 {
     // Gather actions for each notification
     QSqlQuery actionsQuery("SELECT * FROM actions", *database);
@@ -828,7 +830,7 @@ void NotificationManager::fetchData()
         int expireTimeout = notificationsQuery.value(notificationsTableExpireTimeoutFieldIndex).toInt();
 
         bool expired = false;
-        if (expireAt.contains(id)) {
+        if (update && expireAt.contains(id)) {
             const qint64 expiry(expireAt.value(id));
             if (expiry <= currentTime) {
                 expired = true;
@@ -858,7 +860,7 @@ void NotificationManager::fetchData()
     }
 
     int cullCount(activeNotifications.count() - MaxNotificationRestoreCount);
-    if (cullCount > 0) {
+    if (update && cullCount > 0) {
         // Cull the least relevant notifications from this set
         std::sort(activeNotifications.begin(), activeNotifications.end(), notificationReverseOrder);
 
@@ -876,12 +878,14 @@ void NotificationManager::fetchData()
         }
     }
 
-    CloseNotifications(expiredIds, NotificationExpired);
+    if (update) {
+        CloseNotifications(expiredIds, NotificationExpired);
 
-    nextExpirationTime = unexpiredRemaining ? nextTimeout : 0;
-    if (nextExpirationTime) {
-        const qint64 nextTriggerInterval(nextExpirationTime - currentTime);
-        expirationTimer.start(static_cast<int>(std::min<qint64>(nextTriggerInterval, std::numeric_limits<int>::max())));
+        nextExpirationTime = unexpiredRemaining ? nextTimeout : 0;
+        if (nextExpirationTime) {
+            const qint64 nextTriggerInterval(nextExpirationTime - currentTime);
+            expirationTimer.start(static_cast<int>(std::min<qint64>(nextTriggerInterval, std::numeric_limits<int>::max())));
+        }
     }
 
     foreach (LipstickNotification *n, notifications) {
@@ -893,7 +897,9 @@ void NotificationManager::fetchData()
         emit notificationModified(id);
     }
 
-    qWarning() << "Notifications restored:" << notifications.count();
+    if (update) {
+        qWarning() << "Notifications restored:" << notifications.count();
+    }
 }
 
 void NotificationManager::commit()

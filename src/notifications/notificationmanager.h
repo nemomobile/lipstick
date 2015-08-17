@@ -130,9 +130,10 @@ public:
     /*!
      * Returns a singleton instance of the notification manager.
      *
+     * \param owner true if the calling application is taking ownership of the notifications data
      * \return an instance of the notification manager
      */
-    static NotificationManager *instance();
+    static NotificationManager *instance(bool owner = true);
 
     /*!
      * Returns a notification with the given ID.
@@ -319,8 +320,9 @@ private:
      * Creates a new notification manager.
      *
      * \param parent the parent object
+     * \param owner true if the manager is taking ownership of the notifications data
      */
-    explicit NotificationManager(QObject *parent = 0);
+    NotificationManager(QObject *parent, bool owner);
 
     //! Destroys the notification manager.
     virtual ~NotificationManager();
@@ -350,7 +352,7 @@ private:
     void publish(const LipstickNotification *notification, uint replacesId);
 
     //! Restores the notifications from a database on the disk
-    void restoreNotifications();
+    void restoreNotifications(bool update);
 
     /*!
      * Creates a connection to the Sqlite database.
@@ -408,7 +410,7 @@ private:
     bool recreateTable(const QString &tableName, const QString &definition);
 
     //! Fills the notifications hash table with data from the database
-    void fetchData();
+    void fetchData(bool update);
 
     /*!
      * Executes a SQL command in the database. Starts a new transaction if none is active currently, otherwise
