@@ -18,33 +18,6 @@
 
 namespace {
 
-int compare(const LipstickNotification &lhs, const LipstickNotification &rhs)
-{
-    const quint64 lhsTimestamp(lhs.internalTimestamp()), rhsTimestamp(rhs.internalTimestamp());
-    if (lhsTimestamp < rhsTimestamp) {
-        return -1;
-    }
-    if (rhsTimestamp < lhsTimestamp) {
-        return 1;
-    }
-    return 0;
-}
-
-bool operator<(const LipstickNotification &lhs, const LipstickNotification &rhs)
-{
-    int timestampComparison(compare(lhs, rhs));
-    if (timestampComparison > 0) {
-        // Later notifications sort first
-        return true;
-    } else if (timestampComparison == 0) {
-        // For matching timestamps, sort the higher ID first
-        if (lhs.replacesId() > rhs.replacesId()) {
-            return true;
-        }
-    }
-    return false;
-}
-
 bool compareNotifications(const QObject *lhs, const QObject *rhs)
 {
     return *(static_cast<const LipstickNotification *>(lhs)) < *(static_cast<const LipstickNotification *>(rhs));

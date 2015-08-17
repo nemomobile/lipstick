@@ -403,6 +403,55 @@ const QDBusArgument &operator>>(const QDBusArgument &argument, LipstickNotificat
     return argument;
 }
 
+namespace {
+
+int comparePriority(const LipstickNotification &lhs, const LipstickNotification &rhs)
+{
+    const int lhsPriority(lhs.priority()), rhsPriority(rhs.priority());
+    if (lhsPriority < rhsPriority) {
+        return -1;
+    }
+    if (rhsPriority < lhsPriority) {
+        return 1;
+    }
+    return 0;
+}
+
+int compareTimestamp(const LipstickNotification &lhs, const LipstickNotification &rhs)
+{
+    const quint64 lhsTimestamp(lhs.internalTimestamp()), rhsTimestamp(rhs.internalTimestamp());
+    if (lhsTimestamp < rhsTimestamp) {
+        return -1;
+    }
+    if (rhsTimestamp < lhsTimestamp) {
+        return 1;
+    }
+    return 0;
+}
+
+}
+
+bool operator<(const LipstickNotification &lhs, const LipstickNotification &rhs)
+{
+    int priorityComparison(comparePriority(lhs, rhs));
+    if (priorityComparison > 0) {
+        // Higher priority notifications sort first
+        return true;
+    } else if (priorityComparison == 0) {
+        int timestampComparison(compareTimestamp(lhs, rhs));
+        if (timestampComparison > 0) {
+            // Later notifications sort first
+            return true;
+        } else if (timestampComparison == 0) {
+            // For matching timestamps, sort the higher ID first
+            if (lhs.replacesId() > rhs.replacesId()) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 NotificationList::NotificationList()
 {
 }
