@@ -45,9 +45,6 @@ public:
 
 signals:
     void filePathsChanged();
-
-private:
-    void addItemIfValid(const QString &path);
 };
 
 #endif // LAUNCHERWATCHERMODEL_H
