@@ -18,9 +18,12 @@
 #include <QSGSimpleMaterial>
 #include <QOpenGLFramebufferObject>
 #include <QWaylandSurfaceItem>
+#include <QWaylandQuickSurface>
 #include "lipstickcompositorwindow.h"
 #include "lipstickcompositor.h"
 #include "windowpixmapitem.h"
+
+#include <QThread>
 
 namespace {
 
@@ -61,39 +64,30 @@ private:
     int m_id_texScale;
 };
 
-class SurfaceNode : public QObject, public QSGGeometryNode
+class SurfaceNode : public QSGGeometryNode
 {
-    Q_OBJECT
 public:
     SurfaceNode();
     ~SurfaceNode();
     void setRect(const QRectF &);
-    void setTextureProvider(QSGTextureProvider *, bool owned);
     void setBlending(bool);
     void setRadius(qreal radius);
     void setXOffset(qreal xOffset);
     void setYOffset(qreal yOffset);
     void setXScale(qreal xScale);
     void setYScale(qreal yScale);
-    void setUpdateTexture(bool upd);
-
-private slots:
-    void providerDestroyed();
-    void textureChanged();
+    void setTexture(QSGTexture *texture);
 
 private:
-    void setTexture(QSGTexture *texture);
     void updateGeometry();
 
     QSGSimpleMaterial<SurfaceTextureState> *m_material;
     QRectF m_rect;
     qreal m_radius;
 
-    QSGTextureProvider *m_provider;
     QSGTexture *m_texture;
     QSGGeometry m_geometry;
     QRectF m_textureRect;
-    bool m_providerOwned;
 };
 
 QList<QByteArray> SurfaceTextureMaterial::attributes() const
@@ -146,7 +140,7 @@ const char *SurfaceTextureMaterial::fragmentShader() const
 }
 
 SurfaceNode::SurfaceNode()
-: m_material(0), m_radius(0), m_provider(0), m_texture(0),
+: m_material(0), m_radius(0), m_texture(0),
   m_geometry(QSGGeometry::defaultAttributes_TexturedPoint2D(), 0)
 {
     setGeometry(&m_geometry);
@@ -156,8 +150,6 @@ SurfaceNode::SurfaceNode()
 
 SurfaceNode::~SurfaceNode()
 {
-    if (m_provider && m_providerOwned)
-        delete m_provider;
 }
 
 void SurfaceNode::setRect(const QRectF &r)
@@ -168,28 +160,6 @@ void SurfaceNode::setRect(const QRectF &r)
     m_rect = r;
 
     updateGeometry();
-}
-
-void SurfaceNode::setTextureProvider(QSGTextureProvider *p, bool owned)
-{
-    if (p == m_provider)
-        return;
-
-    if (m_provider) {
-        QObject::disconnect(m_provider, SIGNAL(destroyed(QObject *)), this, SLOT(providerDestroyed()));
-        QObject::disconnect(m_provider, SIGNAL(textureChanged()), this, SLOT(textureChanged()));
-        m_provider = 0;
-    }
-
-    m_provider = p;
-    m_providerOwned = owned;
-
-    if (m_provider) {
-        QObject::connect(m_provider, SIGNAL(destroyed(QObject *)), this, SLOT(providerDestroyed()));
-        QObject::connect(m_provider, SIGNAL(textureChanged()), this, SLOT(textureChanged()));
-
-        setTexture(m_provider->texture());
-    }
 }
 
 void SurfaceNode::updateGeometry()
@@ -316,57 +286,55 @@ void SurfaceNode::setYScale(qreal yScale)
     markDirty(DirtyMaterial);
 }
 
-void SurfaceNode::textureChanged()
-{
-    setTexture(m_provider->texture());
 }
 
-void SurfaceNode::providerDestroyed()
+WindowPixmapItem::SurfaceReference::SurfaceReference()
+    : m_surface(0)
+    , m_lock(0)
 {
-    m_provider = 0;
-    setTexture(0);
 }
 
-}
-
-SnapshotProgram *WindowPixmapItem::s_snapshotProgram = 0;
-
-struct SnapshotProgram
+WindowPixmapItem::SurfaceReference::~SurfaceReference()
 {
-    QOpenGLShaderProgram program;
-    int vertexLocation;
-    int textureLocation;
-};
-
-class SnapshotTextureProvider : public QSGTextureProvider
-{
-public:
-    SnapshotTextureProvider() : t(0), fbo(0) {}
-    ~SnapshotTextureProvider()
-    {
-        delete fbo;
-        delete t;
+    delete m_lock;
+    if (m_surface) {
+        m_surface->destroy();
     }
-    QSGTexture *texture() const Q_DECL_OVERRIDE
-    {
-        return t;
-    }
-    QSGTexture *t;
-    QOpenGLFramebufferObject *fbo;
-};
+}
 
+void WindowPixmapItem::SurfaceReference::reset(QWaylandQuickSurface *surface)
+{
+    if (m_surface != surface) {
+        QWaylandUnmapLock *lock = m_lock;
+        m_lock = 0;
+
+        qSwap(m_surface, surface);
+
+        if (m_surface) {
+            m_surface->ref();
+            m_lock = new QWaylandUnmapLock(m_surface);
+        }
+
+        delete lock;
+        if (surface) {
+            surface->destroy();
+        }
+    }
+}
 
 WindowPixmapItem::WindowPixmapItem()
-: m_item(0), m_shaderEffect(0), m_id(0), m_opaque(false), m_radius(0), m_xOffset(0), m_yOffset(0)
-, m_xScale(1), m_yScale(1), m_unmapLock(0), m_hasBuffer(false), m_hasPixmap(false), m_surfaceDestroyed(false), m_haveSnapshot(false)
-, m_textureProvider(0)
+: m_shaderEffect(0), m_id(0), m_opaque(false), m_radius(0), m_xOffset(0), m_yOffset(0)
+, m_xScale(1), m_yScale(1), m_hasBuffer(false)
 {
     setFlag(ItemHasContents);
 }
 
 WindowPixmapItem::~WindowPixmapItem()
 {
-    setWindowId(0);
+    delete m_shaderEffect;
+    if (m_item) {
+        m_item->imageRelease(this);
+    }
 }
 
 int WindowPixmapItem::windowId() const
@@ -379,44 +347,62 @@ void WindowPixmapItem::setWindowId(int id)
     if (m_id == id)
         return;
 
-    QSize oldSize = windowSize();
     if (m_item) {
-        disconnect(m_item.data(), &QObject::destroyed, this, &WindowPixmapItem::itemDestroyed);
-        if (m_item->surface()) {
-            disconnect(m_item->surface(), &QWaylandSurface::sizeChanged, this, &WindowPixmapItem::handleWindowSizeChanged);
-            disconnect(m_item->surface(), &QWaylandSurface::configure, this, &WindowPixmapItem::configure);
-            disconnect(m_item.data(), &QWaylandSurfaceItem::surfaceDestroyed, this, &WindowPixmapItem::surfaceDestroyed);
-        }
-        if (!m_surfaceDestroyed)
-            m_item->imageRelease(this);
-        m_item->setDelayRemove(false);
-        m_item = 0;
-        delete m_unmapLock;
-        m_unmapLock = 0;
+        disconnect(m_item.data(), &QWaylandSurfaceItem::surfaceDestroyed, this, &WindowPixmapItem::surfaceDestroyed);
+        m_item->imageRelease(this);
     }
 
-    m_surfaceDestroyed = false;
-    m_hasBuffer = false;
+    const bool hadBuffer = m_hasBuffer;
+    QSize oldSize = windowSize();
+
     m_id = id;
-    updateItem();
+
+    LipstickCompositor *c = LipstickCompositor::instance();
+    LipstickCompositorWindow *w = c && id ? static_cast<LipstickCompositorWindow *>(c->windowForId(m_id)) : 0;
+
+    if (w) {
+        if (m_surface) {
+            disconnect(m_surface.surface(), &QWaylandSurface::sizeChanged, this, &WindowPixmapItem::handleWindowSizeChanged);
+            disconnect(m_surface.surface(), &QWaylandSurface::configure, this, &WindowPixmapItem::configure);
+            disconnect(m_surface.surface(), &QWaylandSurface::redraw, this, &QQuickItem::update);
+        }
+
+        m_surface.reset(qobject_cast<QWaylandQuickSurface *>(w->surface()));
+
+        if (m_surface) {
+            connect(m_surface.surface(), &QWaylandSurface::sizeChanged, this, &WindowPixmapItem::handleWindowSizeChanged, Qt::DirectConnection);
+            connect(m_surface.surface(), &QWaylandSurface::configure, this, &WindowPixmapItem::configure);
+            connect(m_surface.surface(), &QWaylandSurface::redraw, this, &QQuickItem::update);
+            m_windowSize = m_surface->size();
+            m_hasBuffer = m_windowSize.isValid();
+
+            m_item = w;
+            m_item->imageAddref(this);
+            connect(m_item.data(), &QWaylandSurfaceItem::surfaceDestroyed, this, &WindowPixmapItem::surfaceDestroyed);
+        } else {
+            if (!m_shaderEffect) {
+                m_shaderEffect = static_cast<QQuickItem *>(c->shaderEffectComponent()->create());
+                Q_ASSERT(m_shaderEffect);
+                m_shaderEffect->setParentItem(this);
+                m_shaderEffect->setSize(QSizeF(width(), height()));
+            }
+
+            m_shaderEffect->setProperty("window", qVariantFromValue((QObject *)w));
+            m_hasBuffer = false;
+        }
+        update();
+    }
 
     emit windowIdChanged();
     if (windowSize() != oldSize)
         emit windowSizeChanged();
-}
-
-void WindowPixmapItem::surfaceDestroyed()
-{
-    m_surfaceDestroyed = true;
-    m_hasBuffer = false;
-    m_unmapLock = new QWaylandUnmapLock(m_item->surface());
-    m_item->imageRelease(this);
-    update();
+    if (m_hasBuffer != hadBuffer)
+        emit hasPixmapChanged();
 }
 
 bool WindowPixmapItem::hasPixmap() const
 {
-    return m_hasPixmap;
+    return m_hasBuffer;
 }
 
 bool WindowPixmapItem::opaque() const
@@ -430,7 +416,7 @@ void WindowPixmapItem::setOpaque(bool o)
         return;
 
     m_opaque = o;
-    if (m_item) update();
+    if (m_surface) update();
 
     emit opaqueChanged();
 }
@@ -446,7 +432,7 @@ void WindowPixmapItem::setRadius(qreal r)
         return;
 
     m_radius = r;
-    if (m_item) update();
+    if (m_surface) update();
 
     emit radiusChanged();
 }
@@ -462,7 +448,7 @@ void WindowPixmapItem::setXOffset(qreal xOffset)
         return;
 
     m_xOffset = xOffset;
-    if (m_item) update();
+    if (m_surface) update();
 
     emit xOffsetChanged();
 }
@@ -478,7 +464,7 @@ void WindowPixmapItem::setYOffset(qreal yOffset)
         return;
 
     m_yOffset = yOffset;
-    if (m_item) update();
+    if (m_surface) update();
 
     emit yOffsetChanged();
 }
@@ -494,7 +480,7 @@ void WindowPixmapItem::setXScale(qreal xScale)
         return;
 
     m_xScale = xScale;
-    if (m_item || m_haveSnapshot) update();
+    if (m_surface) update();
 
     emit xScaleChanged();
 }
@@ -510,7 +496,7 @@ void WindowPixmapItem::setYScale(qreal yScale)
         return;
 
     m_yScale = yScale;
-    if (m_item || m_haveSnapshot) update();
+    if (m_surface) update();
 
     emit yScaleChanged();
 }
@@ -522,157 +508,44 @@ QSize WindowPixmapItem::windowSize() const
 
 void WindowPixmapItem::setWindowSize(const QSize &s)
 {
-    if (!m_item || !m_item->surface()) {
+    if (!m_surface) {
         return;
     }
 
-    m_item->surface()->requestSize(s);
+    m_surface->requestSize(s);
 }
 
 void WindowPixmapItem::handleWindowSizeChanged()
 {
-    if (m_item->surface()->size().isValid()) {
+    if (m_surface && m_surface->size().isValid()) {
         // Window size is retained even when surface is destroyed. This allows snapshots to continue
         // rendering correctly.
-        m_windowSize = m_item->surface()->size();
+        m_windowSize = m_surface->size();
         emit windowSizeChanged();
     }
 }
 
-void WindowPixmapItem::itemDestroyed(QObject *)
+void WindowPixmapItem::surfaceDestroyed()
 {
+    disconnect(m_item.data(), &QWaylandSurfaceItem::surfaceDestroyed, this, &WindowPixmapItem::surfaceDestroyed);
+    m_item->imageRelease(this);
     m_item = 0;
-    if (!m_haveSnapshot) {
-        m_hasPixmap = false;
-        emit hasPixmapChanged();
-    }
 }
 
 QSGNode *WindowPixmapItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
 {
     SurfaceNode *node = static_cast<SurfaceNode *>(oldNode);
 
-    if (m_item == 0 && !m_haveSnapshot) {
-        if (node)
-            node->setTextureProvider(0, false);
+    QSGTexture *texture = m_surface ? m_surface->texture() : 0;
+
+    if (!texture) {
         delete node;
-        return 0;
-    }
-
-    QSGTextureProvider *provider = 0;
-    QSGTexture *texture = 0;
-    if (m_item) {
-        provider = m_item->textureProvider();
-        texture = provider->texture();
-        if (texture && !m_surfaceDestroyed) {
-            m_haveSnapshot = false;
-        }
-    }
-
-    if (!m_hasBuffer && texture) {
-        if (!m_textureProvider) {
-            SnapshotTextureProvider *prov = new SnapshotTextureProvider;
-            m_textureProvider = prov;
-
-            if (!s_snapshotProgram) {
-                s_snapshotProgram = new SnapshotProgram;
-                s_snapshotProgram->program.addShaderFromSourceCode(QOpenGLShader::Vertex,
-                    "attribute highp vec4 vertex;\n"
-                    "varying highp vec2 texPos;\n"
-                    "void main(void) {\n"
-                    "   texPos = vertex.xy;\n"
-                    "   gl_Position = vec4(vertex.xy * 2.0 - 1.0, 0, 1);\n"
-                    "}");
-                s_snapshotProgram->program.addShaderFromSourceCode(QOpenGLShader::Fragment,
-                    "uniform sampler2D texture;\n"
-                    "varying highp vec2 texPos;\n"
-                    "void main(void) {\n"
-                    "   gl_FragColor = texture2D(texture, texPos);\n"
-                    "}");
-                if (!s_snapshotProgram->program.link())
-                    qDebug() << s_snapshotProgram->program.log();
-
-                s_snapshotProgram->vertexLocation = s_snapshotProgram->program.attributeLocation("vertex");
-                s_snapshotProgram->textureLocation = s_snapshotProgram->program.uniformLocation("texture");
-
-                connect(window(), &QQuickWindow::sceneGraphInvalidated, this, &WindowPixmapItem::cleanupOpenGL);
-            }
-        }
-        provider = m_textureProvider;
-
-        if (m_unmapLock) {
-            SnapshotTextureProvider *prov = static_cast<SnapshotTextureProvider *>(provider);
-
-            if (!prov->fbo || prov->fbo->size() != QSize(width(), height())) {
-                delete prov->fbo;
-                delete prov->t;
-                prov->t = 0;
-                prov->fbo = new QOpenGLFramebufferObject(width(), height());
-            }
-
-            prov->fbo->bind();
-            s_snapshotProgram->program.bind();
-
-            texture->bind();
-
-            static GLfloat const triangleVertices[] = {
-                1.f, 0.f,
-                1.f, 1.f,
-                0.f, 0.f,
-                0.f, 1.f,
-            };
-            s_snapshotProgram->program.enableAttributeArray(s_snapshotProgram->vertexLocation);
-            s_snapshotProgram->program.setAttributeArray(s_snapshotProgram->vertexLocation, triangleVertices, 2);
-
-            glViewport(0, 0, width(), height());
-            glDisable(GL_BLEND);
-            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-            s_snapshotProgram->program.release();
-
-            if (!prov->t) {
-                prov->t = window()->createTextureFromId(prov->fbo->texture(), prov->fbo->size(), 0);
-                emit prov->textureChanged();
-            }
-            prov->fbo->release();
-            delete m_unmapLock;
-            m_unmapLock = 0;
-            s_snapshotProgram->program.disableAttributeArray(s_snapshotProgram->vertexLocation);
-
-            m_haveSnapshot = true;
-        }
-    } else if (!m_hasBuffer && m_textureProvider) {
-        provider = m_textureProvider;
-    } else if (!provider) {
-        if (node)
-            node->setTextureProvider(0, false);
-        delete node;
-        return 0;
-    }
-    // The else case here is no buffer and no screenshot, so no way to show a sane image.
-    // It should normally not happen, though.
-
-    if (provider != m_textureProvider) {
-        delete m_textureProvider;
-        m_textureProvider = 0;
-    }
-
-    if (m_surfaceDestroyed && m_item) {
-        m_item->setDelayRemove(false);
-    }
-
-    if (!provider->texture()) {
-        qWarning("WindowPixmapItem does not have a source texture, cover will be dropped..");
-        if (node) {
-            node->setTextureProvider(0, false);
-            delete node;
-        }
         return 0;
     }
 
     if (!node) node = new SurfaceNode;
 
-    node->setTextureProvider(provider, provider == m_textureProvider);
+    node->setTexture(texture);
     node->setRect(QRectF(0, 0, width(), height()));
     node->setBlending(!m_opaque);
     node->setRadius(m_radius);
@@ -691,71 +564,10 @@ void WindowPixmapItem::geometryChanged(const QRectF &n, const QRectF &o)
     if (m_shaderEffect) m_shaderEffect->setSize(n.size());
 }
 
-void WindowPixmapItem::updateItem()
+void WindowPixmapItem::configure(bool hasBuffer)
 {
-    LipstickCompositor *c = LipstickCompositor::instance();
-    Q_ASSERT(m_item == 0);
-
-    if (c && m_id) {
-        LipstickCompositorWindow *w = static_cast<LipstickCompositorWindow *>(c->windowForId(m_id));
-
-        if (!w) {
-            delete m_shaderEffect;
-            m_shaderEffect = 0;
-            if (m_hasPixmap && !m_haveSnapshot) {
-                m_hasPixmap = false;
-                emit hasPixmapChanged();
-            }
-            return;
-        } else if (w->surface()) {
-            m_item = w;
-            delete m_shaderEffect; m_shaderEffect = 0;
-            m_item->setDelayRemove(true);
-            connect(m_item->surface(), &QWaylandSurface::sizeChanged, this, &WindowPixmapItem::handleWindowSizeChanged);
-            connect(m_item->surface(), &QWaylandSurface::configure, this, &WindowPixmapItem::configure);
-            connect(m_item.data(), &QWaylandSurfaceItem::surfaceDestroyed, this, &WindowPixmapItem::surfaceDestroyed);
-            connect(m_item.data(), &QObject::destroyed, this, &WindowPixmapItem::itemDestroyed);
-            m_windowSize = m_item->surface()->size();
-            m_unmapLock = new QWaylandUnmapLock(m_item->surface());
-        } else {
-            if (!m_shaderEffect) {
-                m_shaderEffect = static_cast<QQuickItem *>(c->shaderEffectComponent()->create());
-                Q_ASSERT(m_shaderEffect);
-                m_shaderEffect->setParentItem(this);
-                m_shaderEffect->setSize(QSizeF(width(), height()));
-            }
-
-            m_shaderEffect->setProperty("window", qVariantFromValue((QObject *)w));
-        }
-
-        w->imageAddref(this);
-
-        update();
-    }
-
-    const bool hadPixmap = m_hasPixmap;
-    m_hasPixmap = m_item || m_haveSnapshot;
-    if (m_hasPixmap != hadPixmap) {
+    if (hasBuffer && !m_hasBuffer) {
+        m_hasBuffer = true;
         emit hasPixmapChanged();
     }
 }
-
-void WindowPixmapItem::configure(bool hasBuffer)
-{
-    if (hasBuffer != m_hasBuffer) {
-        m_hasBuffer = hasBuffer;
-        if (m_hasBuffer && !m_unmapLock)
-            m_unmapLock = new QWaylandUnmapLock(m_item->surface());
-
-        update();
-    }
-}
-
-void WindowPixmapItem::cleanupOpenGL()
-{
-    disconnect(window(), &QQuickWindow::sceneGraphInvalidated, this, &WindowPixmapItem::cleanupOpenGL);
-    delete s_snapshotProgram;
-    s_snapshotProgram = 0;
-}
-
-#include "windowpixmapitem.moc"

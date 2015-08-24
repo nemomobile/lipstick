@@ -117,6 +117,11 @@ LipstickCompositor::~LipstickCompositor()
     // are destroyed, so disconnect it.
     disconnect(this, SIGNAL(visibleChanged(bool)), this, SLOT(onVisibleChanged(bool)));
 
+    // Shutdown the render loop and clean up the scene graph so any nodes that reference
+    // QWaylandQuickCompositor are destroyed before it is.
+    hide();
+    cleanupGraphicsResources();
+
     delete m_shaderEffect;
 }
 
@@ -164,7 +169,7 @@ void LipstickCompositor::surfaceCreated(QWaylandSurface *surface)
     Q_UNUSED(surface)
     connect(surface, SIGNAL(mapped()), this, SLOT(surfaceMapped()));
     connect(surface, SIGNAL(unmapped()), this, SLOT(surfaceUnmapped()));
-    connect(surface, SIGNAL(sizeChanged()), this, SLOT(surfaceSizeChanged()));
+    connect(surface, SIGNAL(sizeChanged()), this, SLOT(surfaceSizeChanged()), Qt::DirectConnection);
     connect(surface, SIGNAL(titleChanged()), this, SLOT(surfaceTitleChanged()));
     connect(surface, SIGNAL(windowPropertyChanged(QString,QVariant)), this, SLOT(windowPropertyChanged(QString)));
     connect(surface, SIGNAL(raiseRequested()), this, SLOT(surfaceRaised()));
@@ -476,9 +481,12 @@ void LipstickCompositor::surfaceSizeChanged()
 {
     QWaylandSurface *surface = qobject_cast<QWaylandSurface *>(sender());
 
-    LipstickCompositorWindow *window = surfaceWindow(surface);
-    if (window)
-        window->setSize(surface->size());
+    const QSize size = surface ? surface->size() : QSize();
+    if (size.isValid()) {
+        LipstickCompositorWindow *window = surfaceWindow(surface);
+        if (window)
+            window->setSize(size);
+    }
 }
 
 void LipstickCompositor::surfaceTitleChanged()

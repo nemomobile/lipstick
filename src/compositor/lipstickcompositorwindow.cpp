@@ -486,7 +486,7 @@ QSGNode *LipstickCompositorWindow::updatePaintNode(QSGNode *old, UpdatePaintNode
         return QWaylandSurfaceItem::updatePaintNode(old, data);
 
     // No surface, abort..
-    if (!surface() || !surface()->handle() || !surface()->isMapped() || !textureProvider()->texture()) {
+    if (!isVisible() || !surface() || !surface()->handle() || !surface()->isMapped() || !textureProvider()->texture()) {
         delete old;
         return 0;
     }

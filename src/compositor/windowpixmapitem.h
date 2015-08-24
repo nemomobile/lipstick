@@ -20,10 +20,13 @@
 #include <QPointer>
 #include "lipstickglobal.h"
 
+class QWaylandQuickSurface;
 class QWaylandUnmapLock;
 
 class LipstickCompositor;
 class LipstickCompositorWindow;
+class SnapshotTextureProvider;
+
 class LIPSTICK_EXPORT WindowPixmapItem : public QQuickItem
 {
     Q_OBJECT
@@ -81,18 +84,34 @@ signals:
     void yOffsetChanged();
     void xScaleChanged();
     void yScaleChanged();
+    void renderOptionsChanged();
 
 private slots:
+    void surfaceDestroyed();
     void handleWindowSizeChanged();
-    void itemDestroyed(QObject *);
 
 private:
-    void updateItem();
-    void surfaceDestroyed();
+    class SurfaceReference
+    {
+    public:
+        SurfaceReference();
+        ~SurfaceReference();
+
+        QWaylandQuickSurface *surface() { return m_surface; }
+        QWaylandQuickSurface *operator ->() { return m_surface; }
+        operator QWaylandQuickSurface *() { return m_surface; }
+        void reset(QWaylandQuickSurface *surface = 0);
+
+    private:
+        QWaylandQuickSurface *m_surface;
+        QWaylandUnmapLock *m_lock;
+    };
+
     void configure(bool hasBuffer);
     void cleanupOpenGL();
 
     QPointer<LipstickCompositorWindow> m_item;
+    SurfaceReference m_surface;
     QQuickItem *m_shaderEffect;
     int m_id;
     bool m_opaque;
@@ -102,14 +121,7 @@ private:
     qreal m_xScale;
     qreal m_yScale;
     QSize m_windowSize;
-    QWaylandUnmapLock *m_unmapLock;
     bool m_hasBuffer;
-    bool m_hasPixmap;
-    bool m_surfaceDestroyed;
-    bool m_haveSnapshot;
-    QSGTextureProvider *m_textureProvider;
-
-    static struct SnapshotProgram *s_snapshotProgram;
 };
 
 #endif // WINDOWPIXMAPITEM_H
