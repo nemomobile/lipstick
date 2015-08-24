@@ -103,9 +103,9 @@ void Ut_DeviceLock::cleanup()
 void Ut_DeviceLock::testSignalConnections()
 {
     QCOMPARE(disconnect(deviceLock->lockTimer, SIGNAL(timeout()), deviceLock, SLOT(lock())), true);
-    QCOMPARE(disconnect(deviceLock->qmActivity, SIGNAL(activityChanged(MeeGo::QmActivity::Activity)), deviceLock, SLOT(setStateAndSetupLockTimer())), true);
+    QCOMPARE(disconnect(deviceLock->qmActivity, SIGNAL(activityChanged(MeeGo::QmActivity::Activity)), deviceLock, SLOT(handleActivityChanged(MeeGo::QmActivity::Activity))), true);
     QCOMPARE(disconnect(deviceLock->qmLocks, SIGNAL(stateChanged(MeeGo::QmLocks::Lock,MeeGo::QmLocks::State)), deviceLock, SLOT(setStateAndSetupLockTimer())), true);
-    QCOMPARE(disconnect(deviceLock->qmDisplayState, SIGNAL(displayStateChanged(MeeGo::QmDisplayState::DisplayState)), deviceLock, SLOT(checkDisplayState(MeeGo::QmDisplayState::DisplayState))), true);
+    QCOMPARE(disconnect(deviceLock->qmDisplayState, SIGNAL(displayStateChanged(MeeGo::QmDisplayState::DisplayState)), deviceLock, SLOT(handleDisplayStateChanged(MeeGo::QmDisplayState::DisplayState))), true);
 }
 
 void Ut_DeviceLock::testInitialState()
@@ -250,6 +250,9 @@ void Ut_DeviceLock::testDisplayStateWhenDeviceScreenIsLocked()
     QFETCH(int, stopCount);
     QFETCH(DeviceLock::LockState, deviceLockState);
 
+    gQmDisplayStateStub->stubSetReturnValue("get", MeeGo::QmDisplayState::DisplayState::Unknown);
+    deviceLock->handleDisplayStateChanged(MeeGo::QmDisplayState::DisplayState::Unknown);
+
     deviceLock->setState(DeviceLock::Unlocked);
     qTimerStartMsec.clear();
     qTimerStopCount = 0;
@@ -258,7 +261,7 @@ void Ut_DeviceLock::testDisplayStateWhenDeviceScreenIsLocked()
     gQmLocksStub->stubSetReturnValue("getState", touchScreenLockState);
     gQmDisplayStateStub->stubSetReturnValue("get", state);
 
-    deviceLock->checkDisplayState(state);
+    deviceLock->handleDisplayStateChanged(state);
 
     QCOMPARE(deviceLock->state(), (int)deviceLockState);
     QCOMPARE(qTimerStopCount, stopCount);

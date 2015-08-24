@@ -64,10 +64,11 @@ private slots:
     void setupLockTimer();
     void setStateAndSetupLockTimer();
     void lock();
-    void checkDisplayState(MeeGo::QmDisplayState::DisplayState state);
+    void handleDisplayStateChanged(MeeGo::QmDisplayState::DisplayState state);
     void handleCallStateChange(const QString &state, const QString &ignored);
     void handleBlankingPauseChange(const QString &state);
     void handleBlankingInhibitChange(const QString &state);
+    void handleActivityChanged(MeeGo::QmActivity::Activity activity);
     void readSettings();
     void sendInhibitFinished(QDBusPendingCallWatcher *call);
     void sendPauseFinished(QDBusPendingCallWatcher *call);
@@ -84,6 +85,8 @@ private:
     MeeGo::QmLocks *qmLocks;
     MeeGo::QmDisplayState *qmDisplayState;
     LockState deviceLockState;
+    MeeGo::QmActivity::Activity m_activity;
+    MeeGo::QmDisplayState::DisplayState m_displayState;
     bool isCallActive;
     bool m_blankingPause;
     bool m_blankingInhibit;
