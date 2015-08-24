@@ -20,13 +20,17 @@
 #include <QPointer>
 #include "lipstickglobal.h"
 
+class QWaylandSurface;
 class QWaylandUnmapLock;
 
 class LipstickCompositor;
 class LipstickCompositorWindow;
+class SnapshotTextureProvider;
+
 class LIPSTICK_EXPORT WindowPixmapItem : public QQuickItem
 {
     Q_OBJECT
+    Q_ENUMS(RenderOption)
     Q_PROPERTY(int windowId READ windowId WRITE setWindowId NOTIFY windowIdChanged)
     Q_PROPERTY(bool hasPixmap READ hasPixmap NOTIFY hasPixmapChanged)
     Q_PROPERTY(bool opaque READ opaque WRITE setOpaque NOTIFY opaqueChanged)
@@ -36,8 +40,14 @@ class LIPSTICK_EXPORT WindowPixmapItem : public QQuickItem
     Q_PROPERTY(qreal yOffset READ yOffset WRITE setYOffset NOTIFY yOffsetChanged)
     Q_PROPERTY(qreal xScale READ xScale WRITE setXScale NOTIFY xScaleChanged)
     Q_PROPERTY(qreal yScale READ yScale WRITE setYScale NOTIFY yScaleChanged)
+    Q_PROPERTY(int render READ renderOptions WRITE setRenderOptions NOTIFY renderOptionsChanged)
 
 public:
+    enum RenderOption {
+        RenderWindow    = 0x01,
+        RenderSnapshot  = 0x02
+    };
+
     WindowPixmapItem();
     ~WindowPixmapItem();
 
@@ -67,6 +77,11 @@ public:
     qreal yScale() const;
     void setYScale(qreal);
 
+    int renderOptions() const;
+    void setRenderOptions(int options);
+
+    bool event(QEvent *event);
+
 protected:
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *);
     virtual void geometryChanged(const QRectF &, const QRectF &);
@@ -81,18 +96,46 @@ signals:
     void yOffsetChanged();
     void xScaleChanged();
     void yScaleChanged();
+    void renderOptionsChanged();
 
 private slots:
     void handleWindowSizeChanged();
     void itemDestroyed(QObject *);
 
 private:
+    class SurfaceReference
+    {
+    public:
+        SurfaceReference();
+        ~SurfaceReference();
+
+        QWaylandSurface *surface() { return m_surface; }
+        QWaylandSurface *operator ->() { return m_surface; }
+        operator QWaylandSurface *() { return m_surface; }
+        void reset(QWaylandSurface *surface = 0);
+
+        void lock();
+        void unlock();
+
+    private:
+        QWaylandSurface *m_surface;
+        QWaylandUnmapLock *m_lock;
+    };
+
+
     void updateItem();
+    void updateHasPixmap();
     void surfaceDestroyed();
     void configure(bool hasBuffer);
     void cleanupOpenGL();
+    void scheduleCapture();
+    void cancelCapture();
+    void resetCapture();
+    void captureSnapshot();
 
     QPointer<LipstickCompositorWindow> m_item;
+    SurfaceReference m_surface;
+    SurfaceReference m_captureSurface;
     QQuickItem *m_shaderEffect;
     int m_id;
     bool m_opaque;
@@ -102,12 +145,14 @@ private:
     qreal m_xScale;
     qreal m_yScale;
     QSize m_windowSize;
-    QWaylandUnmapLock *m_unmapLock;
+    int m_renderOptions;
     bool m_hasBuffer;
     bool m_hasPixmap;
     bool m_surfaceDestroyed;
     bool m_haveSnapshot;
-    QSGTextureProvider *m_textureProvider;
+    bool m_clearCapture;
+    bool m_clearNotified;
+    SnapshotTextureProvider *m_textureProvider;
 
     static struct SnapshotProgram *s_snapshotProgram;
 };

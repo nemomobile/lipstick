@@ -117,6 +117,11 @@ LipstickCompositor::~LipstickCompositor()
     // are destroyed, so disconnect it.
     disconnect(this, SIGNAL(visibleChanged(bool)), this, SLOT(onVisibleChanged(bool)));
 
+    // Shutdown the render loop and clean up the scene graph so any nodes that reference
+    // QWaylandQuickCompositor are destroyed before it is.
+    hide();
+    cleanupGraphicsResources();
+
     delete m_shaderEffect;
 }
 
