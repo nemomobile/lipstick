@@ -61,15 +61,17 @@ DeviceLock::DeviceLock(QObject * parent) :
     qmLocks(new MeeGo::QmLocks(this)),
     qmDisplayState(new MeeGo::QmDisplayState(this)),
     deviceLockState(Undefined),
+    m_activity(MeeGo::QmActivity::Active),
+    m_displayState(MeeGo::QmDisplayState::Unknown),
     isCallActive(false),
     m_blankingPause(false),
     m_blankingInhibit(false)
 {
     monoTime.tv_sec = 0;
     connect(lockTimer, SIGNAL(timeout()), this, SLOT(lock()));
-    connect(qmActivity, SIGNAL(activityChanged(MeeGo::QmActivity::Activity)), this, SLOT(setStateAndSetupLockTimer()));
+    connect(qmActivity, SIGNAL(activityChanged(MeeGo::QmActivity::Activity)), this, SLOT(handleActivityChanged(MeeGo::QmActivity::Activity)));
     connect(qmLocks, SIGNAL(stateChanged(MeeGo::QmLocks::Lock,MeeGo::QmLocks::State)), this, SLOT(setStateAndSetupLockTimer()));
-    connect(qmDisplayState, SIGNAL(displayStateChanged(MeeGo::QmDisplayState::DisplayState)), this, SLOT(checkDisplayState(MeeGo::QmDisplayState::DisplayState)));
+    connect(qmDisplayState, SIGNAL(displayStateChanged(MeeGo::QmDisplayState::DisplayState)), this, SLOT(handleDisplayStateChanged(MeeGo::QmDisplayState::DisplayState)));
     connect(static_cast<HomeApplication *>(qApp), &HomeApplication::homeReady, this, &DeviceLock::init);
 
     QDBusConnection::systemBus().connect(QString(), "/com/nokia/mce/signal", "com.nokia.mce.signal", "sig_call_state_ind", this, SLOT(handleCallStateChange(QString, QString)));
@@ -85,6 +87,9 @@ DeviceLock::DeviceLock(QObject * parent) :
     QDBusPendingCall pauseReply = QDBusConnection::systemBus().asyncCall(pauseCall);
     QDBusPendingCallWatcher *pauseWatcher = new QDBusPendingCallWatcher(pauseReply, this);
     connect(pauseWatcher, SIGNAL(finished(QDBusPendingCallWatcher*)), SLOT(sendPauseFinished(QDBusPendingCallWatcher*)));
+
+    handleActivityChanged(qmActivity->get());
+    handleDisplayStateChanged(qmDisplayState->get());
 }
 
 void DeviceLock::sendInhibitFinished(QDBusPendingCallWatcher *call)
@@ -137,6 +142,14 @@ void DeviceLock::handleBlankingInhibitChange(const QString &state)
     }
 }
 
+void DeviceLock::handleActivityChanged(MeeGo::QmActivity::Activity activity)
+{
+    if (m_activity != activity) {
+        m_activity = activity;
+        setStateAndSetupLockTimer();
+    }
+}
+
 void DeviceLock::init()
 {
     if (QFile(settingsFile).exists() && watcher.addPath(settingsFile)) {
@@ -154,7 +167,7 @@ void DeviceLock::setupLockTimer()
         lockTimer->stop();
         monoTime.tv_sec = 0;
     } else {
-        if (lockingDelay <= 0 || (qmActivity->get() == MeeGo::QmActivity::Active && qmDisplayState->get() != MeeGo::QmDisplayState::DisplayState::Off)) {
+        if (lockingDelay <= 0 || (m_activity == MeeGo::QmActivity::Active && m_displayState != MeeGo::QmDisplayState::DisplayState::Off)) {
             // Locking disabled or device active: stop the timer
             lockTimer->stop();
             monoTime.tv_sec = 0;
@@ -175,8 +188,13 @@ void DeviceLock::setStateAndSetupLockTimer()
     setupLockTimer();
 }
 
-void DeviceLock::checkDisplayState(MeeGo::QmDisplayState::DisplayState state)
+void DeviceLock::handleDisplayStateChanged(MeeGo::QmDisplayState::DisplayState state)
 {
+    if (state == m_displayState)
+        return;
+
+    m_displayState = state;
+
     if (lockingDelay == 0 && state == MeeGo::QmDisplayState::DisplayState::Off
             && !isCallActive) {
         // Immediate locking enabled and the display is off and not in call: lock
