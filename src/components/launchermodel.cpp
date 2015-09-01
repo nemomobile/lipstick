@@ -430,6 +430,25 @@ void LauncherModel::setIconDirectories(QStringList newDirectories)
     }
 }
 
+QStringList LauncherModel::categories() const
+{
+    return _categories;
+}
+
+void LauncherModel::setCategories(const QStringList &categories)
+{
+    if (_categories != categories) {
+        _categories = categories;
+        emit categoriesChanged();
+
+        if (_initialized) {
+            // Force a complete rebuild of the model.
+            _launcherMonitor.setDirectories(QStringList());
+            _launcherMonitor.setDirectories(_directories);
+        }
+    }
+}
+
 QString LauncherModel::scope() const
 {
     return _scope;
@@ -726,7 +745,13 @@ LauncherItem *LauncherModel::addItemIfValid(const QString &path)
     LauncherItem *item = new LauncherItem(path, this);
 
     bool isValid = item->isValid();
-    bool shouldDisplay = item->shouldDisplay();
+    bool shouldDisplay = item->shouldDisplay() && _categories.isEmpty();
+    foreach (const QString &category, item->desktopCategories()) {
+        if (_categories.contains(category)) {
+            shouldDisplay = true;
+            break;
+        }
+    }
     if (isValid && shouldDisplay) {
         addItem(item);
     } else {
