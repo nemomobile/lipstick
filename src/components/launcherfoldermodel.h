@@ -96,7 +96,7 @@ class LIPSTICK_EXPORT LauncherFolderModel : public LauncherFolderItem
     Q_PROPERTY(QString scope READ scope WRITE setScope NOTIFY scopeChanged)
     Q_PROPERTY(QStringList directories READ directories WRITE setDirectories NOTIFY directoriesChanged)
     Q_PROPERTY(QStringList iconDirectories READ iconDirectories WRITE setIconDirectories NOTIFY iconDirectoriesChanged)
-
+    Q_PROPERTY(QStringList categories READ categories WRITE setCategories NOTIFY categoriesChanged)
 public:
     LauncherFolderModel(QObject *parent = 0);
 
@@ -108,6 +108,9 @@ public:
 
     QStringList iconDirectories() const;
     void setIconDirectories(QStringList);
+
+    QStringList categories() const;
+    void setCategories(const QStringList &categories);
 
     Q_INVOKABLE bool moveToFolder(QObject *item, LauncherFolderItem *folder, int index = -1);
 
@@ -123,6 +126,7 @@ signals:
     void scopeChanged();
     void directoriesChanged();
     void iconDirectoriesChanged();
+    void categoriesChanged();
     void notifyLaunching(LauncherItem *item);
 
 protected:
