@@ -206,6 +206,7 @@ bool LipstickCompositorWindow::eventFilter(QObject *obj, QEvent *event)
             if (te->touchPointStates() & (Qt::TouchPointPressed | Qt::TouchPointReleased))
                 return false;
             handleTouchEvent(static_cast<QTouchEvent *>(event));
+            event->accept();
             return true;
         }
         case QEvent::TouchEnd: // Intentional fall through...

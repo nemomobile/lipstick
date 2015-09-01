@@ -37,12 +37,14 @@ class LIPSTICK_EXPORT LauncherModel : public QObjectListModel
 
     Q_PROPERTY(QStringList directories READ directories WRITE setDirectories NOTIFY directoriesChanged)
     Q_PROPERTY(QStringList iconDirectories READ iconDirectories WRITE setIconDirectories NOTIFY iconDirectoriesChanged)
+    Q_PROPERTY(QStringList categories READ categories WRITE setCategories NOTIFY categoriesChanged)
     Q_PROPERTY(QString scope READ scope WRITE setScope NOTIFY scopeChanged)
 
     Q_ENUMS(ItemType)
 
     QStringList _directories;
     QStringList _iconDirectories;
+    QStringList _categories;
     QFileSystemWatcher _fileSystemWatcher;
     QSettings _launcherSettings;
     QSettings _globalSettings;
@@ -75,6 +77,9 @@ public:
     QStringList iconDirectories() const;
     void setIconDirectories(QStringList);
 
+    QStringList categories() const;
+    void setCategories(const QStringList &types);
+
     QString scope() const;
     void setScope(const QString &scope);
 
@@ -95,6 +100,7 @@ public slots:
 signals:
     void directoriesChanged();
     void iconDirectoriesChanged();
+    void categoriesChanged();
     void scopeChanged();
     void notifyLaunching(LauncherItem *item);
 
