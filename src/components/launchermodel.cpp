@@ -430,6 +430,25 @@ void LauncherModel::setIconDirectories(QStringList newDirectories)
     }
 }
 
+QStringList LauncherModel::categories() const
+{
+    return _categories;
+}
+
+void LauncherModel::setCategories(const QStringList &categories)
+{
+    if (_categories != categories) {
+        _categories = categories;
+        emit categoriesChanged();
+
+        if (_initialized) {
+            // Force a complete rebuild of the model.
+            _launcherMonitor.setDirectories(QStringList());
+            _launcherMonitor.setDirectories(_directories);
+        }
+    }
+}
+
 QString LauncherModel::scope() const
 {
     return _scope;
@@ -720,13 +739,26 @@ QVariant LauncherModel::launcherPos(const QString &path)
     return _globalSettings.value(key);
 }
 
+static bool intersects(const QStringList &reference, const QStringList &list)
+{
+    if (reference.isEmpty()) {
+        return true;
+    }
+    foreach (const QString &string, list) {
+        if (reference.contains(string)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 LauncherItem *LauncherModel::addItemIfValid(const QString &path)
 {
     LAUNCHER_DEBUG("Creating LauncherItem for desktop entry" << path);
     LauncherItem *item = new LauncherItem(path, this);
 
     bool isValid = item->isValid();
-    bool shouldDisplay = item->shouldDisplay();
+    bool shouldDisplay = item->shouldDisplay() && intersects(_categories, item->desktopCategories());
     if (isValid && shouldDisplay) {
         addItem(item);
     } else {
