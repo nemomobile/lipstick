@@ -113,11 +113,14 @@ LipstickCompositor::LipstickCompositor()
 
 LipstickCompositor::~LipstickCompositor()
 {
+    QWaylandCompositor::cleanupGraphicsResources();
+
     // ~QWindow can a call into onVisibleChanged and QWaylandCompositor after we
     // are destroyed, so disconnect it.
     disconnect(this, SIGNAL(visibleChanged(bool)), this, SLOT(onVisibleChanged(bool)));
 
     delete m_shaderEffect;
+
 }
 
 LipstickCompositor *LipstickCompositor::instance()
@@ -127,6 +130,9 @@ LipstickCompositor *LipstickCompositor::instance()
 
 void LipstickCompositor::homeApplicationAboutToDestroy()
 {
+    hide();
+    releaseResources();
+
     // When destroying LipstickCompositor ~QQuickWindow() is called after
     // ~QWaylandQuickCompositor(), so changes to the items in the window may end
     // up calling code such as LipstickCompositorWindow::handleTouchCancel(),
