@@ -118,6 +118,10 @@ LipstickCompositor::~LipstickCompositor()
     disconnect(this, SIGNAL(visibleChanged(bool)), this, SLOT(onVisibleChanged(bool)));
 
     delete m_shaderEffect;
+
+    hide();
+    releaseResources();
+    QWaylandCompositor::cleanupGraphicsResources();
 }
 
 LipstickCompositor *LipstickCompositor::instance()
