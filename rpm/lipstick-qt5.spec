@@ -140,9 +140,12 @@ mkdir -p %{buildroot}/%{icondirectory}
 %defattr(-,root,root,-)
 %config %{_sysconfdir}/dbus-1/system.d/lipstick.conf
 %{_libdir}/liblipstick-qt5.so.*
+%dir %{_libdir}/qt5/qml/org/nemomobile/lipstick
 %{_libdir}/qt5/qml/org/nemomobile/lipstick/liblipstickplugin.so
 %{_libdir}/qt5/qml/org/nemomobile/lipstick/qmldir
 %{_datadir}/translations/lipstick_eng_en.qm
+%dir %{_datadir}/lipstick
+%dir %{_datadir}/lipstick/notificationcategories
 %{_datadir}/lipstick/notificationcategories/*.conf
 %{_datadir}/lipstick/androidnotificationpriorities
 %dir %{icondirectory}
