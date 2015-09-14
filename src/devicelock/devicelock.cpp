@@ -237,6 +237,7 @@ void DeviceLock::setState(int state)
         if (state == Locked || isPrivileged()) {
             deviceLockState = (LockState)state;
             emit stateChanged(state);
+            emit _notifyStateChanged();
 
             setupLockTimer();
         } else {

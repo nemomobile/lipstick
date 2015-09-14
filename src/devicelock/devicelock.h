@@ -31,7 +31,7 @@ class DeviceLock : public QObject, protected QDBusContext
 {
     Q_OBJECT
     Q_ENUMS(LockState)
-    Q_PROPERTY(int state READ state WRITE setState NOTIFY stateChanged)
+    Q_PROPERTY(int state READ state WRITE setState NOTIFY _notifyStateChanged)
     Q_PROPERTY(bool blankingPause READ blankingPause NOTIFY blankingPauseChanged)
     Q_PROPERTY(bool blankingInhibit READ blankingInhibit NOTIFY blankingInhibitChanged)
 
@@ -56,6 +56,8 @@ public:
 
 signals:
     void stateChanged(int state);
+    // Signal the property change independently of the dbus signal to enfore the order of emission.
+    void _notifyStateChanged();
     void blankingPauseChanged();
     void blankingInhibitChanged();
 
