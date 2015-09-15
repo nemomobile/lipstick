@@ -73,7 +73,7 @@ public:
 
             // Apply glass..
             if (effect.contains(QStringLiteral("glass"))) {
-                QImage glass("//usr/share/themes/jolla-ambient/meegotouch/icons/graphic-shader-texture.png");
+                QImage glass("/usr/share/themes/sailfish-default/meegotouch/icons/graphic-shader-texture.png");
                 glass = glass.scaled(glass.width(), glass.height(),
                                      Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
                 p.save();
