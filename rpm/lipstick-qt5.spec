@@ -49,7 +49,6 @@ A QML toolkit for homescreen creation
 %package devel
 Summary:    Development files for lipstick
 License:    LGPLv2.1
-Group:      System/Libraries
 Requires:   %{name} = %{version}-%{release}
 
 %description devel
@@ -58,7 +57,6 @@ Files useful for building homescreens.
 %package tests
 Summary:    Tests for lipstick
 License:    LGPLv2.1
-Group:      System/Libraries
 Requires:   %{name} = %{version}-%{release}
 
 %description tests
@@ -67,7 +65,6 @@ Unit tests for the lipstick package.
 %package tools
 Summary:    Tools for lipstick
 License:    LGPLv2.1
-Group:      System/Libraries
 Requires:   %{name} = %{version}-%{release}
 
 %description tools
@@ -76,7 +73,6 @@ Tools for the lipstick package (warning: these tools installed by default).
 %package screenshot
 Summary:    Screenshot tool for lipstick
 License:    LGPLv2.1
-Group:      System/Libraries
 Requires:   %{name} = %{version}-%{release}
 Requires:   %{name}-tools = %{version}-%{release}
 Obsoletes:  lipstick-qt5-tools-ui
@@ -88,7 +84,6 @@ Screenshot tool for the lipstick package.
 %package simplecompositor
 Summary:    Lipstick Simple Compositor
 License:    LGPLv2.1
-Group:      System/Libraries
 Requires:   %{name} = %{version}-%{release}
 
 %description simplecompositor
@@ -145,9 +140,12 @@ mkdir -p %{buildroot}/%{icondirectory}
 %defattr(-,root,root,-)
 %config %{_sysconfdir}/dbus-1/system.d/lipstick.conf
 %{_libdir}/liblipstick-qt5.so.*
+%dir %{_libdir}/qt5/qml/org/nemomobile/lipstick
 %{_libdir}/qt5/qml/org/nemomobile/lipstick/liblipstickplugin.so
 %{_libdir}/qt5/qml/org/nemomobile/lipstick/qmldir
 %{_datadir}/translations/lipstick_eng_en.qm
+%dir %{_datadir}/lipstick
+%dir %{_datadir}/lipstick/notificationcategories
 %{_datadir}/lipstick/notificationcategories/*.conf
 %{_datadir}/lipstick/androidnotificationpriorities
 %dir %{icondirectory}
