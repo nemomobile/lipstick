@@ -180,6 +180,10 @@ void NotificationManager::expire()
 {
 }
 
+void NotificationManager::reportModifications()
+{
+}
+
 enum Urgency { Low = 0, Normal = 1, Critical = 2 };
 
 LipstickNotification *createNotification(uint id, Urgency urgency = Normal)

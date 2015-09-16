@@ -90,6 +90,9 @@ namespace {
 
 const int DefaultNotificationPriority = 50;
 
+const int CommitDelay = 10 * 1000;
+const int PublicationDelay = 1000;
+
 QPair<QString, QString> processProperties(uint pid)
 {
     // Cache resolution of process name to properties:
@@ -176,12 +179,16 @@ NotificationManager::NotificationManager(QObject *parent, bool owner) :
         connect(categoryDefinitionStore, SIGNAL(categoryDefinitionModified(QString)), this, SLOT(updateNotificationsWithCategory(QString)));
 
         // Commit the modifications to the database 10 seconds after the last modification so that writing to disk doesn't affect user experience
-        databaseCommitTimer.setInterval(10000);
+        databaseCommitTimer.setInterval(CommitDelay);
         databaseCommitTimer.setSingleShot(true);
         connect(&databaseCommitTimer, SIGNAL(timeout()), this, SLOT(commit()));
 
         expirationTimer.setSingleShot(true);
         connect(&expirationTimer, SIGNAL(timeout()), this, SLOT(expire()));
+
+        modificationTimer.setInterval(PublicationDelay);
+        modificationTimer.setSingleShot(true);
+        connect(&modificationTimer, SIGNAL(timeout()), this, SLOT(reportModifications()));
     }
 
     restoreNotifications(owner);
@@ -572,7 +579,10 @@ void NotificationManager::publish(const LipstickNotification *notification, uint
     }
 
     NOTIFICATIONS_DEBUG("PUBLISH:" << notification->appName() << notification->appIcon() << notification->summary() << notification->body() << notification->actions() << notification->hints() << notification->expireTimeout() << "->" << id);
-    emit notificationModified(id);
+    modifiedIds.insert(id);
+    if (!modificationTimer.isActive()) {
+        modificationTimer.start();
+    }
     if (replacesId == 0) {
         emit notificationAdded(id);
     }
@@ -903,14 +913,17 @@ void NotificationManager::fetchData(bool update)
         }
     }
 
+    QList<uint> restoredIds;
     foreach (LipstickNotification *n, notifications) {
         const uint id = n->replacesId();
         connect(n, SIGNAL(actionInvoked(QString)), this, SLOT(invokeAction(QString)), Qt::QueuedConnection);
         connect(n, SIGNAL(removeRequested()), this, SLOT(removeNotificationIfUserRemovable()), Qt::QueuedConnection);
 
         NOTIFICATIONS_DEBUG("RESTORED:" << n->appName() << n->appIcon() << n->summary() << n->body() << actions[id] << hints[id] << n->expireTimeout() << "->" << id);
-        emit notificationModified(id);
+        restoredIds.append(id);
     }
+    if (!restoredIds.isEmpty())
+        emit notificationsModified(restoredIds);
 
     if (update) {
         qWarning() << "Notifications restored:" << notifications.count();
@@ -1049,6 +1062,16 @@ void NotificationManager::expire()
         const qint64 nextTriggerInterval(nextExpirationTime - currentTime);
         expirationTimer.start(static_cast<int>(std::min<qint64>(nextTriggerInterval, std::numeric_limits<int>::max())));
     }
+}
+
+void NotificationManager::reportModifications()
+{
+    if (modifiedIds.count() == 1) {
+        emit notificationModified(*modifiedIds.begin());
+    } else if (!modifiedIds.isEmpty()) {
+        emit notificationsModified(modifiedIds.toList());
+    }
+    modifiedIds.clear();
 }
 
 void NotificationManager::removeUserRemovableNotifications()
