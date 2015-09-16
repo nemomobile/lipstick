@@ -362,6 +362,11 @@ private:
     bool connectToDatabase();
 
     /*!
+     * Deletes a notification from the system, without any reporting.
+     */
+    void DeleteNotification(uint id);
+
+    /*!
      * Checks whether there is enough free disk space available.
      *
      * \param path any path to the file system from which the space should be checked

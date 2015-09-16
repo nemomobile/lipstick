@@ -342,17 +342,22 @@ uint NotificationManager::Notify(const QString &appName, uint replacesId, const 
     return id;
 }
 
+void NotificationManager::DeleteNotification(uint id)
+{
+    // Remove the notification, its actions and its hints from database
+    const QVariantList params(QVariantList() << id);
+    execSQL(QString("DELETE FROM notifications WHERE id=?"), params);
+    execSQL(QString("DELETE FROM actions WHERE id=?"), params);
+    execSQL(QString("DELETE FROM hints WHERE id=?"), params);
+    execSQL(QString("DELETE FROM expiration WHERE id=?"), params);
+}
+
 void NotificationManager::CloseNotification(uint id, NotificationClosedReason closeReason)
 {
     if (notifications.contains(id)) {
         emit NotificationClosed(id, closeReason);
 
-        // Remove the notification, its actions and its hints from database
-        const QVariantList params(QVariantList() << id);
-        execSQL(QString("DELETE FROM notifications WHERE id=?"), params);
-        execSQL(QString("DELETE FROM actions WHERE id=?"), params);
-        execSQL(QString("DELETE FROM hints WHERE id=?"), params);
-        execSQL(QString("DELETE FROM expiration WHERE id=?"), params);
+        DeleteNotification(id);
 
         NOTIFICATIONS_DEBUG("REMOVE:" << id);
         emit notificationRemoved(id);
@@ -372,12 +377,7 @@ void NotificationManager::CloseNotifications(const QList<uint> &ids, Notificatio
             removedIds.append(id);
             emit NotificationClosed(id, closeReason);
 
-            // Remove the notification, its actions and its hints from database
-            const QVariantList params(QVariantList() << id);
-            execSQL(QString("DELETE FROM notifications WHERE id=?"), params);
-            execSQL(QString("DELETE FROM actions WHERE id=?"), params);
-            execSQL(QString("DELETE FROM hints WHERE id=?"), params);
-            execSQL(QString("DELETE FROM expiration WHERE id=?"), params);
+            DeleteNotification(id);
         }
     }
 
@@ -557,10 +557,7 @@ void NotificationManager::publish(const LipstickNotification *notification, uint
 
     if (replacesId != 0) {
         // Delete the existing notification from the database
-        execSQL(QString("DELETE FROM notifications WHERE id=?"), QVariantList() << id);
-        execSQL(QString("DELETE FROM actions WHERE id=?"), QVariantList() << id);
-        execSQL(QString("DELETE FROM hints WHERE id=?"), QVariantList() << id);
-        execSQL(QString("DELETE FROM expiration WHERE id=?"), QVariantList() << id);
+        DeleteNotification(id);
     }
 
     // Add the notification, its actions and its hints to the database
@@ -808,6 +805,7 @@ void NotificationManager::fetchData(bool update)
 
     const qint64 currentTime(QDateTime::currentDateTimeUtc().toMSecsSinceEpoch());
     QList<LipstickNotification *> activeNotifications;
+    QList<uint> transientIds;
     QList<uint> expiredIds;
     qint64 nextTimeout = std::numeric_limits<qint64>::max();
     bool unexpiredRemaining = false;
@@ -829,6 +827,19 @@ void NotificationManager::fetchData(bool update)
         QString body = notificationsQuery.value(notificationsTableBodyFieldIndex).toString();
         int expireTimeout = notificationsQuery.value(notificationsTableExpireTimeoutFieldIndex).toInt();
 
+        const QStringList &notificationActions = actions[id];
+
+        QVariantHash &notificationHints = hints[id];
+        if (notificationHints.value(HINT_TRANSIENT).toBool()) {
+            // This notification was transient, it should not be restored
+            NOTIFICATIONS_DEBUG("TRANSIENT AT RESTORE:" << appName << appIcon << summary << body << notificationActions << notificationHints << expireTimeout << "->" << id);
+            transientIds.append(id);
+            continue;
+        } else {
+            // Mark this notification as restored
+            notificationHints.insert(HINT_RESTORED, true);
+        }
+
         bool expired = false;
         if (update && expireAt.contains(id)) {
             const qint64 expiry(expireAt.value(id));
@@ -840,10 +851,7 @@ void NotificationManager::fetchData(bool update)
             }
         }
 
-        // Mark this notification as restored
-        hints[id].insert(HINT_RESTORED, true);
-
-        LipstickNotification *notification = new LipstickNotification(appName, id, appIcon, summary, body, actions[id], hints[id], expireTimeout, this);
+        LipstickNotification *notification = new LipstickNotification(appName, id, appIcon, summary, body, notificationActions, notificationHints, expireTimeout, this);
         notifications.insert(id, notification);
 
         if (id > previousNotificationID) {
@@ -854,8 +862,15 @@ void NotificationManager::fetchData(bool update)
         if (!expired) {
             activeNotifications.append(notification);
         } else {
-            NOTIFICATIONS_DEBUG("EXPIRED AT RESTORE:" << appName << appIcon << summary << body << actions[id] << hints[id] << expireTimeout << "->" << id);
+            NOTIFICATIONS_DEBUG("EXPIRED AT RESTORE:" << appName << appIcon << summary << body << notificationActions << notificationHints << expireTimeout << "->" << id);
             expiredIds.append(id);
+        }
+    }
+
+    if (update) {
+        // Remove notifications no longer required
+        foreach (uint id, transientIds) {
+            DeleteNotification(id);
         }
     }
 
