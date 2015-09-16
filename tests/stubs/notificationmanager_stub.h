@@ -40,6 +40,7 @@ class NotificationManagerStub : public StubBase {
   virtual void removeNotificationIfUserRemovable(uint id);
   virtual void removeUserRemovableNotifications();
   virtual void expire();
+  virtual void reportModifications();
   virtual void NotificationManagerConstructor(QObject *parent, bool owner);
   virtual void NotificationManagerDestructor();
 }; 
@@ -149,6 +150,10 @@ void NotificationManagerStub::expire() {
   stubMethodEntered("expire");
 }
 
+void NotificationManagerStub::reportModifications() {
+  stubMethodEntered("reportModifications");
+}
+
 void NotificationManagerStub::NotificationManagerConstructor(QObject *parent, bool owner) {
   Q_UNUSED(parent);
   Q_UNUSED(owner);
@@ -253,6 +258,10 @@ void NotificationManager::removeUserRemovableNotifications() {
 
 void NotificationManager::expire() {
   gNotificationManagerStub->expire();
+}
+
+void NotificationManager::reportModifications() {
+  gNotificationManagerStub->reportModifications();
 }
 
 NotificationManager::NotificationManager(QObject *parent, bool owner) {

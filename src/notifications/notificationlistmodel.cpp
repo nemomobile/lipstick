@@ -35,6 +35,7 @@ NotificationListModel::NotificationListModel(QObject *parent) :
     m_populated(false)
 {
     connect(NotificationManager::instance(), SIGNAL(notificationModified(uint)), this, SLOT(updateNotification(uint)));
+    connect(NotificationManager::instance(), SIGNAL(notificationsModified(const QList<uint> &)), this, SLOT(updateNotifications(const QList<uint> &)));
     connect(NotificationManager::instance(), SIGNAL(notificationRemoved(uint)), this, SLOT(removeNotification(uint)));
     connect(NotificationManager::instance(), SIGNAL(notificationsRemoved(const QList<uint> &)), this, SLOT(removeNotifications(const QList<uint> &)));
     connect(this, SIGNAL(clearRequested()), NotificationManager::instance(), SLOT(removeUserRemovableNotifications()));
@@ -100,6 +101,12 @@ void NotificationListModel::updateNotification(uint id)
             removeItem(notification);
         }
     }
+}
+
+void NotificationListModel::updateNotifications(const QList<uint> &ids)
+{
+    foreach (uint id, ids)
+        updateNotification(id);
 }
 
 int NotificationListModel::indexFor(LipstickNotification *notification)

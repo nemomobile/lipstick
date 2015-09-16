@@ -39,6 +39,7 @@ signals:
 private slots:
     void init();
     void updateNotification(uint id);
+    void updateNotifications(const QList<uint> &ids);
     void removeNotification(uint id);
     void removeNotifications(const QList<uint> &ids);
 

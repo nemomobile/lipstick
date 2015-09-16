@@ -254,6 +254,13 @@ signals:
     void notificationModified(uint id);
 
     /*!
+     * Emitted when a group of notifications is collectively modified (added or updated).
+     *
+     * \param ids the IDs of the modified notifications
+     */
+    void notificationsModified(const QList<uint> &ids);
+
+    /*!
      * Emitted when a notification is removed.
      *
      * \param id the ID of the removed notification
@@ -315,6 +322,11 @@ private slots:
      */
     void expire();
 
+    /*!
+     * Reports any notifications that have been modified since the last report.
+     */
+    void reportModifications();
+
 private:
     /*!
      * Creates a new notification manager.
@@ -360,6 +372,11 @@ private:
      * \return \c true if the connection was successfully established, \c false otherwise
      */
     bool connectToDatabase();
+
+    /*!
+     * Deletes a notification from the system, without any reporting.
+     */
+    void DeleteNotification(uint id);
 
     /*!
      * Checks whether there is enough free disk space available.
@@ -452,6 +469,12 @@ private:
 
     //! Next trigger time for the expirationTimer, relative to epoch
     qint64 nextExpirationTime;
+
+    //! IDs of notifications modified since the last report
+    QSet<uint> modifiedIds;
+
+    //! Timer for triggering the reporting of modified notifications
+    QTimer modificationTimer;
 
 #ifdef UNIT_TEST
     friend class Ut_NotificationManager;
