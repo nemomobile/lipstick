@@ -248,23 +248,6 @@ int QSqlTableModel::fieldIndex(const QString &fieldName) const
     return ret;
 }
 
-// QTimer stubs
-bool timerStartCalled = false;
-int timerInterval = -1;
-QList<QObject*> qTimerStartInstances;
-void QTimer::start()
-{
-    qTimerStartInstances.append(this);
-    timerStartCalled = true;
-    timerInterval = interval();
-}
-
-void QTimer::setInterval(int msec)
-{
-    inter = msec;
-    timerInterval = interval();
-}
-
 // MRemoteAction stubs
 QStringList mRemoteActionTrigger;
 void MRemoteAction::trigger()
@@ -285,7 +268,6 @@ void Ut_NotificationManager::init()
     qSqlIterateOpenSuccess = false;
     qDirRemoveCalled = false;
     qSqlDatabaseExec.clear();
-    qTimerStartInstances.clear();
     qSqlDatabaseCommitCalled = false;
     diskSpaceAvailableKb = DISK_SPACE_NEEDED + 100;
     diskSpaceChecked = true;
@@ -571,7 +553,7 @@ void Ut_NotificationManager::testAddingNotification()
     uint id = manager->Notify("appName", 0, "appIcon", "summary", "body", QStringList() << "action" << "Action", hints, 1);
     LipstickNotification *notification = manager->notification(id);
     QCOMPARE(disconnect(notification, SIGNAL(actionInvoked(QString)), manager, SLOT(invokeAction(QString))), true);
-    QCOMPARE(modifiedSpy.count(), 1);
+    QTRY_COMPARE(modifiedSpy.count(), 1);
     QCOMPARE(modifiedSpy.last().at(0).toUInt(), id);
     QCOMPARE(addedSpy.count(), 1);
     QCOMPARE(addedSpy.last().at(0).toUInt(), id);
@@ -635,7 +617,7 @@ void Ut_NotificationManager::testUpdatingExistingNotification()
     QCOMPARE(newId, id);
     LipstickNotification *notification = manager->notification(id);
     QCOMPARE(disconnect(notification, SIGNAL(actionInvoked(QString)), manager, SLOT(invokeAction(QString))), true);
-    QCOMPARE(modifiedSpy.count(), 1);
+    QTRY_COMPARE(modifiedSpy.count(), 1);
     QCOMPARE(modifiedSpy.last().at(0).toUInt(), id);
     QCOMPARE(addedSpy.count(), 0);
     QCOMPARE(qSqlQueryPrepare.count(), 8);
@@ -689,6 +671,7 @@ void Ut_NotificationManager::testUpdatingInexistingNotification()
     QSignalSpy addedSpy(manager, SIGNAL(notificationAdded(uint)));
     uint id = manager->Notify("appName", 1, "appIcon", "summary", "body", QStringList(), QVariantHash(), 1);
     QCOMPARE(id, (uint)0);
+    QTest::qWait(1100);
     QCOMPARE(modifiedSpy.count(), 0);
     QCOMPARE(addedSpy.count(), 0);
     QCOMPARE(qSqlQueryPrepare.count(), 0);
@@ -751,6 +734,8 @@ void Ut_NotificationManager::testModifyingCategoryDefinitionUpdatesNotifications
     // Check the signal connection
     QCOMPARE(disconnect(manager->categoryDefinitionStore, SIGNAL(categoryDefinitionModified(QString)), manager, SLOT(updateNotificationsWithCategory(QString))), true);
 
+    QSignalSpy multiModifiedSpy(manager, SIGNAL(notificationsModified(QList<uint>)));
+
     // Add two notifications, one with category "category1" and one with category "category2"
     QVariantHash hints1;
     QVariantHash hints2;
@@ -763,10 +748,16 @@ void Ut_NotificationManager::testModifyingCategoryDefinitionUpdatesNotifications
     uint id1 = manager->Notify("app1", 0, QString(), QString(), QString(), QStringList(), hints1, 0);
     uint id2 = manager->Notify("app2", 0, QString(), QString(), QString(), QStringList(), hints2, 0);
 
+    QTRY_COMPARE(multiModifiedSpy.count(), 1);
+    QList<uint> modifiedIds(multiModifiedSpy.last().at(0).value<QList<uint> >());
+    QCOMPARE(modifiedIds.count(), 2);
+    QVERIFY(modifiedIds.contains(id1));
+    QVERIFY(modifiedIds.contains(id2));
+
     // Updating notifications with category "category2" should only update the notification with that category
     QSignalSpy modifiedSpy(manager, SIGNAL(notificationModified(uint)));
     manager->updateNotificationsWithCategory("category2");
-    QCOMPARE(modifiedSpy.count(), 1);
+    QTRY_COMPARE(modifiedSpy.count(), 1);
     QCOMPARE(modifiedSpy.last().at(0).toUInt(), id2);
 
     // The updated notifications should be marked as restored until modified

@@ -79,6 +79,10 @@ void NotificationManager::expire()
 {
 }
 
+void NotificationManager::reportModifications()
+{
+}
+
 NotificationManager *notificationManagerInstance = 0;
 NotificationManager *NotificationManager::instance(bool owner)
 {
