@@ -352,6 +352,7 @@ LauncherFolderModel::LauncherFolderModel(QObject *parent)
 {
     connect(mLauncherModel, &LauncherModel::directoriesChanged, this, &LauncherFolderModel::directoriesChanged);
     connect(mLauncherModel, &LauncherModel::iconDirectoriesChanged, this, &LauncherFolderModel::iconDirectoriesChanged);
+    connect(mLauncherModel, &LauncherModel::categoriesChanged, this, &LauncherFolderModel::categoriesChanged);
 
     initialize();
 }
@@ -364,6 +365,7 @@ LauncherFolderModel::LauncherFolderModel(InitializationMode, QObject *parent)
 {
     connect(mLauncherModel, &LauncherModel::directoriesChanged, this, &LauncherFolderModel::directoriesChanged);
     connect(mLauncherModel, &LauncherModel::iconDirectoriesChanged, this, &LauncherFolderModel::iconDirectoriesChanged);
+    connect(mLauncherModel, &LauncherModel::categoriesChanged, this, &LauncherFolderModel::categoriesChanged);
 }
 
 void LauncherFolderModel::initialize()
@@ -426,6 +428,16 @@ QStringList LauncherFolderModel::iconDirectories() const
 void LauncherFolderModel::setIconDirectories(QStringList dirs)
 {
     mLauncherModel->setIconDirectories(dirs);
+}
+
+QStringList LauncherFolderModel::categories() const
+{
+    return mLauncherModel->categories();
+}
+
+void LauncherFolderModel::setCategories(const QStringList &categories)
+{
+    mLauncherModel->setCategories(categories);
 }
 
 // Move item to folder at index. If index < 0 the item will be appended.
