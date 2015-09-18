@@ -52,6 +52,20 @@ static int tv_diff_in_s(const struct timeval *tv1, const struct timeval *tv2)
     return tv.tv_sec;
 }
 
+static QByteArray serialize(const QStringList &stringList)
+{
+    QByteArray byteArray;
+    QByteArray tmpArray;
+    foreach(QString v, stringList) {
+        tmpArray = v.toUtf8();
+        if (tmpArray.length() < 128) {
+            byteArray.append(tmpArray.length());
+            byteArray.append(tmpArray);
+        }
+    }
+    return byteArray;
+}
+
 DeviceLock::DeviceLock(QObject * parent) :
     QObject(parent),
     QDBusContext(),
@@ -271,7 +285,11 @@ bool DeviceLock::runPlugin(const QStringList &args)
     }
 
     QProcess process;
-    process.start(pluginName, args);
+    QByteArray serializedArgs = serialize(args);
+    process.start(pluginName);
+    process.waitForStarted(2000);
+    process.write(serializedArgs, serializedArgs.length());
+    process.closeWriteChannel();
     if (!process.waitForFinished()) {
         qWarning("Plugin did not finish in time");
         return false;
