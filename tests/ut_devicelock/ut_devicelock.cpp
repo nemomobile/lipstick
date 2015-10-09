@@ -1,7 +1,7 @@
 /***************************************************************************
 **
 ** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
-** Copyright (C) 2012 Jolla Ltd.
+** Copyright (C) 2012, 2015 Jolla Ltd.
 ** Contact: Robin Burchell <robin.burchell@jollamobile.com>
 **
 ** This file is part of lipstick.
@@ -17,289 +17,475 @@
 #include <QtTest/QtTest>
 #include <QTimer>
 #include <QSettings>
-#include "qmlocks_stub.h"
-#include "qmactivity_stub.h"
-#include "qmdisplaystate_stub.h"
 #include "devicelock.h"
 #include "ut_devicelock.h"
+#include <mce/mode-names.h>
 
-QVariant qSettingsValue;
-QVariant QSettings::value(const QString &, const QVariant &) const
+/** Get number of elements in statically allocated array */
+#define numof(a) (sizeof(a)/sizeof*(a))
+
+/** Helper for getting device lock state in human readable form
+ */
+static const char *reprLockState(int state)
 {
-    return qSettingsValue;
+    switch (state) {
+    case DeviceLock::Unlocked:  return "Unlocked";
+    case DeviceLock::Locked:    return "Locked";
+    case DeviceLock::Undefined: return "Undefined";
+    default: break;
+    }
+    return "Invalid";
 }
 
-bool qProcessWaitForFinished = false;
-bool QProcess::waitForFinished(int)
+/** Helper for printing out device lock state data
+ */
+QString Ut_DeviceLock::testContext()
 {
-    return qProcessWaitForFinished;
+    char tmp[256];
+
+    snprintf(tmp, sizeof tmp, "devlock=%s delay=%d call=%s displ=%s tklock=%s act=%s tmr=%s",
+             reprLockState(deviceLock->m_deviceLockState),
+             deviceLock->m_lockingDelay,
+             deviceLock->m_callActive ? "yes" : "no",
+             deviceLock->m_displayOn ? "on" : "off",
+             deviceLock->m_tklockActive ? "yes" : "no",
+             deviceLock->m_userActivity ? "yes" : "no",
+             lockTimerIsActive() ? "running" : "stopped");
+
+    return QString(tmp);
 }
 
-QString qProcessStartProgram;
-QStringList qProcessStartArguments;
-void QProcess::start(const QString &program, const QStringList &arguments, OpenMode)
+/** Array of device lock states to visit */
+static const struct
 {
-    qProcessStartProgram = program;
-    qProcessStartArguments = arguments;
+    DeviceLock::LockState inout; // m_deviceLockState member variable
+} deviceLockStates[] =
+{
+    { DeviceLock::Undefined },
+    { DeviceLock::Unlocked  },
+    { DeviceLock::Locked    },
+};
+
+/** Array of device lock timer delays to use */
+static const struct
+{
+    int inout;  // m_lockingDelay member variable
+} lockingDelays[] =
+{
+    { -1 }, // disabled
+    {  0 }, // lock immediately on display=off
+    {  1 }, // lock in 60 seconds of inactivity
+};
+
+/** Array of call states to visit */
+static const struct
+{
+    const char *in;  // call state signal from mce
+    bool        out; // -> m_callActive member variable
+} callStates[] =
+{
+    { MCE_CALL_STATE_RINGING, true  },
+    { MCE_CALL_STATE_ACTIVE,  true  },
+    { MCE_CALL_STATE_NONE,    false },
+};
+
+/** Array of display states to visit */
+static const struct
+{
+    const char *in;  // display state signal from mce
+    bool        out; // -> m_displayOn member variable
+} displayStates[] =
+{
+    { MCE_DISPLAY_ON_STRING,  true  },
+    { MCE_DISPLAY_DIM_STRING, true  },
+    { MCE_DISPLAY_OFF_STRING, false },
+};
+
+/** Array of tklock states to visit */
+static const struct
+{
+    const char *in;  // tklock state signal from mce
+    bool        out; // -> m_tklockActive member variable
+} tklockStates[] =
+{
+    { MCE_TK_LOCKED,   true  },
+    { MCE_TK_UNLOCKED, false },
+};
+
+/** Array of inactivity states to visit */
+static const struct
+{
+    bool in;         // inactivity state signal from mce
+    bool out;        // -> m_userActivity member variable
+} inactivityStates[] =
+{
+    { false,  true  },
+    { true,   false },
+};
+
+/** Predicate for: Device lock timer has been started
+ */
+bool Ut_DeviceLock::lockTimerIsActive()
+{
+    return deviceLock->m_hbTimer->isWaiting();
 }
 
-int qProcessExitCode = 0;
-int QProcess::exitCode() const
+/** Predicate for: Eventually device should be locked
+ */
+bool Ut_DeviceLock::shouldBeLocked(void)
 {
-    return qProcessExitCode;
+    // Must not lock until init is finished
+    if (deviceLock->m_deviceLockState == DeviceLock::Undefined)
+        return false;
+
+    // Must not lock if locking is disabled
+    if (deviceLock->m_lockingDelay < 0)
+        return false;
+
+    // Must not lock during calls
+    if (deviceLock->m_callActive)
+        return false;
+
+    // Must not lock during active use
+    if (deviceLock->m_displayOn &&
+        !deviceLock->m_tklockActive &&
+        deviceLock->m_userActivity)
+        return false;
+
+    // Must not lock in immediate mode while display is on
+    if (deviceLock->m_lockingDelay == 0 &&  deviceLock->m_displayOn)
+        return false;
+
+    // Otherwise we should be locked via timer
+    return true;
 }
 
-QByteArray QProcess::readAllStandardError()
+/** Predicate for: Device lock state vs locking timer staus is ok
+ */
+bool Ut_DeviceLock::verifyStateVsTimer(void)
 {
-    return QByteArray();
+    // Must not have locking timer in Locked/Undefined state
+    if (deviceLock->m_deviceLockState != DeviceLock::Unlocked)
+        return !lockTimerIsActive();
+
+    // When possible, we must have lock timer when Unlocked
+    if (shouldBeLocked())
+        return lockTimerIsActive();
+
+    // Otherwise the timer must not be active
+    return !lockTimerIsActive();
 }
 
-QByteArray QProcess::readAllStandardOutput()
+/** Predicate for: Device lock timer should have been started
+ */
+bool Ut_DeviceLock::simulateNeedLockingTimer(void)
 {
-    return QByteArray();
+    // Must not lock if locking is disabled
+    if (deviceLock->m_lockingDelay < 0)
+        return false;
+
+    // Must not use timer if immediate mode is in use
+    if (deviceLock->m_lockingDelay == 0)
+        return false;
+
+    // Must not lock during calls
+    if (deviceLock->m_callActive)
+        return false;
+
+    // Can't lock if already locked
+    if (deviceLock->m_deviceLockState == DeviceLock::Locked)
+        return false;
+
+    // Must not lock until init is finished
+    if (deviceLock->m_deviceLockState == DeviceLock::Undefined)
+        return false;
+
+    // Can't lock if Undefined or already Locked
+    if (deviceLock->m_deviceLockState != DeviceLock::Unlocked)
+        return false;
+
+    // Can lock if: display is off, lockscreen is active
+    // or user is not actively using the device
+    return (!deviceLock->m_displayOn ||
+            deviceLock->m_tklockActive ||
+            !deviceLock->m_userActivity);
 }
 
-QList<int> qTimerStartMsec;
-void QTimer::start(int msec)
+/** Filter device lock state transition
+ */
+DeviceLock::LockState Ut_DeviceLock::simulateLockStateChange(DeviceLock::LockState lockState)
 {
-    qTimerStartMsec.append(msec);
+    switch (lockState) {
+    case DeviceLock::Undefined:
+        break;
+    case DeviceLock::Locked:
+        // can't lock if locking is disabled
+        if (deviceLock->m_lockingDelay < 0)
+            lockState = DeviceLock::Unlocked;
+        break;
+    case DeviceLock::Unlocked:
+        // can't unlock if display is off with immediate locking
+        if (!deviceLock->m_displayOn && deviceLock->m_lockingDelay == 0)
+            lockState = DeviceLock::Locked;
+        break;
+    default:
+        break;
+    }
+    return lockState;
 }
 
-int qTimerStopCount = 0;
-void QTimer::stop()
+/** Simulate device lock state change
+ */
+void Ut_DeviceLock::applyDeviceLockState(size_t index)
 {
-    qTimerStopCount++;
+    /* Get context before making any changes */
+    QString context = testContext();
+
+    /* Device lock state change can be vetoed, so we
+     * can't blindly require it to be obeyed */
+    DeviceLock::LockState target = deviceLockStates[index].inout;
+    DeviceLock::LockState expect = simulateLockStateChange(target);
+    deviceLock->setState(target);
+
+    /* Print context only if the test is going to fail */
+    if (!verifyStateVsTimer() ||
+        deviceLock->m_deviceLockState != expect ||
+        lockTimerIsActive() != simulateNeedLockingTimer())
+        qDebug("setState(%s) @ %s", reprLockState(target),
+               qPrintable(context));
+
+    QVERIFY(verifyStateVsTimer());
+    QCOMPARE(deviceLock->m_deviceLockState, expect);
+    QCOMPARE(lockTimerIsActive(), simulateNeedLockingTimer());
 }
 
-void QTimer::singleShot(int, const QObject *receiver, const char *member)
+/** Simulate device lock timer delay setting change
+ */
+void Ut_DeviceLock::applyLockingDelay(size_t index)
 {
-    // The "member" string is of form "1member()", so remove the trailing 1 and the ()
-    int memberLength = strlen(member) - 3;
-    char modifiedMember[memberLength + 1];
-    strncpy(modifiedMember, member + 1, memberLength);
-    modifiedMember[memberLength] = 0;
-    QMetaObject::invokeMethod(const_cast<QObject *>(receiver), modifiedMember, Qt::DirectConnection);
+    /* Get context before making any changes */
+    QString context = testContext();
+
+    /* Note: implemented as direct member value set -> no implicit
+     *       checking unlike the real code where locking delay
+     *       changes via config file change notifier */
+    int target = lockingDelays[index].inout;
+    deviceLock->m_lockingDelay = target;
+    deviceLock->setStateAndSetupLockTimer();
+
+    /* Print context only if the test is going to fail */
+    if (!verifyStateVsTimer() ||
+        lockTimerIsActive() != simulateNeedLockingTimer())
+        qDebug("setLockingDelay(%d) @ %s", target,
+               qPrintable(context));
+
+    QVERIFY(verifyStateVsTimer());
+    QCOMPARE(lockTimerIsActive(), simulateNeedLockingTimer());
 }
 
-void Ut_DeviceLock::init()
+/** Simulate call state change signal
+ */
+void Ut_DeviceLock::applyCallState(size_t index)
 {
-    qSettingsValue = "test";
-    qProcessStartProgram.clear();
-    qProcessStartArguments.clear();
-    qProcessWaitForFinished = true;
-    qProcessExitCode = 1;
+    /* Get context before making any changes */
+    QString context = testContext();
 
-    deviceLock = new DeviceLock();
+    deviceLock->handleCallStateChanged(QString(callStates[index].in));
+
+    /* Print context only if the test is going to fail */
+    if (!verifyStateVsTimer() ||
+        deviceLock->m_callActive != callStates[index].out ||
+        lockTimerIsActive() != simulateNeedLockingTimer())
+        qDebug("callStateSig(%s) @ %s", callStates[index].in,
+               qPrintable(context));
+
+    QVERIFY(verifyStateVsTimer());
+    QCOMPARE(deviceLock->m_callActive, callStates[index].out);
+    QCOMPARE(lockTimerIsActive(), simulateNeedLockingTimer());
 }
 
-void Ut_DeviceLock::cleanup()
+/** Simulate display state change signal
+ */
+void Ut_DeviceLock::applyDisplayState(size_t index)
 {
-    delete deviceLock;
+    /* Get context before making any changes */
+    QString context = testContext();
 
-    qTimerStartMsec.clear();
-    qTimerStopCount = 0;
+    deviceLock->handleDisplayStateChanged(QString(displayStates[index].in));
+
+    /* Print context only if the test is going to fail */
+    if (!verifyStateVsTimer() ||
+        deviceLock->m_displayOn != displayStates[index].out ||
+        lockTimerIsActive() != simulateNeedLockingTimer())
+        qDebug("displayStateSig(%s) @ %s", displayStates[index].in,
+               qPrintable(context));
+
+    QVERIFY(verifyStateVsTimer());
+    QCOMPARE(deviceLock->m_displayOn, displayStates[index].out);
+    QCOMPARE(lockTimerIsActive(), simulateNeedLockingTimer());
+}
+
+/** Simulate tklock state change signal
+ */
+void Ut_DeviceLock::applyTklockState(size_t index)
+{
+    /* Get context before making any changes */
+    QString context = testContext();
+
+    deviceLock->handleTklockStateChanged(QString(tklockStates[index].in));
+
+    /* Print context only if the test is going to fail */
+    if (!verifyStateVsTimer() ||
+        deviceLock->m_tklockActive != tklockStates[index].out ||
+        lockTimerIsActive() != simulateNeedLockingTimer())
+        qDebug("tklockStateSig(%s) @ %s", tklockStates[index].in,
+               qPrintable(context));
+
+    QVERIFY(verifyStateVsTimer());
+    QCOMPARE(deviceLock->m_tklockActive, tklockStates[index].out);
+    QCOMPARE(lockTimerIsActive(), simulateNeedLockingTimer());
+}
+
+/** Simulate inactivity state change signal
+ */
+void Ut_DeviceLock::applyInactivityState(size_t index)
+{
+    /* Get context before making any changes */
+    QString context = testContext();
+
+    deviceLock->handleInactivityStateChanged(inactivityStates[index].in);
+
+    /* Print context only if the test is going to fail */
+    if (!verifyStateVsTimer() ||
+        deviceLock->m_userActivity != inactivityStates[index].out ||
+        lockTimerIsActive() != simulateNeedLockingTimer())
+        qDebug("inactivityStateSig(%s) @ %s",
+               inactivityStates[index].in ? "inactive" : "active",
+               qPrintable(context));
+
+    QVERIFY(verifyStateVsTimer());
+    QCOMPARE(deviceLock->m_userActivity, inactivityStates[index].out);
+    QCOMPARE(lockTimerIsActive(), simulateNeedLockingTimer());
+}
+
+/** Do single steps to/from remaining device lock states
+ */
+void Ut_DeviceLock::iterateDeviceLockStates(size_t currentIndex)
+{
+    for (size_t i = currentIndex + 1; i < numof(deviceLockStates); ++i) {
+        applyDeviceLockState(i);
+        applyDeviceLockState(currentIndex);
+    }
+}
+
+/** Do single steps to/from remaining locking delay times
+ */
+void Ut_DeviceLock::iterateLockingDelays(size_t currentIndex)
+{
+    for (size_t i = currentIndex + 1; i < numof(lockingDelays); ++i) {
+        applyLockingDelay(i);
+        applyLockingDelay(currentIndex);
+    }
+}
+
+/** Do single steps to/from remaining call states
+ */
+void Ut_DeviceLock::iterateCallStates(size_t currentIndex)
+{
+    for (size_t i = currentIndex + 1; i < numof(callStates); ++i) {
+        applyCallState(i);
+        applyCallState(currentIndex);
+    }
+}
+
+/** Do single steps to/from remaining display states
+ */
+void Ut_DeviceLock::iterateDisplayStates(size_t currentIndex)
+{
+    for (size_t i = currentIndex + 1; i < numof(displayStates); ++i) {
+        applyDisplayState(i);
+        applyDisplayState(currentIndex);
+    }
+}
+
+/** Do single steps to/from remaining tklock states
+ */
+void Ut_DeviceLock::iterateTklockStates(size_t currentIndex)
+{
+    for (size_t i = currentIndex + 1; i < numof(tklockStates); ++i) {
+        applyTklockState(i);
+        applyTklockState(currentIndex);
+    }
+}
+
+/** Do single steps to/from remaining inactivity states
+ */
+void Ut_DeviceLock::iterateInactivityStates(size_t currentIndex)
+{
+    for (size_t i = currentIndex + 1; i < numof(inactivityStates); ++i) {
+        applyInactivityState(i);
+        applyInactivityState(currentIndex);
+    }
+}
+
+/** Go through all states that affect device lock
+ */
+void Ut_DeviceLock::testAllTransitions(void)
+{
+    /* Go through all possible combinations of state variables */
+    for (size_t lockingDelayIndex = 0; lockingDelayIndex < numof(lockingDelays); ++lockingDelayIndex) {
+        applyLockingDelay(lockingDelayIndex);
+
+        for (size_t callStateIndex = 0; callStateIndex < numof(callStates); ++callStateIndex) {
+            applyCallState(callStateIndex);
+
+            for (size_t displayStateIndex = 0; displayStateIndex < numof(displayStates); ++displayStateIndex) {
+                applyDisplayState(displayStateIndex);
+
+                for (size_t tklockStateIndex = 0; tklockStateIndex < numof(tklockStates); ++tklockStateIndex) {
+                    applyTklockState(tklockStateIndex);
+
+                    for (size_t inactivityStateIndex = 0; inactivityStateIndex < numof(inactivityStates); ++inactivityStateIndex) {
+                        applyInactivityState(inactivityStateIndex);
+
+                        for (size_t deviceLockStateIndex = 0; deviceLockStateIndex < numof(deviceLockStates); ++deviceLockStateIndex) {
+                            applyDeviceLockState(deviceLockStateIndex);
+
+                            /* Simulate all one step transitions that can be made
+                             * from each state. */
+                            iterateDeviceLockStates(deviceLockStateIndex);
+                            iterateLockingDelays(lockingDelayIndex);
+                            iterateCallStates(callStateIndex);
+                            iterateDisplayStates(displayStateIndex);
+                            iterateTklockStates(tklockStateIndex);
+                            iterateInactivityStates(inactivityStateIndex);
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 void Ut_DeviceLock::testSignalConnections()
 {
-    QCOMPARE(disconnect(deviceLock->lockTimer, SIGNAL(timeout()), deviceLock, SLOT(lock())), true);
-    QCOMPARE(disconnect(deviceLock->qmActivity, SIGNAL(activityChanged(MeeGo::QmActivity::Activity)), deviceLock, SLOT(handleActivityChanged(MeeGo::QmActivity::Activity))), true);
-    QCOMPARE(disconnect(deviceLock->qmLocks, SIGNAL(stateChanged(MeeGo::QmLocks::Lock,MeeGo::QmLocks::State)), deviceLock, SLOT(setStateAndSetupLockTimer())), true);
-    QCOMPARE(disconnect(deviceLock->qmDisplayState, SIGNAL(displayStateChanged(MeeGo::QmDisplayState::DisplayState)), deviceLock, SLOT(handleDisplayStateChanged(MeeGo::QmDisplayState::DisplayState))), true);
+    QCOMPARE(disconnect(deviceLock->m_hbTimer, SIGNAL(running()),
+                        deviceLock, SLOT(lock())), true);
+    // FIXME: Should the dbus signal listener connections be tested?
 }
 
-void Ut_DeviceLock::testInitialState()
+void Ut_DeviceLock::cleanup()
 {
-    delete deviceLock;
+    delete deviceLock; deviceLock = 0;
+}
 
-    qSettingsValue.clear();
-    qProcessWaitForFinished = false;
-    qProcessExitCode = 0;
+void Ut_DeviceLock::init()
+{
     deviceLock = new DeviceLock();
 
-    QCOMPARE(deviceLock->state(), (int)DeviceLock::Undefined);
-
-    delete deviceLock;
-    qSettingsValue = "-1";
-    deviceLock = new DeviceLock();
-    deviceLock->init();
-
-    QCOMPARE(deviceLock->state(), (int)DeviceLock::Unlocked);
-    QCOMPARE(qProcessStartProgram, qSettingsValue.toString());
-    QCOMPARE(qProcessStartArguments, QStringList() << "--is-set" << "lockcode");
-
-    delete deviceLock;
-    qProcessWaitForFinished = true;
-    deviceLock = new DeviceLock();
-    deviceLock->init();
-
-    QCOMPARE(deviceLock->state(), (int)DeviceLock::Unlocked);
-
-    delete deviceLock;
-    qProcessExitCode = 1;
-    deviceLock = new DeviceLock();
-    deviceLock->init();
-
-    QCOMPARE(deviceLock->state(), (int)DeviceLock::Unlocked);
-}
-
-void Ut_DeviceLock::testSetState()
-{
-    QSignalSpy spy(deviceLock, SIGNAL(stateChanged(int)));
-
-    deviceLock->setState(DeviceLock::Locked);
-    QCOMPARE(deviceLock->state(), (int)DeviceLock::Locked);
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.last().at(0).toInt(), (int)DeviceLock::Locked);
-
-    deviceLock->setState(DeviceLock::Locked);
-    QCOMPARE(deviceLock->state(), (int)DeviceLock::Locked);
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.last().at(0).toInt(), (int)DeviceLock::Locked);
-
-    deviceLock->setState(DeviceLock::Unlocked);
-    QCOMPARE(deviceLock->state(), (int)DeviceLock::Unlocked);
-    QCOMPARE(spy.count(), 2);
-    QCOMPARE(spy.last().at(0).toInt(), (int)DeviceLock::Unlocked);
-
-    deviceLock->setState(DeviceLock::Unlocked);
-    QCOMPARE(deviceLock->state(), (int)DeviceLock::Unlocked);
-    QCOMPARE(spy.count(), 2);
-    QCOMPARE(spy.last().at(0).toInt(), (int)DeviceLock::Unlocked);
-}
-
-void Ut_DeviceLock::testLockTimerWhenDeviceIsLocked()
-{
-    qTimerStartMsec.clear();
-    qTimerStopCount = 0;
-
-    deviceLock->setState(DeviceLock::Locked);
-    QCOMPARE(qTimerStopCount, 1);
-    QCOMPARE(qTimerStartMsec.count(), 0);
-}
-
-Q_DECLARE_METATYPE(MeeGo::QmActivity::Activity)
-
-void Ut_DeviceLock::testLockTimerWhenDeviceIsUnlocked_data()
-{
-    QTest::addColumn<int>("lockingDelayValue");
-    QTest::addColumn<MeeGo::QmActivity::Activity>("activity");
-    QTest::addColumn<int>("stopCount");
-    QTest::addColumn<int>("startMSec");
-
-    QTest::newRow("Automatic locking disabled, active") << -1 << MeeGo::QmActivity::Active << 1 << 0;
-    QTest::newRow("Automatic locking immediate, active") << 0 << MeeGo::QmActivity::Active << 1 << 0;
-    QTest::newRow("Automatic locking in 5 minutes, active") << 5 << MeeGo::QmActivity::Active << 1 << 0;
-    QTest::newRow("Automatic locking disabled, inactive") << -1 << MeeGo::QmActivity::Inactive << 1 << 0;
-    QTest::newRow("Automatic locking immediate, inactive") << 0 << MeeGo::QmActivity::Inactive << 1 << 0;
-    QTest::newRow("Automatic locking in 5 minutes, inactive") << 5 << MeeGo::QmActivity::Inactive << 0 << (5 * 60 * 1000);
-}
-
-void Ut_DeviceLock::testLockTimerWhenDeviceIsUnlocked()
-{
-    QFETCH(int, lockingDelayValue);
-    QFETCH(MeeGo::QmActivity::Activity, activity);
-    QFETCH(int, stopCount);
-    QFETCH(int, startMSec);
-
-    deviceLock->setState(DeviceLock::Locked);
-    qTimerStartMsec.clear();
-    qTimerStopCount = 0;
-
-    deviceLock->lockingDelay = lockingDelayValue;
-    gQmActivityStub->stubSetReturnValue("get", activity);
-
-    deviceLock->setState(DeviceLock::Unlocked);
-    QCOMPARE(qTimerStopCount, stopCount);
-    QCOMPARE(qTimerStartMsec.count(), startMSec > 0 ? 1 : 0);
-}
-
-Q_DECLARE_METATYPE(MeeGo::QmLocks::State)
-Q_DECLARE_METATYPE(MeeGo::QmDisplayState::DisplayState)
-Q_DECLARE_METATYPE(DeviceLock::LockState)
-
-void Ut_DeviceLock::testDisplayStateWhenDeviceScreenIsLocked_data()
-{
-    QTest::addColumn<int>("lockingDelayValue");
-    QTest::addColumn<MeeGo::QmDisplayState::DisplayState>("state");
-    QTest::addColumn<MeeGo::QmLocks::State>("touchScreenLockState");
-    QTest::addColumn<int>("stopCount");
-    QTest::addColumn<DeviceLock::LockState>("deviceLockState");
-
-    QTest::newRow("Automatic locking disabled, display on, screen unlocked")
-            << -1 << MeeGo::QmDisplayState::DisplayState::On << MeeGo::QmLocks::Unlocked << 0 << DeviceLock::Unlocked;
-    QTest::newRow("Automatic locking immediate, display on, screen unlocked")
-            << 0 << MeeGo::QmDisplayState::DisplayState::On << MeeGo::QmLocks::Unlocked << 0 << DeviceLock::Unlocked;
-    QTest::newRow("Automatic locking immediate, display on, screen locked")
-            << 0 << MeeGo::QmDisplayState::DisplayState::On << MeeGo::QmLocks::Locked << 0 << DeviceLock::Unlocked;
-    QTest::newRow("Automatic locking immediate, display off, screen locked")
-            << 0 << MeeGo::QmDisplayState::DisplayState::Off << MeeGo::QmLocks::Locked << 1 << DeviceLock::Locked;
-    QTest::newRow("Automatic locking immediate, display off, screen unlocked")
-            << 0 << MeeGo::QmDisplayState::DisplayState::Off << MeeGo::QmLocks::Unlocked << 1 << DeviceLock::Locked;
-    QTest::newRow("Automatic locking in 5 minutes, display off, screen locked")
-            << 5 << MeeGo::QmDisplayState::DisplayState::Off << MeeGo::QmLocks::Locked << 0 << DeviceLock::Unlocked;
-    QTest::newRow("Automatic locking disabled, display off, screen locked")
-            << -1 << MeeGo::QmDisplayState::DisplayState::Off << MeeGo::QmLocks::Locked << 1 << DeviceLock::Unlocked;
-}
-
-void Ut_DeviceLock::testDisplayStateWhenDeviceScreenIsLocked()
-{
-    QFETCH(int, lockingDelayValue);
-    QFETCH(MeeGo::QmDisplayState::DisplayState, state);
-    QFETCH(MeeGo::QmLocks::State, touchScreenLockState);
-    QFETCH(int, stopCount);
-    QFETCH(DeviceLock::LockState, deviceLockState);
-
-    gQmDisplayStateStub->stubSetReturnValue("get", MeeGo::QmDisplayState::DisplayState::Unknown);
-    deviceLock->handleDisplayStateChanged(MeeGo::QmDisplayState::DisplayState::Unknown);
-
-    deviceLock->setState(DeviceLock::Unlocked);
-    qTimerStartMsec.clear();
-    qTimerStopCount = 0;
-
-    deviceLock->lockingDelay = lockingDelayValue;
-    gQmLocksStub->stubSetReturnValue("getState", touchScreenLockState);
-    gQmDisplayStateStub->stubSetReturnValue("get", state);
-
-    deviceLock->handleDisplayStateChanged(state);
-
-    QCOMPARE(deviceLock->state(), (int)deviceLockState);
-    QCOMPARE(qTimerStopCount, stopCount);
-}
-
-void Ut_DeviceLock::testLockTimerTimeout()
-{
-    QSignalSpy spy(deviceLock, SIGNAL(stateChanged(int)));
-
-    deviceLock->lock();
-
-    QCOMPARE(deviceLock->state(), (int)DeviceLock::Locked);
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.last().at(0).toInt(), (int)DeviceLock::Locked);
-}
-
-void Ut_DeviceLock::testStateOnAutomaticLockingAndTouchScreenLockState_data()
-{
-    QTest::addColumn<int>("lockingDelayValue");
-    QTest::addColumn<MeeGo::QmLocks::State>("touchScreenLockState");
-    QTest::addColumn<DeviceLock::LockState>("deviceLockState");
-
-    QTest::newRow("Automatic locking disabled, touch screen lock unlocked") << -1 << MeeGo::QmLocks::Unlocked << DeviceLock::Unlocked;
-}
-
-void Ut_DeviceLock::testStateOnAutomaticLockingAndTouchScreenLockState()
-{
-    QFETCH(int, lockingDelayValue);
-    QFETCH(MeeGo::QmLocks::State, touchScreenLockState);
-    QFETCH(DeviceLock::LockState, deviceLockState);
-
-    deviceLock->setState(DeviceLock::Locked);
-
-    deviceLock->lockingDelay = lockingDelayValue;
-    gQmLocksStub->stubSetReturnValue("getState", touchScreenLockState);
-    deviceLock->setStateAndSetupLockTimer();
-
-    QCOMPARE(deviceLock->state(), (int)deviceLockState);
+    /* In real use we want to have some transition logging, but
+     * for unit tests they just generate huge amounts of noise */
+    deviceLock->m_verbosityLevel = 0;
 }
 
 QTEST_MAIN(Ut_DeviceLock)

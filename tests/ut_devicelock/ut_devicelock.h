@@ -19,7 +19,7 @@
 
 #include <QObject>
 
-class DeviceLock;
+#include "devicelock.h"
 
 class Ut_DeviceLock : public QObject
 {
@@ -29,18 +29,29 @@ private slots:
     void init();
     void cleanup();
     void testSignalConnections();
-    void testInitialState();
-    void testSetState();
-    void testLockTimerWhenDeviceIsLocked();
-    void testLockTimerWhenDeviceIsUnlocked_data();
-    void testLockTimerWhenDeviceIsUnlocked();
-    void testDisplayStateWhenDeviceScreenIsLocked_data();
-    void testDisplayStateWhenDeviceScreenIsLocked();
-    void testLockTimerTimeout();
-    void testStateOnAutomaticLockingAndTouchScreenLockState_data();
-    void testStateOnAutomaticLockingAndTouchScreenLockState();
+    void testAllTransitions(void);
 
 private:
+    bool lockTimerIsActive();
+    bool verifyStateVsTimer(void);
+    bool shouldBeLocked(void);
+    DeviceLock::LockState simulateLockStateChange(DeviceLock::LockState lockState);
+    bool simulateNeedLockingTimer(void);
+    void applyDeviceLockState(size_t index);
+    void applyLockingDelay(size_t index);
+    void applyCallState(size_t index);
+    void applyDisplayState(size_t index);
+    void applyTklockState(size_t index);
+    void applyInactivityState(size_t index);
+    void iterateDeviceLockStates(size_t currentIndex);
+    void iterateLockingDelays(size_t currentIndex);
+    void iterateCallStates(size_t currentIndex);
+    void iterateDisplayStates(size_t currentIndex);
+    void iterateTklockStates(size_t currentIndex);
+    void iterateInactivityStates(size_t currentIndex);
+
+    QString testContext();
+
     DeviceLock *deviceLock;
 };
 

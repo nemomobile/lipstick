@@ -16,13 +16,11 @@
 #ifndef DEVICELOCK_H
 #define DEVICELOCK_H
 
-#include <qmactivity.h>
-#include <qmlocks.h>
-#include <qmdisplaystate.h>
 #include <sys/time.h>
 #include <QFileSystemWatcher>
 #include <QDBusContext>
 #include <QDBusPendingCallWatcher>
+#include <keepalive/backgroundactivity.h>
 
 class MGConfItem;
 class QTimer;
@@ -63,36 +61,56 @@ signals:
 
 private slots:
     void init();
-    void setupLockTimer();
-    void setStateAndSetupLockTimer();
     void lock();
-    void handleDisplayStateChanged(MeeGo::QmDisplayState::DisplayState state);
-    void handleCallStateChange(const QString &state, const QString &ignored);
-    void handleBlankingPauseChange(const QString &state);
-    void handleBlankingInhibitChange(const QString &state);
-    void handleActivityChanged(MeeGo::QmActivity::Activity activity);
+
+    void handleTklockStateChanged(const QString &state);
+    void handleTklockStateReply(QDBusPendingCallWatcher *call);
+
+    void handleCallStateChanged(const QString &state);
+    void handleCallStateReply(QDBusPendingCallWatcher *call);
+
+    void handleDisplayStateChanged(const QString &state);
+    void handleDisplayStateReply(QDBusPendingCallWatcher *call);
+
+    void handleInactivityStateChanged(const bool state);
+    void handleInactivityStateReply(QDBusPendingCallWatcher *call);
+
+    void handleBlankingPauseChanged(const QString &state);
+    void handleBlankingPauseReply(QDBusPendingCallWatcher *call);
+
+    void handleBlankingInhibitChanged(const QString &state);
+    void handleBlankingInhibitReply(QDBusPendingCallWatcher *call);
+
     void readSettings();
-    void sendInhibitFinished(QDBusPendingCallWatcher *call);
-    void sendPauseFinished(QDBusPendingCallWatcher *call);
 
 private:
-    static bool runPlugin(const QStringList &args);
-    void setupTimer();
-    bool isPrivileged();
+    void trackTklockState();
+    void trackCallState();
+    void trackDisplayState();
+    void trackInactivityState(void);
+    void trackBlankingPause();
+    void trackBlankingInhibit();
 
-    int lockingDelay;
-    QFileSystemWatcher watcher;
-    QTimer *lockTimer;
-    MeeGo::QmActivity *qmActivity;
-    MeeGo::QmLocks *qmLocks;
-    MeeGo::QmDisplayState *qmDisplayState;
-    LockState deviceLockState;
-    MeeGo::QmActivity::Activity m_activity;
-    MeeGo::QmDisplayState::DisplayState m_displayState;
-    bool isCallActive;
+    static bool runPlugin(const QStringList &args);
+    void setStateAndSetupLockTimer();
+    bool isPrivileged();
+    LockState getRequiredLockState();
+    bool needLockTimer();
+
+    LockState m_deviceLockState;
+    int  m_lockingDelay;
+    bool m_callActive;
+    bool m_displayOn;
+    bool m_tklockActive;
+    bool m_userActivity;
+    int  m_verbosityLevel;
+
+    BackgroundActivity *m_hbTimer;
+
     bool m_blankingPause;
     bool m_blankingInhibit;
-    struct timeval monoTime;
+
+    QFileSystemWatcher m_settingsWatcher;
 
 #ifdef UNIT_TEST
     friend class Ut_DeviceLock;
