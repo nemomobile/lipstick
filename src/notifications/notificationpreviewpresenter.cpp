@@ -33,6 +33,7 @@
 #include <QDBusPendingCall>
 #include <QGuiApplication>
 #include <QQmlContext>
+#include <QSettings>
 
 namespace {
 
@@ -49,6 +50,9 @@ enum PreviewMode {
     SystemNotificationsDisabled,
     AllNotificationsDisabled
 };
+
+const QString DEVICE_LOCK_SETTINGS_FILE(QStringLiteral("/usr/share/lipstick/devicelock/devicelock_settings.conf"));
+const QString DEVICE_LOCK_SHOW_NOTIFICATIONS(QStringLiteral("/desktop/nemo/devicelock/show_notification"));
 
 }
 
@@ -89,11 +93,27 @@ void NotificationPreviewPresenter::showNextNotification()
     } else {
         LipstickNotification *notification = notificationQueue.takeFirst();
 
-        const bool displayOn = notification->hints().value(NotificationManager::HINT_DISPLAY_ON).toBool();
-        if (!displayOn &&
-            locks->getState(MeeGo::QmLocks::TouchAndKeyboard) == MeeGo::QmLocks::Locked &&
-            displayState->get() == MeeGo::QmDisplayState::Off) {
-            // Screen locked and off: don't show the notification but just remove it from the queue
+        const bool screenLocked = locks->getState(MeeGo::QmLocks::TouchAndKeyboard) == MeeGo::QmLocks::Locked && displayState->get() == MeeGo::QmDisplayState::Off;
+        const bool deviceLocked = locks->getState(MeeGo::QmLocks::Device) == MeeGo::QmLocks::Locked;
+        const bool notificationIsCritical = notification->urgency() >= 2 || notification->hints().value(NotificationManager::HINT_DISPLAY_ON).toBool();
+
+        bool show = true;
+        if (deviceLocked) {
+            if (!notificationIsCritical) {
+                show = false;
+            } else {
+                // Only show if notification banners are enabled within device lock
+                const QSettings settings(DEVICE_LOCK_SETTINGS_FILE, QSettings::IniFormat);
+                show = settings.value(DEVICE_LOCK_SHOW_NOTIFICATIONS).toString() == QStringLiteral("1");
+            }
+        } else if (screenLocked) {
+            if (!notificationIsCritical) {
+                show = false;
+            }
+        }
+
+        if (!show) {
+            // Don't show the notification but just remove it from the queue
             emit notificationPresented(notification->replacesId());
 
             setCurrentNotification(0);
@@ -184,8 +204,9 @@ bool NotificationPreviewPresenter::notificationShouldBeShown(LipstickNotificatio
     if (notification->hidden() || notification->restored() || (notification->previewBody().isEmpty() && notification->previewSummary().isEmpty()))
         return false;
 
-    bool screenOrDeviceLocked = locks->getState(MeeGo::QmLocks::TouchAndKeyboard) == MeeGo::QmLocks::Locked || locks->getState(MeeGo::QmLocks::Device) == MeeGo::QmLocks::Locked;
-    int notificationIsCritical = notification->urgency() >= 2 || notification->hints().value(NotificationManager::HINT_DISPLAY_ON).toBool();
+    const bool screenLocked = locks->getState(MeeGo::QmLocks::TouchAndKeyboard) == MeeGo::QmLocks::Locked;
+    const bool deviceLocked = locks->getState(MeeGo::QmLocks::Device) == MeeGo::QmLocks::Locked;
+    const bool notificationIsCritical = notification->urgency() >= 2 || notification->hints().value(NotificationManager::HINT_DISPLAY_ON).toBool();
 
     uint mode = AllNotificationsEnabled;
     QWaylandSurface *surface = LipstickCompositor::instance()->surfaceForId(LipstickCompositor::instance()->topmostWindowId());
@@ -193,7 +214,7 @@ bool NotificationPreviewPresenter::notificationShouldBeShown(LipstickNotificatio
         mode = surface->windowProperties().value("NOTIFICATION_PREVIEWS_DISABLED", uint(AllNotificationsEnabled)).toUInt();
     }
 
-    return (!screenOrDeviceLocked || notificationIsCritical) &&
+    return ((!screenLocked && !deviceLocked) || notificationIsCritical) &&
             (mode == AllNotificationsEnabled ||
              (mode == ApplicationNotificationsDisabled && notificationIsCritical) ||
              (mode == SystemNotificationsDisabled && !notificationIsCritical));
@@ -203,9 +224,10 @@ void NotificationPreviewPresenter::setCurrentNotification(LipstickNotification *
 {
     if (currentNotification != notification) {
         if (currentNotification) {
-            const bool displayWasOn(currentNotification->hints().value(NotificationManager::HINT_DISPLAY_ON).toBool());
-            if (displayWasOn) {
-                // Release our screen wake
+            const bool notificationWasCritical = currentNotification->urgency() >= 2 ||
+                                                 currentNotification->hints().value(NotificationManager::HINT_DISPLAY_ON).toBool();
+            if (notificationWasCritical) {
+                // Release our screen wake for the previous notification
                 QDBusMessage msg = QDBusMessage::createMethodCall(MCE_SERVICE, MCE_REQUEST_PATH, MCE_REQUEST_IF, MCE_NOTIFICATION_END);
                 msg.setArguments(QVariantList() << QString::number(currentNotification->replacesId()) << MCE_LINGER_DURATION);
                 QDBusConnection::systemBus().asyncCall(msg);
@@ -219,13 +241,12 @@ void NotificationPreviewPresenter::setCurrentNotification(LipstickNotification *
 
         if (notification) {
             // Ask mce to turn the screen on if requested
-            const bool displayOn(notification->hints().value(NotificationManager::HINT_DISPLAY_ON).toBool());
-            if (displayOn) {
-                if (notification->hints().value(NotificationManager::HINT_DISPLAY_ON).toBool()) {
-                    QDBusMessage msg = QDBusMessage::createMethodCall(MCE_SERVICE, MCE_REQUEST_PATH, MCE_REQUEST_IF, MCE_NOTIFICATION_BEGIN);
-                    msg.setArguments(QVariantList() << QString::number(notification->replacesId()) << MCE_DURATION << MCE_EXTEND_DURATION);
-                    QDBusConnection::systemBus().asyncCall(msg);
-                }
+            const bool notificationIsCritical = notification->urgency() >= 2 ||
+                                                notification->hints().value(NotificationManager::HINT_DISPLAY_ON).toBool();
+            if (notificationIsCritical) {
+                QDBusMessage msg = QDBusMessage::createMethodCall(MCE_SERVICE, MCE_REQUEST_PATH, MCE_REQUEST_IF, MCE_NOTIFICATION_BEGIN);
+                msg.setArguments(QVariantList() << QString::number(notification->replacesId()) << MCE_DURATION << MCE_EXTEND_DURATION);
+                QDBusConnection::systemBus().asyncCall(msg);
             }
         }
     }
