@@ -33,6 +33,7 @@ protected:
 
     void alien_surface_destroy_resource(Resource *resource) Q_DECL_OVERRIDE;
     void alien_surface_destroy(Resource *resource) Q_DECL_OVERRIDE;
+    void alien_surface_close(Resource *resource) Q_DECL_OVERRIDE;
     void alien_surface_set_title(Resource *resource, const QString &title) Q_DECL_OVERRIDE;
     void alien_surface_ack_configure(Resource *resource, uint32_t serial) Q_DECL_OVERRIDE;
     void alien_surface_request_state(Resource *resource, wl_array *states, uint32_t serial) Q_DECL_OVERRIDE;

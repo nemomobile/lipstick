@@ -109,6 +109,7 @@ public:
 
     LipstickCompositorProcWindow *mapProcWindow(const QString &title, const QString &category, const QRect &);
     LipstickCompositorProcWindow *mapProcWindow(const QString &title, const QString &category, const QRect &, QQuickItem *rootItem);
+    LipstickCompositorWindow *surfaceWindow(QWaylandSurface *surface);
 
     QWaylandSurface *surfaceForId(int) const;
 

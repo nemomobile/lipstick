@@ -373,7 +373,7 @@ QWaylandSurfaceView *LipstickCompositor::createView(QWaylandSurface *surface)
     return item;
 }
 
-static LipstickCompositorWindow *surfaceWindow(QWaylandSurface *surface)
+LipstickCompositorWindow *LipstickCompositor::surfaceWindow(QWaylandSurface *surface)
 {
     return surface->views().isEmpty() ? 0 : static_cast<LipstickCompositorWindow *>(surface->views().first());
 }

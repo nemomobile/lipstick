@@ -113,6 +113,20 @@
             <description summary="delete surface">
                 Deletes the surface and invalidates its object ID.
 
+                This request notifies the compositor the surface was closed
+                unexpectedly.
+
+                The wl_surface loses its role, and all the associated properties.
+                The surface is unmapped.
+            </description>
+        </request>
+
+        <request name="close" type="destructor">
+            <description summary="delete surface">
+                Deletes the surface and invalidates its object ID.
+
+                This request notifies the compositor the app was closed properly.
+
                 The wl_surface loses its role, and all the associated properties.
                 The surface is unmapped.
             </description>
