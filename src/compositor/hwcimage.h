@@ -75,6 +75,8 @@ public:
     void setRotationHandler(QQuickItem *rotationHandler);
     QQuickItem *rotationHandler() const { return m_rotationHandler; }
 
+    static bool hasEffectReferences(QQuickItem *item);
+
 protected:
     bool event(QEvent *event);
 	void updatePolish();
