@@ -344,22 +344,25 @@ void HwcImage::onWindowChange()
 
 void HwcImage::onSync()
 {
-    bool used = false;
-    QQuickItem *item = this;
-    while (item) {
-        QQuickItemPrivate *d = QQuickItemPrivate::get(item);
-        if (d->extra.isAllocated() && d->extra->effectRefCount > 0) {
-            used = true;
-            break;
-        }
-        item = item->parentItem();
-    }
+    const bool used = hasEffectReferences(this);
 
     if (used != m_usedInEffect) {
         m_usedInEffect = used;
         update();
     }
 }
+
+bool HwcImage::hasEffectReferences(QQuickItem *item)
+{
+    for (; item; item = item->parentItem()) {
+        QQuickItemPrivate *d = QQuickItemPrivate::get(item);
+        if (d->extra.isAllocated() && d->extra->effectRefCount > 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
 
 class HwcImageTexture : public QSGTexture
 {

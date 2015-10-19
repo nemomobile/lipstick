@@ -96,6 +96,7 @@ private:
     friend class WindowPixmapItem;
     void imageAddref(QQuickItem *item);
     void imageRelease(QQuickItem *item);
+    void onSync();
 
     bool canRemove() const;
     void tryRemove();
@@ -113,6 +114,7 @@ private:
     bool m_mapped : 1;
     bool m_noHardwareComposition: 1;
     bool m_focusOnTouch : 1;
+    bool m_hasVisibleReferences : 1;
     QVariant m_data;
     QRegion m_mouseRegion;
     QList<int> m_grabbedKeys;

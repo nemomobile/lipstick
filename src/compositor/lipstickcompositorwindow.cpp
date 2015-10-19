@@ -23,6 +23,7 @@
 #include "lipstickcompositorwindow.h"
 
 
+#include "hwcimage.h"
 #include "hwcrenderstage.h"
 #include <EGL/egl.h>
 #include <private/qwlsurface_p.h>
@@ -33,7 +34,7 @@ LipstickCompositorWindow::LipstickCompositorWindow(int windowId, const QString &
 : QWaylandSurfaceItem(surface, parent), m_windowId(windowId), m_category(category),
   m_delayRemove(false), m_windowClosed(false), m_removePosted(false), m_mouseRegionValid(false),
   m_interceptingTouch(false), m_mapped(false), m_noHardwareComposition(false),
-  m_focusOnTouch(false)
+  m_focusOnTouch(false), m_hasVisibleReferences(false)
 {
     setFlags(QQuickItem::ItemIsFocusScope | flags());
     refreshMouseRegion();
@@ -257,6 +258,15 @@ void LipstickCompositorWindow::itemChange(ItemChange change, const ItemChangeDat
 {
     if (change == ItemSceneChange) {
         handleTouchCancel();
+
+        if (QQuickWindow *w = window()) {
+            disconnect(w, &QQuickWindow::beforeSynchronizing, this, &LipstickCompositorWindow::onSync);
+        }
+
+        if (data.window) {
+            connect(data.window, &QQuickWindow::beforeSynchronizing, this, &LipstickCompositorWindow::onSync, Qt::DirectConnection);
+        }
+
     }
     QWaylandSurfaceItem::itemChange(change, data);
 }
@@ -458,6 +468,15 @@ static bool lcw_checkForVisibleReferences(const QVector<QQuickItem *> &refs)
     return false;
 }
 
+void LipstickCompositorWindow::onSync()
+{
+    const bool hasReferences = lcw_checkForVisibleReferences(m_refs)
+                || HwcImage::hasEffectReferences(this);
+    if (m_hasVisibleReferences != hasReferences) {
+        m_hasVisibleReferences = hasReferences;
+        update();
+    }
+}
 
 QSGNode *LipstickCompositorWindow::updatePaintNode(QSGNode *old, UpdatePaintNodeData *data)
 {
@@ -475,14 +494,13 @@ QSGNode *LipstickCompositorWindow::updatePaintNode(QSGNode *old, UpdatePaintNode
     // Added to this logic, we have the case of a window surface suddenly
     // appearing with a shm buffer. We then need to switch to normal
     // composition.
-    bool haveRefs = lcw_checkForVisibleReferences(m_refs);
     bool hwBuffer = surface() && surface()->type() == QWaylandSurface::Texture;
-    int wantedNodeType = haveRefs || !hwBuffer ? QSGNode::GeometryNodeType : QSG_HWC_NODE_TYPE;
+    int wantedNodeType = m_hasVisibleReferences || !hwBuffer ? QSGNode::GeometryNodeType : QSG_HWC_NODE_TYPE;
     if (old && old->type() != wantedNodeType) {
         delete old;
         old = 0;
     }
-    if (haveRefs || !hwBuffer)
+    if (m_hasVisibleReferences || !hwBuffer)
         return QWaylandSurfaceItem::updatePaintNode(old, data);
 
     // No surface, abort..
