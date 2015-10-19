@@ -127,6 +127,9 @@ LipstickCompositor *LipstickCompositor::instance()
 
 void LipstickCompositor::homeApplicationAboutToDestroy()
 {
+    hide();
+    releaseResources();
+
     // When destroying LipstickCompositor ~QQuickWindow() is called after
     // ~QWaylandQuickCompositor(), so changes to the items in the window may end
     // up calling code such as LipstickCompositorWindow::handleTouchCancel(),
@@ -135,6 +138,9 @@ void LipstickCompositor::homeApplicationAboutToDestroy()
     foreach (LipstickCompositorWindow *w, m_windows) {
         delete w;
     }
+
+    cleanupGraphicsResources();
+
     m_instance = 0;
     delete this;
 }

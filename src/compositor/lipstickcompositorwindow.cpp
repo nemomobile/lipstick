@@ -451,14 +451,13 @@ struct QWlSurface_Accessor : public QtWayland::Surface {
 class LipstickCompositorWindowHwcNode : public HwcNode
 {
 public:
-    LipstickCompositorWindowHwcNode(QQuickWindow *window) : HwcNode(window), eglBuffer(0), destroyTexture(true) { }
+    LipstickCompositorWindowHwcNode(QQuickWindow *window) : HwcNode(window), eglBuffer(0) { }
     ~LipstickCompositorWindowHwcNode();
 
     void update(QWlSurface_Accessor *s, EGLClientBuffer newBuffer, void *newHandle, QSGNode *contentNode);
 
     EGLClientBuffer eglBuffer;
     QWaylandBufferRef waylandBuffer;
-    bool destroyTexture;
 };
 
 static bool lcw_checkForVisibleReferences(const QVector<QQuickItem *> &refs)
@@ -499,8 +498,6 @@ QSGNode *LipstickCompositorWindow::updatePaintNode(QSGNode *old, UpdatePaintNode
     bool hwBuffer = surface() && surface()->type() == QWaylandSurface::Texture;
     int wantedNodeType = m_hasVisibleReferences || !hwBuffer ? QSGNode::GeometryNodeType : QSG_HWC_NODE_TYPE;
     if (old && old->type() != wantedNodeType) {
-        if (old->type() == QSG_HWC_NODE_TYPE)
-            static_cast<LipstickCompositorWindowHwcNode *>(old)->destroyTexture = false;
         delete old;
         old = 0;
     }
@@ -547,7 +544,7 @@ QSGNode *LipstickCompositorWindow::updatePaintNode(QSGNode *old, UpdatePaintNode
     Q_ASSERT(hwcHandle);
 
     // At this point we know we are visible and we have access to hwc buffers,
-    // make sure we have an HwcNode instance.
+    // make sure we have  an HwcNode instance.
     if (!hwcNode)
         hwcNode = new LipstickCompositorWindowHwcNode(window());
 
@@ -667,8 +664,6 @@ LipstickCompositorWindowHwcNode::~LipstickCompositorWindowHwcNode()
     // qCDebug(LIPSTICK_LOG_HWC, " - window surface node destroyed, node=%p, handle=%p, eglBuffer=%p", this, handle(), eglBuffer);
     Q_ASSERT(handle());
     Q_ASSERT(eglBuffer);
-    if (destroyTexture)
-        waylandBuffer.destroyTexture();
     LipstickCompositorWindowReleaseEvent *e = new LipstickCompositorWindowReleaseEvent(this);
     renderStage()->signalOnBufferRelease(hwc_windowsurface_release_native_buffer, handle(), e);
 }
