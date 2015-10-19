@@ -451,13 +451,14 @@ struct QWlSurface_Accessor : public QtWayland::Surface {
 class LipstickCompositorWindowHwcNode : public HwcNode
 {
 public:
-    LipstickCompositorWindowHwcNode(QQuickWindow *window) : HwcNode(window), eglBuffer(0) { }
+    LipstickCompositorWindowHwcNode(QQuickWindow *window) : HwcNode(window), eglBuffer(0), destroyTexture(true) { }
     ~LipstickCompositorWindowHwcNode();
 
     void update(QWlSurface_Accessor *s, EGLClientBuffer newBuffer, void *newHandle, QSGNode *contentNode);
 
     EGLClientBuffer eglBuffer;
     QWaylandBufferRef waylandBuffer;
+    bool destroyTexture;
 };
 
 static bool lcw_checkForVisibleReferences(const QVector<QQuickItem *> &refs)
@@ -470,7 +471,8 @@ static bool lcw_checkForVisibleReferences(const QVector<QQuickItem *> &refs)
 
 void LipstickCompositorWindow::onSync()
 {
-    const bool hasReferences = lcw_checkForVisibleReferences(m_refs)
+    const bool hasReferences = !isVisible()
+                || lcw_checkForVisibleReferences(m_refs)
                 || HwcImage::hasEffectReferences(this);
     if (m_hasVisibleReferences != hasReferences) {
         m_hasVisibleReferences = hasReferences;
@@ -497,6 +499,8 @@ QSGNode *LipstickCompositorWindow::updatePaintNode(QSGNode *old, UpdatePaintNode
     bool hwBuffer = surface() && surface()->type() == QWaylandSurface::Texture;
     int wantedNodeType = m_hasVisibleReferences || !hwBuffer ? QSGNode::GeometryNodeType : QSG_HWC_NODE_TYPE;
     if (old && old->type() != wantedNodeType) {
+        if (old->type() == QSG_HWC_NODE_TYPE)
+            static_cast<LipstickCompositorWindowHwcNode *>(old)->destroyTexture = false;
         delete old;
         old = 0;
     }
@@ -648,7 +652,6 @@ void LipstickCompositorWindowHwcNode::update(QWlSurface_Accessor *s, EGLClientBu
         // qCDebug(LIPSTICK_LOG_HWC, " - releasing old buffer, EGLClientBuffer=%p, gralloc=%p", eglBuffer, handle());
         Q_ASSERT(eglBuffer);
         LipstickCompositorWindowReleaseEvent *e = new LipstickCompositorWindowReleaseEvent(this);
-        e->waylandBuffer.destroyTexture();
         renderStage()->signalOnBufferRelease(hwc_windowsurface_release_native_buffer, handle(), e);
     }
     // qCDebug(LIPSTICK_LOG_HWC, " - setting buffers on HwcNode, EGLClientBuffer=%p, gralloc=%p", newBuffer, newHandle);
@@ -664,7 +667,8 @@ LipstickCompositorWindowHwcNode::~LipstickCompositorWindowHwcNode()
     // qCDebug(LIPSTICK_LOG_HWC, " - window surface node destroyed, node=%p, handle=%p, eglBuffer=%p", this, handle(), eglBuffer);
     Q_ASSERT(handle());
     Q_ASSERT(eglBuffer);
-    waylandBuffer.destroyTexture();
+    if (destroyTexture)
+        waylandBuffer.destroyTexture();
     LipstickCompositorWindowReleaseEvent *e = new LipstickCompositorWindowReleaseEvent(this);
     renderStage()->signalOnBufferRelease(hwc_windowsurface_release_native_buffer, handle(), e);
 }
