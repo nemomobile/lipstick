@@ -648,7 +648,6 @@ void LipstickCompositorWindowHwcNode::update(QWlSurface_Accessor *s, EGLClientBu
         // qCDebug(LIPSTICK_LOG_HWC, " - releasing old buffer, EGLClientBuffer=%p, gralloc=%p", eglBuffer, handle());
         Q_ASSERT(eglBuffer);
         LipstickCompositorWindowReleaseEvent *e = new LipstickCompositorWindowReleaseEvent(this);
-        e->waylandBuffer.destroyTexture();
         renderStage()->signalOnBufferRelease(hwc_windowsurface_release_native_buffer, handle(), e);
     }
     // qCDebug(LIPSTICK_LOG_HWC, " - setting buffers on HwcNode, EGLClientBuffer=%p, gralloc=%p", newBuffer, newHandle);
@@ -664,7 +663,6 @@ LipstickCompositorWindowHwcNode::~LipstickCompositorWindowHwcNode()
     // qCDebug(LIPSTICK_LOG_HWC, " - window surface node destroyed, node=%p, handle=%p, eglBuffer=%p", this, handle(), eglBuffer);
     Q_ASSERT(handle());
     Q_ASSERT(eglBuffer);
-    waylandBuffer.destroyTexture();
     LipstickCompositorWindowReleaseEvent *e = new LipstickCompositorWindowReleaseEvent(this);
     renderStage()->signalOnBufferRelease(hwc_windowsurface_release_native_buffer, handle(), e);
 }
